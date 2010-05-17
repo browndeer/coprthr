@@ -1,0 +1,90 @@
+# Makefile for cltrace
+
+#DEF = -DSTDCL_WARN -DSTDCL_DEBUG
+DEF = -DSTDCL_WARN
+
+### SELECT DEFAULT BEHAVIOR FOR cltrace (0=DISABLE, 1=ENABLE)
+CLTRACE_DEFAULT_LEVEL_0=0
+CLTRACE_DEFAULT_LEVEL_1=1
+CLTRACE_DEFAULT_LEVEL_2=0
+
+
+######################################################################
+
+BIN_NAME = cltrace
+MAN1 = cltrace.1
+
+INSTALL_BINS = $(BIN_NAME)
+INSTALL_LIBS = libcltrace0_calrt.so libcltrace0_calcl.so libcltrace1.so
+
+INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
+INSTALL_LIB_DIR ?= /usr/local/browndeer/lib
+INSTALL_MAN_DIR ?= /usr/share/man
+
+INCS = -I../../include -I/usr/local/atistream/include
+
+LIBS = -lelf -L/usr/local/atistream/lib/x86_64
+
+OBJS = clld.o 
+
+CC = gcc44
+CCFLAGS += -O1 -fPIC 
+
+all: $(BIN_NAME) $(addsuffix .gz,$(MAN1))
+
+.PHONY: check_root install uninstall clean
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+$(BIN_NAME): libcltrace1.so libcltrace0_calrt.so libcltrace0_calcl.so
+	awk '{sub(/CLTRACE_DEFAULT_LEVEL_0/,"$(CLTRACE_DEFAULT_LEVEL_0)"); \
+		sub(/CLTRACE_DEFAULT_LEVEL_1/,"$(CLTRACE_DEFAULT_LEVEL_1)"); \
+		sub(/CLTRACE_DEFAULT_LEVEL_2/,"$(CLTRACE_DEFAULT_LEVEL_2)"); \
+		print}' ./cltrace.in > $(BIN_NAME)
+
+_interceptor.h: gen_interceptor.pl
+	./gen_interceptor.pl > _interceptor.h
+
+libcltrace0_calrt.so: _interceptor.h libcltrace0_calrt.o
+	$(CC) $(CCFLAGS) -shared -Wl,-soname=libcltrace0_calrt.so \
+		-o libcltrace0_calrt.so libcltrace0_calrt.o
+
+libcltrace0_calcl.so: _interceptor.h libcltrace0_calcl.o
+	$(CC) $(CCFLAGS) -shared -Wl,-soname=libcltrace0_calcl.so \
+		-o libcltrace0_calcl.so libcltrace0_calcl.o
+
+libcltrace1.so: _interceptor.h libcltrace1.o
+	$(CC) $(CCFLAGS) -shared -Wl,-soname=libcltrace1.so \
+		-o libcltrace1.so libcltrace1.o
+
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+%.1.gz:
+	-gzip -f -c $*.1 > $*.1.gz
+
+check_root:
+ifneq ($(shell whoami),root)
+	$(error install must be done as root)
+endif
+
+install: check_root
+	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
+	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
+	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)
+	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
+	install -m 644 $(addsuffix .gz,$(MAN1)) $(INSTALL_MAN_DIR)/man1
+
+uninstall: check_root
+	rm -f $(INSTALL_BIN_DIR)/$(BIN_NAME)
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
+	rm -f $(addsuffix .gz,$(addprefix $(INSTALL_MAN)/man1/,$(MAN1)))
+
+clean:
+	rm -f *.o *.so
+	rm -f $(BIN_NAME)
+	rm -f *.1.gz
+	rm -f _interceptor.h
+

@@ -1,0 +1,104 @@
+******************************************************
+*** Release Notes FOR libstdcl-0.7.2-BETA 
+
+
+CONTENTS:
+-Notices
+-General information
+-Recent Changes 
+-Tested systems
+-Known issues
+-Software using libstdcl
+-Contact information
+
+
+***********
+*** Notices
+
+libstdcl is Copyright (C) 2009 Brown Deer Technology, LLC. All Rights Reserved.
+libstdcl is free software distributed under the terms and conditions of the
+GNU Lesser General Public License version 3 (LGPLv3).  for more information 
+see the files COPYING and COPYING.LESSER distributed with the software.
+
+For more release notes and more information see the file README .
+
+
+***********************
+*** General information
+
+The standard compute layer library (libstdcl) provides a simple interface to
+the OpenCL API for parallel programming of heterogeneous platforms with
+co-processor devices.  libstdcl is designed to support the most typical 
+use-cases in a style inspired by familiar and traditional UNIX APIs for C
+programming.  The libstdcl library implemented by Brown Deer Technology is
+freely available and distributed under the GNU Lesser General Public License
+version 3 (LGPLv3).
+
+The libstdcl library is NOT an implementation of OpenCL and requires an OpenCL
+implementation to be installed in order to work.
+
+
+*****************************
+*** Recent Changes 
+
+- (20091117) added platform_id selection by name, optionally set by 
+  environment variable, with "ATI" as default
+
+
+******************
+*** Tested systems
+
+libstdcl has been tested on the foillowing operating systems and hardware:
+
+- openSUSE 11.1 Linux (32bit and 64bit)
+- ATI Radeon HD 4850, 4870, 5870
+
+If you are able to get libstdcl to work on other systems, please, let us
+know so we can expand the list of tested systems.  
+
+
+****************
+*** Known issues
+
+- Most important issue is that this is a BETA release and the software
+  is under active development.  If something is not working, check back
+  for an update, and report any bugs/issues so we can get them into the
+  development.
+
+- clld support for binary CL programs is not completed since this is a work
+  in progress within underlying OpenCL implementations.  source only support.
+
+- The ELF sections created by clld are only partly utilized at this time.
+
+- cltrace does not support tracing libstdcl calls yet. This will be added soon.
+
+- clmattach/clmdetach are not yet implemented despite the man page.
+
+- clmsync "AUTO" is not yet implemented.
+
+- Finally, this list is not exhaustive.  There are surely other bugs and
+  issues that will be uncovered with more testing.
+
+
+***************************
+*** Software using libstdcl
+
+- BDT N-Body code (bdt_nbody-0.6.3)
+- BDT Seismic3D code (bdt_seismic3d-0.4.3)
+- BDT tutorial on N-Body code also uses libstdcl to simplify the host code
+
+If you use libstdcl, please, let us know so we can expand this initial list.
+
+
+***********************
+*** Contact information
+
+For questions about libstdcl or other BDT software, send email to:
+
+	support@browndeertechnology.com
+
+Comments welcome and appreciate by the developers.
+
+
+/* DAR */
+

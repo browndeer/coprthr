@@ -1,0 +1,40 @@
+.TH CLMATTACH "3" "2009-11-10" "libstdcl-0.7" "Standard Compute Layer (CL) Manual"
+.SH NAME
+clmattach, clmdetach \- Attach and detach memory from a CL context
+.SH SYNOPSIS
+#include <stdcl.h>
+.sp
+int clmattach( CONTEXT* cp, void* ptr );
+.sp
+int clmdetach( void* ptr );
+.sp
+Link with \fI\-lstdcl\fP.
+.SH DESCRIPTION
+clmattach() is used to attach memory to a compute layer (CL) context. 
+The memory pointed to by \fIptr\fP must be allocated with clmalloc() and 
+suitable for sharing between the host and CL co-processor devices.
+In order to change the attachment of memory from one CL context
+to another, the memory must first be unattached using a call to clmdetach().
+It is an error to pass clmattach() memory that is already attached to a CL 
+context.
+.PP
+clmdetach() is used to detach memory from a CL context.  
+The memory pointed to by \fIptr\fP must be allocated with clmalloc() and 
+suitable for sharing between the host and CL co-processor devices.
+.PP
+If ptr does not point to memory allocated by clmalloc() the behavior of
+clmattach() and clmdetach() is undefined.
+.SH RETURN VALUE
+Both clmattach() and clmdetach() return 0 on success.  On error, -1 is
+returned and errno is set appropriately.
+.SH AUTHOR
+Written by David Richie.
+.SH REPORTING BUGS
+Report bugs to <support@browndeertechnology.com>
+.SH COPYRIGHT
+Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the
+GNU Lesser General Public License version 3 (LGPLv3).
+There is NO WARRANTY to the extent permitted by law.
+.SH SEE ALSO
+clmalloc(3), clfree(3), clmsync(3), malloc(3), stdcl(3)
+

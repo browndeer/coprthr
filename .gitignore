@@ -1,0 +1,9 @@
+*.o
+*.x
+*.so
+*~
+test/test_*.c
+test/test_*.cl
+iltest/
+gputest/
+tools/optamdil/

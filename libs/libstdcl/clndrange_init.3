@@ -1,0 +1,45 @@
+.TH CLNDRANGE_INIT "3" "2009-11-10" "libstdcl-0.7" "Standard Compute Layer (CL) Manual"
+.SH NAME
+clndrange_init1d, clndrange_init2d, clndrange_init3d - Initialize the index-space (NDRange) for the execution of a CL kernel
+.SH SYNOPSIS
+.B #include <stdcl.h>
+.sp
+.BI "clndrange_init1d( " gtoff0 "," gt0 "," lt0 );
+.sp
+.BI "clndrange_init2d( " gtoff0 "," gt0 "," lt0 ", " gtoff1 "," gt1 "," lt1 );
+.sp
+.BI "clndrange_init3d( " gtoff0 "," gt0 "," lt0 ", " gtoff1 "," gt1 "," lt1 ", " gtoff2 "," gt2 "," lt2 );
+.SH DESCRIPTION
+clndrange_init() family of macros are used to initialize an object of type
+clndrange_t that defines the index-space for the execution of a CL kernel.  
+The values of \fIgtoff\fPn, \fIgt\fPn, \fIlt\fPn define the global index
+offset, global index range and local index range, respectively, for 
+dimension n.  The index-space defines the work-group and work-item
+partitioning for the kernel execution.
+.SH EXAMPLES
+The initialization of a 1-D index-space of 16 work-items with work-group size of 2 and no global offset:
+.sp
+.in +4n
+.nf
+    clndrange_t ndr = clndrange_init1d( 0,16,2 );
+.fi
+.in
+.PP
+The initialization of a 2-D index-space of 64 by 128 work-items with work-group
+size of 2 by 4 with a global work-item offset of 32,64:
+.sp
+.in +4n
+.nf
+    clndrange_t ndr = clndrange_init1d( 32,64,2, 64,128,4 );
+.fi
+.in
+.SH AUTHOR
+Written by David Richie.
+.SH REPORTING BUGS
+Report bugs to <support@browndeertechnology.com>
+.SH COPYRIGHT
+Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the
+GNU Lesser General Public License version 3 (LGPLv3).
+There is NO WARRANTY to the extent permitted by law.
+.SH SEE ALSO
+clndrange_set(3), clfork(3), stdcl(3)

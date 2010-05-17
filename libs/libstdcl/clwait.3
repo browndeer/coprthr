@@ -1,0 +1,48 @@
+.TH CLWAIT "3" "2009-11-10" "libstdcl-0.7" "Standard Compute Layer (CL) Manual"
+.SH NAME
+clwait \- Block on one or more CL events 
+.SH SYNOPSIS
+.B #include <stdcl.h>
+.sp
+.BI "cl_event clwait( CONTEXT* " cp ", cl_uint " devnum ", int " flags );
+.sp
+Link with \fI\-lstdcl\fP.
+.SH DESCRIPTION
+clwait() is used to block on the completion of one or more outstanding 
+events for device number \fIdevnum\fP within a CL context.  
+The type of events are specificed by selecting one or more event lists as 
+described below.
+.PP
+One or more event lists may be selected using a combination of the following
+flags:
+.TP
+.B CL_KERNEL_EVENT
+Block on events in the ordered kernel event list.
+.TP
+.B CL_MEM_EVENT
+Block on events in the ordered memory event list.
+.PP
+Note that if both kernel and memory event lists are specified, the kernel
+event list has first priority.  
+Specifically, clwait() will first block on all outstanding kernel events and 
+subsequently block on all outstanding memory events.
+.PP
+The bahavior of clwait() can be controlled using the following flags:
+.TP
+.B CL_EVENT_RELEASE
+Force clwait() to release all events on upon completion for all events on
+which it blocks.
+If this flag is not used the programmer is responsible for releasing the 
+returned event using clReleaseEvent().
+.SH RETURN VALUE
+On error clwait() will return (cl_event)(-1) and errno is set appropriately.
+.SH AUTHOR
+Written by David Richie.
+.SH REPORTING BUGS
+Report bugs to <support@browndeertechnology.com>
+.SH COPYRIGHT
+Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the
+GNU Lesser General Public License version 3 (LGPLv3).
+There is NO WARRANTY to the extent permitted by law.
+.SH SEE ALSO
+clfork(3), clmsync(3), clwaitev(3) stdcl(3)

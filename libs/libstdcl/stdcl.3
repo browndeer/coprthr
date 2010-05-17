@@ -1,0 +1,165 @@
+.TH STDLC "3" "2009-11-10"	"libstdcl-0.7" "Standard Compute Layer (CL) Manual"
+.SH NAME
+stdcl - standard compute layer (CL) library functions
+.SH SYNOPSIS
+.B #include <stdcl.h>
+.sp
+.BI "CONTEXT* " stddev ;
+.br
+.BI "CONTEXT* " stdcpu ;
+.br
+.BI "CONTEXT* " stdgpu ;
+.br
+.BI "CONTEXT* " stdrpu ;
+.sp
+Link with \fI\-lstdcl\fP.
+.SH DESCRIPTION
+.PP
+The standard compute layer (CL) library (libstdcl) provides a simplified 
+interface to 
+OpenCL designed to support the most typical use-cases in a style inspired by
+familiar and traditional UNIX APIs for C programming.  
+.PP
+libstdcl provides managed OpenCL contexts identified with a context pointer
+that is generally provided as an argument to library functions that 
+transparently manage OpenCL constructs such as 
+contexts, devices, memory, kernels and events in a manner that simplifies
+their use.
+.PP
+.B Default Contexts
+.PP
+libstdcl provides several default contexts similar to the
+default I/O streams provided by stdio.  the following default contexts
+are provided:
+.TP
+.B stddev
+All devices for a given platform supported by the OpenCL API.
+.TP
+.B stdcpu
+All multi-core CPU processors for a given platform supported by the OpenCL API.
+.TP
+.B stdgpu
+All many-core GPU processors for a given platform supported by the OpenCL API.
+.TP
+.B stdrpu
+All reconfigurable processors for a given platform supported by the OpenCL API.
+.PP
+.B Dynamic CL Program Loader
+.PP
+libstdcl provides a convenient interface for dynamically loading CL programs
+and accessing CL kernels.  Using the tool \fIclld\fP CL program source and
+binary files can be embedded within special ELF sections linked against other
+object files on the host platform to generate a single executable.  The set
+of functions \fIclopen()\fP, \fIclsym()\fP, \fIclclose()\fP provide a 
+convenient interface 
+capable of dynamically loading CL programs embedded within the executable as
+well as from an external file.  
+CL prorgams.  
+.PP
+.B Memory Management
+.PP
+libstdcl provides functions for allocating and managing memory that may be
+shared between the host and CL co-processor devices.  Memory may be allocated
+with \fIclmalloc()\fP and used transparently as the global memory for kernel
+execution on a CL device.  The programmer uses a single pointer representing
+the allocated memory which may be re-attached to various CL contexts using
+\fIclmattach()\fP and \fIclmdetach()\fP.  Memory consistency can be maintained
+using the \fIclmsync()\fP function which synchronizes memory between host 
+and CL co-processor device.
+.PP
+.B Kernel Execution
+.PP
+libstdcl provides simplified interfaces for setting up the index-space and
+arguments for kernel execution.  Executing a kernel on a particular CL
+co-processor device is supported using clfork() which allows blocking and
+non-blocking execution behavior.
+.PP
+.B Management of Asynchronous Operations
+.PP
+libstdcl provides event management per device within each context to simplify
+the management of asynchronous multi-device operations.  
+The function \fIclwait()\fP can be used to block on selected events within
+one of several per device event lists managed transparently.
+.SH EXAMPLE
+The following example shows a very simple program for calculating the outer
+product of two vectors using a GPU:
+.sp
+.in +4n
+.nf
+#include <stdcl.h>
+
+int main() {
+
+	int n = 1024;
+
+	cl_float* aa = (cl_float*)clmalloc(stdgpu,n,0);
+	cl_float* bb = (cl_float*)clmalloc(stdgpu,n,0);
+	cl_float* cc = (cl_float*)clmalloc(stdgpu,n,0);
+
+	/* initialize aa and bb */
+
+	void* h = clopen(stdgpu,"outer_prod_kern.cl",0);
+	cl_kernel krn = clsym(stdgpu,h,"outer_prod_kern");
+
+	clndrange_t ndr = clndrange_init1d(0,n,4);
+
+	clarg_set(krn,0,n);
+	clarg_set_global(krn,1,aa);
+	clarg_set_global(krn,2,bb);
+	clarg_set_global(krn,3,cc);
+
+	clfork(stdgpu,0,krn,ndr,CL_EVENT_NOWAIT);
+
+	clmsync(stdgpu,0,cc,CL_EVENT_NOWAIT);
+
+	clwait(stdgpu,0,CL_ALL_EVENTS|CL_EVENT_RELEASE);
+
+	clclose(h);
+
+	clfree(aa);
+	clfree(bb);
+	clfree(cc);
+
+}
+.fi
+.in
+.SH ENVIRONMENT
+Executables that use the \fIlibstdcl\fP library are affected by environment
+variables that control the behavior of the API.  
+The environment variables 
+\fISTDDEV\fP, \fISTDCPU\fP, \fISTDGPU\fP, \fISTDRPU\fP 
+may be set to
+pass a string used to control the behavior of the respective default
+contexts when a program is executed.  Each string may contain one or more
+colon-separated clauses.  
+.PP
+As an example, the following would force the stdgpu
+context to use the ATI Stream platform:
+.in +4n
+.nf
+
+   setenv STDGPU platform_name="ATI STREAM"
+
+.if
+.in
+A context can be disabled by setting the respective envinoment variable to 0,
+for example, the following will disable the stddev context:
+.in +4n
+.nf
+
+   setenv STDDEV 0
+
+.if
+.in
+.PP
+The allowed clauses are platform and context dependent.
+.SH AUTHOR
+Written by David Richie.
+.SH REPORTING BUGS
+Report bugs to <support@browndeertechnology.com>
+.SH COPYRIGHT
+Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the 
+GNU Lesser General Public License version 3.
+There is NO WARRANTY to the extent permitted by law.
+.SH SEE ALSO
+clld(1), clopen(3), clsym(3), clclose(3), clmalloc(3), clmsync(), clfork(3), clwait(3)

@@ -1,0 +1,126 @@
+#
+# Makefile for libstdcl 
+#
+
+### XXX add options for selecting OpenCL implementation
+
+
+### SET PATH TO OpenCL INSTALLATION (EXAMPLE IS FOR AMD/ATI Stream SDK)
+
+#INCS += -I/usr/local/atistream/beta4/include
+#LIBS += -L/usr/local/atistream/beta4/lib/x86_64 
+INCS += -I/usr/local/atistream/include
+LIBS += -L/usr/local/atistream/lib/x86_64 
+
+LIBS += -L/usr/local/browndeer/lib
+#LIBS += -L../libocl
+
+
+### SET PATH TO libelf (tested with 0.8.12)
+
+INCS += -I/home/richie/libelf/libelf-0.8.12/lib
+LIBS += -I/home/richie/libelf/libelf-0.8.12/lib
+
+
+
+### SELECT DEBUG OUTPUT (DO NOT ENABLE IF YOU EXPECT PERFORMANCE!)
+
+DEFS += -DSTDCL_WARN 
+DEFS += -DSTDCL_DEBUG
+
+
+INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include
+INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
+INSTALL_LIB_DIR ?= /usr/local/browndeer/lib
+INSTALL_MAN_DIR ?= /usr/share/man
+
+
+DEFS += -DENABLE_CLEXPORT ### XXX experimental
+
+
+############################################################################
+##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
+############################################################################
+
+VPATH = .:./man/man1:./man/man3
+
+INCS += -I../../include
+LIBS += -lpthread -ldl
+LIBS += -lOpenCL 
+#LIBS += -locl
+
+OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o 
+HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h 
+
+MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
+	clndrange_set3d.3 clarg_set_global.3 clmdetach.3 clndrange_set.3 \
+	clarg_set_local.3 clmsync.3 clopen.3 clclose.3 clndrange_init1d.3 \
+	clsizeofmem.3 clerror.3 clndrange_init2d.3 clsym.3 clfork.3 \
+	clndrange_init3d.3 clwait.3 clfree.3 clndrange_init.3 stdcl.3 \
+	clload.3 clndrange_set1d.3
+
+INSTALL_INCS = $(HDRS)
+INSTALL_LIBS = libstdcl.so 
+
+CC = gcc44
+CCFLAGS += -g -O2 -fPIC
+
+all: libstdcl.so $(addsuffix .gz,$(MAN3))
+
+.phony: install uninstall clean distclean check_root
+
+libstdcl.so: $(OBJS)
+	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \
+		-o libstdcl.so $(OBJS) $(LIBS)
+#	cp -f libstdcl.so ./lib
+#	cp -f $(HDRS) ./include
+
+.SUFFIXES:
+.SUFFIXES: .so .c .o 
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+%.3.gz:
+	-gzip -f -c $*.3 > $*.3.gz
+
+check_root: 
+ifneq ($(shell whoami),root)
+	$(error install must be done as root)
+endif
+
+install: check_root all
+	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
+	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
+#	install -m 644 $(addprefix ./include/,$(INSTALL_INCS)) $(INSTALL_INCLUDE_DIR)
+	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
+	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
+	install -m 644 $(addsuffix .gz,$(MAN3)) $(INSTALL_MAN_DIR)/man3
+#	@echo -e "\a\n\n*** IMPORTANT ***\n"
+#	@echo -e "Please ensure that " $(INSTALL_BIN_DIR) " is added to PATH"
+#	@echo -e "if it is not in the standard search path for executables."
+#	@echo -e "For example:"
+#	@echo -e "   set path = ($(INSTALL_BIN_DIR) \$$path)\n"
+#	@echo -e "Please ensure that $(INSTALL_LIB_DIR) is added to " \
+#		"LD_LIBRARY_PATH"
+#	@echo -e "if it is not in the standard search path for libraries."
+#	@echo -e "For example:"
+#	@echo -e "   setenv LD_LIBRARY_PATH $(INSTALL_LIB_DIR):\$$LD_LIBRARY_PATH\n"
+#	@echo -e "When compiling programs that use libstcl include the following:" 
+#	@echo -e "   INCS += -I$(INSTALL_INC_DIR)" 
+#	@echo -e "   LIBS += -L$(INSTALL_LIB_DIR) -lstdcl" 
+#	@echo -e "\n"
+
+uninstall: check_root
+	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS)) 
+	rm -f $(addprefix $(INSTALL_BIN_DIR)/,$(INSTALL_BINS)) 
+	rm -f $(addprefix $(INSTALL_MAN_DIR)/man3/,$(addsuffix .gz,$(MAN3)))
+
+
+clean:
+	rm -f *.o *.so
+	rm -f *.1.gz *.3.gz
+	rm -f _interceptor.h 
+

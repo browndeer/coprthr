@@ -1,0 +1,41 @@
+.TH CLFORK "3" "2009-11-10" "libstdcl-0.7" "Standard Compute Layer (CL) Manual"
+.SH NAME
+clfork \- Execute a CL kernel 
+.SH SYNOPSIS
+.B #include <stdcl.h>
+.sp
+.BI "cl_event clfork( CONTEXT* " cp ", unsigned int " devnum ", cl_kernel " krn ", clndrange_t* " ndr ", int " flags );
+.sp
+Link with \fI\-lstdcl\fP.
+.SH DESCRIPTION
+clfork() is used to execute a CL kernel on a specified compute layer (CL)
+co-processor device.  The arguments for the kernel must be set prior to
+the call to clfork() using the clarg_set*() functions.  The kernel is executed
+over an index-space of work-items defined by \fIndr\fP.
+.PP
+The bahavior of clfork() can be controlled using the following flags:
+.TP
+.B CL_EVENT_WAIT
+clfork() will block until the operation has completed.
+.TP
+.B CL_EVENT_NOWAIT
+clfork() will return immediately.  The programmer must ensure that the
+operation has completed using clwait() or clwaitev().
+.TP
+.B CL_EVENT_RELEASE
+Used with CL_EVENT_WAIT to force clfork() to release the CL event generated
+by the operation.  If this flag is not used the programmer is responsible
+for releasing the returned event using clReleaseEvent().  This flag has
+no effect when CL_EVENT_NOWAIT is used.
+.SH RETURN VALUE
+On error clfork() will return (cl_event)(-1) and errno is set appropriately.
+.SH AUTHOR
+Written by David Richie.
+.SH REPORTING BUGS
+Report bugs to <support@browndeertechnology.com>
+.SH COPYRIGHT
+Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the
+GNU Lesser General Public License version 3 (LGPLv3).
+There is NO WARRANTY to the extent permitted by law.
+.SH SEE ALSO
+clarg_set(3), clndrange_init(3), clndrange_set(3), clwait(3), clwaitev(3) stdcl(3)

@@ -1,0 +1,17 @@
+
+BEFORE using coprthr, follow these instructions for installing llvm-ex:
+
+(1) copy this directory into the tools/ directory of your llvm-2.6 installation
+(2) in tools/Makefile add llvm-ex the variable assignment for PARALLEL_DIRS
+(3) cd to the root directory for llvm and type
+		make; sudo make install
+
+This should build and install llvm-ex 
+
+In order to verify that this worked, open a new xterm and type which llvm-ex
+and you should find the program.
+
+If this does not work, send a note to support@browndeertechnology.com
+
+-DAR
+

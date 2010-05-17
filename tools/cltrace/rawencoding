@@ -1,0 +1,452 @@
+_d_dpp( cl_int ,
+clGetPlatformIDs,cl_uint ,
+                 cl_platform_id* ,
+                 cl_uint* ) 
+
+_d_ppdpp( cl_int ,
+clGetPlatformInfo,cl_platform_id ,
+                  cl_platform_info ,
+                  size_t ,
+                  void* ,
+                  size_t* ) 
+
+
+_d_ppdpp( cl_int ,
+clGetDeviceIDs,cl_platform_id ,
+               cl_device_type ,
+               cl_uint ,
+               cl_device_id* ,
+               cl_uint* ) 
+
+_d_ppdpp( cl_int ,
+clGetDeviceInfo,cl_device_id ,
+                cl_device_info ,
+                size_t ,
+                void* ,
+                size_t* ) 
+
+
+_p_pdpppp( cl_context ,
+clCreateContext,const cl_context_properties* ,
+                cl_uint ,
+                const cl_device_id* ,
+                void (*pfn_notify),const char*, const void*, size_t, void*) ,
+                void* ,
+                cl_int* ) 
+
+_p_ppppp( cl_context ,
+clCreateContextFromType,const cl_context_properties* ,
+                        cl_device_type ,
+                        void ,*pfn_notify),const char*, const void*, size_t, void*) ,
+                        void* ,
+                        cl_int* ) 
+
+_d_p( cl_int ,
+clRetainContext,cl_context ) 
+
+_d_p( cl_int ,
+clReleaseContext,cl_context ) 
+
+_d_ppdpp( cl_int ,
+clGetContextInfo,cl_context ,
+                 cl_context_info ,
+                 size_t ,
+                 void* ,
+                 size_t* ) 
+
+
+_p_pppp( cl_command_queue ,
+clCreateCommandQueue,cl_context ,
+                     cl_device_id ,
+                     cl_command_queue_properties ,
+                     cl_int* ) 
+
+_d_p( cl_int ,
+clRetainCommandQueue,cl_command_queue ) 
+
+_d_p( cl_int ,
+clReleaseCommandQueue,cl_command_queue ) 
+
+_d_ppdpp( cl_int ,
+clGetCommandQueueInfo,cl_command_queue ,
+                      cl_command_queue_info ,
+                      size_t ,
+                      void* ,
+                      size_t* ) 
+
+_d_ppdp( cl_int ,
+clSetCommandQueueProperty,cl_command_queue ,
+                          cl_command_queue_properties ,
+                          cl_bool ,
+                          cl_command_queue_properties* ) 
+
+
+_p_pddpp( cl_mem ,
+clCreateBuffer,cl_context ,
+               cl_mem_flags ,
+               size_t ,
+               void* ,
+               cl_int* ) 
+
+_p_pdpdddpp( cl_mem ,
+clCreateImage2D,cl_context ,
+                cl_mem_flags ,
+                const cl_image_format* ,
+                size_t ,
+                size_t ,
+                size_t ,
+                void* ,
+                cl_int* ) 
+
+_p_pdpdddddpp( cl_mem ,
+clCreateImage3D,cl_context ,
+                cl_mem_flags ,
+                const cl_image_format* ,
+                size_t ,
+                size_t ,
+                size_t ,
+                size_t ,
+                size_t ,
+                void* ,
+                cl_int* ) 
+
+_d_p( cl_int ,
+clRetainMemObject,cl_mem ) 
+
+_d_p( cl_int ,
+clReleaseMemObject,cl_mem ) 
+
+_d_pdpdpp( cl_int ,
+clGetSupportedImageFormats,cl_context ,
+                           cl_mem_flags ,
+                           cl_mem_object_type ,
+                           cl_uint ,
+                           cl_image_format* ,
+                           cl_uint* ) 
+
+_d_ppdpp( cl_int ,
+clGetMemObjectInfo,cl_mem ,
+                   cl_mem_info ,
+                   size_t ,
+                   void* ,
+                   size_t* ) 
+
+_d_ppdpp( cl_int ,
+clGetImageInfo,cl_mem ,
+               cl_image_info ,
+               size_t ,
+               void* ,
+               size_t* ) 
+
+
+_p_pdppp( cl_sampler ,
+clCreateSampler,cl_context ,
+                cl_bool ,
+                cl_addressing_mode ,
+                cl_filter_mode ,
+                cl_int* ) 
+
+_d_p( cl_int ,
+clRetainSampler,cl_sampler ) 
+
+_d_p( cl_int ,
+clReleaseSampler,cl_sampler ) 
+
+_d_ppdpp( cl_int ,
+clGetSamplerInfo,cl_sampler ,
+                 cl_sampler_info ,
+                 size_t ,
+                 void* ,
+                 size_t* ) 
+
+
+_p_pdppp( cl_program ,
+clCreateProgramWithSource,cl_context ,
+                          cl_uint ,
+                          const char** ,
+                          const size_t* ,
+                          cl_int* ) 
+
+_p_pdppppp( cl_program ,
+clCreateProgramWithBinary,cl_context ,
+                          cl_uint ,
+                          const cl_device_id* ,
+                          const size_t* ,
+                          const unsigned char** ,
+                          cl_int* ,
+                          cl_int* ) 
+
+_d_p( cl_int ,
+clRetainProgram,cl_program ) 
+
+_d_p( cl_int ,
+clReleaseProgram,cl_program ) 
+
+_d_pdpppp( cl_int ,
+clBuildProgram,cl_program ,
+               cl_uint ,
+               const cl_device_id* ,
+               const char* ,
+               void ,*pfn_notify),cl_program , void* ),
+               void* ) 
+
+//_d( cl_int ,
+//clUnloadCompiler,void) 
+
+_d_ppdpp( cl_int ,
+clGetProgramInfo,cl_program ,
+                 cl_program_info ,
+                 size_t ,
+                 void* ,
+                 size_t* ) 
+
+_d_pppdpp( cl_int ,
+clGetProgramBuildInfo,cl_program ,
+                      cl_device_id ,
+                      cl_program_build_info ,
+                      size_t ,
+                      void* ,
+                      size_t* ) 
+
+
+_p_ppp( cl_kernel ,
+clCreateKernel,cl_program ,
+               const char* ,
+               cl_int* ) 
+
+_d_pdpp( cl_int ,
+clCreateKernelsInProgram,cl_program ,
+                         cl_uint ,
+                         cl_kernel* ,
+                         cl_uint* ) 
+
+_d_p( cl_int ,
+clRetainKernel,cl_kernel ) 
+
+_d_p( cl_int ,
+clReleaseKernel,cl_kernel ) 
+
+_d_pddp( cl_int ,
+clSetKernelArg,cl_kernel ,
+               cl_uint ,
+               size_t ,
+               const void* ) 
+
+_d_ppdpp( cl_int ,
+clGetKernelInfo,cl_kernel ,
+                cl_kernel_info ,
+                size_t ,
+                void* ,
+                size_t* ) 
+
+_d_pppdpp( cl_int ,
+clGetKernelWorkGroupInfo,cl_kernel ,
+                         cl_device_id ,
+                         cl_kernel_work_group_info ,
+                         size_t ,
+                         void* ,
+                         size_t* ) 
+
+
+_d_dp( cl_int ,
+clWaitForEvents,cl_uint ,
+                const cl_event* ) 
+
+_d_ppdpp( cl_int ,
+clGetEventInfo,cl_event ,
+               cl_event_info ,
+               size_t ,
+               void* ,
+               size_t* ) 
+
+_d_p( cl_int ,
+clRetainEvent,cl_event ) 
+
+_d_p( cl_int ,
+clReleaseEvent,cl_event ) 
+
+
+_d_ppdpp( cl_int ,
+clGetEventProfilingInfo,cl_event ,
+                        cl_profiling_info ,
+                        size_t ,
+                        void* ,
+                        size_t* ) 
+
+
+_d_p( cl_int ,
+clFlush,cl_command_queue ) 
+
+_d_p( cl_int ,
+clFinish,cl_command_queue ) 
+
+
+_d_ppdddpdpp( cl_int ,
+clEnqueueReadBuffer,cl_command_queue ,
+                    cl_mem ,
+                    cl_bool ,
+                    size_t ,
+                    size_t ,
+                    void* ,
+                    cl_uint ,
+                    const cl_event* ,
+                    cl_event* ) 
+
+_d_ppdddpdpp( cl_int ,
+clEnqueueWriteBuffer,cl_command_queue ,
+                     cl_mem ,
+                     cl_bool ,
+                     size_t ,
+                     size_t ,
+                     const void* ,
+                     cl_uint ,
+                     const cl_event* ,
+                     cl_event* ) 
+
+_d_pppddddpp( cl_int ,
+clEnqueueCopyBuffer,cl_command_queue ,
+                    cl_mem ,
+                    cl_mem ,
+                    size_t ,
+                    size_t ,
+                    size_t ,
+                    cl_uint ,
+                    const cl_event* ,
+                    cl_event* ) 
+
+//_d_ppdppddpdpp( cl_int ,
+//clEnqueueReadImage,cl_command_queue ,
+//                   cl_mem ,
+//                   cl_bool ,
+//                   const size_t* ,
+//                   const size_t* ,
+//                   size_t ,
+//                   size_t ,
+//                   void* ,
+//                   cl_uint ,
+//                   const cl_event* ,
+//                   cl_event* ) 
+
+//_d_ppdppddpdpp( cl_int ,
+//clEnqueueWriteImage,cl_command_queue ,
+//                    cl_mem ,
+//                    cl_bool ,
+//                    const size_t* ,
+//                    const size_t* ,
+//                    size_t ,
+//                    size_t ,
+//                    const void* ,
+//                    cl_uint ,
+//                    const cl_event* ,
+//                    cl_event* ) 
+
+_d_ppppppdpp( cl_int ,
+clEnqueueCopyImage,cl_command_queue ,
+                   cl_mem ,
+                   cl_mem ,
+                   const size_t* ,
+                   const size_t* ,
+                   const size_t* ,
+                   cl_uint ,
+                   const cl_event* ,
+                   cl_event* ) 
+
+_d_pppppddpp( cl_int ,
+clEnqueueCopyImageToBuffer,cl_command_queue ,
+                           cl_mem ,
+                           cl_mem ,
+                           const size_t* ,
+                           const size_t* ,
+                           size_t ,
+                           cl_uint ,
+                           const cl_event* ,
+                           cl_event* ) 
+
+_d_pppdppdpp( cl_int ,
+clEnqueueCopyBufferToImage,cl_command_queue ,
+                           cl_mem ,
+                           cl_mem ,
+                           size_t ,
+                           const size_t* ,
+                           const size_t* ,
+                           cl_uint ,
+                           const cl_event* ,
+                           cl_event* ) 
+
+_d_ppdddddppp( void* ,
+clEnqueueMapBuffer,cl_command_queue ,
+                   cl_mem ,
+                   cl_bool ,
+                   cl_map_flags ,
+                   size_t ,
+                   size_t ,
+                   cl_uint ,
+                   const cl_event* ,
+                   cl_event* ,
+                   cl_int* ) 
+
+//_p_ppddppppdppp( void* ,
+//clEnqueueMapImage,cl_command_queue ,
+//                  cl_mem ,
+//                  cl_bool ,
+//                  cl_map_flags ,
+//                  const size_t* ,
+//                  const size_t* ,
+//                  size_t* ,
+//                  size_t* ,
+//                  cl_uint ,
+//                  const cl_event* ,
+//                  cl_event* ,
+//                  cl_int* ) 
+
+_d_pppdpp( cl_int ,
+clEnqueueUnmapMemObject,cl_command_queue ,
+                        cl_mem ,
+                        void* ,
+                        cl_uint ,
+                        const cl_event* ,
+                        cl_event* ) 
+
+_d_ppdpppdpp( cl_int ,
+clEnqueueNDRangeKernel,cl_command_queue ,
+                       cl_kernel ,
+                       cl_uint ,
+                       const size_t* ,
+                       const size_t* ,
+                       const size_t* ,
+                       cl_uint ,
+                       const cl_event* ,
+                       cl_event* ) 
+
+_d_ppdpp( cl_int ,
+clEnqueueTask,cl_command_queue ,
+              cl_kernel ,
+              cl_uint ,
+              const cl_event* ,
+              cl_event* ) 
+
+_d_pppddppdpp( cl_int ,
+clEnqueueNativeKernel,cl_command_queue ,
+       void (*user_func),void*),
+                      void* ,
+                      size_t ,
+                      cl_uint ,
+                      const cl_mem* ,
+                      const void** ,
+                      cl_uint ,
+                      const cl_event* ,
+                      cl_event* ) 
+
+_d_pp( cl_int ,
+clEnqueueMarker,cl_command_queue ,
+                cl_event* ) 
+
+_d_pdp( cl_int ,
+clEnqueueWaitForEvents,cl_command_queue ,
+                       cl_uint ,
+                       const cl_event* ) 
+
+_d_p( cl_int ,
+clEnqueueBarrier,cl_command_queue ) 
+
+

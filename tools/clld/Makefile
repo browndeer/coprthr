@@ -1,0 +1,56 @@
+# Makefile for clld
+
+#DEF = -DSTDCL_WARN -DSTDCL_DEBUG
+DEF = -DSTDCL_WARN
+
+######################################################################
+
+BIN_NAME = clld
+MAN1 = clld.1
+
+INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
+INSTALL_MAN_DIR ?= /usr/share/man
+
+INCS = -I../../include
+
+LIBS = -L/usr/local/lib -lelf 
+
+OBJS = clld.o 
+
+CCFLAGS += -O1 -fPIC 
+
+all: $(BIN_NAME) $(addsuffix .gz,$(MAN1))
+
+.PHONY: check_root install uninstall clean
+
+.SUFFIXES:
+.SUFFIXES: .c .o 
+
+$(BIN_NAME): $(OBJS)
+	$(CC) $(CCFLAGS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+%.1.gz:
+	-gzip -f -c $*.1 > $*.1.gz
+
+check_root:
+ifneq ($(shell whoami),root)
+	$(error install must be done as root)
+endif
+
+install: check_root
+	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
+	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)
+	install -m 644 $(addsuffix .gz,$(MAN1)) $(INSTALL_MAN_DIR)/man1
+
+uninstall: check_root
+	rm -f $(INSTALL_BIN_DIR)/$(BIN_NAME)
+	rm -f $(addsuffix .gz,$(addprefix $(INSTALL_MAN_DIR)/man1/,$(MAN1)))
+
+clean:
+	rm -f *.o 
+	rm -f $(BIN_NAME)
+	rm -f $(addsuffix .gz,$(MAN1))
+

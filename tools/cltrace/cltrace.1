@@ -1,0 +1,91 @@
+.TH CLTRACE "1" "2009-11-10" "libstdcl-0.7" "Standard Compute Layer (CL) Manual"
+.SH "NAME"
+cltrace \- trace computer layer (CL) calls 
+.SH SYNOPSIS
+cltrace [-ctT]  [-0] [-1] [-2]
+        [--cal|--no-cal] [--opencl|--no-opencl] [--stdcl|--no-stdcl]
+        command [arg...]
+.SH DESCRIPTION
+cltrace can be used to trace compute layer (CL) calls including stdcl calls,
+OpenCL calls, and low-level implementation calls such as the ATI CAL layer.
+Tracing of the following libraries are currently supported:
+.TP 10
+.IR API
+.IR level
+.IR library
+.TP
+ATI/CAL
+0	
+libaticalrt.so,libaticalcl.so
+.TP
+OpenCL 
+1	
+libopenCl.so
+.TP
+libstdcl 
+2	
+libstdcl.so
+.PP
+.SH OPTIONS
+.TP 6
+.RI \-c 
+Count time, number of calls, and errors for each call that is traced
+and report a summary upon program exit.  This option supresses the printing
+of the actual trace output for each call.
+.TP
+.RI \-t
+Prefix each line of the trace output with a timestamp of the form sec:usec 
+based on a call to the function gettimeofday().
+.TP
+.RI \-T
+Add to each line of the trace output the time spent in each call 
+measured in seconds.
+.TP
+.RI \-0
+Trace level 0 CL calls that correspond to the OpenCL implementaion layers.
+.TP
+.RI \-1
+Trace level 1 CL calls that correspond to the OpenCL standard API.
+.TP
+.RI \-2
+Trace level 2 CL calls that corresond to interfaces to the OpenCL API.
+.TP
+\-\-cal, \-0
+Trace ATI/CAL calls that correspond to the OpenCL implementaion layers.
+.TP
+\-\-opencl, \-1
+Trace OpenCL calls that correspond to the OpenCL standard API.
+.TP
+\-\-stdcl, \-2
+Trace libstdcl calls that corresond to an interface to the OpenCL API.
+.TP
+\-\-no\-cal
+Do not 
+trace ATI/CAL calls that correspond to the OpenCL implementaion layers.
+.TP
+\-\-no\-opencl
+Do not
+trace OpenCL calls that correspond to the OpenCL standard API.
+.TP
+\-\-no\-stdcl
+Do not
+trace libstdcl calls that corresond to an interface to the OpenCL API.
+
+.SH AUTHOR
+Written by David Richie.
+
+.SH "REPORTING BUGS"
+Report bugs to <support@browndeertechnology.com>
+
+.SH COPYRIGHT
+Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the 
+GNU Lesser General Public License version 3 (LGPLv3).
+There is NO WARRANTY to the extent permitted by law.
+
+.SH SEE ALSO
+stdcl(3), strace(1)
+
+
+
+
+

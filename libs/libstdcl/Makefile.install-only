@@ -1,0 +1,82 @@
+#
+# Makefile for libstdcl 
+#
+
+
+### SET INSTALL DIRECTORIES 
+
+INSTALL_INC_DIR = /usr/local/browndeer/include
+INSTALL_LIB_DIR = /usr/local/browndeer/lib
+INSTALL_BIN_DIR = /usr/local/browndeer/bin
+INSTALL_MAN_DIR = /usr/share/man
+
+#INSTALL_INC_DIR = /usr/local/include
+#INSTALL_LIB_DIR = /usr/local/lib
+#INSTALL_BIN_DIR = /usr/local/bin
+
+
+
+############################################################################
+##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
+############################################################################
+
+
+HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h 
+
+MAN1 = clld cltrace
+MAN3 = claddr clmalloc clndrange_set2d clarg_set clmattach clndrange_set3d \
+	clarg_set_global clmdetach clndrange_set clarg_set_local clmsync clopen \
+	clclose clndrange_init1d clsizeofmem clerror clndrange_init2d clsym \
+	clfork clndrange_init3d clwait clfree clndrange_init stdcl clload \
+	clndrange_set1d
+
+
+INSTALL_INCS = $(HDRS)
+INSTALL_LIBS = libstdcl.so libcltrace0_calrt.so libcltrace0_calcl.so libcltrace1.so
+INSTALL_BINS = clld cltrace
+
+all: install
+
+.phony: install uninstall
+
+
+install: 
+ifneq ($(shell whoami),root)
+	$(error install must be done as root)
+endif
+	test -d $(INSTALL_INC_DIR) || install -m 755 -d $(INSTALL_INC_DIR)
+	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
+	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
+	install -m 644 $(addprefix ./include/,$(INSTALL_INCS)) $(INSTALL_INC_DIR)
+	install -m 644 $(addprefix ./lib/,$(INSTALL_LIBS)) $(INSTALL_LIB_DIR)
+	install -m 755 $(addprefix ./bin/,$(INSTALL_BINS)) $(INSTALL_BIN_DIR)	
+	install -m 644 $(addsuffix .1.gz,$(addprefix ./man/man1/,$(MAN1))) \
+		$(INSTALL_MAN_DIR)/man1
+	install -m 644 $(addsuffix .3.gz,$(addprefix ./man/man3/,$(MAN3))) \
+		$(INSTALL_MAN_DIR)/man3
+	@echo -e "\a\n\n*** IMPORTANT ***\n"
+	@echo -e "Please ensure that " $(INSTALL_BIN_DIR) " is added to PATH"
+	@echo -e "if it is not in the standard search path for executables."
+	@echo -e "For example:"
+	@echo -e "   set path = ($(INSTALL_BIN_DIR) \$$path)\n"
+	@echo -e "Please ensure that $(INSTALL_LIB_DIR) is added to " \
+		"LD_LIBRARY_PATH"
+	@echo -e "if it is not in the standard search path for libraries."
+	@echo -e "For example:"
+	@echo -e "   setenv LD_LIBRARY_PATH $(INSTALL_LIB_DIR):\$$LD_LIBRARY_PATH\n"
+	@echo -e "When compiling programs that use libstcl include the following:" 
+	@echo -e "   INCS += -I$(INSTALL_INC_DIR)" 
+	@echo -e "   LIBS += -L$(INSTALL_LIB_DIR) -lstdcl" 
+	@echo -e "\n"
+
+uninstall: 
+ifneq ($(shell whoami),root)
+	$(error uninstall must be done as root)
+endif
+	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS)) 
+	rm -f $(addprefix $(INSTALL_BIN_DIR)/,$(INSTALL_BINS)) 
+	rm -f $(addsuffix .1.gz,$(addprefix $(INSTALL_MAN_DIR)/man1/,$(MAN1)))
+	rm -f $(addsuffix .3.gz,$(addprefix $(INSTALL_MAN_DIR)/man3/,$(MAN3)))
+
+

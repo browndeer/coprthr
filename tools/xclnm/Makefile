@@ -1,0 +1,69 @@
+# Makefile for xclnm
+
+#DEFS += -DXCL_DEBUG -DXCL_WARN
+#DEFS += -DXCL_WARN
+
+######################################################################
+
+BIN_NAME = xclnm
+
+INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
+INSTALL_LIB_DIR ?= /usr/local/browndeer/lib
+INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include
+INSTALL_MAN_DIR ?= /usr/share/man
+
+#INCS = -I. -I../../src/xcl
+INCS = -I. -I../../libs/libocl
+
+LIBS = -lfl -lelf 
+
+OBJS = xclnm.o xclnm_scan.o xclnm_gram.o xclnm_node.o 
+
+CFLAGS += -O1 -fPIC 
+
+#YACC = yacc
+YACC = bison
+YACCFLAGS =  -y -v 
+
+LEX = flex
+LEXFLAGS = 
+
+XCLNM_YYPREFIX = __xclnm_
+
+all: $(BIN_NAME)
+
+
+.SUFFIXES:
+.SUFFIXES: .l .y .c .o
+
+$(BIN_NAME): xclnm_gram.c $(OBJS) 
+	$(CC) $(CFLAGS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
+
+xclnm_gram.c: xclnm_gram.y
+	$(YACC) $(YACCFLAGS) -p $(XCLNM_YYPREFIX) -d $<
+	mv y.tab.c xclnm_gram.c
+	mv y.tab.h xclnm_gram.h
+
+xclnm_scan.c: xclnm_scan.l xclnm_gram.c xclnm_gram.h
+	$(LEX) $(LEXFLAGS) -P$(XCLNM_YYPREFIX) $<
+	mv lex.$(XCLNM_YYPREFIX).c xclnm_scan.c
+
+.c.o:
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
+
+check_root:
+ifneq ($(shell whoami),root)
+	$(error install must be done as root)
+endif
+
+install: check_root
+	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)
+
+uninstall: check_root
+	rm -f $(INSTALL_BIN_DIR)/$(BIN_NAME)
+
+clean:
+	rm -f *.o 
+	rm -f $(BIN_NAME)
+	rm -f xclnm_gram.c xclnm_gram.h xclnm_scan.c y.output
+

@@ -1,0 +1,20 @@
+--- libcltrace1.c	2009-11-15 13:42:31.000000000 -0500
++++ libcltrace1.c.nvidia	2009-12-02 11:31:42.000000000 -0500
+@@ -277,7 +277,7 @@
+ typedef void (*pfn_notify_t)(const char*, const void*, size_t, void*);
+ 
+ _p_pdpppe( 1,libOpenCL.so, cl_context ,
+-clCreateContext,const cl_context_properties* ,
++clCreateContext,cl_context_properties* ,
+                 cl_uint ,
+                 const cl_device_id* ,
+                 pfn_notify_t,
+@@ -285,7 +285,7 @@
+                 cl_int* ) 
+ 
+ _p_ppppe( 1,libOpenCL.so, cl_context ,
+-clCreateContextFromType,const cl_context_properties* ,
++clCreateContextFromType,cl_context_properties* ,
+                         cl_device_type ,
+                         pfn_notify_t,
+                         void* ,

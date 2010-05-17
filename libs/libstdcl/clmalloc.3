@@ -1,0 +1,49 @@
+.TH CLMALLOC "3" "2009-11-10" "libstdcl-0.7" "Standard Compute Layer (CL) Manual"
+.SH NAME
+clmalloc, clfree, clsizeofmem \- Allocate and free dynamic memory with CL bindings for use
+with co-processor devices
+.SH SYNOPSIS
+.B #include <stdcl.h>
+.sp
+.BI "void* clmalloc( CONTEXT* " cp ", size_t " size ", int " flags );
+.sp
+.BI "void clfree( void* " ptr );
+.sp
+.BI "size_t clsizeofmem(void* " ptr );
+.sp
+Link with \fI\-lstdcl\fP.
+.SH DESCRIPTION
+clmalloc() allocates memory suitable for sharing between compute layer (CL)
+co-processor devices within a CL context.  
+clmalloc() allocates size bytes and returns a pointer to the allocated memory.
+The memory is not cleared.  If size is 0, then clmalloc() returns a unique 
+pointer value that can later be safely passed to clfree().  
+.PP
+clfree() frees the memory space pointed to by ptr, which must have been
+returned by a previous call to clmalloc().  
+Otherwise, or if clfree(ptr) has already been called before, the behavior is 
+undefined.  It is considered an error to call clfree(ptr) if ptr is 0 or NULL.
+.PP
+clsizeofmem() returns the size of the allocated memory associated with ptr.
+If ptr does not reference memory allocated by a call to clmalloc(), and for
+which clfree() has not been called, the behavior is undefined.
+.SH RETURN VALUE
+If successful clmalloc(3) returns a pointer to the allocated memory that is 
+suitably aligned and suitable for sharing with CL co-processor devices.  
+On error, returns NULL.
+.PP
+clfree() returns no value.
+.PP
+clsizeofmem() returns the size in bytes of the memory pointed to by ptr.
+.SH AUTHOR
+Written by David Richie.
+.SH REPORTING BUGS
+Report bugs to <support@browndeertechnology.com>
+.SH COPYRIGHT
+Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the
+GNU Lesser General Public License version 3 (LGPLv3).
+There is NO WARRANTY to the extent permitted by law.
+.SH SEE ALSO
+clmattach(3), clmdetach(3), clmsync(3), stdcl(3), malloc(3)
+	
+
