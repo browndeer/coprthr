@@ -247,7 +247,7 @@ int clgetdevinfo( CONTEXT* cp, struct cldev_info* info)
 
 		for(n=0,d=cp->dev,di=info;n<ndev;n++,d++,di++) {
 
-			printf("%p\n",di);
+//			printf("%p\n",di);
 
 			err = clGetDeviceInfo(
   		    	*d,CL_DEVICE_TYPE,
@@ -326,7 +326,7 @@ int clgetdevinfo( CONTEXT* cp, struct cldev_info* info)
             *d,CL_DEVICE_MAX_MEM_ALLOC_SIZE,
             sizeof(cl_ulong),&ultmp,0
 			);	
-			printf("XXX CL_DEVICE_GLOBAL_MEM_SIZE %d\n",(int)ultmp);
+//			printf("XXX CL_DEVICE_GLOBAL_MEM_SIZE %d\n",(int)ultmp);
 
 
 			/*
@@ -512,6 +512,7 @@ int clstat( CONTEXT* cp, struct clstat_info* st)
 	st->ndev = cp->ndev;
 	st->nprg = cp->nprg;
 	st->nkrn = cp->nkrn;
+
 	return(0);
 }
 

@@ -26,7 +26,7 @@ LIBS += -I/home/richie/libelf/libelf-0.8.12/lib
 ### SELECT DEBUG OUTPUT (DO NOT ENABLE IF YOU EXPECT PERFORMANCE!)
 
 DEFS += -DSTDCL_WARN 
-DEFS += -DSTDCL_DEBUG
+#DEFS += -DSTDCL_DEBUG
 
 
 INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include

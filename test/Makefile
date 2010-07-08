@@ -1,49 +1,28 @@
 
-TESTS = test_arg_int test_block_int test_arg_int4 \
-	test_arg_float test_block_float test_arg_float4 \
-	test_special
+TESTS = test_stdcl test_ocl
 
-#TESTS = test_faf
+##### DO NOT EDIT BELOW THIS LINE #####
 
-TOPDIR ?= ../
+SUBDIRS = 
+SUBDIRS += $(TESTS)
 
-INCS = -I$(TOPDIR)/include
-LIBS = -lm -L/usr/local/browndeer/lib -locl
-#LIBS = -lm -L/usr/local/atistream/beta4/lib/x86_64 -lOpenCL
+export TOPDIR = $(CURDIR)
 
-SRC_TESTS = $(addsuffix .c,$(TESTS))
-CLSRC_TESTS = $(addsuffix .cl,$(TESTS))
-PRG_TESTS = $(addsuffix .x,$(TESTS))
+all: $(SUBDIRS) 
 
-//all: $(addsuffix .x,$(TESTS))  
-all: $(PRG_TESTS)
+.PHONY: subdirs $(SUBDIRS) clean test quicktest
 
-#.PHONEY: $(addsuffix .x,$(TESTS))
-.PHONEY: $(PRG_TESTS)
+subdirs: $(SUBDIRS)
 
-.SUFFIXES:
-.SUFFIXES: .c .o
+$(SUBDIRS):
+	make -C $@ $(MAKEFLAGS) $(MAKECMDGOALS)
 
-CFLAGS += -g
+clean: subdirs
+#	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
 
-test.x: test.o
-	$(CC) $(CFLAGS) $(INCS) -o test.x test.c $(OBJS) $(LIBS)
+test: subdirs
+#	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
 
-test_%.x: ./scripts/gen_c_test_%.pl ./scripts/gen_cl_test_%.pl
-	./scripts/gen_c_test_$*.pl > test_$*.c
-	./scripts/gen_cl_test_$*.pl > test_$*.cl
-	$(CC) $(CFLAGS) $(INCS) -o $@ test_$*.c $(OBJS) $(LIBS)
+quicktest: subdirs
+#	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
 
-.c.o:
-	$(CC) $(CFLAGS) $(DEF) $(INCS) -c $<
-
-test: clean $(addsuffix .x,$(TESTS))
-	/usr/bin/time ./scripts/run_tests.sh $(PRG_TESTS)
-
-quicktest: clean $(addsuffix .x,$(TESTS))
-	/usr/bin/time ./scripts/run_quick_tests.sh $(PRG_TESTS)
-
-
-clean:
-	rm -f *.o *.x
-	rm -f $(SRC_TESTS) $(CLSRC_TESTS)

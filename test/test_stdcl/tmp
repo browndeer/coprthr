@@ -1,0 +1,195 @@
+test.c: In function ‘main’:
+test.c:145: error: ‘aa’ undeclared (first use in this function)
+test.c:145: error: (Each undeclared identifier is reported only once
+test.c:145: error: for each function it appears in.)
+test.c:150: error: ‘bb’ undeclared (first use in this function)
+test.c:168: error: invalid operands to binary +
+test.c:195: error: redefinition of ‘ns’
+test.c:161: error: previous definition of ‘ns’ was here
+test.c:202: error: invalid operands to binary +
+test.c:203: error: invalid operands to binary +
+test.c:230: error: redefinition of ‘ns’
+test.c:195: error: previous definition of ‘ns’ was here
+test.c:237: error: invalid operands to binary +
+test.c:267: error: redefinition of ‘ns’
+test.c:230: error: previous definition of ‘ns’ was here
+test.c:274: error: invalid operands to binary +
+test.c:275: error: invalid operands to binary +
+test.c:276: error: invalid operands to binary +
+test.c:306: error: redefinition of ‘ns’
+test.c:267: error: previous definition of ‘ns’ was here
+test.c:313: error: invalid operands to binary +
+test.c:314: error: invalid operands to binary +
+test.c:344: error: redefinition of ‘ns’
+test.c:306: error: previous definition of ‘ns’ was here
+test.c:351: error: invalid operands to binary +
+test.c:384: error: redefinition of ‘ns’
+test.c:344: error: previous definition of ‘ns’ was here
+test.c:391: error: invalid operands to binary +
+test.c:392: error: invalid operands to binary +
+test.c:393: error: invalid operands to binary +
+test.c:394: error: invalid operands to binary +
+test.c:427: error: redefinition of ‘ns’
+test.c:384: error: previous definition of ‘ns’ was here
+test.c:434: error: invalid operands to binary +
+test.c:435: error: invalid operands to binary +
+test.c:436: error: invalid operands to binary +
+test.c:469: error: redefinition of ‘ns’
+test.c:427: error: previous definition of ‘ns’ was here
+test.c:476: error: invalid operands to binary +
+test.c:477: error: invalid operands to binary +
+test.c:510: error: redefinition of ‘ns’
+test.c:469: error: previous definition of ‘ns’ was here
+test.c:517: error: invalid operands to binary +
+test.c:553: error: redefinition of ‘ns’
+test.c:510: error: previous definition of ‘ns’ was here
+test.c:560: error: invalid operands to binary +
+test.c:561: error: invalid operands to binary +
+test.c:562: error: invalid operands to binary +
+test.c:563: error: invalid operands to binary +
+test.c:564: error: invalid operands to binary +
+test.c:600: error: redefinition of ‘ns’
+test.c:553: error: previous definition of ‘ns’ was here
+test.c:607: error: invalid operands to binary +
+test.c:608: error: invalid operands to binary +
+test.c:609: error: invalid operands to binary +
+test.c:610: error: invalid operands to binary +
+test.c:646: error: redefinition of ‘ns’
+test.c:600: error: previous definition of ‘ns’ was here
+test.c:653: error: invalid operands to binary +
+test.c:654: error: invalid operands to binary +
+test.c:655: error: invalid operands to binary +
+test.c:691: error: redefinition of ‘ns’
+test.c:646: error: previous definition of ‘ns’ was here
+test.c:698: error: invalid operands to binary +
+test.c:699: error: invalid operands to binary +
+test.c:735: error: redefinition of ‘ns’
+test.c:691: error: previous definition of ‘ns’ was here
+test.c:742: error: invalid operands to binary +
+test.c:781: error: redefinition of ‘ns’
+test.c:735: error: previous definition of ‘ns’ was here
+test.c:788: error: invalid operands to binary +
+test.c:789: error: invalid operands to binary +
+test.c:790: error: invalid operands to binary +
+test.c:791: error: invalid operands to binary +
+test.c:792: error: invalid operands to binary +
+test.c:793: error: invalid operands to binary +
+test.c:832: error: redefinition of ‘ns’
+test.c:781: error: previous definition of ‘ns’ was here
+test.c:839: error: invalid operands to binary +
+test.c:840: error: invalid operands to binary +
+test.c:841: error: invalid operands to binary +
+test.c:842: error: invalid operands to binary +
+test.c:843: error: invalid operands to binary +
+test.c:882: error: redefinition of ‘ns’
+test.c:832: error: previous definition of ‘ns’ was here
+test.c:889: error: invalid operands to binary +
+test.c:890: error: invalid operands to binary +
+test.c:891: error: invalid operands to binary +
+test.c:892: error: invalid operands to binary +
+test.c:931: error: redefinition of ‘ns’
+test.c:882: error: previous definition of ‘ns’ was here
+test.c:938: error: invalid operands to binary +
+test.c:939: error: invalid operands to binary +
+test.c:940: error: invalid operands to binary +
+test.c:979: error: redefinition of ‘ns’
+test.c:931: error: previous definition of ‘ns’ was here
+test.c:986: error: invalid operands to binary +
+test.c:987: error: invalid operands to binary +
+test.c:1026: error: redefinition of ‘ns’
+test.c:979: error: previous definition of ‘ns’ was here
+test.c:1033: error: invalid operands to binary +
+test.c:1075: error: redefinition of ‘ns’
+test.c:1026: error: previous definition of ‘ns’ was here
+test.c:1082: error: invalid operands to binary +
+test.c:1083: error: invalid operands to binary +
+test.c:1084: error: invalid operands to binary +
+test.c:1085: error: invalid operands to binary +
+test.c:1086: error: invalid operands to binary +
+test.c:1087: error: invalid operands to binary +
+test.c:1088: error: invalid operands to binary +
+test.c:1130: error: redefinition of ‘ns’
+test.c:1075: error: previous definition of ‘ns’ was here
+test.c:1137: error: invalid operands to binary +
+test.c:1138: error: invalid operands to binary +
+test.c:1139: error: invalid operands to binary +
+test.c:1140: error: invalid operands to binary +
+test.c:1141: error: invalid operands to binary +
+test.c:1142: error: invalid operands to binary +
+test.c:1184: error: redefinition of ‘ns’
+test.c:1130: error: previous definition of ‘ns’ was here
+test.c:1191: error: invalid operands to binary +
+test.c:1192: error: invalid operands to binary +
+test.c:1193: error: invalid operands to binary +
+test.c:1194: error: invalid operands to binary +
+test.c:1195: error: invalid operands to binary +
+test.c:1237: error: redefinition of ‘ns’
+test.c:1184: error: previous definition of ‘ns’ was here
+test.c:1244: error: invalid operands to binary +
+test.c:1245: error: invalid operands to binary +
+test.c:1246: error: invalid operands to binary +
+test.c:1247: error: invalid operands to binary +
+test.c:1289: error: redefinition of ‘ns’
+test.c:1237: error: previous definition of ‘ns’ was here
+test.c:1296: error: invalid operands to binary +
+test.c:1297: error: invalid operands to binary +
+test.c:1298: error: invalid operands to binary +
+test.c:1340: error: redefinition of ‘ns’
+test.c:1289: error: previous definition of ‘ns’ was here
+test.c:1347: error: invalid operands to binary +
+test.c:1348: error: invalid operands to binary +
+test.c:1390: error: redefinition of ‘ns’
+test.c:1340: error: previous definition of ‘ns’ was here
+test.c:1397: error: invalid operands to binary +
+test.c:1442: error: redefinition of ‘ns’
+test.c:1390: error: previous definition of ‘ns’ was here
+test.c:1449: error: invalid operands to binary +
+test.c:1450: error: invalid operands to binary +
+test.c:1451: error: invalid operands to binary +
+test.c:1452: error: invalid operands to binary +
+test.c:1453: error: invalid operands to binary +
+test.c:1454: error: invalid operands to binary +
+test.c:1455: error: invalid operands to binary +
+test.c:1456: error: invalid operands to binary +
+test.c:1501: error: redefinition of ‘ns’
+test.c:1442: error: previous definition of ‘ns’ was here
+test.c:1508: error: invalid operands to binary +
+test.c:1509: error: invalid operands to binary +
+test.c:1510: error: invalid operands to binary +
+test.c:1511: error: invalid operands to binary +
+test.c:1512: error: invalid operands to binary +
+test.c:1513: error: invalid operands to binary +
+test.c:1514: error: invalid operands to binary +
+test.c:1559: error: redefinition of ‘ns’
+test.c:1501: error: previous definition of ‘ns’ was here
+test.c:1566: error: invalid operands to binary +
+test.c:1567: error: invalid operands to binary +
+test.c:1568: error: invalid operands to binary +
+test.c:1569: error: invalid operands to binary +
+test.c:1570: error: invalid operands to binary +
+test.c:1571: error: invalid operands to binary +
+test.c:1616: error: redefinition of ‘ns’
+test.c:1559: error: previous definition of ‘ns’ was here
+test.c:1623: error: invalid operands to binary +
+test.c:1624: error: invalid operands to binary +
+test.c:1625: error: invalid operands to binary +
+test.c:1626: error: invalid operands to binary +
+test.c:1627: error: invalid operands to binary +
+test.c:1672: error: redefinition of ‘ns’
+test.c:1616: error: previous definition of ‘ns’ was here
+test.c:1679: error: invalid operands to binary +
+test.c:1680: error: invalid operands to binary +
+test.c:1681: error: invalid operands to binary +
+test.c:1682: error: invalid operands to binary +
+test.c:1727: error: redefinition of ‘ns’
+test.c:1672: error: previous definition of ‘ns’ was here
+test.c:1734: error: invalid operands to binary +
+test.c:1735: error: invalid operands to binary +
+test.c:1736: error: invalid operands to binary +
+test.c:1781: error: redefinition of ‘ns’
+test.c:1727: error: previous definition of ‘ns’ was here
+test.c:1788: error: invalid operands to binary +
+test.c:1789: error: invalid operands to binary +
+test.c:1834: error: redefinition of ‘ns’
+test.c:1781: error: previous definition of ‘ns’ was here
+test.c:1841: error: invalid operands to binary +

@@ -6,7 +6,7 @@ clopen, clsym, clclose, clerror, claddr \- programming interface to dynamic CL l
 .sp
 .BI "void* clopen( CONTEXT* " cp ", const char* " filename ", int "  flags );
 .sp
-.BI "cl_kernel clsym( CONTEXT* " cp ", unsigned int " devnum ", void* " handle ", const char* " symbol ", int " flags );
+.BI "cl_kernel clsym( CONTEXT* " cp ", void* " handle ", const char* " symbol ", int " flags );
 .sp
 .BI "int claddr( CONTEXT* " cp ", void* " addr ", CL_info* " info );
 .sp
@@ -26,7 +26,7 @@ handle for the main program executable is returned.
 .PP
 The funcion clsym() takes a handle to a CL source or binary program and a
 NULL-terminated symbol name and returns the associated CL kernel.  A CL
-context pointer and device number must be specififed to identify the 
+context pointer must be specififed to identify the 
 appropriate CL kernel to return.  If handle is NULL then all CL programs
 loaded into the specified CL context are searched.
 .PP
