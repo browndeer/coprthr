@@ -27,6 +27,7 @@ $(SUBDIRS):
 
 clean: subdirs
 #	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
+	make -C ./test $(MAKECMDGOALS)
 
 install: subdirs
 	@echo -e "\a\n\n*** IMPORTANT ***\n"

@@ -15,7 +15,8 @@ all: $(SUBDIRS)
 subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
-	make -C $@ $(MAKEFLAGS) $(MAKECMDGOALS)
+#	make -C $@ $(MAKEFLAGS) $(MAKECMDGOALS)
+	make -C $@ $(MAKECMDGOALS)
 
 clean: subdirs
 #	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
