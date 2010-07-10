@@ -2,12 +2,18 @@
 # Makefile for libstdcl 
 #
 
-### select default OpenCL implementation if not already defined
-USE_OPENCL_INCS ?= -I/usr/local/browndeer/include
-USE_OPENCL_LIB ?= -L/usr/local/browndeer/lib -locl
+### XXX add options for selecting OpenCL implementation
 
-### enable build of debug version if not already defined
-ENABLE_DEBUG_LIBSTDCL ?= 1
+
+### SET PATH TO OpenCL INSTALLATION (EXAMPLE IS FOR AMD/ATI Stream SDK)
+
+#INCS += -I/usr/local/atistream/beta4/include
+#LIBS += -L/usr/local/atistream/beta4/lib/x86_64 
+INCS += -I/usr/local/atistream/include
+LIBS += -L/usr/local/atistream/lib/x86_64 
+
+LIBS += -L/usr/local/browndeer/lib
+#LIBS += -L../libocl
 
 
 ### SET PATH TO libelf (tested with 0.8.12)
@@ -20,7 +26,7 @@ LIBS += -I/home/richie/libelf/libelf-0.8.12/lib
 ### SELECT DEBUG OUTPUT (DO NOT ENABLE IF YOU EXPECT PERFORMANCE!)
 
 DEFS += -DSTDCL_WARN 
-#DEFS += -DSTDCL_DEBUG
+DEFS += -DSTDCL_DEBUG
 
 
 INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include
@@ -38,9 +44,10 @@ DEFS += -DENABLE_CLEXPORT ### XXX experimental
 
 VPATH = .:./man/man1:./man/man3
 
-INCS += $(USE_OPENCL_INCS)
-LIBS += $(USE_OPENCL_LIB)
+INCS += -I../../include
 LIBS += -lpthread -ldl
+LIBS += -lOpenCL 
+#LIBS += -locl
 
 OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o 
 HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h 
@@ -53,29 +60,25 @@ MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
 	clload.3 clndrange_set1d.3
 
 INSTALL_INCS = $(HDRS)
-INSTALL_LIBS = libstdcl.so libstdcl_d.so
+INSTALL_LIBS = libstdcl.so 
 
 CC = gcc44
 CCFLAGS += -g -O2 -fPIC
 
-all: libstdcl.so $(addsuffix .gz,$(MAN3))
-ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
-	make -f Makefile.debug clean all
-endif
+all: libstdcl_d.so $(addsuffix .gz,$(MAN3))
 
 .phony: install uninstall clean distclean check_root debug
 
 debug: 
-	make -f Makefile.debug
+	DEFS += -DSTDCL_DEBUG
+	export DEFS
+	make
 
-libstdcl.so: $(OBJS)
-	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \
-		-o libstdcl.so $(OBJS) $(LIBS)
+libstdcl_d.so: $(OBJS)
+	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl_d.so \
+		-o libstdcl_d.so $(OBJS) $(LIBS)
 #	cp -f libstdcl.so ./lib
 #	cp -f $(HDRS) ./include
-
-libstdcl_d.so:
-	make -f Makefile.debug
 
 .SUFFIXES:
 .SUFFIXES: .so .c .o 
@@ -91,8 +94,7 @@ ifneq ($(shell whoami),root)
 	$(error install must be done as root)
 endif
 
-#install: check_root all
-install: check_root $(INSTALL_INCS) $(INSTALL_LIBS) $(addsuffix .gz,$(MAN3))
+install: check_root all
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
@@ -123,11 +125,10 @@ uninstall: check_root
 
 
 clean:
-#	rm -f *.o 
 	rm -f *.o 
 	rm -f *.1.gz *.3.gz
 	rm -f _interceptor.h 
 
 distclean: clean 
-	rm -f *.so
+	rm -F *.so
 

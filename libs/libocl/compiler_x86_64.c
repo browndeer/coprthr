@@ -322,6 +322,17 @@ void* compile_x86_64(
             pclose(fp);
             int need_builtins = (strnlen(buf2,DEFAULT_BUF2_SZ)>0)? 1 : 0;
             DEBUG(__FILE__,__LINE__,"need_builtins %d",need_builtins);
+#if defined(USE_BDT_BUILTINS)
+            if (need_builtins) {
+               __command(
+                  "cd %s;"
+                  " llvm-ex -f -func=%s %s/bdt_builtins_x86_64.bc"
+                  " -o builtins.bc",
+                  wd,buf2,INSTALL_LIB_DIR);
+               __log(logp,"]%s\n",buf1);
+               __execshell(buf1,logp);
+            }
+#else
             if (need_builtins) {
                __command(
                   "cd %s;"
@@ -331,6 +342,7 @@ void* compile_x86_64(
                __log(logp,"]%s\n",buf1);
                __execshell(buf1,logp);
             }
+#endif
 
 
 				/* link with vcore_rt bc */
@@ -347,10 +359,17 @@ void* compile_x86_64(
 //need_builtins = 0;
 
             if (need_builtins) {
+#if defined(USE_BDT_BUILTINS)
+               __command(
+                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc"
+						" builtins.bc 2>&1",
+                 wd,filebase,filebase);
+#else
                __command(
                   "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc"
 						" builtins.bc  2>&1",
                   wd,filebase,filebase);
+#endif
             } else {
                __command(
                   "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc 2>&1",

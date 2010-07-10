@@ -1,4 +1,4 @@
-/* __vcore_rt.c
+/* bdt_builtins_x86_64.c
  *
  * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -22,7 +22,7 @@
 
 #include "CL/cl.h"
 
-#include <stdio.h>
+//#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 //#include <setjmp.h>	/* XXX this is conditionally included in vcore.h */
@@ -30,48 +30,14 @@
 
 /* XXX should include vcore.h, but test this for side effects -DAR */
 
-#include "vcore.h"
+//#include "vcore.h"
 
 
-/*
- * intrinsics called from kernels
- */
+//#if defined(USE_BDT_BUILTINS)
 
-void barrier( int flags )
-{
-//	struct vc_data* data = __getvcdata();
-	struct vc_data* data;
-//	if (!(setjmp(*(data->this_jbufp)))) longjmp(*(data->next_jbufp),flags);
-	__setvcdata(data);
-	if (!(__vc_setjmp(*(data->this_jbufp)))) 
-		__vc_longjmp(*(data->next_jbufp),flags);
-}
-
-uint get_work_dim() { return((__getvcdata())->workp->tdim); }
-
-size_t get_local_size(uint d) { return((__getvcdata())->workp->ltsz[d]); }
-size_t get_local_id(uint d) { return((__getvcdata())->ltid[d]); }
-
-size_t get_num_groups(uint d) { return((__getvcdata())->workp->gsz[d]); }
-size_t get_global_size(uint d) { return((__getvcdata())->workp->gtsz[d]); }
-
-size_t get_group_id(uint d) { return((__getvcdata())->workp->gid[d]); }
-
-
-unsigned int get_global_id(uint d) { 
-	struct vc_data* data = __getvcdata();
-	return((unsigned int)data->ltid[d] + data->workp->gtid[d]); 
-}
-
-
-#if(0)
-#if defined(USE_BDT_BUILTINS)
 /* XXX hack, prefetch should do somethig, fix this -DAR */
+
 void __prefetch_g4f32( void* p, size_t n ) {}
-
-//float __rsqrt_f32( float x ) { return(1.0f/sqrt(x)); }
-
-//float __exp_f32( float x ) { return(expf(x)); }
 
 cl_float4 __fabs_4f32( cl_float4 x)
 {
@@ -136,6 +102,26 @@ float __tanpi_f32( float x ) { return(M_1_PI*tanf(x)); }
 float __tgamma_f32( float x ) { return(tgammaf(x)); }
 float __trunc_f32( float x ) { return(truncf(x)); }
 
-#endif
 
-#endif
+float __atan2_f32( float x, float y ) { return(atan2f(x,y)); }
+float __atan2pi_f32( float x, float y ) { return(M_1_PI*atan2f(x,y)); }
+
+float __copysign_f32( float x, float y ) { return(copysignf(x,y)); }
+
+float __fdim_f32( float x, float y ) { return(fdimf(x,y)); }
+float __fmax_f32( float x, float y ) { return(fmaxf(x,y)); }
+float __fmin_f32( float x, float y ) { return(fminf(x,y)); }
+float __fmod_f32( float x, float y ) { return(fmodf(x,y)); }
+
+float __hypot_f32( float x, float y ) { return(hypotf(x,y)); }
+
+float __nextafter_f32( float x, float y ) { return(nextafterf(x,y)); }
+
+float __pow_f32( float x, float y ) { return(powf(x,y)); }
+float __powr_f32( float x, float y ) { return(powf(x,y)); }
+
+float __remainder_f32( float x, float y ) { return(remainderf(x,y)); }
+
+//#endif
+
+

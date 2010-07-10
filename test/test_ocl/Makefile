@@ -1,7 +1,8 @@
 
 TESTS = test_arg_int test_block_int test_arg_int4 \
 	test_arg_float test_block_float test_arg_float4 \
-	test_special
+	test_special \
+	test_math_float
 
 #TESTS = test_faf
 
@@ -25,7 +26,7 @@ all: $(PRG_TESTS)
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-CFLAGS += -g
+#CFLAGS += -g
 
 test.x: test.o
 	$(CC) $(CFLAGS) $(INCS) -o test.x test.c $(OBJS) $(LIBS)

@@ -9,13 +9,13 @@ CLSRC = test_arg_int.cl test_arg_int4.cl \
 TOPDIR ?= ../
 
 INCS = -I/usr/local/browndeer/include
-LIBS = -lm -L/usr/local/browndeer/lib -lstdcl
+LIBS = -lm -L/usr/local/browndeer/lib -lstdcl_d
 
 SRC_TESTS = $(addprefix test_stdcl_,$(addsuffix .c,$(TESTS)))
 #CLSRC = $(addprefix test_,$(addsuffix .cl,$(TESTS)))
 PRG_TESTS = $(addprefix test_stdcl_,$(addsuffix .x,$(TESTS)))
 
-all: quicktest
+all: getndev.x $(PRG_TESTS)
 
 #.PHONEY: $(PRG_TESTS)
 

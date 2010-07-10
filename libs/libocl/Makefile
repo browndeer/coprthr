@@ -1,6 +1,6 @@
 ENABLE_NCPU = 1
-ENABLE_ATIGPU = 1
-ENABLE_USE_BDT_BUILTINS = 0
+ENABLE_ATIGPU = 0
+USE_BDT_BUILTINS = 1
 
 LIB_NAME = libocl
 
@@ -34,10 +34,11 @@ IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 
 RT_OBJS = __elfcl_rt.o fast_setjmp.o
 
-RT_BC = __vcore_rt.bc
+RT_BC = __vcore_rt.bc bdt_builtins_x86_64.bc
 
 
 DEFS += -DATISTREAMSDK=\"$(ATISTREAMSDK)\" 
+DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 
 ifeq ($(ENABLE_ATIGPU),1)
 DEFS += -DENABLE_ATIGPU 
@@ -48,6 +49,10 @@ endif
 
 ifeq ($(ENABLE_NCPU),1)
 DEFS += -DENABLE_NCPU
+endif
+
+ifeq ($(USE_BDT_BUILTINS),1)
+DEFS += -DUSE_BDT_BUILTINS
 endif
 
 
@@ -92,6 +97,11 @@ $(LIB_NAME).so: $(OBJS) $(RT_OBJS)
 __vcore_rt.bc: __vcore_rt.c
 #	llvm-gcc -c -emit-llvm $(DEFS) $(INCS) -o __vcore_rt.bc __vcore_rt.c
 	clang -c -emit-llvm $(DEFS) $(INCS) -o __vcore_rt.bc __vcore_rt.c
+
+bdt_builtins_x86_64.bc: bdt_builtins_x86_64.c
+	clang -c -emit-llvm $(DEFS) $(INCS) -o bdt_builtins_x86_64.bc \
+		bdt_builtins_x86_64.c
+
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
