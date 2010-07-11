@@ -1,4 +1,4 @@
-UNARY
+UNARY float *(float)
 acos
 acosh
 acospi
@@ -41,10 +41,15 @@ tgamma
 trunc
 
 
-UNARY_SPECIAL
+UNARY int *(float)
 ilogb
 
-BINARY
+UNARY SPECIAL
+fract
+frexp
+lgamma_r
+
+BINARY float *(float,float)
 atan2
 atan2pi
 copysign
@@ -58,18 +63,18 @@ pow
 powr
 remainder
 
-
-BINARY_SPECIAL
-fract
-frexp
+BINARY float *(float,int)
 ldexp
-lgamma_r
-modf
 pown
 rootn
+
+BINARY_SPECIAL
+modf
 sincos
+remquo
 
 TRINARY
 fma
 mad
-remquo
+
+

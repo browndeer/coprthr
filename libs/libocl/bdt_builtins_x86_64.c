@@ -102,6 +102,8 @@ float __tanpi_f32( float x ) { return(M_1_PI*tanf(x)); }
 float __tgamma_f32( float x ) { return(tgammaf(x)); }
 float __trunc_f32( float x ) { return(truncf(x)); }
 
+int __ilogb_f32( float x ) { return(ilogb(x)); }
+
 
 float __atan2_f32( float x, float y ) { return(atan2f(x,y)); }
 float __atan2pi_f32( float x, float y ) { return(M_1_PI*atan2f(x,y)); }
@@ -121,6 +123,13 @@ float __pow_f32( float x, float y ) { return(powf(x,y)); }
 float __powr_f32( float x, float y ) { return(powf(x,y)); }
 
 float __remainder_f32( float x, float y ) { return(remainderf(x,y)); }
+
+float __ldexp_f32i32( float x, int y ) { return(ldexpf(x,y)); }
+float __pown_f32i32( float x, int y ) { return(powf(x,(float)y)); }
+float __rootn_f32i32( float x, int y ) { return(powf(x,1.0f/(float)y)); }
+
+float __fma_f32( float x, float y, float z ) { return(fmaf(x,y,z)); }
+float __mad_f32( float x, float y, float z ) { return(fmaf(x,y,z)); }
 
 //#endif
 

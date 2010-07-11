@@ -20,7 +20,8 @@
 
 # DAR #
 
-@builtins_unary = qw(
+### unary float *(float)
+@builtins_unary_f_f = qw(
 	acos acosh acospi asin asinh asinpi atan atanh atanpi
 	cbrt ceil cos cosh cospi
 	erfc erf exp exp2 exp10 expm1
@@ -30,7 +31,11 @@
 	sin sinh sinpi sqrt
 );
 
-@builtins_binary = qw(
+### unary int *(float)
+@builtins_unary_i_f = qw( ilogb );
+
+### binary float *(float,float)
+@builtins_binary_f_ff = qw(
 	atan2 atan2pi
 	copysign
 	fdim fmax fmin fmod
@@ -40,39 +45,92 @@
 	remainder
 );
 
+### binary float *(float,int)
+@builtins_binary_f_fi = qw(
+	ldexp pown rootn
+);
 
-foreach $f (@builtins_unary) {
+### trinary float *(float,float,float)
+@builtins_trinary_f_fff = qw(
+   fma mad
+);
 
-		printf "\n/* $f */\n";
-		printf "__kernel void\n";
-		printf "test_math_".$f."_kern(\n";
-		printf "\t__global float* a0,\n";
-		printf "\t__global float* b0";
-		printf ")\n";
-		printf "{\n";
-		printf "\tuint gtid = get_global_id(0);\n";
-		printf "\tfloat tmp0 = a0\[gtid];\n";
-		printf "\tb0\[gtid] = $f(tmp0);\n";
-		printf "}\n";
 
+foreach $f (@builtins_unary_f_f) {
+	printf "\n/* $f */\n";
+	printf "__kernel void\n";
+	printf "test_math_".$f."_kern(\n";
+	printf "\t__global float* a0,\n";
+	printf "\t__global float* b0";
+	printf ")\n";
+	printf "{\n";
+	printf "\tuint gtid = get_global_id(0);\n";
+	printf "\tfloat tmp0 = a0\[gtid];\n";
+	printf "\tb0\[gtid] = $f(tmp0);\n";
+	printf "}\n";
 }
 
+foreach $f (@builtins_unary_i_f) {
+	printf "\n/* $f */\n";
+	printf "__kernel void\n";
+	printf "test_math_".$f."_kern(\n";
+	printf "\t__global float* a0,\n";
+	printf "\t__global int* b0";
+	printf ")\n";
+	printf "{\n";
+	printf "\tuint gtid = get_global_id(0);\n";
+	printf "\tfloat tmp0 = a0\[gtid];\n";
+	printf "\tb0\[gtid] = ".$f."(tmp0);\n";
+	printf "}\n";
+}
 
-foreach $f (@builtins_binary) {
+foreach $f (@builtins_binary_f_ff) {
+	printf "\n/* $f */\n";
+	printf "__kernel void\n";
+	printf "test_math_".$f."_kern(\n";
+	printf "\t__global float* a0,\n";
+	printf "\t__global float* a1,\n";
+	printf "\t__global float* b0";
+	printf ")\n";
+	printf "{\n";
+	printf "\tuint gtid = get_global_id(0);\n";
+	printf "\tfloat tmp0 = a0\[gtid];\n";
+	printf "\tfloat tmp1 = a1\[gtid];\n";
+	printf "\tb0\[gtid] = $f(tmp0,tmp1);\n";
+	printf "}\n";
+}
 
-		printf "\n/* $f */\n";
-		printf "__kernel void\n";
-		printf "test_math_".$f."_kern(\n";
-		printf "\t__global float* a0,\n";
-		printf "\t__global float* a1,\n";
-		printf "\t__global float* b0";
-		printf ")\n";
-		printf "{\n";
-		printf "\tuint gtid = get_global_id(0);\n";
-		printf "\tfloat tmp0 = a0\[gtid];\n";
-		printf "\tfloat tmp1 = a1\[gtid];\n";
-		printf "\tb0\[gtid] = $f(tmp0,tmp1);\n";
-		printf "}\n";
+foreach $f (@builtins_binary_f_fi) {
+	printf "\n/* $f */\n";
+	printf "__kernel void\n";
+	printf "test_math_".$f."_kern(\n";
+	printf "\t__global float* a0,\n";
+	printf "\t__global int* a1,\n";
+	printf "\t__global float* b0";
+	printf ")\n";
+	printf "{\n";
+	printf "\tuint gtid = get_global_id(0);\n";
+	printf "\tfloat tmp0 = a0\[gtid];\n";
+	printf "\tint tmp1 = a1\[gtid];\n";
+	printf "\tb0\[gtid] = $f(tmp0,tmp1);\n";
+	printf "}\n";
+}
 
+foreach $f (@builtins_trinary_f_fff) {
+	printf "\n/* $f */\n";
+	printf "__kernel void\n";
+	printf "test_math_".$f."_kern(\n";
+	printf "\t__global float* a0,\n";
+	printf "\t__global float* a1,\n";
+	printf "\t__global float* a2,\n";
+	printf "\t__global float* b0";
+	printf ")\n";
+	printf "{\n";
+	printf "\tuint gtid = get_global_id(0);\n";
+	printf "\tfloat tmp0 = a0\[gtid];\n";
+	printf "\tfloat tmp1 = a1\[gtid];\n";
+	printf "\tfloat tmp2 = a2\[gtid];\n";
+	printf "\tb0\[gtid] = $f(tmp0,tmp1,tmp2);\n";
+	printf "}\n";
 }
 
