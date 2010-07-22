@@ -102,6 +102,8 @@ cl_event clfork(
 //	} else { /* CL_EVENT_WAIT */
 	} else if (flags & CL_EVENT_WAIT) { /* CL_EVENT_WAIT */
 
+		DEBUG(__FILE__,__LINE__,"clfork: clWaitForEvents %d,%p",1,&ev);
+
 		err = clWaitForEvents( 1, &ev);
 		DEBUG(__FILE__,__LINE__,"clfork: clWaitForEvents %d",err);
 
@@ -309,4 +311,18 @@ cl_event clwaitev(
 	return(ev);
 }
 
+
+int clflush(CONTEXT* cp, unsigned int devnum, int flags)
+{
+
+//	if (flags&CL_FAST) {
+//		clFinish(cp->cmdq[0]);
+//		return((cl_event)0);
+//	}
+
+	clFlush(cp->cmdq[devnum]);
+
+	return(0);
+
+}
 

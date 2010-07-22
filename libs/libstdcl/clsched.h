@@ -55,6 +55,8 @@ cl_event clwaitev(
    CONTEXT* cp, unsigned int devnum, const cl_event ev, int flags
 );
 
+int clflush(CONTEXT* cp, unsigned int devnum, int flags);
+
 #ifdef __cplusplus
 }
 #endif
