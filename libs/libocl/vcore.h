@@ -45,19 +45,30 @@ typedef unsigned long long fast_jmp_buf[8];
 
 //#define VCORE_NE				2			/* NOT USED number of engines	*/
 #define VCORE_NC				64			/* number of vcores per engine 	*/
-#define VCORE_STACK_SZ		16384		/* stack size per vcore 			*/
+//#define VCORE_STACK_SZ		16384		/* stack size per vcore 			*/
+#define VCORE_STACK_SZ		32768		/* stack size per vcore 			*/
 #define VCORE_LOCAL_MEM_SZ	32768	/* local mem size per engine		*/
 
 #define VCORE_STACK_MASK (~(VCORE_STACK_SZ-1))
 #define __fp() __builtin_frame_address(0)
 #define __getvcdata() (struct vc_data*)(((intptr_t)__fp())&VCORE_STACK_MASK)
 
+/*
 #define __setvcdata(pdata) __asm__ __volatile__ ( \
 	"movq %%rbp,%%r14\n\t" \
 	"andq $-16384,%%r14\n\t" \
 	"movq %%r14,%0\n" \
 	: "=m" (pdata) : : "%r14" \
 	)
+*/
+#define __setvcdata(pdata) __asm__ __volatile__ ( \
+   "movq %%rbp,%%r14\n\t" \
+   "andq $-32768,%%r14\n\t" \
+   "movq %%r14,%0\n" \
+   : "=m" (pdata) : : "%r14" \
+   )
+
+
 
 struct vcengine_data {
 	int veid;
