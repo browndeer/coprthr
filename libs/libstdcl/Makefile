@@ -20,6 +20,7 @@ LIBS += -I/home/richie/libelf/libelf-0.8.12/lib
 ### SELECT DEBUG OUTPUT (DO NOT ENABLE IF YOU EXPECT PERFORMANCE!)
 
 DEFS += -DSTDCL_WARN 
+#obsolete
 #DEFS += -DSTDCL_DEBUG
 
 

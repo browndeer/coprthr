@@ -13,6 +13,6 @@ export USE_OPENCL_LIB = -L/usr/local/atistream/lib/x86_64 -lOpenCL
 
 
 ### build additional debug version of libstdcl (0=no/1=yes)
-export ENABLE_DEBUG_LIBSTDCL = 1
+export ENABLE_DEBUG_LIBSTDCL = 0
 
 
