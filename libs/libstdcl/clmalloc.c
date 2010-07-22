@@ -112,7 +112,16 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 
 		memd->flags |= __MEMD_F_ATTACHED;
 
-		LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);
+		if (!memd->clbuf) {
+
+			free((void*)ptri);
+			ptr = 0;
+
+		} else {
+
+			LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);
+
+		}
 
 	}
 
