@@ -20,7 +20,7 @@ int main( int argc, char** argv )
 		else if (!strncmp(arg,"--gpu",6)) { cp = stdgpu; }
 	}
 
-	if (!cp) exit(-1);
+	if (!cp) exit(0);
 
 	int ndev = clgetndev(cp);
 

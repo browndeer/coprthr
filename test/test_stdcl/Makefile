@@ -9,7 +9,7 @@ CLSRC = test_arg_int.cl test_arg_int4.cl \
 TOPDIR ?= ../
 
 INCS = -I/usr/local/browndeer/include
-LIBS = -lm -L/usr/local/browndeer/lib -lstdcl_d
+LIBS = -lm -L/usr/local/browndeer/lib -lstdcl
 
 SRC_TESTS = $(addprefix test_stdcl_,$(addsuffix .c,$(TESTS)))
 #CLSRC = $(addprefix test_,$(addsuffix .cl,$(TESTS)))
@@ -50,6 +50,9 @@ test: clean getndev.x $(CLSRC) $(PRG_TESTS)
 
 quicktest: clean getndev.x $(CLSRC) $(PRG_TESTS)
 	/usr/bin/time ./scripts/run_quick_tests.sh $(PRG_TESTS)
+
+looptest: clean getndev.x $(CLSRC) $(PRG_TESTS)
+	/usr/bin/time ./scripts/run_loop_tests.sh $(PRG_TESTS)
 
 
 clean:

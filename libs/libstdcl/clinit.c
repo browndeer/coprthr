@@ -401,10 +401,12 @@ void __attribute__((__destructor__(102))) _libstdcl_fini()
 	munmap(procelf,procelf_sz);
 	close(procelf_fd);
 
+/* Dangerous, order of destructors not well-controled, just let them die -DAR 
 	if (stddev) clcontext_destroy(stddev);
 	if (stdcpu) clcontext_destroy(stdcpu);
 	if (stdgpu) clcontext_destroy(stdgpu);
 //	if (stdrpu) clcontext_destroy(stdrpu);
+*/
 
 }
 
