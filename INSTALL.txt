@@ -1,0 +1,7 @@
+
+Step 1) modify Makefile.choices as necessary
+Step 2) type 'make'
+Step 3) type 'sudo make install'
+
+thats it. -DAR
+

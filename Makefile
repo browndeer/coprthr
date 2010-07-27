@@ -4,10 +4,10 @@ include Makefile.choices
 BUILD_LIBS = libocl libstdcl
 BUILD_TOOLS = xclnm clld cltrace
 
-export INSTALL_BIN_DIR = /usr/local/browndeer/bin
-export INSTALL_LIB_DIR = /usr/local/browndeer/lib
-export INSTALL_INCLUDE_DIR = /usr/local/browndeer/include
-export INSTALL_MAN_DIR = /usr/share/man
+#export INSTALL_BIN_DIR = /usr/local/browndeer/bin
+#export INSTALL_LIB_DIR = /usr/local/browndeer/lib
+#export INSTALL_INCLUDE_DIR = /usr/local/browndeer/include
+#export INSTALL_MAN_DIR = /usr/share/man
 
 
 SUBDIRS = 
