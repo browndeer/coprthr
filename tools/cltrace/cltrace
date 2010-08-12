@@ -1,0 +1,71 @@
+#!/bin/sh
+
+arg1="";
+
+level_0=0;
+level_1=1;
+level_2=0;
+
+for arg in $*; do
+	case $arg in 
+		-0)
+			level_0=1;
+			;;
+		--cal)
+			level_0=1;
+			;;
+		--no-cal)
+			level_0=0;
+			;;
+		-1)
+			level_1=1;
+			;;
+		--opencl)
+			level_1=1;
+			;;
+		--no-opencl)
+			level_1=0;
+			;;
+		-2)
+			level_2=2;
+			;;
+		--stdcl)
+			level_2=2;
+			;;
+		--no-stdcl)
+			level_2=0;
+			;;
+		-c)
+			CLTRACE_REPORT=1; export CLTRACE_REPORT;
+			;;
+		-t)
+			CLTRACE_TIMESTAMP=1; export CLTRACE_TIMESTAMP;
+			;;
+		-T)
+			CLTRACE_TIMER=1; export CLTRACE_TIMER;
+			;;
+		*)
+			arg1="$arg1 $arg";
+			;;
+	esac;
+done
+
+LD_PRELOAD=""
+
+#if [ $level_2 -eq 1 ]; then
+#		LD_PRELOAD=libcltrace2.so:$LD_PRELOAD; export LD_PRELOAD
+#fi
+
+if [ $level_1 -eq 1 ]; then
+		LD_PRELOAD=libcltrace1.so:$LD_PRELOAD; export LD_PRELOAD
+fi
+
+if [ $level_0 -eq 1 ]; then
+		LD_PRELOAD=libcltrace0_calrt.so:$LD_PRELOAD; export LD_PRELOAD
+		LD_PRELOAD=libcltrace0_calcl.so:$LD_PRELOAD; export LD_PRELOAD
+fi
+
+
+#exec $*
+exec $arg1
+

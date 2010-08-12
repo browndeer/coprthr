@@ -72,8 +72,6 @@ __test_memd_magic(void* ptr)
 void* clmalloc(CONTEXT* cp, size_t size, int flags)
 {
 
-//	size *=2;
-
 	DEBUG(__FILE__,__LINE__,"clmalloc: size=%d flag=%d",size,flags);
 
 	int err;
@@ -91,17 +89,17 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 			"clmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
 	} //// XXX CL_MEM_READ_WRITE implied -DAR
 
+	memd->magic = CLMEM_MAGIC;
 	memd->flags = __MEMD_F_RW;
 	memd->sz = size;
 
-	if (flags&CL_MEM_UNATTACHED) {
+	if (flags&CL_MEM_DETACHED) {
 	
 		memd->clbuf = (cl_mem)0;
 
 	} else {
 
 		memd->clbuf = clCreateBuffer(
-//      	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR,
       	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
       	size,(void*)ptr,&err
    	);
@@ -126,7 +124,6 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 	}
 
 	return((void*)ptr);
-	
 }
 
 
@@ -219,7 +216,6 @@ int clmdetach( void* ptr )
 		ERROR(__FILE__,__LINE__,"clmdetach: memd corrupt");
 
 		return(EFAULT);
-
 	}
 
 	if (!(memd->flags&__MEMD_F_ATTACHED)) return(EINVAL);
@@ -285,14 +281,14 @@ int clmctl( void* ptr, int op, int arg )
 cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 {
 	int err;
+
 	cl_event ev;
+
 	if (!ptr) return((cl_event)0);
+
 	intptr_t ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
 	struct _memd_struct* memd = (struct _memd_struct*)ptri;
 
-//	__cmdq__(cp,0); // XXX this is a hack -DAR
-
-//	if (flags&CL_MEM_WRITE) {
 	if (flags&CL_MEM_WRITE || flags&CL_MEM_DEVICE) {
 		err = clEnqueueWriteBuffer(
 			cp->cmdq[devnum],memd->clbuf,CL_FALSE,0,memd->sz,ptr,0,0,&ev
@@ -312,9 +308,6 @@ cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 
 	/* XXX need to add eventq for mem cmds, for now just warn no supp -DAR */
-
-//	WARN(__FILE__,__LINE__,
-//		"clmsync warning: blocking, CL_EVENT_NOWAIT unsupported\n");
 
 	if (flags & CL_EVENT_NOWAIT) {
 
@@ -336,6 +329,121 @@ cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	}
 
 	return(ev);
+
+}
+
+
+void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
+{
+	int err;
+
+	DEBUG(__FILE__,__LINE__,"clmrealloc: size=%d flag=%d",size,flags);
+
+	if (!__test_memd_magic(p)) {
+
+		ERROR(__FILE__,__LINE__,"clmrealloc: invalid ptr");
+
+		return(0);
+	}
+
+	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
+		WARN(__FILE__,__LINE__,
+			"clmrealloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
+	} //// XXX CL_MEM_READ_WRITE implied -DAR
+
+
+	intptr_t ptr = (intptr_t)p;
+
+	intptr_t ptri;
+	struct _memd_struct* memd;
+	cl_uint memd_flags;
+
+
+	if (ptr) {
+
+		DEBUG(__FILE__,__LINE__,"ptr != 0");
+		ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
+		memd = (struct _memd_struct*)ptri;
+
+		if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
+			|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
+
+			ERROR(__FILE__,__LINE__,"clmrealloc: memd corrupt");
+
+			return(0);
+		}
+
+		if (memd->flags&__MEMD_F_ATTACHED) {
+
+			err = clReleaseMemObject(memd->clbuf);
+
+			LIST_REMOVE(memd, memd_list);
+
+		}
+
+		memd_flags = memd->flags;
+
+		ptri = (intptr_t)realloc((void*)ptri,size+sizeof(struct _memd_struct));
+
+		DEBUG(__FILE__,__LINE__,"%p %d",ptri,size+sizeof(struct _memd_struct));
+
+	} else {
+
+		ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
+
+		memd_flags = __MEMD_F_RW;
+
+	}
+
+
+	ptr = ptri+sizeof(struct _memd_struct);
+	memd = (struct _memd_struct*)ptri;
+	DEBUG(__FILE__,__LINE__,"%p %p",ptr,memd);
+
+	memd->magic = CLMEM_MAGIC;
+	memd->flags = memd_flags;
+	memd->sz = size;
+
+
+	if (flags&CL_MEM_DETACHED) {
+	
+		DEBUG(__FILE__,__LINE__,"detached",ptr,memd);
+		memd->clbuf = (cl_mem)0;
+
+	} else {
+
+		memd->clbuf = clCreateBuffer(
+      	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+      	size,(void*)ptr,&err
+   	);
+
+		DEBUG(__FILE__,__LINE__,"clmrealloc: clCreateBuffer clbuf=%p",memd->clbuf);
+
+		DEBUG(__FILE__,__LINE__,"clmrealloc: err from clCreateBuffer %d",err);
+
+		memd->flags |= __MEMD_F_ATTACHED;
+
+		if (!memd->clbuf) {
+
+			free((void*)ptri);
+			ptr = 0;
+
+		} else {
+
+			LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);
+
+		}
+
+	}
+
+	if (!__test_memd_magic((void*)ptr)) {
+
+		ERROR(__FILE__,__LINE__,"clmrealloc: invalid ptr");
+
+		return(0);
+	}
+
+	return((void*)ptr);
 
 }
 

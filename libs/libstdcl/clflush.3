@@ -1,0 +1,27 @@
+.TH CLFLUSH "3" "2010-8-12" "libstdcl-1.0" "Standard Compute Layer (CL) Manual"
+.SH NAME
+clflush \- Flush the CL command queue
+.SH SYNOPSIS
+.B #include <stdcl.h>
+.sp
+.BI "int clflush( CONTEXT* " cp ", cl_uint " devnum ", int " flags );
+.sp
+Link with \fI\-lstdcl\fP.
+.SH DESCRIPTION
+clflush() is used to flush the OpenCL command queue for device number 
+\fIdevnum\fP within a CL context.  For certain OpenCL implementations this
+is necessary to initiate operations to be executed asychronously.
+.PP
+The \fIflags\fP argument is reserved for future use and presently ignored.
+.SH RETURN VALUE
+On error clflush() will return (cl_event)(-1) and errno is set appropriately.
+.SH AUTHOR
+Written by David Richie.
+.SH REPORTING BUGS
+Report bugs to <support@browndeertechnology.com>
+.SH COPYRIGHT
+Copyright (C) 2010 Brown Deer Technology, LLC.  Licensed under the
+GNU Lesser General Public License version 3 (LGPLv3).
+There is NO WARRANTY to the extent permitted by law.
+.SH SEE ALSO
+clfork(3), clmsync(3), clwait(3), stdcl(3)

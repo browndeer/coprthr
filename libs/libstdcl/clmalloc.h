@@ -37,7 +37,7 @@
 #define CL_MEM_HOST				0x0100
 #define CL_MEM_DEVICE			0x0200
 #define CL_MEM_NOCOPY			0x0400
-#define CL_MEM_UNATTACHED		0x1000
+#define CL_MEM_DETACHED			0x1000
 
 #define CL_MCTL_GET_STATUS	1
 #define CL_MCTL_GET_DEVNUM	2
@@ -52,7 +52,7 @@ struct _memd_struct {
    union {
       struct {
          LIST_ENTRY(_memd_struct) memd_list;
-         const cl_uint magic;
+         cl_uint magic;
          cl_uint flags;
          size_t sz;
          cl_mem clbuf;
@@ -81,6 +81,7 @@ void clfree( void* ptr );
 int clmattach( CONTEXT* cp, void* ptr );
 int clmdetach( void* ptr );
 int clmctl( void* ptr, int op, int arg );
+void* clmrealloc(CONTEXT* cp, void* ptr, size_t size, int flag);
 
 
 cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
