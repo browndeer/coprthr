@@ -21,13 +21,15 @@ INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
 INSTALL_LIB_DIR ?= /usr/local/browndeer/lib
 INSTALL_MAN_DIR ?= /usr/share/man
 
-INCS = -I../../include -I/usr/local/atistream/include
+#INCS = -I../../include -I/usr/local/atistream/include
+INCS = -I../../include $(USE_OPENCL_INCS)
 
-LIBS = -lelf -L/usr/local/atistream/lib/x86_64
+#LIBS = -lelf -L/usr/local/atistream/lib/x86_64
+LIBS = $(USE_OPENCL_LIB)
 
 OBJS = clld.o 
 
-CC = gcc44
+#CC = gcc44
 CCFLAGS += -O1 -fPIC 
 
 all: $(BIN_NAME) $(addsuffix .gz,$(MAN1))

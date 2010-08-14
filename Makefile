@@ -1,8 +1,8 @@
 
 include Makefile.choices
 
-BUILD_LIBS = libocl libstdcl
-BUILD_TOOLS = xclnm clld cltrace
+BUILD_LIBS = libstdcl
+BUILD_TOOLS = cltrace
 
 #export INSTALL_BIN_DIR = /usr/local/browndeer/bin
 #export INSTALL_LIB_DIR = /usr/local/browndeer/lib

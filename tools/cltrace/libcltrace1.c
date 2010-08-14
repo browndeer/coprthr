@@ -182,7 +182,8 @@ static char* cltrace_timer = 0;
 static int init_skip = 0;
 static int fini_defer = 0;
 
-void __attribute__((__constructor__(101))) _libcltrace1_init(void)
+//void __attribute__((__constructor__(101))) _libcltrace1_init(void)
+void __attribute__((__constructor__)) _libcltrace1_init(void)
 {
 	if (init_skip==1) return;
 
@@ -194,7 +195,8 @@ void __attribute__((__constructor__(101))) _libcltrace1_init(void)
 	init_skip = 1;
 }
 
-void __attribute__((__destructor__(101))) _libcltrace1_fini(void)
+//void __attribute__((__destructor__(101))) _libcltrace1_fini(void)
+void __attribute__((__destructor__)) _libcltrace1_fini(void)
 {
 	if (fini_defer==1) { fini_defer=2; return; }
 

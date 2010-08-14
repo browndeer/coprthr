@@ -1,11 +1,13 @@
 # Makefile.choices
 
+
 # Edit this file to make choices affecting the build and install of coprthr_sdk
 
 
 ### uncomment these lines to use ATI Stream OpenCL implementation for libstdcl
 export USE_OPENCL_INCS = -I/usr/local/atistream/include
 export USE_OPENCL_LIB = -L/usr/local/atistream/lib/x86_64 -lOpenCL
+
 
 ### uncomment these lines to use Brown Deer OpenCL implementation for libstdcl
 #export USE_OPENCL_INCS = -I/usr/local/browndeer/include
@@ -21,4 +23,5 @@ export INSTALL_BIN_DIR = /usr/local/browndeer/bin
 export INSTALL_LIB_DIR = /usr/local/browndeer/lib
 export INSTALL_INCLUDE_DIR = /usr/local/browndeer/include
 export INSTALL_MAN_DIR = /usr/share/man
+
 

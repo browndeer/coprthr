@@ -3,25 +3,14 @@
 #
 
 ### select default OpenCL implementation if not already defined
-USE_OPENCL_INCS ?= -I/usr/local/browndeer/include
-USE_OPENCL_LIB ?= -L/usr/local/browndeer/lib -locl
+USE_OPENCL_INCS ?= -I/usr/local/atistream/include
+USE_OPENCL_LIB ?= -L/usr/local/atistream/lib/x86_64 -lOpenCL
 
 ### enable build of debug version if not already defined
 ENABLE_DEBUG_LIBSTDCL ?= 1
 
 
-### SET PATH TO libelf (tested with 0.8.12)
-
-INCS += -I/home/richie/libelf/libelf-0.8.12/lib
-LIBS += -I/home/richie/libelf/libelf-0.8.12/lib
-
-
-
-### SELECT DEBUG OUTPUT (DO NOT ENABLE IF YOU EXPECT PERFORMANCE!)
-
 DEFS += -DSTDCL_WARN 
-#obsolete
-#DEFS += -DSTDCL_DEBUG
 
 
 INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include
@@ -44,6 +33,7 @@ LIBS += $(USE_OPENCL_LIB)
 LIBS += -lpthread -ldl
 
 OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o 
+OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h 
 
 MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
@@ -56,33 +46,33 @@ MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
 INSTALL_INCS = $(HDRS)
 INSTALL_LIBS = libstdcl.so libstdcl_d.so
 
-CC = gcc44
+#CC = gcc44
 CCFLAGS += -g -O2 -fPIC
 
-all: libstdcl.so $(addsuffix .gz,$(MAN3))
+TARGET = libstdcl.so $(addsuffix .gz,$(MAN3))
 ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
-	make -f Makefile.debug clean all
+TARGET += libstdcl_d.so 
 endif
 
-.phony: install uninstall clean distclean check_root debug
+all: $(TARGET)
 
-debug: 
-	make -f Makefile.debug
+.phony: install uninstall clean distclean check_root debug
 
 libstdcl.so: $(OBJS)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \
 		-o libstdcl.so $(OBJS) $(LIBS)
-#	cp -f libstdcl.so ./lib
-#	cp -f $(HDRS) ./include
 
-libstdcl_d.so:
-	make -f Makefile.debug
+libstdcl_d.so: $(OBJS_D)
+	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl_d.so \
+		-o libstdcl_d.so $(OBJS_D) $(LIBS)
 
 .SUFFIXES:
-.SUFFIXES: .so .c .o 
 
-.c.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+%_d.o:
+	$(CC) $(CCFLAGS) $(DEFS) -DSTDCL_DEBUG $(INCS) -c $*.c -o $*_d.o
+
+%.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $*.c
 
 %.3.gz:
 	-gzip -f -c $*.3 > $*.3.gz
@@ -124,11 +114,9 @@ uninstall: check_root
 
 
 clean:
-#	rm -f *.o 
 	rm -f *.o 
 	rm -f *.1.gz *.3.gz
 	rm -f _interceptor.h 
-
-distclean: clean 
 	rm -f *.so
+
 

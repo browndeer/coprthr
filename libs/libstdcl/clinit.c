@@ -77,7 +77,7 @@ static cl_platform_id _select_platformid(
  * libstdcl initialization ctor and dtor 
  */
 
-void __attribute__((__constructor__(102))) _libstdcl_init()
+void __attribute__((__constructor__)) _libstdcl_init()
 {
 
 	int i;
@@ -394,7 +394,7 @@ printf("XXX %d\n",nplatforms);
 }
 
 
-void __attribute__((__destructor__(102))) _libstdcl_fini()
+void __attribute__((__destructor__)) _libstdcl_fini()
 {
 	DEBUG(__FILE__,__LINE__,"_libstdcl_fini() called");
 

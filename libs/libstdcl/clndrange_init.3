@@ -4,11 +4,11 @@ clndrange_init1d, clndrange_init2d, clndrange_init3d - Initialize the index-spac
 .SH SYNOPSIS
 .B #include <stdcl.h>
 .sp
-.BI "clndrange_init1d( " gtoff0 "," gt0 "," lt0 );
+.BI "clndrange_t clndrange_init1d( " gtoff0 "," gt0 "," lt0 );
 .sp
-.BI "clndrange_init2d( " gtoff0 "," gt0 "," lt0 ", " gtoff1 "," gt1 "," lt1 );
+.BI "clndrange_t clndrange_init2d( " gtoff0 "," gt0 "," lt0 ", " gtoff1 "," gt1 "," lt1 );
 .sp
-.BI "clndrange_init3d( " gtoff0 "," gt0 "," lt0 ", " gtoff1 "," gt1 "," lt1 ", " gtoff2 "," gt2 "," lt2 );
+.BI "clndrange_t clndrange_init3d( " gtoff0 "," gt0 "," lt0 ", " gtoff1 "," gt1 "," lt1 ", " gtoff2 "," gt2 "," lt2 );
 .SH DESCRIPTION
 clndrange_init() family of macros are used to initialize an object of type
 clndrange_t that defines the index-space for the execution of a CL kernel.  

@@ -75,7 +75,8 @@ static char* cltrace_timer = 0;
 static int init_skip = 0;
 static int fini_defer = 0;
 
-void __attribute__((__constructor__(101))) _libcltrace0_calcl_init(void)
+//void __attribute__((__constructor__(101))) _libcltrace0_calcl_init(void)
+void __attribute__((__constructor__)) _libcltrace0_calcl_init(void)
 {
 //   if (init_skip==1) return;
 
@@ -87,7 +88,8 @@ void __attribute__((__constructor__(101))) _libcltrace0_calcl_init(void)
 }
 
 
-void __attribute__((__destructor__(101))) _libcltrace0_calcl_fini(void)
+//void __attribute__((__destructor__(101))) _libcltrace0_calcl_fini(void)
+void __attribute__((__destructor__)) _libcltrace0_calcl_fini(void)
 {
 //   if (fini_defer==1) { fini_defer=2; return; }
 
