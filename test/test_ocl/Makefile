@@ -2,7 +2,8 @@
 TESTS = test_arg_int test_block_int test_arg_int4 \
 	test_arg_float test_block_float test_arg_float4 \
 	test_special \
-	test_math_float
+	test_math_float \
+	test_block2_int
 
 #TESTS = test_faf
 
