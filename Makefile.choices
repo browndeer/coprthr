@@ -6,12 +6,12 @@
 
 ### uncomment these lines to use ATI Stream OpenCL implementation for libstdcl
 export USE_OPENCL_INCS = -I/usr/local/atistream/include
-export USE_OPENCL_LIB = -L/usr/local/atistream/lib/x86_64 -lOpenCL
+#export USE_OPENCL_LIB = -L/usr/local/atistream/lib/x86_64 -lOpenCL
 
 
 ### uncomment these lines to use Brown Deer OpenCL implementation for libstdcl
-#export USE_OPENCL_INCS = -I/usr/local/browndeer/include
-#export USE_OPENCL_LIB = -L/usr/local/browndeer/lib -locl
+export USE_OPENCL_INCS += -I/usr/local/browndeer/include
+export USE_OPENCL_LIB = -L/usr/local/browndeer/lib -locl
 
 
 ### build additional debug version of libstdcl (0=no/1=yes)

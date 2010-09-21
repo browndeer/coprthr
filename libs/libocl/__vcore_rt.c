@@ -39,9 +39,7 @@
 
 void barrier( int flags )
 {
-//	struct vc_data* data = __getvcdata();
 	struct vc_data* data;
-//	if (!(setjmp(*(data->this_jbufp)))) longjmp(*(data->next_jbufp),flags);
 	__setvcdata(data);
 	if (!(__vc_setjmp(*(data->this_jbufp)))) 
 		__vc_longjmp(*(data->next_jbufp),flags);
@@ -50,6 +48,7 @@ void barrier( int flags )
 uint get_work_dim() { return((__getvcdata())->workp->tdim); }
 
 size_t get_local_size(uint d) { return((__getvcdata())->workp->ltsz[d]); }
+//size_t get_local_id(uint d) { return((__getvcdata())->ltid[d]); }
 size_t get_local_id(uint d) { return((__getvcdata())->ltid[d]); }
 
 size_t get_num_groups(uint d) { return((__getvcdata())->workp->gsz[d]); }

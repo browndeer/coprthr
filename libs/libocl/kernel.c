@@ -125,7 +125,8 @@ int __do_set_kernel_arg(
 
 			if (arg_sz != sizeof(cl_mem)) return(CL_INVALID_ARG_SIZE);
 
-DEBUG(__FILE__,__LINE__,"from set arg %p %p",arg_val,*(cl_mem*)arg_val);
+			DEBUG(__FILE__,__LINE__,"from set arg %p %p",
+				arg_val,*(cl_mem*)arg_val);
 
 			memcpy(p,arg_val,arg_sz);
 
@@ -143,8 +144,23 @@ DEBUG(__FILE__,__LINE__,"from set arg %p %p",arg_val,*(cl_mem*)arg_val);
 
 		case CLARG_KIND_CONSTANT:
 
-			ERROR(__FILE__,__LINE__,"constant arg not supported");
-			return(CL_ENOTSUP);
+//			ERROR(__FILE__,__LINE__,"constant arg not supported");
+//			return(CL_ENOTSUP);
+//
+//			break;
+
+			if (arg_sz != krn->imp.arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+
+			if (!arg_val) return (CL_INVALID_ARG_VALUE);
+
+			if (__invalid_memobj(arg_val)) return(CL_INVALID_MEM_OBJECT);
+
+			if (arg_sz != sizeof(cl_mem)) return(CL_INVALID_ARG_SIZE);
+
+			DEBUG(__FILE__,__LINE__,"from set arg %p %p",
+				arg_val,*(cl_mem*)arg_val);
+
+			memcpy(p,arg_val,arg_sz);
 
 			break;
 

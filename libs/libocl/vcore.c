@@ -277,14 +277,14 @@ vcengine( void* p )
 					default: break;
 				} 
 
-				DEBUG(__FILE__,__LINE__,"launching vcores");
+				DEBUG(__FILE__,__LINE__,"launching vcores (%d)",nc);
 
 				char* sp;
 				for(i=0;i<nc;i++) {
 //					if (!(setjmp(vcengine_jbuf))) {
 					if (!(__vc_setjmp(vcengine_jbuf))) {
 						sp = vc_stack[i];
-						DEBUG(__FILE__,__LINE__,"sp %p",sp);
+						DEBUG(__FILE__,__LINE__,"[%d] sp %p",i,sp);
 						__callsp(sp,edata->callp,edata);
 					}
 				}
@@ -348,6 +348,9 @@ vcproc_startup( void* p )
 	engine_local_mem_base = (char**)calloc(vcore_ne,sizeof(char*));
 	engine_local_mem_free = (char**)calloc(vcore_ne,sizeof(char*));
 	engine_local_mem_sz = (size_t*)calloc(vcore_ne,sizeof(size_t));
+
+	DEBUG(__FILE__,__LINE__,"alloc vc_stack_storage: calloc(%d,1)"
+		,(VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne);
 
 	vc_stack_storage = (char*)calloc((VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne,1);
 	ve_local_mem = (char*)calloc(VCORE_LOCAL_MEM_SZ*vcore_ne,1);
@@ -440,6 +443,7 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 		switch(argp->k.arg_kind[i]) {
 
+			case CLARG_KIND_CONSTANT:
 			case CLARG_KIND_GLOBAL:
 
 				DEBUG(__FILE__,__LINE__, "argp->k.pr_arg_vec[i]=%p",
@@ -534,6 +538,9 @@ DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 					engine_local_mem_free[e] += sz;
 					engine_local_mem_sz[e] -= sz;
 
+					DEBUG(__FILE__,__LINE__,"ve[%d] local mem sz free %d",
+						e,engine_local_mem_sz[e]);
+
 					break;
 
 //				case CLARG_KIND_UNDEFINED:
@@ -567,6 +574,7 @@ DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 	unsigned int inc0 = nge0*lwsd1;
 	unsigned int inc = nge*lwsd1;
 
+	DEBUG(__FILE__,__LINE__,"d gwsd1 lwsd1 ng: %d %d %d %d\n",d,gwsd1,lwsd1,ng);
 	DEBUG(__FILE__,__LINE__,"partitioning: %d %d -> %d %d \n",nge,nge0,inc,inc0);
 
 	unsigned int gwo = argp->k.global_work_offset[d-1];
@@ -578,7 +586,8 @@ DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 
 //	for(i=1;i<VCORE_NE;i++) {
 //	for(i=1;i<vcore_ne;i++) {
-	for(e=veid_base+1,i=0;e<veid_end;e++,i++) {
+//	for(e=veid_base+1,i=0;e<veid_end;e++,i++) {
+	for(e=veid_base+1,i=1;e<veid_end;e++,i++) {
 		subcmd_argp[i].k.global_work_offset[d-1] = gwo;
 		gwo += subcmd_argp[i].k.global_work_size[d-1] = inc;
 	}

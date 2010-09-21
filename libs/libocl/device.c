@@ -246,7 +246,9 @@ void __do_discover_devices(
 //	dtab[0].imp.cpu.veid_last = ncore-1;
 
 	int i;
+
 	unsigned int ncore = sysconf(_SC_NPROCESSORS_ONLN);
+
 #ifdef ENABLE_NCPU
 //	char buf[256];
 
@@ -298,6 +300,8 @@ void __do_discover_devices(
 	dtab[0].imp.cpu.nve = ncore;
 #endif
 
+
+	DEBUG(__FILE__,__LINE__,"calling vcproc_startup");
 
 	vcproc_startup(0);
 

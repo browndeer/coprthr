@@ -1,13 +1,13 @@
 ENABLE_NCPU = 1
 ENABLE_ATIGPU = 0
-USE_BDT_BUILTINS = 1
+USE_BDT_BUILTINS = 0
 
 LIB_NAME = libocl
 
-DEFS += -DXCL_DEBUG 
-DEFS += -DXCL_WARN
+#DEFS += -DXCL_DEBUG 
+#DEFS += -DXCL_WARN
 
-DEFS += -DUSE_FAST_SETJMP	# ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING
+#DEFS += -DUSE_FAST_SETJMP	# ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING
 
 
 INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
@@ -71,7 +71,8 @@ DEFS += \
 	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
 	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
 
-CFLAGS += -O1 -fPIC -fbounds-check -g
+#CFLAGS += -O1 -fPIC -fbounds-check -g
+CFLAGS += -O1 -fPIC -funroll-loops -fstrict-aliasing
 
 
 #YACC = yacc
@@ -83,7 +84,7 @@ LEXFLAGS =
 
 XCLNM_YYPREFIX = __xclnm_
 
-all: $(LIB_NAME).so $(RT_OBJS) $(RT_BC)
+all: $(LIB_NAME).so $(RT_OBJS) $(RT_BC) ati_builtins_x86_64_patch.bc
 
 .PHONY: check_root clean install uninsstall
 
@@ -102,6 +103,8 @@ bdt_builtins_x86_64.bc: bdt_builtins_x86_64.c
 	clang -c -emit-llvm $(DEFS) $(INCS) -o bdt_builtins_x86_64.bc \
 		bdt_builtins_x86_64.c
 
+ati_builtins_x86_64_patch.bc: ati_builtins_x86_64_patch.ll
+	llvm-as -f ati_builtins_x86_64_patch.ll
 
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
@@ -124,6 +127,7 @@ install: check_root
 	install -m 755 $(LIB_NAME).so $(INSTALL_LIB_DIR)
 	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
 	install -m 755 $(RT_BC) $(INSTALL_LIB_DIR)
+	install -m 755 ati_builtins_x86_64_patch.bc $(INSTALL_LIB_DIR)
 	install -m 755 vcore.h $(INSTALL_INCLUDE_DIR)
 
 uninstall: check_root

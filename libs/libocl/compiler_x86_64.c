@@ -334,6 +334,11 @@ void* compile_x86_64(
             }
 #else
             if (need_builtins) {
+					__command("cp %s/ati_builtins_x86_64_patch.bc %s",
+						INSTALL_LIB_DIR,wd);
+					__log(logp,"]%s\n",buf1); \
+					__execshell(buf1,logp);
+
                __command(
                   "cd %s;"
                   " llvm-ex -f -func=%s %s/lib/x86_64/builtins_x86-64.bc"
@@ -341,6 +346,7 @@ void* compile_x86_64(
                   wd,buf2,ATISTREAMSDK);
                __log(logp,"]%s\n",buf1);
                __execshell(buf1,logp);
+
             }
 #endif
 
@@ -367,7 +373,8 @@ void* compile_x86_64(
 #else
                __command(
                   "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc"
-						" builtins.bc  2>&1",
+//						" builtins.bc  2>&1",
+						" builtins.bc  ati_builtins_x86_64_patch.bc 2>&1",
                   wd,filebase,filebase);
 #endif
             } else {
@@ -399,7 +406,8 @@ void* compile_x86_64(
 
 				/* assemble to native object */
 
-				__command("cd %s; gcc -O3 -fPIC -g -c _opt_%s.s 2>&1",wd,filebase); 
+//				__command("cd %s; gcc -O3 -fPIC -g -c _opt_%s.s 2>&1",wd,filebase); 
+				__command("cd %s; gcc -O2 -fPIC -c _opt_%s.s 2>&1",wd,filebase); 
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
 
@@ -416,10 +424,12 @@ void* compile_x86_64(
 
 #if defined(USE_FAST_SETJMP)
 				__command(
-					"cd %s; gcc -g -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
+//					"cd %s; gcc -g -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
+					"cd %s; gcc -O2 -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
-				__command("cd %s; gcc -g -fPIC -I%s -c _kcall_%s.c 2>&1",
+//				__command("cd %s; gcc -g -fPIC -I%s -c _kcall_%s.c 2>&1",
+				__command("cd %s; gcc -O2 -fPIC -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #endif
 				__log(logp,"]%s\n",buf1); \
@@ -608,7 +618,8 @@ DEBUG(0,0,"HERE");
 
 				/* now build .so that will be used for link */
 
-				__command("cd %s; gcc -g -shared -Wl,-soname,%s.so -o %s.so"
+//				__command("cd %s; gcc -g -shared -Wl,-soname,%s.so -o %s.so"
+				__command("cd %s; gcc -O2 -shared -Wl,-soname,%s.so -o %s.so"
 					" _opt_%s.o _kcall_%s.o __elfcl_rt.o"
 //					" fast_setjmp.o"
 					" %s.elfcl 2>&1",

@@ -207,6 +207,10 @@ cl_int __do_build_program_from_source(
 				
 				DEBUG(__FILE__,__LINE__,"w/multiplicity arg_sz[%d] %d",arg,sz);
 
+				DEBUG(__FILE__,__LINE__,"e_ptrc=%d e_addrspace=%d",
+					prg->imp.clargtab[arg].e_ptrc,
+					prg->imp.clargtab[arg].e_addrspace);
+
 				if (prg->imp.clargtab[arg].e_ptrc == 0) {
 
 					prg->imp.karg_kind[i][j] = CLARG_KIND_DATA;
@@ -217,6 +221,11 @@ cl_int __do_build_program_from_source(
 					if (prg->imp.clargtab[arg].e_addrspace == 1) {
 
 						prg->imp.karg_kind[i][j] = CLARG_KIND_GLOBAL;
+						sz = sz_ptr;
+
+					} else if (prg->imp.clargtab[arg].e_addrspace == 2) {
+
+						prg->imp.karg_kind[i][j] = CLARG_KIND_CONSTANT;
 						sz = sz_ptr;
 
 					} else if (prg->imp.clargtab[arg].e_addrspace == 3) {
