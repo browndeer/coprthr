@@ -23,12 +23,12 @@
 ### unary float *(float) with arg < 1.0
 @builtins_unary_f_f_0 = qw(
 	acos acospi asin asinh asinpi atan atanh atanpi 
-	cbrt ceil cos cosh cospi
+	cbrt ceil cos cosh 
 	erfc erf exp exp2 exp10 expm1
 	fabs 
 	lgamma log log2 log10 log1p logb 
 	rint round rsqrt
-	sin sinh sinpi sqrt
+	sin sinh sqrt
 );
 
 ### unary float *(float) with arg > 1.0
