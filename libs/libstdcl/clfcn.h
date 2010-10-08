@@ -33,7 +33,8 @@
 #define CLLD_DEFAULT	0	
 #define CLLD_LAZY		1
 #define CLLD_NOW 		2
-#define CLLD_GLOBAL	4
+#define CLLD_NOBUILD	4
+#define CLLD_GLOBAL	8
 
 
 struct _prgs_struct {
@@ -70,6 +71,7 @@ extern "C" {
 #endif
 
 void* clload( CONTEXT* cp, void* ptr, size_t sz, int flags );
+void* clbuild( CONTEXT* cp, void* handle, char* options, int flags );
 void* clopen( CONTEXT* cp, const char* fname, int flags );
 cl_kernel clsym( CONTEXT* cp, void* handle, const char* sname, int flags );
 int clclose(CONTEXT* cp, void* handle);

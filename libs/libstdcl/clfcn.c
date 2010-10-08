@@ -72,19 +72,31 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 		= (struct _txt_struct*)malloc(sizeof(struct _txt_struct));
 	
 	txt->prgs = prgs;
+	txt->krn = 0;
 
 	txt->prg = clCreateProgramWithSource(
 		cp->ctx,1,(const char**)&ptr,&len,&err
 	);
 	DEBUG(__FILE__,__LINE__,"clload: err from clCreateProgramWithSource %d",err);
 
+	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
 
-	err = clBuildProgram(txt->prg,cp->ndev,cp->dev,0,0,0);
+
+#if(0)
+	if (cp==stdcpu) {
+		err = clBuildProgram(txt->prg,cp->ndev,cp->dev,"-D __CPU__",0,0);
+	} else if (cp==stdgpu) {	
+		err = clBuildProgram(txt->prg,cp->ndev,cp->dev,"-D __GPU__",0,0);
+	} else {
+		err = clBuildProgram(txt->prg,cp->ndev,cp->dev,0,0,0);
+	}
 	DEBUG(__FILE__,__LINE__,"clld: err from clBuildProgram %d",err);
 
 	{
 	char buf[256];
 	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,256,&buf,0);
+	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
+	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_OPTIONS,256,&buf,0);
 	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
 	}
 
@@ -117,12 +129,131 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 			txt->krntab[n].kname,txt->krntab[n].nargs,
 			txt->krntab[n].kctx,txt->krntab[n].kprg);
 	}
-	
+#endif
 
-	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
+	if (!(flags&CLLD_NOBUILD)) {
+		DEBUG(__FILE__,__LINE__,"clload: calling clbuild");
+		clbuild(cp,prgs,0,flags);
+	}
+
+
+//	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
 
 	
 	return((void*)prgs);
+
+}
+
+
+void* 
+clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
+{
+	int n;
+	int err;
+	struct _prgs_struct* prgs;
+
+	DEBUG(__FILE__,__LINE__," checking cp ");
+
+	if (!cp) return(0);
+
+	DEBUG(__FILE__,__LINE__," cp ok ");
+
+	prgs = (struct _prgs_struct*)handle;
+
+	DEBUG(__FILE__,__LINE__,"prgs %p",prgs);
+
+	struct _txt_struct* txt;
+   for (
+      txt = cp->txt_listhead.lh_first; txt != 0;
+      txt = txt->txt_list.le_next
+   ) {
+		if (prgs==0 || txt->prgs == prgs) break;
+   }
+
+	if (!txt) {
+		DEBUG(__FILE__,__LINE__,"clbuild: bad handle");
+		return(-1);
+	}
+
+//// begin compile
+
+	char opts[1024] = "-D __STDCL__";
+
+	if (cp==stdcpu) {
+		strcat(opts," -D __CPU__");
+	} else if (cp==stdgpu) {	
+		strcat(opts," -D __GPU__");
+	}
+
+	char cwd[1024];
+	if ( getcwd(cwd,1024) ) {
+		n = strnlen(cwd,1024);
+		if (n-strnlen(opts,1024)>1022) {
+			WARN(__FILE__,__LINE__,
+				"clbuild: cwd too long to include as header search path.");
+		} else {
+			strcat(opts," -I");
+			strncat(opts,cwd,n);
+		}
+	}
+
+	if (uopts) {
+
+		n = strnlen(uopts,64);
+		DEBUG(__FILE__,__LINE__,"%d",n);
+		if (n-strnlen(opts,1024)>1022) {
+			WARN(__FILE__,__LINE__,
+				"clbuild: options string too long, ignoring it.");
+		} else {
+			strcat(opts," ");
+			strncat(opts,uopts,n);
+		}
+
+	}
+	DEBUG(__FILE__,__LINE__,"%s",opts);
+
+	err = clBuildProgram(txt->prg,cp->ndev,cp->dev,opts,0,0);
+	DEBUG(__FILE__,__LINE__,"clbuild: err from clBuildProgram %d",err);
+
+	{
+	char buf[256];
+	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,256,&buf,0);
+	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
+	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_OPTIONS,256,&buf,0);
+	DEBUG(__FILE__,__LINE__,"clbuild: log from clBuildProgram %s",buf);
+	}
+
+	err = clCreateKernelsInProgram(txt->prg,0,0,&txt->nkrn);
+	DEBUG(__FILE__,__LINE__,"clbuild: NUMBER OF KERNELS %d",txt->nkrn);
+	txt->krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
+	err = clCreateKernelsInProgram(txt->prg,txt->nkrn,txt->krn,0);
+	txt->krntab = (struct _krntab_struct*)malloc(
+		sizeof(struct _krntab_struct)*txt->nkrn
+	);
+
+	for(n=0;n<txt->nkrn;n++) {
+		clGetKernelInfo(
+			txt->krn[n],CL_KERNEL_FUNCTION_NAME,256,txt->krntab[n].kname,0
+		);
+		clGetKernelInfo(
+			txt->krn[n],CL_KERNEL_NUM_ARGS,sizeof(cl_uint),&txt->krntab[n].nargs,0
+		);
+		clGetKernelInfo(
+			txt->krn[n],CL_KERNEL_REFERENCE_COUNT,sizeof(cl_uint),
+			&txt->krntab[n].refc,0
+		);
+		clGetKernelInfo(
+			txt->krn[n],CL_KERNEL_CONTEXT,sizeof(cl_context),&txt->krntab[n].kctx,0
+		);
+		clGetKernelInfo(
+			txt->krn[n],CL_KERNEL_PROGRAM,sizeof(cl_program),&txt->krntab[n].kprg,0
+		);
+		DEBUG(__FILE__,__LINE__,"clbuild: %s %d %p %p\n",
+			txt->krntab[n].kname,txt->krntab[n].nargs,
+			txt->krntab[n].kctx,txt->krntab[n].kprg);
+	}
+
+	return(0);
 
 }
 
@@ -282,7 +413,6 @@ clsym( CONTEXT* cp, void* handle, const char* sname, int flags )
       txt = cp->txt_listhead.lh_first; txt != 0;
       txt = txt->txt_list.le_next
    ) {
-//		if (txt->prgs == prgs) {
 		if (prgs==0 || txt->prgs == prgs) {
 			DEBUG(__FILE__,__LINE__,"clsym: txt->krn %p",txt->krn);
 			DEBUG(__FILE__,__LINE__,"clsym: searching kernels ...");
