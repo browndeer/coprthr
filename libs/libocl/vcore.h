@@ -28,6 +28,11 @@
 
 #ifndef __xcl_kcall__
 #include "cmdcall.h"
+#else
+/* XXX this brings in the vec types.  temporary soln. improve it. -DAR */
+#include <CL/cl.h>
+typedef cl_int4 int4;
+typedef cl_float4 float4;
 #endif
 
 #if defined(USE_FAST_SETJMP)
