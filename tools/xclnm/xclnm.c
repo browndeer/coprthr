@@ -778,7 +778,7 @@ void fprintf_type( FILE* fp, node_t* t )
 {
 	int j;
 	fprintf(fp,"%s",type_table[type_ival2index(t->n_type.datatype)].cl_type);
-	if (t->n_type.vecn>1) printf("%d ",t->n_type.vecn);
+	if (t->n_type.vecn>1) fprintf(fp,"%d ",t->n_type.vecn);
 	for(j=0;j<t->n_type.ptrc;j++) fprintf(fp,"*");
 }
 
