@@ -346,9 +346,10 @@ void* compile_x86_64(
 					__log(logp,"]%s\n",buf1); \
 					__execshell(buf1,logp);
 
+					/* XXX hardcoding is hack.  find way to correctly/recursively extract -DAR */
                __command(
                   "cd %s;"
-                  " llvm-ex -f -func=%s %s/lib/x86_64/builtins_x86-64.bc"
+                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins_x86-64.bc"
                   " -o builtins.bc",
                   wd,buf2,ATISTREAMSDK);
                __log(logp,"]%s\n",buf1);
