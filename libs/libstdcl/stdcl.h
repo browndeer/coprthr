@@ -41,6 +41,7 @@
 #include "clsched.h"
 #include "clmalloc.h"
 #include "clfcn.h"
+#include "clarg.h"
 
 
 typedef struct clndrange_struct clndrange_t;
@@ -86,27 +87,24 @@ typedef struct clndrange_struct clndrange_t;
 } while(0);
 
 
-/*
- * CL kernel arguments
-	printf("gloabal clSetKernelArg %d %p\n",sizeof(cl_mem),(void*)&memd->clbuf);
- */
+
+
+
+
+#ifdef __cplusplus
+
+template < typename T >
+void clarg_set( cl_kernel krn, unsigned int argnum, T arg)
+{ clSetKernelArg(krn,argnum,sizeof(typeof(T)),(void*)&arg); }
+
+#else
 
 #define clarg_set(krn,argnum,arg) \
-	clSetKernelArg(krn,argnum,sizeof(typeof(arg)),(void*)&arg);
+ clSetKernelArg(krn,argnum,sizeof(typeof(arg)),(void*)&arg);
 
-#define clarg_set_global(krn,argnum,arg) do { \
-	struct _memd_struct* memd \
-		= (struct _memd_struct*)((intptr_t)arg - sizeof(struct _memd_struct)); \
-	clSetKernelArg(krn,argnum,sizeof(cl_mem),(void*)&memd->clbuf); \
-	} while(0);
+#endif
 
-#define clarg_set_local(krn,argnum,arg) \
-	clSetKernelArg(krn,argnum,arg,0);
 
-#define clarg_assert_proto(kname,...) do { \
-	typeof(_assert_proto_stub)* stub = _assert_proto_stub; \
-	if (strncmp(#kname,"0\0",2)) ((typeof(kname)*)stub)( __VA_ARGS__ ); \
-	} while(0)
 
 
 
@@ -114,6 +112,41 @@ typedef struct clndrange_struct clndrange_t;
 extern "C" {
 #endif
 
+
+/*
+ * CL kernel arguments
+ */
+
+/* for intrinsics need to test if this is included for C or C++ -DAR */
+
+//#ifdef __cplusplus
+//	
+//inline template < typename T >
+//void clarg_set( cl_kernel krn, unsigned int argnum, T arg) 
+//{ clSetKernelArg(krn,argnum,sizeof(typeof(T)),(void*)&arg); }
+//
+//#else
+//
+//#define clarg_set(krn,argnum,arg) \
+//	clSetKernelArg(krn,argnum,sizeof(typeof(arg)),(void*)&arg);
+//
+//#endif
+
+inline void clarg_set_global(cl_kernel krn, unsigned int argnum, void* arg)
+{
+	struct _memd_struct* memd
+		= (struct _memd_struct*)((intptr_t)arg - sizeof(struct _memd_struct));
+	clSetKernelArg(krn,argnum,sizeof(cl_mem),(void*)&memd->clbuf);
+}
+
+inline size_t xxx_clarg_set_global(
+	CONTEXT* cp, cl_kernel krn, unsigned int argnum, void* arg
+)
+{ return(__clarg_set_global(cp,krn,argnum,arg)); }
+
+
+inline void clarg_set_local(cl_kernel krn, unsigned int argnum, size_t arg)
+{ clSetKernelArg(krn,argnum,arg,0); }
 
 
 #ifdef __cplusplus
