@@ -446,8 +446,8 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 			case CLARG_KIND_CONSTANT:
 			case CLARG_KIND_GLOBAL:
 
-				DEBUG(__FILE__,__LINE__, "argp->k.pr_arg_vec[i]=%p",
-					argp->k.pr_arg_vec[i]);
+				DEBUG(__FILE__,__LINE__, "argp->k.pr_arg_vec[%d]=%p",
+					i,argp->k.pr_arg_vec[i]);
 
 				DEBUG(__FILE__,__LINE__, "*cl_mem=%p",
 					(*(cl_mem*)argp->k.pr_arg_vec[i]));
