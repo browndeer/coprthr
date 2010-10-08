@@ -289,6 +289,25 @@ cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	intptr_t ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
 	struct _memd_struct* memd = (struct _memd_struct*)ptri;
 
+	if (memd->magic != CLMEM_MAGIC) {
+		for (
+         memd = cp->memd_listhead.lh_first; memd != 0;
+         memd = memd->memd_list.le_next
+         ) {
+            intptr_t p1 = (intptr_t)memd + sizeof(struct _memd_struct);
+            intptr_t p2 = p1 + memd->sz;
+            if (p1 < (intptr_t)ptr && (intptr_t)ptr < p2) {
+               DEBUG(__FILE__,__LINE__,"memd match");
+					ptr = p1;
+               break;
+            }
+      }
+	}
+
+	DEBUG(__FILE__,__LINE__,"clmsync: memd = %p, base_ptr = %p",
+		memd,(intptr_t)memd+sizeof(struct _memd_struct));
+
+
 	if (flags&CL_MEM_WRITE || flags&CL_MEM_DEVICE) {
 		err = clEnqueueWriteBuffer(
 			cp->cmdq[devnum],memd->clbuf,CL_FALSE,0,memd->sz,ptr,0,0,&ev
@@ -331,6 +350,35 @@ cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	return(ev);
 
 }
+
+void* clmemptr( CONTEXT* cp, void* ptr ) 
+{
+
+	void* p = ptr;
+
+	intptr_t ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
+	struct _memd_struct* memd = (struct _memd_struct*)ptri;
+
+
+	if (memd->magic != CLMEM_MAGIC) {
+		p = 0;
+		for (
+         memd = cp->memd_listhead.lh_first; memd != 0;
+         memd = memd->memd_list.le_next
+         ) {
+            intptr_t p1 = (intptr_t)memd + sizeof(struct _memd_struct);
+            intptr_t p2 = p1 + memd->sz;
+            if (p1 < (intptr_t)ptr && (intptr_t)ptr < p2) {
+               p = p1;
+               break;
+            }
+      }
+	}
+
+	return(p);
+
+}
+
 
 
 void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )

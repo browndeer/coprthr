@@ -72,6 +72,8 @@ clCreateBuffer(
 
 	struct _cl_mem* membuf = (struct _cl_mem*)malloc(sizeof(struct _cl_mem));
 
+	DEBUG(__FILE__,__LINE__,"malloc returned %p",membuf);
+
 
 	if (membuf) {
 

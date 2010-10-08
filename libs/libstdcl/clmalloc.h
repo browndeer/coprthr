@@ -24,7 +24,8 @@
 #ifndef _CLMALLOC_H
 #define _CLMALLOC_H
 
-#include "stdcl.h"
+//#include "stdcl.h"
+#include "clcontext.h"
 
 
 /* XXX use of CL_MEM_WRITE is deprecated! remove it -DAR */
@@ -83,8 +84,9 @@ int clmdetach( void* ptr );
 int clmctl( void* ptr, int op, int arg );
 void* clmrealloc(CONTEXT* cp, void* ptr, size_t size, int flag);
 
-
 cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
+
+void* clmemptr( CONTEXT* CP, void* ptr );
 
 
 #ifdef __cplusplus
