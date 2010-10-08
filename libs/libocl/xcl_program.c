@@ -242,6 +242,8 @@ clBuildProgram(
 			if (!__do_check_compiler_available(devices[j])) 
 				return(CL_COMPILER_NOT_AVAILABLE);
 
+			if (options) prg->build_options[j] = options;
+
 			err = __do_build_program_from_source(prg,devid,j);
 
 		} else {

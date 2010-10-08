@@ -35,21 +35,24 @@ void* compile_x86_64(
 	cl_device_id devid,
    unsigned char* src, size_t src_sz,
    unsigned char* bin, size_t bin_sz,
-   char** opt, char** log
+//   char** opt, char** log
+   char* opt, char* log
 );
 
 void* compile_atigpu(
    cl_device_id,
    unsigned char* src, size_t src_sz,
    unsigned char* bin, size_t bin_sz,
-   char** opt, char** log
+//   char** opt, char** log
+   char* opt, char* log
 );
 
 void* ilcompile_atigpu(
    cl_device_id,
    unsigned char* src, size_t src_sz,
    unsigned char* bin, size_t bin_sz,
-   char** opt, char** log
+//   char** opt, char** log
+   char* opt, char* log
 );
 
 

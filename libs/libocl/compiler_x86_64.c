@@ -189,7 +189,8 @@ void* compile_x86_64(
 	cl_device_id devid,
 	unsigned char* src, size_t src_sz, 
 	unsigned char* bin, size_t bin_sz, 
-	char** opt, char** log 
+//	char** opt, char** log 
+	char* opt, char* log 
 )
 {
 	int i;
@@ -288,7 +289,13 @@ void* compile_x86_64(
 
 				/* clc compile */
 
-				__command("cd %s; clc -o __%s.ll %s 2>&1",wd,filebase,file_cl); 
+				if (opt) {
+					__command("cd %s; clc %s -o __%s.ll %s 2>&1",
+						wd,opt,filebase,file_cl); 
+				} else {
+					DEBUG(__FILE__,__LINE__,"no options");
+					__command("cd %s; clc -o __%s.ll %s 2>&1",wd,filebase,file_cl); 
+				}
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
 

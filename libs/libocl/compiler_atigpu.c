@@ -154,7 +154,8 @@ void* compile_atigpu(
 	cl_device_id devid,
 	unsigned char* src, size_t src_sz, 
 	unsigned char* bin, size_t bin_sz, 
-	char** opt, char** log 
+//	char** opt, char** log 
+	char* opt, char* log 
 )
 {
 	int i;
