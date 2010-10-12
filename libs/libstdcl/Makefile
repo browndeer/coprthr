@@ -32,9 +32,12 @@ INCS += $(USE_OPENCL_INCS)
 LIBS += $(USE_OPENCL_LIB)
 LIBS += -lpthread -ldl
 
-OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o 
+OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
+
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
-HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h 
+
+HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h clarg.h \
+	stdclpp.h clmalloc_allocator.h
 
 MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
 	clndrange_set3d.3 clarg_set_global.3 clmdetach.3 clndrange_set.3 \
@@ -67,20 +70,26 @@ libstdcl_d.so: $(OBJS_D)
 		-o libstdcl_d.so $(OBJS_D) $(LIBS)
 
 .SUFFIXES:
+.SUFFIXES: .c .o
+
+#%.o:
+#	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $*.c
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
 %_d.o:
 	$(CC) $(CCFLAGS) $(DEFS) -DSTDCL_DEBUG $(INCS) -c $*.c -o $*_d.o
 
-%.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $*.c
-
 %.3.gz:
 	-gzip -f -c $*.3 > $*.3.gz
+
 
 check_root: 
 ifneq ($(shell whoami),root)
 	$(error install must be done as root)
 endif
+
 
 #install: check_root all
 install: check_root $(INSTALL_INCS) $(INSTALL_LIBS) $(addsuffix .gz,$(MAN3))

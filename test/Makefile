@@ -6,7 +6,7 @@ TESTS = test_stdcl test_ocl
 SUBDIRS = 
 SUBDIRS += $(TESTS)
 
-export TOPDIR = $(CURDIR)
+#export TOPDIR = $(CURDIR)
 
 all: $(SUBDIRS) 
 

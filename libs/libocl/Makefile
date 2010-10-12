@@ -1,15 +1,18 @@
+### 
+### Makefile for libocl
+###
+
+
 ENABLE_NCPU = 1
 ENABLE_ATIGPU = 0
 USE_BDT_BUILTINS = 0
-
-LIB_NAME = libocl
 
 #DEFS += -DXCL_DEBUG 
 #DEFS += -DXCL_WARN
 
 #DEFS += -DUSE_FAST_SETJMP	# ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING
 
-
+### select default install paths 
 INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
 INSTALL_LIB_DIR ?= /usr/local/browndeer/lib
 INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include
@@ -18,6 +21,9 @@ INSTALL_MAN_DIR ?= /usr/share/man
 #ATISTREAMSDK = /usr/local/atistream/atistream_sdk-2.0/
 ATISTREAMSDK = /usr/local/atistream/
 
+############################################################################
+##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
+############################################################################
 
 XCL_OBJS = xcl_platform.o xcl_device.o xcl_context.o xcl_command_queue.o \
 	xcl_enqueue.o xcl_event.o xcl_program.o xcl_kernel.o xcl_memobj.o \
@@ -28,7 +34,7 @@ IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	program.o kernel.o memobj.o \
 	cmdsched.o cmdcall.o cmdcall_x86_64.o \
 	elf_cl.o compiler_x86_64.o \
-	vcore.o fast_setjmp.o \
+	vcore.o \
 	watermark.o
 
 
@@ -55,6 +61,9 @@ ifeq ($(USE_BDT_BUILTINS),1)
 DEFS += -DUSE_BDT_BUILTINS
 endif
 
+#ifeq ($(ENABLE_DEBUG_LIBOCL),1)
+DEFS += -DXCL_DEBUG 
+#endif
 
 ######################################################################
 
@@ -66,72 +75,98 @@ LIBS += -lfl -lpthread -L/usr/local/lib -lelf -ldl
 
 OBJS = $(XCL_OBJS) $(IMP_OBJS)
 
+OBJS_D = $(subst .o,_d.o,$(OBJS))
+
 DEFS += \
 	-DINSTALL_BIN_DIR=\"$(INSTALL_BIN_DIR)\" \
 	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
 	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
 
-#CFLAGS += -O1 -fPIC -fbounds-check -g
-CFLAGS += -O1 -fPIC -funroll-loops -fstrict-aliasing
+#CCFLAGS += -O1 -fPIC -fbounds-check -g
+CCFLAGS += -O1 -fPIC -funroll-loops -fstrict-aliasing
 
 
 #YACC = yacc
 YACC = bison
-YACCFLAGS =  -y -v 
+YACCCFLAGS =  -y -v 
 
 LEX = flex
 LEXFLAGS = 
 
 XCLNM_YYPREFIX = __xclnm_
 
-all: $(LIB_NAME).so $(RT_OBJS) $(RT_BC) ati_builtins_x86_64_patch.bc
+TARGET = libocl.so $(RT_OBJS) $(RT_BC) ati_builtins_x86_64_patch.bc
+#ifeq ($(ENABLE_DEBUG_LIBOCL),1)
+TARGET += libocl_d.so
+#endif
+
+#all: libocl.so $(RT_OBJS) $(RT_BC) ati_builtins_x86_64_patch.bc
+all: $(TARGET) 
 
 .PHONY: check_root clean install uninsstall
 
 .SUFFIXES:
-.SUFFIXES: .l .y .c .S .s .o
+.SUFFIXES: .l .y .S .s .c .o
 
-$(LIB_NAME).so: $(OBJS) $(RT_OBJS)
-	$(CC) $(CFLAGS) $(INCS) \
-		-shared -Wl,-soname,$(LIB_NAME).so -o $(LIB_NAME).so  $(OBJS) $(LIBS)
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+.s.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+.S.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+%_d.o:
+	$(CC) $(CCFLAGS) $(DEFS) -DXCL_DEBUG $(INCS) -c $*.c -o $*_d.o
+
+
+libocl.so: $(OBJS) $(RT_OBJS)
+	$(CC) $(CCFLAGS) $(INCS) \
+		-shared -Wl,-soname,libocl.so -o libocl.so  $(OBJS) $(LIBS)
+
+libocl_d.so: $(OBJS_D) $(RT_OBJS)
+	$(CC) $(CCFLAGS) $(INCS) \
+		-shared -Wl,-soname,libocl_d.so -o libocl_d.so  $(OBJS_D) $(LIBS)
 
 __vcore_rt.bc: __vcore_rt.c
-#	llvm-gcc -c -emit-llvm $(DEFS) $(INCS) -o __vcore_rt.bc __vcore_rt.c
 	clang -c -emit-llvm $(DEFS) $(INCS) -o __vcore_rt.bc __vcore_rt.c
 
 bdt_builtins_x86_64.bc: bdt_builtins_x86_64.c
 	clang -c -emit-llvm $(DEFS) $(INCS) -o bdt_builtins_x86_64.bc \
 		bdt_builtins_x86_64.c
 
-ati_builtins_x86_64_patch.bc: ati_builtins_x86_64_patch.ll
-	llvm-as -f ati_builtins_x86_64_patch.ll
+ati_builtins_x86_64_patch.bc: ati_builtins_x86_64_patch.c
+	clang -c -emit-llvm $(DEFS) $(INCS) -o ati_builtins_x86_64_patch.bc \
+		ati_builtins_x86_64_patch.c
 
-.c.o:
-	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
-.s.o:
-	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
-.S.o:
-	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 check_root:
 ifneq ($(shell whoami),root)
 	$(error install must be done as root)
 endif
 
+debug:
+	export ENABLE_DEBUG=1
+	make -f Makefile all
+
+
 install: check_root
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
-	install -m 755 $(LIB_NAME).so $(INSTALL_LIB_DIR)
+	install -m 755 libocl.so $(INSTALL_LIB_DIR)
+	install -m 755 libocl_d.so $(INSTALL_LIB_DIR)
 	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
 	install -m 755 $(RT_BC) $(INSTALL_LIB_DIR)
 	install -m 755 ati_builtins_x86_64_patch.bc $(INSTALL_LIB_DIR)
 	install -m 755 vcore.h $(INSTALL_INCLUDE_DIR)
 
 uninstall: check_root
-	rm -f $(INSTALL_LIB_DIR)/$(LIB_NAME).so
+	rm -f $(INSTALL_LIB_DIR)/libocl.so
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_BC))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,vcore.h)

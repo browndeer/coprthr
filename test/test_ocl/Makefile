@@ -7,12 +7,22 @@ TESTS = test_arg_int test_block_int test_arg_int4 \
 
 #TESTS = test_faf
 
-TOPDIR ?= ../
+TOPDIR ?= ../../
+
+include $(TOPDIR)/Makefile.choices
 
 #INCS = -I$(TOPDIR)/include
-INCS = -I/usr/local/browndeer/include
-LIBS = -lm -L/usr/local/browndeer/lib -locl
-#LIBS = -lm -L/usr/local/atistream/beta4/lib/x86_64 -lOpenCL
+#INCS = -I/usr/local/browndeer/include
+#LIBS = -lm -L/usr/local/browndeer/lib -locl
+##LIBS = -lm -L/usr/local/atistream/beta4/lib/x86_64 -lOpenCL
+
+### select OpenCL implementation to test
+#INCS += $(USE_OPENCL_INCS)
+#LIBS += $(USE_OPENCL_LIB) -lOpenCL
+INCS += -I$(INSTALL_INCLUDE_DIR)
+LIBS += -L$(INSTALL_LIB_DIR) -locl
+
+LIBS += -lm
 
 SRC_TESTS = $(addsuffix .c,$(TESTS))
 CLSRC_TESTS = $(addsuffix .cl,$(TESTS))

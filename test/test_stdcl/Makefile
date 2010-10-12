@@ -1,4 +1,8 @@
 
+### select OpenCL implementation to use if not already defined
+USE_OPENCL_INCS ?= -I/usr/local/atistream/include
+USE_OPENCL_LIB ?= -L/usr/local/atistream/lib/x86_64 -lOpenCL
+
 TESTS = arg_int arg_int4 arg_float arg_float4 block_int block_float special \
 	ndev_float4
 
@@ -8,8 +12,15 @@ CLSRC = test_arg_int.cl test_arg_int4.cl \
 
 TOPDIR ?= ../
 
-INCS = -I/usr/local/browndeer/include
-LIBS = -lm -L/usr/local/browndeer/lib -lstdcl
+#INCS = -I/usr/local/browndeer/include
+#LIBS = -lm -L/usr/local/browndeer/lib -lstdcl
+#LIBS = -lm -L/usr/local/browndeer/lib -lstdcl_d -locl
+INCS += $(USE_OPENCL_INCS) 
+LIBS += $(USE_OPENCL_LIB)
+
+INCS += -I$(INSTALL_INCLUDE_DIR)
+LIBS += -L$(INSTALL_LIB_DIR) -lstdcl
+
 
 SRC_TESTS = $(addprefix test_stdcl_,$(addsuffix .c,$(TESTS)))
 #CLSRC = $(addprefix test_,$(addsuffix .cl,$(TESTS)))
