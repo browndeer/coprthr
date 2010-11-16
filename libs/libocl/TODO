@@ -1,10 +1,6 @@
 
-note: program.c contains defined copied from xclnm_gram.h and this should
+note: program.c contains defines copied from xclnm_gram.h and this should
 be fixed since its very fragile. -DAR
-
-ATI SDK builtins for x86 are not optimized.  Example is rsqrt() where BDT
-was faster by 10%.  Use ATI SDK as a backstop, but try to implement optiized
-builtins as much as possible.
 
 
 

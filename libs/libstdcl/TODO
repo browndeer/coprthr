@@ -1,6 +1,5 @@
 
 -add auto to mem management, mark memory with bitfield
--add clmattach/clmdetach
 -add clsupp* functions
 
 
