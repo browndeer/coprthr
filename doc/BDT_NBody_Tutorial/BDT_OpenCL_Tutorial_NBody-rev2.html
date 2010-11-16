@@ -1,0 +1,1533 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+  <title>BDT Nbody Tutorial</title>
+  <meta name="generator" content="Amaya, see http://www.w3.org/Amaya/" />
+</head>
+
+<body>
+
+<div style="width:790px">
+<img src="img/bdt.jpg" alt="BDT" /> <br />
+
+
+<h1>OpenCL&#x2122; Tutorial: N-Body Simulation </h1>
+<img src="img/screenshot.png" width="256" style="float:right; clear: left;"
+alt="NBody" /> 
+
+<div style="padding-bottom:10px;">
+<h1><sub><span style="font-size: 12pt">Copyright © 2009-2010 Brown Deer
+Technology, LLC. </span></sub></h1>
+
+<div style="height:224px;">
+<ul style="list-style: none;">
+  <li>1. <a href="#intro">Introduction</a></li>
+  <li>2. <a href="#opencl">OpenCL Computing Model</a></li>
+  <li>3. <a href="#algorithm">Basic N-Body Algorithm</a></li>
+  <li>4. <a href="#program_structure">Program Structure</a></li>
+  <li>5. <a href="#implementation">Implementation</a></li>
+  <li>6. <a href="#compile_and_run">Compiling and Running the Program</a></li>
+  <li>7. <a href="#Multi-GPU">Multi-GPU Implementation</a> <span
+    style="color:#ff0000">NEW</span></li>
+</ul>
+</div>
+</div>
+<em>OpenCL and the OpenCL logo are trademarks of Apple Inc. used by permission
+by the Khronos Group</em> 
+
+<p><em>The Khronus Group develops and maintains the OpenCL standard.</em> <br />
+</p>
+<hr />
+
+<h2><a name="intro" id="intro">1. Introduction</a></h2>
+
+<p style="text-align:justify;">This tutorial discusses the OpenCL
+implementation of a simple N-Body simulation. This algorithm is used frequently
+in demonstrations of computational performance and is an interesting algorithm
+for several reasons. First, the simulation of the motion of particles subject
+to particle-particle interactions represents a general class of algorithms with
+applications ranging from chemistry to astrophysics. Second, the scaling of the
+algorithm is <em>O(N<sup><span style="font-size: 10pt">2</span></sup>)</em> in
+computation and <em>O(N)</em> in communication, where <em>N</em> is the number
+of particles. This makes <em>N</em> a convenient tuning parameter for studying
+the performance of different architectures. For small or large <em>N</em>, one
+expects an architecture to be relatively communication or compute bound,
+respectively, and, measured performance can provide valuable information about
+an underlying architecture. Finally, the algorithm is relatively simple and
+easy to implement making it useful for a tutorial such as this one.</p>
+
+<p style="text-align:justify;"><strong>Notation.</strong> Before beginning, a
+few comments on notation and required resources should be helpful. Source code
+will be presented with a slightly <span style="background-color:#e8e8e8">shaded
+background</span> and with <span style="color:#0000ff"><span
+style="background-color:#e8e8e8">blue line numbers</span></span> for reference.
+The source code will be broken up to allow code "walk-throughs" to explain what
+is being done and why. Any comments within the source code will be set in <span
+style="background-color:#c0c0c0"><span style="color:#00ff00"><span
+style="color:#008000">green text</span></span></span>. Comments will be kept
+deliberately brief and not used to explain the obvious. (Source code with
+sprawling prose embedded in comments, explaining the meaning of a few lines of
+C code can be an annoying distraction.) </p>
+
+<p style="text-align:justify;"><strong>Requirements.</strong> This tutorial is
+targeted (and tested) for Linux, although there is no reason why it should not
+be applicable to Windows, in principle. In order to work through this tutorial
+you will need:</p>
+<ol>
+  <li>A suitable modern Linux platform (openSUSE 11 x86_64 or something
+    similar) with GCC 4.3 or higher,</li>
+  <li>An implementation of OpenCL such as the AMD/ATI Stream SDK 2.1,
+    <a href="http://developer.amd.com/gpu/ATIStreamSDK/pages/ATIStreamSDK-Archive.aspx">available here</a></li>
+  <li>libstdcl now distributed as part of the <strong>coprthr</strong>
+    (CO-PRocessing THReads) SDK, <a
+    href="http://www.browndeertechnology.com/coprthr.html">available here</a>, LGPLv3
+    license, </li>
+  <li>An OpenCL-supported graphics card such as the ATI Radeon HD 4850, 4870,
+    5870, or 5970 OR</li>
+  <li>If you do not have a suitable graphics card, an x86_64 multi-core
+    processor with at least SSE3 support will suffice</li>
+</ol>
+
+<p style="text-align:justify;">Since many readers may simply want to
+cut-and-paste the source code for use in other programs, clean copies (no line
+numbers, etc.) of all source code can be found in the example/ directory of the
+<strong>coprthr</strong> SDK distribution. </p>
+
+<p></p>
+<hr />
+
+<h2><a name="opencl" id="opencl">2. OpenCL Computing Model</a></h2>
+
+<p style="text-align:justify;"><img src="img/cpu-gpu.gif"
+style="padding-left: 20px; padding-bottom: 20px; float: right; clear: left;"
+alt="CPU-GPU" />OpenCL&#x2122; is an industry standard programming API for
+parallel programming of heterogeneous computing platforms. The most common
+example of such a platform is a simple desktop computer with a graphics card.
+OpenCL is a standard much like OpenGL and maintained by the same industry
+consortium - the Khronos Group. The OpenCL name and logo are trademarks of
+Apple Inc. who first proposed the standard in 2008. This tutorial is not
+intended to be an exhaustive tour of the OpenCL standard, which is freely
+available here. The best way to understand the API is to read the standard. A
+brief overview or primer will be provided sufficient for a programmer to get
+started writing OpenCL programs.</p>
+
+<p style="text-align:justify;">OpenCL is comprised of two parts designed to
+facilitate the programming of heterogeneous platforms with co-processors. In
+order to program the actual co-processor device OpenCL provides a C-like
+language for writing computational kernels, which implement the core
+computational algorithms - perhaps a set of matrix operations, for example. The
+execution of the kernel code is controlled by the host platform through a
+runtime API that allow the programmer to orchestrate the execution of the
+kernels and provides all supporting facilities necessary to do this efficiently
+in an inherently asynchronous computing environment.</p>
+
+<p style="text-align:justify;">The execution model for OpenCL is based on the
+parallel execution of a computational kernel across a multi-dimensional
+index-space of elements called work-items. Although there is no requirement
+that implementations of OpenCL rely on a multi-threaded execution model, its
+useful to make this connection conceptually since many programmers are familiar
+with threads, and kernels must be written to support such an execution model,
+i.e., they must be thread-safe. Using the language of threads, work-items can
+be thought of as enumerated threads, where the index-space defines the
+enumeration. As an example, if one needed to process each pixel in a
+two-dimensional (2-D) image, the OpenCL index-space would map to the 2-D array
+of pixels and the programmer would write a kernel that would be executed,
+possible in parallel, for each pixel. </p>
+
+<p style="text-align:justify;">The host code required to orchestrate the
+execution of OpenCL kernels provides for the ability to control the operations
+on the host plus multiple co-processor devices. One of the most significant
+issues for such an architecture is memory management and OpenCL provides a
+memory management model that allows relaxed memory consistency. This places the
+burden on the programmer to ensure that the memory used in operations that are
+generally concurrent and asynchronous remains consistent. OpenCL provides a
+platform layer allowing designed to enable support for a range of devices,
+which the programmer may query for and, if present, determine their respective
+capabilities and utilize accordingly.</p>
+
+<p style="text-align:justify;">The host-side of OpenCL presents a hierarchy of
+constructs that must be set-up and managed in order to execute computational
+kernels. In practical terms, setting up OpenCL for running a relatively simple
+program requires the following steps:</p>
+<ol>
+  <li style="text-align:justify;">Create a context <span
+    style="font-family: Courier New,Courier,monospace">(cl_context)</span>
+    containing the target devices. As a common example, the programmer can
+    create a context to contain all GPU devices. The devices belonging to a
+    given context are identified by a device list <span
+    style="font-family: Courier New,Courier,monospace">(cl_device_id*)</span>.</li>
+  <li style="text-align:justify;">Create command queues <span
+    style="font-family: Courier New,Courier,monospace">(cl_command_queue*)</span>
+    for each device in the context. </li>
+  <li style="text-align:justify;">Create memory objects <span
+    style="font-family: Courier New,Courier,monospace">cl_mem)</span> needed to
+    share memory with the co-processor devices.</li>
+  <li style="text-align:justify;">Load and link one or more computational
+    kernels <span
+    style="font-family: Courier New,Courier,monospace">(cl_kernel)</span>. In
+    the simplest approach one can build a program <span
+    style="font-family: Courier New,Courier,monospace">(cl_program)</span>
+    based on kernels in a <span
+    style="font-family: Courier New,Courier,monospace">.cl</span> file and the
+    compile and link all kernels for all devices in a context. Note that
+    just-in-time (JIT) compilation is an important aspect of the OpenCL and for
+    this reason the work of the LLVM project has significant and interesting
+    connections to OpenCL. </li>
+</ol>
+
+<p>Executing the computational kerenls then generally involves these additional
+steps:</p>
+<ol>
+  <li>Define an index-space (NDRange) over which the kernel is to be
+  executed.</li>
+  <li style="text-align:justify;">Set the arguments of the kernel - in a sense
+    you must explicitly "push" the arguments onto an imaginary stack before
+    executing a kernel. The analogy to a stack breaks down somewhat since
+    setting the arguments need not be in order.</li>
+  <li style="text-align:justify;">Ensure that the memory to be used by the
+    kernel is consistent, i.e., make sure all data is where it is needed. This
+    can be accomplished with memory operations that are enqueued on one of the
+    command queues for a particular device.</li>
+  <li>Enqueue a kernel for execution on one of the command queues for a
+    particular devices.</li>
+  <li style="text-align:justify;">Monitor the associated event <span
+    style="font-family: Courier New,Courier,monospace">(cl_event)</span>
+    corresponding to the enqueued operation. This also applies to the memory
+    operations referred to in step 3.</li>
+  <li>Read back any results needed on the host. This is not too different from
+    step 3.</li>
+</ol>
+
+<p style="text-align:justify;">Many elements of the OpenCL programming model
+can be thought of as operating system functionality moved into user-space since
+the API provides for careful control of (enumerated) threads within an
+inherently asynchronous concurrent environment. This is very similar to the
+basic operation of a generic UNIX kernel. As a result, many of the concepts
+familiar to the management of threads within an operating system apply
+conceptually to the OpenCL programming model, e.g., memory consistency, locking
+and synchronization, work queues, event lists, etc. </p>
+
+<p><br />
+</p>
+<hr />
+
+<h2><a name="algorithm" id="algorithm">3. Basic N-Body Algorithm</a></h2>
+
+<p style="text-align:justify;">The algorithm used for an N-Body simulation
+models the motion of N particles (or objects) subject to a particle-particle
+interaction. Each particle interacts with all other particles in the
+simulation, thus the computation is O(N<sup><span style="font-size: 12pt"><span
+style="font-size: 10pt">2</span></span></sup>). For this tutorial, the
+interaction considered will be the gravitational force between the particles so
+that the simulation might represent the motion of stars in a galaxy. (The same
+algorithm can be used to model very different physics, for example, the motion
+of charged particles on a much smaller length scale.) </p>
+
+<p style="text-align:justify;">The basic algorithm has two main steps. First,
+the total force on each particle resulting from the gravitational attraction to
+all other particles is calculated. Then each particles position and velocity
+are updated as result of this force using a simple integrator over some small
+timestep. Repeating this process results in a simulation of the motion of all
+of the particles (stars) within the system (galaxy).</p>
+
+<p style="text-align:justify;">The formal equations and background are
+sufficiently discussed on Wikipedia (here and here) and will not be repeated.
+Instead, we will get right to the algorithm. With suitably defined arrays,
+etc., the entire (unoptimized) algorithm can be written in C with a few dozen
+lines of code. </p>
+
+<p style="text-align:justify;">The following code loops over <em>N</em>
+particles, accumulating the acceleration on each particle resulting from the
+gravitational force of all others. Acceleration is related to force through the
+famous relation <em>f = ma</em>, where <em>m</em> is the mass of the particle.
+Each particle position and velocity are then advanced forward in time using a
+simple integrator. The process repeats to simulate the motion of the particles
+over time.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8">
+<pre><span style="color:#0000ff">1</span>    for(i=0; i&lt;n; i++) { <span style="color:#008000">/* Foreach particle "i" ... */</span>
+<span style="color:#0000ff">2</span>      ax=0.0;
+<span style="color:#0000ff">3</span>      ay=0.0;
+<span style="color:#0000ff">4</span>      az=0.0;</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 1</span> begins
+the loop over particles "i" and <span style="color:#0000ff">lines 2-4</span>
+initialize the acceleration vector that will be used to accumulate the
+per-particle acceleration.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8">
+<pre><span style="color:#0000ff">5</span>      for(j=0; j&lt;n; j++) { <span style="color:#008000">/* Loop over all particles "j" */</span>
+<span style="color:#0000ff">6</span>        dx=x[j]-x[i];
+<span style="color:#0000ff">7</span>        dy=y[j]-y[i];
+<span style="color:#0000ff">8</span>        dz=yz[j]-z[i];
+<span style="color:#0000ff">9</span>        invr = 1.0/sqrt(dx*dx + dy*dy + dz*dz + eps);
+<span style="color:#0000ff">10</span>       invr3 = invr*invr*invr;
+<span style="color:#0000ff">11</span>       f=m[j]*invr3;
+<span style="color:#0000ff">12</span>       ax += f*dx; <span style="color:#008000">/* accumulate the acceleration from gravitational attraction */</span>
+<span style="color:#0000ff">13</span>       ay += f*dy;
+<span style="color:#0000ff">14</span>       az += f*dx;
+<span style="color:#0000ff">15</span>     }</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 5-15</span> is
+the inner loop over all particles "j" where we accumulate the acceleration
+imparted on particle "i". Note that the self-interaction is excluded implicitly
+since the distance vectors will be identically zero when <span
+style="font-family: Courier New,Courier,monospace">i==j</span> and the inverse
+distance is kept finite in <span style="color:#0000ff">line 9</span>.
+(Particles do not feel a gravitational attraction to themselves, which is a
+good thing, since the force would be infinite according to the classical
+equations.) The steps within the inner loop are as follows.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 6-8</span>
+calculates distance vector between particle "j" and particle "i" is calculated.
+<span style="color:#0000ff"></span></p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 9-10</span>
+calculates the inverse distance (a scalar quantity) raised to the third power -
+this is what we need for the gravitational force equation. The parameter <span
+style="font-family: Courier New,Courier,monospace">eps</span> is the minimum
+distance squared for particle-particle interactions and its main purpose is to
+keep the simulation from crashing if particles wander too close together. </p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 11-14</span>
+calculates the contribution to the acceleration vector for particle "i". (Note
+that the <span style="font-family: Courier New,Courier,monospace">f</span>
+calculated in <span style="color:#0000ff">line 11</span> is not actually the
+force.) </p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8">
+<pre><span style="color:#0000ff">16</span>     xnew[i] = x[i] + dt*vx[i] + 0.5*dt*dt*ax; <span style="color:#008000">/* update position of particle "i" */</span>
+<span style="color:#0000ff">17</span>     ynew[i] = y[i] + dt*vy[i] + 0.5*dt*dt*ay;
+<span style="color:#0000ff">18</span>     znew[i] = z[i] + dt*vz[i] + 0.5*dt*dt*az;
+<span style="color:#0000ff">19</span>     vx[i] += dt*ax; <span style="color:#008000">/* update velocity of particle "i" */</span>
+<span style="color:#0000ff">20</span>     vy[i] += dt*ay;
+<span style="color:#0000ff">21</span>     vz[i] += dt*az;
+<span style="color:#0000ff">22   </span>}</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 16-21</span>
+update the position and velocity of particle "i" based on the total
+acceleration resulting from the gravitational force and using a simple
+integrator. This has the effect of advancing the simulation forward in time by
+a small timestep <span
+style="font-family: Courier New,Courier,monospace">dt</span>.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8">
+<pre><span style="color:#0000ff">23</span>   for(i=0;i&lt;n;i++) { <span style="color:#008000">/* copy updated positions back into original arrays */</span>
+<span style="color:#0000ff">24</span>     x[i] = xnew[i];
+<span style="color:#0000ff">25</span>     y[i] = ynew[i];
+<span style="color:#0000ff">26</span>     z[i] = znew[i];
+<span style="color:#0000ff">27</span>   }</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 23-27</span>
+the updated positions are copied back into the original arrays (<span
+style="font-family: Courier New,Courier,monospace">x[]</span>, <span
+style="font-family: Courier New,Courier,monospace">y[]</span>, <span
+style="font-family: Courier New,Courier,monospace">z[]</span>). This step is
+necessary since we are <em>careful not to write back the updated particle
+positions</em> into the original arrays (<span
+style="font-family: Courier New,Courier,monospace">x[]</span>, <span
+style="font-family: Courier New,Courier,monospace">y[]</span>, <span
+style="font-family: Courier New,Courier,monospace">z[]</span>) <em>until ALL of
+the particle positions have been updated</em> and stored in temporary arrays
+(<span style="font-family: Courier New,Courier,monospace">xnew[]</span>, <span
+style="font-family: Courier New,Courier,monospace">ynew[]</span>, <span
+style="font-family: Courier New,Courier,monospace">znew[]</span>). A variant of
+using temporary arrays is to use a "double-buffer" scheme where the particle
+positions used in the algorithm alternate between two sets of arrays. This
+issue is often overlooked with the result being that the force on the particles
+(accept for the first one in the list) is calculated with a mix of current and
+updated positions. For typical timesteps the error is not visually perceptible
+(the goal of many N-Body simulations is to create a nice looking demo, not
+science) but the results are not correct. Here, we will try to implement the
+algorithm correctly. </p>
+
+<p></p>
+<hr />
+
+<h2><a name="program_structure" id="program_structure">4. Program
+Structure</a></h2>
+
+<p style="text-align:justify;">The basic algorithm will now be implemented for
+a GPU (or a CPU if you do not have a GPU) using OpenCL. The OpenCL
+implementation will consist of two parts: <ol>
+  <li>Kernel code running on the OpenCL co-processing device (the GPU, or if
+    you do not have one, also the CPU), and </li>
+  <li>Host code running on the host platform (the CPU)</li>
+</ol>
+</p>
+
+<p style="text-align:justify;">The kernel code is compiled to run on the GPU
+and performs the actual computation. Its typically based on critical loops
+within what might be a larger program and intended to provide an accelerated
+version of a given algorithm. This makes the kernel code the most critical
+factor in overall performance. </p>
+
+<p style="text-align:justify;">The host code will perform no meaningful
+computations, but is still a very important part of the program. This is
+especially true when extending this simple program to multiple devices, for
+example. The primary task for the host code is to handle all of the
+initialization and bookkeeping tasks and then coordinate the operations on the
+co-processor, including memory management and kernel execution. From this
+perspective, much of the complexity of well-written OpenCL code exists on the
+host side. </p>
+
+<p></p>
+<hr />
+
+<h2><a name="implementation" id="implementation">5. Implementation</a></h2>
+
+<p style="text-align:justify;">The goal is to provide a reasonably standard
+implementation that is understandable for typical programmers interested in
+OpenCL. While the design does attempt to use "good practices" from an OpenCL
+perspective, <em>it is very likely not optimal for a particular
+architecture</em>, since optimization requires careful tuning that goes beyond
+the scope of this tutorial. </p>
+
+<p style="text-align:justify;">It is important to consider the context of
+OpenCL kernel code. This kernel will be executed for every work-item
+(enumerated thread) within an index-space (range of enumerated threads). Here
+we have made parenthetic reference to the association between work-items and
+threads since, although OpenCL does not require work-items to be implemented as
+threads, many programmers will find it useful to think in these familiar
+terms.</p>
+
+<p style="text-align:justify;">In our application we will have a
+one-dimensional index-space with a number of work-items equal to the number of
+particles in the system. The kernel code will be invoked once for each of the
+<em>N</em> particles and the task for the kernel code is to update the position
+and velocity of one particle. For this reason, the "i" loop found in the code
+presented in Section 2 will not appear anywhere in the OpenCL implementation,
+but rather will be implied by the index-space over which the kernel is invoked
+N times.</p>
+
+<h4>The Kernel Code</h4>
+
+<p style="text-align:justify;">The kernel code should be placed in a separate
+file with the file extension <span
+style="font-family: Courier New,Courier,monospace">.cl</span> to distinguish it
+from ordinary C. </p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">1</span>    <span style="color:#008000">/* nbody_kern.cl */</span>
+
+<span style="color:#0000ff">2</span>    __kernel void nbody_kern(
+<span style="color:#0000ff">3</span>       float dt1, float eps,
+<span style="color:#0000ff">4</span>       __global float4* pos_old,
+<span style="color:#0000ff">5</span>       __global float4* pos_new,
+<span style="color:#0000ff">6</span>       __global float4* vel,
+<span style="color:#0000ff">7</span>       __local float4* pblock
+<span style="color:#0000ff">8</span>    ) {</pre>
+</div>
+
+<p><span style="color:#0000ff">Lines 2-7</span> describe the interface to our
+kernel - note the use of the qualifier <span
+style="font-family: Courier New,Courier,monospace">__kernel</span> to denote
+this fact. </p>
+
+<p><span style="color:#0000ff">Line 3</span> declares ordinary arguments of
+intrinsic type, specifically two <span
+style="font-family: Courier New,Courier,monospace">float</span>s. </p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 4-6</span>
+declare arguments that are pointers to memory holding the particle positions
+and particle velocities. OpenCL provides qualifiers for different types of
+memory and here we qualify the pointers as referencing global memory.</p>
+
+<p style="text-align:justify;">The data type for the pointers is <span
+style="font-family: Courier New,Courier,monospace">float4</span>. OpenCL
+provides for both scalar and vector data types. Of the many vector data types,
+<span style="font-family: Courier New,Courier,monospace">float4</span> is
+probably the most common and was used historically when GPUs were used
+exclusively as graphics accelerators. In large part due to this history, the
+four components of a <span
+style="font-family: Courier New,Courier,monospace">float4</span> can be
+referenced using the suffix <span
+style="font-family: Courier New,Courier,monospace">.x</span>, <span
+style="font-family: Courier New,Courier,monospace">.y</span>, <span
+style="font-family: Courier New,Courier,monospace">.z</span>, and <span
+style="font-family: Courier New,Courier,monospace">.w</span>, respectively.
+(OpenCL also provides a more generic notation <span
+style="font-family: Courier New,Courier,monospace">.s0</span>, <span
+style="font-family: Courier New,Courier,monospace">.s1</span>, <span
+style="font-family: Courier New,Courier,monospace">.s2</span>, <span
+style="font-family: Courier New,Courier,monospace">.s3</span> that can be
+generalized to larger vectors.) For our N-Body program we will pack the
+particle coordinates and particle mass into a four-vector as {x, y, z, m}, and
+the three velocity components will be packed into a four-vector with the last
+component ignored, {vx, vy, vz, -}. </p>
+
+<p style="text-align:justify;">The technique of packing the particle mass into
+the fourth component of the "position vector" may create a degree of syntactic
+confusion since one must remember that the mass has been put there in defiance
+of the obvious interpretation of the variable name <span
+style="font-family: Courier New,Courier,monospace">pos</span>. This is
+unavoidable - apologies in advance for any confusion this may lead to. </p>
+
+<p style="text-align:justify;">The use of vector data types in OpenCL is not a
+mere convenience, but is important for performance since an architecture may
+have a natural vector width within its processing cores. As an example, the
+AMD/ATI GPU architectures have had a natural type of <span
+style="font-family: Courier New,Courier,monospace">float4</span> and efficient
+implementations on these architectures must exploit this through small SIMD or
+SSE-like constructions. OpenCL provides extensive support for vector data types
+to enable the programmer to exploit vector operations on the underlying
+architecture of different co-processor devices.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 7</span>
+introduces an additional argument directed toward an optimization OpenCL
+programmers must become familiar with and stems from the need to begin to think
+about the memory architecture of the platform. In theory, this argument could
+be omitted and a working kernel can simply read and write data to and from
+global memory. However, it is inefficient and overlooks the advantages of using
+local memory on the GPU.</p>
+
+<p style="text-align:justify;">The argument <span
+style="font-family: Courier New,Courier,monospace">pblock</span> is qualified
+as a pointer to local memory (<span
+style="font-family: Courier New,Courier,monospace">__local</span>) and will be
+used to cache particle positions for re-use. Further, the caching operation
+itself will introduce an important concept in OpenCL - cooperative operations
+within a work-group (small synchronized groups of enumerated threads). More on
+this below.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">9    </span>   const float4 dt = (float4)(dt1,dt1,dt1,0.0f);
+
+<span style="color:#0000ff">10</span>      int gti = get_global_id(0);
+<span style="color:#0000ff">11</span>      int ti = get_local_id(0);
+
+<span style="color:#0000ff">12</span>      int n = get_global_size(0);
+<span style="color:#0000ff">13</span>      int nt = get_local_size(0);
+<span style="color:#0000ff">14</span>      int nb = n/nt;</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 9</span>
+initializes a constant <span
+style="font-family: Courier New,Courier,monospace">float4</span> that
+"vectorizes" the timestep, but with a small trick. The last component (<span
+style="font-family: Courier New,Courier,monospace">.w</span>) is set to zero.
+The reason is to ensure that we do not alter the particle masses that are
+stored in the fourth component of our per-particle four-vectors.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 10</span> gets
+the global id of the work-item (enumerated thread), which in our algorithm
+tells the kernel the index of the particle that it must update - the "i" of
+particle "i" in section 3. Since this kernel will be executed for every
+work-item (enumerated thread) in the index-space (range of enumerated threads)
+the kernel needs to gather information about itself and where it fits in to the
+overall execution of all kernels across the index-space.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 11</span> gets
+the local id of the work-item within the work-group in which it is being
+executed. The kernel will be executed in work-groups, which may be thought of
+as tiles or blocks of the index-space. Work-items within a work-group are to
+some degree locked together in their execution, but have the advantage of being
+able to share things and work cooperatively. Since our implementation will
+exploit some cooperation, our kernel needs to get its local id.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 12</span> gets
+the global size of the index-space, which is needed to determine the total
+number of particles, being identical in the simple implementation. <span
+style="color:#0000ff"></span></p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 13</span> gets
+the local work-group size which is also needed. This can be thought of as the
+number of threads executing this kernel, for different work-items, concurrently
+and synchronously. While this may not necessarily be true for a particular
+architecture, its helpful to pretend its true when thinking through the locking
+and synchronization issues required to have a work-group work cooperatively.
+(Virtual truth can be useful for programmers.)</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 14</span>
+calculates the number of work-groups that will be used to execute all of the
+work-items in the index-space. We refer to this as the "number of blocks". This
+will be used below to replace the algorithms simple loop over all particles
+with a double-loop over blocks of particles with a nested loop over particles
+within each block.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">15</span>      float4 p = pos_old[gti];
+<span style="color:#0000ff">16</span>      float4 v = vel[gti];
+
+<span style="color:#0000ff">17</span>      float4 a = (float4)(0.0f,0.0f,0.0f,0.0f);</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 15-16</span>
+reads the particle position (and mass) and velocity of particle "i" for which
+this kernel invocation is tasked to update. </p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 17</span>
+initializes the <span
+style="font-family: Courier New,Courier,monospace">float4</span> we will use to
+accumulate the acceleration on particle "i" - note that the algorithm dictates
+that this should be a three-vector, however we will simply pad this to use a
+<span style="font-family: Courier New,Courier,monospace">float4</span> and
+ignore the fourth component.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">18</span>       for(int jb=0; jb &lt; nb; jb++) { <span style="color:#008000">/* Foreach block ... */</span>
+
+<span style="color:#0000ff">19          </span>pblock[ti] = pos_old[jb*nt+ti]; <span style="color:#008000">/* Cache ONE particle position */</span>
+<span style="color:#0000ff">20</span>          barrier(CLK_LOCAL_MEM_FENCE); <span style="color:#008000">/* Wait for others in the work-group */</span>
+
+<span style="color:#0000ff">21</span>          for(int j=0; j&lt;nt; j++) { <span style="color:#008000">/* For ALL cached particle positions ... */</span>
+<span style="color:#0000ff">22</span>             float4 p2 = pblock[j]; <span style="color:#008000">/* Read a cached particle position */</span>
+<span style="color:#0000ff">23</span>             float4 d = p2 - p;
+<span style="color:#0000ff">24</span>             float invr = rsqrt(d.x*d.x + d.y*d.y + d.z*d.z + eps);
+<span style="color:#0000ff">25</span>             float f = p2.w*invr*invr*invr;
+<span style="color:#0000ff">26</span>             a += f*d; <span style="color:#008000">/* Accumulate acceleration */</span>
+<span style="color:#0000ff">27</span>          }
+
+<span style="color:#0000ff">28</span>          barrier(CLK_LOCAL_MEM_FENCE); <span style="color:#008000">/* Wait for others in work-group */</span>
+<span style="color:#0000ff">29</span>       }</pre>
+</div>
+
+<p><span style="color:#0000ff">Line 18</span> begins our loop over blocks, each
+one corresponding in size to the work-groups used to span the execution across
+the index-space of all particles. Thus, there are <span
+style="font-family: Courier New,Courier,monospace">nb=n/nt</span> blocks where
+<span style="font-family: Courier New,Courier,monospace">nt</span> is the
+number of work-items (enumerated threads) in a work-group. </p>
+
+<p style="text-align:justify;">What is being done here within the inner loop of
+the algorithm can be somewhat confusing, but represents an important example of
+"good practices" for OpenCL programming. Instead of simply looping over all
+particles "j" - <span
+style="font-family: Courier New,Courier,monospace">for(j=0;j&lt;n;j++)</span> -
+which would be entirely valid (and it works), we will try to be more clever. We
+know that the range of the loop over j is equal to the number of particles for
+which the kernel is invoked. In OpenCL-speak, we know that the range of the
+loop over j is equal to the number of work-items in the index-space. We also
+know that the index-space is spanned by blocks - work-groups in
+OpenCL-speak.</p>
+
+<p style="text-align:justify;">Since the force on every particle is dependent
+upon the position of all other particles, there is a substantial opportunity
+for data re-use. So we will use a local memory cache (<span
+style="font-family: Courier New,Courier,monospace">pblock</span>) to store a
+block of particle positions to be used by all work-items in a work-group.
+Further, we will have the work-items work cooperatively in copying particle
+positions from global memory into our local memory cache. Each work-item is
+assigned the job of copying one particle position. Assignments are made
+according to the work-items local id within the work group. The procedure is as
+follows.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 19</span> the
+kernel copies <em>one</em> particle position from global memory into our local
+memory cache. If one looks ahead to the inner loop to follow, one sees that
+<em>the kernel <strong>copies </strong><strong>one</strong> particle position,
+and later <strong>uses <span
+style="font-family: Courier New,Courier,monospace">nt</span></strong> particle
+positions in the loop.</em> How did the other <span
+style="font-family: Courier New,Courier,monospace">nt-1</span> particle
+positions get into the local memory cache? The kernel must trust that the other
+work-items did their job.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 20</span> waits
+to give them a chance, or risk proceeding with invalid data. This issue is one
+that is critical to writing OpenCL kernel code and possibly new to many
+programmers. The kernel is written in such a way as to use data that can only
+be valid by supposing that multiple instances of the kernel are executed in
+parallel. Put differently, the kernel analyzed as a single thread of execution
+appears to rely on data never read from memory. This concept can be confusing
+at first.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 21-27</span>
+comprise the inner loop where the actual computation is done and follows fairly
+ordinary steps, the only exception being the use of vector operations. The loop
+is over a block of particle positions that are assumed to have been cache in
+local memory. First the distance vector is calculated in <span
+style="color:#0000ff">line 23</span>, the inverse distance is calculated in
+<span style="color:#0000ff">line 24</span>, and the "force" is calculated in
+<span style="color:#0000ff">line 25</span>. Remember that <span
+style="font-family: Courier New,Courier,monospace">p2.w</span> will be the mass
+of particle "j". In <span style="color:#0000ff">line 26</span> the acceleration
+on particle "i" is accumulated.</p>
+
+<p style="text-align:justify;">Note that the subtraction on <span
+style="color:#0000ff">line 23</span> is performed as a <span
+style="font-family: Courier New,Courier,monospace">float4</span> vector
+operation (think SSE a modern multicore CPU. Remembering that the particle mass
+is stored in component 4 (<span
+style="font-family: Courier New,Courier,monospace">.w</span>) of these <span
+style="font-family: Courier New,Courier,monospace">float4</span> vectors should
+raise concern. This is where the definition of <span
+style="font-family: Courier New,Courier,monospace">dt</span> in <span
+style="color:#0000ff">line 9</span> protects the particle masses from being
+altered. Its a trick designed to allow a simple implementation that exploits
+the natural vector width of the architecture. </p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 20</span>
+calculates the inverse of the scalar distance between the particles where <span
+style="font-family: Courier New,Courier,monospace">rsqrt()</span> is an OpenCL
+built-in equivalent to <span
+style="font-family: Courier New,Courier,monospace">1/sqrt()</span>. <span
+style="color:#0000ff">Line 21</span> calculates the "force" where <span
+style="font-family: Courier New,Courier,monospace">p2.w</span> accesses the
+mass of particle "j". Finally, the acceleration on particle "i" is accumulated
+in <span style="color:#0000ff">line 22</span>. </p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 28</span> waits
+for the others in the work-group to catch up, if necessary. We must wait since
+the next step will be to begin reading new values into the pblock cache, and if
+we do not stop to make sure everyone is caught up we run the risk of corrupting
+the values of the cache for another work-item. </p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">30</span>       p += dt*v + 0.5f*dt*dt*a;
+<span style="color:#0000ff">31</span>       v += dt*a;
+
+<span style="color:#0000ff">32</span>       pos_new[gti] = p;
+<span style="color:#0000ff">33</span>       vel[gti] = v;
+
+<span style="color:#0000ff">34</span>    }</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 30-31</span>
+updates the position and velocity of particle "i". Note that these are <span
+style="font-family: Courier New,Courier,monospace">float4</span> vector
+operations, where the position update is careful not to alter the particle
+mass. </p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 32-33</span>
+the new values are then written back to <span
+style="font-family: Courier New,Courier,monospace">__global</span> memory, with
+the velocity overwriting the old value and the position is stored in a separate
+"new" array.</p>
+
+<p></p>
+
+<h4>The Host Code</h4>
+
+<p style="text-align:justify;">With the kernel code written, we must create a
+program to run on the host platform to handling initialization and bookkeeping
+issues and also orchestrate memory management and the execution of the kernel.
+</p>
+
+<p style="text-align:justify;">In theory, OpenCL host code should contain
+sophisticated checks to probe the system, detect available co-processing
+resources and manage them to most efficiently execute the computational load of
+the application. Such issues go well beyond this tutorial and we will settle
+with demonstrating the execution of the kernel code making very simple
+assumptions. Namely, we will assume we want to execute the kernel code on a
+single GPU (or the CPU if you do not have a GPU, see below). </p>
+
+<p style="text-align:justify;">It is also important to incorporate robust error
+checking in any actual application since many things can go wrong and its good
+to communicate if, and for what reason, the progam has failed to run correctly.
+(This becomes increasingly important with OpenCL since the number things that
+can go wrong is many times greater than with ordinary C code and silent failure
+is fairly easy to find.) However, such rigorous error checking tends to obscure
+explanations of what the code intends to do in a tutorial such as this, so the
+host code will be naive and reckless in supposing that everything is working
+correctly. It is left as an exercise for the reader to incorporate good error
+checking practices.</p>
+
+<p style="text-align:justify;">The host code described here uses the standard
+compute layer library called <em>libstdcl.</em> The <em>libstdcl</em> library
+provides a simplified interface to OpenCL designed to support the most typical
+use-cases in a style inspired by familiar and traditional UNIX APIs for C
+programming. The <em>libstdcl</em> library is open-source and freely available
+under the LGPL license.</p>
+
+<p style="text-align:justify;"><em><strong>Important:</strong> if you do not
+have an OpenCL-capable GPU, but you have a CPU that supports SSE3, the tutorial
+programs can be tested on the CPU provided that you make the following changes
+in all source code: </em></p>
+<ol>
+  <li>Replace <span
+    style="font-family: Courier New,Courier,monospace">stdgpu</span> with <span
+    style="font-family: Courier New,Courier,monospace">stdcpu</span>
+  everywhere</li>
+  <li>Change the value of <span
+    style="font-family: Courier New,Courier,monospace">nthread</span> to the
+    the number of CPU cores</li>
+</ol>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">1</span>    <span style="color:#008000">/* nbody.c version #1 */</span>
+<span style="color:#0000ff">2</span>    #include &lt;stdcl.h&gt;
+
+<span style="color:#0000ff">3</span>    void nbody_init( int n, cl_float4* pos, cl_float4* vel );
+<span style="color:#0000ff">4</span>    void nbody_output( int n, cl_float4* pos, cl_float4* vel);</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 2</span>
+includes the <span
+style="font-family: Courier New,Courier,monospace">stdcl.h</span> header, which
+indirectly includes <span
+style="font-family: Courier New,Courier,monospace">CL/cl.h</span> in order to
+access the OpenCL API through the simplified <em>libstdcl</em> interface. </p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 3-4</span>
+provide prototypes for the functions that setup the programs initial conditions
+and report the results. These functions are not discussed in much detail since
+they have nothing to do with OpenCL and are merely utility functions. The
+quickest way to get going is to have <span
+style="font-family: Courier New,Courier,monospace">nbody_init()</span>
+initialize all positions to random values and all velocities to zero. Further,
+<span style="font-family: Courier New,Courier,monospace">nbody_output()</span>
+might simply write out the positions, or some global metric such as the average
+position of the system, to <span
+style="font-family: Courier New,Courier,monospace">stdout</span> or a file for
+comparison with a trusted implementation. One can make these utilities as
+sophisticated as one likes. Examples to get started are provided at the end of
+this tutorial.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">5</span>    int main(int argc, char** argv) {
+
+<span style="color:#0000ff">6</span>       int step,burst;
+
+<span style="color:#0000ff">7</span>       int nparticle = 8192; <span style="color:#008040">/* MUST be a nice power of two for simplicity */</span>
+<span style="color:#0000ff">8</span>       int nstep = 100;
+<span style="color:#0000ff">9</span>       int nburst = 20; <span style="color:#008040">/* MUST divide the value of nstep without remainder */</span>
+<span style="color:#0000ff">10</span>      int nthread = 64; <span style="color:#008040">/* chosen for ATI Radeon HD 5870 */</span>
+
+<span style="color:#0000ff">11</span>      float dt = 0.0001;
+<span style="color:#0000ff">12</span>      float eps = 0.0001;</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 7-10</span>
+set parameters for the simulation, most of them being self-explanatory. The
+value of <span style="font-family: Courier New,Courier,monospace">nburst</span>
+is the number of iterations performed before data (particle positions) are read
+back from the co-processor. The value chosen for <span
+style="font-family: Courier New,Courier,monospace">nthread</span> works nicely
+on an ATI Radeon HD 5870. In general, this value should be equal to the maximum
+number of work-items in a work-group, using OpenCL. <span
+style="color:#0000ff"></span></p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 11-12</span>
+set the timestep <span
+style="font-family: Courier New,Courier,monospace">dt</span> and <span
+style="font-family: Courier New,Courier,monospace">eps</span>, the minimum
+interaction distance (squared) between particles. </p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">13      </span>cl_float4* pos1 = (cl_float4*)clmalloc(stdgpu,nparticle*sizeof(cl_float4),0);
+<span style="color:#0000ff">14</span>      cl_float4* pos2 = (cl_float4*)clmalloc(stdgpu,nparticle*sizeof(cl_float4),0);
+<span style="color:#0000ff">15</span>      cl_float4* vel = (cl_float4*)clmalloc(stdgpu,nparticle*sizeof(cl_float4),0);
+
+<span style="color:#0000ff">16</span>      nbody_init(nparticle,pos1,vel);</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 13-15</span>
+provide the first OpenCL related steps in the host code. Notice that up to this
+point, there have been no calls to perform initializations of the OpenCL
+interface - no "opencl_init() calls" for example. (No such call actually exists
+in the OpenCL standard - do not waste time looking for it!) The OpenCL standard
+requires many initialization steps when using the direct API before one gets to
+the point of actually doing any computing. By using the <em>libstdcl</em>
+interface to OpenCL, no initializations are needed and the OpenCL API is "ready
+to go" from the programmers point of view. </p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 13-15</span>
+allocate memory to store the particle positions and velocities. Note that this
+is not done with <span
+style="font-family: Courier New,Courier,monospace">malloc()</span>, but rather
+with a call very similar (by design). Specifically, the <em><span
+style="font-family: Times New Roman,Times,serif">libstdcl</span></em> library
+provides the <span
+style="font-family: Courier New,Courier,monospace">clmalloc()</span> to allow
+the allocation of memory that can be shared with co-processor devices through
+OpenCL. As with other <em>libstdcl</em> calls, more detail is available by
+reading the manual pages and the reader is encouraged to do so. Using <span
+style="font-family: Courier New,Courier,monospace">clmalloc()</span> we
+allocate memory as a C programmer would normally do with a two added arguments
+that reveal the special nature of the allocated memory. First, the memory is
+associated with a specific context - in this case with the default context
+<span style="font-family: Courier New,Courier,monospace">stdgpu</span> - which
+makes the allocated memory special in that it may be shared with GPUs through
+the OpenCL API. The last argument is used for flags passed to <span
+style="font-family: Courier New,Courier,monospace">clmalloc()</span> and will
+be ignored (set to zero) for our purposes here.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 16</span> is a
+call to some function that will initialize the positions and velocities of the
+particles. Note that this function can be any ordinary function, and need not
+use or reference OpenCL in any way. The pointers <span
+style="font-family: Courier New,Courier,monospace">pos1</span> and <span
+style="font-family: Courier New,Courier,monospace">vel</span> can be treated
+like any ordinary pointers to memory entirely compliant with normal pointers
+returned from <span
+style="font-family: Courier New,Courier,monospace">malloc()</span>.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">17</span>      void* h = clopen(stdgpu,"nbody_kern.cl",CLLD_NOW);
+<span style="color:#0000ff">18</span>      cl_kernel krn = clsym(stdgpu,h,"nbody_kern",CLLD_NOW);</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 17</span>
+loads the OpenCL program comprised of the kernel code that was described above
+and assumed to be in the file <span
+style="font-family: Courier New,Courier,monospace">nbody_kern.cl</span>. The
+OpenCL program is loaded into the <span
+style="font-family: Courier New,Courier,monospace">stdgpu</span> context and
+the last argument forces all loading and linking to be now, and not
+deferred.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 18</span> gets
+a handle of type cl_kernel (in practice a pointer) to the actual kernel that we
+identify by name. In this case it happens to simply be "nbody_kern", similar to
+the filename in which it is defined. However, our kernel function could have
+been called "foo" and our <span
+style="font-family: Courier New,Courier,monospace">.cl</span> could have
+contained multiple kernel functions. The call to <span
+style="font-family: Courier New,Courier,monospace">clsym()</span> is used to
+find the kernel we want and performs a function very similar to that of <span
+style="font-family: Courier New,Courier,monospace">dlsym()</span> for ordinary
+shared libraries. </p>
+
+<p style="text-align:justify;">It is worth pointing out that the overall
+interface of <span
+style="font-family: Courier New,Courier,monospace">clopen()</span> and <span
+style="font-family: Courier New,Courier,monospace">clsym()</span> will likely
+be familiar to programmers already familiar with the functions <span
+style="font-family: Courier New,Courier,monospace">dlopen()</span>and <span
+style="font-family: Courier New,Courier,monospace">dlsym()</span>used for
+conventional shared libraries. This is not an accident since the interface for
+loading OpenCL code was modeled after these calls. It is also worth noting that
+<em>libstdcl</em> facilitates the embedding of OpenCL code directly within the
+ELF executable, which would make the specification of the separate <span
+style="font-family: Courier New,Courier,monospace">.cl</span> file unnecessary.
+Here we use the "separate file model" to emphasize the just-in-time (JIT)
+nature of OpenCL programs, where the machine code generation must be deferred
+until runtime, when actual co-processor device present is identified. In this
+example, the backend compiler will perform a JIT compilation and target our GPU
+at runtime.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">19</span>      clndrange_t ndr = clndrange_init1d(0,nparticle,nthread);
+
+<span style="color:#0000ff">20</span>      clarg_set(krn,0,dt);
+<span style="color:#0000ff">21</span>      clarg_set(krn,1,eps);
+<span style="color:#0000ff">22</span>      clarg_set_global(krn,4,vel);
+<span style="color:#0000ff">23</span>      clarg_set_local(krn,5,nthread*sizeof(cl_float4));</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 19</span>
+defines the index-space for our kernel execution. Our kernel will be executed
+over an index-space of N work-items representing the update of the positions
+and velocities of N particles. The index-space in OpenCL is referred to as an
+"NDRange" which stands for N-Dimensional Range, since the index-space can be
+multi-dimensional. For our code, we are using a simple 1-D index-space.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 20-23</span>
+set the arguments of our kernel based on host-side objects. This will be
+unfamiliar to ordinary C programmers since it represents a syntactically
+verbose call model API. However, it has its purpose which one discovers quickly
+when writing more complicated OpenCL code. Each can be though of as explicitly
+pushing the respective arguments onto a "stack" with the exception that
+arguments need not be set in order (and here the analogy breaks down). The
+position of the argument with reference to the prototype of our kernel
+(counting from zero as all C programmers do) is specified as an argument to the
+<span style="font-family: Courier New,Courier,monospace">clarg_set*()</span>
+family of functions. </p>
+
+<p style="text-align:justify;">There are three variants reflective of the
+different nature of the argument for our kernel. <span
+style="color:#0000ff">Line 20-21</span> set ordinary arguments of intrinsic
+type. <span style="color:#0000ff">Line 22</span> sets a pointer to global
+memory. <span style="color:#0000ff">Line 23</span> is actually just setting the
+size in bytes of the local memory we wish to provide to our kernel, and does
+not set any actual argument (the local memory is not initialized). </p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">24</span>      clmsync(stdgpu,0,pos1,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+<span style="color:#0000ff">25</span>      clmsync(stdgpu,0,vel,CL_MEM_DEVICE|CL_EVENT_NOWAIT);</pre>
+</div>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">26</span>      for(step=0; step&lt;nstep; step+=nburst) {
+
+<span style="color:#0000ff">27</span>         for(burst=0; burst&lt;nburst; burst+=2) {
+
+<span style="color:#0000ff">28</span>            clarg_set_global(krn,2,pos1);
+<span style="color:#0000ff">29</span>            clarg_set_global(krn,3,pos2);
+<span style="color:#0000ff">30</span>            clfork(stdgpu,0,krn,&amp;ndr,CL_EVENT_NOWAIT);
+
+<span style="color:#0000ff">31</span>            clarg_set_global(krn,2,pos2);
+<span style="color:#0000ff">32</span>            clarg_set_global(krn,3,pos1);
+<span style="color:#0000ff">33</span>            clfork(stdgpu,0,krn,&amp;ndr,CL_EVENT_NOWAIT);
+      
+<span style="color:#0000ff">34</span>         }
+
+<span style="color:#0000ff">35</span>         clmsync(stdgpu,0,pos1,CL_MEM_HOST|CL_EVENT_NOWAIT);
+
+<span style="color:#0000ff">36</span>         clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+
+<span style="color:#0000ff">37</span>      }</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 26-27</span>
+is comprised of a double loop used to iteratively update the particle positions
+and velocities to advance the simulation forward in time. The outer <span
+style="font-family: Courier New,Courier,monospace">step</span> loop advances
+the simulation forward <span
+style="font-family: Courier New,Courier,monospace">nstep</span> timesteps. The
+inner <span style="font-family: Courier New,Courier,monospace">burst</span>
+loop is used to iterate the simulation forward a certain number of steps before
+doing any data transfer back to the host. This design is useful for diagnostic
+purposes - the value of <span
+style="font-family: Courier New,Courier,monospace">nburst</span> can be used to
+examine compute-communication ratios. The design is also useful in practice
+since it is typically not necessary to read back data each timestep. (The
+technique is called striding and is very typical in particle simulations.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 28-29</span>
+set the two arguments of the kernel that must be changed for each time the
+kernel is executed, and which were not set above near <span
+style="color:#0000ff">lines 20-23</span>. The reason for this is that we are
+using a "double-buffer" scheme wherein we will alternately use the arrays <span
+style="font-family: Courier New,Courier,monospace">pos1</span> and <span
+style="font-family: Courier New,Courier,monospace">pos2</span> to represent the
+old and new particle positions for each update.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 30</span> has
+the effect of enqueueing the kernel on the command queue for execution, to be
+executed with the arguments already set and over the index-space defined by ndr
+(the NDRange). The flag <span
+style="font-family: Courier New,Courier,monospace">CL_EVENT_NOWAIT</span> tells
+<span style="font-family: Courier New,Courier,monospace">clfork()</span> the
+enqueue the kernel for execution but not to block or wait for the event to
+complete. Instead, it returns immediately.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Lines 31-32</span>
+repeat the steps in <span style="color:#0000ff">lines 28-29</span> with the
+only difference being the association of pos1 and pos2 with the "old" and "new"
+particle positions passed to the kernel.</p>
+
+<p><span style="color:#0000ff">Line 36</span> synchronizes the memory <span
+style="font-family: Courier New,Courier,monospace">pos1</span> with the host
+causing the particle positions to be read back to the host. The flag <span
+style="font-family: Courier New,Courier,monospace">CL_EVENT_NOWAIT</span> tells
+<span style="font-family: Courier New,Courier,monospace">clmsync()</span> not
+to block.</p>
+
+<p style="text-align:justify;"><span style="color:#0000ff">Line 36</span> waits
+or blocks until the <span
+style="font-family: Courier New,Courier,monospace">2*nburst</span> kernel
+executions have completed and memory has been synchronized with the host. The
+flag <span
+style="font-family: Courier New,Courier,monospace">CL_EVENT_RELEASE</span>
+causes <span style="font-family: Courier New,Courier,monospace">clwait()</span>
+to release all of the events before returning.</p>
+
+<p>The above steps are repeated until the simulation has been advanced <span
+style="font-family: Courier New,Courier,monospace">nstep</span> steps forward
+in time. </p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">38</span>      nbody_output(nparticle,pos1,vel);
+
+<span style="color:#0000ff">39</span>      clclose(stdgpu,h);
+
+<span style="color:#0000ff">40</span>      clfree(pos1);
+<span style="color:#0000ff">41</span>      clfree(pos2);
+<span style="color:#0000ff">42</span>      clfree(vel);  
+<span style="color:#0000ff">43</span>   }</pre>
+</div>
+
+<p><span style="color:#0000ff">Line 38</span> simply provides some type of
+output to report back the results of the simulation.</p>
+
+<p><span style="color:#0000ff">Line 39</span> is the complement of the <span
+style="font-family: Courier New,Courier,monospace">clopen()</span> call and
+causes the associated CL programs to be released.</p>
+
+<p><span style="color:#0000ff">Lines 40-42</span> are the complements of the
+memory allocations performed with <span
+style="font-family: Courier New,Courier,monospace">clmalloc()</span>. </p>
+
+<p></p>
+<hr />
+
+<h3><a name="compile_and_run" id="compiling">6. Compiling and Running the
+Program</a></h3>
+
+<p style="text-align:justify;">Compiling the program is best described using a
+makefile since this is what most programmers will want to set up. The following
+makefile can be used to build the program and is based on the syntax suitable
+for GNU make (gmake). The makefile will require modification in <span
+style="color:#0000ff">lines 4-5</span> to reflect the location of where the
+OpenCL implementation and libstdcl packages are located.</p>
+
+<p>Compiling and running the program should simply require typing "<span
+style="font-family: Courier New,Courier,monospace">make</span>" at the command
+line and then "<span
+style="font-family: Courier New,Courier,monospace">./nbody</span>".</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">1</span>    ### Makefile for N-Body program
+<span style="color:#0000ff">2</span>    NAME = nbody
+<span style="color:#0000ff">3</span>    OBJS = nbody_init.o nbody_output.o
+<span style="color:#0000ff">4</span>    OPENCL = /path/to/atistream
+<span style="color:#0000ff">5</span>    STDCL = /path/to/browndeer
+<span style="color:#0000ff">6</span>    INCS += -I$(OPENCL)/include -I$(STDCL)/include
+<span style="color:#0000ff">7</span>    LIBS += -L$(OPENCL)/lib/x86_64 -lOpenCL -lpthread -ldl -L$(STDCL)/lib -lstdcl
+<span style="color:#0000ff">8</span>    CFLAGS += -O3
+
+<span style="color:#0000ff">9</span>    all: $(NAME).x
+
+<span style="color:#0000ff">10</span>   $(NAME).x: $(NAME).o $(OBJS)
+<span style="color:#0000ff">11</span>             $(CC) $(CFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) $(LIBS)
+
+<span style="color:#0000ff">12</span>   .SUFFIXES:
+<span style="color:#0000ff">13</span>   .SUFFIXES: .c .o
+
+<span style="color:#0000ff">14</span>   .c.o:
+<span style="color:#0000ff">15</span>             $(CC) $(CFLAGS) $(INCS) -c $&lt;
+
+<span style="color:#0000ff">16</span>   clean:
+<span style="color:#0000ff">17</span>             rm -f *.o *.x </pre>
+</div>
+
+<p></p>
+<hr />
+
+<p></p>
+
+<h3>7. <a name="Multi-GPU" id="Multi-GPU">Multi-GPU Implementation</a> <span
+style="color:#ff0000">NEW</span></h3>
+
+<p style="text-align:justify;"><img src="img/particle_data_decomposition.gif"
+style="padding-left: 20px; padding-bottom: 20px; float: right; clear: left;"
+alt="Particle Data Decoposition" />One of the most important objectives of
+OpenCL is to provide for the precise control of of data movement and kernel
+execution on multiple devices. In this section the extension of the single
+device N-Body code to two GPUs is discussed. In general you would need either
+two Radeon HD 5870s or a single Radeon HD 5970 in order to run this dual GPU
+version. </p>
+
+<p style="text-align:justify;">The basic idea is to divide the particles into
+two groups and have each GPU compute the update for its respective set of
+particles. Since the force on a given particle will depend on ALL other
+particles it will be necessary to exchange particle positions each iterative
+step. This might at first appear to be a performance killer. However, since the
+algorithm is <em>O(N<sup><span style="font-size: 10pt">2</span></sup>)</em>,
+for a sufficient number of particles some performance advantage can be
+gained.</p>
+
+<p style="text-align:justify;"><strong>Notation.</strong> Since the single
+device code will be used as a starting point <span style="color:#ff0000"><span
+style="background-color:#e8e8e8">red line numbers</span></span> fwill be used
+to highlight new or significantly modified lines of code. Note that the line
+numbers will not match with the single device version since lines of code are
+being added. </p>
+
+<p></p>
+
+<h4>The Kernel Code (two GPUs)</h4>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">1</span>    <span style="color:#008000">/* nbody2_kern.cl */</span>
+
+<span style="color:#0000ff">2</span>    __kernel void nbody_kern(
+<span style="color:#0000ff">3</span>       float dt1, float eps,
+<span style="color:#0000ff">4</span>       __global float4* pos_old,
+<span style="color:#0000ff">5</span>       __global float4* pos_new,
+<span style="color:#0000ff">6</span>       __global float4* vel,
+<span style="color:#0000ff">7</span>       __local float4* pblock,
+<span style="color:#ff0000">8</span>       __global float4* pos2
+<span style="color:#0000ff">9</span>    ) {</pre>
+</div>
+
+<p>An addition argument is added at <span style="color:#ff0000">line 8</span>.
+This is necessary since the particle positions are split into two arrays and
+each GPU will require the "cross term" of particle positions to use in the
+force calculation.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">10   </span>   const float4 dt = (float4)(dt1,dt1,dt1,0.0f);
+
+<span style="color:#0000ff">11</span>      int gti = get_global_id(0);
+<span style="color:#0000ff">12</span>      int ti = get_local_id(0);
+
+<span style="color:#0000ff">13</span>      int n = get_global_size(0);
+<span style="color:#0000ff">14</span>      int nt = get_local_size(0);
+<span style="color:#0000ff">15</span>      int nb = n/nt;
+<span style="color:#0000ff">16</span>      float4 p = pos_old[gti];
+<span style="color:#0000ff">17</span>      float4 v = vel[gti];
+
+<span style="color:#0000ff">18</span>      float4 a = (float4)(0.0f,0.0f,0.0f,0.0f);</pre>
+</div>
+
+<p><span style="color:#0000ff">Lines 10-18</span> have no changes from the
+single device version.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">19</span>       for(int jb=0; jb &lt; nb; jb++) { <span style="color:#008000">/* Foreach block ... */</span>
+
+<span style="color:#0000ff">20</span>          pblock[ti] = pos_old[jb*nt+ti]; <span style="color:#008000">/* Cache ONE particle position */</span>
+<span style="color:#0000ff">21</span>          barrier(CLK_LOCAL_MEM_FENCE); <span style="color:#008000">/* Wait for others in the work-group */</span>
+
+<span style="color:#0000ff">22</span>          for(int j=0; j&lt;nt; j++) { <span style="color:#008000">/* For ALL cached particle positions ... */</span>
+<span style="color:#0000ff">23</span>             float4 p2 = pblock[j]; <span style="color:#008000">/* Read a cached particle position */</span>
+<span style="color:#0000ff">24</span>             float4 d = p2 - p;
+<span style="color:#0000ff">25</span>             float invr = rsqrt(d.x*d.x + d.y*d.y + d.z*d.z + eps);
+<span style="color:#0000ff">26</span>             float f = p2.w*invr*invr*invr;
+<span style="color:#0000ff">27</span>             a += f*d; <span style="color:#008000">/* Accumulate acceleration */</span>
+<span style="color:#0000ff">28</span>          }
+<span style="color:#0000ff">29</span>          barrier(CLK_LOCAL_MEM_FENCE); <span style="color:#008000">/* Wait for others in work-group */</span>
+
+<span style="color:#ff0000">30</span>          pblock[ti] = pos2[jb*nt+ti]; <span style="color:#008000">/* Cache ONE particle position */</span>
+<span style="color:#ff0000">31</span>          barrier(CLK_LOCAL_MEM_FENCE); <span style="color:#008000">/* Wait for others in the work-group */</span>
+
+<span style="color:#ff0000">32</span>          for(int j=0; j&lt;nt; j++) { <span style="color:#008000">/* For ALL cached particle positions ... */</span>
+<span style="color:#ff0000">33</span>             float4 p2 = pblock[j]; <span style="color:#008000">/* Read a cached particle position */</span>
+<span style="color:#ff0000">34</span>             float4 d = p2 - p;
+<span style="color:#ff0000">35</span>             float invr = rsqrt(d.x*d.x + d.y*d.y + d.z*d.z + eps);
+<span style="color:#ff0000">36</span>             float f = p2.w*invr*invr*invr;
+<span style="color:#ff0000">37</span>             a += f*d; <span style="color:#008000">/* Accumulate acceleration */</span>
+<span style="color:#ff0000">38</span>          }
+<span style="color:#ff0000">39</span>          barrier(CLK_LOCAL_MEM_FENCE); <span style="color:#008000">/* Wait for others in work-group */</span>
+
+<span style="color:#0000ff">40</span>       }</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#ff0000">Lines 30-39</span>
+are identical to <span style="color:#0000ff">lines 20-29</span> with the
+acception of the array from which the positions are being read. This
+accomplishes the "cross term" of particle positions that must be used to
+accumulate the force on the particles point updated. It should be noted that
+this approach is not the only possible implementation, but was chosen since it
+keeps the newly added and modified code relatively seperated from the original
+code for tutorial purposes.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">41</span>       p += dt*v + 0.5f*dt*dt*a;
+<span style="color:#0000ff">42</span>       v += dt*a;
+
+<span style="color:#0000ff">43</span>       pos_new[gti] = p;
+<span style="color:#0000ff">44</span>       vel[gti] = v;
+
+<span style="color:#0000ff">45</span>    }</pre>
+</div>
+
+<p><span style="color:#0000ff">Lines 10-18</span> have no changes from the
+single device version.</p>
+
+<p></p>
+
+<h4>The Host Code (two GPUs)</h4>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">1</span>    <span style="color:#008000">/* nbody2.c version #2 */</span>
+<span style="color:#0000ff">2</span>    #include &lt;stdcl.h&gt;
+
+<span style="color:#0000ff">3</span>    void nbody_init( int n, cl_float4* pos, cl_float4* vel );
+<span style="color:#0000ff">4</span>    void nbody_output( int n, cl_float4* pos, cl_float4* vel);</pre>
+</div>
+
+<p><span style="color:#0000ff">Lines 1-4</span> have no changes from the single
+device version.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">5</span>    int main(int argc, char** argv) {
+
+<span style="color:#0000ff">6</span>       int step,burst;
+
+<span style="color:#0000ff">7</span>       int nparticle = 8192; <span style="color:#008000">/* MUST be a nice power of two for simplicity */</span>
+<span style="color:#ff0000">8</span>       int nparticle2 = nparticle/2;
+<span style="color:#0000ff">9</span>       int nstep = 100;
+<span style="color:#0000ff">10</span>      int nburst = 20; <span style="color:#008000">/* MUST divide the value of nstep without remainder */</span>
+<span style="color:#0000ff">11</span>      int nthread = 64; <span style="color:#008000">/* chosen for ATI Radeon HD 5870 */</span>
+
+<span style="color:#0000ff">12</span>      float dt = 0.0001;
+<span style="color:#0000ff">13</span>      float eps = 0.0001;</pre>
+</div>
+
+<p><span style="color:#ff0000">Line 8</span> trivially adds a variable for 1/2
+the number of particles.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">14</span>      cl_float4* pos1 = (cl_float4*)clmalloc(stdgpu,nparticle*sizeof(cl_float4),0);
+<span style="color:#ff0000">15</span>      cl_float4* pos1a = (cl_float4*)clmalloc(stdgpu,nparticle2*sizeof(cl_float4),0);
+<span style="color:#ff0000">16</span>      cl_float4* pos1b = (cl_float4*)clmalloc(stdgpu,nparticle2*sizeof(cl_float4),0);
+<span style="color:#ff0000">17</span>      cl_float4* pos2a = (cl_float4*)clmalloc(stdgpu,nparticle2*sizeof(cl_float4),0);
+<span style="color:#ff0000">18</span>      cl_float4* pos2b = (cl_float4*)clmalloc(stdgpu,nparticle2*sizeof(cl_float4),0);
+<span style="color:#0000ff">19</span>      cl_float4* vel = (cl_float4*)clmalloc(stdgpu,nparticle*sizeof(cl_float4),0);
+<span style="color:#ff0000">20</span>      cl_float4* vela = (cl_float4*)clmalloc(stdgpu,nparticle2*sizeof(cl_float4),0);
+<span style="color:#ff0000">21</span>      cl_float4* velb = (cl_float4*)clmalloc(stdgpu,nparticle2*sizeof(cl_float4),0);
+
+<span style="color:#0000ff">22</span>      nbody_init(nparticle,pos1,vel);
+
+<span style="color:#ff0000">23</span>      memcpy(pos1a,pos1,nparticle2*sizeof(cl_float4));
+<span style="color:#ff0000">24</span>      memcpy(pos1b,pos1+nparticle2,nparticle2*sizeof(cl_float4));
+<span style="color:#ff0000">25</span>      memcpy(vela,vel,nparticle2*sizeof(cl_float4));
+<span style="color:#ff0000">26</span>      memcpy(velb,vel+nparticle2,nparticle2*sizeof(cl_float4));</pre>
+</div>
+
+<p style="text-align:justify;">Now things get a bit complicated. The approach
+here is to still allocate storage for arrays containing the positions and
+velocities of all particles, and then allocate additional storage, 1/2 the
+size, for the split arrays. Not efficient, but convenient to connect with the
+original sinngle device version. </p>
+
+<p style="text-align:justify;"><span style="color:#ff0000">Lines 15-18</span>
+allocated storage for the split arrays, where the notation "a" and "b" will
+correspond to GPU 0 and 1, respectively. There are four split allocations for
+the particle positions sinnce the double-buffering trick will still be used.</p>
+
+<p><span style="color:#ff0000">Lines 20-21</span> allocate the split arrays for
+particle velocity with similar notation.</p>
+
+<p style="text-align:justify;">Following the initialization of positions and
+velocities, <span style="color:#ff0000">lines 23-26</span> copy the data from
+the full arrays into the split arrays.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">27</span>      void* h = clopen(stdgpu,"nbody2_kern.cl",CLLD_NOW);
+<span style="color:#0000ff">28</span>      cl_kernel krn = clsym(stdgpu,h,"nbody2_kern",CLLD_NOW);</pre>
+</div>
+
+<p><span style="color:#0000ff">Line 27-28</span> have trivial change to reflect
+the name of our two GPU kernel program.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#ff0000">29</span>      clndrange_t ndr2 = clndrange_init1d(0,nparticle2,nthread);
+
+<span style="color:#0000ff">30</span>      clarg_set(krn,0,dt);
+<span style="color:#0000ff">31</span>      clarg_set(krn,1,eps);
+<span style="color:#0000ff">32</span>      clarg_set_local(krn,5,nthread*sizeof(cl_float4));</pre>
+</div>
+
+<p style="text-align:justify;"><span style="color:#ff0000">Line 29</span> has a
+subtle, but important change to be noted. The index-space over which the kernel
+will be executed is reduced by 1/2 as compared to the single device version.
+This accounts for the fact that each of the two GPUs will perform 1/2 of the
+work.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#ff0000">33</span>      clmsync(stdgpu,0,pos1a,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+<span style="color:#ff0000">34</span>      clmsync(stdgpu,0,pos1b,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+<span style="color:#ff0000">35</span>      clmsync(stdgpu,0,vela,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+ 
+<span style="color:#ff0000">36</span>      clmsync(stdgpu,1,pos1a,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+<span style="color:#ff0000">37</span>      clmsync(stdgpu,1,pos1b,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+<span style="color:#ff0000">38</span>      clmsync(stdgpu,1,velb,CL_MEM_DEVICE|CL_EVENT_NOWAIT);</pre>
+</div>
+
+<p><span style="color:#ff0000">Lines 33-35</span> synchronize the split arrays
+for GPU 0 having the effect of writing the data to the GPU.</p>
+
+<p><span style="color:#ff0000">Lines 36-38</span> synchronize the split arrays
+for GPU 1 having the effect of writing the data to the GPU.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">39</span>      for(step=0; step&lt;nstep; step+=nburst) {
+
+<span style="color:#0000ff">40</span>         for(burst=0; burst&lt;nburst; burst+=2) {</pre>
+</div>
+
+<p><span style="color:#0000ff">Lines 39-40</span> begin the double-loop exactly
+as was done in the single device version. </p>
+
+<p style="text-align:justify;">What follows in the loop body is perhaps the
+most complicated aspect of a multi-device implementation. This is where the
+fine-grained control and synchronization of concurrent operations on multiple
+devices, provided by OpenCL, is heavily exploited. The objective is to control
+the operation of the host and GPUs so as to overlap the work performed as much
+as possible to exploit the device-level parallelism.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#ff0000">41</span>            clarg_set_global(krn,2,pos1a);
+<span style="color:#ff0000">42</span>            clarg_set_global(krn,3,pos2a);
+<span style="color:#ff0000">43</span>            clarg_set_global(krn,4,vela);
+<span style="color:#ff0000">44</span>            clarg_set_global(krn,6,pos1b);
+<span style="color:#ff0000">45</span>            clfork(stdgpu,0,krn,&amp;ndr2,CL_EVENT_NOWAIT);
+
+<span style="color:#ff0000">46</span>            clarg_set_global(krn,2,pos1b);
+<span style="color:#ff0000">47</span>            clarg_set_global(krn,3,pos2b);
+<span style="color:#ff0000">48</span>            clarg_set_global(krn,4,velb);
+<span style="color:#ff0000">49</span>            clarg_set_global(krn,6,pos1a);
+<span style="color:#ff0000">50</span>            clfork(stdgpu,1,krn,&amp;ndr2,CL_EVENT_NOWAIT);
+
+<span style="color:#ff0000">51</span>            clmsync(stdgpu,0,pos2a,CL_MEM_HOST|CL_EVENT_NOWAIT);
+<span style="color:#ff0000">52</span>            clmsync(stdgpu,1,pos2b,CL_MEM_HOST|CL_EVENT_NOWAIT);
+
+<span style="color:#ff0000">53</span>            clflush(stdgpu,0,0);
+<span style="color:#ff0000">54</span>            clflush(stdgpu,1,0);
+
+<span style="color:#ff0000">55</span>            clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+<span style="color:#ff0000">56</span>            clwait(stdgpu,1,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+
+<span style="color:#ff0000">57</span>            clmsync(stdgpu,0,pos2b,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+<span style="color:#ff0000">58</span>            clmsync(stdgpu,1,pos2a,CL_MEM_DEVICE|CL_EVENT_NOWAIT);</pre>
+</div>
+
+<p><span style="color:#ff0000">Lines 41-45</span> set the arguments and enqueue
+the kernel for execution on GPU 0, without blocking.</p>
+
+<p><span style="color:#ff0000">Lines 46-50</span> set the arguments and enqueue
+the kernel for execution on GPU 1, without blocking.</p>
+
+<p style="text-align:justify;"><span style="color:#ff0000">Lines 51-52</span>
+sync the updated particle positions, stored in split arrays, with the host,
+effectively reading this data back from the respective GPUs. These calls are
+also performed without blocking.</p>
+
+<p style="text-align:justify;"><span style="color:#ff0000">Lines 53-54</span>
+flush the command queues for the respective GPUs forcing them to perform the
+work that has been scheduled through <span style="color:#ff0000">lines
+41-52</span>.</p>
+
+<p><span style="color:#ff0000">Lines 55-56</span> block on the completion of
+the events being executed on the respective GPUs. While blocking on GPU 0 in
+<span style="color:#ff0000">line 55</span> work should be executing
+concurrently on GPU 1.</p>
+
+<p><span style="color:#ff0000">Lines 57-58</span> completes the exchange of the
+updated particle positions between the GPUs, with the operation being enqued
+without blocking.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#ff0000">59</span>            clarg_set_global(krn,2,pos2a);
+<span style="color:#ff0000">60</span>            clarg_set_global(krn,3,pos1a);
+<span style="color:#ff0000">61</span>            clarg_set_global(krn,4,vela);
+<span style="color:#ff0000">62</span>            clarg_set_global(krn,6,pos2b);
+<span style="color:#ff0000">63</span>            clfork(stdgpu,0,krn,&amp;ndr2,CL_EVENT_NOWAIT);
+
+<span style="color:#ff0000">64</span>            clarg_set_global(krn,2,pos2b);
+<span style="color:#ff0000">65</span>            clarg_set_global(krn,3,pos1b);
+<span style="color:#ff0000">66</span>            clarg_set_global(krn,4,velb);
+<span style="color:#ff0000">67</span>            clarg_set_global(krn,6,pos2a);
+<span style="color:#ff0000">68</span>            clfork(stdgpu,1,krn,&amp;ndr2,CL_EVENT_NOWAIT);
+
+<span style="color:#ff0000">69</span>            clmsync(stdgpu,0,pos1a,CL_MEM_HOST|CL_EVENT_NOWAIT);
+<span style="color:#ff0000">70</span>            clmsync(stdgpu,1,pos1b,CL_MEM_HOST|CL_EVENT_NOWAIT);
+
+<span style="color:#ff0000">71</span>            clflush(stdgpu,0,0);
+<span style="color:#ff0000">72</span>            clflush(stdgpu,1,0);
+
+<span style="color:#ff0000">73</span>            clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+<span style="color:#ff0000">74</span>            clwait(stdgpu,1,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+
+<span style="color:#ff0000">75</span>            clmsync(stdgpu,0,pos1b,CL_MEM_DEVICE|CL_EVENT_WAIT|CL_EVENT_RELEASE);
+<span style="color:#ff0000">76</span>            clmsync(stdgpu,1,pos1a,CL_MEM_DEVICE|CL_EVENT_WAIT|CL_EVENT_RELEASE);</pre>
+</div>
+
+<p><span style="color:#ff0000">Lines 59-76</span> repeat the steps in <span
+style="color:#ff0000">lines 41-58</span> with small changes in notation to
+implement the same double-buffering introduced for the single device version,
+and are left to the programmer to decipher.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#0000ff">77</span>         }
+
+<span style="color:#ff0000">78</span>         clflush(stdgpu,0,0);
+<span style="color:#ff0000">79</span>         clflush(stdgpu,1,0);
+
+<span style="color:#0000ff"><span style="color:#ff0000">80</span></span>         clwait(stdcpu,0,CL_MEM_EVENT|CL_EVENT_RELEASE);
+<span style="color:#0000ff"><span style="color:#ff0000">81</span></span>         clwait(stdcpu,1,CL_MEM_EVENT|CL_EVENT_RELEASE);
+
+<span style="color:#0000ff">82</span>      }</pre>
+</div>
+
+<p><span style="color:#0000ff">Line 77</span> closes out the inner burst loop
+and must be followed by a trailing flush and block in <span
+style="color:#ff0000">lines 78-81</span> at which point the outer loop is
+closed in <span style="color:#0000ff">line 82</span>.</p>
+
+<p></p>
+
+<div style="background-color:#e8e8e8;">
+<pre><span style="color:#ff0000">83</span>      memcpy(pos1, pos1a, nparticle2*sizeof(cl_float4));
+<span style="color:#ff0000">84</span>      memcpy(pos1+nparticle2, pos1b, nparticle2*sizeof(cl_float4));
+
+<span style="color:#0000ff">85</span>      nbody_output(nparticle,pos1,vel);
+
+<span style="color:#0000ff">86</span>      clclose(stdgpu,h);
+
+<span style="color:#0000ff">87</span>      clfree(pos1);
+<span style="color:#ff0000">88</span>      clfree(pos1a);
+<span style="color:#ff0000">89</span>      clfree(pos1b);
+<span style="color:#ff0000">90</span>      clfree(pos2a);
+<span style="color:#ff0000">91</span>      clfree(pos2b);
+<span style="color:#0000ff">92</span>      clfree(vel);
+<span style="color:#ff0000">93</span>      clfree(vela);
+<span style="color:#ff0000">94</span>      clfree(velb);  
+
+<span style="color:#0000ff">95</span>   }</pre>
+</div>
+
+<p>The remaining steps are largely clean-up operations. <span
+style="color:#ff0000">Lines 83-84</span> copy the final particle positions from
+the split arrays into a single array. The program then finishes with output and
+closing/releasinng resources.</p>
+
+<p></p>
+<hr />
+
+<p align="center">Copyright © 2009-2010 Brown Deer Technology, LLC.</p>
+
+<p>document revision 2 (20100814)</p>
+</div>
+</body>
+</html>
