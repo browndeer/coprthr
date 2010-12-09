@@ -33,11 +33,13 @@ struct _prgs_struct;
 struct _txt_struct;
 struct _memd_struct;
 
+#define STDCL_EVENTLIST_MAX 1024
+
 struct _event_list_struct {
 	cl_uint nev;
 	cl_uint ev_first;
 	cl_uint ev_free;
-	cl_event ev[128];
+	cl_event ev[STDCL_EVENTLIST_MAX];
 };
 
 struct _clcontext_ptr_struct {

@@ -55,7 +55,7 @@ cl_event clfork(
 )
 {
 	
-	if (cp->kev[devnum].nev==128) return((cl_event)0);
+	if (cp->kev[devnum].nev==STDCL_EVENTLIST_MAX) return((cl_event)0);
 
 	/* XXX here you should check flags to ensure sufficient and valid -DAR */
 
@@ -96,7 +96,7 @@ cl_event clfork(
 	if (flags & CL_EVENT_NOWAIT) {
 
 		cp->kev[devnum].ev[cp->kev[devnum].ev_free++] = ev;
-		cp->kev[devnum].ev_free %= 128;
+		cp->kev[devnum].ev_free %= STDCL_EVENTLIST_MAX;
 		++cp->kev[devnum].nev;
 
 //	} else { /* CL_EVENT_WAIT */
@@ -190,14 +190,14 @@ DEBUG(__FILE__,__LINE__, "clwait: here");
 
 			DEBUG(__FILE__,__LINE__, "clwait two event lists");
 
-			err = clWaitForEvents(128 - cp->kev[devnum].ev_first, 
+			err = clWaitForEvents(STDCL_EVENTLIST_MAX - cp->kev[devnum].ev_first, 
 				&cp->kev[devnum].ev[cp->kev[devnum].ev_first]
 			);
 
 			err = clWaitForEvents(cp->kev[devnum].ev_free, cp->kev[devnum].ev);
 
 			for(evp = cp->kev[devnum].ev + cp->kev[devnum].ev_first; 
-				evp < cp->kev[devnum].ev + 128; evp++
+				evp < cp->kev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
 			) clReleaseEvent(*evp);
 
 			for(evp = cp->kev[devnum].ev; 
@@ -210,9 +210,9 @@ DEBUG(__FILE__,__LINE__, "clwait: here");
 
 			DEBUG(__FILE__,__LINE__, "clwait full even list");
 
-			err = clWaitForEvents(128,cp->kev[devnum].ev);
+			err = clWaitForEvents(STDCL_EVENTLIST_MAX,cp->kev[devnum].ev);
 
-			for(evp = cp->kev[devnum].ev; evp < cp->kev[devnum].ev + 128; evp++)
+			for(evp = cp->kev[devnum].ev; evp < cp->kev[devnum].ev + STDCL_EVENTLIST_MAX; evp++)
 				clReleaseEvent(*evp);
 
 			cp->kev[devnum].nev = cp->kev[devnum].ev_first = cp->kev[devnum].ev_free = 0;
@@ -253,13 +253,13 @@ DEBUG(__FILE__,__LINE__, "clwait: here");
 
 			DEBUG(__FILE__,__LINE__, "clwait two event lists");
 
-			err = clWaitForEvents(128 - cp->mev[devnum].ev_first, 
+			err = clWaitForEvents(STDCL_EVENTLIST_MAX - cp->mev[devnum].ev_first, 
 				&cp->mev[devnum].ev[cp->mev[devnum].ev_first]);
 
 			err = clWaitForEvents(cp->mev[devnum].ev_free, cp->mev[devnum].ev);
 
 			for(evp = cp->mev[devnum].ev + cp->mev[devnum].ev_first; 
-				evp < cp->mev[devnum].ev + 128; evp++
+				evp < cp->mev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
 			) clReleaseEvent(*evp);
 
 			for(evp = cp->mev[devnum].ev; 
@@ -273,9 +273,9 @@ DEBUG(__FILE__,__LINE__, "clwait: here");
 
 			DEBUG(__FILE__,__LINE__, "clwait full even list");
 
-			err = clWaitForEvents(128,cp->mev[devnum].ev);
+			err = clWaitForEvents(STDCL_EVENTLIST_MAX,cp->mev[devnum].ev);
 
-			for(evp = cp->mev[devnum].ev; evp < cp->mev[devnum].ev + 128; evp++)
+			for(evp = cp->mev[devnum].ev; evp < cp->mev[devnum].ev + STDCL_EVENTLIST_MAX; evp++)
 				clReleaseEvent(*evp);
 
 			cp->mev[devnum].nev = cp->mev[devnum].ev_first 

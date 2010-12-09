@@ -331,7 +331,7 @@ cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	if (flags & CL_EVENT_NOWAIT) {
 
 		cp->mev[devnum].ev[cp->mev[devnum].ev_free++] = ev;
-		cp->mev[devnum].ev_free %= 128;
+		cp->mev[devnum].ev_free %= STDCL_EVENTLIST_MAX;
 		++cp->mev[devnum].nev;
 
 	} else { /* CL_EVENT_WAIT */
