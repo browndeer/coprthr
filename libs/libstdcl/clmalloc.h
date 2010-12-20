@@ -96,7 +96,7 @@ void* clmemptr( CONTEXT* CP, void* ptr );
 
 #ifdef ENABLE_CLGL
 void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
-void* clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
+cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 #endif
 
 

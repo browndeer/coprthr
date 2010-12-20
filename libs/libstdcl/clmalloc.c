@@ -422,7 +422,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 		memd_flags = memd->flags;
 
 #ifdef ENABLE_CLGL
-		if (memd_flags&__MEMD_GLBUF) {
+		if (memd_flags&__MEMD_F_GLBUF) {
 
 			ERROR(__FILE__,__LINE__,"clmrealloc: invalid ptr");
 
@@ -518,27 +518,7 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 
 	DEBUG(__FILE__,__LINE__,"clglmalloc: glbuf=%d flag=%d",glbuf,flags);
 
-/*
 	int err;
-	intptr_t ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
-	intptr_t ptr = ptri+sizeof(struct _memd_struct);
-	struct _memd_struct* memd = (struct _memd_struct*)ptri;
-
-	DEBUG(__FILE__,__LINE__,"clmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
-
-	DEBUG(__FILE__,__LINE__,"clmalloc: sizeof struct _memd_struct %d",
-		sizeof(struct _memd_struct));
-
-	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
-		WARN(__FILE__,__LINE__,
-			"clmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
-	} //// XXX CL_MEM_READ_WRITE implied -DAR
-
-	memd->magic = CLMEM_MAGIC;
-	memd->flags = __MEMD_F_RW;
-	memd->sz = size;
-*/
-
 
 	cl_mem tmp_clbuf;
 	
@@ -602,7 +582,7 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 
 	memd->clbuf = tmp_clbuf;
 	memd->magic = CLMEM_MAGIC;
-	memd->flags = __MEMD_F_RW|__MEMD_GLBUF|__MEMD_F_ATTACHED;
+	memd->flags = __MEMD_F_RW|__MEMD_F_GLBUF|__MEMD_F_ATTACHED;
 	memd->sz = size;
 
 	LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);

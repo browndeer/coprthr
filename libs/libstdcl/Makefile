@@ -21,6 +21,9 @@ INSTALL_MAN_DIR ?= /usr/share/man
 
 DEFS += -DENABLE_CLEXPORT ### XXX experimental
 
+ifeq ($(ENABLE_CLGL),1)
+DEFS += -DENABLE_CLGL ### XXX experimental
+endif
 
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
