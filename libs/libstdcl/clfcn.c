@@ -177,11 +177,11 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 	size_t sz;
 	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,0,0,&sz);
 	char* buf = (char*)malloc(sz*sizeof(char));
-	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,sz,&buf,0);
+	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,sz,buf,0);
 
 	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
 
-	if (buf) fee(buf);
+	if (buf) free(buf);
 
 	}
 
