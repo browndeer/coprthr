@@ -18,6 +18,8 @@ export USE_OPENCL_LIB = -L/usr/local/atistream/lib/x86_64 -lOpenCL
 export ENABLE_DEBUG_LIBSTDCL = 1
 export ENABLE_DEBUG_LIBOCL = 1
 
+export ENABLE_CLGL = 1
+
 
 ### recommended install paths, modify if necessary
 export INSTALL_BIN_DIR = /usr/local/browndeer/bin

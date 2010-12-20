@@ -64,13 +64,13 @@ struct _proc_cl_struct _proc_cl = { 0,0, 0,0, 0,0, 0,0, 0,0 };
 
 #define min(a,b) ((a<b)?a:b)
 
-static int _getenv_token( 
+static int __getenv_token( 
 	const char* name, const char* token, char* value, size_t n
 );
 
-static cl_platform_id _select_platformid( 
-	cl_uint nplatforms, cl_platform_id* platforms, const char* env_var
-);
+//static cl_platform_id _select_platformid( 
+//	cl_uint nplatforms, cl_platform_id* platforms, const char* env_var
+//);
 
 
 /* 
@@ -190,7 +190,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	);
 
 
-
+#if(0)
 	/*
 	 * get platform information
 	 */
@@ -243,6 +243,7 @@ printf("XXX %d\n",nplatforms);
 			"_libstdcl_init: no platforms found, continue and hope for the best");
 
 	}
+#endif
 
 
 /*
@@ -273,7 +274,7 @@ printf("XXX %d\n",nplatforms);
 	 * initialize stddev (all CL devices)
 	 */
 
-	if (!_getenv_token("STDDEV",0,env_max_ndev,256)) {
+	if (!__getenv_token("STDDEV",0,env_max_ndev,256)) {
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
@@ -284,16 +285,19 @@ printf("XXX %d\n",nplatforms);
 
 	if (enable) {
 
-		platformid = _select_platformid(nplatforms,platforms,"STDDEV");
+//		platformid = _select_platformid(nplatforms,platforms,"STDDEV");
+		char name[256];
+		__getenv_token("STDDEV","platform_name",name,256);
 
-		if (platformid != (cl_platform_id)(-1)) {
+//		if (platformid != (cl_platform_id)(-1)) {
 
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: stddev platformid %p",platformid);
+//			DEBUG(__FILE__,__LINE__,
+//				"_libstdcl_init: stddev platformid %p",platformid);
 
-			stddev = clcontext_create(platformid,CL_DEVICE_TYPE_ALL,ndev,0);
+//			stddev = clcontext_create(platformid,CL_DEVICE_TYPE_ALL,ndev,0);
+			stddev = clcontext_create(name,CL_DEVICE_TYPE_ALL,ndev,0,0);
 
-		} 
+//		} 
 
 	}
 
@@ -303,7 +307,7 @@ printf("XXX %d\n",nplatforms);
 	 * initialize stdcpu (all CPU CL devices)
 	 */
 
-	if (!_getenv_token("STDCPU",0,env_max_ndev,256)) {
+	if (!__getenv_token("STDCPU",0,env_max_ndev,256)) {
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
@@ -314,16 +318,19 @@ printf("XXX %d\n",nplatforms);
 
 	if (enable) {
 
-		platformid = _select_platformid(nplatforms,platforms,"STDCPU");
+//		platformid = _select_platformid(nplatforms,platforms,"STDCPU");
+		char name[256];
+		__getenv_token("STDCPU","platform_name",name,256);
 
-		if (platformid != (cl_platform_id)(-1)) {
+//		if (platformid != (cl_platform_id)(-1)) {
 
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: stdcpu platformid %p",platformid);
+//			DEBUG(__FILE__,__LINE__,
+//				"_libstdcl_init: stdcpu platformid %p",platformid);
 
-			stdcpu = clcontext_create(platformid,CL_DEVICE_TYPE_CPU,ndev,0);
+//			stdcpu = clcontext_create(platformid,CL_DEVICE_TYPE_CPU,ndev,0);
+			stdcpu = clcontext_create(name,CL_DEVICE_TYPE_CPU,ndev,0,0);
 
-		}
+//		}
 
 	}
 
@@ -333,7 +340,7 @@ printf("XXX %d\n",nplatforms);
 	 * initialize stdgpu (all GPU CL devices)
 	 */
 
-	if (!_getenv_token("STDGPU",0,env_max_ndev,256)) {
+	if (!__getenv_token("STDGPU",0,env_max_ndev,256)) {
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
@@ -344,16 +351,19 @@ printf("XXX %d\n",nplatforms);
 
 	if (enable) {
 
-		platformid = _select_platformid(nplatforms,platforms,"STDGPU");
+//		platformid = _select_platformid(nplatforms,platforms,"STDGPU");
+		char name[256];
+		__getenv_token("STDGPU","platform_name",name,256);
 
-		if (platformid != (cl_platform_id)(-1)) {
+//		if (platformid != (cl_platform_id)(-1)) {
 
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: stdgpu platformid %p",platformid);
+//			DEBUG(__FILE__,__LINE__,
+//				"_libstdcl_init: stdgpu platformid %p",platformid);
 
-			stdgpu = clcontext_create(platformid,CL_DEVICE_TYPE_GPU,ndev,0);
+//			stdgpu = clcontext_create(platformid,CL_DEVICE_TYPE_GPU,ndev,0);
+			stdgpu = clcontext_create(name,CL_DEVICE_TYPE_GPU,ndev,0,0);
 
-		}
+//		}
 
 	}
 
@@ -363,8 +373,8 @@ printf("XXX %d\n",nplatforms);
 	 * initialize stdrpu (all RPU CL devices)
 	 */
 
-/*
-	if (!_getenv_token("STDRPU",0,env_max_ndev,256)) {
+/* XXX old style, need to update -DAR
+	if (!__getenv_token("STDRPU",0,env_max_ndev,256)) {
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
@@ -415,7 +425,7 @@ void _assert_proto_stub(void) {  }
 
 
 static int 
-_getenv_token( const char* name, const char* token, char* value, size_t n )
+__getenv_token( const char* name, const char* token, char* value, size_t n )
 {
 	char* envstr = (char*)getenv(name);
 
@@ -464,7 +474,7 @@ _select_platformid(
 
 	int i,j;
 	char name[256];
-	_getenv_token(env_var,"platform_name",name,256);
+	__getenv_token(env_var,"platform_name",name,256);
 
 	if (name[0] == '\0') {
 

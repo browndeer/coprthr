@@ -42,12 +42,16 @@
 
 
 
-#define __MEMD_F_R			0x01
-#define __MEMD_F_W			0x02
+#define __MEMD_F_R			0x0001
+#define __MEMD_F_W			0x0002
 #define __MEMD_F_RW 			(__MEMD_F_R|__MEMD_F_W)
-#define __MEMD_F_ATTACHED	0x04
-#define __MEMD_F_LOCKED		0x08
-#define __MEMD_F_DIRTY		0x10
+#define __MEMD_F_ATTACHED	0x0004
+#define __MEMD_F_LOCKED		0x0008
+#define __MEMD_F_DIRTY		0x0010
+
+#ifdef ENABLE_CLGL
+#define __MEMD_F_GLBUF		0x1000
+#endif
 
 
 
@@ -278,7 +282,8 @@ int clmctl( void* ptr, int op, int arg )
 }
 
 
-cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
+cl_event 
+clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 {
 	int err;
 
@@ -308,6 +313,8 @@ cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 		memd,(intptr_t)memd+sizeof(struct _memd_struct));
 
 
+	/* XXX CL_MEM_WRITE is deprecated, get rid of use below -DAR */
+
 	if (flags&CL_MEM_WRITE || flags&CL_MEM_DEVICE) {
 		err = clEnqueueWriteBuffer(
 			cp->cmdq[devnum],memd->clbuf,CL_FALSE,0,memd->sz,ptr,0,0,&ev
@@ -326,7 +333,7 @@ cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	}
 
 
-	/* XXX need to add eventq for mem cmds, for now just warn no supp -DAR */
+	/* XXX need to allow either sync or async transfer supp, add this -DAR */
 
 	if (flags & CL_EVENT_NOWAIT) {
 
@@ -412,6 +419,16 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 		DEBUG(__FILE__,__LINE__,"ptr != 0");
 		ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
 		memd = (struct _memd_struct*)ptri;
+		memd_flags = memd->flags;
+
+#ifdef ENABLE_CLGL
+		if (memd_flags&__MEMD_GLBUF) {
+
+			ERROR(__FILE__,__LINE__,"clmrealloc: invalid ptr");
+
+			return(0);
+		}
+#endif
 
 		if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
 			|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
@@ -428,8 +445,6 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 			LIST_REMOVE(memd, memd_list);
 
 		}
-
-		memd_flags = memd->flags;
 
 		ptri = (intptr_t)realloc((void*)ptri,size+sizeof(struct _memd_struct));
 
@@ -494,4 +509,192 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 	return((void*)ptr);
 
 }
+
+
+#ifdef ENABLE_CLGL
+
+void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
+{
+
+	DEBUG(__FILE__,__LINE__,"clglmalloc: glbuf=%d flag=%d",glbuf,flags);
+
+/*
+	int err;
+	intptr_t ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
+	intptr_t ptr = ptri+sizeof(struct _memd_struct);
+	struct _memd_struct* memd = (struct _memd_struct*)ptri;
+
+	DEBUG(__FILE__,__LINE__,"clmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
+
+	DEBUG(__FILE__,__LINE__,"clmalloc: sizeof struct _memd_struct %d",
+		sizeof(struct _memd_struct));
+
+	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
+		WARN(__FILE__,__LINE__,
+			"clmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
+	} //// XXX CL_MEM_READ_WRITE implied -DAR
+
+	memd->magic = CLMEM_MAGIC;
+	memd->flags = __MEMD_F_RW;
+	memd->sz = size;
+*/
+
+
+	cl_mem tmp_clbuf;
+	
+	if (flags&CL_MEM_DETACHED) {
+	
+		WARN(__FILE__,__LINE__,"clglmalloc: invalid flag: CL_MEM_DETACHED");
+
+		return(0);
+
+	}
+
+	tmp_clbuf = clCreateFromGLBuffer(
+     	cp->ctx,CL_MEM_READ_WRITE,
+     	glbuf,&err
+  	);
+
+	DEBUG(__FILE__,__LINE__,
+		"clglmalloc: clCreateFromGLBuffer clbuf=%p",tmp_clbuf);
+
+	DEBUG(__FILE__,__LINE__, "clmalloc: err from clCreateFromGLBuffer %d",err);
+
+	size_t size;
+	err = clGetMemObjectInfo(tmp_clbuf,CL_MEM_SIZE,sizeof(size_t),&size,0);
+
+	DEBUG(__FILE__,__LINE__,"clglmalloc: clCreateFromGLBuffer err %d",err);
+
+	if (size == 0) {
+
+		WARN(__FILE__,__LINE__,"clglmalloc: size=0, something went wrong");
+
+		clReleaseMemObject(tmp_clbuf);
+
+		return(0);
+
+	}
+
+	intptr_t ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
+
+	if (ptri == 0) {
+
+		WARN(__FILE__,__LINE__,"clglmalloc: out of memory");
+
+		clReleaseMemObject(tmp_clbuf);
+
+		return(0);
+
+	}
+
+	intptr_t ptr = ptri+sizeof(struct _memd_struct);
+	struct _memd_struct* memd = (struct _memd_struct*)ptri;
+
+	DEBUG(__FILE__,__LINE__,"clmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
+
+	DEBUG(__FILE__,__LINE__,"clmalloc: sizeof struct _memd_struct %d",
+		sizeof(struct _memd_struct));
+
+	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
+		WARN(__FILE__,__LINE__,
+			"clmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
+	} //// XXX CL_MEM_READ_WRITE implied -DAR
+
+	memd->clbuf = tmp_clbuf;
+	memd->magic = CLMEM_MAGIC;
+	memd->flags = __MEMD_F_RW|__MEMD_GLBUF|__MEMD_F_ATTACHED;
+	memd->sz = size;
+
+	LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);
+
+	return((void*)ptr);
+
+}
+
+
+cl_event 
+clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
+{
+	int err;
+
+	cl_event ev;
+
+	if (!ptr) return((cl_event)0);
+
+
+	intptr_t ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
+	struct _memd_struct* memd = (struct _memd_struct*)ptri;
+
+	if (memd->magic != CLMEM_MAGIC) {
+		for (
+         memd = cp->memd_listhead.lh_first; memd != 0;
+         memd = memd->memd_list.le_next
+         ) {
+            intptr_t p1 = (intptr_t)memd + sizeof(struct _memd_struct);
+            intptr_t p2 = p1 + memd->sz;
+            if (p1 < (intptr_t)ptr && (intptr_t)ptr < p2) {
+               DEBUG(__FILE__,__LINE__,"memd match");
+					ptr = p1;
+               break;
+            }
+      }
+	}
+
+
+	DEBUG(__FILE__,__LINE__,"clglmsync: memd = %p, base_ptr = %p",
+		memd,(intptr_t)memd+sizeof(struct _memd_struct));
+
+
+	WARN(__FILE__,__LINE__,"clglmsync: no supp for dev/host sync yet");
+
+
+	if (flags&CL_MEM_CLBUF) {
+
+		err = clEnqueueAcquireGLObjects( 
+			cp->cmdq[devnum],1,&(memd->clbuf),0,0,&ev);
+
+		DEBUG(__FILE__,__LINE__,
+			"clglmsync: clEnqueueAcquireGLObjects err %d",err);
+
+	} else if (flags&CL_MEM_GLBUF) {
+
+		err = clEnqueueReleaseGLObjects(
+			cp->cmdq[devnum],1,&(memd->clbuf),0,0,&ev);
+
+		DEBUG(__FILE__,__LINE__,
+			"clglmsync: clEnqueueReleaseGLObjects err %d",err);
+	
+	} else {
+
+		WARN(__FILE__,__LINE__,"clglmsync: invalid flag, did nothing");
+
+		return((cl_event)0);
+
+	}
+
+
+	if (flags & CL_EVENT_NOWAIT) {
+
+		cp->mev[devnum].ev[cp->mev[devnum].ev_free++] = ev;
+		cp->mev[devnum].ev_free %= STDCL_EVENTLIST_MAX;
+		++cp->mev[devnum].nev;
+
+	} else { /* CL_EVENT_WAIT */
+
+		err = clWaitForEvents(1,&ev);
+
+		if (flags & CL_EVENT_RELEASE) {
+
+			clReleaseEvent(ev);
+			ev = (cl_event)0;
+
+		}
+
+	}
+
+	return(ev);
+
+}
+
+#endif
 

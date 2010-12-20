@@ -24,6 +24,7 @@
 #ifndef _CLMALLOC_H
 #define _CLMALLOC_H
 
+
 //#include "stdcl.h"
 #include "clcontext.h"
 
@@ -35,10 +36,15 @@
 //#define CL_MEM_READ				0x001
 //#define CL_MEM_WRITE				0x002
 //#define CL_MEM_READ_WRITE		0x003
-#define CL_MEM_HOST				0x0100
-#define CL_MEM_DEVICE			0x0200
-#define CL_MEM_NOCOPY			0x0400
-#define CL_MEM_DETACHED			0x1000
+#define CL_MEM_HOST				0x000100
+#define CL_MEM_DEVICE			0x000200
+#define CL_MEM_NOCOPY			0x000400
+#define CL_MEM_DETACHED			0x001000
+
+#ifdef ENABLE_CLGL
+#define CL_MEM_CLBUF				0x100000
+#define CL_MEM_GLBUF				0x200000
+#endif
 
 #define CL_MCTL_GET_STATUS	1
 #define CL_MCTL_GET_DEVNUM	2
@@ -87,6 +93,11 @@ void* clmrealloc(CONTEXT* cp, void* ptr, size_t size, int flag);
 cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 
 void* clmemptr( CONTEXT* CP, void* ptr );
+
+#ifdef ENABLE_CLGL
+void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
+void* clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
+#endif
 
 
 #ifdef __cplusplus

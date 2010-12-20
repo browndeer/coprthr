@@ -39,13 +39,23 @@
 #include "clfcn.h"
 #include "clcontext.h"
 
+#define DEFAULT_PLATFORM_NAME "ATI"
+
+static cl_platform_id
+__get_platformid(
+ cl_uint nplatform, cl_platform_id* platforms, const char* platform_name
+);
 
 
 /* XXX note that presently ndevmax is ignored -DAR */
 
 CONTEXT* 
 clcontext_create( 
-	cl_platform_id platformid, int devtyp, size_t ndevmax, int flag
+	const char* platform_name, 
+	int devtyp, size_t ndevmax, 
+	cl_context_properties* ctxprop_ext, 
+	int flag
+//	cl_platform_id platformid, int devtyp, size_t ndevmax, int flag
 )
 {
 
@@ -62,7 +72,14 @@ clcontext_create(
 	size_t devlist_sz;
 	CONTEXT* cp = 0;
 
-	DEBUG(__FILE__,__LINE__,"clcontext_create: sizeof CONTEXT %d",sizeof(CONTEXT));
+
+	/***
+	 *** allocate CONTEXT struct
+	 ***/
+
+	DEBUG(__FILE__,__LINE__,
+		"clcontext_create: sizeof CONTEXT %d",sizeof(CONTEXT));
+
 //	cp = (CONTEXT*)malloc(sizeof(CONTEXT));
 	assert(sizeof(CONTEXT)<getpagesize());
 	if (posix_memalign((void**)&cp,getpagesize(),sizeof(CONTEXT))) {
@@ -79,13 +96,92 @@ clcontext_create(
 
 	if (!cp) { errno=ENOMEM; return(0); }
 
+
+   /***
+    *** get platform id
+    ***/
+
+   cl_platform_id* platforms = 0;
+   cl_uint nplatforms;
+
+   char info[1024];
+
+   clGetPlatformIDs(0,0,&nplatforms);
+
+	printf("XXX %d\n",nplatforms);
+
+   if (nplatforms) {
+
+      platforms = (cl_platform_id*)malloc(nplatforms*sizeof(cl_platform_id));
+      clGetPlatformIDs(nplatforms,platforms,0);
+
+      for(i=0;i<nplatforms;i++) { 
+
+         char info[1024];
+
+         DEBUG(__FILE__,__LINE__,"_libstdcl_init: available platform:");
+
+         clGetPlatformInfo(platforms[i],CL_PLATFORM_PROFILE,1024,info,0);
+         DEBUG(__FILE__,__LINE__,
+            "_libstdcl_init: [%p]CL_PLATFORM_PROFILE=%s",platforms[i],info);
+
+         clGetPlatformInfo(platforms[i],CL_PLATFORM_VERSION,1024,info,0);
+         DEBUG(__FILE__,__LINE__,
+            "_libstdcl_init: [%p]CL_PLATFORM_VERSION=%s",platforms[i],info);
+
+         clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
+         DEBUG(__FILE__,__LINE__,
+            "_libstdcl_init: [%p]CL_PLATFORM_NAME=%s",platforms[i],info);
+
+         clGetPlatformInfo(platforms[i],CL_PLATFORM_VENDOR,1024,info,0);
+         DEBUG(__FILE__,__LINE__,
+            "_libstdcl_init: [%p]CL_PLATFORM_VENDOR=%s",platforms[i],info);
+
+         clGetPlatformInfo(platforms[i],CL_PLATFORM_EXTENSIONS,1024,info,0);
+         DEBUG(__FILE__,__LINE__,
+            "_libstdcl_init: [%p]CL_PLATFORM_EXTENSIONS=%s",platforms[i],info);
+
+      }
+
+   } else {
+
+      WARN(__FILE__,__LINE__,
+         "_libstdcl_init: no platforms found, continue and hope for the best");
+
+   }
+
+	cl_platform_id platformid 
+		= __get_platformid(nplatforms, platforms, platform_name);
+
 	DEBUG(__FILE__,__LINE__,"clcontext_create: platformid=%p",platformid);
-	
-	cl_context_properties ctxprop[3] = {
-		(cl_context_properties)CL_CONTEXT_PLATFORM,
-		(cl_context_properties)platformid,
-		(cl_context_properties)0
-	};
+
+
+
+	/***
+	 *** create context
+	 ***/
+
+	int nctxprop = 0;
+
+	while (ctxprop_ext != 0 && ctxprop_ext[nctxprop] != 0) ++nctxprop;
+
+//	cl_context_properties ctxprop[3] = {
+//		(cl_context_properties)CL_CONTEXT_PLATFORM,
+//		(cl_context_properties)platformid,
+//		(cl_context_properties)0
+//	};
+
+	nctxprop += 3;
+
+	cl_context_properties* ctxprop 
+		= (cl_context_properties*)malloc(nctxprop*sizeof(cl_context_properties));
+
+	ctxprop[0] = (cl_context_properties)CL_CONTEXT_PLATFORM;
+	ctxprop[1] = (cl_context_properties)platformid;
+
+	for(i=0;i<nctxprop-3;i++) ctxprop[2+i] = ctxprop_ext[i];
+
+	ctxprop[nctxprop-1] =  (cl_context_properties)0;
 
 	cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
 
@@ -101,6 +197,10 @@ clcontext_create(
 
 	DEBUG(__FILE__,__LINE__,"number of devices %d",cp->ndev);
 
+
+	/***
+	 *** create command queues
+	 ***/
 
 	cp->cmdq = (cl_command_queue*)malloc(sizeof(cl_command_queue)*cp->ndev);
 
@@ -119,6 +219,11 @@ clcontext_create(
 //	printf("WARNING CMDQs NOT CREATED\n");
 //	for(i=0;i<cp->ndev;i++) cp->cmdq[i] = (cl_command_queue)0;
 
+
+
+	/***
+	 *** init context resources
+	 ***/
 
 	LIST_INIT(&cp->prgs_listhead);
 
@@ -148,8 +253,9 @@ clcontext_create(
 */
 
 
-	/* initialize event vectors */
-
+	/*** 
+	 *** initialize event lists
+	 ***/
 	
 //	cp->nkev = cp->kev_first = cp->kev_free = 0;
 	cp->kev = (struct _event_list_struct*)
@@ -173,7 +279,11 @@ clcontext_create(
 	cp->imtd = 0;
 #endif
 
+
+	if (platforms) free(platforms);
+
 	return(cp);
+
 }
 
 
@@ -520,5 +630,59 @@ cl_uint clgetndev( CONTEXT* cp )
 {
 	if (!cp) return (0);
 	return (cp->ndev);
+}
+
+static cl_platform_id
+__get_platformid(
+ cl_uint nplatform, cl_platform_id* platforms, const char* platform_name
+)  
+{
+
+   DEBUG(__FILE__,__LINE__, 
+		"__get_platformid: platform_name |%s|",platform_name);
+
+   int i,j;
+   char name[256];
+//   _getenv_token(env_var,"platform_name",name,256);
+
+//   if (name[0] == '\0') {
+   if (platform_name == 0 || platform_name[0] == '\0') {
+
+      strcpy(name,DEFAULT_PLATFORM_NAME);
+
+      DEBUG(__FILE__,__LINE__,
+         "__get_platformid: use default platform_name |%s|",name);
+
+   } else {
+
+      strncpy(name,platform_name,256);
+
+//      DEBUG(__FILE__,__LINE__,
+//         "__get_platformid: environment platform_name |%s|",name);
+
+   }
+
+   if (platforms) for(i=0;i<nplatform;i++) {
+
+      char info[1024];
+      clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
+
+      DEBUG(__FILE__,__LINE__,"__get_platformid: compare |%s|%s|",name,info);
+
+      if (!strncasecmp(name,info,strlen(name))) {
+
+         DEBUG(__FILE__,__LINE__,"__get_platformid: "
+            " match %s %s",name,info);
+
+         return(platforms[i]);
+
+      }
+
+   }
+
+   if (nplatform > 0) return(platforms[0]); /* default to first one */
+
+   return((cl_platform_id)(-1)); /* none found */
+
 }
 

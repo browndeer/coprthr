@@ -135,9 +135,10 @@ extern CONTEXT* stdrpu;
 extern "C" {
 #endif
 
-CONTEXT* clcontext_create( 
-	cl_platform_id platformid, int devtyp, size_t ndevmax, int flag
-);
+//CONTEXT* clcontext_create( 
+//	cl_platform_id platformid, int devtyp, size_t ndevmax, int flag
+//);
+CONTEXT* clcontext_create( const char* platform_name, int devtyp, size_t ndevmax, cl_context_properties* ctxprop_ext, int flag );
 
 int clcontext_destroy( CONTEXT* cp);
 
