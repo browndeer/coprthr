@@ -82,54 +82,6 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
 
 
-#if(0)
-	if (cp==stdcpu) {
-		err = clBuildProgram(txt->prg,cp->ndev,cp->dev,"-D __CPU__",0,0);
-	} else if (cp==stdgpu) {	
-		err = clBuildProgram(txt->prg,cp->ndev,cp->dev,"-D __GPU__",0,0);
-	} else {
-		err = clBuildProgram(txt->prg,cp->ndev,cp->dev,0,0,0);
-	}
-	DEBUG(__FILE__,__LINE__,"clld: err from clBuildProgram %d",err);
-
-	{
-	char buf[256];
-	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,256,&buf,0);
-	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
-	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_OPTIONS,256,&buf,0);
-	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
-	}
-
-	err = clCreateKernelsInProgram(txt->prg,0,0,&txt->nkrn);
-	DEBUG(__FILE__,__LINE__," NUMBER OF KERNELS %d",txt->nkrn);
-	txt->krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
-	err = clCreateKernelsInProgram(txt->prg,txt->nkrn,txt->krn,0);
-	txt->krntab = (struct _krntab_struct*)malloc(
-		sizeof(struct _krntab_struct)*txt->nkrn
-	);
-
-	for(n=0;n<txt->nkrn;n++) {
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_FUNCTION_NAME,256,txt->krntab[n].kname,0
-		);
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_NUM_ARGS,sizeof(cl_uint),&txt->krntab[n].nargs,0
-		);
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_REFERENCE_COUNT,sizeof(cl_uint),
-			&txt->krntab[n].refc,0
-		);
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_CONTEXT,sizeof(cl_context),&txt->krntab[n].kctx,0
-		);
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_PROGRAM,sizeof(cl_program),&txt->krntab[n].kprg,0
-		);
-		DEBUG(__FILE__,__LINE__," %s %d %p %p\n",
-			txt->krntab[n].kname,txt->krntab[n].nargs,
-			txt->krntab[n].kctx,txt->krntab[n].kprg);
-	}
-#endif
 
 	if (!(flags&CLLD_NOBUILD)) {
 		DEBUG(__FILE__,__LINE__,"clload: calling clbuild");
@@ -216,11 +168,21 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 	DEBUG(__FILE__,__LINE__,"clbuild: err from clBuildProgram %d",err);
 
 	{
-	char buf[256];
-	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,256,&buf,0);
+//	char buf[256];
+//	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,256,&buf,0);
+//	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
+//	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_OPTIONS,256,&buf,0);
+//	DEBUG(__FILE__,__LINE__,"clbuild: log from clBuildProgram %s",buf);
+
+	size_t sz;
+	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,0,0,&sz);
+	char* buf = (char*)malloc(sz*sizeof(char));
+	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,sz,&buf,0);
+
 	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
-	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_OPTIONS,256,&buf,0);
-	DEBUG(__FILE__,__LINE__,"clbuild: log from clBuildProgram %s",buf);
+
+	if (buf) fee(buf);
+
 	}
 
 	err = clCreateKernelsInProgram(txt->prg,0,0,&txt->nkrn);
