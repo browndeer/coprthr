@@ -35,6 +35,7 @@
 
 #define CL_KERNEL_EVENT		0x10
 #define CL_MEM_EVENT			0x20
+#define CL_ALL_EVENT			(CL_KERNEL_EVENT|CL_MEM_EVENT)
 
 struct clndrange_struct {
    size_t dim;

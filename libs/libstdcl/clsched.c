@@ -154,13 +154,13 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 	 * wait on kernel events
 	 */
 
-	if (flags&CL_KERNEL_EVENT) {
+	if (flags&CL_KERNEL_EVENT && cp->kev[devnum].nev > 0) {
 
 		DEBUG(__FILE__,__LINE__,
 			"clwait first,free=%d,%d knev=%d\n",
 			cp->kev[devnum].ev_first,cp->kev[devnum].ev_free,cp->kev[devnum].nev);
 
-		if (!cp->kev[devnum].nev) return((cl_event)0);
+//		if (!cp->kev[devnum].nev) return((cl_event)0);
 
 		if (cp->kev[devnum].ev_first < cp->kev[devnum].ev_free) {
 
@@ -221,13 +221,13 @@ DEBUG(__FILE__,__LINE__, "clwait: here");
 
 	}
 
-	if (flags&CL_MEM_EVENT) {
+	if (flags&CL_MEM_EVENT && cp->mev[devnum].nev > 0) {
 
 		DEBUG(__FILE__,__LINE__,
 			"clwait first,free=%d,%d mnev=%d\n",
 			cp->mev[devnum].ev_first,cp->mev[devnum].ev_free,cp->mev[devnum].nev);
 
-		if (!cp->mev[devnum].nev) return((cl_event)0);
+//		if (!cp->mev[devnum].nev) return((cl_event)0);
 
 		if (cp->mev[devnum].ev_first < cp->mev[devnum].ev_free) {
 
