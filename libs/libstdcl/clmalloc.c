@@ -161,6 +161,8 @@ int clmattach( CONTEXT* cp, void* ptr )
 {
 	int err;
 
+	DEBUG(__FILE__,__LINE__,"clmattach: ptr=%p",ptr);
+
 	if (!__test_memd_magic(ptr)) {
 
 		ERROR(__FILE__,__LINE__,"clmattach: invalid ptr");
@@ -175,7 +177,7 @@ int clmattach( CONTEXT* cp, void* ptr )
 	if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
 		|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
 
-		ERROR(__FILE__,__LINE__,"clmdetach: memd corrupt");
+		ERROR(__FILE__,__LINE__,"clmattach: memd corrupt");
 
 		return(EFAULT);
 
@@ -228,6 +230,7 @@ int clmdetach( void* ptr )
 
 	LIST_REMOVE(memd, memd_list);
 
+	memd->clbuf = (cl_mem)0;
 	memd->flags &= ~(cl_uint)__MEMD_F_ATTACHED;
 
 	return(0);
