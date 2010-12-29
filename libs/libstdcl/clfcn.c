@@ -403,3 +403,34 @@ char* clerror(void)
 
 
 
+void* 
+clsopen( CONTEXT* cp, const char* srcstr, int flags )
+{
+	int n;
+	int err;
+	size_t len;
+	void* ptr;
+	struct _prgs_struct* prgs;
+
+DEBUG(__FILE__,__LINE__," checking cp ");
+
+	if (!cp) return(0);
+
+DEBUG(__FILE__,__LINE__," cp ok ");
+
+	if (srcstr) {
+
+		ptr = (void*)srcstr;
+		len = strlen(srcstr);
+
+		prgs = clload(cp,ptr,len,flags);
+		prgs->fname = 0;
+		prgs->fd = -1;
+
+		return((void*)prgs);
+	}
+
+}
+
+
+

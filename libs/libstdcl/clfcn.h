@@ -73,6 +73,7 @@ extern "C" {
 void* clload( CONTEXT* cp, void* ptr, size_t sz, int flags );
 void* clbuild( CONTEXT* cp, void* handle, char* options, int flags );
 void* clopen( CONTEXT* cp, const char* fname, int flags );
+void* clsopen( CONTEXT* cp, const char* srcstr, int flags );
 cl_kernel clsym( CONTEXT* cp, void* handle, const char* sname, int flags );
 int clclose(CONTEXT* cp, void* handle);
 char* clerror(void);
