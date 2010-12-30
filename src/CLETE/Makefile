@@ -1,0 +1,34 @@
+
+INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include/CLETE
+
+GEN_HDRS = OperatorTags.h clvector_Operators.h
+
+HDRS = clvector_CLETE.h Combiners.h CreateLeaf.h ForEach.h Functors.h PETE.h PrintF.h PrintType.h Scalar.h TreeNodes.h TypeComputations.h $(GEN_HDRS)
+
+INSTALL_INCS = $(HDRS)
+
+all: $(GEN_HDRS)
+
+OperatorTags.h:
+	./tools/gen_operators --op-tags --operators ./tools/CLETE_Ops.in --guard _CLETEOPERATORTAGS_H > OperatorTags.h 
+
+clvector_Operators.h:
+	./tools/gen_operators --classes ./tools/clvector_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLVECTOROPERATORS_H --assign-ops > clvector_Operators.h 
+
+check_root:
+ifneq ($(shell whoami),root)
+	$(error install must be done as root)
+endif
+
+
+#install: check_root all
+install: check_root $(INSTALL_INCS) 
+	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
+
+uninstall: check_root
+	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS))
+
+clean:
+	rm -f $(GEN_HDRS)
+

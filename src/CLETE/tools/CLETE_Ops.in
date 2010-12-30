@@ -1,0 +1,297 @@
+unaryOps
+-----
+  TAG = @FnArcCos@
+  FUNCTION = @acos@
+  EXPR = @return (acos(a));@
+  STREXPR = @return " acos(" + a + ")"; @
+-----
+  TAG = @FnArcSin@
+  FUNCTION = @asin@
+  EXPR = @return (asin(a));@
+  STREXPR = @return "asin(" + a + ")"; @
+-----
+  TAG = @FnArcTan@
+  FUNCTION = @atan@
+  EXPR = @return (atan(a));@
+  STREXPR = @return "atan(" + a + ")"; @
+-----
+  TAG = @FnCeil@
+  FUNCTION = @ceil@
+  EXPR = @return (ceil(a));@
+  STREXPR = @return "ceil(" + a + ")"; @
+-----
+  TAG = @FnCos@
+  FUNCTION = @cos@
+  EXPR = @return (cos(a));@
+  STREXPR = @return "cos(" + a + ")"; @
+-----
+  TAG = @FnHypCos@
+  FUNCTION = @cosh@
+  EXPR = @return (cosh(a));@
+  STREXPR = @return "cosh(" + a + ")"; @
+-----
+  TAG = @FnExp@
+  FUNCTION = @exp@
+  EXPR = @return (exp(a));@
+  STREXPR = @return "exp(" + a + ")"; @
+-----
+  TAG = @FnFabs@
+  FUNCTION = @fabs@
+  EXPR = @return (fabs(a));@
+  STREXPR = @return "fabs(" + a + ")"; @
+-----
+  TAG = @FnFloor@
+  FUNCTION = @floor@
+  EXPR = @return (floor(a));@
+  STREXPR = @return "floor(" + a + ")"; @
+-----
+  TAG = @FnLog@
+  FUNCTION = @log@
+  EXPR = @return (log(a));@
+  STREXPR = @return "log(" + a + ")"; @
+-----
+  TAG = @FnLog10@
+  FUNCTION = @log10@
+  EXPR = @return (log10(a));@
+  STREXPR = @return "log10(" + a + ")"; @
+-----
+  TAG = @FnSin@
+  FUNCTION = @sin@
+  EXPR = @return (sin(a));@
+  STREXPR = @return "sin(" + a + ")"; @
+-----
+  TAG = @FnHypSin@
+  FUNCTION = @sinh@
+  EXPR = @return (sinh(a));@
+  STREXPR = @return "sinh(" + a + ")"; @
+-----
+  TAG = @FnSqrt@
+  FUNCTION = @sqrt@
+  EXPR = @return (sqrt(a));@
+  STREXPR = @return "sqrt(" + a + ")"; @
+-----
+  TAG = @FnTan@
+  FUNCTION = @tan@
+  EXPR = @return (tan(a));@
+  STREXPR = @return "tan(" + a + ")"; @
+-----
+  TAG = @FnHypTan@
+  FUNCTION = @tanh@
+  EXPR = @return (tanh(a));@
+  STREXPR = @return "tanh(" + a + ")"; @
+-----
+  TAG = @OpUnaryMinus@
+  FUNCTION = @operator-@
+  EXPR = @return (-a);@
+  STREXPR = @return "(-" + a + ")"; @
+-----
+  TAG = @OpUnaryPlus@
+  FUNCTION = @operator+@
+  EXPR = @return (+a);@
+  STREXPR = @return "(+" + a + ")"; @
+-----
+  TAG = @OpBitwiseNot@
+  FUNCTION = @operator~@
+  EXPR = @return (~a);@
+  STREXPR = @return "(~" + a + ")"; @
+-----
+  TAG = @OpIdentity@
+  FUNCTION = @PETE_identity@
+  EXPR = @return (a);@
+  STREXPR = @return "(" + a + ")"; @
+
+unaryBoolOps
+-----
+  TAG = @OpNot@
+  FUNCTION = @operator!@
+  EXPR = @return (!a);@
+  STREXPR = @return "(!" + a + ")"; @
+
+unaryCastOps
+-----
+  TAG = @OpCast@
+  FUNCTION = @peteCast@
+  EXPR = @return T1(a);@
+  STREXPR = @return "T1(" + a + ")"; @
+
+binaryOps
+-----
+  TAG = @OpAdd@
+  FUNCTION = @operator+@
+  EXPR = @return (a + b);@
+  STREXPR = @ return "(" + a + "+" + b + ")"; @
+-----
+  TAG = @OpSubtract@
+  FUNCTION = @operator-@
+  EXPR = @return (a - b);@
+  STREXPR = @ return "(" + a + "-" + b + ")"; @
+-----
+  TAG = @OpMultiply@
+  FUNCTION = @operator*@
+  EXPR = @return (a * b);@
+  STREXPR = @ return "(" + a + "*" + b + ")"; @
+-----
+  TAG = @OpDivide@
+  FUNCTION = @operator/@
+  EXPR = @return (a / b);@
+  STREXPR = @ return "(" + a + "/" + b + ")"; @
+-----
+  TAG = @OpMod@
+  FUNCTION = @operator%@
+  EXPR = @return (a % b);@
+  STREXPR = @ return "(" + a + "%" + b + ")"; @
+-----
+  TAG = @OpBitwiseAnd@
+  FUNCTION = @operator&@
+  EXPR = @return (a & b);@
+  STREXPR = @ return "(" + a + "&" + b + ")"; @
+-----
+  TAG = @OpBitwiseOr@
+  FUNCTION = @operator|@
+  EXPR = @return (a | b);@
+  STREXPR = @ return "(" + a + "|" + b + ")"; @
+-----
+  TAG = @OpBitwiseXor@
+  FUNCTION = @operator^@
+  EXPR = @return (a ^ b);@
+  STREXPR = @ return "(" + a + "^" + b + ")"; @
+-----
+  TAG = @FnLdexp@
+  FUNCTION = @ldexp@
+  EXPR = @return (ldexp(a,b));@
+  STREXPR = @return "ldexp(" + a + "," + b + ")"; @
+-----
+  TAG = @FnPow@
+  FUNCTION = @pow@
+  EXPR = @return (pow(a,b));@
+  STREXPR = @return "pow(" + a + "," + b + ")"; @
+-----
+  TAG = @FnFmod@
+  FUNCTION = @fmod@
+  EXPR = @return (fmod(a,b));@
+  STREXPR = @return "fmod(" + a + "," + b + ")"; @
+-----
+  TAG = @FnArcTan2@
+  FUNCTION = @atan2@
+  EXPR = @return (atan2(a,b));@
+  STREXPR = @return "atan2(" + a + "," + b + ")"; @
+
+binaryBoolOps
+-----
+  TAG = @OpLT@
+  FUNCTION = @operator<@
+  EXPR = @return (a < b);@
+  STREXPR = @ return "(" + a + "<" + b + ")"; @
+-----
+  TAG = @OpLE@
+  FUNCTION = @operator<=@
+  EXPR = @return (a <= b);@
+  STREXPR = @ return "(" + a + "<=" + b + ")"; @
+-----
+  TAG = @OpGT@
+  FUNCTION = @operator>@
+  EXPR = @return (a > b);@
+  STREXPR = @ return "(" + a + ">" + b + ")"; @
+-----
+  TAG = @OpGE@
+  FUNCTION = @operator>=@
+  EXPR = @return (a >= b);@
+  STREXPR = @ return "(" + a + ">=" + b + ")"; @
+-----
+  TAG = @OpEQ@
+  FUNCTION = @operator==@
+  EXPR = @return (a == b);@
+  STREXPR = @ return "(" + a + "==" + b + ")"; @
+-----
+  TAG = @OpNE@
+  FUNCTION = @operator!=@
+  EXPR = @return (a != b);@
+  STREXPR = @ return "(" + a + "!=" + b + ")"; @
+-----
+  TAG = @OpAnd@
+  FUNCTION = @operator&&@
+  EXPR = @return (a && b);@
+  STREXPR = @ return "(" + a + "&&" + b + ")"; @
+-----
+  TAG = @OpOr@
+  FUNCTION = @operator||@
+  EXPR = @return (a || b);@
+  STREXPR = @ return "(" + a + "||" + b + ")"; @
+
+binaryLeftOps
+-----
+  TAG = @OpLeftShift@
+  FUNCTION = @operator<<@
+  EXPR = @return (a << b);@
+  STREXPR = @ return "(" + a + "<<" + b + ")"; @
+-----
+  TAG = @OpRightShift@
+  FUNCTION = @operator>>@
+  EXPR = @return (a >> b);@
+  STREXPR = @ return "(" + a + ">>" + b + ")"; @
+
+assignOp
+-----
+  TAG = @OpAssign@
+  FUNCTION = @assign@
+  EXPR = @return (const_cast<T1 &>(a) = b);@
+  STREXPR = @ return "(" + a + "=" + b + ")"; @
+
+binaryAssignOps
+-----
+  TAG = @OpAddAssign@
+  FUNCTION = @operator+=@
+  EXPR = @(const_cast<T1 &>(a) += b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + "+=" + b + ")"; @
+-----
+  TAG = @OpSubtractAssign@
+  FUNCTION = @operator-=@
+  EXPR = @(const_cast<T1 &>(a) -= b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + "-=" + b + ")"; @
+-----
+  TAG = @OpMultiplyAssign@
+  FUNCTION = @operator*=@
+  EXPR = @(const_cast<T1 &>(a) *= b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + "*=" + b + ")"; @
+-----
+  TAG = @OpDivideAssign@
+  FUNCTION = @operator/=@
+  EXPR = @(const_cast<T1 &>(a) /= b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + "/=" + b + ")"; @
+-----
+  TAG = @OpModAssign@
+  FUNCTION = @operator%=@
+  EXPR = @(const_cast<T1 &>(a) %= b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + "%=" + b + ")"; @
+-----
+  TAG = @OpBitwiseOrAssign@
+  FUNCTION = @operator|=@
+  EXPR = @(const_cast<T1 &>(a) |= b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + "|=" + b + ")"; @
+-----
+  TAG = @OpBitwiseAndAssign@
+  FUNCTION = @operator&=@
+  EXPR = @(const_cast<T1 &>(a) &= b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + "&=" + b + ")"; @
+-----
+  TAG = @OpBitwiseXorAssign@
+  FUNCTION = @operator^=@
+  EXPR = @(const_cast<T1 &>(a) ^= b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + "^=" + b + ")"; @
+-----
+  TAG = @OpLeftShiftAssign@
+  FUNCTION = @operator<<=@
+  EXPR = @(const_cast<T1 &>(a) <<= b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + "<<=" + b + ")"; @
+-----
+  TAG = @OpRightShiftAssign@
+  FUNCTION = @operator>>=@
+  EXPR = @(const_cast<T1 &>(a) >>= b); return const_cast<T1 &>(a);@
+  STREXPR = @ return "(" + a + ">>=" + b + ")"; @
+
+trinaryOps
+-----
+  TAG = @FnWhere@
+  FUNCTION = @where@
+  EXPR = @if (a) return b; else return c;@
+  STREXPR = @ return "(" + a + ")?" + b + ":" + c ; @

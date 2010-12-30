@@ -1,0 +1,242 @@
+unaryOps
+-----
+  TAG = "FnArcCos"
+  FUNCTION = "acos"
+  EXPR = "return (acos(a));"
+-----
+  TAG = "FnArcSin"
+  FUNCTION = "asin"
+  EXPR = "return (asin(a));"
+-----
+  TAG = "FnArcTan"
+  FUNCTION = "atan"
+  EXPR = "return (atan(a));"
+-----
+  TAG = "FnCeil"
+  FUNCTION = "ceil"
+  EXPR = "return (ceil(a));"
+-----
+  TAG = "FnCos"
+  FUNCTION = "cos"
+  EXPR = "return (cos(a));"
+-----
+  TAG = "FnHypCos"
+  FUNCTION = "cosh"
+  EXPR = "return (cosh(a));"
+-----
+  TAG = "FnExp"
+  FUNCTION = "exp"
+  EXPR = "return (exp(a));"
+-----
+  TAG = "FnFabs"
+  FUNCTION = "fabs"
+  EXPR = "return (fabs(a));"
+-----
+  TAG = "FnFloor"
+  FUNCTION = "floor"
+  EXPR = "return (floor(a));"
+-----
+  TAG = "FnLog"
+  FUNCTION = "log"
+  EXPR = "return (log(a));"
+-----
+  TAG = "FnLog10"
+  FUNCTION = "log10"
+  EXPR = "return (log10(a));"
+-----
+  TAG = "FnSin"
+  FUNCTION = "sin"
+  EXPR = "return (sin(a));"
+-----
+  TAG = "FnHypSin"
+  FUNCTION = "sinh"
+  EXPR = "return (sinh(a));"
+-----
+  TAG = "FnSqrt"
+  FUNCTION = "sqrt"
+  EXPR = "return (sqrt(a));"
+-----
+  TAG = "FnTan"
+  FUNCTION = "tan"
+  EXPR = "return (tan(a));"
+-----
+  TAG = "FnHypTan"
+  FUNCTION = "tanh"
+  EXPR = "return (tanh(a));"
+-----
+  TAG = "OpUnaryMinus"
+  FUNCTION = "operator-"
+  EXPR = "return (-a);"
+-----
+  TAG = "OpUnaryPlus"
+  FUNCTION = "operator+"
+  EXPR = "return (+a);"
+-----
+  TAG = "OpBitwiseNot"
+  FUNCTION = "operator~"
+  EXPR = "return (~a);"
+-----
+  TAG = "OpIdentity"
+  FUNCTION = "PETE_identity"
+  EXPR = "return (a);"
+
+unaryBoolOps
+-----
+  TAG = "OpNot"
+  FUNCTION = "operator!"
+  EXPR = "return (!a);"
+
+unaryCastOps
+-----
+  TAG = "OpCast"
+  FUNCTION = "peteCast"
+  EXPR = "return T1(a);"
+
+binaryOps
+-----
+  TAG = "OpAdd"
+  FUNCTION = "operator+"
+  EXPR = "return (a + b);"
+-----
+  TAG = "OpSubtract"
+  FUNCTION = "operator-"
+  EXPR = "return (a - b);"
+-----
+  TAG = "OpMultiply"
+  FUNCTION = "operator*"
+  EXPR = "return (a * b);"
+-----
+  TAG = "OpDivide"
+  FUNCTION = "operator/"
+  EXPR = "return (a / b);"
+-----
+  TAG = "OpMod"
+  FUNCTION = "operator%"
+  EXPR = "return (a % b);"
+-----
+  TAG = "OpBitwiseAnd"
+  FUNCTION = "operator&"
+  EXPR = "return (a & b);"
+-----
+  TAG = "OpBitwiseOr"
+  FUNCTION = "operator|"
+  EXPR = "return (a | b);"
+-----
+  TAG = "OpBitwiseXor"
+  FUNCTION = "operator^"
+  EXPR = "return (a ^ b);"
+-----
+  TAG = "FnLdexp"
+  FUNCTION = "ldexp"
+  EXPR = "return (ldexp(a,b));"
+-----
+  TAG = "FnPow"
+  FUNCTION = "pow"
+  EXPR = "return (pow(a,b));"
+-----
+  TAG = "FnFmod"
+  FUNCTION = "fmod"
+  EXPR = "return (fmod(a,b));"
+-----
+  TAG = "FnArcTan2"
+  FUNCTION = "atan2"
+  EXPR = "return (atan2(a,b));"
+
+binaryBoolOps
+-----
+  TAG = "OpLT"
+  FUNCTION = "operator<"
+  EXPR = "return (a < b);"
+-----
+  TAG = "OpLE"
+  FUNCTION = "operator<="
+  EXPR = "return (a <= b);"
+-----
+  TAG = "OpGT"
+  FUNCTION = "operator>"
+  EXPR = "return (a > b);"
+-----
+  TAG = "OpGE"
+  FUNCTION = "operator>="
+  EXPR = "return (a >= b);"
+-----
+  TAG = "OpEQ"
+  FUNCTION = "operator=="
+  EXPR = "return (a == b);"
+-----
+  TAG = "OpNE"
+  FUNCTION = "operator!="
+  EXPR = "return (a != b);"
+-----
+  TAG = "OpAnd"
+  FUNCTION = "operator&&"
+  EXPR = "return (a && b);"
+-----
+  TAG = "OpOr"
+  FUNCTION = "operator||"
+  EXPR = "return (a || b);"
+
+binaryLeftOps
+-----
+  TAG = "OpLeftShift"
+  FUNCTION = "operator<<"
+  EXPR = "return (a << b);"
+-----
+  TAG = "OpRightShift"
+  FUNCTION = "operator>>"
+  EXPR = "return (a >> b);"
+
+assignOp
+-----
+  TAG = "OpAssign"
+  FUNCTION = "assign"
+  EXPR = "return (const_cast<T1 &>(a) = b);"
+
+binaryAssignOps
+-----
+  TAG = "OpAddAssign"
+  FUNCTION = "operator+="
+  EXPR = "(const_cast<T1 &>(a) += b); return const_cast<T1 &>(a);"
+-----
+  TAG = "OpSubtractAssign"
+  FUNCTION = "operator-="
+  EXPR = "(const_cast<T1 &>(a) -= b); return const_cast<T1 &>(a);"
+-----
+  TAG = "OpMultiplyAssign"
+  FUNCTION = "operator*="
+  EXPR = "(const_cast<T1 &>(a) *= b); return const_cast<T1 &>(a);"
+-----
+  TAG = "OpDivideAssign"
+  FUNCTION = "operator/="
+  EXPR = "(const_cast<T1 &>(a) /= b); return const_cast<T1 &>(a);"
+-----
+  TAG = "OpModAssign"
+  FUNCTION = "operator%="
+  EXPR = "(const_cast<T1 &>(a) %= b); return const_cast<T1 &>(a);"
+-----
+  TAG = "OpBitwiseOrAssign"
+  FUNCTION = "operator|="
+  EXPR = "(const_cast<T1 &>(a) |= b); return const_cast<T1 &>(a);"
+-----
+  TAG = "OpBitwiseAndAssign"
+  FUNCTION = "operator&="
+  EXPR = "(const_cast<T1 &>(a) &= b); return const_cast<T1 &>(a);"
+-----
+  TAG = "OpBitwiseXorAssign"
+  FUNCTION = "operator^="
+  EXPR = "(const_cast<T1 &>(a) ^= b); return const_cast<T1 &>(a);"
+-----
+  TAG = "OpLeftShiftAssign"
+  FUNCTION = "operator<<="
+  EXPR = "(const_cast<T1 &>(a) <<= b); return const_cast<T1 &>(a);"
+-----
+  TAG = "OpRightShiftAssign"
+  FUNCTION = "operator>>="
+  EXPR = "(const_cast<T1 &>(a) >>= b); return const_cast<T1 &>(a);"
+
+trinaryOps
+-----
+  TAG = "FnWhere"
+  FUNCTION = "where"
+  EXPR = "if (a) return b; else return c;"
+
