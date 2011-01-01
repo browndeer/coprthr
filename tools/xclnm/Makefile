@@ -13,7 +13,7 @@ INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include
 INSTALL_MAN_DIR ?= /usr/share/man
 
 #INCS = -I. -I../../src/xcl
-INCS = -I. -I../../libs/libocl
+INCS = -I. -I../../src/libocl
 
 LIBS = -lfl -lelf 
 

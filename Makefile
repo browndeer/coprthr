@@ -1,7 +1,7 @@
 
 include Makefile.choices
 
-BUILD_LIBS = libstdcl libocl
+#BUILD_LIBS = libstdcl libocl
 BUILD_TOOLS = cltrace xclnm 
 
 #export INSTALL_BIN_DIR = /usr/local/browndeer/bin
@@ -10,8 +10,8 @@ BUILD_TOOLS = cltrace xclnm
 #export INSTALL_MAN_DIR = /usr/share/man
 
 
-SUBDIRS = 
-SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))
+SUBDIRS = ./src/libstdcl ./src/libocl ./src/CLETE
+#SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))
 SUBDIRS += $(addprefix ./tools/,$(BUILD_TOOLS)) 
 
 export TOPDIR = $(CURDIR)

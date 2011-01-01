@@ -40,7 +40,7 @@ OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
 HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h clarg.h \
-	stdclpp.h clmalloc_allocator.h
+	clmalloc_allocator.h clvector.h
 
 MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
 	clndrange_set3d.3 clarg_set_global.3 clmdetach.3 clndrange_set.3 \
