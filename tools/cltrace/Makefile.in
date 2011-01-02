@@ -1,5 +1,8 @@
 # Makefile for cltrace
 
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
 #DEF = -DSTDCL_WARN -DSTDCL_DEBUG
 DEF = -DSTDCL_WARN
 

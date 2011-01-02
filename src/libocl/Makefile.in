@@ -2,10 +2,12 @@
 ### Makefile for libocl
 ###
 
+prefix=@prefix@
+exec_prefix=@exec_prefix@
 
-ENABLE_NCPU = 1
-ENABLE_ATIGPU = 0
-USE_BDT_BUILTINS = 0
+#ENABLE_NCPU=@ENABLE_NCPU@
+#ENABLE_ATIGPU=@ENABLE_ATIGPU@
+#USE_BDT_BUILTINS=@ENABLE_BDT_BUILTINS@
 
 #DEFS += -DXCL_DEBUG 
 #DEFS += -DXCL_WARN
@@ -13,13 +15,14 @@ USE_BDT_BUILTINS = 0
 #DEFS += -DUSE_FAST_SETJMP	# ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING
 
 ### select default install paths 
-INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
-INSTALL_LIB_DIR ?= /usr/local/browndeer/lib
-INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include
-INSTALL_MAN_DIR ?= /usr/share/man
+INSTALL_BIN_DIR=@bindir@
+INSTALL_LIB_DIR=@libdir@
+INSTALL_INCLUDE_DIR=@includedir@
+INSTALL_MAN_DIR=@mandir@
 
 #ATISTREAMSDK = /usr/local/atistream/atistream_sdk-2.0/
-ATISTREAMSDK = /usr/local/atistream/
+#ATISTREAMSDK = /usr/local/atistream/
+ATISTREAMSDK=@AMD_SDK@
 
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
@@ -53,15 +56,15 @@ LIBS += -laticalrt -laticalcl
 IMP_OBJS += compiler_atigpu.o cmdcall_atigpu.o ircompiler_atigpu.o
 endif
 
-ifeq ($(ENABLE_NCPU),1)
+ifeq (@ENABLE_NCPU@,1)
 DEFS += -DENABLE_NCPU
 endif
 
-ifeq ($(USE_BDT_BUILTINS),1)
+ifeq (@ENABLE_BDT_BUILTINS@,1)
 DEFS += -DUSE_BDT_BUILTINS
 endif
 
-#ifeq ($(ENABLE_DEBUG_LIBOCL),1)
+#ifeq (@ENABLE_DEBUG_LIBS@,1)
 DEFS += -DXCL_DEBUG 
 #endif
 

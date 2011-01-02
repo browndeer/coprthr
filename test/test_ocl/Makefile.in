@@ -1,4 +1,10 @@
 
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+USE_OPENCL_INCS=-I@includedir@
+USE_OPENCL_LIBS=-L@libdir@ -locl
+
 TESTS = test_arg_int test_block_int test_arg_int4 \
 	test_arg_float test_block_float test_arg_float4 \
 	test_special \
@@ -9,7 +15,7 @@ TESTS = test_arg_int test_block_int test_arg_int4 \
 
 TOPDIR ?= ../../
 
-include $(TOPDIR)/Makefile.choices
+#include $(TOPDIR)/Makefile.choices
 
 #INCS = -I$(TOPDIR)/include
 #INCS = -I/usr/local/browndeer/include
@@ -19,8 +25,10 @@ include $(TOPDIR)/Makefile.choices
 ### select OpenCL implementation to test
 #INCS += $(USE_OPENCL_INCS)
 #LIBS += $(USE_OPENCL_LIB) -lOpenCL
-INCS += -I$(INSTALL_INCLUDE_DIR)
-LIBS += -L$(INSTALL_LIB_DIR) -locl
+#INCS += -I$(INSTALL_INCLUDE_DIR)
+#LIBS += -L$(INSTALL_LIB_DIR) -locl
+INCS += $(USE_OPENCL_INCS)
+LIBS += $(USE_OPENCL_LIBS)
 
 LIBS += -lm
 

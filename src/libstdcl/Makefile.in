@@ -2,21 +2,30 @@
 # Makefile for libstdcl 
 #
 
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
 ### select default OpenCL implementation if not already defined
-USE_OPENCL_INCS ?= -I/usr/local/atistream/include
-USE_OPENCL_LIB ?= -L/usr/local/atistream/lib/x86_64 -lOpenCL
+#USE_OPENCL_INCS ?= -I/usr/local/atistream/include
+#USE_OPENCL_LIBS ?= -L/usr/local/atistream/lib/x86_64 -lOpenCL
+USE_OPENCL_INCS = -I@OPENCL_INC@
+USE_OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
 
 ### enable build of debug version if not already defined
-ENABLE_DEBUG_LIBSTDCL ?= 1
+ifeq (@ENABLE_DEBUG_LIBS@,1)
+ENABLE_DEBUG_LIBSTDCL=1
+else
+ENABLE_DEBUG_LIBSTDCL=0
+endif
 
 
 DEFS += -DSTDCL_WARN 
 
 
-INSTALL_INCLUDE_DIR ?= /usr/local/browndeer/include
-INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
-INSTALL_LIB_DIR ?= /usr/local/browndeer/lib
-INSTALL_MAN_DIR ?= /usr/share/man
+INSTALL_INCLUDE_DIR=@includedir@
+INSTALL_BIN_DIR=@bindir@
+INSTALL_LIB_DIR=@libdir@
+INSTALL_MAN_DIR=@mandir@
 
 
 DEFS += -DENABLE_CLEXPORT ### XXX experimental
@@ -32,7 +41,7 @@ endif
 VPATH = .:./man/man1:./man/man3
 
 INCS += $(USE_OPENCL_INCS)
-LIBS += $(USE_OPENCL_LIB)
+LIBS += $(USE_OPENCL_LIBS)
 LIBS += -lpthread -ldl
 
 OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
@@ -98,25 +107,10 @@ endif
 install: check_root $(INSTALL_INCS) $(INSTALL_LIBS) $(addsuffix .gz,$(MAN3))
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
-	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
-#	install -m 644 $(addprefix ./include/,$(INSTALL_INCS)) $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_MAN_DIR)/man3 || install -m 755 -d $(INSTALL_MAN_DIR)/man3
 	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
 	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
 	install -m 644 $(addsuffix .gz,$(MAN3)) $(INSTALL_MAN_DIR)/man3
-#	@echo -e "\a\n\n*** IMPORTANT ***\n"
-#	@echo -e "Please ensure that " $(INSTALL_BIN_DIR) " is added to PATH"
-#	@echo -e "if it is not in the standard search path for executables."
-#	@echo -e "For example:"
-#	@echo -e "   set path = ($(INSTALL_BIN_DIR) \$$path)\n"
-#	@echo -e "Please ensure that $(INSTALL_LIB_DIR) is added to " \
-#		"LD_LIBRARY_PATH"
-#	@echo -e "if it is not in the standard search path for libraries."
-#	@echo -e "For example:"
-#	@echo -e "   setenv LD_LIBRARY_PATH $(INSTALL_LIB_DIR):\$$LD_LIBRARY_PATH\n"
-#	@echo -e "When compiling programs that use libstcl include the following:" 
-#	@echo -e "   INCS += -I$(INSTALL_INC_DIR)" 
-#	@echo -e "   LIBS += -L$(INSTALL_LIB_DIR) -lstdcl" 
-#	@echo -e "\n"
 
 uninstall: check_root
 	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 

@@ -1,0 +1,24 @@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+USE_STDCL_INCS=-I@includedir@
+USE_STDCL_LIBS=-L@libdir@ -lstdcl
+
+#INCS = -I./ -I/usr/local/atistream/include -I/usr/local/browndeer/include 
+#LIBS = -L/usr/local/atistream/lib -lOpenCL -L/usr/local/browndeer/lib -lstdcl_d
+
+INCS = $(USE_STDCL_INCS)
+LIBS = $(USE_STDCL_LIBS)
+
+all: test_clvector_clete
+
+test_clvector_clete: test_clvector_clete.cpp 
+	$(CXX) $(INCS) -o test_clvector_clete $(CXXINC) $(CXXARG) test_clvector_clete.cpp $(LIBS)
+
+clean:
+	rm -f test_clvector_clete
+
+test: test_clvector_clete
+	cltrace ./test_clvector_clete
+

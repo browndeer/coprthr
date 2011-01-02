@@ -1,4 +1,19 @@
 ***** current branch working toward v1.1 (outlaw) release *****
 
-***** installation instructions not yet finalized *****
+Installation:
+
+1) Unpack and cd into the main directory (coprthr/)
+
+2) ./configure
+
+3) make
+
+4) sudo make install
+
+5) make quicktest (optional)
+
+Notes:
+
+-- Configuration can be customized, type ./configure --help for details
+
 

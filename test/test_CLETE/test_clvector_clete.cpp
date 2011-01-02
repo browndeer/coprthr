@@ -1,4 +1,4 @@
-//#define __CLVECTOR_FULLAUTO
+#define __CLVECTOR_FULLAUTO
 
 #include <stdcl.h>
 #include <clvector.h>
@@ -7,7 +7,7 @@ int main()
 {
 
   int i;
-  const int n = 4000;
+  const int n = 100;
   clvector<float> a,b,c,d,e;
 
   for (i = 0; i < n; ++i)

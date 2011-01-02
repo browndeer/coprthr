@@ -1,5 +1,9 @@
 
-TESTS = test_stdcl test_ocl
+TESTS = test_stdcl 
+
+ifeq (@ENABLE_LIBOCL@,1)
+TESTS += test_ocl
+endif
 
 ##### DO NOT EDIT BELOW THIS LINE #####
 
