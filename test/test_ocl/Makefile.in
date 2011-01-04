@@ -15,7 +15,6 @@ TESTS = test_arg_int test_block_int test_arg_int4 \
 
 TOPDIR ?= ../../
 
-#include $(TOPDIR)/Makefile.choices
 
 #INCS = -I$(TOPDIR)/include
 #INCS = -I/usr/local/browndeer/include

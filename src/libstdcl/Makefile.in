@@ -30,7 +30,7 @@ INSTALL_MAN_DIR=@mandir@
 
 DEFS += -DENABLE_CLEXPORT ### XXX experimental
 
-ifeq ($(ENABLE_CLGL),1)
+ifeq (@ENABLE_CLGL@,1)
 DEFS += -DENABLE_CLGL ### XXX experimental
 endif
 
@@ -98,9 +98,9 @@ libstdcl_d.so: $(OBJS_D)
 
 
 check_root: 
-ifneq ($(shell whoami),root)
-	$(error install must be done as root)
-endif
+#ifneq ($(shell whoami),root)
+#	$(error install must be done as root)
+#endif
 
 
 #install: check_root all

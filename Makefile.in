@@ -1,5 +1,4 @@
 
-include Makefile.choices
 
 #BUILD_LIBS = libstdcl libocl
 #BUILD_TOOLS = cltrace xclnm 

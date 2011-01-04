@@ -71,9 +71,9 @@ libcltrace1.so: _interceptor.h libcltrace1.o
 	-gzip -f -c $*.1 > $*.1.gz
 
 check_root:
-ifneq ($(shell whoami),root)
-	$(error install must be done as root)
-endif
+#ifneq ($(shell whoami),root)
+#	$(error install must be done as root)
+#endif
 
 install: check_root
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)

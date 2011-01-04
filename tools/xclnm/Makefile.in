@@ -55,9 +55,9 @@ xclnm_scan.c: xclnm_scan.l xclnm_gram.c xclnm_gram.h
 	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 check_root:
-ifneq ($(shell whoami),root)
-	$(error install must be done as root)
-endif
+#ifneq ($(shell whoami),root)
+#	$(error install must be done as root)
+#endif
 
 install: check_root
 	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)

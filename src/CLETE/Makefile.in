@@ -19,9 +19,9 @@ clvector_Operators.h:
 	./tools/gen_operators --classes ./tools/clvector_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLVECTOROPERATORS_H --assign-ops > clvector_Operators.h 
 
 check_root:
-ifneq ($(shell whoami),root)
-	$(error install must be done as root)
-endif
+#ifneq ($(shell whoami),root)
+#	$(error install must be done as root)
+#endif
 
 
 #install: check_root all

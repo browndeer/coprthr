@@ -148,9 +148,9 @@ ati_builtins_x86_64_patch.bc: ati_builtins_x86_64_patch.c
 
 
 check_root:
-ifneq ($(shell whoami),root)
-	$(error install must be done as root)
-endif
+#ifneq ($(shell whoami),root)
+#	$(error install must be done as root)
+#endif
 
 debug:
 	export ENABLE_DEBUG=1

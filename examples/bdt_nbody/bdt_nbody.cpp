@@ -356,7 +356,6 @@ void iterate_cl(
 	int n = nparticle/2;
 
 	clndrange_t ndr = clndrange_init1d(0,n,nthread);
-	clarg_assert_proto(nbody_kern,nparticle,gdt,es,pp,vv,pp,0);
 	clarg_set(k_nbody,0,n);
 	clarg_set(k_nbody,1,gdt);
 	clarg_set(k_nbody,2,es);

@@ -103,7 +103,7 @@ AC_ARG_WITH(amd-sdk,
 			found_amd_sdk=0;
       fi;
       if test -d $withval/lib; then
-        AMD_SDK_INC="$withval/lib"
+        AMD_SDK_LIB="$withval/lib"
       else
          AC_MSG_ERROR([Could not find AMD SDK lib path])
 			found_amd_sdk=0;
