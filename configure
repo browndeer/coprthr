@@ -2708,7 +2708,7 @@ echo "$as_me: error: Could not find AMD SDK include path" >&2;}
 			found_amd_sdk=0;
       fi;
       if test -d $withval/lib; then
-        AMD_SDK_INC="$withval/lib"
+        AMD_SDK_LIB="$withval/lib"
       else
          { { echo "$as_me:$LINENO: error: Could not find AMD SDK lib path" >&5
 echo "$as_me: error: Could not find AMD SDK lib path" >&2;}
