@@ -18,7 +18,7 @@ ifeq (@ENABLE_LIBOCL@,1)
 SUBDIRS += ./src/libocl ./tools/xclnm
 endif
 
-ifeq (@ENABLE_LIBOCL@,1)
+ifeq (@ENABLE_CLETE@,1)
 SUBDIRS += ./src/CLETE
 endif
 
