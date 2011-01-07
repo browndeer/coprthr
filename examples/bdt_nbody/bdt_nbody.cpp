@@ -44,6 +44,8 @@
 
 CONTEXT* cp = 0; /* selects CL context */
 
+int devnum = 0;
+
 void (*iterate)(
    int nburst, int nparticle, int nthread,
    cl_float gdt, cl_float es,
@@ -352,6 +354,7 @@ void iterate_cl(
 	cl_float* pp2 = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
 //	for(int i=0;i<4*nparticle;i+=4) pp2[i+3] = pp[i+3];
 
+//	int n = nparticle;
 //	int n = nparticle/4;
 	int n = nparticle/2;
 
@@ -362,29 +365,29 @@ void iterate_cl(
 	clarg_set_global(k_nbody,4,(cl_float4*)vv);
 	clarg_set_local(k_nbody,6,4*nthread*sizeof(cl_float4));
 
-	clmsync(cp,0,pp,CL_MEM_DEVICE|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
-	clmsync(cp,0,vv,CL_MEM_DEVICE|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
-	clwait(cp,0,CL_MEM_EVENT|CL_EVENT_RELEASE);
+	clmsync(cp,devnum,pp,CL_MEM_DEVICE|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
+	clmsync(cp,devnum,vv,CL_MEM_DEVICE|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
+	clwait(cp,devnum,CL_MEM_EVENT|CL_EVENT_RELEASE);
 	Start(0); 
 
 	for(int burst = 0; burst<nburst; burst+=2) {
 
 		clarg_set_global(k_nbody,3,(cl_float4*)pp2);
 		clarg_set_global(k_nbody,5,(cl_float4*)pp);
-		clfork(cp,0,k_nbody,&ndr,CL_EVENT_NOWAIT);
+		clfork(cp,devnum,k_nbody,&ndr,CL_EVENT_NOWAIT);
 
 		clarg_set_global(k_nbody,3,(cl_float4*)pp);
 		clarg_set_global(k_nbody,5,(cl_float4*)pp2);
-		clfork(cp,0,k_nbody,&ndr,CL_EVENT_NOWAIT);
+		clfork(cp,devnum,k_nbody,&ndr,CL_EVENT_NOWAIT);
 
 	}
 
-	clwait(cp,0,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
+	clwait(cp,devnum,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
 	Stop(0);
 
-	clmsync(cp,0,pp,CL_MEM_HOST|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
-	clmsync(cp,0,vv,CL_MEM_HOST|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
-	clwait(cp,0,CL_MEM_EVENT|CL_EVENT_RELEASE);
+	clmsync(cp,devnum,pp,CL_MEM_HOST|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
+	clmsync(cp,devnum,vv,CL_MEM_HOST|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
+	clwait(cp,devnum,CL_MEM_EVENT|CL_EVENT_RELEASE);
 
 //	Stop(0);
 
