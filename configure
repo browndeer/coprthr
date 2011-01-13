@@ -2754,6 +2754,8 @@ OPENCL_LIBNAME=OpenCL
 
           ac_config_files="$ac_config_files tools/xclnm/Makefile"
 
+          ac_config_files="$ac_config_files tools/clld/Makefile"
+
           ac_config_files="$ac_config_files test/Makefile"
 
           ac_config_files="$ac_config_files test/test_stdcl/Makefile"
@@ -3320,6 +3322,7 @@ do
   "src/libocl/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libocl/Makefile" ;;
   "tools/cltrace/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/cltrace/Makefile" ;;
   "tools/xclnm/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/xclnm/Makefile" ;;
+  "tools/clld/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/clld/Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "test/test_stdcl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_stdcl/Makefile" ;;
   "test/test_ocl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_ocl/Makefile" ;;

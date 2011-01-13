@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <elf.h>
 #include <libelf.h>
+#include <errno.h>
 
 #include "_version.h"
 
@@ -364,7 +365,7 @@ int main(int argc, char** argv)
 	}
 
 //	if ((e = elf_begin(fd, ELF_C_WRITE, 0)) == 0) {
-	if ((e = elf_begin(fd, ELF_C_WRITE, 0)) == 0) {
+	if ((e = elf_begin(fd, ELF_C_WRITE, NULL)) == 0) {
 		fprintf(stderr,"elf_begin() failed: %d: %s", elf_errno(),elf_errmsg(-1));
 		exit(-1);
 	}
@@ -375,6 +376,7 @@ int main(int argc, char** argv)
 	Elf64_Ehdr* ehdr = 0;
 	Elf64_Phdr* phdr = 0;
 	Elf64_Shdr* shdr = 0;
+printf("__x86_64__\n");
 
 #elif defined(__i386__) 
 
@@ -382,6 +384,7 @@ int main(int argc, char** argv)
 	Elf32_Phdr* phdr = 0;
 	Elf32_Shdr* shdr = 0;
 
+printf("__i386__\n");
 #endif
 
 
@@ -399,6 +402,7 @@ int main(int argc, char** argv)
 	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
 	ehdr->e_machine = EM_X86_64; 
 	ehdr->e_type = ET_NONE;
+	ehdr->e_version = EV_CURRENT;
 	ehdr->e_shstrndx = 6; /* set section index of .shstrtab */
 
 #elif defined(__i386__) 
@@ -430,7 +434,8 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
-	data->d_align = 4;
+//	data->d_align = 4;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = (char*)clprgs;
 	data->d_type = ELF_T_WORD;
@@ -469,7 +474,8 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
-	data->d_align = 1;
+//	data->d_align = 1;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = cltexts_buf;
 	data->d_type = ELF_T_BYTE;
@@ -509,7 +515,8 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
-	data->d_align = 4;
+//	data->d_align = 4;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = (char*)clprgs;
 	data->d_type = ELF_T_WORD;
@@ -549,7 +556,8 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
-	data->d_align = 1;
+//	data->d_align = 1;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = cltexts_buf;
 	data->d_type = ELF_T_BYTE;
@@ -589,7 +597,8 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
-	data->d_align = 1;
+//	data->d_align = 1;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = clstrtab_str;
 	data->d_type = ELF_T_BYTE;
@@ -629,7 +638,8 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
-	data->d_align = 1;
+//	data->d_align = 1;
+	data->d_align = 16;
 	data->d_buf = shstrtab;
 	data->d_off = 0LL;
 	data->d_size = sizeof(shstrtab);
@@ -657,6 +667,7 @@ int main(int argc, char** argv)
 
 
 	if (elf_update(e, ELF_C_NULL) < 0)  {
+//		fprintf(stderr,"%d\n",elf_errno());
 		fprintf(stderr, "elf_update(NULL) failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
