@@ -1,19 +1,25 @@
 # Makefile for clld
 
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+
 #DEF = -DSTDCL_WARN -DSTDCL_DEBUG
-DEF = -DSTDCL_WARN
+#DEF = -DSTDCL_WARN
 
 ######################################################################
 
 BIN_NAME = clld
 MAN1 = clld.1
 
-INSTALL_BIN_DIR ?= /usr/local/browndeer/bin
-INSTALL_MAN_DIR ?= /usr/share/man
+INSTALL_BIN_DIR=@bindir@
+INSTALL_LIB_DIR=@libdir@
+INSTALL_INCLUDE_DIR=@includedir@
+INSTALL_MAN_DIR=@mandir@
 
 INCS = -I../../include
 
-LIBS = -L/usr/local/lib -lelf 
+LIBS = -lelf 
 
 OBJS = clld.o 
 
@@ -36,9 +42,9 @@ $(BIN_NAME): $(OBJS)
 	-gzip -f -c $*.1 > $*.1.gz
 
 check_root:
-ifneq ($(shell whoami),root)
-	$(error install must be done as root)
-endif
+#ifneq ($(shell whoami),root)
+#	$(error install must be done as root)
+#endif
 
 install: check_root
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
