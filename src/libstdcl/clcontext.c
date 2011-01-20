@@ -204,6 +204,8 @@ clcontext_create(
 
 	cp->cmdq = (cl_command_queue*)malloc(sizeof(cl_command_queue)*cp->ndev);
 
+	DEBUG(__FILE__,__LINE__,"will try to create cmdq");
+
 // XXX something is broken in clCreateCommandQueue, using lazy creation
 // XXX as a workaround -DAR
 //	{
