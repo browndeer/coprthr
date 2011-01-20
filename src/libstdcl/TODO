@@ -2,4 +2,6 @@
 -add auto to mem management, mark memory with bitfield
 -add clsupp* functions
 
+-add error check on full event lists
+
 

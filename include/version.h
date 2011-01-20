@@ -37,7 +37,7 @@
 #endif
 
 #ifndef COPRTHR_REVISION
-#define COPRTHR_REVISION 0 /* @REVISION */
+#define COPRTHR_REVISION 1 /* @REVISION */
 #endif
 
 #ifndef COPRTHR_RELEASE
