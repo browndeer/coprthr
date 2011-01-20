@@ -129,6 +129,7 @@ Setup(0);
 #endif
 
 		else if (!strcmp(argv[i],"--display")) ;
+		else if (!strcmp(argv[i],"--devnum")) devnum = atoi(argv[++i]);
 		else if (!strcmp(argv[i],"--nstep")) nstep = atoi(argv[++i]);
 		else if (!strcmp(argv[i],"--nburst")) nburst = atoi(argv[++i]);
 		else if (!strcmp(argv[i],"--nblock")) nb = atoi(argv[++i]);
@@ -193,12 +194,9 @@ Setup(0);
 		snprintf(cldevstr,64,"CPU/OpenCL %s",dev_info->dev_name);
 	} else strncpy(cldevstr,"???",3);
 
-//	void* hcl = clopen(cp,0,0);
-//	void* hcl = clopen(stdgpu,0,0);
-	void* hcl = clopen(stdgpu,"nbody_kern.cl",0);
-//	void* hcl = clopen(stdgpu,"NBody_Kernels.cl",0);
-	k_nbody = clsym(stdgpu,hcl,"nbody_kern",0);
-//exit(0);
+//	void* hcl = clopen(stdgpu,"nbody_kern.cl",0);
+	void* hcl = clopen(cp,0,0);
+	k_nbody = clsym(cp,hcl,"nbody_kern",0);
 #endif
 
 

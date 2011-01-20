@@ -69,6 +69,8 @@ char devstr[64];
  * OpenGL display functions
  */
 
+extern char _binary_bdt_bmp_start[];
+
 void display_init() 
 {
 	int i;
@@ -78,19 +80,30 @@ void display_init()
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-	FILE* fp = fopen("bdt.bmp","rb");
 	unsigned char header[54];
-	fread(header,54,1,fp);
+	memcpy(header,_binary_bdt_bmp_start,54);
 	if(header[0]=='B' && header[1]=='M') {
 		int offset = *(unsigned int*)(header+10);
 		int w = *(int*)(header+18);
 		int h = *(int*)(header+22);
 		int b = (int)header[28];
 		bmp = (unsigned char*)malloc(w*h*3);
-		fseek(fp,offset,SEEK_SET);
-		fread(bmp,w*h*3,1,fp);
-		fclose(fp);
+		memcpy(bmp,_binary_bdt_bmp_start+offset,w*h*3);
 	}
+
+//	FILE* fp = fopen("bdt.bmp","rb");
+//	unsigned char header[54];
+//	fread(header,54,1,fp);
+//	if(header[0]=='B' && header[1]=='M') {
+//		int offset = *(unsigned int*)(header+10);
+//		int w = *(int*)(header+18);
+//		int h = *(int*)(header+22);
+//		int b = (int)header[28];
+//		bmp = (unsigned char*)malloc(w*h*3);
+//		fseek(fp,offset,SEEK_SET);
+//		fread(bmp,w*h*3,1,fp);
+//		fclose(fp);
+//	}
 
 	if (iterate==iterate_cpu) { 
 		strncpy(devstr,"CPU",64);
