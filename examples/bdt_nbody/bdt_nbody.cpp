@@ -67,7 +67,9 @@ cl_kernel k_nbody;
 
 int main(int argc, char** argv)
 {
-Setup(0);
+
+	Setup(0);
+
 	int nparticle = DEFAULT_NPARTICLE;
 
 	int i,j,k;
@@ -89,6 +91,7 @@ Setup(0);
 //#endif
 
 	int dump_results = 0;
+   int use_display = 1;
 
 	float stime = 0.0;
 	float gdt = G_CONSTANT*DEFAULT_DT;
@@ -160,28 +163,17 @@ Setup(0);
 		nstep,nburst,nparticle,gdt
 	);
 
+
 #ifdef ENABLE_CL
 	if (!cp) {
 		if (clgetndev(stdgpu)) cp = stdgpu;
 		else if (clgetndev(stdcpu)) cp = stdcpu;
 	}
-	if (cp) {
-		pp = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
-		vv = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
-	}
-#endif
-	if (!pp) pp = (cl_float*)malloc(sizeof(cl_float)*4*nparticle);
-	if (!vv) vv = (cl_float*)malloc(sizeof(cl_float)*4*nparticle);
+	iterate = (cp)? iterate_cl : iterate_cpu;
 
-	if (pp == 0 || vv == 0 ) {
-		fprintf(stderr,"memory allocation failed.  Terminating...\n");
-		exit(-1);
-	}
-
-
-#ifdef ENABLE_CL
    struct clstat_info stat_info;
-   struct cldev_info* dev_info = (struct cldev_info*)malloc(clgetndev(cp)*sizeof(struct cldev_info));
+   struct cldev_info* dev_info 
+		= (struct cldev_info*)malloc(clgetndev(cp)*sizeof(struct cldev_info));
 
    clstat(cp,&stat_info);
    clgetdevinfo(cp,dev_info);
@@ -200,9 +192,37 @@ Setup(0);
 #endif
 
 
-	Setup(0);
+	/* XXX must init GL before alloc CL buffers due to compat problem w/GL */
+   if(use_display) {
+        glutInit(&argc, argv);
+        glutInitWindowPosition(100,10);
+        glutInitWindowSize(600,600);
+        glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE );
+        glutCreateWindow("Brown Deer Technology nbody simulation");
+        display_init();
+        glutDisplayFunc(displayfunc);
+        glutReshapeFunc(reShape);
+        glutIdleFunc(idle);
+        glutKeyboardFunc(keyboardFunc);
+	}
 
-   int use_display = 1;
+
+#ifdef ENABLE_CL
+	if (cp) {
+		pp = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
+		vv = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
+	}
+#endif
+	if (!pp) pp = (cl_float*)malloc(sizeof(cl_float)*4*nparticle);
+	if (!vv) vv = (cl_float*)malloc(sizeof(cl_float)*4*nparticle);
+
+	if (pp == 0 || vv == 0 ) {
+		fprintf(stderr,"memory allocation failed.  Terminating...\n");
+		exit(-1);
+	}
+
+
+	Setup(0);
 
    float s = 100.0f;
 
@@ -216,26 +236,10 @@ Setup(0);
 	iterate_args.pp = pp;
 	iterate_args.vv = vv;
 
-	iterate = (cp)? iterate_cl : iterate_cpu;
-
    if(use_display) {
-        // Run in  graphical window if requested
 
-printf("argc=%d\n",argc);
-for(i=0;i<argc;i++) printf("%s\n",argv[i]);
-fflush(stdout);
-
-        glutInit(&argc, argv);
-        glutInitWindowPosition(100,10);
-        glutInitWindowSize(600,600);
-        glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE );
-        glutCreateWindow("Brown Deer Technology nbody simulation");
-        display_init();
-        glutDisplayFunc(displayfunc);
-        glutReshapeFunc(reShape);
-        glutIdleFunc(idle);
-        glutKeyboardFunc(keyboardFunc);
         glutMainLoop();
+
    }
 
 
@@ -341,6 +345,9 @@ void iterate_cpu(
 }
 
 #ifdef ENABLE_CL
+
+cl_float* pp2 = 0;
+
 void iterate_cl(
    int nburst, int nparticle, int nthread,
    float gdt, float es,
@@ -349,7 +356,9 @@ void iterate_cl(
 {
 	double time_old = GetElapsedTime(0);
 
-	cl_float* pp2 = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
+//	cl_float* pp2 = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
+	if (pp2==0) pp2 = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
+
 //	for(int i=0;i<4*nparticle;i+=4) pp2[i+3] = pp[i+3];
 
 //	int n = nparticle;
@@ -363,8 +372,8 @@ void iterate_cl(
 	clarg_set_global(k_nbody,4,(cl_float4*)vv);
 	clarg_set_local(k_nbody,6,4*nthread*sizeof(cl_float4));
 
-	clmsync(cp,devnum,pp,CL_MEM_DEVICE|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
-	clmsync(cp,devnum,vv,CL_MEM_DEVICE|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
+	clmsync(cp,devnum,pp,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+	clmsync(cp,devnum,vv,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 	clwait(cp,devnum,CL_MEM_EVENT|CL_EVENT_RELEASE);
 	Start(0); 
 
@@ -383,8 +392,8 @@ void iterate_cl(
 	clwait(cp,devnum,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
 	Stop(0);
 
-	clmsync(cp,devnum,pp,CL_MEM_HOST|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
-	clmsync(cp,devnum,vv,CL_MEM_HOST|CL_EVENT_RELEASE|CL_EVENT_NOWAIT);
+	clmsync(cp,devnum,pp,CL_MEM_HOST|CL_EVENT_NOWAIT);
+	clmsync(cp,devnum,vv,CL_MEM_HOST|CL_EVENT_NOWAIT);
 	clwait(cp,devnum,CL_MEM_EVENT|CL_EVENT_RELEASE);
 
 //	Stop(0);
@@ -399,7 +408,7 @@ void iterate_cl(
 		step_count = 0;
 	}
 
-	clfree(pp2);
+//	clfree(pp2);
 
 }
 

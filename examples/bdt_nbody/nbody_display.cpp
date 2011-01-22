@@ -105,11 +105,13 @@ void display_init()
 //		fclose(fp);
 //	}
 
+
 	if (iterate==iterate_cpu) { 
 		strncpy(devstr,"CPU",64);
 	} else if (iterate==iterate_cl) {
 		if (cldevstr) strncpy(devstr,cldevstr,64);
 	}
+
 
 }
 
@@ -121,6 +123,7 @@ void reShape(int w,int h)
 {
 	screen_width = w;
 	screen_height = h;
+    glViewport(0,0,w,h);
     glViewport(0,0,w,h);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -144,7 +147,13 @@ void displayfunc()
 
     glColor3f(1.0f,1.0f,1.0f);
 
+
+	int nparticle = iterate_args.nparticle;
+	float* pos = (float*)iterate_args.pp;
+
+
     //Calling kernel for calculatig subsequent positions
+
 	if (iterate) iterate(
 		iterate_args.nburst,
 		iterate_args.nparticle,
@@ -155,8 +164,6 @@ void displayfunc()
 		iterate_args.vv
 	);
 
-	int nparticle = iterate_args.nparticle;
-	float* pos = (float*)iterate_args.pp;
 
     glBegin(GL_POINTS);
     for(i=0; i < nparticle; ++i) {

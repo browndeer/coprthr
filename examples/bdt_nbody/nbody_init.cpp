@@ -42,6 +42,8 @@ int nbody_init( int n, cl_float* pp, cl_float* vv )
 	for(i=0;i<n;i++) pp[__index_m(i)] /= zmbar1;
 	zmass = (cl_float)n;
 
+	cmr[0] = cmr[1] = cmr[2] = 0.0f;
+	cmrdot[0] = cmrdot[1] = cmrdot[2] = 0.0f;
 
 	cl_float ri;
 	for(i=0;i<n;i++) {
@@ -85,6 +87,8 @@ int nbody_init( int n, cl_float* pp, cl_float* vv )
 
 	}
 
+//printf("%f %f %f %f %f %f\n",cmr[0],cmr[1],cmr[2],cmrdot[0],cmrdot[1],cmrdot[2]);
+
 	a1 = 1.5*twopi/16.0;
 	a2 = sqrt(zmass/a1);
 	for(i=0;i<n;i++) {
@@ -116,7 +120,5 @@ int nbody_init( int n, cl_float* pp, cl_float* vv )
 	for(i=0;i<n;i++) ppmax = (ppmax>pp[__index_x(i)])? ppmax:pp[__index_x(i)];
 	for(i=0;i<n;i++) ppmax = (ppmax>pp[__index_y(i)])? ppmax:pp[__index_y(i)];
 	for(i=0;i<n;i++) ppmax = (ppmax>pp[__index_z(i)])? ppmax:pp[__index_z(i)];
-
-	printf("min max %e %e\n",ppmin,ppmax);
 
 }
