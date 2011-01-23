@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 size_t 
-__clarg_set_global(CONTEXT*, cl_kernel krn, unsigned int argnum, void* arg);
+clarg_set_global(CONTEXT*, cl_kernel krn, unsigned int argnum, void* arg);
 
 #ifdef __cplusplus
 }

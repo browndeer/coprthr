@@ -30,10 +30,10 @@
 #include <CL/cl.h>
 
 
-#define cl_float4_x(f) (((cl_float*)&f)[0])
-#define cl_float4_y(f) (((cl_float*)&f)[1])
-#define cl_float4_z(f) (((cl_float*)&f)[2])
-#define cl_float4_w(f) (((cl_float*)&f)[3])
+#define cl_float4_x(f) (((cl_float*)&(f))[0])
+#define cl_float4_y(f) (((cl_float*)&(f))[1])
+#define cl_float4_z(f) (((cl_float*)&(f))[2])
+#define cl_float4_w(f) (((cl_float*)&(f))[3])
 
 
 #include "clcontext.h"
@@ -89,23 +89,25 @@ typedef struct clndrange_struct clndrange_t;
 
 
 
-
+/*
+ * CL kernel arguments
+ */
 
 #ifdef __cplusplus
 
 template < typename T >
-void clarg_set( cl_kernel krn, unsigned int argnum, T arg)
+void clarg_set( CONTEXT* cp, cl_kernel krn, unsigned int argnum, T arg)
 { clSetKernelArg(krn,argnum,sizeof(typeof(T)),(void*)&arg); }
 
 #else
 
-#define clarg_set(krn,argnum,arg) \
- clSetKernelArg(krn,argnum,sizeof(typeof(arg)),(void*)&arg);
+#define clarg_set(cp,krn,argnum,arg) \
+ clSetKernelArg(krn,argnum,sizeof(typeof(arg)),(void*)&arg)
 
 #endif
 
-
-
+#define clarg_set_local(cp,krn,argnum,arg) \
+ clSetKernelArg(krn,argnum,arg,0)
 
 
 #ifdef __cplusplus
@@ -132,6 +134,7 @@ extern "C" {
 //
 //#endif
 
+/*
 inline void clarg_set_global(cl_kernel krn, unsigned int argnum, void* arg)
 {
 	struct _memd_struct* memd
@@ -144,10 +147,9 @@ inline size_t xxx_clarg_set_global(
 )
 { return(__clarg_set_global(cp,krn,argnum,arg)); }
 
-
 inline void clarg_set_local(cl_kernel krn, unsigned int argnum, size_t arg)
 { clSetKernelArg(krn,argnum,arg,0); }
-
+*/
 
 #ifdef __cplusplus
 }

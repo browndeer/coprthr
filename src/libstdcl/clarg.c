@@ -40,7 +40,7 @@ extern "C" {
 #endif
 
 size_t 
-__clarg_set_global(CONTEXT* cp, cl_kernel krn, unsigned int argnum, void* ptr) 
+clarg_set_global(CONTEXT* cp, cl_kernel krn, unsigned int argnum, void* ptr) 
 {
 	struct _memd_struct* memd = 0;
 	size_t offset = -1;

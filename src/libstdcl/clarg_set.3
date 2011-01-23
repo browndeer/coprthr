@@ -4,11 +4,11 @@ clarg_set, clarg_set_global, clarg_set_local \- Set CL kernel arguments
 .SH SYNOPSIS
 .B #include <stdcl.h>
 .sp
-.BI "void clarg_set( cl_kernel " krn ", unsigned int " argnum ", Tn " arg );
+.BI "void clarg_set( CONTEXT* cp, cl_kernel " krn ", unsigned int " argnum ", Tn " arg );
 .sp
-.BI "void clarg_set_global( cl_kernel " krn ", unsigned int " argnum ", void* " ptr );
+.BI "void clarg_set_global( CONTEXT* cp, cl_kernel " krn ", unsigned int " argnum ", void* " ptr );
 .sp
-.BI "void clarg_set_local( cl_kernel " krn ", unsigned int " argnum ", size_t " sizeb );
+.BI "void clarg_set_local( CONTEXT* cp, cl_kernel " krn ", unsigned int " argnum ", size_t " sizeb );
 .SH DESCRIPTION
 clarg_set(), clarg_set_global() and clarg_set_local() are used to set the
 \fIargnum\fP argument of the CL kernel \fIkrn\fP prior to kernel execution.
