@@ -82,6 +82,7 @@ SET_OPT($enable_libocl_bdt_builtins, ENABLE_BDT_BUILTINS, "libocl use bdt builti
 OPENCL_INC=
 OPENCL_LIB=
 DEFAULT_OPENCL_PLATFORM=
+AMD_SDK=
 AC_ARG_WITH(amd-sdk,
   AC_HELP_STRING([--with-amd-sdk=DIR], [Use AMD SDK in DIR]),
   [
@@ -91,6 +92,7 @@ AC_ARG_WITH(amd-sdk,
 
       if test -d $withval; then
          echo "found AMD SDK path"
+			AMD_SDK=$withval
       else
          AC_MSG_ERROR([Could not find AMD SDK path])
       fi;
@@ -112,7 +114,7 @@ AC_ARG_WITH(amd-sdk,
 	 DEFAULT_OPENCL_PLATFORM=ATI;
 
   ],
-  [OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=ATI])
+  [OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=ATI; AMD_SDK=/usr/local/atistream])
 
 AC_ARG_WITH(nvidia-sdk,
   AC_HELP_STRING([--with-nvidia-sdk=DIR], [Use Nvidia SDK in DIR]),
@@ -150,6 +152,13 @@ AC_ARG_WITH(nvidia-sdk,
 
 OPENCL_LIBNAME=OpenCL
 
+if test $ENABLE_LIBOCL -eq 1; then 
+	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
+		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
+	fi;
+fi;
+
+
 AC_SUBST(ENABLE_CLGL)
 AC_SUBST(ENABLE_CLETE)
 AC_SUBST(ENABLE_DEBUG_LIBS)
@@ -159,14 +168,14 @@ AC_SUBST(ENABLE_NCPU)
 AC_SUBST(ENABLE_ATIGPU)
 AC_SUBST(ENABLE_BDT_BUILTINS)
 
-#AC_SUBST(AMD_SDK)
-#AC_SUBST(AMD_SDK_INC)
-#AC_SUBST(AMD_SDK_LIB)
-
 AC_SUBST(OPENCL_INC)
 AC_SUBST(OPENCL_LIB)
 AC_SUBST(OPENCL_LIBNAME)
 AC_SUBST(DEFAULT_OPENCL_PLATFORM)
+
+AC_SUBST(AMD_SDK)
+#AC_SUBST(AMD_SDK_INC)
+#AC_SUBST(AMD_SDK_LIB)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([src/libstdcl/Makefile])

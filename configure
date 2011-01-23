@@ -274,7 +274,7 @@ PACKAGE_STRING='coprthr 1.1'
 PACKAGE_BUGREPORT='support@browndeertechnology.com'
 
 ac_default_prefix=/usr/local/browndeer
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -2682,6 +2682,7 @@ if test x$enable_libocl_bdt_builtins != xno; then
 OPENCL_INC=
 OPENCL_LIB=
 DEFAULT_OPENCL_PLATFORM=
+AMD_SDK=
 
 # Check whether --with-amd-sdk or --without-amd-sdk was given.
 if test "${with_amd_sdk+set}" = set; then
@@ -2693,6 +2694,7 @@ if test "${with_amd_sdk+set}" = set; then
 
       if test -d $withval; then
          echo "found AMD SDK path"
+			AMD_SDK=$withval
       else
          { { echo "$as_me:$LINENO: error: Could not find AMD SDK path" >&5
 echo "$as_me: error: Could not find AMD SDK path" >&2;}
@@ -2721,7 +2723,7 @@ echo "$as_me: error: Could not find AMD SDK lib path" >&2;}
 
 
 else
-  OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=ATI
+  OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=ATI; AMD_SDK=/usr/local/atistream
 fi;
 
 
@@ -2768,6 +2770,13 @@ fi;
 
 OPENCL_LIBNAME=OpenCL
 
+if test $ENABLE_LIBOCL -eq 1; then
+	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
+		{ { echo "$as_me:$LINENO: error: libocl requres builtins-x86_64.bc, file not found" >&5
+echo "$as_me: error: libocl requres builtins-x86_64.bc, file not found" >&2;}
+   { (exit 1); exit 1; }; }
+	fi;
+fi;
 
 
 
@@ -2777,14 +2786,16 @@ OPENCL_LIBNAME=OpenCL
 
 
 
-#AC_SUBST(AMD_SDK)
+
+
+
+
+
+
+
+
 #AC_SUBST(AMD_SDK_INC)
 #AC_SUBST(AMD_SDK_LIB)
-
-
-
-
-
 
           ac_config_files="$ac_config_files Makefile"
 
@@ -3476,6 +3487,7 @@ s,@OPENCL_INC@,$OPENCL_INC,;t t
 s,@OPENCL_LIB@,$OPENCL_LIB,;t t
 s,@OPENCL_LIBNAME@,$OPENCL_LIBNAME,;t t
 s,@DEFAULT_OPENCL_PLATFORM@,$DEFAULT_OPENCL_PLATFORM,;t t
+s,@AMD_SDK@,$AMD_SDK,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
