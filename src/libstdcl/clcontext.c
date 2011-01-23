@@ -39,7 +39,12 @@
 #include "clfcn.h"
 #include "clcontext.h"
 
+#ifdef DEFAULT_OPENCL_PLATFORM
+#define DEFAULT_PLATFORM_NAME DEFAULT_OPENCL_PLATFORM
+#else
 #define DEFAULT_PLATFORM_NAME "ATI"
+#endif
+
 
 static cl_platform_id
 __get_platformid(
