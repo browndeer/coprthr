@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdcl.h>
 
-#define cl_float4_x(f) (((cl_float*)&(f))[0])
+//#define cl_float4_x(f) (((cl_float*)&(f))[0])
 
 void nbody_output( int n, cl_float4* pos, cl_float4* vel )
 {

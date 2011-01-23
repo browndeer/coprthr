@@ -123,13 +123,13 @@ printf "exit(__LINE__);\n";
 
 for($i=0;$i<$a;++$i) {
 #printf "if (clSetKernelArg(krn,$i,sizeof(cl_mem),&bufa$i)) exit(__LINE__);\n";
-printf "clarg_set_global(krn,$i,aa$i);\n";
+printf "clarg_set_global(cp,krn,$i,aa$i);\n";
 }
 
 for($j=0;$j<$b;++$j) {
 $k = $a+$j;
 #printf "if (clSetKernelArg(krn,$k,sizeof(cl_mem),&bufb$j)) exit(__LINE__);\n";
-printf "clarg_set_global(krn,$k,bb$j);\n";
+printf "clarg_set_global(cp,krn,$k,bb$j);\n";
 }
 
 printf "if (!clfork(cp,0,krn,&ndr,CL_EVENT_NOWAIT))\n";

@@ -38,9 +38,9 @@ int main(int argc, char** argv)
 
    clndrange_t ndr2 = clndrange_init1d(0,nparticle2,nthread);
 
-   clarg_set(krn,0,dt);
-   clarg_set(krn,1,eps);
-   clarg_set_local(krn,5,nthread*sizeof(cl_float4));
+   clarg_set(stdgpu,krn,0,dt);
+   clarg_set(stdgpu,krn,1,eps);
+   clarg_set_local(stdgpu,krn,5,nthread*sizeof(cl_float4));
 
    clmsync(stdgpu,0,pos1a,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
    clmsync(stdgpu,0,pos1b,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
@@ -54,16 +54,16 @@ int main(int argc, char** argv)
 
       for(burst=0; burst<nburst; burst+=2) {
 
-         clarg_set_global(krn,2,pos1a);
-         clarg_set_global(krn,3,pos2a);
-         clarg_set_global(krn,4,vela);
-         clarg_set_global(krn,6,pos1b);
+         clarg_set_global(stdgpu,krn,2,pos1a);
+         clarg_set_global(stdgpu,krn,3,pos2a);
+         clarg_set_global(stdgpu,krn,4,vela);
+         clarg_set_global(stdgpu,krn,6,pos1b);
          clfork(stdgpu,0,krn,&ndr2,CL_EVENT_NOWAIT);
 
-         clarg_set_global(krn,2,pos1b);
-         clarg_set_global(krn,3,pos2b);
-         clarg_set_global(krn,4,velb);
-         clarg_set_global(krn,6,pos1a);
+         clarg_set_global(stdgpu,krn,2,pos1b);
+         clarg_set_global(stdgpu,krn,3,pos2b);
+         clarg_set_global(stdgpu,krn,4,velb);
+         clarg_set_global(stdgpu,krn,6,pos1a);
          clfork(stdgpu,1,krn,&ndr2,CL_EVENT_NOWAIT);
 
          clmsync(stdgpu,0,pos2a,CL_MEM_HOST|CL_EVENT_NOWAIT);
@@ -78,16 +78,16 @@ int main(int argc, char** argv)
          clmsync(stdgpu,0,pos2b,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
          clmsync(stdgpu,1,pos2a,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 
-         clarg_set_global(krn,2,pos2a);
-         clarg_set_global(krn,3,pos1a);
-         clarg_set_global(krn,4,vela);
-         clarg_set_global(krn,6,pos2b);
+         clarg_set_global(stdgpu,krn,2,pos2a);
+         clarg_set_global(stdgpu,krn,3,pos1a);
+         clarg_set_global(stdgpu,krn,4,vela);
+         clarg_set_global(stdgpu,krn,6,pos2b);
          clfork(stdgpu,0,krn,&ndr2,CL_EVENT_NOWAIT);
 
-         clarg_set_global(krn,2,pos2b);
-         clarg_set_global(krn,3,pos1b);
-         clarg_set_global(krn,4,velb);
-         clarg_set_global(krn,6,pos2a);
+         clarg_set_global(stdgpu,krn,2,pos2b);
+         clarg_set_global(stdgpu,krn,3,pos1b);
+         clarg_set_global(stdgpu,krn,4,velb);
+         clarg_set_global(stdgpu,krn,6,pos2a);
          clfork(stdgpu,1,krn,&ndr2,CL_EVENT_NOWAIT);
 
          clmsync(stdgpu,0,pos1a,CL_MEM_HOST|CL_EVENT_NOWAIT);

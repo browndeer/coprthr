@@ -340,7 +340,7 @@ inline void evaluate(
 			clmsync(stdgpu,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_WAIT|CL_EVENT_RELEASE);
 #endif
 
-			__clarg_set_global(stdgpu,krn,n,(void*)(*it).memptr);
+			clarg_set_global(stdgpu,krn,n,(void*)(*it).memptr);
 
 		}
 	}

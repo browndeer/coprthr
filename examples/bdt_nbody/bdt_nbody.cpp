@@ -366,11 +366,11 @@ void iterate_cl(
 	int n = nparticle/2;
 
 	clndrange_t ndr = clndrange_init1d(0,n,nthread);
-	clarg_set(k_nbody,0,n);
-	clarg_set(k_nbody,1,gdt);
-	clarg_set(k_nbody,2,es);
-	clarg_set_global(k_nbody,4,(cl_float4*)vv);
-	clarg_set_local(k_nbody,6,4*nthread*sizeof(cl_float4));
+	clarg_set(cp,k_nbody,0,n);
+	clarg_set(cp,k_nbody,1,gdt);
+	clarg_set(cp,k_nbody,2,es);
+	clarg_set_global(cp,k_nbody,4,(cl_float4*)vv);
+	clarg_set_local(cp,k_nbody,6,4*nthread*sizeof(cl_float4));
 
 	clmsync(cp,devnum,pp,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 	clmsync(cp,devnum,vv,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
@@ -379,12 +379,12 @@ void iterate_cl(
 
 	for(int burst = 0; burst<nburst; burst+=2) {
 
-		clarg_set_global(k_nbody,3,(cl_float4*)pp2);
-		clarg_set_global(k_nbody,5,(cl_float4*)pp);
+		clarg_set_global(cp,k_nbody,3,(cl_float4*)pp2);
+		clarg_set_global(cp,k_nbody,5,(cl_float4*)pp);
 		clfork(cp,devnum,k_nbody,&ndr,CL_EVENT_NOWAIT);
 
-		clarg_set_global(k_nbody,3,(cl_float4*)pp);
-		clarg_set_global(k_nbody,5,(cl_float4*)pp2);
+		clarg_set_global(cp,k_nbody,3,(cl_float4*)pp);
+		clarg_set_global(cp,k_nbody,5,(cl_float4*)pp2);
 		clfork(cp,devnum,k_nbody,&ndr,CL_EVENT_NOWAIT);
 
 	}

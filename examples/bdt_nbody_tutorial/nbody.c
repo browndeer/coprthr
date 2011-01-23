@@ -27,10 +27,10 @@ int main(int argc, char** argv)
 
    clndrange_t ndr = clndrange_init1d(0,nparticle,nthread);
 
-   clarg_set(krn,0,dt);
-   clarg_set(krn,1,eps);
-   clarg_set_global(krn,4,vel);
-   clarg_set_local(krn,5,nthread*sizeof(cl_float4));
+   clarg_set(stdgpu,krn,0,dt);
+   clarg_set(stdgpu,krn,1,eps);
+   clarg_set_global(stdgpu,krn,4,vel);
+   clarg_set_local(stdgpu,krn,5,nthread*sizeof(cl_float4));
 
 	clmsync(stdgpu,0,pos1,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 	clmsync(stdgpu,0,vel,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
@@ -39,12 +39,12 @@ int main(int argc, char** argv)
 
       for(burst=0; burst<nburst; burst+=2) {
 
-         clarg_set_global(krn,2,pos1);
-         clarg_set_global(krn,3,pos2);
+         clarg_set_global(stdgpu,krn,2,pos1);
+         clarg_set_global(stdgpu,krn,3,pos2);
          clfork(stdgpu,0,krn,&ndr,CL_EVENT_NOWAIT);
 
-         clarg_set_global(krn,2,pos2);
-         clarg_set_global(krn,3,pos1);
+         clarg_set_global(stdgpu,krn,2,pos2);
+         clarg_set_global(stdgpu,krn,3,pos1);
          clfork(stdgpu,0,krn,&ndr,CL_EVENT_NOWAIT);
       
       }

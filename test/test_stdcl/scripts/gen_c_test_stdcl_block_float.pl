@@ -129,17 +129,17 @@ printf "exit(__LINE__);\n";
 }
 
 for($i=0;$i<$a;++$i) {
-printf "clarg_set_global(krn,$i,aa$i);\n";
+printf "clarg_set_global(cp,krn,$i,aa$i);\n";
 }
 
 for($j=0;$j<$b;++$j) {
 $k = $a+$j;
-printf "clarg_set_global(krn,$k,bb$j);\n";
+printf "clarg_set_global(cp,krn,$k,bb$j);\n";
 }
 
 for($i=0;$i<$a;++$i) {
 #printf "if (clSetKernelArg(krn,$i+$a+$b,blocksize*sizeof(int),0)) exit(__LINE__);\n";
-printf "clarg_set_local(krn,$i+$a+$b,blocksize*sizeof(float));\n";
+printf "clarg_set_local(cp,krn,$i+$a+$b,blocksize*sizeof(float));\n";
 }
 
 printf "if (!clfork(cp,0,krn,&ndr,CL_EVENT_NOWAIT))\n";
