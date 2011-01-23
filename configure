@@ -274,7 +274,7 @@ PACKAGE_STRING='coprthr 1.1'
 PACKAGE_BUGREPORT='support@browndeertechnology.com'
 
 ac_default_prefix=/usr/local/browndeer
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS AMD_SDK AMD_SDK_INC AMD_SDK_LIB OPENCL_INC OPENCL_LIB OPENCL_LIBNAME LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -821,6 +821,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-amd-sdk=DIR      Use AMD SDK in DIR
+  --with-nvidia-sdk=DIR   Use Nvidia SDK in DIR
 
 Some influential environment variables:
   CC          C compiler command
@@ -2678,51 +2679,93 @@ if test x$enable_libocl_bdt_builtins != xno; then
 
 
 
-
-found_amd_sdk=0
-AMD_SDK_INC=
-AMD_SDK_LIB=
+OPENCL_INC=
+OPENCL_LIB=
+DEFAULT_OPENCL_PLATFORM=
 
 # Check whether --with-amd-sdk or --without-amd-sdk was given.
 if test "${with_amd_sdk+set}" = set; then
   withval="$with_amd_sdk"
 
     if test x$withval != xno; then
-		found_amd_sdk=1;
+		withval=/usr/local/atistream
+	 fi;
+
       if test -d $withval; then
-        AMD_SDK="$withval"
-			echo "found AMD SDK path"
+         echo "found AMD SDK path"
       else
          { { echo "$as_me:$LINENO: error: Could not find AMD SDK path" >&5
 echo "$as_me: error: Could not find AMD SDK path" >&2;}
    { (exit 1); exit 1; }; }
-			found_amd_sdk=0;
       fi;
-      if test -d $withval/include; then
-        AMD_SDK_INC="$withval/include"
-			echo "found AMD SDK include path"
+
+      if test -e $withval/include/CL/cl.h; then
+        OPENCL_INC="$withval/include"
+         echo "found AMD SDK include path"
       else
          { { echo "$as_me:$LINENO: error: Could not find AMD SDK include path" >&5
 echo "$as_me: error: Could not find AMD SDK include path" >&2;}
    { (exit 1); exit 1; }; }
-			found_amd_sdk=0;
       fi;
-      if test -d $withval/lib; then
-        AMD_SDK_LIB="$withval/lib"
+
+      if test -e $withval/lib/x86_64/libOpenCL.so; then
+        OPENCL_LIB="$withval/lib/x86_64"
+         echo "found AMD SDK lib path"
       else
          { { echo "$as_me:$LINENO: error: Could not find AMD SDK lib path" >&5
 echo "$as_me: error: Could not find AMD SDK lib path" >&2;}
    { (exit 1); exit 1; }; }
-			found_amd_sdk=0;
-      fi
-    fi
+      fi;
+
+	 DEFAULT_OPENCL_PLATFORM=ATI;
+
 
 else
-  AMD_SDK_LIB=/usr/local/atistream/lib; AMD_SDK_INC=/usr/local/atistream/include
+  OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=ATI
 fi;
 
-OPENCL_INC=$AMD_SDK_INC
-OPENCL_LIB=$AMD_SDK_LIB/x86_64
+
+# Check whether --with-nvidia-sdk or --without-nvidia-sdk was given.
+if test "${with_nvidia_sdk+set}" = set; then
+  withval="$with_nvidia_sdk"
+
+    if test x$withval == xno; then
+		withval=/usr/local/cuda
+	 fi;
+
+      if test -d $withval; then
+         echo "found Nvidia SDK path"
+      else
+         { { echo "$as_me:$LINENO: error: Could not find Nvidia SDK path" >&5
+echo "$as_me: error: Could not find Nvidia SDK path" >&2;}
+   { (exit 1); exit 1; }; }
+      fi;
+
+      if test -e $withval/include/CL/cl.h; then
+        OPENCL_INC="$withval/include"
+         echo "found Nvidia SDK include path"
+      else
+         { { echo "$as_me:$LINENO: error: Could not find Nvidia SDK include path" >&5
+echo "$as_me: error: Could not find Nvidia SDK include path" >&2;}
+   { (exit 1); exit 1; }; }
+      fi;
+
+      if test -e $withval/lib/libOpenCL.so; then
+        OPENCL_LIB="$withval/lib"
+         echo "found Nvidia SDK lib path"
+		elif test -e /usr/lib64/libOpenCL.so; then
+        OPENCL_LIB="/usr/lib64"
+         echo "found Nvidia SDK lib path"
+      else
+         { { echo "$as_me:$LINENO: error: Could not find Nvidia SDK lib path" >&5
+echo "$as_me: error: Could not find Nvidia SDK lib path" >&2;}
+   { (exit 1); exit 1; }; }
+      fi;
+
+	 DEFAULT_OPENCL_PLATFORM=NVIDIA;
+
+fi;
+
 OPENCL_LIBNAME=OpenCL
 
 
@@ -2734,8 +2777,9 @@ OPENCL_LIBNAME=OpenCL
 
 
 
-
-
+#AC_SUBST(AMD_SDK)
+#AC_SUBST(AMD_SDK_INC)
+#AC_SUBST(AMD_SDK_LIB)
 
 
 
@@ -3428,12 +3472,10 @@ s,@ENABLE_LIBOCL@,$ENABLE_LIBOCL,;t t
 s,@ENABLE_NCPU@,$ENABLE_NCPU,;t t
 s,@ENABLE_ATIGPU@,$ENABLE_ATIGPU,;t t
 s,@ENABLE_BDT_BUILTINS@,$ENABLE_BDT_BUILTINS,;t t
-s,@AMD_SDK@,$AMD_SDK,;t t
-s,@AMD_SDK_INC@,$AMD_SDK_INC,;t t
-s,@AMD_SDK_LIB@,$AMD_SDK_LIB,;t t
 s,@OPENCL_INC@,$OPENCL_INC,;t t
 s,@OPENCL_LIB@,$OPENCL_LIB,;t t
 s,@OPENCL_LIBNAME@,$OPENCL_LIBNAME,;t t
+s,@DEFAULT_OPENCL_PLATFORM@,$DEFAULT_OPENCL_PLATFORM,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
