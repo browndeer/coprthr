@@ -306,7 +306,7 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
             intptr_t p2 = p1 + memd->sz;
             if (p1 < (intptr_t)ptr && (intptr_t)ptr < p2) {
                DEBUG(__FILE__,__LINE__,"memd match");
-					ptr = p1;
+					ptr = (void*)p1;
                break;
             }
       }
@@ -379,7 +379,7 @@ void* clmemptr( CONTEXT* cp, void* ptr )
             intptr_t p1 = (intptr_t)memd + sizeof(struct _memd_struct);
             intptr_t p2 = p1 + memd->sz;
             if (p1 < (intptr_t)ptr && (intptr_t)ptr < p2) {
-               p = p1;
+               p = (void*)p1;
                break;
             }
       }
@@ -617,7 +617,7 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
             intptr_t p2 = p1 + memd->sz;
             if (p1 < (intptr_t)ptr && (intptr_t)ptr < p2) {
                DEBUG(__FILE__,__LINE__,"memd match");
-					ptr = p1;
+					ptr = (void*)p1;
                break;
             }
       }

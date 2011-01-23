@@ -124,7 +124,7 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 
 	if (!txt) {
 		DEBUG(__FILE__,__LINE__,"clbuild: bad handle");
-		return(-1);
+		return((void*)-1);
 	}
 
 //// begin compile
