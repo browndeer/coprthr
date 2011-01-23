@@ -136,7 +136,6 @@ int elfcl_write(
 
 #endif
 
-
 	/* 
 	 * construct section [1] .cldev
 	 */
@@ -153,7 +152,8 @@ int elfcl_write(
 		exit(-1);
 	}
 
-	data->d_align = 4;
+//	data->d_align = 4;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = (char*)cldev;
 	data->d_type = ELF_T_WORD;
@@ -197,7 +197,8 @@ int elfcl_write(
 		exit(-1);
 	}
 
-	data->d_align = 4;
+//	data->d_align = 4;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = (char*)clprgs;
 	data->d_type = ELF_T_WORD;
@@ -241,7 +242,8 @@ int elfcl_write(
 		exit(-1);
 	}
 
-	data->d_align = 1;
+//	data->d_align = 1;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = cltexts_buf;
 	data->d_type = ELF_T_BYTE;
@@ -286,7 +288,8 @@ int elfcl_write(
 		exit(-1);
 	}
 
-	data->d_align = 4;
+//	data->d_align = 4;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = (char*)clprgb;
 	data->d_type = ELF_T_WORD;
@@ -331,7 +334,8 @@ int elfcl_write(
 		exit(-1);
 	}
 
-	data->d_align = 1;
+//	data->d_align = 1;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = cltextb_buf;
 	data->d_type = ELF_T_BYTE;
@@ -376,7 +380,8 @@ int elfcl_write(
 		exit(-1);
 	}
 
-	data->d_align = 4;
+//	data->d_align = 4;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = (char*)clsymtab;
 	data->d_type = ELF_T_WORD;
@@ -421,7 +426,8 @@ int elfcl_write(
 		exit(-1);
 	}
 
-	data->d_align = 4;
+//	data->d_align = 4;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = (char*)clargtab;
 	data->d_type = ELF_T_WORD;
@@ -466,7 +472,8 @@ int elfcl_write(
 		exit(-1);
 	}
 
-	data->d_align = 1;
+//	data->d_align = 1;
+	data->d_align = 16;
 	data->d_off  = 0LL;
 	data->d_buf  = clstrtab;
 	data->d_type = ELF_T_BYTE;
@@ -511,7 +518,8 @@ int elfcl_write(
 		exit(-1);
 	}
 
-	data->d_align = 1;
+//	data->d_align = 1;
+	data->d_align = 16;
 	data->d_buf = shstrtab;
 	data->d_off = 0LL;
 	data->d_size = sizeof(shstrtab);
@@ -539,6 +547,8 @@ int elfcl_write(
 	shdr->sh_entsize = 0;
 
 
+
+	printf("EV_CURRENT %d\n",EV_CURRENT);
 
 	if (elf_update(e, ELF_C_NULL) < 0)  {
 		ERROR(__FILE__,__LINE__,

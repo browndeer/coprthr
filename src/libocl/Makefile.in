@@ -65,18 +65,17 @@ DEFS += -DUSE_BDT_BUILTINS
 endif
 
 #ifeq (@ENABLE_DEBUG_LIBS@,1)
-DEFS += -DXCL_DEBUG 
+#DEFS += -DXCL_DEBUG 
 #endif
 
 ######################################################################
 
 TOPDIR ?= ../../
 
-#INCS += -I. -I$(TOPDIR)/include -I/usr/local/include/libelf
-INCS += -I. -I$(TOPDIR)/include 
+INCS += -I. -I$(TOPDIR)/include -I/usr/local/include/libelf
 
-#LIBS += -lfl -lpthread -L/usr/local/lib -lelf -ldl
-LIBS += -lfl -lpthread -lelf -ldl
+LIBS += -lfl -lpthread -L/usr/local/lib -lelf -ldl
+#LIBS += -lfl -lpthread -ldl 
 
 OBJS = $(XCL_OBJS) $(IMP_OBJS)
 
@@ -171,7 +170,7 @@ install: check_root
 	install -m 755 vcore.h $(INSTALL_INCLUDE_DIR)
 	test -d /etc/OpenCL/vendors || install -m 755 -d /etc/OpenCL/vendors
 	echo $(INSTALL_LIB_DIR)/libocl.so > /etc/OpenCL/vendors/coprthr.icd
-	ln -s $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so
+#	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so
 
 uninstall: check_root
 	rm -f $(INSTALL_LIB_DIR)/libocl.so
