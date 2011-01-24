@@ -234,39 +234,23 @@ inline void evaluate(
 
 	New_t rhs2 = forEach(rhs,AddressOfLeaf(),TreeCombine());
 
-	typedef std::list<const void*> list_t;
+//	typedef std::list<const void*> list_t;
 	typedef std::list<Ref> rlist_t;
 
 	intptr_t mask = ~((intptr_t)forEach(rhs,IAddressOfLeaf(),AndBitsCombine()) & (intptr_t)&lhs);
  
-	list_t list = forEach(rhs2,PtrListLeaf(),ListCombine<const void*>());
+//	list_t list = forEach(rhs2,PtrListLeaf(),ListCombine<const void*>());
 
 	rlist_t rlist = forEach(rhs2,RefListLeaf(mask),ListCombine<Ref>());
 
-	std::cout<<"list has "<<list.size()<<" elements\n";
-
-	list.sort();
-	list.unique();
-
-	std::cout<<"list has "<<list.size()<<" unique elements:";
-	for(list_t::iterator it=list.begin();it!=list.end();it++) 
-		std::cout<<" "<<*it;
-	std::cout<<std::endl;
-
-	
 	rlist.sort(ref_is_ordered);
 	rlist.unique(ref_is_equal);
-	std::cout<<"rlist has "<<rlist.size()<<" unique elements:";
-	for(rlist_t::iterator it=rlist.begin();it!=rlist.end();it++) {
-		std::cout<<" "<<(*it).ptr<<"/"<<(*it).tmp_decl_str;
-	}
-	std::cout<<std::endl;
 
-
-	list_t lista = list;
-	lista.push_back(&lhs);
-	lista.sort();
-	lista.unique();
+//	std::cout<<"rlist has "<<rlist.size()<<" unique elements:";
+//	for(rlist_t::iterator it=rlist.begin();it!=rlist.end();it++) {
+//		std::cout<<" "<<(*it).ptr<<"/"<<(*it).tmp_decl_str;
+//	}
+//	std::cout<<std::endl;
 
 	rlist_t rlista = rlist;
 	rlista.push_back(
@@ -279,6 +263,10 @@ inline void evaluate(
 	rlista.sort(ref_is_ordered);
 	rlista.unique(ref_is_equal);
 
+	int size = lhs.size();
+	int r = size;
+	if (r%256 > 0) r += 256 - r%256;
+
 	static cl_kernel krn = (cl_kernel)0;
 
 	if (!krn) {
@@ -287,15 +275,18 @@ inline void evaluate(
 
 		int n = 0;	
 		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-			srcstr += (*it).arg_str + 
-				+ (( n < (rlista.size()-1))? "," : "");
-			srcstr += "\n";
+			srcstr += (*it).arg_str + ",\n";
+//				+ (( n < (rlista.size()-1))? "," : "");
+//			srcstr += "\n";
 	
 		}
+		srcstr += "int size\n";
 
-
-		srcstr += "\n){\n";
+		srcstr += "){\n";
 		srcstr += "int gti = get_global_id(0);\n";
+
+		if (size != r) srcstr += "if (gti<size) {\n";
+
 		for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++,n++) {
 			srcstr += (*it).tmp_decl_str + "\n";
 		}
@@ -306,38 +297,40 @@ inline void evaluate(
 		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
 		srcstr += expr + ";\n" ;
 		
+		if (size != r) srcstr += "}\n";
+
 		srcstr += "}\n";
 
-		std::cout<<srcstr;
+//		std::cout<<srcstr;
 
 		void* clh = clsopen(stdgpu,srcstr.c_str(),CLLD_NOW);
 		krn = clsym(stdgpu,clh,"kern",CLLD_NOW);
 	}
 
-	std::cout<<"krn="<<krn<<"\n";
+//	std::cout<<"krn="<<krn<<"\n";
 
 	if (krn) {
 
-		clndrange_t ndr = clndrange_init1d(0,lhs.size(),1);
+//		int size = lhs.size();
+//		clndrange_t ndr = clndrange_init1d(0,256*(size/256),256);
+//		clndrange_t ndr1 = clndrange_init1d(256*(size/256),size,size%256);
+		clndrange_t ndr = clndrange_init1d(0,r,256);
 
-
-	//// XXX this is old method with the <int> hack
 	int n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-		printf("argnum %d\n",n); fflush(stdout);
+//		printf("argnum %d\n",n); fflush(stdout);
 		size_t sz = (*it).sz;
-		printf("sz %d\n",sz); fflush(stdout);
+//		printf("sz %d\n",sz); fflush(stdout);
 		if (sz > 0) {
-			printf("krn %p argnum %d ptr %p\n",krn,n,(*it).ptr); fflush(stdout);
+//			printf("krn %p argnum %d ptr %p\n",krn,n,(*it).ptr); fflush(stdout);
 			int dummy;
 			clSetKernelArg(krn,n,sz,(*it).ptr);
 		} else { 
-//			((clvector<int>*)(*it).ptr)->clarg_set_global(stdgpu,krn,n); 
 
 
 #if defined(__CLVECTOR_FULLAUTO)
 			clmattach(stdgpu,(void*)(*it).memptr);
-			clmsync(stdgpu,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_WAIT|CL_EVENT_RELEASE);
+			clmsync(stdgpu,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
 			clarg_set_global(stdgpu,krn,n,(void*)(*it).memptr);
@@ -345,18 +338,24 @@ inline void evaluate(
 		}
 	}
 
+	clarg_set(stdgpu,krn,n,size);
 
-		clfork(stdgpu,0,krn,&ndr,CL_EVENT_WAIT|CL_EVENT_RELEASE);
+
+//		clfork(stdgpu,0,krn,&ndr,CL_EVENT_WAIT|CL_EVENT_RELEASE);
+		clfork(stdgpu,0,krn,&ndr,CL_EVENT_NOWAIT);
+//		clfork(stdgpu,0,krn,&ndr1,CL_EVENT_NOWAIT);
 
 #if defined(__CLVECTOR_FULLAUTO)
-		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_WAIT|CL_EVENT_RELEASE);
 
+		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+
+		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-		printf("argnum %d\n",n); fflush(stdout);
+//		printf("argnum %d\n",n); fflush(stdout);
 		size_t sz = (*it).sz;
-		printf("sz %d\n",sz); fflush(stdout);
+//		printf("sz %d\n",sz); fflush(stdout);
 		if (sz > 0) {
 		} else { 
 
@@ -364,6 +363,10 @@ inline void evaluate(
 
 		}
 	}
+
+#elif defined(__CLVECTOR_SEMIAUTO)
+
+		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
 
 #endif
 

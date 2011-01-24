@@ -7,7 +7,7 @@ int main()
 {
 
   int i;
-  const int n = 100;
+  const int n = 290;
   clvector<float> a,b,c,d,e;
 
   for (i = 0; i < n; ++i)

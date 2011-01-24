@@ -70,7 +70,7 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 		void clarg_set_global( CONTEXT* cp, cl_kernel krn, unsigned int argnum )
 		{ 
 printf("clvector::clarg_set_global %p\n",(void*)this->_M_impl._M_start); fflush(stdout); 
-::__clarg_set_global(cp, krn, argnum, 
+::clarg_set_global(cp, krn, argnum, 
 			(void*)this->_M_impl._M_start); }
 
 
