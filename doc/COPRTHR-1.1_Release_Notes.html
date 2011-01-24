@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+  <title>coprthr v1.1 Release Notes</title>
+  <meta name="generator" content="Amaya, see http://www.w3.org/Amaya/" />
+  <style type="text/css" title="Amaya theme">
+/* Modern style for Amaya Editor Lite */
+
+/* default rules for the whole document */
+body {
+    font-size: 12pt;
+    font-family: Times New Roman,Times,serif; /* Helvetica, Arial, sans-serif; */
+    font-weight: normal;
+    font-style: normal;
+    color: black;
+    background-color: white;
+    line-height: 1.2em;
+    margin-left: 4em;
+    margin-right: 2em;
+   }
+
+/* paragraphs */
+p  {
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-align: left;
+   }
+
+/* headings */
+h1 {
+    font-size: 180%;
+    font-weight: bold;
+    font-style: normal;
+    font-variant: small-caps;
+    text-align: left;
+    padding: 0;
+    margin-top: 1.7em;
+    margin-bottom: 1.7em;
+   }
+h2 {
+    font-size: 150%;
+    font-weight: bold;
+    font-style: normal;
+    padding: 0;
+    margin-top: 1.5em;
+    margin-bottom: 1.1em;
+   }
+h3 {
+    font-size: 130%;
+    font-weight: bold;
+    font-style: normal;
+    padding: 0;
+    margin-top: 1.3em;
+    margin-bottom: 1.1em;
+   }
+h4 {
+    font-size: 110%;
+    font-weight: bold;
+    font-style: normal;
+    padding: 0;
+    margin-top: 1.1em;
+    margin-bottom: 1.1em;
+   }
+h5 {
+    font-size: 100%;
+    font-weight: bold;
+    font-style: italic;
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+h6 {
+    font-size: 100%;
+    font-weight: normal;
+    font-style: italic;
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+
+/* divisions */
+div {
+    padding: 0;
+    margin-top: 0em;
+    margin-bottom: 0em;
+   }
+
+/* lists */
+ul, ol {
+    padding: 0 0 0 3em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+ul ul, ol ol, ul ol, ol ul {
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+li {
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-align: left;
+   }
+li p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+dl {
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: 1em;
+   }
+dl dl {
+    margin-top: 0em;
+    margin-bottom: 0em;
+   }
+dt {
+    padding: 0;
+    font-weight: bold;
+    margin-top: .3em;
+    margin-bottom: .3em;
+   }
+dd {
+    padding: 0;
+    margin-top: .3em;
+    margin-left: 3em;
+    margin-bottom: .3em;
+   }
+dl p {
+    margin-top: .3em;
+    margin-bottom: .3em;
+   }
+
+/* inline */
+strong {
+    font-weight: bold;
+   }
+em {
+    font-style: italic;
+   }
+code {
+    font-family: Courier New, Courier, monospace;
+   }
+ins {
+    background-color: yellow;
+    text-decoration: underline;
+   }
+del {
+    text-decoration: line-through;
+   }
+
+/* anchors */
+a[href] {
+    color: blue;
+    text-decoration: underline;
+   }
+
+/* end */
+  </style>
+</head>
+
+<body>
+<p><img alt="" src="img/bdt.jpg" width="201" height="70" /></p>
+
+<h2 style="text-align:center;margin-left:auto;margin-right:auto;"><span
+style="font-family: Times New Roman,Times,serif"><span
+style="font-family: Arial,Helvetica,sans-serif">COPRTHR version 1.1 (outlaw)
+Release Notes</span></span></h2>
+
+<p style="text-align:center;margin-left:auto;margin-right:auto;">Copyright ©
+2011 Brown Deer Technology, LLC</p>
+
+<p style="text-align:center;margin-left:auto;margin-right:auto;"><span
+style="font-size: 10pt"><span
+style="font-family: Times New Roman,Times,serif"><em>Verbatim copying and
+distribution of this entire document is </em></span></span><span
+style="font-family: Times New Roman,Times,serif"><span
+style="font-size: 10pt"><em>permitted </em></span></span><span
+style="font-size: 10pt"><span
+style="font-family: Times New Roman,Times,serif"><em>in any medium, provided
+this notice is preserved.</em></span></span></p>
+<hr />
+The CO-PRocessing THReads (COPRTHR) SDK provides several OpenCL&trade; related
+libraries and tools that simplify the use of heterogeneous computing platforms
+for developers targeting GPU compute technology and hybrid CPU/GPU computing
+architectures. 
+<hr />
+
+<h2>Contents</h2>
+<ol>
+  <li style="line-height:1em;"><a href="#New">New in COPRTHR version 1.1
+    (outlaw)</a></li>
+  <li style="line-height:1em;"><a href="#Requirements">Requirements</a></li>
+  <li style="line-height:1em;"><a href="#Important">Important Notes</a></li>
+  <li style="line-height:1em;"><a href="#Installation">Installation</a></li>
+  <li style="line-height:1em;"><a href="#Known">Known Issues</a></li>
+</ol>
+<hr />
+
+<h2><a name="New" id="New">1. New in COPRTHR version 1.1 (outlaw) </a></h2>
+<ul>
+  <li>Updated build system with autoconf configure scripts</li>
+  <li>Many improvements to libstdcl</li>
+  <li>Updated clld link tool</li>
+  <li>Introduction of Compute Layer Expression Template Engine (CLETE) for
+    automatic acceleration of C++ container classes</li>
+  <li>Preview of experimental OpenCL run-time for x86_64</li>
+  <li>Preview of CL/GL buffer sharing support</li>
+</ul>
+
+<p></p>
+<hr />
+
+<h2><a name="Requirements" id="Requirements">2. Requirements</a></h2>
+<ul>
+  <li style="line-height:1.5em;"><strong>Operating System.</strong> The COPRTHR
+    SDK supports the following 64-bit Linux operating systems: RHEL 5.4/5.5,
+    CentOS 5.4/5.5, OpenSuSE 11.2, Ubuntu 10.4</li>
+  <li style="line-height:1.5em;"><strong>Hardware.</strong> The COPRTHR SDK
+    supports any modern x86_64 multi-core processor (AMD or Intel) and GPUs
+    from both AMD and Nvidia, and has been tested successfully on the following
+    graphics cards: ATI Radeon HD 4870, 4870X2, 5870, 5970, AMD Radeon HD 6970,
+    ATI FirePro V8800, Nvidia 8800GTX, Nvidia Tesla S1060, C2050, C2070.<br />
+  </li>
+  <li><strong>Third-party software.</strong> Support for all functionality will
+    require an OpenCL implementation appropriate to the hardware being used.
+    The following implementations have been tested: ATI Stream SDK v2.1, v2.2,
+    v2.3, Nvidia SDK v3.2. The COPRTHR preview of libocl requires the llc
+    front-end compiler provided by the ATI Stream SDK v2.1. The COPRTHR SDK has
+    been tested with GCC 4.1.<span
+    style="font-family: Courier New,Courier,monospace"></span> </li>
+</ul>
+<hr />
+
+<h2><a name="Important" id="Important">3. Important Notes</a></h2>
+<ul>
+  <li>The libraries <code>libstdcl</code> and <code>libocl</code> are provided
+    with debug versions <code>libstdcl_d</code> and <code>libocl_d</code>,
+    respectively. Linking against these libraries can be very useful for
+    debugging as well as understanding how each library operates.</li>
+  <li style="line-height:1.5em;">The API for the calls
+    <code>clarg_set*()</code> have been changed from the previous release to
+    enable future support for pointer arithemetic. The correct API for these
+    calls is now:<br />
+<code>clarg_set(CONTEXT* cp, cl_kernel krn, unsigned int argnum, Tn arg)</code><br />
+    <code>clarg_set_global(CONTEXT* cp, cl_kernel krn, unsigned int argnum,
+    void* ptr)</code><br />
+<code>clarg_set_local(CONTEXT* cp, cl_kernel krn, unsigned int argnum, size_t sizeb)</code></li>
+  <li>In order to use the Nvidia SDK for GPU support, the environment variable
+    <code>STDGPU</code> must be set as follows,<br />
+    <code>export STDGPU="platform_name=nvidia"</code> </li>
+  <li>The size of the event lists used by <code>libstdcl</code> for kernel and
+    memory events has been increased to 1024. It is unlikely that queuing more
+    events brings any performance benefit and developers should ensure that
+    applications block on events at reasonable intervals.</li>
+</ul>
+<hr />
+
+<h2><a name="Installation" id="Installation">4. Installation</a></h2>
+
+<p><span style="font-family: Courier New,Courier,monospace"><span
+style="font-family: Times New Roman,Times,serif">The following installation
+instructions are provided for the Linux distributions identified above under
+Requirements.</span></span></p>
+<ol>
+  <li>Download COPRTHR version v1.1 (outlaw) release from <code><a
+    href="http://www.github.com/browndeer/coprthr">http://www.github.com/browndeer/coprthr</a></code></li>
+  <li>Unpack the <code>.tgz</code> file and <code>cd</code> into the main
+    directory.</li>
+  <li>Type <code>./configure</code> to configure the package. Options to the
+    configure script are described below.</li>
+  <li>Type <code>make</code></li>
+  <li>Type <code>make install</code></li>
+  <li>Update relevant shell scripts to include additions to <code>PATH</code>
+    and <code>LD_LIBRARY_PATH</code> environment variables as described in the
+    output of the <code>make install</code> command</li>
+</ol>
+
+<p>In order to test the installation, type <code>make quicktest</code> and a
+series of several thousand auto-generated kernels will be tested across all
+devices with success or failure indicated for each group of tests. this test
+can take a few minutes. A more extensive test can be run by typing <code>make
+test</code> which can take close to an hour to complete.</p>
+
+<p></p>
+
+<p>The configure script supports the following options:</p>
+<dl>
+  <dt><code>--prefix=/path/to/target-install-dir</code></dt>
+    <dd>set the root directory for installation</dd>
+  <dt><code>--with-amd-sdk=/path/to/amd-sdk</code></dt>
+    <dd>set the root directory for the AMD ATI Stream SDK. The default location
+      searched is /usr/local/atistream.</dd>
+  <dt><code>--with-nvidia-sdk=/path/to/nvidia-sdk</code></dt>
+    <dd>set the root directory for the Nvidia SDK</dd>
+  <dt><code>--enable-debug-libs</code></dt>
+    <dd>enable building debug version of libstdc and libocl (enabled by
+    default)</dd>
+  <dt><code>--enable-cltrace</code></dt>
+    <dd>enable building cltrace tool (enabled by default)</dd>
+  <dt><code>--enable-clete</code></dt>
+    <dd>enable CLETE support (enabled by default)</dd>
+  <dt><code>--enable-libstdcl-clgl-support</code></dt>
+    <dd>enable support for CL/GL buffer sharing (enabled by default)</dd>
+  <dt><code>--enable-libocl</code></dt>
+    <dd>enable building experimental libocl (disabled by default)</dd>
+  <dt><code>--enable-libocl-ngpu</code></dt>
+    <dd>enable multiple CPU device support in libocl (disabled by default)</dd>
+    <dd></dd>
+</dl>
+
+<p>In order to uninstall the COPRTHR SDK, type <code>make uninstall</code> from
+the main directory in which the installation was performed.</p>
+
+<p></p>
+<hr />
+
+<h2><a name="Known" id="Known">5. Known Issues</a></h2>
+<ul>
+  <li>Exceeding the maximum event list size of 1024 with kernel and/or memory
+    events, without blocking for completion, will cause events to be dropped
+    and undefined behavior.</li>
+  <li>Calls to <code>clglmalloc()</code> may fail due to a known bug in certain
+    OpenCL SDKs that return an incorrect value for the GL buffer size.</li>
+  <li>A default context, e.g., <code>stdgpu</code>, should be tested to ensure
+    it is not <code>0</code> before use. This is a common cause of seg faults
+    and the root problem is that the underlying OpenCL SDK has found no valid
+    devices to run on. A typical cause is failing to select the correct
+    platform for GPU support.</li>
+</ul>
+<hr />
+
+<p></p>
+</body>
+</html>

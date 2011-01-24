@@ -1,4 +1,0 @@
-***** current branch working toward v1.1 (outlaw) release *****
-
-***** release notes not yet finalized *****
-

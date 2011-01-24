@@ -176,8 +176,11 @@ style="font-family: Times New Roman,Times,serif"><span
 style="font-family: Arial,Helvetica,sans-serif">A Simplified C Interface for
 OpenCL</span></span></h2>
 
+<p style="text-align:center;margin-left:auto;margin-right:auto;">revision
+1.1</p>
+
 <p style="text-align:center;margin-left:auto;margin-right:auto;">Copyright ©
-2009-2010 Brown Deer Technology, LLC</p>
+2009-2011 Brown Deer Technology, LLC</p>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;"><span
 style="font-size: 10pt"><span
@@ -651,7 +654,7 @@ style="font-family: Courier New,Courier,monospace">clndrange_t ndr =
 clndrange_init2d( 0,512,4 0,2048,16);</span></p>
 
 <p><strong style="font-family: Courier New,Courier,monospace">void clarg_set(
-cl_kernel krn, unsigned int argnum, Tn arg );</strong></p>
+CONTEXT* cp, cl_kernel krn, unsigned int argnum, Tn arg );</strong></p>
 
 <p style="margin-left:2em;text-align:justify;"><span
 style="font-family: Times New Roman,Times,serif">This call is used to set the
@@ -661,7 +664,8 @@ of the argument and may be a vector type, e.g., <span
 style="font-family: Courier New,Courier,monospace">cl_float4</span>. </span></p>
 
 <p><strong style="font-family: Courier New,Courier,monospace">void
-clarg_set_global( cl_kernel krn, unsigned int argnum, void* ptr );</strong></p>
+clarg_set_global( CONTEXT* cp, cl_kernel krn, unsigned int argnum, void* ptr
+);</strong></p>
 
 <p style="margin-left:2em;text-align:justify;"><span
 style="font-family: Times New Roman,Times,serif">This call is used to set the
@@ -671,7 +675,7 @@ as defined in the OpenCL specification. The memory must have been allocated by
 the appropriate CL context of the kernel. </span></p>
 
 <p><strong style="font-family: Courier New,Courier,monospace">void
-clarg_set_local( cl_kernel krn, unsigned int argnum, size_t sizeb
+clarg_set_local( CONTEXT* cp, cl_kernel krn, unsigned int argnum, size_t sizeb
 );</strong></p>
 
 <p style="text-align:justify;margin-left:2em;"><span
@@ -865,7 +869,7 @@ int main()
    CONTEXT* cp = (stdgpu)? stdgpu : stdcpu;
 
    void* clh = clopen(cp, "add_vec.cl",CLLD_NOW);
-   cl_kernel k_addvec = clsym(clh, "addvec_kern", CLLD_NOW);
+   cl_kernel k_addvec = clsym(cp, clh, "addvec_kern", CLLD_NOW);
 
    float* aa = (float*)clmalloc(cp,SIZE*sizeof(float),0);
    float* bb = (float*)clmalloc(cp,SIZE*sizeof(float),0);
@@ -883,9 +887,9 @@ int main()
    clmsync(cp,0,aa,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
    clmsync(cp,0,bb,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 
-   clarg_set_global(k_addvec,0,aa);
-   clarg_set_global(k_addvec,1,bb);
-   clarg_set_global(k_addvec,2,cc);
+   clarg_set_global(cp,k_addvec,0,aa);
+   clarg_set_global(cp,k_addvec,1,bb);
+   clarg_set_global(cp,k_addvec,2,cc);
 
    clfork(cp,0,k_addvec,&amp;ndr,CL_EVENT_NOWAIT);
 
@@ -926,7 +930,7 @@ int main()
    CONTEXT* cp = stdgpu;
 
    void* clh = clopen(cp, "add_vec.cl",CLLD_NOW);
-   cl_kernel k_addvec = clsym(clh, "addvec_kern", CLLD_NOW);
+   cl_kernel k_addvec = clsym(cp, clh, "addvec_kern", CLLD_NOW);
 
    float* aa[2];
    float* bb[2];
@@ -956,9 +960,9 @@ int main()
    clmsync(cp,0,bb[0],CL_MEM_DEVICE|CL_EVENT_NOWAIT);
    clmsync(cp,1,bb[1],CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 
-   clarg_set_global(k_addvec,0,aa[0]);
-   clarg_set_global(k_addvec,1,bb[0]);
-   clarg_set_global(k_addvec,2,cc[0]);
+   clarg_set_global(cp,k_addvec,0,aa[0]);
+   clarg_set_global(cp,k_addvec,1,bb[0]);
+   clarg_set_global(cp,k_addvec,2,cc[0]);
 
    clfork(cp,0,k_addvec,&amp;ndr,CL_EVENT_NOWAIT);
 
@@ -966,9 +970,9 @@ int main()
 
    clflush(cp,0,0);
 
-   clarg_set_global(k_addvec,0,aa[1]);
-   clarg_set_global(k_addvec,1,bb[1]);
-   clarg_set_global(k_addvec,2,cc[1]);
+   clarg_set_global(cp,k_addvec,0,aa[1]);
+   clarg_set_global(cp,k_addvec,1,bb[1]);
+   clarg_set_global(cp,k_addvec,2,cc[1]);
 
    clfork(cp,1,k_addvec,&amp;ndr,CL_EVENT_NOWAIT);
 
@@ -1022,9 +1026,9 @@ int main()
     </tr>
     <tr>
       <td>kernel management</td>
-      <td><a href="#CLARG_SET">clndrange_init1d(3)</a>, <a
-        href="#CLARG_SET">clndrange_init2d(3)</a>, <a
-        href="#CLARG_SET">clndrange_init3d(3)</a>, 
+      <td><a href="#CLNDRANGE_INIT">clndrange_init1d(3)</a>, <a
+        href="#CLNDRANGE_INIT">clndrange_init2d(3)</a>, <a
+        href="#CLNDRANGE_INIT">clndrange_init3d(3)</a>, 
 
         <p><a href="#CLARG_SET">clarg_set(3)</a>, <a
         href="#CLARG_SET">clarg_set_global(3)</a>, <a
@@ -1473,7 +1477,7 @@ SEE ALSO
 
 libstdcl-1.0                       2010-8-12                      CLMATTACH(3)</pre>
 <hr />
-<pre><a name="CLARG_SET" id="CLARG_SET">CLNDRANGE_INIT(3)</a>     Standard Compute Layer (CL) Manual     CLNDRANGE_INIT(3)
+<pre><a name="CLNDRANGE_INIT" id="CLNDRANGE_INIT">CLNDRANGE_INIT(3)</a>     Standard Compute Layer (CL) Manual     CLNDRANGE_INIT(3)
 
 
 
@@ -1528,7 +1532,7 @@ SEE ALSO
 
 libstdcl-1.0                       2010-8-12                 CLNDRANGE_INIT(3)</pre>
 <hr />
-<pre><a name="CLARG_SET111" id="CLARG_SET111">CLARG_SET(3)</a>          Standard Compute Layer (CL) Manual          CLARG_SET(3)
+<pre><a name="CLARG_SET" id="CLARG_SET">CLARG_SET(3)</a>          Standard Compute Layer (CL) Manual          CLARG_SET(3)
 
 
 
@@ -1538,11 +1542,11 @@ NAME
 SYNOPSIS
        #include &lt;stdcl.h&gt;
 
-       void clarg_set( cl_kernel krn, unsigned int argnum, Tn arg);
+       void clarg_set( CONTEXT* cp, cl_kernel krn, unsigned int argnum, Tn arg);
 
-       void clarg_set_global( cl_kernel krn, unsigned int argnum, void* ptr);
+       void clarg_set_global( CONTEXT* cp, cl_kernel krn, unsigned int argnum, void* ptr);
 
-       void  clarg_set_local(  cl_kernel  krn,  unsigned  int  argnum,  size_t
+       void  clarg_set_local(  CONTEXT* cp, cl_kernel  krn,  unsigned  int  argnum,  size_t
        sizeb);
 
 DESCRIPTION
