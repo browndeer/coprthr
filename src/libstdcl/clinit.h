@@ -102,6 +102,7 @@ extern CONTEXT* stdcpu;
 extern CONTEXT* stdgpu;
 extern CONTEXT* stdrpu;
 
+extern char* __log_automatic_kernels_filename;
 
 #ifdef __cplusplus
 extern "C" {

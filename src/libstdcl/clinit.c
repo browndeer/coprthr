@@ -65,6 +65,7 @@ size_t procelf_sz = 0;
 
 struct _proc_cl_struct _proc_cl = { 0,0, 0,0, 0,0, 0,0, 0,0 };
 
+char* __log_automatic_kernels_filename = 0;
 
 #define min(a,b) ((a<b)?a:b)
 
@@ -404,7 +405,22 @@ printf("XXX %d\n",nplatforms);
 */
 
 
+	char buf[256];
+	if (!__getenv_token("COPRTHR","log_automatic_kernels",buf,256)) {
+		__log_automatic_kernels_filename = (char*)malloc(256+6);
+		if (!strncasecmp(buf,"log_automatic_kernels",256)) {
+			snprintf(
+				__log_automatic_kernels_filename,256+6,
+				"coprthr.autokern.log.%d",getpid());
+		} else {
+			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
+		}
+		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
+			__log_automatic_kernels_filename);
+	}
+
 	clUnloadCompiler();	
+
 }
 
 
@@ -453,12 +469,22 @@ __getenv_token( const char* name, const char* token, char* value, size_t n )
 
 			}
 
-      } else if (!token) {
+      } else if (!token) { /* this is a legacy case -DAR */
 
 			strncpy(value,clause,min(strlen(clause)+1,n));
 			return(0);
 
-      }
+      } else {
+
+			if ( strlen(token) == strlen(clause) 
+				&& !strncasecmp(token,clause,strlen(token))) {
+
+				strncpy(value,clause,strlen(clause)+1);
+				return(0);
+
+			}
+
+		}
 
       clause = strtok_r(0,":",&ptr);
    }
