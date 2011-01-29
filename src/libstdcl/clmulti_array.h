@@ -1,6 +1,6 @@
-/* clvector.h
+/* clmulti_array.h
  *
- * Copyright (c) 2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2010-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,8 +20,8 @@
 
 /* DAR */
 
-#ifndef __CLVECTOR_H
-#define __CLVECTOR_H
+#ifndef __CLMULTI_ARRAY_H
+#define __CLMULTI_ARRAY_H
 
 //#include <string.h>
 #include <stdio.h>
@@ -29,70 +29,76 @@
 
 #include <string>
 
-#include <CL/cl.h>
 #include <stdcl.h>
 #include <clmalloc_allocator.h>
 
-#include <vector>
+#include <boost/multi_array.hpp>
 
 
 #ifdef __cplusplus
 
 #define __stdclpp__
 
-//namespace stdclpp {
-
 /***
- *** clvector
+ *** clmulti_array
  ***/
 
 template<class T>
 class Expression;
 
-template < typename T, typename A = clmalloc_allocator<T> >
-class clvector : public std::vector< T, clmalloc_allocator<T> >
+template < typename T, std::size_t D >
+class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
 {
 	typedef clmalloc_allocator<T> allocator_t;
 
 	public:
 
+  explicit clmulti_array() : boost::multi_array<T,D,allocator_t>() {}
+
+  template <class ExtentList>
+  explicit clmulti_array(
+      ExtentList const& extents
+#ifdef BOOST_NO_FUNCTION_TEMPLATE_ORDERING
+      , typename mpl::if_<
+      detail::multi_array::is_multi_array_impl<ExtentList>,
+      int&,int>::type* = 0
+#endif 
+      ) : boost::multi_array<T,D,allocator_t>(extents) {}
+
+
+
 		void clmattach( CONTEXT* cp )
 		{ 
-			::clmattach(cp, (void*)this->_M_impl._M_start); 
+			::clmattach(cp, (void*)this->origin() ); 
 		}
 		
 		void clmdetach()
 		{ ::clmdetach((void*)this->_M_impl._M_start); }
 	
 		void clmsync( CONTEXT* cp, unsigned int devnum, int flags = 0 )
-		{ ::clmsync(cp, devnum, (void*)this->_M_impl._M_start, flags); }
+		{ ::clmsync(cp, devnum, (void*)this->origin(), flags); }
 	
 		void clarg_set_global( CONTEXT* cp, cl_kernel krn, unsigned int argnum )
-		{ 
-printf("clvector::clarg_set_global %p\n",(void*)this->_M_impl._M_start); fflush(stdout); 
-::clarg_set_global(cp, krn, argnum, 
-			(void*)this->_M_impl._M_start); }
+		{ ::clarg_set_global(cp, krn, argnum, (void*)this->origin()); }
 
 
   template<class RHS>
-  clvector<T,A>& operator=(const Expression<RHS> &rhs);
+  clmulti_array<T,D>& operator=(const Expression<RHS> &rhs);
 
 	
 };
 
-//#include "Eval.h"
-#include "CLETE/clvector_CLETE.h"
+#include "CLETE/clmulti_array_CLETE.h"
 
-  template < typename T, typename A> template<class RHS>
-  clvector<T,A>& clvector<T,A>::operator=(const Expression<RHS> &rhs)
+  template < typename T, std::size_t D >  template<class RHS>
+  clmulti_array<T,D>& 
+  clmulti_array<T,D>::operator=(const Expression<RHS> &rhs)
   {
 		assign(*this,rhs);
 
     return *this;
   }
 
-
-//} //// namespace stdclpp
 
 #endif //// ifdef __cplusplus
 

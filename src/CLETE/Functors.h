@@ -479,6 +479,139 @@ struct LeafFunctor<Scalar<T>, SizeLeaf>
 
 
 /***
+ *** leaf-tag and functor used to get .size() of multi-dimensional leaf object
+ ***/
+
+class SizeLeaf1
+{
+public:
+
+  SizeLeaf1(int s) : size_(s) { }
+  SizeLeaf1(const SizeLeaf1 &model) : size_(model.size_) { }
+  bool operator()(int s) const { return size_ == s; }
+
+private:
+
+  int size_;
+
+};
+
+template<class T>
+struct LeafFunctor<Scalar<T>, SizeLeaf1>
+{
+  typedef bool Type_t;
+  inline static
+  bool apply(const Scalar<T> &, const SizeLeaf1 &)
+  {
+    // Scalars always conform.
+
+    return true;
+  }
+};
+
+class SizeLeaf2
+{
+public:
+
+	SizeLeaf2(int s1, int s2) : size1_(s1), size2_(s2) { }
+	SizeLeaf2(const SizeLeaf2& model) 
+		: size1_(model.size1_), size2_(model.size2_) { }
+	bool operator()(int s1, int s2) const 
+	{ return(size1_ == s1 && size2_ == s2); }
+	bool operator()(int s1) const 
+	{ return(size1_ == s1); }
+
+private:
+
+  int size1_, size2_;
+
+};
+
+template<class T>
+struct LeafFunctor<Scalar<T>, SizeLeaf2>
+{
+  typedef bool Type_t;
+  inline static
+  bool apply(const Scalar<T> &, const SizeLeaf2 &)
+  {
+    // Scalars always conform.
+
+    return true;
+  }
+};
+
+
+class SizeLeaf3
+{
+public:
+
+	SizeLeaf3(int s1, int s2, int s3) : size1_(s1), size2_(s2), size3_(s3) { }
+	SizeLeaf3(const SizeLeaf3& model) 
+		: size1_(model.size1_), size2_(model.size2_), size3_(model.size3_) { }
+	bool operator()(int s1, int s2, int s3 ) const 
+	{ return(size1_ == s1 && size2_ == s2 && size3_ == s3 ); }
+	bool operator()(int s1, int s2) const 
+	{ return(size1_ == s1 && size2_ == s2); }
+	bool operator()(int s1) const 
+	{ return(size1_ == s1); }
+
+private:
+
+  int size1_, size2_, size3_;
+
+};
+
+template<class T>
+struct LeafFunctor<Scalar<T>, SizeLeaf3>
+{
+  typedef bool Type_t;
+  inline static
+  bool apply(const Scalar<T> &, const SizeLeaf3 &)
+  {
+    // Scalars always conform.
+
+    return true;
+  }
+};
+
+class SizeLeaf4
+{
+public:
+
+	SizeLeaf4(int s1, int s2, int s3, int s4) : size1_(s1), size2_(s2), size3_(s3), size4_(s4) { }
+	SizeLeaf4(const SizeLeaf4& model) 
+		: size1_(model.size1_), size2_(model.size2_), size3_(model.size3_), size4_(model.size4_) { }
+	bool operator()(int s1, int s2, int s3, int s4 ) const 
+	{ return(size1_ == s1 && size2_ == s2 && size3_ == s3 && size4_ == s4); }
+	bool operator()(int s1, int s2, int s3 ) const 
+	{ return(size1_ == s1 && size2_ == s2 && size3_ == s3 ); }
+	bool operator()(int s1, int s2) const 
+	{ return(size1_ == s1 && size2_ == s2); }
+	bool operator()(int s1) const 
+	{ return(size1_ == s1); }
+
+private:
+
+  int size1_, size2_, size3_, size4_;
+
+};
+
+template<class T>
+struct LeafFunctor<Scalar<T>, SizeLeaf4>
+{
+  typedef bool Type_t;
+  inline static
+  bool apply(const Scalar<T> &, const SizeLeaf4 &)
+  {
+    // Scalars always conform.
+
+    return true;
+  }
+};
+
+
+
+/***
  *** leaf-tag and functor used for print-tmp operation
  ***/
 
@@ -548,15 +681,20 @@ struct Ref
       const void* p, 
       const size_t sz,
       const void* memp,
+		const int d,
+      const std::string t = "", 
       const std::string a = "", 
-      const std::string d = "", 
-      const std::string r = "", 
+      const std::string td = "", 
+      const std::string tr = "", 
       const std::string s = ""
-   ) : ptr(p), sz(sz), memptr(memp),
-      arg_str(a), tmp_decl_str(d), tmp_ref_str(r), store_str(s) {}
+   ) : ptr(p), sz(sz), memptr(memp), dim(d),
+      type_str(t), arg_str(a), tmp_decl_str(td), tmp_ref_str(tr), store_str(s) 
+		{}
    const void* ptr;
    const size_t sz;
    const void* memptr;
+	const int dim;
+   const std::string type_str;
    const std::string arg_str;
    const std::string tmp_decl_str;
    const std::string tmp_ref_str;
@@ -586,7 +724,8 @@ struct LeafFunctor<Scalar<T>*, RefListLeaf>
   Type_t apply(Scalar<T>* const & ptr, const RefListLeaf &r)
   {
     return Type_t(1,Ref(
-      ptr,sizeof(T),0,
+      ptr,sizeof(T),0,0,
+      PrintF< Scalar<T> >::type_str(),
       PrintF< Scalar<T> >::arg_str(tostr(r((intptr_t)ptr))),
       PrintF< Scalar<T> >::tmp_decl_str(tostr(r((intptr_t)ptr))),
       PrintF< Scalar<T> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
