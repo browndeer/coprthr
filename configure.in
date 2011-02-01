@@ -86,7 +86,7 @@ AMD_SDK=
 AC_ARG_WITH(amd-sdk,
   AC_HELP_STRING([--with-amd-sdk=DIR], [Use AMD SDK in DIR]),
   [
-    if test x$withval != xno; then
+    if test x$withval == xno; then
 		withval=/usr/local/atistream
 	 fi;
 
