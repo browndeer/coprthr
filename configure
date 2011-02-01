@@ -2688,7 +2688,7 @@ AMD_SDK=
 if test "${with_amd_sdk+set}" = set; then
   withval="$with_amd_sdk"
 
-    if test x$withval != xno; then
+    if test x$withval == xno; then
 		withval=/usr/local/atistream
 	 fi;
 
