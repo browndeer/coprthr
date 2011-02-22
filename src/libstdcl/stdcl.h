@@ -129,7 +129,7 @@ extern "C" {
 //
 //#else
 //
-//#define clarg_set(krn,argnum,arg) \
+//#define clarg_set(krn,argnum,arg) 
 //	clSetKernelArg(krn,argnum,sizeof(typeof(arg)),(void*)&arg);
 //
 //#endif
