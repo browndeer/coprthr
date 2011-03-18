@@ -43,6 +43,7 @@
 #define CL_MEM_DEVICE			0x000200
 #define CL_MEM_NOCOPY			0x000400
 #define CL_MEM_DETACHED			0x001000
+#define CL_MEM_NOFORCE			0x002000
 #define CL_MEM_IMAGE2D			0x010000
 
 #ifdef ENABLE_CLGL
@@ -64,11 +65,11 @@ struct _memd_struct {
    union {
       struct {
          LIST_ENTRY(_memd_struct) memd_list;
-         cl_uint magic;
-         cl_uint flags;
+         unsigned int magic;
+         unsigned int flags;
          size_t sz,sz1,sz2;
          cl_mem clbuf;
-			cl_uint devnum;
+			int devnum;
 			cl_image_format imgfmt;
       };
       char __pad[128];

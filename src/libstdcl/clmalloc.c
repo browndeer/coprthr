@@ -49,6 +49,7 @@
 #define __MEMD_F_ATTACHED	0x0004
 #define __MEMD_F_LOCKED		0x0008
 #define __MEMD_F_DIRTY		0x0010
+#define __MEMD_F_TRACKED	0x0020
 
 #define __MEMD_F_IMG2D		0x0200
 
@@ -107,6 +108,7 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 			memd->imgfmt.image_channel_data_type = CL_FLOAT;
 	}
 
+	memd->devnum = -1;
 
 	if (flags&CL_MEM_DETACHED) {
 	
@@ -114,9 +116,8 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 
 	} else {
 
-		if (memd->flags&__MEMD_F_IMG2D) {
 
-DEBUG(__FILE__,__LINE__,"create image");
+		if (memd->flags&__MEMD_F_IMG2D) {
 
 			memd->clbuf = clCreateImage2D(
 				cp->ctx, CL_MEM_READ_WRITE, &(memd->imgfmt), 
@@ -124,11 +125,12 @@ DEBUG(__FILE__,__LINE__,"create image");
 				NULL, &err
 			);
 
-			DEBUG(__FILE__,__LINE__,"image sz: %d %d %d\n",memd->sz, memd->sz1, memd->sz2);
+			DEBUG(__FILE__,__LINE__,"create image sz: %d %d %d\n",
+				memd->sz, memd->sz1, memd->sz2);
 
 		} else {
 
-DEBUG(__FILE__,__LINE__,"create buffer");
+			DEBUG(__FILE__,__LINE__,"create buffer");
 
 			memd->clbuf = clCreateBuffer(
   	   	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
@@ -427,6 +429,15 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
                break;
             }
       }
+
+		if (memd == 0) {
+
+			WARN(__FILE__,__LINE__,"clmsync: bad pointer");
+
+			return((cl_event)0);
+
+		}
+
 	}
 
 	DEBUG(__FILE__,__LINE__,"clmsync: memd = %p, base_ptr = %p",
@@ -436,7 +447,12 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 //	if (flags&CL_MEM_WRITE || flags&CL_MEM_DEVICE) {
 	if (flags&CL_MEM_DEVICE) {
 
+		/* XXX this is a test for tracking-DAR */
+		if (flags&CL_MEM_NOFORCE && memd->devnum == devnum) return((cl_event)0);
+
 		if (memd->flags&__MEMD_F_IMG2D) {
+
+			DEBUG(__FILE__,__LINE__,"%d %d",memd->sz,memd->sz1);
 
 			size_t origin[3] = {0,0,0};
 			size_t region[3] = { memd->sz, memd->sz1, 1 };
@@ -456,8 +472,13 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		}
 
+		memd->devnum = devnum;
+
 
 	} else if (flags&CL_MEM_HOST) { 
+
+		/* XXX this is a test for tracking-DAR */
+		if (flags&CL_MEM_NOFORCE && memd->devnum == -1) return((cl_event)0);
 
 		if (memd->flags&__MEMD_F_IMG2D) {
 
@@ -476,6 +497,8 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
    		);
 
 		}
+
+		memd->devnum = -1;
 
 		DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueReadBuffer err %d",err);
 
@@ -551,7 +574,9 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 {
 	int err;
 
-	DEBUG(__FILE__,__LINE__,"clmrealloc: size=%d flag=%d",size,flags);
+	DEBUG(__FILE__,__LINE__,"clmrealloc: p=%p size=%d flag=%d",p,size,flags);
+
+	if (p == 0) return clmalloc(cp,size,flags);
 
 	if (!__test_memd_magic(p)) {
 
