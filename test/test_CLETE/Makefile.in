@@ -11,14 +11,18 @@ USE_STDCL_LIBS=-L@libdir@ -lstdcl
 INCS = $(USE_STDCL_INCS)
 LIBS = $(USE_STDCL_LIBS)
 
-all: test_clvector_clete
+all: test_clvector_clete test_clmulti_array_clete
 
 test_clvector_clete: test_clvector_clete.cpp 
 	$(CXX) $(INCS) -o test_clvector_clete $(CXXINC) $(CXXARG) test_clvector_clete.cpp $(LIBS)
 
-clean:
-	rm -f test_clvector_clete
+test_clmulti_array_clete: test_clmulti_array_clete.cpp 
+	$(CXX) $(INCS) -o test_clmulti_array_clete $(CXXINC) $(CXXARG) test_clmulti_array_clete.cpp $(LIBS)
 
-test: test_clvector_clete
+clean:
+	rm -f test_clvector_clete test_clmulti_array_clete
+
+test: test_clvector_clete test_clmulti_array_clete
 	cltrace ./test_clvector_clete
+	cltrace ./test_clmulti_array_clete
 
