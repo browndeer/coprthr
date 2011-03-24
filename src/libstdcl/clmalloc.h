@@ -24,6 +24,7 @@
 #ifndef _CLMALLOC_H
 #define _CLMALLOC_H
 
+#include <stdarg.h>
 
 //#include "stdcl.h"
 #include "clcontext.h"
@@ -100,7 +101,9 @@ void clfree( void* ptr );
 int clmattach( CONTEXT* cp, void* ptr );
 int clmdetach( void* ptr );
 //int clmctl( void* ptr, int op, int arg );
-int clmctl( void* ptr, int op, ... );
+//int clmctl( void* ptr, int op, ... );
+int clmctl_va( void* ptr, int op, va_list );
+
 void* clmrealloc(CONTEXT* cp, void* ptr, size_t size, int flag);
 
 cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
@@ -111,6 +114,17 @@ void* clmemptr( CONTEXT* CP, void* ptr );
 void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
 cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 #endif
+
+static 
+__inline__
+int clmctl( void* ptr, int op, ... )
+{ 
+	va_list ap; 
+	va_start(ap,op); 
+	int rc = clmctl_va(ptr,op,ap); 
+	va_end(ap); 
+	return(rc);
+}
 
 
 #ifdef __cplusplus

@@ -223,6 +223,9 @@ int clmattach( CONTEXT* cp, void* ptr )
 	if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
 		|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
 
+		DEBUG(__FILE__,__LINE__,"%p %d",
+			memd->clbuf,memd->flags&__MEMD_F_ATTACHED);
+
 		ERROR(__FILE__,__LINE__,"clmattach: memd corrupt");
 
 		return(EFAULT);
@@ -301,11 +304,12 @@ int clmdetach( void* ptr )
 
 
 //int clmctl( void* ptr, int op, int arg )
-int clmctl( void* ptr, int op, ... )
+//int clmctl( void* ptr, int op, ... )
+int clmctl_va( void* ptr, int op, va_list ap )
 {
 	int err; 
 	int retval = 0;
-	va_list ap;
+//	va_list ap;
 
 	if (!__test_memd_magic(ptr)) {
 
@@ -327,7 +331,7 @@ int clmctl( void* ptr, int op, ... )
 
 	}
 
-	va_start(ap,op);
+//	va_start(ap,op);
 
 	void* ptmp;
 
@@ -397,7 +401,7 @@ int clmctl( void* ptr, int op, ... )
 
 	}
 
-	va_end(ap);
+//	va_end(ap);
 
 	return(retval);
 
@@ -654,8 +658,9 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 	if (flags&CL_MEM_DETACHED) {
 	
-		DEBUG(__FILE__,__LINE__,"detached",ptr,memd);
+		DEBUG(__FILE__,__LINE__,"detached %p %p",ptr,memd);
 		memd->clbuf = (cl_mem)0;
+		memd->flags &= ~(__MEMD_F_ATTACHED);
 
 	} else {
 
