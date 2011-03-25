@@ -186,8 +186,15 @@ static void* read_buffer_safe(cl_device_id devid, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
+	unsigned int ndev = ctx->ndev;
+	cl_device_id* devices = ctx->devices;
+	unsigned int n = 0;
+	while (n < ndev && devices[n] != devid) ++n;
+
 	void* dst = argp->m.dst;
-	void* src = ((cl_mem)argp->m.src)->host_ptr;
+//	void* src = ((cl_mem)argp->m.src)->host_ptr;
+	void* src = ((cl_mem)argp->m.src)->imp.res[n];
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
@@ -207,8 +214,15 @@ static void* read_buffer(cl_device_id devid, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
+	unsigned int ndev = ctx->ndev;
+	cl_device_id* devices = ctx->devices;
+	unsigned int n = 0;
+	while (n < ndev && devices[n] != devid) ++n;
+
 	void* dst = argp->m.dst;
-	void* src = ((cl_mem)argp->m.src)->host_ptr;
+//	void* src = ((cl_mem)argp->m.src)->host_ptr;
+	void* src = ((cl_mem)argp->m.src)->imp.res[n];
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
@@ -225,7 +239,14 @@ static void* write_buffer_safe(cl_device_id devid, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
+	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
+	unsigned int ndev = ctx->ndev;
+	cl_device_id* devices = ctx->devices;
+	unsigned int n = 0;
+	while (n < ndev && devices[n] != devid) ++n;
+
+//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
+	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;
@@ -246,7 +267,14 @@ static void* write_buffer(cl_device_id devid, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
+	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
+	unsigned int ndev = ctx->ndev;
+	cl_device_id* devices = ctx->devices;
+	unsigned int n = 0;
+	while (n < ndev && devices[n] != devid) ++n;
+
+//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
+	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;

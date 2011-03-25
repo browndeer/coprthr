@@ -441,6 +441,11 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 		DEBUG(__FILE__,__LINE__,"arg_kind=%d", argp->k.arg_kind[i]);
 
+   cl_context ctx;
+   unsigned int ndev;
+   cl_device_id* devices;
+   unsigned int n;
+
 		switch(argp->k.arg_kind[i]) {
 
 			case CLARG_KIND_CONSTANT:
@@ -452,8 +457,17 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 				DEBUG(__FILE__,__LINE__, "*cl_mem=%p",
 					(*(cl_mem*)argp->k.pr_arg_vec[i]));
 
+				ctx = (*(cl_mem*)argp->k.pr_arg_vec[i])->ctx;
+				ndev = ctx->ndev;
+				devices = ctx->devices;
+				n = 0;
+
+				/* XXX this is a hack, redesign devnum/devid issue -DAR */
+//				while (n < ndev && devices[n] != devid) ++n;
+
 				*(void**)argp->k.pr_arg_vec[i]
-					=(*(cl_mem*)argp->k.pr_arg_vec[i])->host_ptr;
+//					=(*(cl_mem*)argp->k.pr_arg_vec[i])->host_ptr;
+					=(*(cl_mem*)argp->k.pr_arg_vec[i])->imp.res[n];
 
 				break;
 
