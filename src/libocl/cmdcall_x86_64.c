@@ -328,16 +328,105 @@ static void* copy_buffer(cl_device_id devid, void* p)
 }
 
 
-static void* read_image(cl_device_id devid, void* argp) 
+static void* read_image(cl_device_id devid, void* p) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:read_image: unsupported");
-	return(0); 
+//	WARN(__FILE__,__LINE__,"cmdcall_x86_64:read_image: unsupported");
+//	return(0); 
+
+	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:read_image");
+
+	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
+
+	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
+	unsigned int ndev = ctx->ndev;
+	cl_device_id* devices = ctx->devices;
+	unsigned int n = 0;
+	while (n < ndev && devices[n] != devid) ++n;
+
+	void* dst = argp->m.dst;
+//	void* src = ((cl_mem)argp->m.src)->host_ptr;
+	void* src = ((cl_mem)argp->m.src)->imp.res[n];
+	size_t offset = argp->m.src_offset + 128;
+
+/*
+	size_t len = argp->m.len;
+
+	if (dst==src+offset) return(0);
+	else memcpy(dst,src+offset,len);
+*/
+
+	/* XXX here we should check for 3D image, ignore for now -DAR */
+
+	size_t esz = 4 * sizeof(float);
+	size_t w = *(size_t*)src;
+
+	if (argp->m.region[0] == w) {
+
+		size_t len = argp->m.region[1] * argp->m.region[0] * esz;
+		memcpy(dst,src+offset,len);
+
+	} else {
+
+		size_t len = argp->m.region[0] * esz;
+		for(n=0;n<argp->m.region[1];n++) memcpy(dst+n*w,src+offset+n*w,len);
+
+	}
+	
+
+	return(0);
 }
 
 
-static void* write_image(cl_device_id devid, void* argp) 
+static void* write_image(cl_device_id devid, void* p) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:write_image: unsupported");
+//	WARN(__FILE__,__LINE__,"cmdcall_x86_64:write_image: unsupported");
+//	return(0); 
+
+	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:write_image");
+
+	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
+
+	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
+	unsigned int ndev = ctx->ndev;
+	cl_device_id* devices = ctx->devices;
+	unsigned int n = 0;
+	while (n < ndev && devices[n] != devid) ++n;
+
+//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
+	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
+	void* src = argp->m.src;
+	size_t offset = argp->m.dst_offset + 128;
+
+/*
+	size_t len = argp->m.len;
+
+	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:write_image: XXX %p %p %d",dst+offset,src,len);
+
+	if (dst+offset == src) return(0);
+	else memcpy(dst+offset,src,len);
+
+	size_t* sp = (size_t*)dst;
+DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],sp[16]);
+*/
+
+	/* XXX here we should check for 3D image, ignore for now -DAR */
+
+	size_t esz = 4 * sizeof(float);
+	size_t w = *(size_t*)dst;
+
+	if (argp->m.region[0] == w) {
+
+		size_t len = argp->m.region[1] * argp->m.region[0] * esz;
+		memcpy(dst+offset,src,len);
+
+	} else {
+
+		size_t len = argp->m.region[0] * esz;
+		for(n=0;n<argp->m.region[1];n++) memcpy(dst+offset+n*w,src+n*w,len);
+
+	}
+	
+
 	return(0); 
 }
 

@@ -62,7 +62,7 @@ callback(struct dl_phdr_info *info, size_t size, void *data)
 #define INSTALL_LIB_DIR "/usr/local/browndeer/lib"
 #endif
 
-#define NMFILTER "grep -v -e barrier -e get_work_dim -e get_local_size -e get_local_id -e get_num_groups -e get_global_size -e get_group_id -e get_global_id"
+#define NMFILTER "grep -v -e barrier -e get_work_dim -e get_local_size -e get_local_id -e get_num_groups -e get_global_size -e get_group_id -e get_global_id -e __read_imagei_image2d2i32"
 
 /*
 
@@ -144,6 +144,7 @@ int shell( char* command, char* options, char* output );
 
 #define __writefile(file,filesz,pfile) do { \
 	FILE* fp = fopen(file,"w"); \
+	fprintf(fp,"#include \"__libocl.h\"\n"); \
 	DEBUG(__FILE__,__LINE__,"trying to write %d bytes",filesz); \
 	if (fwrite(pfile,1,filesz,fp) != filesz) { \
 		ERROR(__FILE__,__LINE__,"error: write '%s' failed",file); \
@@ -275,6 +276,10 @@ void* compile_x86_64(
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
 
+				__command("cp "INSTALL_INCLUDE_DIR"/__libocl.h %s",wd);
+				__log(logp,"]%s\n",buf1); \
+				__execshell(buf1,logp);
+
 
 				/* write cl file */
 
@@ -341,16 +346,17 @@ void* compile_x86_64(
             }
 #else
             if (need_builtins) {
-					__command("cp %s/ati_builtins_x86_64_patch.bc %s",
-						INSTALL_LIB_DIR,wd);
-					__log(logp,"]%s\n",buf1); \
-					__execshell(buf1,logp);
+
+//					__command("cp %s/ati_builtins_x86_64_patch.bc %s",
+//						INSTALL_LIB_DIR,wd);
+//					__log(logp,"]%s\n",buf1); \
+//					__execshell(buf1,logp);
 
 					/* XXX hardcoding is hack.  find way to correctly/recursively extract -DAR */
                __command(
                   "cd %s;"
-//                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins_x86-64.bc"
-                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64.bc"
+                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins_x86-64.bc"
+//                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64.bc"
                   " -o builtins.bc",
                   wd,buf2,ATISTREAMSDK);
                __log(logp,"]%s\n",buf1);
@@ -358,6 +364,13 @@ void* compile_x86_64(
 
             }
 #endif
+
+	/* XXX moving cp of patch outside of if-need-builtin conditional -DAR */
+
+				__command("cp %s/ati_builtins_x86_64_patch.bc %s",
+					INSTALL_LIB_DIR,wd);
+				__log(logp,"]%s\n",buf1); 
+				__execshell(buf1,logp);
 
 
 				/* link with vcore_rt bc */
@@ -388,7 +401,7 @@ void* compile_x86_64(
 #endif
             } else {
                __command(
-                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc 2>&1",
+                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc ati_builtins_x86_64_patch.bc 2>&1",
                   wd,filebase,filebase);
             }
             __log(logp,"]%s\n",buf1); \
