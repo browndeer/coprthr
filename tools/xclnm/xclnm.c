@@ -40,6 +40,7 @@ struct type_entry {
 };
 
 struct type_entry type_table[] = {
+	{ TYPE_OPAQUE, 0, "void", "void" },
 	{ TYPE_VOID, 0, "void", "void" },
 	{ TYPE_INT8, 1, "char", "char" },
 	{ TYPE_INT16, 2, "short", "short" },
