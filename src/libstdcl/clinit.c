@@ -207,7 +207,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
    clGetPlatformIDs(0,0,&nplatforms);
 
-printf("XXX %d\n",nplatforms);
+//printf("XXX %d\n",nplatforms);
 
 	if (nplatforms) {
 

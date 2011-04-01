@@ -137,6 +137,13 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 		strcat(opts," -D __GPU__");
 	}
 
+	if (!strcasecmp(cp->platform_vendor,"Advanced Micro Devices, Inc.")) 
+		strcat(opts," -D __AMD__");
+	else if (!strcasecmp(cp->platform_vendor,"Nvidia")) 
+		strcat(opts," -D __NVIDIA__");
+	else if (!strcasecmp(cp->platform_vendor,"Brown Deer Technology, LLC.")) 
+		strcat(opts," -D __coprthr__");
+
 	char cwd[1024];
 	if ( getcwd(cwd,1024) ) {
 		n = strnlen(cwd,1024);

@@ -113,7 +113,7 @@ clcontext_create(
 
    clGetPlatformIDs(0,0,&nplatforms);
 
-	printf("XXX %d\n",nplatforms);
+//	printf("XXX %d\n",nplatforms);
 
    if (nplatforms) {
 
@@ -187,6 +187,29 @@ clcontext_create(
 	for(i=0;i<nctxprop-3;i++) ctxprop[2+i] = ctxprop_ext[i];
 
 	ctxprop[nctxprop-1] =  (cl_context_properties)0;
+
+	size_t sz;
+
+	clGetPlatformInfo(platformid,CL_PLATFORM_PROFILE,0,0,&sz);
+	cp->platform_profile = (char*)malloc(sz);
+	clGetPlatformInfo(platformid,CL_PLATFORM_PROFILE,sz,cp->platform_profile,0);
+
+	clGetPlatformInfo(platformid,CL_PLATFORM_VERSION,0,0,&sz);
+	cp->platform_version = (char*)malloc(sz);
+	clGetPlatformInfo(platformid,CL_PLATFORM_VERSION,sz,cp->platform_version,0);
+
+	clGetPlatformInfo(platformid,CL_PLATFORM_NAME,0,0,&sz);
+	cp->platform_name = (char*)malloc(sz);
+	clGetPlatformInfo(platformid,CL_PLATFORM_NAME,sz,cp->platform_name,0);
+
+	clGetPlatformInfo(platformid,CL_PLATFORM_VENDOR,0,0,&sz);
+	cp->platform_vendor = (char*)malloc(sz);
+	clGetPlatformInfo(platformid,CL_PLATFORM_VENDOR,sz,cp->platform_vendor,0);
+
+	clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,0,0,&sz);
+	cp->platform_extensions = (char*)malloc(sz);
+	clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,sz,
+		cp->platform_extensions,0);
 
 	cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
 
@@ -340,6 +363,13 @@ clcontext_destroy(CONTEXT* cp)
 	DEBUG(__FILE__,__LINE__,"clcontext_destroy: free'd cmdq\n");
 	if (cp->dev) free(cp->dev);
 	DEBUG(__FILE__,__LINE__,"clcontext_destroy: free'd dev\n");
+
+	if (cp->platform_profile) free(cp->platform_profile);
+	if (cp->platform_version) free(cp->platform_version);
+	if (cp->platform_name) free(cp->platform_name);
+	if (cp->platform_vendor) free(cp->platform_vendor);
+	if (cp->platform_extensions) free(cp->platform_extensions);
+
 	free(cp);
 
 	return(0);

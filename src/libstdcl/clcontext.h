@@ -43,6 +43,11 @@ struct _event_list_struct {
 };
 
 struct _clcontext_ptr_struct {
+	char* platform_profile;
+	char* platform_version;
+	char* platform_name;
+	char* platform_vendor;
+	char* platform_extensions;
 	cl_context ctx;
 	cl_uint impid;
 	cl_uint ndev;
