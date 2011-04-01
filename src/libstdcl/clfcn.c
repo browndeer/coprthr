@@ -139,7 +139,7 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 
 	if (!strcasecmp(cp->platform_vendor,"Advanced Micro Devices, Inc.")) 
 		strcat(opts," -D __AMD__");
-	else if (!strcasecmp(cp->platform_vendor,"Nvidia")) 
+	else if (!strcasecmp(cp->platform_vendor,"NVIDIA Corporation")) 
 		strcat(opts," -D __NVIDIA__");
 	else if (!strcasecmp(cp->platform_vendor,"Brown Deer Technology, LLC.")) 
 		strcat(opts," -D __coprthr__");
