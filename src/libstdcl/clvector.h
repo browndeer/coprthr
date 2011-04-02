@@ -58,20 +58,27 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 
 		void clmattach( CONTEXT* cp )
 		{ 
-			::clmattach(cp, (void*)this->_M_impl._M_start); 
+			if (this->_M_impl._M_start)
+				::clmattach(cp, (void*)this->_M_impl._M_start); 
 		}
 		
 		void clmdetach()
-		{ ::clmdetach((void*)this->_M_impl._M_start); }
+		{ 
+			if (this->_M_impl._M_start)
+				::clmdetach((void*)this->_M_impl._M_start); 
+		}
 	
 		void clmsync( CONTEXT* cp, unsigned int devnum, int flags = 0 )
-		{ ::clmsync(cp, devnum, (void*)this->_M_impl._M_start, flags); }
+		{ 
+			if (this->_M_impl._M_start)
+				::clmsync(cp, devnum, (void*)this->_M_impl._M_start, flags); 
+		}
 	
 		void clarg_set_global( CONTEXT* cp, cl_kernel krn, unsigned int argnum )
 		{ 
-printf("clvector::clarg_set_global %p\n",(void*)this->_M_impl._M_start); fflush(stdout); 
-::clarg_set_global(cp, krn, argnum, 
-			(void*)this->_M_impl._M_start); }
+			if (this->_M_impl._M_start) 
+				::clarg_set_global(cp, krn, argnum,(void*)this->_M_impl._M_start); 
+		}
 
 
   template<class RHS>
