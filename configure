@@ -2771,10 +2771,12 @@ fi;
 OPENCL_LIBNAME=OpenCL
 
 if test $ENABLE_LIBOCL -eq 1; then
-	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
-		{ { echo "$as_me:$LINENO: error: libocl requres builtins-x86_64.bc, file not found" >&5
-echo "$as_me: error: libocl requres builtins-x86_64.bc, file not found" >&2;}
+	if ! test -e $AMD_SDK/lib/x86_64/builtins_x86-64.bc; then
+		{ { echo "$as_me:$LINENO: error: libocl requres builtins_x86-64.bc, file not found" >&5
+echo "$as_me: error: libocl requres builtins_x86-64.bc, file not found" >&2;}
    { (exit 1); exit 1; }; }
+#	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
+#		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
 	fi;
 fi;
 

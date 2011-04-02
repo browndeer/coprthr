@@ -353,6 +353,8 @@ void* compile_x86_64(
 //					__execshell(buf1,logp);
 
 					/* XXX hardcoding is hack.  find way to correctly/recursively extract -DAR */
+
+		/* XXX builtins_x86-64.bc == v2.1 / builtins-x86_64.bc = v2.3 */
                __command(
                   "cd %s;"
                   " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins_x86-64.bc"
