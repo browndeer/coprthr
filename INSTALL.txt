@@ -1,4 +1,4 @@
-***** current branch working toward v1.1 (outlaw) release *****
+***** current branch working toward v1.2 (middletown) release *****
 
 Installation:
 
