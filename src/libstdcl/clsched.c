@@ -70,6 +70,9 @@ cl_event clfork(
 //	__cmdq__(cp,devnum); // XXX this is a hack -DAR
 
 	 DEBUG(__FILE__,__LINE__,"clfork: ndr.dim=%d\n",ndr->dim);
+	 DEBUG(__FILE__,__LINE__,"clfork: ndr.gtid_offset=%d %d %d %d\n",
+		ndr->gtid_offset[0],ndr->gtid_offset[1],
+		ndr->gtid_offset[2],ndr->gtid_offset[3]);
 	 DEBUG(__FILE__,__LINE__,"clfork: ndr.gtid=%d %d %d %d\n",
 		ndr->gtid[0],ndr->gtid[1],ndr->gtid[2],ndr->gtid[3]);
 	 DEBUG(__FILE__,__LINE__,"clfork: ndr.ltid=%d %d %d %d\n",
@@ -78,7 +81,7 @@ cl_event clfork(
 	if (flags & CL_FAST) {
 
 	int err = clEnqueueNDRangeKernel(
-		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr->ltid,
+		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr->ltid,
 		0,0,0
 	);
 	return((cl_event)0);
@@ -87,7 +90,7 @@ cl_event clfork(
 	} else {
 
 	int err = clEnqueueNDRangeKernel(
-		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr->ltid,
+		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr->ltid,
 		(evp)?1:0,evp,&ev
 	);
 
