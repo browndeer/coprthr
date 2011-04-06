@@ -69,5 +69,25 @@
 #include "CLETE/ForEach.h"
 #include "CLETE/CreateLeaf.h"
 
+
+//// common utility functions 
+
+inline bool ref_is_ordered( const Ref& a, const Ref& b )
+{ return a.ptr <= b.ptr; }
+
+inline bool ref_is_equal( const Ref& a, const Ref& b )
+{ return a.ptr == b.ptr; }
+
+inline void log_kernel( std::string& srcstr )
+{
+   if (__log_automatic_kernels_filename) {
+      std::ofstream ofs(
+         __log_automatic_kernels_filename,
+         std::ios_base::out|std::ios_base::app);
+      ofs<<srcstr<<"\n";
+      ofs.close();
+   }
+}
+
 #endif // PETE_PETE_PETE_H
 

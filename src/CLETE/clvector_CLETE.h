@@ -217,12 +217,6 @@ struct PrintF< clvector<T, Allocator> > {
 };
 
 
-inline bool ref_is_ordered( const Ref& a, const Ref& b )
-{ return a.ptr <= b.ptr; }
-
-inline bool ref_is_equal( const Ref& a, const Ref& b )
-{ return a.ptr == b.ptr; }
-
 template<class T, class Allocator, class Op, class RHS>
 inline void evaluate(
 	clvector<T, Allocator> &lhs, const Op &op, 

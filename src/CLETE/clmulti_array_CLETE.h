@@ -441,24 +441,6 @@ struct PrintF< clmulti_array<T, 2> > {
 */
 
 
-inline bool ref_is_ordered( const Ref& a, const Ref& b )
-{ return a.ptr <= b.ptr; }
-
-inline bool ref_is_equal( const Ref& a, const Ref& b )
-{ return a.ptr == b.ptr; }
-
-inline void log_kernel( std::string& srcstr )
-{
-	if (__log_automatic_kernels_filename) {
-		std::ofstream ofs(
-			__log_automatic_kernels_filename,
-			std::ios_base::out|std::ios_base::app);
-		ofs<<srcstr<<"\n";
-		ofs.close();
-	}
-}
-
-
 /* this is where the real magic happens ... the evaluate functions */
 
 template<class T, class Op, class RHS>
