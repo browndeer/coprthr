@@ -441,6 +441,31 @@ struct PrintF< clmulti_array<T, 2> > {
 */
 
 
+//static inline void log_kernel( std::string& srcstr )
+//{
+//   if (__log_automatic_kernels_filename) {
+//      std::ofstream ofs(
+//         __log_automatic_kernels_filename,
+//         std::ios_base::out|std::ios_base::app);
+//      ofs<<srcstr<<"\n";
+//      ofs.close();
+//	}
+//}
+
+//// XXX use macros as workaround for incorrect behavior of gcc 4.1 -DAR
+
+#define log_kernel(srcstr) do { \
+   if (__log_automatic_kernels_filename) { \
+      std::ofstream ofs( \
+         __log_automatic_kernels_filename, \
+         std::ios_base::out|std::ios_base::app); \
+      ofs<<srcstr<<"\n"; \
+      ofs.close(); \
+   } while (0)
+
+
+
+
 /* this is where the real magic happens ... the evaluate functions */
 
 template<class T, class Op, class RHS>

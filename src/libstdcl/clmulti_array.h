@@ -68,9 +68,7 @@ class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
 
 
 		void clmattach( CONTEXT* cp )
-		{ 
-			::clmattach(cp, (void*)this->origin() ); 
-		}
+		{ ::clmattach(cp, (void*)this->origin() ); }
 		
 		void clmdetach()
 		{ ::clmdetach((void*)this->_M_impl._M_start); }

@@ -60,6 +60,7 @@
 #define _CLVECTOR_CLETE_H
 
 #include <iostream>
+#include <fstream>
 #include <list>
 #include <string>
 #include <sstream>
@@ -215,6 +216,30 @@ struct PrintF< clvector<T, Allocator> > {
    { return "a" + x + "[gti] "; }
 
 };
+
+
+//static inline void log_kernel( std::string& srcstr )
+//{
+//   if (__log_automatic_kernels_filename) {
+//      std::ofstream ofs(
+//         __log_automatic_kernels_filename,
+//         std::ios_base::out|std::ios_base::app);
+//      ofs<<srcstr<<"\n";
+//      ofs.close();
+//   }
+//}
+
+//// XXX use macros as workaround for incorrect behavior of gcc 4.1 -DAR
+
+#define log_kernel(srcstr) do { \
+	if (__log_automatic_kernels_filename) { \
+		std::ofstream ofs( \
+			__log_automatic_kernels_filename, \
+			std::ios_base::out|std::ios_base::app); \
+		ofs<<srcstr<<"\n"; \
+		ofs.close(); \
+	} while (0)
+
 
 
 template<class T, class Allocator, class Op, class RHS>
