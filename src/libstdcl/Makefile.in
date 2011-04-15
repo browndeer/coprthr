@@ -9,7 +9,7 @@ exec_prefix=@exec_prefix@
 #USE_OPENCL_INCS ?= -I/usr/local/atistream/include
 #USE_OPENCL_LIBS ?= -L/usr/local/atistream/lib/x86_64 -lOpenCL
 USE_OPENCL_INCS = -I@OPENCL_INC@
-USE_OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
+#USE_OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
 
 ### enable build of debug version if not already defined
 ifeq (@ENABLE_DEBUG_LIBS@,1)
