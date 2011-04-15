@@ -49,6 +49,7 @@ struct _clcontext_ptr_struct {
 	char* platform_vendor;
 	char* platform_extensions;
 	cl_context ctx;
+	cl_uint devtyp;
 	cl_uint impid;
 	cl_uint ndev;
 	cl_device_id* dev;

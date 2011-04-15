@@ -93,6 +93,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	int enable;
 	cl_uint ndev;
 	char env_max_ndev[256];
+	int lock_key;
 
 
 	DEBUG(__FILE__,__LINE__,"_libstdcl_init() called");
@@ -353,22 +354,29 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	}
 
 	stdgpu = 0;
+	ndev = 0; /* this is a special case that implies all available -DAR */
+	enable = 1;
+	lock_key = 0;
+
+	char name[256];
+
+	if (getenv("STDGPU") && !strncmp(getenv("STDGPU"),"0",2)) enable = 0;
 
 	if (enable) {
 
-//		platformid = _select_platformid(nplatforms,platforms,"STDGPU");
 		char name[256];
-		__getenv_token("STDGPU","platform_name",name,256);
+		__getenv_token("STDGPU_PLATFORM_NAME","platform_name",name,256);
+		if (getenv("STDGPU_PLATFORM_NAME"))
+			strncpy(name,getenv("STDGPU_PLATFORM_NAME"),256);
 
-//		if (platformid != (cl_platform_id)(-1)) {
+		if (getenv("STDGPU_MAX_NDEV"))
+			ndev = atoi(getenv("STDGPU_MAX_NDEV"));
 
-//			DEBUG(__FILE__,__LINE__,
-//				"_libstdcl_init: stdgpu platformid %p",platformid);
+		if (getenv("STDGPU_LOCK"))
+			lock_key = atoi(getenv("STDGPU_LOCK"));
 
-//			stdgpu = clcontext_create(platformid,CL_DEVICE_TYPE_GPU,ndev,0);
-			stdgpu = clcontext_create(name,CL_DEVICE_TYPE_GPU,ndev,0,0);
-
-//		}
+//		stdgpu = clcontext_create(name,CL_DEVICE_TYPE_GPU,ndev,0,0);
+		stdgpu = clcontext_create(name,CL_DEVICE_TYPE_GPU,ndev,0,lock_key);
 
 	}
 
@@ -427,6 +435,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 void __attribute__((__destructor__)) _libstdcl_fini()
 {
 	DEBUG(__FILE__,__LINE__,"_libstdcl_fini() called");
+
+	if (stdgpu) clcontext_destroy(stdgpu);
 
 	munmap(procelf,procelf_sz);
 	close(procelf_fd);

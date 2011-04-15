@@ -30,6 +30,10 @@
 #include <errno.h>
 #include <assert.h>
 #include <sys/queue.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <fcntl.h>
 #include <pthread.h>
 
 #include <CL/cl.h>
@@ -46,6 +50,21 @@
 #endif
 
 
+#define min(a,b) ((a<b)?a:b)
+
+struct __ctx_lock_struct {
+	unsigned int magic;
+	unsigned int key;
+	pthread_mutex_t mtx;
+	int refc;
+	char __pad[
+		64 - 2*sizeof(unsigned int) - sizeof(pthread_mutex_t) - sizeof(int)
+	];
+};
+
+struct __ctx_lock_struct* __ctx_lock = 0;
+
+
 static cl_platform_id
 __get_platformid(
  cl_uint nplatform, cl_platform_id* platforms, const char* platform_name
@@ -57,10 +76,10 @@ __get_platformid(
 CONTEXT* 
 clcontext_create( 
 	const char* platform_name, 
-	int devtyp, size_t ndevmax, 
+	int devtyp, 
+	size_t ndevmax,
 	cl_context_properties* ctxprop_ext, 
-	int flag
-//	cl_platform_id platformid, int devtyp, size_t ndevmax, int flag
+	int lock_key
 )
 {
 
@@ -68,9 +87,8 @@ clcontext_create(
 
 	DEBUG(__FILE__,__LINE__,"clcontext_create() called");
 
-	/* XXX ndev>0 should allow limit placed on number of devices in vp -DAR */
-	if (ndevmax) 
-		WARN(__FILE__,__LINE__,"__clcontext_create(): ndevmax argument ignored");
+//	if (ndevmax) 
+//		WARN(__FILE__,__LINE__,"__clcontext_create(): ndevmax argument ignored");
 
 	int err = 0;
 	int i;
@@ -211,17 +229,160 @@ clcontext_create(
 	clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,sz,
 		cp->platform_extensions,0);
 
-	cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
 
-	if (!cp->ctx) {
-		free(cp);
-		return((CONTEXT*)0);
+/* XXX if lock requested, put that here, else use call below -DAR */
+
+	cl_uint ndev = 0;
+
+	if (lock_key > 0) {
+
+		if (ndevmax == 0) ndevmax = 1;
+
+		cl_uint platform_ndev;
+		err = clGetDeviceIDs(platformid,devtyp,0,0,&platform_ndev);
+	
+		cl_device_id* platform_dev 
+			= (cl_device_id*)malloc(platform_ndev*sizeof(cl_device_id));
+
+		err = clGetDeviceIDs(platformid,devtyp,platform_ndev,platform_dev,0);
+
+		DEBUG(__FILE__,__LINE__,"clcontext_create: lock_key=%d",lock_key);
+
+		pid_t pid = getpid();
+
+		size_t sz_page = getpagesize();
+
+//		system("ls /dev/shm");
+
+		char shmobj[64];
+		snprintf(shmobj,64,"/stdcl_ctx_lock%d.%d",devtyp,lock_key);
+
+		DEBUG(__FILE__,__LINE__,
+			"clcontext_create: attempt master shm_open %s from %d",shmobj,pid);
+
+		int fd = shm_open(shmobj,O_RDWR|O_CREAT|O_EXCL,0);
+		void* p0;
+
+		struct timeval t0,t1;
+		int timeout = 0;
+
+		int noff = 0;
+
+		if (fd < 0) {
+			
+			DEBUG(__FILE__,__LINE__,
+				"clcontext_create: master shm_open failed from %d (%d)",pid,fd);
+
+			DEBUG(__FILE__,__LINE__,
+				"clcontext_create: attempt slave shm_open from %d",pid);
+
+			timeout = 0;
+			gettimeofday(&t0,0);
+			t0.tv_sec += 10;
+
+			do {
+	
+				fd = shm_open(shmobj,O_RDWR,0);
+				gettimeofday(&t1,0);
+
+				if (t1.tv_sec > t0.tv_sec && t1.tv_usec > t0.tv_usec) timeout = 1;
+
+			} while (fd < 0 && !timeout);
+
+			if (timeout) {
+
+				ERROR(__FILE__,__LINE__,"clcontext_create: shm_open timeout");
+
+			}
+
+			ftruncate(fd,sz_page);
+
+			p0 = mmap(0,sz_page,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+
+			if (!p0) return(0);
+
+			__ctx_lock = (struct __ctx_lock_struct*)p0;
+
+			pthread_mutex_lock(&__ctx_lock->mtx);
+			if (__ctx_lock->refc < platform_ndev) {
+				noff = __ctx_lock->refc;
+				ndev = min(ndevmax,platform_ndev-noff);
+				__ctx_lock->refc += ndev;
+			}
+			pthread_mutex_unlock(&__ctx_lock->mtx);
+
+			close(fd);
+
+		} else {
+
+			DEBUG(__FILE__,__LINE__,
+				"clcontext_create: master shm_open succeeded from %d",pid);
+
+			ftruncate(fd,sz_page);
+
+			p0 = mmap(0,sz_page,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
+
+			if (!p0) return(0);
+
+			__ctx_lock = (struct __ctx_lock_struct*)p0;
+
+			__ctx_lock->magic = 20110415;
+			__ctx_lock->key = lock_key;
+			pthread_mutex_init(&__ctx_lock->mtx,0);
+			ndev = min(ndevmax,platform_ndev);
+			__ctx_lock->refc = ndev;
+
+			fchmod(fd,S_IRUSR|S_IWUSR);
+
+			close(fd);
+
+		}
+
+		if (noff < platform_ndev) {
+
+			cp->ctx = clCreateContext(ctxprop,ndev,platform_dev + noff,0,0,&err);
+
+			DEBUG(__FILE__,__LINE__,
+				"clcontext_create: platform_ndev=%d ndev=%d noffset=%d",
+				platform_ndev,ndev,noff);
+
+			if (platform_dev) free(platform_dev);
+
+		} else {
+
+			cp->ctx = 0;
+
+		}
+
+	} else {
+
+		cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
+
 	}
 
-	err = clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,0,0,&devlist_sz);
-	cp->ndev = devlist_sz/sizeof(cl_device_id);
-	cp->dev = (cl_device_id*)malloc(devlist_sz);
-	err = clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,devlist_sz,cp->dev,0);
+	if (cp->ctx) {
+
+		cp->devtyp = devtyp;
+		err = clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,0,0,&devlist_sz);
+		cp->ndev = devlist_sz/sizeof(cl_device_id);
+		cp->dev = (cl_device_id*)malloc(devlist_sz);
+		err=clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,devlist_sz,cp->dev,0);
+
+	} else {
+
+		WARN(__FILE__,__LINE__,"clcontext_create: failed");
+
+		if (lock_key > 0 && ndev > 0) {
+			pthread_mutex_lock(&__ctx_lock->mtx);
+			__ctx_lock->refc -= ndev;
+			pthread_mutex_unlock(&__ctx_lock->mtx);
+		}
+
+      free(cp);
+      return((CONTEXT*)0);
+
+   }
+
 
 	DEBUG(__FILE__,__LINE__,"number of devices %d",cp->ndev);
 
@@ -370,6 +531,24 @@ clcontext_destroy(CONTEXT* cp)
 	if (cp->platform_vendor) free(cp->platform_vendor);
 	if (cp->platform_extensions) free(cp->platform_extensions);
 
+	if (__ctx_lock) {
+		DEBUG(__FILE__,__LINE__,"clcontext_destroy: ctx lock check refc");
+		pthread_mutex_lock(&__ctx_lock->mtx);
+		int n = __ctx_lock->refc -= cp->ndev;
+		DEBUG(__FILE__,__LINE__,"clcontext_destroy: ctx lock refc now %d",n);
+		if (n == 0) {
+			int key = __ctx_lock->key;
+			pthread_mutex_unlock(&__ctx_lock->mtx);
+			char shmobj[64];
+			snprintf(shmobj,64,"/stdcl_ctx_lock%d.%d",cp->devtyp,key);
+			DEBUG(__FILE__,__LINE__,"clcontext_destroy: shm_unlink %s",shmobj);
+			err = shm_unlink(shmobj);
+			if (err) 
+				WARN(__FILE__,__LINE__,"clcontext_destroy: shm_unlink failed");
+		}
+		pthread_mutex_unlock(&__ctx_lock->mtx);
+	}
+		
 	free(cp);
 
 	return(0);
