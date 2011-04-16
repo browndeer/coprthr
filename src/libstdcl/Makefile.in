@@ -47,7 +47,7 @@ VPATH = .:./man/man1:./man/man3
 
 INCS += $(USE_OPENCL_INCS)
 LIBS += $(USE_OPENCL_LIBS)
-LIBS += -lpthread -ldl
+LIBS += -lpthread -ldl -lrt
 
 OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
 
