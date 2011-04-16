@@ -190,6 +190,7 @@ AC_CONFIG_FILES([test/Makefile])
 AC_CONFIG_FILES([test/test_stdcl/Makefile])
 AC_CONFIG_FILES([test/test_ocl/Makefile])
 AC_CONFIG_FILES([test/test_CLETE/Makefile])
+AC_CONFIG_FILES([include/Makefile])
 
 AC_OUTPUT
 

@@ -2543,7 +2543,7 @@ if test "${enable_libstdcl_clgl_support+set}" = set; then
   enableval="$enable_libstdcl_clgl_support"
 
 else
-  enable_libstdcl_clgl_support=yes
+  enable_libstdcl_clgl_support=no
 fi;
 
 # Check whether --enable-clete or --disable-clete was given.
@@ -2820,6 +2820,8 @@ fi;
           ac_config_files="$ac_config_files test/test_ocl/Makefile"
 
           ac_config_files="$ac_config_files test/test_CLETE/Makefile"
+
+          ac_config_files="$ac_config_files include/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -3384,6 +3386,7 @@ do
   "test/test_stdcl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_stdcl/Makefile" ;;
   "test/test_ocl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_ocl/Makefile" ;;
   "test/test_CLETE/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_CLETE/Makefile" ;;
+  "include/Makefile" ) CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;

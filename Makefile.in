@@ -12,7 +12,7 @@ INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
 
-SUBDIRS += ./src/libstdcl ./tools/clld
+SUBDIRS += ./include ./src/libstdcl ./tools/clld
 
 ifeq (@ENABLE_LIBOCL@,1)
 SUBDIRS += ./src/libocl ./tools/xclnm
