@@ -56,6 +56,8 @@ void iterate_cpu_cl(
 
 
 extern char* cldevstr;
+extern int nstep;
+extern int nburst;
 extern int step_count;
 extern float gflops;
 
@@ -63,6 +65,7 @@ int screen_width;
 int screen_height;
 unsigned char* bmp = 0;
 char devstr[64];
+int display_step = 0;
 
 
 /* 
@@ -154,6 +157,7 @@ void displayfunc()
 
     //Calling kernel for calculatig subsequent positions
 
+	
 	if (iterate) iterate(
 		iterate_args.nburst,
 		iterate_args.nparticle,
@@ -193,6 +197,24 @@ void displayfunc()
 
     glFlush();
     glutSwapBuffers();
+
+	display_step += nburst;
+
+	if (nstep > 0 && display_step >= nstep) {
+
+		float tmp = 0.0f;
+    	for(i=0; i < nparticle; ++i) {
+			tmp += pos[__index_x(i)]*pos[__index_x(i)];
+			tmp += pos[__index_y(i)]*pos[__index_y(i)];
+			tmp += pos[__index_z(i)]*pos[__index_z(i)];
+		}
+
+		printf("[%d] checksum=%e\n",getpid(),tmp);
+
+		exit(0);
+
+	}
+
 }
 
 void

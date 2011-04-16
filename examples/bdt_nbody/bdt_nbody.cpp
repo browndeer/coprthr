@@ -29,7 +29,6 @@
 #include <float.h>
 #include <sys/time.h>
 
-#include<GL/glut.h>
 
 #ifdef ENABLE_CL
 #include<CL/cl.h>
@@ -39,7 +38,12 @@
 
 #include "Timer.h"
 #include "nbody.h"
+
+#ifndef DISABLE_DISPLAY
+#include<GL/glut.h>
 #include "nbody_display.h"
+#endif
+
 
 
 CONTEXT* cp = 0; /* selects CL context */
@@ -55,11 +59,13 @@ void (*iterate)(
 struct iterate_args_struct iterate_args = __init_iterate_args();
 
 char* cldevstr;
-
+int nstep = 0;
+int nburst = DEFAULT_NBURST;
 int step_count = 0;
 float gflops;
 
 cl_kernel k_nbody;
+cl_kernel krn2;
 
 /*
  * main program
@@ -76,19 +82,10 @@ int main(int argc, char** argv)
 	int step = 0;
 	int n;
 
-	int nstep = DEFAULT_NSTEP;
-	int nburst = DEFAULT_NBURST;
 	int nthread = DEFAULT_NTHREAD;
 	int nb = DEFAULT_NBLOCK;
 
 	int use_cpu = 0;
-//#ifdef ENABLE_BROOK
-//	int use_gpu_br = 0;
-//#endif
-//#ifdef ENABLE_CL
-//	int use_cpu_cl = 0;
-//	int use_gpu_cl = 0;
-//#endif
 
 	int dump_results = 0;
    int use_display = 1;
@@ -122,8 +119,6 @@ int main(int argc, char** argv)
 #endif
 
 #ifdef ENABLE_CL
-//      else if (!strcmp(argv[i],"--cpu-cl")) use_cpu_cl = 1;
-//      else if (!strcmp(argv[i],"--gpu-cl")) use_gpu_cl = 1;
       else if (!strcmp(argv[i],"--cl-device")) {
 			++i;
 			if (!strncmp(argv[i],"gpu",3)) cp = stdgpu;
@@ -131,7 +126,8 @@ int main(int argc, char** argv)
 		}
 #endif
 
-		else if (!strcmp(argv[i],"--display")) ;
+		else if (!strcmp(argv[i],"--display")) use_display = 1;
+		else if (!strcmp(argv[i],"--no-display")) use_display = 0;
 		else if (!strcmp(argv[i],"--devnum")) devnum = atoi(argv[++i]);
 		else if (!strcmp(argv[i],"--nstep")) nstep = atoi(argv[++i]);
 		else if (!strcmp(argv[i],"--nburst")) nburst = atoi(argv[++i]);
@@ -150,6 +146,8 @@ int main(int argc, char** argv)
       fprintf( stderr, "nparticle must be multiple of 16, stopping.\n"); 
       exit(1);
    }
+
+	if (!use_display && nstep == 0) nstep = DEFAULT_NSTEP;
 
    if (nstep%nburst) {
       fprintf( stderr, "nstep must be multiple of nburst, stopping.\n"); 
@@ -186,14 +184,17 @@ int main(int argc, char** argv)
 		snprintf(cldevstr,64,"CPU/OpenCL %s",dev_info->dev_name);
 	} else strncpy(cldevstr,"???",3);
 
-//	void* hcl = clopen(stdgpu,"nbody_kern.cl",0);
 	void* hcl = clopen(cp,0,0);
 	k_nbody = clsym(cp,hcl,"nbody_kern",0);
+	krn2 = clsym(cp,hcl,"copy_kern",0);
 #endif
 
+#ifdef DISABLE_DISPLAY
+	use_display = 0;
+#endif
 
-	/* XXX must init GL before alloc CL buffers due to compat problem w/GL */
    if(use_display) {
+#ifndef DISABLE_DISPLAY
         glutInit(&argc, argv);
         glutInitWindowPosition(100,10);
         glutInitWindowSize(600,600);
@@ -204,17 +205,14 @@ int main(int argc, char** argv)
         glutReshapeFunc(reShape);
         glutIdleFunc(idle);
         glutKeyboardFunc(keyboardFunc);
+#endif
 	}
 
 
-#ifdef ENABLE_CL
 	if (cp) {
 		pp = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
 		vv = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
 	}
-#endif
-	if (!pp) pp = (cl_float*)malloc(sizeof(cl_float)*4*nparticle);
-	if (!vv) vv = (cl_float*)malloc(sizeof(cl_float)*4*nparticle);
 
 	if (pp == 0 || vv == 0 ) {
 		fprintf(stderr,"memory allocation failed.  Terminating...\n");
@@ -238,9 +236,30 @@ int main(int argc, char** argv)
 
    if(use_display) {
 
+#ifndef DISABLE_DISPLAY
         glutMainLoop();
+#endif
 
-   }
+   } else {
+
+		for(int step = 0; step < nstep; step += nburst) {
+
+			iterate_cl( nburst, nparticle, nthread, gdt, es, pp, vv);
+
+			if (step_count == 0) printf("%s %f GFLOPS\n",cldevstr,gflops);	
+
+		}
+
+		float tmp = 0.0f;
+		int i;
+  	   for(i=0; i < nparticle; ++i) {
+  	     	tmp += pp[__index_x(i)]*pp[__index_x(i)];
+  	     	tmp += pp[__index_y(i)]*pp[__index_y(i)];
+  	     	tmp += pp[__index_z(i)]*pp[__index_z(i)];
+  	   }
+  	   printf("[%d] checksum=%e\n",getpid(),tmp);
+
+	}
 
 
 
@@ -354,49 +373,66 @@ void iterate_cl(
    float* pp, float* vv
 )
 {
+
 	double time_old = GetElapsedTime(0);
 
-//	cl_float* pp2 = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
 	if (pp2==0) pp2 = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
 
-//	for(int i=0;i<4*nparticle;i+=4) pp2[i+3] = pp[i+3];
 
 //	int n = nparticle;
 //	int n = nparticle/4;
 	int n = nparticle/2;
 
 	clndrange_t ndr = clndrange_init1d(0,n,nthread);
+	clndrange_t ndr2 = clndrange_init1d(0,nparticle,nthread);
 	clarg_set(cp,k_nbody,0,n);
 	clarg_set(cp,k_nbody,1,gdt);
 	clarg_set(cp,k_nbody,2,es);
 	clarg_set_global(cp,k_nbody,4,(cl_float4*)vv);
-	clarg_set_local(cp,k_nbody,6,4*nthread*sizeof(cl_float4));
+
+	clarg_set(cp,krn2,0,nparticle);
+	clarg_set_global(cp,krn2,1,pp);
+	clarg_set_global(cp,krn2,2,pp2);
 
 	clmsync(cp,devnum,pp,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 	clmsync(cp,devnum,vv,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 	clwait(cp,devnum,CL_MEM_EVENT|CL_EVENT_RELEASE);
 	Start(0); 
 
-	for(int burst = 0; burst<nburst; burst+=2) {
+//	for(int burst = 0; burst<nburst; burst+=2) {
+	for(int burst = 0; burst<nburst; burst++) {
 
-		clarg_set_global(cp,k_nbody,3,(cl_float4*)pp2);
-		clarg_set_global(cp,k_nbody,5,(cl_float4*)pp);
+		clarg_set_global(cp,k_nbody,3,pp2);
+		clarg_set_global(cp,k_nbody,5,pp);
 		clfork(cp,devnum,k_nbody,&ndr,CL_EVENT_NOWAIT);
 
-		clarg_set_global(cp,k_nbody,3,(cl_float4*)pp);
-		clarg_set_global(cp,k_nbody,5,(cl_float4*)pp2);
-		clfork(cp,devnum,k_nbody,&ndr,CL_EVENT_NOWAIT);
+		clfork(cp,devnum,krn2,&ndr2,CL_EVENT_NOWAIT);
+
+//		clarg_set_global(cp,k_nbody,3,pp);
+//		clarg_set_global(cp,k_nbody,5,pp2);
+//		clfork(cp,devnum,k_nbody,&ndr,CL_EVENT_NOWAIT);
 
 	}
 
-	clwait(cp,devnum,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
-	Stop(0);
+//	clwait(cp,devnum,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
+//	Stop(0);
 
+//	clmsync(cp,devnum,pp2,CL_MEM_HOST|CL_EVENT_NOWAIT);
 	clmsync(cp,devnum,pp,CL_MEM_HOST|CL_EVENT_NOWAIT);
 	clmsync(cp,devnum,vv,CL_MEM_HOST|CL_EVENT_NOWAIT);
-	clwait(cp,devnum,CL_MEM_EVENT|CL_EVENT_RELEASE);
 
-//	Stop(0);
+	clwait(cp,devnum,CL_ALL_EVENT|CL_EVENT_RELEASE);
+
+	Stop(0);
+
+//		float tmp = 0.0f;
+//		int i;
+//      for(i=0; i < nparticle; ++i) {
+//         tmp += pp[__index_x(i)]*pp[__index_x(i)];
+//         tmp += pp[__index_y(i)]*pp[__index_y(i)];
+//         tmp += pp[__index_z(i)]*pp[__index_z(i)];
+//      }
+//      printf("[%d] checksum=%e\n",getpid(),tmp);
 
 	double time = GetElapsedTime(0);
 

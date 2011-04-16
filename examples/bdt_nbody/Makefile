@@ -13,7 +13,7 @@ DEFS += -DENABLE_CL
 INCS += -I$(CL_ROOT)/include -I$(LIBSTDCL_ROOT)/include
 #LIBS += -L$(CL_ROOT)/lib/x86_64 -lOpenCL -lpthread -ldl \
 #	-L$(LIBSTDCL_ROOT)/lib -lstdcl
-LIBS += -L$(CL_ROOT)/lib/x86_64 -lpthread -ldl \
+LIBS += -L$(CL_ROOT)/lib/x86_64 -lOpenCL -lpthread -ldl \
 	-L$(LIBSTDCL_ROOT)/lib -lstdcl
 
 ANNOUNCEMENT = "\a\n\n*****PLEASE NOTE *****\n\nMake sure "$(LIBSTDCL_ROOT)"/lib \nis added to LD_LIBRARY_PATH\n\n"
@@ -21,12 +21,10 @@ ANNOUNCEMENT = "\a\n\n*****PLEASE NOTE *****\n\nMake sure "$(LIBSTDCL_ROOT)"/lib
 
 ### It should NOT be necessary to modify lines below
 
+### comment out if GL support does not work correctly on your platform
 LIBS += -L/usr/lib64 -lglut -lGLEW
 
 CXXFLAGS += -O3
-
-BRCC = brcc
-BRCCFLAGS =
 
 CLLD = $(LIBSTDCL_ROOT)/bin/clld
 
@@ -48,15 +46,10 @@ bdt_bmp.o:
 .cpp.o:
 	$(CXX) $(CXXFLAGS) $(DEFS) $(INCS) -c $<
 
-.br.cpp:
-	$(BRCC) $(BRCCFLAGS) -o $* $<
-
 
 clean:
 	rm -f *.o 
-	rm -f $(BRSRCS:.br=.cpp) $(BRSRCS:.br=.h) $(BRSRCS:.br=_gpu.h)
 
 distclean: clean
 	rm -f *.x
-	rm -f *.vti
 

@@ -77,6 +77,7 @@ int nbody_init( int n, cl_float* pp, cl_float* vv )
 			- vv[__index_z(i)]*vv[__index_z(i)])*cos(twopi*a7);
 		vv[__index_y(i)] = sqrt(a8*a8 
 			- vv[__index_z(i)]*vv[__index_z(i)])*sin(twopi*a7);
+		vv[__index_m(i)] = 0.0f;
 
 		cmr[0] += pp[__index_m(i)] * pp[__index_x(i)];
 		cmr[1] += pp[__index_m(i)] * pp[__index_y(i)];
