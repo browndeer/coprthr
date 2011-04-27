@@ -32,6 +32,7 @@
 
 #include "vcore.h"
 
+typedef unsigned int uint;
 
 /*
  * intrinsics called from kernels

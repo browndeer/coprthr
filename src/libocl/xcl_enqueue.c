@@ -24,7 +24,7 @@
 
 #include "xcl_structs.h"
 #include "event.h"
-
+#include <pthread.h>
 
 // Enqueued Commands APIs
 

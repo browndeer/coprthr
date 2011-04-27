@@ -27,6 +27,8 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 
 //#define _GNU_SOURCE
 //#include <sched.h>
@@ -159,14 +161,35 @@ void __do_discover_devices(
 	struct stat fs;
 	char buf[1024];
 
-	if (stat("/proc/cpuinfo",&fs)) {
-		WARN(__FILE__,__LINE__,"stat failed on /proc/cpuinfo");
-		return;
-	}
+//	if (stat("/proc/cpuinfo",&fs)) {
+//		WARN(__FILE__,__LINE__,"stat failed on /proc/cpuinfo");
+//		return;
+//	}
 
-	fp = fopen("/proc/cpuinfo","r");
+//	fp = fopen("/proc/cpuinfo","r");
 
-	size_t sz;
+	int val=0;
+	size_t sz=4;
+	sysctlbyname("hw.ncpu",&val,&sz,0,0);
+	printf("ncpu %d %d\n",val,sz);
+	dtab[0].imp.max_compute_units = val;
+
+	sz=4;
+	sysctlbyname("hw.clockrate",&val,&sz,0,0);
+	printf("clockrate %d %d\n",val,sz);
+	dtab[0].imp.max_freq = val;
+
+	sz=1024;
+	sysctlbyname("hw.model",buf,&sz,0,0);
+	printf("model %s %d\n",buf,sz);
+
+	char* bufp = truncate_ws(buf);
+	sz = 1+strnlen(bufp,__CLMAXSTR_LEN);
+	strncpy(dstrtab+dstrtab_sz,bufp,sz);
+	dtab[0].imp.name = dstrtab+dstrtab_sz;
+	dstrtab_sz += sz;
+
+/* XXX removed linux
 
 	while (fgets(buf,1024,fp)) {
 
@@ -207,7 +230,9 @@ void __do_discover_devices(
 	}
 
 	fclose(fp);
+*/
 
+/* XXX removed linux
 
 	if (stat("/proc/meminfo",&fs)) {
 		WARN(__FILE__,__LINE__,"stat failed on /proc/meminfo");
@@ -230,7 +255,7 @@ void __do_discover_devices(
 	}
 
 	fclose(fp);
-
+*/
 	
 	dtab[0].imp.comp = (void*)compile_x86_64;
 	dtab[0].imp.ilcomp = 0;
@@ -248,6 +273,8 @@ void __do_discover_devices(
 	int i;
 
 	unsigned int ncore = sysconf(_SC_NPROCESSORS_ONLN);
+
+//ncore = 1;
 
 #ifdef ENABLE_NCPU
 //	char buf[256];

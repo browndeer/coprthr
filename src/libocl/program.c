@@ -67,17 +67,29 @@ cl_int __do_build_program_from_source(
 	DEBUG(__FILE__,__LINE__,
 		"__do_build_program_from_source: compiler=%p",comp);	
 
-	void* h = comp(
+//	void* h = comp(
+//		devid,
+//		prg->src,prg->src_sz,
+//		prg->bin[devnum],prg->bin_sz[devnum],
+//		prg->build_options[devnum],prg->build_log[devnum]
+//	);
+	struct _elf_data* edata = (struct _elf_data*)comp(
 		devid,
 		prg->src,prg->src_sz,
 		prg->bin[devnum],prg->bin_sz[devnum],
 		prg->build_options[devnum],prg->build_log[devnum]
 	);
+	void* h = edata->dlh;
+	Elf* e = (Elf*)edata->map;
 
 	typedef void*(*get_ptr_func_t)();
 	typedef int(*get_int_func_t)();
 	typedef size_t(*get_sz_func_t)();
 
+//	Dl_info info;
+//	dladdr(h,&info);
+//	printf("XXX %s\n",info.dli_fname);
+	
 	get_ptr_func_t __get_shstrtab = dlsym(h,"__get_shstrtab");
 
 	get_sz_func_t __get_clstrtab_sz = dlsym(h,"__get_clstrtab_sz");
@@ -91,6 +103,32 @@ cl_int __do_build_program_from_source(
 
 	get_ptr_func_t __get_cltextb = dlsym(h,"__get_cltextb");
 
+	Elf64_Ehdr* ehdr = (Elf64_Ehdr*)e;
+	Elf64_Shdr* shdr = (Elf64_Shdr*)((intptr_t)e + ehdr->e_shoff);
+	char* shstrtab = (char*)((intptr_t)e + shdr[ehdr->e_shstrndx].sh_offset);
+
+	size_t clstrtab_sz = 0;
+	char* clstrtab = 0;
+	int clsymtab_n = 0;
+	struct clsymtab_entry* clsymtab = 0;
+	int clargtab_n = 0;
+	struct clargtab_entry* clargtab = 0;
+
+	for(i=0;i<ehdr->e_shnum;i++,shdr++) {
+		printf("|%s|\n",shstrtab+shdr->sh_name);
+		if (!strncmp(shstrtab+shdr->sh_name,".clstrtab",9)) {
+			clstrtab_sz =shdr->sh_size;
+			clstrtab =(char*)((intptr_t)e + shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".clsymtab",9)) {
+			clsymtab_n =shdr->sh_size/sizeof(struct clsymtab_entry);
+			clsymtab =(struct clsymtab_entry*)((intptr_t)e+shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".clargtab",9)) {
+			clargtab_n =shdr->sh_size/sizeof(struct clargtab_entry);
+			clargtab =(struct clargtab_entry*)((intptr_t)e+shdr->sh_offset);
+		}
+	}
+	
+/*
 	char* shstrtab = __get_shstrtab();
 
 	size_t clstrtab_sz = __get_clstrtab_sz();
@@ -101,6 +139,8 @@ cl_int __do_build_program_from_source(
 
 	int clargtab_n = __get_clargtab_n();
 	struct clargtab_entry* clargtab = __get_clargtab();
+*/
+
 
 	DEBUG(__FILE__,__LINE__,"clstrtab_sz %d\n",clstrtab_sz);
 
@@ -108,9 +148,10 @@ cl_int __do_build_program_from_source(
 	char* ppp = (char*)__get_cltextb();
 	printf("is image an ELF? %s\n",ppp);
 
-
 	#if defined(XCL_DEBUG)
+	fprintf(stdout,"%p\n",shstrtab);
 	fprintb(stdout,shstrtab,100); printf("\n");
+	fprintf(stdout,"%p\n",clstrtab);
 	fprintb(stdout,clstrtab,100); printf("\n");
 	#endif
 

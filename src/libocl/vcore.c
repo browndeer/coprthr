@@ -25,6 +25,7 @@
 #include <sched.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
+#include <sys/mman.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -76,11 +77,11 @@ char* vc_stack_storage = 0;
 char* ve_local_mem = 0;
 
 
-#define __callsp(sp,pf,argp) __asm ( \
+#define __callsp(sp,pf,argp) __asm volatile ( \
 	"movq %0,%%rdi\n\t"	\
 	"movq %1,%%rsp\n\t" 	\
 	"call *%2\n"	\
-	: : "m" (argp), "r" (sp), "m" (pf) 	\
+	: : "m" (argp), "m" (sp), "m" (pf) 	\
 	);
 
 
@@ -284,7 +285,8 @@ vcengine( void* p )
 //					if (!(setjmp(vcengine_jbuf))) {
 					if (!(__vc_setjmp(vcengine_jbuf))) {
 						sp = vc_stack[i];
-						DEBUG(__FILE__,__LINE__,"[%d] sp %p",i,sp);
+						DEBUG(__FILE__,__LINE__,"[%d] sp %p edata %p",i,sp,edata);
+//						printf("%p ",sp);
 						__callsp(sp,edata->callp,edata);
 					}
 				}
@@ -353,6 +355,9 @@ vcproc_startup( void* p )
 		,(VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne);
 
 	vc_stack_storage = (char*)calloc((VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne,1);
+	mprotect(vc_stack_storage,
+		(VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne,PROT_READ|PROT_WRITE|PROT_EXEC);
+
 	ve_local_mem = (char*)calloc(VCORE_LOCAL_MEM_SZ*vcore_ne,1);
 
 
@@ -363,7 +368,7 @@ vcproc_startup( void* p )
 
 //	for(i=0;i<VCORE_NE;i++) {
 
-	cpu_set_t mask;
+	cpuset_t mask;
 
 	for(i=0;i<vcore_ne;i++) {
 
@@ -382,7 +387,7 @@ vcproc_startup( void* p )
 
 		CPU_ZERO(&mask);
 		CPU_SET(i%ncore,&mask);
-		if (pthread_setaffinity_np(engine_td[i],sizeof(cpu_set_t),&mask)) {
+		if (pthread_setaffinity_np(engine_td[i],sizeof(cpuset_t),&mask)) {
 			WARN(__FILE__,__LINE__,"vcengine: pthread_setaffinity_np failed");
 		}
 
@@ -578,6 +583,11 @@ DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 	unsigned int d = argp->k.work_dim;
 	unsigned int gwsd1 = argp->k.global_work_size[d-1];
 	unsigned int lwsd1 = argp->k.local_work_size[d-1];
+
+	DEBUG(__FILE__,__LINE__,"partitioning d=%d gwsz=%d lwsz=%d",d,gwsd1,lwsd1);
+
+	DEBUG(__FILE__,__LINE__,"using nve=%d",nve);
+
 	unsigned int ng = gwsd1/lwsd1;
 //	unsigned int nge = ng/VCORE_NE;
 //	unsigned int nge = ng/vcore_ne;
@@ -608,11 +618,12 @@ DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 
 //	for(i=0;i<VCORE_NE;i++) 
 //	for(i=0;i<vcore_ne;i++) 
-	for(e=veid_base,i=0;e<veid_end;e++,i++) 
+	for(e=veid_base,i=0;e<veid_end;e++,i++) {
 		DEBUG(__FILE__,__LINE__,"%d %d %d\n",
 			subcmd_argp[i].k.global_work_offset[d-1],
 			subcmd_argp[i].k.global_work_size[d-1],
 			subcmd_argp[i].k.local_work_size[d-1]);
+	}
 	
 
 //	for(i=0;i<VCORE_NE;i++) {

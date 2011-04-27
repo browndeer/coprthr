@@ -25,6 +25,8 @@
 
 #include <sys/queue.h>
 #include <pthread.h>
+#include <sys/param.h>
+#include <sys/cpuset.h>
 
 #ifdef ENABLE_ATIGPU
 #include "cal.h"
@@ -129,7 +131,8 @@ struct _imp_device {
 
 	cmdcall_t* v_cmdcall;
 
-	cpu_set_t cpumask;
+//	cpu_set_t cpumask;
+	cpuset_t cpumask;
 
 	union {
 
@@ -252,9 +255,9 @@ struct _imp_event {
 
 #define __imp_init_event(imp) do { \
 	pthread_mutexattr_t attr; \
-	int attrtype = PTHREAD_MUTEX_ERRORCHECK_NP; \
+	int attrtype = PTHREAD_MUTEX_ERRORCHECK; \
 	pthread_mutexattr_init(&attr); \
-	pthread_mutexattr_settype(&attr,&attrtype); \
+	pthread_mutexattr_settype(&attr,attrtype); \
 	pthread_mutex_init(&imp.mtx,&attr); \
 	pthread_cond_init(&imp.sig,0); \
 	pthread_mutex_unlock(&imp.mtx); \
@@ -378,6 +381,19 @@ struct _imp_context {
 #else
 #define __imp_free_context(imp) do { } while(0)
 #endif
+
+struct _elf_data {
+	char filename[256];
+	void* dlh;
+	void* map;
+};
+
+#define __init_elf_data(ed) do { \
+   (ed).filename[0] = '\0'; \
+   (ed).dlh = 0; \
+   (ed).map = 0; \
+   } while(0)
+
 
 
 #endif

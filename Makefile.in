@@ -1,4 +1,5 @@
 
+MAKE = gmake
 
 #BUILD_LIBS = libstdcl libocl
 #BUILD_TOOLS = cltrace xclnm 
@@ -29,7 +30,7 @@ endif
 #SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))
 #SUBDIRS += $(addprefix ./tools/,$(BUILD_TOOLS)) 
 
-DISTCLEAN_DIRS = ./src/libstdcl ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_ocl 
+DISTCLEAN_DIRS = ./src/libstdcl ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_ocl ./include
 
 export TOPDIR = $(CURDIR)
 
@@ -40,15 +41,15 @@ all: $(SUBDIRS)
 subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
-	make -C $@ $(MAKEFLAGS) $(MAKECMDGOALS)
+	$(MAKE) -C $@ $(MAKEFLAGS) $(MAKECMDGOALS)
 
 clean: subdirs
-#	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
-	make -C ./test $(MAKECMDGOALS)
+#	$(MAKE) -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
+	$(MAKE) -C ./test $(MAKECMDGOALS)
 
 distclean:
 	@dirs="$(DISTCLEAN_DIRS)"; for dir in $$dirs; do \
-	make -C $$dir clean; \
+	$(MAKE) -C $$dir clean; \
 	rm -f $$dir/Makefile; \
 	done
 	rm -f Makefile
@@ -70,9 +71,9 @@ install: subdirs
 	@echo -e "For example:"
 	@echo -e "   setenv LD_LIBRARY_PATH $(INSTALL_LIB_DIR):\$$LD_LIBRARY_PATH\n"
 	@echo -e "In order to test the installation, type:"
-	@echo -e "   make test\n"
+	@echo -e "   $(MAKE) test\n"
 	@echo -e "Testing can take several minutes, for a quick test type:"
-	@echo -e "   make quicktest\n"
+	@echo -e "   $(MAKE) quicktest\n"
 	@echo -e "When compiling programs that use libocl include the following:"
 	@echo -e "   INCS += -I$(INSTALL_INCLUDE_DIR)"
 	@echo -e "   LIBS += -L$(INSTALL_LIB_DIR) -locl\n"
@@ -83,26 +84,26 @@ install: subdirs
 uninstall: subdirs
 
 test: 
-	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
+	$(MAKE) -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
 
 quicktest: 
-	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
+	$(MAKE) -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
 
 
 test-libstdcl: 
-	make -C ./test/test_stdcl $(MAKEFLAGS) test
+	$(MAKE) -C ./test/test_stdcl $(MAKEFLAGS) test
 
 test-libocl: 
-	make -C ./test/test_ocl $(MAKEFLAGS) test
+	$(MAKE) -C ./test/test_ocl $(MAKEFLAGS) test
 
 test-CLETE: 
-	make -C ./test/test_CLETE $(MAKEFLAGS) test
+	$(MAKE) -C ./test/test_CLETE $(MAKEFLAGS) test
 
 
 quicktest-libstdcl: 
-	make -C ./test/test_stdcl $(MAKEFLAGS) quicktest
+	$(MAKE) -C ./test/test_stdcl $(MAKEFLAGS) quicktest
 
 quicktest-libocl: 
-	make -C ./test/test_ocl $(MAKEFLAGS) quicktest
+	$(MAKE) -C ./test/test_ocl $(MAKEFLAGS) quicktest
 
 

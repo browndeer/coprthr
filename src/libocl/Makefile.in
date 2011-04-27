@@ -168,6 +168,7 @@ install: check_root
 	install -m 755 $(RT_BC) $(INSTALL_LIB_DIR)
 	install -m 755 ati_builtins_x86_64_patch.bc $(INSTALL_LIB_DIR)
 	install -m 755 vcore.h $(INSTALL_INCLUDE_DIR)
+	install -m 755 __libocl.h $(INSTALL_INCLUDE_DIR)
 	test -d /etc/OpenCL/vendors || install -m 755 -d /etc/OpenCL/vendors
 	echo $(INSTALL_LIB_DIR)/libocl.so > /etc/OpenCL/vendors/coprthr.icd
 #	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so

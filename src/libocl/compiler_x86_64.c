@@ -449,12 +449,17 @@ void* compile_x86_64(
 #if defined(USE_FAST_SETJMP)
 				__command(
 //					"cd %s; gcc -g -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
+					"cd %s; gcc -S -O2 -fPIC -DUSE_FAST_SETJMP -I%s  _kcall_%s.c 2>&1",
 					"cd %s; gcc -O2 -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
-//				__command("cd %s; gcc -g -fPIC -I%s -c _kcall_%s.c 2>&1",
-				__command("cd %s; gcc -O2 -fPIC -I%s -c _kcall_%s.c 2>&1",
+				__command("cd %s; gcc -O2 -fPIC -I%s -s _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
+
+				__command("cd %s; gcc -g -fPIC -I%s -c _kcall_%s.c 2>&1",
+//				__command("cd %s; gcc -O2 -fPIC -I%s -c _kcall_%s.c 2>&1",
+					wd,INSTALL_INCLUDE_DIR,filebase); 
+
 #endif
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
@@ -621,6 +626,7 @@ DEBUG(0,0,"HERE");
 
 
 
+
 				/* now build elf/cl object */
 
 				snprintf(buf1,256,"%s/%s.elfcl",wd,filebase);
@@ -651,6 +657,7 @@ DEBUG(0,0,"HERE");
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
 
+DEBUG(__FILE__,__LINE__,"HERE");
 
 
 			} else {
@@ -696,6 +703,7 @@ DEBUG(0,0,"HERE");
 	if (dlerr) fprintf(stderr,"%s\n",dlerr);
 	DEBUG(__FILE__,__LINE__,"dlopen handle %p\n",h);
 
+	int fd1 = open(buf1, O_RDONLY, 0);
 
 	/* XXX problems with mmap protections, mark entire .so as READ|EXEC 
 	 * XXX and note that this is reckless, be more precise later -DAR */
@@ -706,16 +714,59 @@ DEBUG(0,0,"HERE");
 
 	if (rt) printf("matching baseaddr %p\n",dum.addr);
 
+	size_t sz;
 	{
 	struct stat fst; stat(buf1,&fst);
-   size_t sz = fst.st_size; 
+   sz = fst.st_size; 
 	size_t page_mask = ~(getpagesize()-1);
 	intptr_t p = ((intptr_t)dum.addr)&page_mask;
 	sz += (size_t)((intptr_t)dum.addr-p);
 	mprotect((void*)p,sz,PROT_READ|PROT_EXEC);
 	}
+
+ typedef void*(*get_ptr_func_t)();
+   typedef int(*get_int_func_t)();
+   typedef size_t(*get_sz_func_t)();
+//   dladdr(h,&info);
+//   printf("XXX %s\n",info.dli_fname);
+   get_ptr_func_t __get_shstrtab = dlsym(h,"__get_shstrtab");
+   Dl_info info;
+   dladdr(__get_shstrtab,&info);
+
+//	Elf* e = elf_begin(fd1, ELF_C_READ, NULL);
+	Elf* e = (Elf*)mmap(0,sz,PROT_READ,MAP_SHARED,fd1,0);
+//   Elf* e = (Elf*)info.dli_fbase;
+	Elf64_Ehdr* ehdr = (Elf64_Ehdr*)e;
+	DEBUG(__FILE__,__LINE__,"XXX e %p",e);
+	DEBUG(__FILE__,__LINE__,"XXX e_shoff %d",ehdr->e_shoff);
+	DEBUG(__FILE__,__LINE__,"XXX e_shnum %d",ehdr->e_shnum);
+	DEBUG(__FILE__,__LINE__,"XXX e_shstrndx %d",ehdr->e_shstrndx);
+	DEBUG(__FILE__,__LINE__,"XXX %c%c%c%c",ehdr->e_ident[0],ehdr->e_ident[1],ehdr->e_ident[2],ehdr->e_ident[3]);
+
+	Elf64_Shdr* shdr = (Elf64_Shdr*)((intptr_t)e + ehdr->e_shoff);	
+	DEBUG(__FILE__,__LINE__,"XXX shstrtab offset %d",shdr[ehdr->e_shstrndx].sh_offset);
+	char* shstrtab = (char*)e + shdr[ehdr->e_shstrndx].sh_offset;
+
+   for(i=0;i<ehdr->e_shnum;i++,shdr++) {
+		printf("%s\n",shstrtab+shdr->sh_name);
+//      if (!strncmp(shstrtab+shdr->sh_name,".clstrtab",9)) break;
+   }
+
+
+	close(fd1);
+
 	
-	return(h);
+DEBUG(__FILE__,__LINE__,"XXX filename %s %d",buf1,strlen(buf1));
+
+	struct _elf_data* edata 
+		= (struct _elf_data*)malloc(sizeof(struct _elf_data));
+	__init_elf_data(*edata);
+	strncpy(edata->filename,buf1,256);
+	edata->dlh = h;
+	edata->map = (void*)e;
+
+//	return(h);
+	return((void*)edata);
 
 }
 

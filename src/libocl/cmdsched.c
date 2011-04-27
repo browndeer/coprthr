@@ -44,7 +44,7 @@ void* cmdqx0( void* argp )
 
 	/* XXX set cpu affinity of td based on device recommendation -DAR */
 	
-	pthread_setaffinity_np(pthread_self(),sizeof(cpu_set_t),
+	pthread_setaffinity_np(pthread_self(),sizeof(cpuset_t),
 		&__resolve_devid(devid,cpumask));
 
 

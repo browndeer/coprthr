@@ -49,7 +49,7 @@ typedef unsigned long long fast_jmp_buf[8];
 
 
 //#define VCORE_NE				2			/* NOT USED number of engines	*/
-#define VCORE_NC				64			/* number of vcores per engine 	*/
+#define VCORE_NC				32			/* number of vcores per engine 	*/
 #define VCORE_STACK_SZ		16384		/* stack size per vcore 			*/
 //#define VCORE_STACK_SZ		32768		/* stack size per vcore 			*/
 //#define VCORE_STACK_SZ		65536		/* stack size per vcore 			*/

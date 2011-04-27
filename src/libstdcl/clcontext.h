@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/queue.h>
+#include <pthread.h>
 
 #include <CL/cl.h>
 
