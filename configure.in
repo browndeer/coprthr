@@ -17,6 +17,7 @@ AC_DEFUN([SET_OPT],
 		fi;]
 )
 
+AC_CANONICAL_BUILD
 
 # Checks for programs.
 AC_PROG_CC
@@ -191,6 +192,7 @@ AC_CONFIG_FILES([test/test_stdcl/Makefile])
 AC_CONFIG_FILES([test/test_ocl/Makefile])
 AC_CONFIG_FILES([test/test_CLETE/Makefile])
 AC_CONFIG_FILES([include/Makefile])
+AC_CONFIG_FILES([build/Makefile])
 
 AC_OUTPUT
 

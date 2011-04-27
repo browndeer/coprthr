@@ -19,8 +19,10 @@ ifeq (@ENABLE_LIBOCL@,1)
 SUBDIRS += ./src/libocl ./tools/xclnm
 endif
 
+ifneq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 ifeq (@ENABLE_CLETE@,1)
 SUBDIRS += ./src/CLETE
+endif
 endif
 
 ifeq (@ENABLE_CLTRACE@,1)

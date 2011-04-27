@@ -264,9 +264,9 @@ void* compile_x86_64(
 
 				/* copy rt objects to work dir */
 
-				__command("cp "INSTALL_LIB_DIR"/__elfcl_rt.o %s",wd);
-				__log(logp,"]%s\n",buf1); \
-				__execshell(buf1,logp);
+//				__command("cp "INSTALL_LIB_DIR"/__elfcl_rt.o %s",wd);
+//				__log(logp,"]%s\n",buf1); \
+//				__execshell(buf1,logp);
 
 				__command("cp "INSTALL_LIB_DIR"/__vcore_rt.bc %s",wd);
 				__log(logp,"]%s\n",buf1); \
@@ -448,18 +448,11 @@ void* compile_x86_64(
 
 #if defined(USE_FAST_SETJMP)
 				__command(
-//					"cd %s; gcc -g -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
-					"cd %s; gcc -S -O2 -fPIC -DUSE_FAST_SETJMP -I%s  _kcall_%s.c 2>&1",
 					"cd %s; gcc -O2 -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
 				__command("cd %s; gcc -O2 -fPIC -I%s -s _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
-
-				__command("cd %s; gcc -g -fPIC -I%s -c _kcall_%s.c 2>&1",
-//				__command("cd %s; gcc -O2 -fPIC -I%s -c _kcall_%s.c 2>&1",
-					wd,INSTALL_INCLUDE_DIR,filebase); 
-
 #endif
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
@@ -650,7 +643,8 @@ DEBUG(0,0,"HERE");
 
 //				__command("cd %s; gcc -g -shared -Wl,-soname,%s.so -o %s.so"
 				__command("cd %s; gcc -O2 -shared -Wl,-soname,%s.so -o %s.so"
-					" _opt_%s.o _kcall_%s.o __elfcl_rt.o"
+//					" _opt_%s.o _kcall_%s.o __elfcl_rt.o"
+					" _opt_%s.o _kcall_%s.o "
 //					" fast_setjmp.o"
 					" %s.elfcl 2>&1",
 					wd,filebase,filebase,filebase,filebase,filebase);

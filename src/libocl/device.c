@@ -27,8 +27,11 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdio.h>
+
+#if defined(__FreeBSD__)
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#endif
 
 //#define _GNU_SOURCE
 //#include <sched.h>
@@ -161,12 +164,7 @@ void __do_discover_devices(
 	struct stat fs;
 	char buf[1024];
 
-//	if (stat("/proc/cpuinfo",&fs)) {
-//		WARN(__FILE__,__LINE__,"stat failed on /proc/cpuinfo");
-//		return;
-//	}
-
-//	fp = fopen("/proc/cpuinfo","r");
+#if defined(__FreeBSD__)
 
 	int val=0;
 	size_t sz=4;
@@ -189,7 +187,13 @@ void __do_discover_devices(
 	dtab[0].imp.name = dstrtab+dstrtab_sz;
 	dstrtab_sz += sz;
 
-/* XXX removed linux
+#else
+	if (stat("/proc/cpuinfo",&fs)) {
+		WARN(__FILE__,__LINE__,"stat failed on /proc/cpuinfo");
+		return;
+	}
+
+	fp = fopen("/proc/cpuinfo","r");
 
 	while (fgets(buf,1024,fp)) {
 
@@ -230,9 +234,7 @@ void __do_discover_devices(
 	}
 
 	fclose(fp);
-*/
 
-/* XXX removed linux
 
 	if (stat("/proc/meminfo",&fs)) {
 		WARN(__FILE__,__LINE__,"stat failed on /proc/meminfo");
@@ -255,7 +257,9 @@ void __do_discover_devices(
 	}
 
 	fclose(fp);
-*/
+
+#endif
+
 	
 	dtab[0].imp.comp = (void*)compile_x86_64;
 	dtab[0].imp.ilcomp = 0;

@@ -25,13 +25,12 @@
 
 #include <sys/queue.h>
 #include <pthread.h>
-#include <sys/param.h>
-#include <sys/cpuset.h>
 
 #ifdef ENABLE_ATIGPU
 #include "cal.h"
 #endif
 
+#include "cpuset_type.h"
 #include "cmdcall.h"
 
 #ifndef min
@@ -131,8 +130,7 @@ struct _imp_device {
 
 	cmdcall_t* v_cmdcall;
 
-//	cpu_set_t cpumask;
-	cpuset_t cpumask;
+	cpu_set_t cpumask;
 
 	union {
 
@@ -253,9 +251,13 @@ struct _imp_event {
 	TAILQ_ENTRY(_cl_event) cmds;
 };
 
+#if defined(__FreeBSD__)
+#define PTHREAD_MUTEX_ERRORCHECK_NP PTHREAD_MUTEX_ERRORCHECK
+#endif
+
 #define __imp_init_event(imp) do { \
 	pthread_mutexattr_t attr; \
-	int attrtype = PTHREAD_MUTEX_ERRORCHECK; \
+	int attrtype = PTHREAD_MUTEX_ERRORCHECK_NP; \
 	pthread_mutexattr_init(&attr); \
 	pthread_mutexattr_settype(&attr,attrtype); \
 	pthread_mutex_init(&imp.mtx,&attr); \

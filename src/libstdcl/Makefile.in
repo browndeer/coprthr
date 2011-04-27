@@ -47,8 +47,12 @@ VPATH = .:./man/man1:./man/man3
 
 INCS += ../../include $(USE_OPENCL_INCS)
 LIBS += $(USE_OPENCL_LIBS)
-#LIBS += -lpthread -ldl -lrt
+
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lpthread -lc -lrt
+else
+LIBS += -lpthread -ldl -lrt
+endif
 
 OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
 

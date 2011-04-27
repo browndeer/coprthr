@@ -27,6 +27,7 @@
 #include <CL/cl.h>
 #include <assert.h>
 
+#include "cpuset_type.h"
 #include "cmdsched.h"
 #include "command_queue.h"
 #include "cmdcall.h"
@@ -44,7 +45,7 @@ void* cmdqx0( void* argp )
 
 	/* XXX set cpu affinity of td based on device recommendation -DAR */
 	
-	pthread_setaffinity_np(pthread_self(),sizeof(cpuset_t),
+	pthread_setaffinity_np(pthread_self(),sizeof(cpu_set_t),
 		&__resolve_devid(devid,cpumask));
 
 

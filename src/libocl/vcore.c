@@ -286,7 +286,6 @@ vcengine( void* p )
 					if (!(__vc_setjmp(vcengine_jbuf))) {
 						sp = vc_stack[i];
 						DEBUG(__FILE__,__LINE__,"[%d] sp %p edata %p",i,sp,edata);
-//						printf("%p ",sp);
 						__callsp(sp,edata->callp,edata);
 					}
 				}
@@ -356,7 +355,7 @@ vcproc_startup( void* p )
 
 	vc_stack_storage = (char*)calloc((VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne,1);
 	mprotect(vc_stack_storage,
-		(VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne,PROT_READ|PROT_WRITE|PROT_EXEC);
+		(VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne,PROT_READ|PROT_WRITE);
 
 	ve_local_mem = (char*)calloc(VCORE_LOCAL_MEM_SZ*vcore_ne,1);
 
@@ -368,7 +367,7 @@ vcproc_startup( void* p )
 
 //	for(i=0;i<VCORE_NE;i++) {
 
-	cpuset_t mask;
+	cpu_set_t mask;
 
 	for(i=0;i<vcore_ne;i++) {
 
@@ -387,7 +386,7 @@ vcproc_startup( void* p )
 
 		CPU_ZERO(&mask);
 		CPU_SET(i%ncore,&mask);
-		if (pthread_setaffinity_np(engine_td[i],sizeof(cpuset_t),&mask)) {
+		if (pthread_setaffinity_np(engine_td[i],sizeof(cpu_set_t),&mask)) {
 			WARN(__FILE__,__LINE__,"vcengine: pthread_setaffinity_np failed");
 		}
 
