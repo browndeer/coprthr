@@ -26,7 +26,7 @@
 #include <stdint.h>
 //#include <setjmp.h>
 
-#include "cpuset_type.h"
+//#include "cpuset_type.h"
 
 #ifndef __xcl_kcall__
 #include "cmdcall.h"

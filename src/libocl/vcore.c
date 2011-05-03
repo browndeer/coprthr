@@ -32,6 +32,8 @@
 #include <pthread.h>
 #include <signal.h>
 
+#include "cpuset_type.h"
+
 #include "xcl_structs.h"	/* XXX this should be temporary! -DAR */
 
 #include "vcore.h"

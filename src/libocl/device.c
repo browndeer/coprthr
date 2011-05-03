@@ -163,11 +163,12 @@ void __do_discover_devices(
 	FILE* fp;
 	struct stat fs;
 	char buf[1024];
+	size_t sz;
 
 #if defined(__FreeBSD__)
 
 	int val=0;
-	size_t sz=4;
+	sz=4;
 	sysctlbyname("hw.ncpu",&val,&sz,0,0);
 	printf("ncpu %d %d\n",val,sz);
 	dtab[0].imp.max_compute_units = val;

@@ -109,9 +109,9 @@ cl_int __do_build_program_from_source(
 	struct clsymtab_entry* clsymtab = 0;
 	int clargtab_n = 0;
 	struct clargtab_entry* clargtab = 0;
+	char* cltextb = 0;
 
 	for(i=0;i<ehdr->e_shnum;i++,shdr++) {
-		printf("|%s|\n",shstrtab+shdr->sh_name);
 		if (!strncmp(shstrtab+shdr->sh_name,".clstrtab",9)) {
 			clstrtab_sz =shdr->sh_size;
 			clstrtab =(char*)((intptr_t)e + shdr->sh_offset);
@@ -121,6 +121,8 @@ cl_int __do_build_program_from_source(
 		} else if (!strncmp(shstrtab+shdr->sh_name,".clargtab",9)) {
 			clargtab_n =shdr->sh_size/sizeof(struct clargtab_entry);
 			clargtab =(struct clargtab_entry*)((intptr_t)e+shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".cltextb",8)) {
+			cltextb =(char*)((intptr_t)e+shdr->sh_offset);
 		}
 	}
 	
@@ -138,7 +140,8 @@ cl_int __do_build_program_from_source(
 	DEBUG(__FILE__,__LINE__,"clstrtab_sz %d\n",clstrtab_sz);
 
 
-	char* ppp = (char*)__get_cltextb();
+//	char* ppp = (char*)__get_cltextb();
+	char* ppp = (char*)cltextb;
 	printf("is image an ELF? %s\n",ppp);
 
 	#if defined(XCL_DEBUG)
@@ -309,7 +312,8 @@ cl_int __do_build_program_from_source(
 	CALimage calimg = 0;
 	CALmodule calmod = 0;
 	if (devtype == CL_DEVICE_TYPE_GPU) {
-		calimg = (CALimage)__get_cltextb();
+//		calimg = (CALimage)__get_cltextb();
+		calimg = (CALimage)cltextb;
 		err = calModuleLoad(&calmod,prg->ctx->imp.calctx[devnum],calimg);
 		DEBUG(__FILE__,__LINE__,"calModuleLoad returned %d",err);
 		DEBUG(__FILE__,__LINE__,"calmod %p",calmod);
@@ -453,9 +457,9 @@ cl_int __do_build_program_from_binary(
 	struct clsymtab_entry* clsymtab = 0;
 	int clargtab_n = 0;
 	struct clargtab_entry* clargtab = 0;
+	char* cltextb = 0;
 
 	for(i=0;i<ehdr->e_shnum;i++,shdr++) {
-		printf("|%s|\n",shstrtab+shdr->sh_name);
 		if (!strncmp(shstrtab+shdr->sh_name,".clstrtab",9)) {
 			clstrtab_sz =shdr->sh_size;
 			clstrtab =(char*)((intptr_t)e + shdr->sh_offset);
@@ -465,6 +469,8 @@ cl_int __do_build_program_from_binary(
 		} else if (!strncmp(shstrtab+shdr->sh_name,".clargtab",9)) {
 			clargtab_n =shdr->sh_size/sizeof(struct clargtab_entry);
 			clargtab =(struct clargtab_entry*)((intptr_t)e+shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".cltextb",8)) {
+			cltextb =(char*)((intptr_t)e+shdr->sh_offset);
 		}
 	}
 	
@@ -481,7 +487,8 @@ cl_int __do_build_program_from_binary(
 //
 //			DEBUG(__FILE__,__LINE__,"clstrtab_sz %d\n",clstrtab_sz);
 
-			char* ppp = (char*)__get_cltextb();
+//			char* ppp = (char*)__get_cltextb();
+			char* ppp = (char*)cltextb;
 			printf("is image an ELF? %s\n",ppp);
 
 			#if defined(XCL_DEBUG)
@@ -670,7 +677,8 @@ cl_int __do_build_program_from_binary(
 				CALimage calimg = 0;
 				CALmodule calmod = 0;
 
-				calimg = (CALimage)__get_cltextb();
+//				calimg = (CALimage)__get_cltextb();
+				calimg = (CALimage)cltextb;
 				err = calModuleLoad(&calmod,prg->ctx->imp.calctx[devnum],calimg);
 				DEBUG(__FILE__,__LINE__,"calModuleLoad returned %d",err);
 				DEBUG(__FILE__,__LINE__,"calmod %p",calmod);
