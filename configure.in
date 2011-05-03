@@ -23,6 +23,7 @@ AC_CANONICAL_BUILD
 AC_PROG_CC
 AC_PROG_INSTALL
 #AC_PROG_LIBTOOL
+AC_PATH_PROG([BASH],[bash],,[path=`$path`])
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lOpenCL':
@@ -198,6 +199,12 @@ AC_CONFIG_FILES([test/test_stdcl/Makefile])
 AC_CONFIG_FILES([test/test_ocl/Makefile])
 AC_CONFIG_FILES([test/test_CLETE/Makefile])
 AC_CONFIG_FILES([include/Makefile])
+
+AC_CONFIG_FILES([test/test_ocl/scripts/run_tests.sh])
+AC_CONFIG_FILES([test/test_ocl/scripts/run_quick_tests.sh])
+AC_CONFIG_FILES([test/test_stdcl/scripts/run_tests.sh])
+AC_CONFIG_FILES([test/test_stdcl/scripts/run_quick_tests.sh])
+
 
 AC_OUTPUT
 

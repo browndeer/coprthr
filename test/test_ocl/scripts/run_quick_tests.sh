@@ -1,4 +1,4 @@
-#!/usr/local/bin/bash
+#!/bin/sh
 
 run_test() {
 	printf "%-68s" "$1 $2 $3"
