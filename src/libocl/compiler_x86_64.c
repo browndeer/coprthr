@@ -299,7 +299,7 @@ void* compile_x86_64(
 						wd,opt,filebase,file_cl); 
 				} else {
 					DEBUG(__FILE__,__LINE__,"no options");
-					__command("cd %s; clc -o __%s.ll %s 2>&1",wd,filebase,file_cl); 
+					__command("cd %s; clc21 -o __%s.ll %s 2>&1",wd,filebase,file_cl); 
 				}
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
@@ -357,8 +357,8 @@ void* compile_x86_64(
 		/* XXX builtins_x86-64.bc == v2.1 / builtins-x86_64.bc = v2.3 */
                __command(
                   "cd %s;"
-                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins_x86-64.bc"
-//                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64.bc"
+                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64-21.bc"
+//                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64-23.bc"
                   " -o builtins.bc",
                   wd,buf2,ATISTREAMSDK);
                __log(logp,"]%s\n",buf1);
@@ -451,7 +451,7 @@ void* compile_x86_64(
 					"cd %s; gcc -O2 -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
-				__command("cd %s; gcc -O2 -fPIC -I%s -s _kcall_%s.c 2>&1",
+				__command("cd %s; gcc -O2 -fPIC -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #endif
 				__log(logp,"]%s\n",buf1); \
@@ -741,10 +741,9 @@ DEBUG(__FILE__,__LINE__,"HERE");
 	DEBUG(__FILE__,__LINE__,"XXX shstrtab offset %d",shdr[ehdr->e_shstrndx].sh_offset);
 	char* shstrtab = (char*)e + shdr[ehdr->e_shstrndx].sh_offset;
 
-   for(i=0;i<ehdr->e_shnum;i++,shdr++) {
-		printf("%s\n",shstrtab+shdr->sh_name);
-//      if (!strncmp(shstrtab+shdr->sh_name,".clstrtab",9)) break;
-   }
+//   for(i=0;i<ehdr->e_shnum;i++,shdr++) {
+//		printf("%s\n",shstrtab+shdr->sh_name);
+//   }
 
 
 	close(fd1);

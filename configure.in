@@ -154,11 +154,17 @@ AC_ARG_WITH(nvidia-sdk,
 OPENCL_LIBNAME=OpenCL
 
 if test $ENABLE_LIBOCL -eq 1; then 
-	if ! test -e $AMD_SDK/lib/x86_64/builtins_x86-64.bc; then
-		AC_MSG_ERROR([libocl requres builtins_x86-64.bc, file not found])
+
+	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
+		AC_MSG_ERROR([libocl requres clc21, file not found])
+	fi;
+
+	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64-21.bc; then
+		AC_MSG_ERROR([libocl requres builtins-x86_64-21.bc, file not found])
 #	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
 #		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
 	fi;
+
 fi;
 
 
@@ -192,7 +198,6 @@ AC_CONFIG_FILES([test/test_stdcl/Makefile])
 AC_CONFIG_FILES([test/test_ocl/Makefile])
 AC_CONFIG_FILES([test/test_CLETE/Makefile])
 AC_CONFIG_FILES([include/Makefile])
-AC_CONFIG_FILES([build/Makefile])
 
 AC_OUTPUT
 
