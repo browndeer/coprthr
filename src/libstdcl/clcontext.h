@@ -28,7 +28,11 @@
 #include <sys/queue.h>
 #include <pthread.h>
 
-#include <CL/cl.h>
+#if defined(__APPLE__)
+#include "OpenCL/opencl.h"
+#else
+#include "CL/cl.h"
+#endif
 
 struct _prgs_struct;
 struct _txt_struct;

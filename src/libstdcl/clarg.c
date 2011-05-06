@@ -23,15 +23,9 @@
 
 #include <string.h>
 #include <stdio.h>
-//#include <sys/queue.h>
 
-#include <CL/cl.h>
-
-//#include "clcontext.h"
-//#include "clinit.h"
-//#include "clsched.h"
+#include "clarg.h"
 #include "clmalloc.h"
-//#include "clfcn.h"
 #include "util.h"
 
 

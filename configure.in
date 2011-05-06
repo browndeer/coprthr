@@ -45,6 +45,9 @@ AC_ARG_ENABLE(clete,
 AC_ARG_ENABLE(debug-libs,
   AC_HELP_STRING([--enable-debug-libs],[enable building debug versions of librarires (default=yes)]),, enable_debug_libs=yes)
 
+AC_ARG_ENABLE(clld,
+  AC_HELP_STRING([--enable-clld],[enable building clld tool (default=yes)]),, enable_clld=yes)
+
 AC_ARG_ENABLE(cltrace,
   AC_HELP_STRING([--enable-cltrace],[enable building cltrace tool (default=yes)]),, enable_cltrace=yes)
 
@@ -69,8 +72,36 @@ if test x$enable_libocl == xno; then
 fi;
 
 
-### now process the selected options
+### override options based on build OS and set OSDEP string
+case $build_os in
+   freebsd*)
+      enable_clete=no;
+		enable_libocl_atigpu=no;
+		OSDEP=
+      ;;
+	linux*)
+		OSDEP=
+      ;;
+   macos*)
+      enable_clete=no;
+      enable_libocl=no;
+		enable_libocl_atigpu=no;
+		enable_clld=no;
+		enable_cltrace=no;
+		OSDEP=.macos
+      ;;
+esac
 
+
+### check and process option dependencies and inferences
+if test x$enable_libocl == xno; then
+	enable_libocl_ncpu=no;
+	enable_libocl_atigpu=no;
+	enable_libocl_bdt_builtins=no;
+fi;
+
+
+### now process the selected options
 SET_OPT($enable_libstdcl_clgl_support, ENABLE_CLGL, "CLGL support")
 SET_OPT($enable_clete, ENABLE_CLETE, "CLETE expression template acceleration")
 SET_OPT($enable_debug_libs, ENABLE_DEBUG_LIBS, "building debug versions of librarires - use \<libname\>_d.so")
@@ -152,8 +183,22 @@ AC_ARG_WITH(nvidia-sdk,
   ],
   [])
 
+
 OPENCL_LIBNAME=OpenCL
 
+
+### do final check for platform name, if not set on macos, set to APPLE
+case $build_os in
+	macos*)
+	if test $OPENCL_LIBNAME = ""; then
+		OPENCL_LIBNAME=Apple;
+	fi;
+	;;
+esac;
+
+
+
+### special tests if libocl is enabled 
 if test $ENABLE_LIBOCL -eq 1; then 
 
 	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
@@ -172,6 +217,7 @@ fi;
 AC_SUBST(ENABLE_CLGL)
 AC_SUBST(ENABLE_CLETE)
 AC_SUBST(ENABLE_DEBUG_LIBS)
+AC_SUBST(ENABLE_CLLD)
 AC_SUBST(ENABLE_CLTRACE)
 AC_SUBST(ENABLE_LIBOCL)
 AC_SUBST(ENABLE_NCPU)
@@ -188,7 +234,7 @@ AC_SUBST(AMD_SDK)
 #AC_SUBST(AMD_SDK_LIB)
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([src/libstdcl/Makefile])
+AC_CONFIG_FILES([src/libstdcl/Makefile:src/libstdcl/Makefile$OSDEP.in])
 AC_CONFIG_FILES([src/CLETE/Makefile])
 AC_CONFIG_FILES([src/libocl/Makefile])
 AC_CONFIG_FILES([tools/cltrace/Makefile])
@@ -200,10 +246,14 @@ AC_CONFIG_FILES([test/test_ocl/Makefile])
 AC_CONFIG_FILES([test/test_CLETE/Makefile])
 AC_CONFIG_FILES([include/Makefile])
 
-AC_CONFIG_FILES([test/test_ocl/scripts/run_tests.sh])
-AC_CONFIG_FILES([test/test_ocl/scripts/run_quick_tests.sh])
-AC_CONFIG_FILES([test/test_stdcl/scripts/run_tests.sh])
-AC_CONFIG_FILES([test/test_stdcl/scripts/run_quick_tests.sh])
+AC_CONFIG_FILES([test/test_ocl/scripts/run_tests.sh],
+	[chmod +x test/test_ocl/scripts/run_tests.sh])
+AC_CONFIG_FILES([test/test_ocl/scripts/run_quick_tests.sh],
+	[chmod +x test/test_ocl/scripts/run_quick_tests.sh])
+AC_CONFIG_FILES([test/test_stdcl/scripts/run_tests.sh],
+	[chmod +x test/test_stdcl/scripts/run_tests.sh])
+AC_CONFIG_FILES([test/test_stdcl/scripts/run_quick_tests.sh],
+	[chmod +x test/test_stdcl/scripts/run_quick_tests.sh])
 
 
 AC_OUTPUT

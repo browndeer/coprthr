@@ -29,7 +29,19 @@
 #include <float.h>
 #include <sys/time.h>
 
+#if defined(__APPLE__)
+static __inline__
+size_t strnlen(const char *s, size_t n){
+  const char *p = (const char *)memchr(s,0,n);
+  return(p ? (size_t)(p-s) : n);
+}
+#endif
+
+#if defined(__APPLE__)
+#include<GLUT/glut.h>
+#else
 #include<GL/glut.h>
+#endif
 
 #ifdef ENABLE_CL
 #include "stdcl.h"
@@ -83,6 +95,21 @@ void display_init()
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
+#if defined(__APPLE__)
+	FILE* fp = fopen("bdt.bmp","rb");
+	unsigned char header[54];
+	fread(header,54,1,fp);
+	if(header[0]=='B' && header[1]=='M') {
+		int offset = *(unsigned int*)(header+10);
+		int w = *(int*)(header+18);
+		int h = *(int*)(header+22);
+		int b = (int)header[28];
+		bmp = (unsigned char*)malloc(w*h*3);
+		fseek(fp,offset,SEEK_SET);
+		fread(bmp,w*h*3,1,fp);
+		fclose(fp);
+	}
+#else
 	unsigned char header[54];
 	memcpy(header,_binary_bdt_bmp_start,54);
 	if(header[0]=='B' && header[1]=='M') {
@@ -93,21 +120,7 @@ void display_init()
 		bmp = (unsigned char*)malloc(w*h*3);
 		memcpy(bmp,_binary_bdt_bmp_start+offset,w*h*3);
 	}
-
-//	FILE* fp = fopen("bdt.bmp","rb");
-//	unsigned char header[54];
-//	fread(header,54,1,fp);
-//	if(header[0]=='B' && header[1]=='M') {
-//		int offset = *(unsigned int*)(header+10);
-//		int w = *(int*)(header+18);
-//		int h = *(int*)(header+22);
-//		int b = (int)header[28];
-//		bmp = (unsigned char*)malloc(w*h*3);
-//		fseek(fp,offset,SEEK_SET);
-//		fread(bmp,w*h*3,1,fp);
-//		fclose(fp);
-//	}
-
+#endif
 
 	if (iterate==iterate_cpu) { 
 		strncpy(devstr,"CPU",64);

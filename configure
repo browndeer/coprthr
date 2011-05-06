@@ -274,7 +274,7 @@ PACKAGE_STRING='coprthr 1.1'
 PACKAGE_BUGREPORT='support@browndeertechnology.com'
 
 ac_default_prefix=/usr/local/browndeer
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLLD ENABLE_CLTRACE ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -813,6 +813,7 @@ Optional Features:
                           (default=no)
   --enable-debug-libs     enable building debug versions of librarires
                           (default=yes)
+  --enable-clld           enable building clld tool (default=yes)
   --enable-cltrace        enable building cltrace tool (default=yes)
   --enable-libocl         enable building libocl (default=no)
   --enable-libocl-ncpu    enable libocl ncpu (default=yes)
@@ -2636,6 +2637,14 @@ else
   enable_debug_libs=yes
 fi;
 
+# Check whether --enable-clld or --disable-clld was given.
+if test "${enable_clld+set}" = set; then
+  enableval="$enable_clld"
+
+else
+  enable_clld=yes
+fi;
+
 # Check whether --enable-cltrace or --disable-cltrace was given.
 if test "${enable_cltrace+set}" = set; then
   enableval="$enable_cltrace"
@@ -2685,8 +2694,36 @@ if test x$enable_libocl == xno; then
 fi;
 
 
-### now process the selected options
+### override options based on build OS and set OSDEP string
+case $build_os in
+   freebsd*)
+      enable_clete=no;
+		enable_libocl_atigpu=no;
+		OSDEP=
+      ;;
+	linux*)
+		OSDEP=
+      ;;
+   macos*)
+      enable_clete=no;
+      enable_libocl=no;
+		enable_libocl_atigpu=no;
+		enable_clld=no;
+		enable_cltrace=no;
+		OSDEP=.macos
+      ;;
+esac
 
+
+### check and process option dependencies and inferences
+if test x$enable_libocl == xno; then
+	enable_libocl_ncpu=no;
+	enable_libocl_atigpu=no;
+	enable_libocl_bdt_builtins=no;
+fi;
+
+
+### now process the selected options
 if test x$enable_libstdcl_clgl_support != xno; then
 			echo "enabled "CLGL support""
 			ENABLE_CLGL=1
@@ -2842,8 +2879,22 @@ echo "$as_me: error: Could not find Nvidia SDK lib path" >&2;}
 
 fi;
 
+
 OPENCL_LIBNAME=OpenCL
 
+
+### do final check for platform name, if not set on macos, set to APPLE
+case $build_os in
+	macos*)
+	if test $OPENCL_LIBNAME = ""; then
+		OPENCL_LIBNAME=Apple;
+	fi;
+	;;
+esac;
+
+
+
+### special tests if libocl is enabled
 if test $ENABLE_LIBOCL -eq 1; then
 
 	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
@@ -2878,12 +2929,13 @@ fi;
 
 
 
+
 #AC_SUBST(AMD_SDK_INC)
 #AC_SUBST(AMD_SDK_LIB)
 
           ac_config_files="$ac_config_files Makefile"
 
-          ac_config_files="$ac_config_files src/libstdcl/Makefile"
+          ac_config_files="$ac_config_files src/libstdcl/Makefile:src/libstdcl/Makefile$OSDEP.in"
 
           ac_config_files="$ac_config_files src/CLETE/Makefile"
 
@@ -3468,7 +3520,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
-  "src/libstdcl/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libstdcl/Makefile" ;;
+  "src/libstdcl/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libstdcl/Makefile:src/libstdcl/Makefile$OSDEP.in" ;;
   "src/CLETE/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/CLETE/Makefile" ;;
   "src/libocl/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libocl/Makefile" ;;
   "tools/cltrace/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/cltrace/Makefile" ;;
@@ -3584,6 +3636,7 @@ s,@BASH@,$BASH,;t t
 s,@ENABLE_CLGL@,$ENABLE_CLGL,;t t
 s,@ENABLE_CLETE@,$ENABLE_CLETE,;t t
 s,@ENABLE_DEBUG_LIBS@,$ENABLE_DEBUG_LIBS,;t t
+s,@ENABLE_CLLD@,$ENABLE_CLLD,;t t
 s,@ENABLE_CLTRACE@,$ENABLE_CLTRACE,;t t
 s,@ENABLE_LIBOCL@,$ENABLE_LIBOCL,;t t
 s,@ENABLE_NCPU@,$ENABLE_NCPU,;t t
@@ -3832,6 +3885,13 @@ s,@INSTALL@,$ac_INSTALL,;t t
     rm -f $tmp/out
   fi
 
+  # Run the commands associated with the file.
+  case $ac_file in
+    test/test_ocl/scripts/run_tests.sh ) chmod +x test/test_ocl/scripts/run_tests.sh ;;
+    test/test_ocl/scripts/run_quick_tests.sh ) chmod +x test/test_ocl/scripts/run_quick_tests.sh ;;
+    test/test_stdcl/scripts/run_tests.sh ) chmod +x test/test_stdcl/scripts/run_tests.sh ;;
+    test/test_stdcl/scripts/run_quick_tests.sh ) chmod +x test/test_stdcl/scripts/run_quick_tests.sh ;;
+  esac
 done
 _ACEOF
 

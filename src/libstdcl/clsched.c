@@ -31,10 +31,8 @@
 #include <assert.h>
 #include <dlfcn.h>
 
-#include <CL/cl.h>
-//#include "stdcl.h"
-#include "util.h"
 #include "clsched.h"
+#include "util.h"
 
 
 

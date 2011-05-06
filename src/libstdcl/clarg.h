@@ -23,11 +23,13 @@
 #ifndef _CLARG_H
 #define _CLARG_H
 
-#include <CL/cl.h>
-//#include "stdcl.h"
-//#include <sys/queue.h>
+#if defined(__APPLE__)
+#include "OpenCL/opencl.h"
+#else
+#include "CL/cl.h"
+#endif
+
 #include "clcontext.h"
-//#include "clinit.h"
 
 
 #ifdef __cplusplus

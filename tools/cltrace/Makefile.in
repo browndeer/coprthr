@@ -23,9 +23,9 @@ MAN1 = cltrace.1
 INSTALL_BINS = $(BIN_NAME)
 INSTALL_LIBS = libcltrace1.so
 
-ifeq (@DEFAULT_OPENCL_PLATFORM@,ATI)
-INSTALL_LIBS += libcltrace0_calrt.so libcltrace0_calcl.so 
-endif
+#ifeq (@DEFAULT_OPENCL_PLATFORM@,ATI)
+#INSTALL_LIBS += libcltrace0_calrt.so libcltrace0_calcl.so 
+#endif
 
 INSTALL_BIN_DIR=@bindir@
 INSTALL_LIB_DIR=@libdir@

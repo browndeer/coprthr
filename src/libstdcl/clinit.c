@@ -34,13 +34,9 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 
-#include <elf.h>
-
-#include <CL/cl.h>
-
-#include "util.h"
 #include "clinit.h"
 #include "clcontext.h"
+#include "util.h"
 
 
 #ifdef DEFAULT_OPENCL_PLATFORM
@@ -101,6 +97,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	/*
 	 * set _proc_cl struct
  	 */
+
+#if !defined(__APPLE__)
 
 	pid_t pid = getpid();
 	DEBUG(__FILE__,__LINE__,"_libstdcl_init: pid=%d\n",pid);
@@ -194,6 +192,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		_proc_cl.clprgb,
 		_proc_cl.cltextb,_proc_cl.clstrtab
 	);
+
+#endif
 
 
 #if(0)

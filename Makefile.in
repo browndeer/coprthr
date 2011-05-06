@@ -1,9 +1,6 @@
 
 MAKE = gmake
 
-#BUILD_LIBS = libstdcl libocl
-#BUILD_TOOLS = cltrace xclnm 
-
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
@@ -13,24 +10,25 @@ INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
 
-SUBDIRS += ./include ./src/libstdcl ./tools/clld
+SUBDIRS += ./include ./src/libstdcl 
+
+ifeq (@ENABLE_CLLD@,1)
+SUBDIRS += ./tools/clld
+endif
 
 ifeq (@ENABLE_LIBOCL@,1)
 SUBDIRS += ./src/libocl ./tools/xclnm
 endif
 
-ifneq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 ifeq (@ENABLE_CLETE@,1)
 SUBDIRS += ./src/CLETE
-endif
 endif
 
 ifeq (@ENABLE_CLTRACE@,1)
 SUBDIRS += ./tools/cltrace
 endif
 
-#SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))
-#SUBDIRS += $(addprefix ./tools/,$(BUILD_TOOLS)) 
+
 
 DISTCLEAN_DIRS = ./src/libstdcl ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_ocl ./include
 

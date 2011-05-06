@@ -23,7 +23,11 @@
 #ifndef _CLSCHED_H
 #define _CLSCHED_H
 
-#include <CL/cl.h>
+#if defined(__APPLE__)
+#include "OpenCL/opencl.h"
+#else
+#include "CL/cl.h"
+#endif
 
 #include "clcontext.h"
 

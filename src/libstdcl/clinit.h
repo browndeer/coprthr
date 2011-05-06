@@ -26,9 +26,18 @@
 #include <string.h>
 #include <stdio.h>
 #include <sys/queue.h>
-#include <elf.h>
 
-#include <CL/cl.h>
+#if defined(__APPLE__)
+#include "gelf.h"
+#else
+#include <elf.h>
+#endif
+
+#if defined(__APPLE__)
+#include "OpenCL/opencl.h"
+#else
+#include "CL/cl.h"
+#endif
 
 #include "clcontext.h"
 

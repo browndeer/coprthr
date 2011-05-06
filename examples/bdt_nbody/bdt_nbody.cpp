@@ -40,7 +40,7 @@
 #include "nbody.h"
 
 #ifndef DISABLE_DISPLAY
-#include<GL/glut.h>
+//#include<GL/glut.h>
 #include "nbody_display.h"
 #endif
 

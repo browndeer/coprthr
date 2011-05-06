@@ -36,12 +36,11 @@
 #include <fcntl.h>
 #include <pthread.h>
 
-#include <CL/cl.h>
 
+#include "clcontext.h"
 #include "util.h"
 #include "clinit.h"
 #include "clfcn.h"
-#include "clcontext.h"
 
 #ifdef DEFAULT_OPENCL_PLATFORM
 #define DEFAULT_PLATFORM_NAME DEFAULT_OPENCL_PLATFORM

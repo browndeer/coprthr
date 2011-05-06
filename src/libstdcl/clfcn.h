@@ -23,9 +23,14 @@
 #ifndef _CLFCN_H
 #define _CLFCN_H
 
-#include <CL/cl.h>
-//#include "stdcl.h"
 #include <sys/queue.h>
+
+#if defined(__APPLE__)
+#include "OpenCL/opencl.h"
+#else
+#include "CL/cl.h"
+#endif
+
 #include "clcontext.h"
 #include "clinit.h"
 

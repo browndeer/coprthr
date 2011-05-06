@@ -26,9 +26,16 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "CL/cl.h"
-//#include "stdcl.h"
+#if defined(__APPLE__)
+static __inline__
+size_t strnlen(const char *s, size_t n){
+  const char *p = (const char *)memchr(s,0,n);
+  return(p ? (size_t)(p-s) : n);
+}
+#endif
+
 #include "clfcn.h"
 #include "util.h"
 
@@ -246,6 +253,14 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 	if (!fname) {
 
+#if defined(__APPLE__) 
+
+		WARN(__FILE__,__LINE__," embedded CL code not supported on Mac OS");
+
+		return(0);
+
+#else
+
 		DEBUG(__FILE__,__LINE__," fname null, search _proc_cl");
 
 		fd = -1;
@@ -274,6 +289,8 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 //		prgs->fd = fd;
 		
 		return(0);
+
+#endif
 
 	} else {
 

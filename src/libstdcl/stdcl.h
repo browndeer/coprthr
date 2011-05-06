@@ -27,7 +27,11 @@
 #include <stdio.h>
 #include <sys/queue.h>
 
-#include <CL/cl.h>
+#if defined(__APPLE__)
+#include "OpenCL/opencl.h"
+#else
+#include "CL/cl.h"
+#endif
 
 
 #define cl_float4_x(f) (((cl_float*)&(f))[0])

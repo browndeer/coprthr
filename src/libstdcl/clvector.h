@@ -23,13 +23,15 @@
 #ifndef __CLVECTOR_H
 #define __CLVECTOR_H
 
-//#include <string.h>
 #include <stdio.h>
-//#include <sys/queue.h>
-
 #include <string>
 
-#include <CL/cl.h>
+#if defined(__APPLE__)
+#include "OpenCL/opencl.h"
+#else
+#include "CL/cl.h"
+#endif
+
 #include <stdcl.h>
 #include <clmalloc_allocator.h>
 

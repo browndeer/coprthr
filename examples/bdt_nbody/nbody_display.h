@@ -24,16 +24,11 @@
 #ifndef _NBODY_DISPLAY_H
 #define _NBODY_DISPLAY_H
 
-
-//#include <algorithm>
-//#include <cstring>
-//#include <math.h> 
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <float.h>
-//#include <sys/time.h>
-
+#if defined(__APPLE__)
+#include<GLUT/glut.h>
+#else
 #include<GL/glut.h>
+#endif
 
 
 void display_init();

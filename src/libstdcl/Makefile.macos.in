@@ -1,0 +1,136 @@
+#
+# Makefile for libstdcl 
+#
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+### select default OpenCL implementation if not already defined
+#USE_OPENCL_INCS ?= -I/usr/local/atistream/include
+#USE_OPENCL_LIBS ?= -L/usr/local/atistream/lib/x86_64 -lOpenCL
+USE_OPENCL_INCS =
+USE_OPENCL_LIBS = -framework OpenCL
+
+### enable build of debug version if not already defined
+ifeq (@ENABLE_DEBUG_LIBS@,1)
+ENABLE_DEBUG_LIBSTDCL=1
+else
+ENABLE_DEBUG_LIBSTDCL=0
+endif
+
+
+DEFS += -DSTDCL_WARN 
+
+
+ifneq (@DEFAULT_OPENCL_PLATFORM@,)
+DEFS += -DDEFAULT_OPENCL_PLATFORM=\"@DEFAULT_OPENCL_PLATFORM@\"
+endif
+
+
+INSTALL_INCLUDE_DIR=@includedir@
+INSTALL_BIN_DIR=@bindir@
+INSTALL_LIB_DIR=@libdir@
+INSTALL_MAN_DIR=@mandir@
+
+
+DEFS += -DENABLE_CLEXPORT ### XXX experimental
+
+ifeq (@ENABLE_CLGL@,1)
+DEFS += -DENABLE_CLGL ### XXX experimental
+endif
+
+############################################################################
+##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
+############################################################################
+
+VPATH = .:./man/man1:./man/man3
+
+#CC = gcc44
+CCFLAGS += -g -O2 -fPIC
+
+INCS += -I../../include $(USE_OPENCL_INCS)
+LIBS += $(USE_OPENCL_LIBS)
+
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+LIBS += -lpthread -lc -lrt
+else
+LIBS += -lpthread -ldl -lrt
+endif
+
+OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
+
+OBJS_D = $(subst .o,_d.o,$(OBJS)) 
+
+HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h clarg.h \
+	clmalloc_allocator.h clvector.h clmulti_array.h
+
+MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
+	clndrange_set3d.3 clarg_set_global.3 clmdetach.3 clndrange_set.3 \
+	clarg_set_local.3 clmsync.3 clopen.3 clclose.3 clndrange_init1d.3 \
+	clsizeofmem.3 clerror.3 clndrange_init2d.3 clsym.3 clfork.3 \
+	clndrange_init3d.3 clwait.3 clfree.3 clndrange_init.3 stdcl.3 \
+	clload.3 clndrange_set1d.3
+
+
+INSTALL_INCS = $(HDRS)
+INSTALL_LIBS = libstdcl.dynlib libstdcl_d.dynlib
+
+TARGET = libstdcl.dynlib $(addsuffix .gz,$(MAN3))
+ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
+TARGET += libstdcl_d.dynlib
+
+
+all: $(TARGET)
+
+.phony: install uninstall clean distclean check_root debug
+
+
+libstdcl.dynlib: $(OBJS)
+	$(CC) $(CCFLAGS) -dynamiclib -undefined dynamic_lookup -single_module -o libstdcl.dynlib $(OBJS) $(LIBS)
+
+libstdcl_d.dynlib: $(OBJS_D)
+	$(CC) $(CCFLAGS) -dynamiclib -undefined dynamic_lookup -single_module -o libstdcl_d.dynlib $(OBJS_D) $(LIBS)
+
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+%_d.o:
+	$(CC) $(CCFLAGS) $(DEFS) -DSTDCL_DEBUG $(INCS) -c $*.c -o $*_d.o
+
+%.3.gz:
+	-gzip -f -c $*.3 > $*.3.gz
+
+
+check_root: 
+#ifneq ($(shell whoami),root)
+#	$(error install must be done as root)
+#endif
+
+
+#install: check_root all
+install: check_root $(INSTALL_INCS) $(INSTALL_LIBS) $(addsuffix .gz,$(MAN3))
+	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
+	test -d $(INSTALL_MAN_DIR)/man3 || install -m 755 -d $(INSTALL_MAN_DIR)/man3
+	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
+	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
+	install -m 644 $(addsuffix .gz,$(MAN3)) $(INSTALL_MAN_DIR)/man3
+
+uninstall: check_root
+	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS)) 
+	rm -f $(addprefix $(INSTALL_BIN_DIR)/,$(INSTALL_BINS)) 
+	rm -f $(addprefix $(INSTALL_MAN_DIR)/man3/,$(addsuffix .gz,$(MAN3)))
+
+
+clean:
+	rm -f *.o 
+	rm -f *.1.gz *.3.gz
+	rm -f _interceptor.h 
+	rm -f *.so
+
+
