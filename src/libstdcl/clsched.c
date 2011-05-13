@@ -24,12 +24,17 @@
 /* XXX to do, add err code checks, other safety checks * -DAR */
 /* XXX to do, clvplat_destroy should automatically release all txts -DAR */
 
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
 #include <unistd.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <assert.h>
-#include <dlfcn.h>
+//#include <dlfcn.h>
 
 #include <CL/cl.h>
 //#include "stdcl.h"
@@ -41,14 +46,7 @@
 #define __error(e) do { errno=e; return(-1); } while(0); 
 
 
-/* XXX hack to work around the problem with clCreateCommandQueue -DAR */
-//static inline void __cmdq__(CONTEXT* cp, cl_uint n)
-//{
-//   if (!cp->cmdq[n]) 
-//      cp->cmdq[n] = clCreateCommandQueue(cp->ctx,cp->dev[n],0,0);
-//}
-
-
+LIBSTDCL_API
 cl_event clfork(
 	CONTEXT* cp, cl_uint devnum, 
 	cl_kernel krn, struct clndrange_struct* ndr, int flags
@@ -67,7 +65,9 @@ cl_event clfork(
 	DEBUG(__FILE__,__LINE__,"clfork: devnum=%d\n",devnum);
 	DEBUG(__FILE__,__LINE__,"clfork: kev,evp %p,%p\n",cp->kev[devnum].ev,evp);
 
-//	__cmdq__(cp,devnum); // XXX this is a hack -DAR
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
 
 	 DEBUG(__FILE__,__LINE__,"clfork: ndr.dim=%d\n",ndr->dim);
 #if defined(CL_VERSION_1_1)
@@ -139,11 +139,16 @@ cl_event clfork(
 }
 
 
+LIBSTDCL_API
 cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 {
 	int err;
 	int n;
 	cl_event* evp;
+
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
 
 	if (flags&CL_FAST) {
 		clFinish(cp->cmdq[0]);
@@ -303,6 +308,7 @@ DEBUG(__FILE__,__LINE__, "clwait: here");
 }
 
 
+LIBSTDCL_API
 cl_event clwaitev(
   CONTEXT* cp, unsigned int devnum, const cl_event ev, int flags
 )
@@ -325,6 +331,7 @@ cl_event clwaitev(
 }
 
 
+LIBSTDCL_API
 int clflush(CONTEXT* cp, unsigned int devnum, int flags)
 {
 
@@ -332,6 +339,10 @@ int clflush(CONTEXT* cp, unsigned int devnum, int flags)
 //		clFinish(cp->cmdq[0]);
 //		return((cl_event)0);
 //	}
+
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
 
 	clFlush(cp->cmdq[devnum]);
 

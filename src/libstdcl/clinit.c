@@ -24,17 +24,23 @@
 /* XXX to do, add err code checks, other safety checks * -DAR */
 /* XXX to do, clvplat_destroy should automatically release all txts -DAR */
 
-#include <sys/types.h>
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
 #include <unistd.h>
+#include <sys/mman.h>
+#include <elf.h>
+#endif
+
+#include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <assert.h>
 #include <fcntl.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 
-#include <elf.h>
+
 
 #include <CL/cl.h>
 
@@ -54,10 +60,10 @@
  * global CONTEXT structs 
  */
 
-CONTEXT* stddev = 0;
-CONTEXT* stdcpu = 0;
-CONTEXT* stdgpu = 0;
-CONTEXT* stdrpu = 0;
+LIBSTDCL_API CONTEXT* stddev = 0;
+LIBSTDCL_API CONTEXT* stdcpu = 0;
+LIBSTDCL_API CONTEXT* stdgpu = 0;
+LIBSTDCL_API CONTEXT* stdrpu = 0;
 
 int procelf_fd = -1;
 void* procelf = 0;
@@ -82,7 +88,12 @@ static int __getenv_token(
  * libstdcl initialization ctor and dtor 
  */
 
+#ifdef _WIN64
+//LIBSTDCL_API void _libstdcl_init()
+void _libstdcl_init()
+#else
 void __attribute__((__constructor__)) _libstdcl_init()
+#endif
 {
 
 	int i;
@@ -101,6 +112,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	/*
 	 * set _proc_cl struct
  	 */
+
+#ifndef _WIN64
 
 	pid_t pid = getpid();
 	DEBUG(__FILE__,__LINE__,"_libstdcl_init: pid=%d\n",pid);
@@ -195,6 +208,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		_proc_cl.cltextb,_proc_cl.clstrtab
 	);
 
+#endif
 
 #if(0)
 	/*
@@ -284,7 +298,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
-		enable = 1;
+		//enable = 1;
+		enable = 0;
 	}
 
 	stddev = 0;
@@ -317,7 +332,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
-		enable = 1;
+		//enable = 1;
+		enable = 0;
 	}
 
 	stdcpu = 0;
@@ -375,11 +391,11 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		if (getenv("STDGPU_LOCK"))
 			lock_key = atoi(getenv("STDGPU_LOCK"));
 
-//		stdgpu = clcontext_create(name,CL_DEVICE_TYPE_GPU,ndev,0,0);
 		stdgpu = clcontext_create(name,CL_DEVICE_TYPE_GPU,ndev,0,lock_key);
 
 	}
 
+	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
 
 
 	/*
@@ -432,14 +448,20 @@ void __attribute__((__constructor__)) _libstdcl_init()
 }
 
 
+#ifdef _WIN64
+void _libstdcl_fini()
+#else
 void __attribute__((__destructor__)) _libstdcl_fini()
+#endif
 {
 	DEBUG(__FILE__,__LINE__,"_libstdcl_fini() called");
 
 	if (stdgpu) clcontext_destroy(stdgpu);
 
+#ifndef _WIN64
 	munmap(procelf,procelf_sz);
 	close(procelf_fd);
+#endif
 
 /* Dangerous, order of destructors not well-controled, just let them die -DAR 
 	if (stddev) clcontext_destroy(stddev);
