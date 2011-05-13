@@ -49,14 +49,14 @@ struct clndrange_struct {
 extern "C" {
 #endif
 
-cl_event clfork(CONTEXT* cp, cl_uint devnum, cl_kernel krn, struct clndrange_struct* ndr, int flags);
+LIBSTDCL_API cl_event clfork(CONTEXT* cp, cl_uint devnum, cl_kernel krn, struct clndrange_struct* ndr, int flags);
 
-cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags);
-cl_event clwaitev(
+LIBSTDCL_API cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags);
+LIBSTDCL_API cl_event clwaitev(
    CONTEXT* cp, unsigned int devnum, const cl_event ev, int flags
 );
 
-int clflush(CONTEXT* cp, unsigned int devnum, int flags);
+LIBSTDCL_API int clflush(CONTEXT* cp, unsigned int devnum, int flags);
 
 #ifdef __cplusplus
 }

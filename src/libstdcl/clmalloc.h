@@ -24,6 +24,10 @@
 #ifndef _CLMALLOC_H
 #define _CLMALLOC_H
 
+#ifdef _WIN64
+#include "fix_windows.h"
+#endif
+
 #include <stdarg.h>
 
 //#include "stdcl.h"
@@ -96,25 +100,26 @@ size_t clsizeofmem(void* ptr)
 }
 
 
-void* clmalloc(CONTEXT* cp, size_t size, int flag);
-void clfree( void* ptr );
-int clmattach( CONTEXT* cp, void* ptr );
-int clmdetach( void* ptr );
+LIBSTDCL_API void* clmalloc(CONTEXT* cp, size_t size, int flag);
+LIBSTDCL_API void clfree( void* ptr );
+LIBSTDCL_API int clmattach( CONTEXT* cp, void* ptr );
+LIBSTDCL_API int clmdetach( void* ptr );
 //int clmctl( void* ptr, int op, int arg );
 //int clmctl( void* ptr, int op, ... );
-int clmctl_va( void* ptr, int op, va_list );
+LIBSTDCL_API int clmctl_va( void* ptr, int op, va_list );
 
-void* clmrealloc(CONTEXT* cp, void* ptr, size_t size, int flag);
+LIBSTDCL_API void* clmrealloc(CONTEXT* cp, void* ptr, size_t size, int flag);
 
-cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
+LIBSTDCL_API cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 
-void* clmemptr( CONTEXT* CP, void* ptr );
+LIBSTDCL_API void* clmemptr( CONTEXT* CP, void* ptr );
 
 #ifdef ENABLE_CLGL
 void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
 cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 #endif
 
+/* XXX WIN64
 static 
 __inline__
 int clmctl( void* ptr, int op, ... )
@@ -125,7 +130,16 @@ int clmctl( void* ptr, int op, ... )
 	va_end(ap); 
 	return(rc);
 }
+*/
 
+__inline int
+__test_memd_magic(void* ptr) 
+{
+	intptr_t ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
+	struct _memd_struct* memd = (struct _memd_struct*)ptri;
+	if (memd->magic == CLMEM_MAGIC) return(1);
+	return(0);
+}
 
 #ifdef __cplusplus
 }

@@ -23,15 +23,10 @@
 
 #include <string.h>
 #include <stdio.h>
-//#include <sys/queue.h>
 
 #include <CL/cl.h>
 
-//#include "clcontext.h"
-//#include "clinit.h"
-//#include "clsched.h"
 #include "clmalloc.h"
-//#include "clfcn.h"
 #include "util.h"
 
 
@@ -39,7 +34,7 @@
 extern "C" {
 #endif
 
-size_t 
+LIBSTDCL_API size_t 
 clarg_set_global(CONTEXT* cp, cl_kernel krn, unsigned int argnum, void* ptr) 
 {
 	struct _memd_struct* memd = 0;

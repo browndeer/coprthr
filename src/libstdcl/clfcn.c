@@ -20,12 +20,18 @@
 
 /* DAR */
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
 #include <sys/mman.h>
 #include <unistd.h>
+#endif
+
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
+
 
 #include "CL/cl.h"
 //#include "stdcl.h"
@@ -43,7 +49,7 @@
  */
 
 
-void* 
+LIBSTDCL_API void* 
 clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 {
 	int n;
@@ -60,7 +66,11 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 		= (struct _prgs_struct*)malloc(sizeof(struct _prgs_struct));
 
 	prgs->fname = 0;
+#ifdef _WIN64
+	prgs->fp = 0;
+#else
 	prgs->fd = -1;
+#endif
 	prgs->len = len;
 	prgs->ptr = ptr;
 	prgs->refc = 1;
@@ -97,7 +107,7 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 }
 
 
-void* 
+LIBSTDCL_API void* 
 clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 {
 	int n;
@@ -227,13 +237,17 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 }
 
 
-void* 
+LIBSTDCL_API void* 
 clopen( CONTEXT* cp, const char* fname, int flags )
 {
 	int n;
 	int err;
 	struct stat fs;
+#ifdef _WIN64
+	FILE* fp;
+#else
 	int fd;
+#endif
 	size_t len;
 	void* ptr;
 	struct _prgs_struct* prgs;
@@ -245,6 +259,12 @@ DEBUG(__FILE__,__LINE__," checking cp ");
 DEBUG(__FILE__,__LINE__," cp ok ");
 
 	if (!fname) {
+
+#ifdef _WIN64
+
+		WARN(__FILE__,__LINE__,"embedded kernels not supported for Windows");
+
+#else
 
 		DEBUG(__FILE__,__LINE__," fname null, search _proc_cl");
 
@@ -272,7 +292,9 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 //		prgs = clload(cp,ptr,len,flags);
 //		prgs->fname = fname;
 //		prgs->fd = fd;
-		
+
+#endif
+
 		return(0);
 
 	} else {
@@ -290,6 +312,17 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 		len = fs.st_size;
 
+#ifdef _WIN64
+		fp = fopen(fname,"r");
+		ptr = malloc(len);
+		fread(ptr,1,len,fp);
+		fclose(fp);
+
+		prgs = (_prgs_struct *)clload(cp,ptr,len,flags);
+		prgs->fname = fname;
+		prgs->fp = fp;
+
+#else
 		if ((fd = open(fname,O_RDONLY)) == -1) return(0); 
 
 		DEBUG(__FILE__,__LINE__," file open ");
@@ -299,9 +332,12 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 			return(0);
 		}
 
-		prgs = clload(cp,ptr,len,flags);
+
+		prgs = (_prgs_struct *)clload(cp,ptr,len,flags);
 		prgs->fname = fname;
 		prgs->fd = fd;
+
+#endif
 
 		return((void*)prgs);
 	}
@@ -309,7 +345,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 }
 
 
-int 
+LIBSTDCL_API int 
 clclose(CONTEXT* cp, void* handle)
 {
 	int n;
@@ -348,7 +384,9 @@ clclose(CONTEXT* cp, void* handle)
 	DEBUG(__FILE__,__LINE__," removing prgs from list\n");
 	LIST_REMOVE(prgs, prgs_list);
 
+#ifndef _WIN64
 	if (prgs->fd >= 0) close(prgs->fd);
+#endif
 
 	free(prgs);
 
@@ -358,7 +396,7 @@ clclose(CONTEXT* cp, void* handle)
 
 
 
-cl_kernel 
+LIBSTDCL_API cl_kernel 
 clsym( CONTEXT* cp, void* handle, const char* sname, int flags )
 {
 	int n;
@@ -403,14 +441,14 @@ clsym( CONTEXT* cp, void* handle, const char* sname, int flags )
 }
 
 
-char* clerror(void)
+LIBSTDCL_API char*  clerror(void)
 {
 	return(0);
 }
 
 
 
-void* 
+LIBSTDCL_API void* 
 clsopen( CONTEXT* cp, const char* srcstr, int flags )
 {
 	int n;
@@ -430,9 +468,13 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 		ptr = (void*)srcstr;
 		len = strlen(srcstr);
 
-		prgs = clload(cp,ptr,len,flags);
+		prgs = (_prgs_struct *)clload(cp,ptr,len,flags);
 		prgs->fname = 0;
+#ifdef _WIN64
+		prgs->fp = 0;
+#else
 		prgs->fd = -1;
+#endif
 
 		return((void*)prgs);
 	}

@@ -4,6 +4,10 @@
 
 #include <stdio.h>
 
+#ifdef _WIN64
+#define ERROR CLERROR
+#endif
+
 #ifdef STDCL_DEBUG
 
 #define DEBUG(f,l,msg,...)  \
@@ -17,7 +21,8 @@
 #endif
 
 
-#if STDCL_WARN || STDCL_DEBUG
+//#if STDCL_WARN || STDCL_DEBUG
+#ifdef STDCL_DEBUG
 
 #define WARN(f,l,msg)  \
 	fprintf(stderr,"stdcl: warning: %s(%d): " msg "\n",f,l); 

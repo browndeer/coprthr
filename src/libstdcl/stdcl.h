@@ -23,9 +23,14 @@
 #ifndef _STDCL_H
 #define _STDCL_H
 
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
+#include <sys/queue.h>
+#endif
+
 #include <string.h>
 #include <stdio.h>
-#include <sys/queue.h>
 
 #include <CL/cl.h>
 

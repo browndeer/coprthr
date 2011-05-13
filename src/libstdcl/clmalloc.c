@@ -20,7 +20,12 @@
 
 /* DAR */
 
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
 #include <unistd.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -58,16 +63,7 @@
 #endif
 
 
-
-/* XXX hack to work around the problem with clCreateCommandQueue -DAR */
-//static inline void __cmdq__(CONTEXT* cp, cl_uint n)
-//{
-//   if (!cp->cmdq[n]) 
-//      cp->cmdq[n] = clCreateCommandQueue(cp->ctx,cp->dev[n],0,0);
-//}
-
-
-
+/*
 inline int
 __test_memd_magic(void* ptr) 
 {
@@ -76,7 +72,9 @@ __test_memd_magic(void* ptr)
 	if (memd->magic == CLMEM_MAGIC) return(1);
 	return(0);
 }
+*/
 
+LIBSTDCL_API 
 void* clmalloc(CONTEXT* cp, size_t size, int flags)
 {
 
@@ -169,6 +167,7 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 }
 
 
+LIBSTDCL_API
 void clfree( void* ptr )
 {
 	int err;
@@ -203,6 +202,7 @@ void clfree( void* ptr )
 }
 
 
+LIBSTDCL_API
 int clmattach( CONTEXT* cp, void* ptr )
 {
 	int err;
@@ -267,6 +267,7 @@ int clmattach( CONTEXT* cp, void* ptr )
 }
 
 
+LIBSTDCL_API
 int clmdetach( void* ptr )
 {
 	int err; 
@@ -305,6 +306,7 @@ int clmdetach( void* ptr )
 
 //int clmctl( void* ptr, int op, int arg )
 //int clmctl( void* ptr, int op, ... )
+LIBSTDCL_API
 int clmctl_va( void* ptr, int op, va_list ap )
 {
 	int err; 
@@ -408,6 +410,7 @@ int clmctl_va( void* ptr, int op, va_list ap )
 }
 
 
+LIBSTDCL_API
 cl_event 
 clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 {
@@ -447,6 +450,9 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	DEBUG(__FILE__,__LINE__,"clmsync: memd = %p, base_ptr = %p",
 		memd,(intptr_t)memd+sizeof(struct _memd_struct));
 
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
 
 //	if (flags&CL_MEM_WRITE || flags&CL_MEM_DEVICE) {
 	if (flags&CL_MEM_DEVICE) {
@@ -552,6 +558,7 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 }
 
+LIBSTDCL_API
 void* clmemptr( CONTEXT* cp, void* ptr ) 
 {
 
@@ -581,7 +588,7 @@ void* clmemptr( CONTEXT* cp, void* ptr )
 }
 
 
-
+LIBSTDCL_API
 void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 {
 	int err;
@@ -836,6 +843,9 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 	WARN(__FILE__,__LINE__,"clglmsync: no supp for dev/host sync yet");
 
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
 
 	if (flags&CL_MEM_CLBUF) {
 
