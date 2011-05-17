@@ -452,7 +452,11 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	if (flags&CL_MEM_DEVICE) {
 
 		/* XXX this is a test for tracking-DAR */
-		if (flags&CL_MEM_NOFORCE && memd->devnum == devnum) return((cl_event)0);
+		if (flags&CL_MEM_NOFORCE && memd->devnum == devnum) {
+			WARN(__FILE__,__LINE__,"clmsync/CL_MEM_NOFORCE no transfer");
+//			printf("clmsync/CL_MEM_NOFORCE no transfer\n");
+			return((cl_event)0);
+		}
 
 		if (memd->flags&__MEMD_F_IMG2D) {
 
@@ -482,7 +486,11 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	} else if (flags&CL_MEM_HOST) { 
 
 		/* XXX this is a test for tracking-DAR */
-		if (flags&CL_MEM_NOFORCE && memd->devnum == -1) return((cl_event)0);
+		if (flags&CL_MEM_NOFORCE && memd->devnum == -1) {
+			WARN(__FILE__,__LINE__,"clmsync/CL_MEM_NOFORCE no transfer");
+//			printf("clmsync/CL_MEM_NOFORCE no transfer\n");
+			return((cl_event)0);
+		}
 
 		if (memd->flags&__MEMD_F_IMG2D) {
 
