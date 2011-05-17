@@ -1,0 +1,77 @@
+﻿Build started 5/17/2011 2:44:35 AM.
+     1>Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\test_stdcl_ndev_float4\test_stdcl_ndev_float4.vcxproj" on node 2 (rebuild target(s)).
+     1>_PrepareForClean:
+         Deleting file "x64\Debug\test_stdcl_ndev_float4.lastbuildstate".
+       InitializeBuildStatus:
+         Touching "x64\Debug\test_stdcl_ndev_float4.unsuccessfulbuild".
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\CL.exe /c /I"C:\Program Files (x86)\AMD APP\\include" /I"C:\Program Files\Brown Deer Technology\libstdcl\include" /Zi /nologo /W3 /WX- /Od /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Debug\\" /Fd"x64\Debug\vc100.pdb" /Gd /TP /errorReport:prompt stdafx.cpp test_stdcl_ndev_float4.cpp
+         test_stdcl_ndev_float4.cpp
+     1>c:\program files\brown deer technology\libstdcl\include\util.h(8): warning C4005: 'ERROR' : macro redefinition
+                 C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\include\wingdi.h(112) : see previous definition of 'ERROR'
+     1>c:\program files\brown deer technology\libstdcl\include\util.h(36): warning C4005: 'ERROR' : macro redefinition
+                 c:\program files\brown deer technology\libstdcl\include\util.h(8) : see previous definition of 'ERROR'
+     1>test_stdcl_ndev_float4.cpp(60): warning C4018: '>' : signed/unsigned mismatch
+     1>test_stdcl_ndev_float4.cpp(168): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(201): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(235): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(271): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(309): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(346): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(385): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(427): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(468): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(508): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(550): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(596): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(641): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(685): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(728): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(773): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(823): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(872): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(920): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(967): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1013): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1061): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1115): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1168): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1220): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1271): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1321): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1370): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1421): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1479): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1536): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1592): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1647): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1701): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1754): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+     1>test_stdcl_ndev_float4.cpp(1806): warning C4244: '+=' : conversion from 'double' to 'float', possible loss of data
+         stdafx.cpp
+         Generating Code...
+     1>c:\users\richie\documents\bdt-code\coprthr\msvs2010\test\test_stdcl_ndev_float4\test_stdcl_ndev_float4.cpp(54): warning C4700: uninitialized local variable 'err' used
+       ManifestResourceCompile:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"x64\Debug\test_stdcl_ndev_float4.exe.embed.manifest.res" x64\Debug\test_stdcl_ndev_float4_manifest.rc 
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\x64\Debug\test_stdcl_ndev_float4.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files (x86)\AMD APP\\lib\x86_64" /LIBPATH:"C:\Program Files\Brown Deer Technology\libstdcl\lib" libstdcl.lib OpenCL.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\test_stdcl_ndev_float4.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\x64\Debug\test_stdcl_ndev_float4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\x64\Debug\test_stdcl_ndev_float4.lib" /MACHINE:X64 x64\Debug\test_stdcl_ndev_float4.exe.embed.manifest.res
+         x64\Debug\stdafx.obj
+         x64\Debug\test_stdcl_ndev_float4.obj
+         test_stdcl_ndev_float4.vcxproj -> C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\x64\Debug\test_stdcl_ndev_float4.exe
+       Manifest:
+         Deleting file "x64\Debug\test_stdcl_ndev_float4.exe.embed.manifest".
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"x64\Debug\test_stdcl_ndev_float4.exe.embed.manifest" /manifest x64\Debug\test_stdcl_ndev_float4.exe.intermediate.manifest
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"x64\Debug\test_stdcl_ndev_float4.exe.embed.manifest.res" x64\Debug\test_stdcl_ndev_float4_manifest.rc 
+       LinkEmbedManifest:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\x64\Debug\test_stdcl_ndev_float4.exe" /INCREMENTAL /NOLOGO /LIBPATH:"C:\Program Files (x86)\AMD APP\\lib\x86_64" /LIBPATH:"C:\Program Files\Brown Deer Technology\libstdcl\lib" libstdcl.lib OpenCL.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"x64\Debug\test_stdcl_ndev_float4.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\x64\Debug\test_stdcl_ndev_float4.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\x64\Debug\test_stdcl_ndev_float4.lib" /MACHINE:X64 x64\Debug\test_stdcl_ndev_float4.exe.embed.manifest.res
+         x64\Debug\stdafx.obj
+         x64\Debug\test_stdcl_ndev_float4.obj
+         test_stdcl_ndev_float4.vcxproj -> C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\x64\Debug\test_stdcl_ndev_float4.exe
+       FinalizeBuildStatus:
+         Deleting file "x64\Debug\test_stdcl_ndev_float4.unsuccessfulbuild".
+         Touching "x64\Debug\test_stdcl_ndev_float4.lastbuildstate".
+     1>Done Building Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\test_stdcl_ndev_float4\test_stdcl_ndev_float4.vcxproj" (rebuild target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:04.17
