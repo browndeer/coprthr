@@ -26,6 +26,8 @@
 
 #ifdef _WIN64
 #include "fix_windows.h"
+#else
+#define LIBSTDCL_API 
 #endif
 
 #include <stdarg.h>
@@ -132,7 +134,7 @@ int clmctl( void* ptr, int op, ... )
 }
 */
 
-__inline int
+static __inline int
 __test_memd_magic(void* ptr) 
 {
 	intptr_t ptri = (intptr_t)ptr - sizeof(struct _memd_struct);

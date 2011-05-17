@@ -26,6 +26,7 @@
 #ifdef _WIN64
 #include "fix_windows.h"
 #else
+#define LIBSTDCL_API
 #include <sys/queue.h>
 #endif
 

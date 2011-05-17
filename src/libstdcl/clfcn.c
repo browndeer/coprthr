@@ -318,7 +318,8 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 		fread(ptr,1,len,fp);
 		fclose(fp);
 
-		prgs = (_prgs_struct *)clload(cp,ptr,len,flags);
+//		prgs = (_prgs_struct *)clload(cp,ptr,len,flags);
+		prgs = (struct _prgs_struct *)clload(cp,ptr,len,flags);
 		prgs->fname = fname;
 		prgs->fp = fp;
 
@@ -333,7 +334,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 		}
 
 
-		prgs = (_prgs_struct *)clload(cp,ptr,len,flags);
+		prgs = (struct _prgs_struct *)clload(cp,ptr,len,flags);
 		prgs->fname = fname;
 		prgs->fd = fd;
 
@@ -468,7 +469,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 		ptr = (void*)srcstr;
 		len = strlen(srcstr);
 
-		prgs = (_prgs_struct *)clload(cp,ptr,len,flags);
+		prgs = (struct _prgs_struct *)clload(cp,ptr,len,flags);
 		prgs->fname = 0;
 #ifdef _WIN64
 		prgs->fp = 0;

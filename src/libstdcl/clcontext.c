@@ -20,8 +20,8 @@
 
 /* DAR */
 
-#include <iostream>
-using namespace std;
+//#include <iostream>
+//using namespace std;
 
 /* XXX to do, add err code checks, other safety checks * -DAR */
 /* XXX to do, clvplat_destroy should automatically release all txts -DAR */
@@ -113,47 +113,6 @@ clcontext_create(
 
 	DEBUG(__FILE__,__LINE__,"clcontext_create() called");
 
-/*
-	nplatforms;
-
-	err = clGetPlatformIDs(0,0,&nplatforms);
-
-	cout<<nplatforms<<" platforms\n";
-	cout<<err<<" err\n";
-
-	platforms = (cl_platform_id*)malloc(nplatforms*sizeof(cl_platform_id));
-	clGetPlatformIDs(nplatforms,platforms,0);
-
-	cout<<platforms[0]<<" platform ID\n";
-
-	cl_context_properties ctxprop[3] = {
-		(cl_context_properties)CL_CONTEXT_PLATFORM,
-		(cl_context_properties)platforms[0],
-		(cl_context_properties)0
-	};
-	cl_context ctx = clCreateContextFromType(ctxprop,CL_DEVICE_TYPE_GPU,0,0,&err);
-	cout<<ctx<<" context \n";
-
-	devlist_sz;
-	ndev;
-	err = clGetContextInfo(ctx,CL_CONTEXT_DEVICES,0,0,&devlist_sz);
-	ndev = devlist_sz/sizeof(cl_device_id);
-
-	cout<<ndev<<" devices\n";
-
-	cl_device_id dev[8];
-
-	err = clGetContextInfo(ctx,CL_CONTEXT_DEVICES,devlist_sz,dev,0);
-	cout<<dev[0]<<" device[0]\n";
-
-	cl_command_queue cmdq = clCreateCommandQueue(ctx,dev[0],0,&err);
-
-	cout<<err<<" err from clCreateCommandQueue\n";
-
-	DEBUG(__FILE__,__LINE__,"MADE IT"); return (CONTEXT*)0;
-*/
-
-	
 
 //	if (ndevmax) 
 //		WARN(__FILE__,__LINE__,"__clcontext_create(): ndevmax argument ignored");
