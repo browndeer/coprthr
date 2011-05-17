@@ -51,7 +51,7 @@ clean: subdirs
 
 distclean:
 	@dirs="$(DISTCLEAN_DIRS)"; for dir in $$dirs; do \
-	$(MAKE) -C $$dir clean; \
+	$(MAKE) -C $$dir distclean; \
 	rm -f $$dir/Makefile; \
 	done
 	rm -f Makefile

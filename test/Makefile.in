@@ -19,14 +19,16 @@ all: $(SUBDIRS)
 subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
+	echo $(MAKECMDGOALS)
 #	make -C $@ $(MAKEFLAGS) $(MAKECMDGOALS)
 	make -C $@ $(MAKECMDGOALS)
 
 clean: subdirs
-	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
+#	make $(MAKEFLAGS) $(MAKECMDGOALS)
 
-distclean: subdirs
-	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
+distclean: 
+#distclean: subdirs
+#	make -C ./test_ocl $(MAKECMDGOALS)
 
 test: subdirs
 #	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
