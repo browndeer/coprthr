@@ -3832,6 +3832,13 @@ s,@INSTALL@,$ac_INSTALL,;t t
     rm -f $tmp/out
   fi
 
+  # Run the commands associated with the file.
+  case $ac_file in
+    test/test_ocl/scripts/run_tests.sh ) chmod +x test/test_ocl/scripts/run_tests.sh ;;
+    test/test_ocl/scripts/run_quick_tests.sh ) chmod +x test/test_ocl/scripts/run_quick_tests.sh ;;
+    test/test_stdcl/scripts/run_tests.sh ) chmod +x test/test_stdcl/scripts/run_tests.sh ;;
+    test/test_stdcl/scripts/run_quick_tests.sh ) chmod +x test/test_stdcl/scripts/run_quick_tests.sh ;;
+  esac
 done
 _ACEOF
 

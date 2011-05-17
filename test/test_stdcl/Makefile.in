@@ -74,3 +74,8 @@ looptest: clean getndev.x $(CLSRC) $(PRG_TESTS)
 clean:
 	rm -f *.o getndev.x
 	rm -f $(SRC_TESTS) $(CLSRC) $(PRG_TESTS)
+
+distclean:
+	rm -f ./scripts/run_tests.sh ./scripts/run_quick_tests.sh \
+		./scripts/run_loop_tests.sh
+
