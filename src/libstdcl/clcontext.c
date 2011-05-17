@@ -419,9 +419,9 @@ clcontext_create(
 			pthread_mutex_unlock(&__ctx_lock->mtx);
 		}
 
-		_aligned_free(cp);
-#else
 		free(cp);
+#else
+		_aligned_free(cp);
 #endif
 
       return((CONTEXT*)0);
