@@ -135,4 +135,5 @@ clean:
 	rm -f _interceptor.h 
 	rm -f *.so
 
+distclean: clean
 

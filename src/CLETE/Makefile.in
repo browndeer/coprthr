@@ -39,3 +39,5 @@ uninstall: check_root
 clean:
 	rm -f $(GEN_HDRS)
 
+distclean: clean
+

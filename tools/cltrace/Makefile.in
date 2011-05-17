@@ -24,7 +24,7 @@ INSTALL_BINS = $(BIN_NAME)
 INSTALL_LIBS = libcltrace1.so
 
 ifeq (@DEFAULT_OPENCL_PLATFORM@,ATI)
-INSTALL_LIBS += libcltrace0_calrt.so libcltrace0_calcl.so 
+#INSTALL_LIBS += libcltrace0_calrt.so libcltrace0_calcl.so 
 endif
 
 INSTALL_BIN_DIR=@bindir@
@@ -100,4 +100,6 @@ clean:
 	rm -f $(BIN_NAME)
 	rm -f *.1.gz
 	rm -f _interceptor.h
+
+distclean: clean
 

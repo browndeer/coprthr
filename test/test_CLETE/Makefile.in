@@ -22,6 +22,8 @@ test_clmulti_array_clete: test_clmulti_array_clete.cpp
 clean:
 	rm -f test_clvector_clete test_clmulti_array_clete
 
+distclean: clean
+
 test: test_clvector_clete test_clmulti_array_clete
 	cltrace ./test_clvector_clete
 	cltrace ./test_clmulti_array_clete

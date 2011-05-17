@@ -184,4 +184,6 @@ clean:
 	rm -f *.o *.so
 	rm -f *.bc
 
+distclean: clean
+
 
