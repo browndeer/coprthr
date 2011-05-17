@@ -3,22 +3,37 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libstdcl", "libstdcl.vcxproj", "{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "libstdcl_win7_install", "..\Installer\Installer.vdproj", "{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
+		CD_ROM|x64 = CD_ROM|x64
 		Debug|x64 = Debug|x64
-		Release|Win32 = Release|Win32
+		DVD-5|x64 = DVD-5|x64
 		Release|x64 = Release|x64
+		SingleImage|x64 = SingleImage|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.Debug|Win32.ActiveCfg = Debug|Win32
-		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.Debug|Win32.Build.0 = Debug|Win32
+		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.CD_ROM|x64.ActiveCfg = Release|x64
+		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.CD_ROM|x64.Build.0 = Release|x64
 		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.Debug|x64.ActiveCfg = Debug|x64
 		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.Debug|x64.Build.0 = Debug|x64
-		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.Release|Win32.ActiveCfg = Release|Win32
-		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.Release|Win32.Build.0 = Release|Win32
+		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.DVD-5|x64.ActiveCfg = Debug|x64
+		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.DVD-5|x64.Build.0 = Debug|x64
 		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.Release|x64.ActiveCfg = Release|x64
 		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.Release|x64.Build.0 = Release|x64
+		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.SingleImage|x64.ActiveCfg = Release|x64
+		{F7DEF091-C86A-484E-BB7D-4D4CD4E92459}.SingleImage|x64.Build.0 = Release|x64
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.CD_ROM|x64.ActiveCfg = Release
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.CD_ROM|x64.Build.0 = Release
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.Debug|x64.ActiveCfg = Debug
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.Debug|x64.Build.0 = Debug
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.DVD-5|x64.ActiveCfg = Debug
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.DVD-5|x64.Build.0 = Debug
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.Release|x64.ActiveCfg = Release
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.Release|x64.Build.0 = Release
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.SingleImage|x64.ActiveCfg = Release
+		{4AEB184A-884B-48E8-9753-92DEB2ABFAEB}.SingleImage|x64.Build.0 = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
