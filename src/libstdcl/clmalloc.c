@@ -545,12 +545,17 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		err = clWaitForEvents(1,&ev);
 
-		if (flags & CL_EVENT_RELEASE) {
-
+//#ifdef USE_DEPRECATED_FLAGS
+//		if (flags & CL_EVENT_RELEASE && !(flags & CL_EVENT_NORELEASE) ) {
+//			clReleaseEvent(ev);
+//			ev = (cl_event)0;
+//		}
+//#else
+		if ( !(flags & CL_EVENT_NORELEASE) ) {
 			clReleaseEvent(ev);
 			ev = (cl_event)0;
-
 		}
+//#endif
 
 	}
 
@@ -882,12 +887,17 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		err = clWaitForEvents(1,&ev);
 
-		if (flags & CL_EVENT_RELEASE) {
-
+//#ifdef USE_DEPRECATED_FLAGS
+//		if (flags & CL_EVENT_RELEASE && !(flags & CL_EVENT_NORELEASE) ) {
+//			clReleaseEvent(ev);
+//			ev = (cl_event)0;
+//		}
+//#else
+		if ( !(flags & CL_EVENT_NORELEASE) ) {
 			clReleaseEvent(ev);
 			ev = (cl_event)0;
-
 		}
+//#endif
 
 	}
 

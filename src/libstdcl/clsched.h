@@ -29,9 +29,12 @@
 
 #define CL_FAST      0x08
 
-#define CL_EVENT_WAIT      0x01
-#define CL_EVENT_NOWAIT    0x02
-#define CL_EVENT_RELEASE   0x04
+#define CL_EVENT_WAIT     	0x01
+#define CL_EVENT_NOWAIT   	0x02
+#ifdef ALLOW_DEPRECATED_FLAGS
+#define CL_EVENT_RELEASE  	0x04
+#endif
+#define CL_EVENT_NORELEASE	0x08
 
 #define CL_KERNEL_EVENT		0x10
 #define CL_MEM_EVENT			0x20

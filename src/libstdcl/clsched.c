@@ -70,6 +70,11 @@ cl_event clfork(
 #endif
 
 	 DEBUG(__FILE__,__LINE__,"clfork: ndr.dim=%d\n",ndr->dim);
+
+#if defined(CL_VERSION_1_1)
+	 DEBUG(__FILE__,__LINE__,"clfork: using CL_VERSION_1_1");
+#endif
+
 #if defined(CL_VERSION_1_1)
 	 DEBUG(__FILE__,__LINE__,"clfork: ndr.gtid_offset=%d %d %d %d\n",
 		ndr->gtid_offset[0],ndr->gtid_offset[1],
@@ -81,6 +86,10 @@ cl_event clfork(
 		ndr->ltid[0],ndr->ltid[1],ndr->ltid[2],ndr->ltid[3]);
 
 	if (flags & CL_FAST) {
+
+#if defined(CL_VERSION_1_1)
+	 DEBUG(__FILE__,__LINE__,"clfork: using CL_VERSION_1_1");
+#endif
 
 	int err = clEnqueueNDRangeKernel(
 #if defined(CL_VERSION_1_1)
@@ -120,12 +129,17 @@ cl_event clfork(
 		err = clWaitForEvents( 1, &ev);
 		DEBUG(__FILE__,__LINE__,"clfork: clWaitForEvents %d",err);
 
-		if (flags & CL_EVENT_RELEASE) {
-		
+//#ifdef USE_DEPRECATED_FLAGS
+//		if (flags & CL_EVENT_RELEASE && !(flags & CL_EVENT_NORELEASE) ) {
+//			clReleaseEvent(ev);
+//			ev = (cl_event)0;
+//		}
+//#else
+		if ( !(flags & CL_EVENT_NORELEASE) ) {
 			clReleaseEvent(ev);
 			ev = (cl_event)0;
-
 		}
+//#endif
 
 	}
 
@@ -155,11 +169,17 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 		return((cl_event)0);
 	}
 
-	/* XXX clwait should be responsive to this flag, fix -DAR */
+	/* XXX clwait should be responsive to these flags, fix -DAR */
 
-	if (!flags&CL_EVENT_RELEASE) {
-		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
+//#ifdef USE_DEPRECATED_FLAGS
+//	if ( !flags&CL_EVENT_RELEASE ) {
+//		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
+//	}
+//#else
+	if ( flags&CL_EVENT_NORELEASE ) {
+		WARN(__FILE__,__LINE__,"clwait: ignoring CL_EVENT_NORELEASE");
 	}
+//#endif
 
 	/* provide warning if no event list has been chosen */
 
@@ -167,6 +187,9 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 		WARN(__FILE__,__LINE__,"clwait: no event list specified");
 	}
 
+
+	DEBUG(__FILE__,__LINE__,"clwait: devnum=%d kev.ndev=%d mev.nev=%d",
+		devnum,cp->kev[devnum].nev,cp->mev[devnum].nev);
 
 	/*
 	 * wait on kernel events
@@ -315,11 +338,17 @@ cl_event clwaitev(
 {
 	int err;
 
-	/* XXX clwait should be responsive to this flag, fix -DAR */
+	/* XXX clwait should be responsive to these flags, fix -DAR */
 
-	if (!flags&CL_EVENT_RELEASE) {
-		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
+//#ifdef USE_DEPRECATED_FLAGS
+//	if ( !flags&CL_EVENT_RELEASE ) {
+//		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
+//	}
+//#else
+	if ( flags&CL_EVENT_NORELEASE ) {
+		WARN(__FILE__,__LINE__,"clwait: ignoring CL_EVENT_NORELEASE");
 	}
+//#endif
 
 
 	err = clWaitForEvents(1,&ev);
