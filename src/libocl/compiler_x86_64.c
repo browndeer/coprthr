@@ -255,6 +255,9 @@ void* compile_x86_64(
 
 		DEBUG(__FILE__,__LINE__,"compile: %p %p",src,bin);
 
+	/* with cltrace LD_PRELOAD env var is problem so just prevent intercepts */
+	unsetenv("LD_PRELOAD");
+
 		if (!bin) { /* use source */
 
 			if (src) {
