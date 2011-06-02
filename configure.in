@@ -113,10 +113,11 @@ AC_ARG_WITH(amd-sdk,
          AC_MSG_ERROR([Could not find AMD SDK lib path])
       fi;
 
-	 DEFAULT_OPENCL_PLATFORM=ATI;
+#	 DEFAULT_OPENCL_PLATFORM=ATI;
+	 DEFAULT_OPENCL_PLATFORM=AMD;
 
   ],
-  [OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=ATI; AMD_SDK=/usr/local/atistream])
+  [OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=AMD; AMD_SDK=/usr/local/atistream])
 
 AC_ARG_WITH(nvidia-sdk,
   AC_HELP_STRING([--with-nvidia-sdk=DIR], [Use Nvidia SDK in DIR]),
