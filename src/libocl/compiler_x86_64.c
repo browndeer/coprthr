@@ -295,7 +295,7 @@ void* compile_x86_64(
 				/* clc compile */
 
 				if (opt) {
-					__command("cd %s; clc %s -o __%s.ll %s 2>&1",
+					__command("cd %s; clc21 %s -o __%s.ll %s 2>&1",
 						wd,opt,filebase,file_cl); 
 				} else {
 					DEBUG(__FILE__,__LINE__,"no options");
