@@ -274,7 +274,7 @@ PACKAGE_STRING='coprthr 1.1'
 PACKAGE_BUGREPORT='support@browndeertechnology.com'
 
 ac_default_prefix=/usr/local/browndeer
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS ENABLE_DEPRECATED_FLAGS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -819,6 +819,9 @@ Optional Features:
   --enable-libocl-atigpu  enable libocl atigpu (default=no)
   --enable-libocl-bdt-builtins
                           enable libocl bdt builtins (default=no)
+  --enable-deprecated-flags
+                          enable deprecated flags for backward compatibility
+                          (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2676,6 +2679,14 @@ else
   enable_libocl_bdt_builtins=no
 fi;
 
+# Check whether --enable-deprecated-flags or --disable-deprecated-flags was given.
+if test "${enable_deprecated_flags+set}" = set; then
+  enableval="$enable_deprecated_flags"
+
+else
+  enable_deprecated_flags=no
+fi;
+
 
 ### check and process option dependencies and inferences
 if test x$enable_libocl == xno; then
@@ -2751,6 +2762,14 @@ if test x$enable_libocl_bdt_builtins != xno; then
 			ENABLE_BDT_BUILTINS=0
 		fi;
 
+if test x$enable_deprecated_flags != xno; then
+			echo "enabled "use deprecated flags for backward compatibility""
+			ENABLE_DEPRECATED_FLAGS=1
+		else
+			echo "disabled "use deprecated flags for backward compatibility""
+			ENABLE_DEPRECATED_FLAGS=0
+		fi;
+
 
 
 OPENCL_INC=
@@ -2793,11 +2812,12 @@ echo "$as_me: error: Could not find AMD SDK lib path" >&2;}
    { (exit 1); exit 1; }; }
       fi;
 
-	 DEFAULT_OPENCL_PLATFORM=ATI;
+#	 DEFAULT_OPENCL_PLATFORM=ATI;
+	 DEFAULT_OPENCL_PLATFORM=AMD;
 
 
 else
-  OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=ATI; AMD_SDK=/usr/local/atistream
+  OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=AMD; AMD_SDK=/usr/local/atistream
 fi;
 
 
@@ -2861,6 +2881,7 @@ echo "$as_me: error: libocl requres builtins-x86_64-21.bc, file not found" >&2;}
 	fi;
 
 fi;
+
 
 
 
@@ -3589,6 +3610,7 @@ s,@ENABLE_LIBOCL@,$ENABLE_LIBOCL,;t t
 s,@ENABLE_NCPU@,$ENABLE_NCPU,;t t
 s,@ENABLE_ATIGPU@,$ENABLE_ATIGPU,;t t
 s,@ENABLE_BDT_BUILTINS@,$ENABLE_BDT_BUILTINS,;t t
+s,@ENABLE_DEPRECATED_FLAGS@,$ENABLE_DEPRECATED_FLAGS,;t t
 s,@OPENCL_INC@,$OPENCL_INC,;t t
 s,@OPENCL_LIB@,$OPENCL_LIB,;t t
 s,@OPENCL_LIBNAME@,$OPENCL_LIBNAME,;t t
