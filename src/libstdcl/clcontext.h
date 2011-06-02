@@ -95,12 +95,23 @@ struct _clcontext_ptr_struct {
 #endif
 
 };
-#ifdef _WIN64
+typedef struct _clcontext_ptr_struct CLCONTEXT;
+
+/*
+#ifdef _WIN64 
 typedef struct _clcontext_ptr_struct CLCONTEXT;
 #define CONTEXT CLCONTEXT
 #else
-typedef struct _clcontext_ptr_struct CONTEXT;
+typedef struct _clcontext_ptr_struct CLCONTEXT;
 #endif
+*/
+
+/*** XXX CONTEXT is used by WIN64 internals, so better to change to CLCONTEXT,
+ *** thie define is to ease the transition, eventually remove -DAR 
+ ***/
+#define CONTEXT CLCONTEXT
+
+
 
 struct clstat_info {
 	cl_uint impid;
