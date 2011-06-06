@@ -336,6 +336,9 @@ vcproc_startup( void* p )
 
 	vcore_ne = ncore;
 
+	if (getenv("COPRTHR_VCORE_NE")) 
+		vcore_ne = min(vcore_ne,atoi(getenv("COPRTHR_VCORE_NE")));
+
 	DEBUG(__FILE__,__LINE__,"vcore_ne = %d",vcore_ne);
 
 	engine_td = (pthread_t*)calloc(vcore_ne,sizeof(pthread_t));
