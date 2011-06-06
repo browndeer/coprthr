@@ -3,6 +3,9 @@
 #define _UTIL
 
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 
 #ifdef _WIN64
 #define ERROR CLERROR
@@ -11,7 +14,7 @@
 #ifdef STDCL_DEBUG
 
 #define DEBUG(f,l,msg,...)  \
-	fprintf(stderr,"stdcl: debug: %s(%d): " msg "\n",f,l,##__VA_ARGS__); \
+	fprintf(stderr,"[%d]stdcl: debug: %s(%d): " msg "\n",getpid(),f,l,##__VA_ARGS__); \
 	fflush(stderr);
 
 #else
