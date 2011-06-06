@@ -267,6 +267,10 @@ clcontext_create(
 
 		cl_uint platform_ndev;
 		err = clGetDeviceIDs(platformid,devtyp,0,0,&platform_ndev);
+//		cl_uint platform_vndev = 2*platform_ndev;
+		cl_uint platform_vndev = platform_ndev;
+
+//DEBUG(__FILE__,__LINE__,"%d %d",platform_ndev,platform_vndev);
 	
 		cl_device_id* platform_dev 
 			= (cl_device_id*)malloc(platform_ndev*sizeof(cl_device_id));
@@ -331,9 +335,11 @@ clcontext_create(
 			__ctx_lock = (struct __ctx_lock_struct*)p0;
 
 			pthread_mutex_lock(&__ctx_lock->mtx);
-			if (__ctx_lock->refc < platform_ndev) {
+//			if (__ctx_lock->refc < platform_ndev) {
+			if (__ctx_lock->refc < platform_vndev) {
 				noff = __ctx_lock->refc;
-				ndev = min(ndevmax,platform_ndev-noff);
+//				ndev = min(ndevmax,platform_ndev-noff);
+				ndev = min(ndevmax,platform_vndev-noff);
 				__ctx_lock->refc += ndev;
 			}
 			pthread_mutex_unlock(&__ctx_lock->mtx);
@@ -356,7 +362,9 @@ clcontext_create(
 			__ctx_lock->magic = 20110415;
 			__ctx_lock->key = lock_key;
 			pthread_mutex_init(&__ctx_lock->mtx,0);
-			ndev = min(ndevmax,platform_ndev);
+//			ndev = min(ndevmax,platform_ndev);
+			ndev = min(ndevmax,platform_vndev);
+		DEBUG(__FILE__,__LINE__,"ndev=%d %d %d",ndev,ndevmax,platform_vndev);
 			__ctx_lock->refc = ndev;
 
 			fchmod(fd,S_IRUSR|S_IWUSR);
@@ -365,9 +373,13 @@ clcontext_create(
 
 		}
 
-		if (noff < platform_ndev) {
+		DEBUG(__FILE__,__LINE__,"ndev=%d",ndev);
 
-			cp->ctx = clCreateContext(ctxprop,ndev,platform_dev + noff,0,0,&err);
+//		if (noff < platform_ndev) {
+		if (noff < platform_vndev) {
+
+//			cp->ctx = clCreateContext(ctxprop,ndev,platform_dev + noff,0,0,&err);
+			cp->ctx = clCreateContext(ctxprop,ndev,platform_dev + noff%platform_ndev,0,0,&err);
 
 			DEBUG(__FILE__,__LINE__,
 				"clcontext_create: platform_ndev=%d ndev=%d noffset=%d",
@@ -389,16 +401,16 @@ clcontext_create(
 #endif
 
 
+
 	if (cp->ctx) {
 
-		/*
 		cp->devtyp = devtyp;
 		err = clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,0,0,&devlist_sz);
 		cp->ndev = devlist_sz/sizeof(cl_device_id);
 		cp->dev = (cl_device_id*)malloc(10*devlist_sz);
 		err=clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,devlist_sz,cp->dev,0);
-		*/
 
+/*
 		cp->devtyp = devtyp;
 		err = clGetDeviceIDs(platformid,devtyp,0,0,&(cp->ndev));
 		DEBUG(__FILE__,__LINE__,"xxx %d",err);
@@ -407,7 +419,7 @@ clcontext_create(
 		err = clGetDeviceIDs(platformid,devtyp,cp->ndev,cp->dev,&(cp->ndev));
 		DEBUG(__FILE__,__LINE__,"xxx %d",err);
 		DEBUG(__FILE__,__LINE__," %p device[0]",cp->dev[0]);
-
+*/
 		
 	} else {
 
