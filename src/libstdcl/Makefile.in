@@ -9,7 +9,7 @@ exec_prefix=@exec_prefix@
 #USE_OPENCL_INCS ?= -I/usr/local/atistream/include
 #USE_OPENCL_LIBS ?= -L/usr/local/atistream/lib/x86_64 -lOpenCL
 USE_OPENCL_INCS = -I@OPENCL_INC@
-USE_OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
+#USE_OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
 
 ### enable build of debug version if not already defined
 ifeq (@ENABLE_DEBUG_LIBS@,1)
@@ -45,16 +45,21 @@ endif
 
 VPATH = .:./man/man1:./man/man3
 
-INCS += $(USE_OPENCL_INCS)
+INCS += ../../include $(USE_OPENCL_INCS)
 LIBS += $(USE_OPENCL_LIBS)
-LIBS += -lpthread -ldl
+
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+LIBS += -lpthread -lc -lrt
+else
+LIBS += -lpthread -ldl -lrt
+endif
 
 OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
 
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
 HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h clarg.h \
-	clmalloc_allocator.h clvector.h
+	clmalloc_allocator.h clvector.h clmulti_array.h
 
 MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
 	clndrange_set3d.3 clarg_set_global.3 clmdetach.3 clndrange_set.3 \
@@ -130,4 +135,5 @@ clean:
 	rm -f _interceptor.h 
 	rm -f *.so
 
+distclean: clean
 

@@ -30,6 +30,8 @@
 #define __USE_GNU
 #include <dlfcn.h>
 
+#include "util.h"
+
 #include "elf_cl.h"
 
 static int __need_mod_mprotect = 1;
@@ -37,9 +39,10 @@ static int __need_mod_mprotect = 1;
 static inline 
 void __mod_mprotect()
 {
-	Dl_info info;
-	dladdr(__mod_mprotect,&info);
 
+	Dl_info info;
+	int rc = dladdr(__mod_mprotect,&info);
+	
 	char* elfp = (char*)info.dli_fbase;
 	Elf64_Ehdr* ehdr = (Elf64_Ehdr*)elfp;
 
@@ -49,6 +52,7 @@ void __mod_mprotect()
 	size_t sz  = ehdr->e_shnum*ehdr->e_shentsize + (offset-offset_align);
 
 	__need_mod_mprotect = mprotect(elfp+offset_align,sz,PROT_READ);
+
 }
 
 
@@ -114,9 +118,10 @@ void* __get_clstrtab()
 
 	char* shstrtab = elfp + shdr[ehdr->e_shstrndx].sh_offset;
 
-	for(i=0;i<ehdr->e_shnum;i++,shdr++) 
+	for(i=0;i<ehdr->e_shnum;i++,shdr++) {
 		if (!strncmp(shstrtab+shdr->sh_name,".clstrtab",9)) break;
-	
+	}
+
 	char* clstrtab = (i<ehdr->e_shnum)? elfp+shdr->sh_offset : 0;
 
 	return(clstrtab);

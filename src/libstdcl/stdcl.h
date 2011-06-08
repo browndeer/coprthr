@@ -23,9 +23,15 @@
 #ifndef _STDCL_H
 #define _STDCL_H
 
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
+#define LIBSTDCL_API
+#include <sys/queue.h>
+#endif
+
 #include <string.h>
 #include <stdio.h>
-#include <sys/queue.h>
 
 #include <CL/cl.h>
 
@@ -64,27 +70,38 @@ typedef struct clndrange_struct clndrange_t;
 	ndr.gtid[2]=0; ndr.gtid[3]=0; \
 	ndr.ltid[0]=lt0; ndr.ltid[1]=0; \
 	ndr.ltid[2]=0; ndr.ltid[3]=0; \
-} while(0);
+} while(0)
 
-#define clndrange_set1d(ndr,gto0,gt0,lt0) do { \
-	ndr.dim = 1; \
-	ndr.gtid_offset[0]=gto0; ndr.gtid_offset[1]=0; \
+#define clndrange_set2d(ndr,gto0,gt0,lt0,gto1,gt1,lt1) do { \
+	ndr.dim = 2; \
+	ndr.gtid_offset[0]=gto0; ndr.gtid_offset[1]=gto1; \
 	ndr.gtid_offset[2]=0; ndr.gtid_offset[3]=0; \
-	ndr.gtid[0]=gt0; ndr.gtid[1]=0; \
+	ndr.gtid[0]=gt0; ndr.gtid[1]=gt1; \
 	ndr.gtid[2]=0; ndr.gtid[3]=0; \
-	ndr.ltid[0]=lt0; ndr.ltid[1]=0; \
+	ndr.ltid[0]=lt0; ndr.ltid[1]=lt1; \
 	ndr.ltid[2]=0; ndr.ltid[3]=0; \
-} while(0);
+} while(0)
 
-#define clndrange_set1d(ndr,gto0,gt0,lt0) do { \
-	ndr.dim = 1; \
-	ndr.gtid_offset[0]=gto0; ndr.gtid_offset[1]=0; \
-	ndr.gtid_offset[2]=0; ndr.gtid_offset[3]=0; \
-	ndr.gtid[0]=gt0; ndr.gtid[1]=0; \
-	ndr.gtid[2]=0; ndr.gtid[3]=0; \
-	ndr.ltid[0]=lt0; ndr.ltid[1]=0; \
-	ndr.ltid[2]=0; ndr.ltid[3]=0; \
-} while(0);
+#define clndrange_set3d(ndr,gto0,gt0,lt0,gto1,gt1,lt1,gto2,gt2,lt2) do { \
+	ndr.dim = 3; \
+	ndr.gtid_offset[0]=gto0; ndr.gtid_offset[1]=gto1; \
+	ndr.gtid_offset[2]=gto2; ndr.gtid_offset[3]=0; \
+	ndr.gtid[0]=gt0; ndr.gtid[1]=gt1; \
+	ndr.gtid[2]=gt2; ndr.gtid[3]=0; \
+	ndr.ltid[0]=lt0; ndr.ltid[1]=lt1; \
+	ndr.ltid[2]=lt2; ndr.ltid[3]=0; \
+} while(0)
+
+#define clndrange_set4d(ndr,gto0,gt0,lt0,gto1,gt1,lt1,gto2,gt2,lt2, \
+	gto3,gt3,lt3) do { \
+	ndr.dim = 4; \
+	ndr.gtid_offset[0]=gto0; ndr.gtid_offset[1]=gto1; \
+	ndr.gtid_offset[2]=gto2; ndr.gtid_offset[3]=gto3; \
+	ndr.gtid[0]=gt0; ndr.gtid[1]=gt1; \
+	ndr.gtid[2]=gt2; ndr.gtid[3]=gt3; \
+	ndr.ltid[0]=lt0; ndr.ltid[1]=lt1; \
+	ndr.ltid[2]=lt2; ndr.ltid[3]=lt3; \
+} while(0)
 
 
 
@@ -97,7 +114,8 @@ typedef struct clndrange_struct clndrange_t;
 
 template < typename T >
 void clarg_set( CONTEXT* cp, cl_kernel krn, unsigned int argnum, T arg)
-{ clSetKernelArg(krn,argnum,sizeof(typeof(T)),(void*)&arg); }
+//{ clSetKernelArg(krn,argnum,sizeof(typeof(T)),(void*)&arg); }
+{ clSetKernelArg(krn,argnum,sizeof(T),(void*)&arg); }
 
 #else
 
@@ -129,7 +147,7 @@ extern "C" {
 //
 //#else
 //
-//#define clarg_set(krn,argnum,arg) \
+//#define clarg_set(krn,argnum,arg) 
 //	clSetKernelArg(krn,argnum,sizeof(typeof(arg)),(void*)&arg);
 //
 //#endif

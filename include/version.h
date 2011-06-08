@@ -37,7 +37,7 @@
 #endif
 
 #ifndef COPRTHR_REVISION
-#define COPRTHR_REVISION 1 /* @REVISION */
+#define COPRTHR_REVISION 2 /* @REVISION */
 #endif
 
 #ifndef COPRTHR_RELEASE
@@ -45,18 +45,18 @@
 #endif
 
 #ifndef COPRTHR_NAME
-#define COPRTHR_NAME "outlaw"
+#define COPRTHR_NAME "middletown"
 #endif
 
 
 #if (COPRTHR_ALPHA)
 #define COPRTHR_VERSION_STRING \
 	"coprthr-"__stringify(COPRTHR_VERSION)"."__stringify(COPRTHR_REVISION) \
-	"-ALPHA ("COPRTHR_NAME")"
+	"-CURRENT ("COPRTHR_NAME")"
 #elif (COPRTHR_BETA)
 #define COPRTHR_VERSION_STRING \
 	"coprthr-"__stringify(COPRTHR_VERSION)"."__stringify(COPRTHR_REVISION) \
-	"-BETA ("COPRTHR_NAME")"
+	"-RC ("COPRTHR_NAME")"
 #else
 #define COPRTHR_VERSION_STRING \
 	"coprthr-"__stringify(COPRTHR_VERSION)"."__stringify(COPRTHR_REVISION) \

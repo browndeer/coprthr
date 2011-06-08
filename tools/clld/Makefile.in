@@ -61,3 +61,5 @@ clean:
 	rm -f $(BIN_NAME)
 	rm -f $(addsuffix .gz,$(MAN1))
 
+distclean: clean
+

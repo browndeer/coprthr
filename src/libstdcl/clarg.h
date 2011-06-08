@@ -23,18 +23,22 @@
 #ifndef _CLARG_H
 #define _CLARG_H
 
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
+#define LIBSTDCL_API 
+#endif
+
 #include <CL/cl.h>
-//#include "stdcl.h"
-//#include <sys/queue.h>
 #include "clcontext.h"
-//#include "clinit.h"
+
 
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-size_t 
+LIBSTDCL_API size_t 
 clarg_set_global(CONTEXT*, cl_kernel krn, unsigned int argnum, void* arg);
 
 #ifdef __cplusplus

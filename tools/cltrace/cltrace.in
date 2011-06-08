@@ -1,4 +1,11 @@
-#!/bin/sh
+#!/bin/bash
+
+export CLTRACE_OPENCL_LIB=`ldd $1 | grep libOpenCL | awk '{print $3}'`
+
+if [ "$CLTRACE_OPENCL_LIB" = "" ]; then
+	export CLTRACE_OPENCL_LIB=`ldd $1 | grep libocl | awk '{print $3}'`
+fi;
+
 
 arg1="";
 

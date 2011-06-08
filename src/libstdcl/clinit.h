@@ -25,8 +25,15 @@
 
 #include <string.h>
 #include <stdio.h>
+
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
+#define LIBSTDCL_API 
 #include <sys/queue.h>
 #include <elf.h>
+#endif
+
 
 #include <CL/cl.h>
 
@@ -97,17 +104,19 @@ struct clprgb_entry {
 extern struct _proc_cl_struct _proc_cl;
 
 
-extern CONTEXT* stddev;
-extern CONTEXT* stdcpu;
-extern CONTEXT* stdgpu;
-extern CONTEXT* stdrpu;
+extern LIBSTDCL_API CONTEXT* stddev;
+extern LIBSTDCL_API CONTEXT* stdcpu;
+extern LIBSTDCL_API CONTEXT* stdgpu;
+extern LIBSTDCL_API CONTEXT* stdrpu;
 
+extern char* __log_automatic_kernels_filename;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 extern void _assert_proto_stub(void);
+//LIBSTDCL_API void _libstdcl_init();
 
 #ifdef __cplusplus
 }

@@ -163,6 +163,8 @@ clCreateImage2D(
 		__init_memobj(membuf);
 
 		membuf->ctx = ctx;
+		/* XXX for now hardcoded to int4/float4 datatype -DAR */
+		membuf->sz = img_width * img_height * 4 * sizeof(float);
 		membuf->width = img_width;
 		membuf->height = img_height;
 		membuf->pitch = img_row_pitch;

@@ -25,9 +25,19 @@
 
 #include <string.h>
 #include <stdio.h>
+//#include <pthread.h>
+
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
+#define LIBSTDCL_API 
+#endif
+
 #include <sys/queue.h>
 
 #include <CL/cl.h>
+
+//#include "util.h"
 
 struct _prgs_struct;
 struct _txt_struct;
@@ -43,7 +53,13 @@ struct _event_list_struct {
 };
 
 struct _clcontext_ptr_struct {
+	char* platform_profile;
+	char* platform_version;
+	char* platform_name;
+	char* platform_vendor;
+	char* platform_extensions;
 	cl_context ctx;
+	cl_uint devtyp;
 	cl_uint impid;
 	cl_uint ndev;
 	cl_device_id* dev;
@@ -79,7 +95,22 @@ struct _clcontext_ptr_struct {
 #endif
 
 };
-typedef struct _clcontext_ptr_struct CONTEXT;
+typedef struct _clcontext_ptr_struct CLCONTEXT;
+
+/*
+#ifdef _WIN64 
+typedef struct _clcontext_ptr_struct CLCONTEXT;
+#define CONTEXT CLCONTEXT
+#else
+typedef struct _clcontext_ptr_struct CLCONTEXT;
+#endif
+*/
+
+/*** XXX CONTEXT is used by WIN64 internals, so better to change to CLCONTEXT,
+ *** thie define is to ease the transition, eventually remove -DAR 
+ ***/
+#define CONTEXT CLCONTEXT
+
 
 
 struct clstat_info {
@@ -125,11 +156,22 @@ struct cldev_info {
 	cl_ulong dev_local_mem_sz;
 };
 
+/* used by routines that must do lazt cmdq create on windows */
+static __inline void __cmdq_create(CONTEXT* cp, cl_uint n)
+{
+	if (!cp->cmdq[n]) {
+		int err;
+		cp->cmdq[n] = clCreateCommandQueue(cp->ctx,cp->dev[n],0,&err);
+//		DEBUG(__FILE__,__LINE__,"clcontext_create: error from create cmdq %d (%p)\n",
+//			err,cp->cmdq[n]);
+	}
+}
 
-extern CONTEXT* stddev;
-extern CONTEXT* stdcpu;
-extern CONTEXT* stdgpu;
-extern CONTEXT* stdrpu;
+
+extern LIBSTDCL_API CONTEXT* stddev;
+extern LIBSTDCL_API CONTEXT* stdcpu;
+extern LIBSTDCL_API CONTEXT* stdgpu;
+extern LIBSTDCL_API CONTEXT* stdrpu;
 
 #ifdef __cplusplus
 extern "C" {
@@ -138,16 +180,16 @@ extern "C" {
 //CONTEXT* clcontext_create( 
 //	cl_platform_id platformid, int devtyp, size_t ndevmax, int flag
 //);
-CONTEXT* clcontext_create( const char* platform_name, int devtyp, size_t ndevmax, cl_context_properties* ctxprop_ext, int flag );
+LIBSTDCL_API CONTEXT* clcontext_create( const char* platform_name, int devtyp, size_t ndevmax, cl_context_properties* ctxprop_ext, int flag );
 
-int clcontext_destroy( CONTEXT* cp);
+LIBSTDCL_API int clcontext_destroy( CONTEXT* cp);
 
-cl_uint clgetndev( CONTEXT* cp );
+LIBSTDCL_API cl_uint clgetndev( CONTEXT* cp );
 
-int clstat( CONTEXT* cp, struct clstat_info* info );
+LIBSTDCL_API int  clstat( CONTEXT* cp, struct clstat_info* info );
 
-int clgetdevinfo( CONTEXT* cp, struct cldev_info* info );
-void clfreport_devinfo( FILE* fp, size_t ndev, struct cldev_info* info );
+LIBSTDCL_API int  clgetdevinfo( CONTEXT* cp, struct cldev_info* info );
+LIBSTDCL_API void  clfreport_devinfo( FILE* fp, size_t ndev, struct cldev_info* info );
 
 
 #ifdef __cplusplus

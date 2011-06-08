@@ -1,0 +1,40 @@
+#
+# Makefile for include/
+#
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+INSTALL_INCLUDE_DIR=@includedir@
+
+
+############################################################################
+##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
+############################################################################
+
+HDRS_CL = CL/cl.h CL/cl_platform.h
+
+INSTALL_INCS = $(HDRS)
+INSTALL_INCS_CL = $(HDRS_CL)
+
+all: 
+
+.phony: install uninstall clean distclean check_root debug
+
+check_root: 
+
+install: check_root $(INSTALL_INCS) 
+	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_INCLUDE_DIR)/CL \
+		|| install -m 755 -d $(INSTALL_INCLUDE_DIR)/CL
+	install -m 644 $(INSTALL_INCS_CL) $(INSTALL_INCLUDE_DIR)/CL
+
+uninstall: check_root
+	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 
+	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS_CL)) 
+
+
+clean:
+
+distclean: clean
+

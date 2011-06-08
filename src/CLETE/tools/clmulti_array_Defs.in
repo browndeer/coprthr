@@ -1,0 +1,13 @@
+classes
+-----
+  ARG   = @class T[n]@
+  CLASS = @clmulti_array<T[n],1>@
+-----
+  ARG   = @class T[n]@
+  CLASS = @clmulti_array<T[n],2>@
+-----
+  ARG   = @class T[n]@
+  CLASS = @clmulti_array<T[n],3>@
+-----
+  ARG   = @class T[n]@
+  CLASS = @clmulti_array<T[n],4>@

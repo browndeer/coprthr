@@ -69,5 +69,15 @@
 #include "CLETE/ForEach.h"
 #include "CLETE/CreateLeaf.h"
 
+
+//// common utility functions 
+
+inline bool ref_is_ordered( const Ref& a, const Ref& b )
+{ return a.ptr <= b.ptr; }
+
+inline bool ref_is_equal( const Ref& a, const Ref& b )
+{ return a.ptr == b.ptr; }
+
+
 #endif // PETE_PETE_PETE_H
 

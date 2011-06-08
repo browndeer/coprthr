@@ -27,6 +27,7 @@
 #include <CL/cl.h>
 #include <assert.h>
 
+#include "cpuset_type.h"
 #include "cmdsched.h"
 #include "command_queue.h"
 #include "cmdcall.h"

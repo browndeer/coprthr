@@ -23,8 +23,8 @@
 #ifndef _ELF_CL_H
 #define _ELF_CL_H
 
-#include "elf.h"
-#include "libelf.h"
+//#include <elf.h>
+#include <libelf/libelf.h>
 
 
 #if defined(__i386__)

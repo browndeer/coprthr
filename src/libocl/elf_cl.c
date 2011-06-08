@@ -23,8 +23,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <elf.h>
-#include <libelf.h>
+//#include <elf.h>
+//#include <libelf.h>
+#include <libelf/libelf.h>
 
 #include "version.h"
 #include "util.h"
@@ -91,11 +92,15 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 
+DEBUG(__FILE__,__LINE__,"__x86_64__");
+
 	Elf64_Ehdr* ehdr = 0;
 	Elf64_Phdr* phdr = 0;
 	Elf64_Shdr* shdr = 0;
 
 #elif defined(__i386__) 
+
+DEBUG(__FILE__,__LINE__,"__i386__");
 
 	Elf32_Ehdr* ehdr = 0;
 	Elf32_Phdr* phdr = 0;
@@ -111,8 +116,9 @@ int elfcl_write(
 #if defined(__x86_64__)
 
 	if ((ehdr = elf64_newehdr(e)) == 0) {
+		int err = elf_errno();
 		ERROR(__FILE__,__LINE__,
-			"write_elf_cl: elf64_newehdr() failed: %s.", elf_errmsg(-1));
+			"write_elf_cl: elf64_newehdr() failed: %d %s.", err, elf_errmsg(err));
 		exit(-1);
 	}
 

@@ -30,7 +30,7 @@
 using namespace std;
 
 #include <stdcl.h>
-#include <clvector.h>
+//#include <clvector.h>
 
 typedef cl_int2 int2;
 typedef cl_int4 int4;

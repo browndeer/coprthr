@@ -41,7 +41,11 @@ struct _prgs_struct {
 	LIST_ENTRY(_prgs_struct) prgs_list;
 	const char* fname;
 	size_t len;
+#ifdef _WIN64
+	FILE* fp;
+#else
 	int fd;
+#endif
 	void* ptr;
 	unsigned int refc;
 };
@@ -70,13 +74,13 @@ struct _txt_struct {
 extern "C" {
 #endif
 
-void* clload( CONTEXT* cp, void* ptr, size_t sz, int flags );
-void* clbuild( CONTEXT* cp, void* handle, char* options, int flags );
-void* clopen( CONTEXT* cp, const char* fname, int flags );
-void* clsopen( CONTEXT* cp, const char* srcstr, int flags );
-cl_kernel clsym( CONTEXT* cp, void* handle, const char* sname, int flags );
-int clclose(CONTEXT* cp, void* handle);
-char* clerror(void);
+LIBSTDCL_API void* clload( CONTEXT* cp, void* ptr, size_t sz, int flags );
+LIBSTDCL_API void* clbuild( CONTEXT* cp, void* handle, char* options, int flags );
+LIBSTDCL_API void* clopen( CONTEXT* cp, const char* fname, int flags );
+LIBSTDCL_API void* clsopen( CONTEXT* cp, const char* srcstr, int flags );
+LIBSTDCL_API cl_kernel clsym( CONTEXT* cp, void* handle, const char* sname, int flags );
+LIBSTDCL_API int clclose(CONTEXT* cp, void* handle);
+LIBSTDCL_API char* clerror(void);
 
 #ifdef __cplusplus
 }

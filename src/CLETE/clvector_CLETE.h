@@ -60,6 +60,7 @@
 #define _CLVECTOR_CLETE_H
 
 #include <iostream>
+#include <fstream>
 #include <list>
 #include <string>
 #include <sstream>
@@ -162,7 +163,8 @@ struct LeafFunctor<clvector<T, Allocator>*, RefListLeaf>
   Type_t apply(clvector<T, Allocator>* const & ptr, const RefListLeaf &r)
   {
     return Type_t(1,Ref(
-		ptr,0,ptr->data(),
+		ptr,0,ptr->data(),1,
+		PrintF< clvector<T,Allocator> >::type_str(),
 		PrintF< clvector<T,Allocator> >::arg_str(tostr(r((intptr_t)ptr))),
 		PrintF< clvector<T,Allocator> >::tmp_decl_str(tostr(r((intptr_t)ptr))),
 		PrintF< clvector<T,Allocator> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
@@ -198,26 +200,47 @@ struct LeafFunctor<clvector<T, Allocator>,IAddressOfLeaf>
 template < class T, class Allocator >
 struct PrintF< clvector<T, Allocator> > {
 
+   inline static std::string type_str() 
+   { return "__global " + PrintType<T>::type_str() + "*"; }
+
    inline static std::string arg_str( std::string x) 
-   { return "__global " + PrintType<T>::type_str() + "* a" + x; }
+   { return "a" + x; }
 
    inline static std::string tmp_decl_str( std::string x )
-   { return PrintType<T>::type_str() + " tmp" + x + " = a" + x + "[gti];"; }
+   { return PrintType<T>::type_str() + " tmp" + x + " = a" + x + "[gti]"; }
 
    inline static std::string tmp_ref_str( std::string x )
    { return "tmp" + x; }
 
    inline static std::string store_str( std::string x )
-   { return "a" + x + "[gti] = "; }
+   { return "a" + x + "[gti] "; }
 
 };
 
 
-inline bool ref_is_ordered( const Ref& a, const Ref& b )
-{ return a.ptr <= b.ptr; }
+//static inline void log_kernel( std::string& srcstr )
+//{
+//   if (__log_automatic_kernels_filename) {
+//      std::ofstream ofs(
+//         __log_automatic_kernels_filename,
+//         std::ios_base::out|std::ios_base::app);
+//      ofs<<srcstr<<"\n";
+//      ofs.close();
+//   }
+//}
 
-inline bool ref_is_equal( const Ref& a, const Ref& b )
-{ return a.ptr == b.ptr; }
+//// XXX use macros as workaround for incorrect behavior of gcc 4.1 -DAR
+
+#define log_kernel(srcstr) do { \
+	if (__log_automatic_kernels_filename) { \
+		std::ofstream ofs( \
+			__log_automatic_kernels_filename, \
+			std::ios_base::out|std::ios_base::app); \
+		ofs<<srcstr<<"\n"; \
+		ofs.close(); \
+	} while (0)
+
+
 
 template<class T, class Allocator, class Op, class RHS>
 inline void evaluate(
@@ -234,27 +257,20 @@ inline void evaluate(
 
 	New_t rhs2 = forEach(rhs,AddressOfLeaf(),TreeCombine());
 
-//	typedef std::list<const void*> list_t;
 	typedef std::list<Ref> rlist_t;
 
 	intptr_t mask = ~((intptr_t)forEach(rhs,IAddressOfLeaf(),AndBitsCombine()) & (intptr_t)&lhs);
  
-//	list_t list = forEach(rhs2,PtrListLeaf(),ListCombine<const void*>());
-
 	rlist_t rlist = forEach(rhs2,RefListLeaf(mask),ListCombine<Ref>());
 
 	rlist.sort(ref_is_ordered);
 	rlist.unique(ref_is_equal);
 
-//	std::cout<<"rlist has "<<rlist.size()<<" unique elements:";
-//	for(rlist_t::iterator it=rlist.begin();it!=rlist.end();it++) {
-//		std::cout<<" "<<(*it).ptr<<"/"<<(*it).tmp_decl_str;
-//	}
-//	std::cout<<std::endl;
-
 	rlist_t rlista = rlist;
 	rlista.push_back(
-		Ref(&lhs,0,lhs.data(),PrintF< clvector<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
+		Ref(&lhs,0,lhs.data(),1,
+			PrintF< clvector<T, Allocator> >::type_str(),
+			PrintF< clvector<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector<T, Allocator> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector<T, Allocator> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs))
@@ -275,9 +291,7 @@ inline void evaluate(
 
 		int n = 0;	
 		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-			srcstr += (*it).arg_str + ",\n";
-//				+ (( n < (rlista.size()-1))? "," : "");
-//			srcstr += "\n";
+			srcstr += (*it).type_str + " " + (*it).arg_str + ",\n";
 	
 		}
 		srcstr += "int size\n";
@@ -288,11 +302,11 @@ inline void evaluate(
 		if (size != r) srcstr += "if (gti<size) {\n";
 
 		for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++,n++) {
-			srcstr += (*it).tmp_decl_str + "\n";
+			srcstr += (*it).tmp_decl_str + ";\n";
 		}
 
 
-		srcstr += PrintF< clvector<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs));
+		srcstr += PrintF< clvector<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs)) + " = ";
 
 		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
 		srcstr += expr + ";\n" ;
@@ -301,28 +315,20 @@ inline void evaluate(
 
 		srcstr += "}\n";
 
-//		std::cout<<srcstr;
+		std::cout<<srcstr;
 
 		void* clh = clsopen(stdgpu,srcstr.c_str(),CLLD_NOW);
 		krn = clsym(stdgpu,clh,"kern",CLLD_NOW);
 	}
 
-//	std::cout<<"krn="<<krn<<"\n";
-
 	if (krn) {
 
-//		int size = lhs.size();
-//		clndrange_t ndr = clndrange_init1d(0,256*(size/256),256);
-//		clndrange_t ndr1 = clndrange_init1d(256*(size/256),size,size%256);
 		clndrange_t ndr = clndrange_init1d(0,r,256);
 
 	int n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-//		printf("argnum %d\n",n); fflush(stdout);
 		size_t sz = (*it).sz;
-//		printf("sz %d\n",sz); fflush(stdout);
 		if (sz > 0) {
-//			printf("krn %p argnum %d ptr %p\n",krn,n,(*it).ptr); fflush(stdout);
 			int dummy;
 			clSetKernelArg(krn,n,sz,(*it).ptr);
 		} else { 
@@ -341,9 +347,7 @@ inline void evaluate(
 	clarg_set(stdgpu,krn,n,size);
 
 
-//		clfork(stdgpu,0,krn,&ndr,CL_EVENT_WAIT|CL_EVENT_RELEASE);
 		clfork(stdgpu,0,krn,&ndr,CL_EVENT_NOWAIT);
-//		clfork(stdgpu,0,krn,&ndr1,CL_EVENT_NOWAIT);
 
 #if defined(__CLVECTOR_FULLAUTO)
 
@@ -353,9 +357,7 @@ inline void evaluate(
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-//		printf("argnum %d\n",n); fflush(stdout);
 		size_t sz = (*it).sz;
-//		printf("sz %d\n",sz); fflush(stdout);
 		if (sz > 0) {
 		} else { 
 

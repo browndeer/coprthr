@@ -24,7 +24,7 @@
 
 #include "xcl_structs.h"
 #include "event.h"
-
+#include <pthread.h>
 
 // Enqueued Commands APIs
 
@@ -745,7 +745,7 @@ clEnqueueNDRangeKernel(
 {
 	int i;
 	
-	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel");
+	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel gwo=%p",global_work_offset);
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -761,11 +761,14 @@ clEnqueueNDRangeKernel(
 
 	if (cmdq->ctx != krn->ctx) return(CL_INVALID_CONTEXT);
 
+	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel: A %d %p %p",nwaitlist,waitlist,cmdq);
 	__check_waitlist(nwaitlist,waitlist,cmdq->ctx);
+	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel: A");
 
 	if (work_dim < 1 || work_dim > 3) return(CL_INVALID_WORK_DIMENSION);
 
-	if (global_work_offset) return(CL_INVALID_GLOBAL_OFFSET);
+//	if (global_work_offset) return(CL_INVALID_GLOBAL_OFFSET);
+	if (global_work_offset) WARN(__FILE__,__LINE__,"clEnqueueNDRangeKernel: ignoring global_work_offset");
 
 	if (!global_work_size) return(CL_INVALID_VALUE);
 

@@ -67,50 +67,87 @@ cl_int __do_build_program_from_source(
 	DEBUG(__FILE__,__LINE__,
 		"__do_build_program_from_source: compiler=%p",comp);	
 
-	void* h = comp(
+//	void* h = comp(
+//		devid,
+//		prg->src,prg->src_sz,
+//		prg->bin[devnum],prg->bin_sz[devnum],
+//		prg->build_options[devnum],prg->build_log[devnum]
+//	);
+	struct _elf_data* edata = (struct _elf_data*)comp(
 		devid,
 		prg->src,prg->src_sz,
 		prg->bin[devnum],prg->bin_sz[devnum],
 		prg->build_options[devnum],prg->build_log[devnum]
 	);
+	void* h = edata->dlh;
+	Elf* e = (Elf*)edata->map;
 
-	typedef void*(*get_ptr_func_t)();
-	typedef int(*get_int_func_t)();
-	typedef size_t(*get_sz_func_t)();
+//	typedef void*(*get_ptr_func_t)();
+//	typedef int(*get_int_func_t)();
+//	typedef size_t(*get_sz_func_t)();
+//
+//	get_ptr_func_t __get_shstrtab = dlsym(h,"__get_shstrtab");
+//
+//	get_sz_func_t __get_clstrtab_sz = dlsym(h,"__get_clstrtab_sz");
+//	get_ptr_func_t __get_clstrtab = dlsym(h,"__get_clstrtab");
+//
+//	get_int_func_t __get_clsymtab_n = dlsym(h,"__get_clsymtab_n");
+//	get_ptr_func_t __get_clsymtab = dlsym(h,"__get_clsymtab");
+//
+//	get_int_func_t __get_clargtab_n = dlsym(h,"__get_clargtab_n");
+//	get_ptr_func_t __get_clargtab = dlsym(h,"__get_clargtab");
+//
+//	get_ptr_func_t __get_cltextb = dlsym(h,"__get_cltextb");
 
-	get_ptr_func_t __get_shstrtab = dlsym(h,"__get_shstrtab");
+	Elf64_Ehdr* ehdr = (Elf64_Ehdr*)e;
+	Elf64_Shdr* shdr = (Elf64_Shdr*)((intptr_t)e + ehdr->e_shoff);
+	char* shstrtab = (char*)((intptr_t)e + shdr[ehdr->e_shstrndx].sh_offset);
 
-	get_sz_func_t __get_clstrtab_sz = dlsym(h,"__get_clstrtab_sz");
-	get_ptr_func_t __get_clstrtab = dlsym(h,"__get_clstrtab");
+	size_t clstrtab_sz = 0;
+	char* clstrtab = 0;
+	int clsymtab_n = 0;
+	struct clsymtab_entry* clsymtab = 0;
+	int clargtab_n = 0;
+	struct clargtab_entry* clargtab = 0;
+	char* cltextb = 0;
 
-	get_int_func_t __get_clsymtab_n = dlsym(h,"__get_clsymtab_n");
-	get_ptr_func_t __get_clsymtab = dlsym(h,"__get_clsymtab");
-
-	get_int_func_t __get_clargtab_n = dlsym(h,"__get_clargtab_n");
-	get_ptr_func_t __get_clargtab = dlsym(h,"__get_clargtab");
-
-	get_ptr_func_t __get_cltextb = dlsym(h,"__get_cltextb");
-
-	char* shstrtab = __get_shstrtab();
-
-	size_t clstrtab_sz = __get_clstrtab_sz();
-	char* clstrtab = __get_clstrtab();
-
-	int clsymtab_n = __get_clsymtab_n();
-	struct clsymtab_entry* clsymtab = __get_clsymtab();
-
-	int clargtab_n = __get_clargtab_n();
-	struct clargtab_entry* clargtab = __get_clargtab();
+	for(i=0;i<ehdr->e_shnum;i++,shdr++) {
+		if (!strncmp(shstrtab+shdr->sh_name,".clstrtab",9)) {
+			clstrtab_sz =shdr->sh_size;
+			clstrtab =(char*)((intptr_t)e + shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".clsymtab",9)) {
+			clsymtab_n =shdr->sh_size/sizeof(struct clsymtab_entry);
+			clsymtab =(struct clsymtab_entry*)((intptr_t)e+shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".clargtab",9)) {
+			clargtab_n =shdr->sh_size/sizeof(struct clargtab_entry);
+			clargtab =(struct clargtab_entry*)((intptr_t)e+shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".cltextb",8)) {
+			cltextb =(char*)((intptr_t)e+shdr->sh_offset);
+		}
+	}
+	
+//	char* shstrtab = __get_shstrtab();
+//
+//	size_t clstrtab_sz = __get_clstrtab_sz();
+//	char* clstrtab = __get_clstrtab();
+//
+//	int clsymtab_n = __get_clsymtab_n();
+//	struct clsymtab_entry* clsymtab = __get_clsymtab();
+//
+//	int clargtab_n = __get_clargtab_n();
+//	struct clargtab_entry* clargtab = __get_clargtab();
 
 	DEBUG(__FILE__,__LINE__,"clstrtab_sz %d\n",clstrtab_sz);
 
 
-	char* ppp = (char*)__get_cltextb();
+//	char* ppp = (char*)__get_cltextb();
+	char* ppp = (char*)cltextb;
 	printf("is image an ELF? %s\n",ppp);
 
-
 	#if defined(XCL_DEBUG)
+	fprintf(stdout,"%p\n",shstrtab);
 	fprintb(stdout,shstrtab,100); printf("\n");
+	fprintf(stdout,"%p\n",clstrtab);
 	fprintb(stdout,clstrtab,100); printf("\n");
 	#endif
 
@@ -275,7 +312,8 @@ cl_int __do_build_program_from_source(
 	CALimage calimg = 0;
 	CALmodule calmod = 0;
 	if (devtype == CL_DEVICE_TYPE_GPU) {
-		calimg = (CALimage)__get_cltextb();
+//		calimg = (CALimage)__get_cltextb();
+		calimg = (CALimage)cltextb;
 		err = calModuleLoad(&calmod,prg->ctx->imp.calctx[devnum],calimg);
 		DEBUG(__FILE__,__LINE__,"calModuleLoad returned %d",err);
 		DEBUG(__FILE__,__LINE__,"calmod %p",calmod);
@@ -370,12 +408,21 @@ cl_int __do_build_program_from_binary(
 			DEBUG(__FILE__,__LINE__,
 				"__do_build_program_from_binary: ircompiler=%p",ircomp);	
 
-			void* h = ircomp(
+//			void* h = ircomp(
+//				devid,
+//				prg->src,prg->src_sz,
+//				prg->bin[devnum],prg->bin_sz[devnum],
+//				prg->build_options[devnum],prg->build_log[devnum]
+//			);
+			struct _elf_data* edata = (struct _elf_data*)comp(
 				devid,
 				prg->src,prg->src_sz,
 				prg->bin[devnum],prg->bin_sz[devnum],
 				prg->build_options[devnum],prg->build_log[devnum]
 			);
+			void* h = edata->dlh;
+			Elf* e = (Elf*)edata->map;
+
 
 			if (!h) {
 				WARN(__FILE__,__LINE__,
@@ -383,37 +430,65 @@ cl_int __do_build_program_from_binary(
 				return(CL_BUILD_PROGRAM_FAILURE);
 			}
 
-			typedef void*(*get_ptr_func_t)();
-			typedef int(*get_int_func_t)();
-			typedef size_t(*get_sz_func_t)();
+//			typedef void*(*get_ptr_func_t)();
+//			typedef int(*get_int_func_t)();
+//			typedef size_t(*get_sz_func_t)();
+//
+//			get_ptr_func_t __get_shstrtab = dlsym(h,"__get_shstrtab");
+//
+//			get_sz_func_t __get_clstrtab_sz = dlsym(h,"__get_clstrtab_sz");
+//			get_ptr_func_t __get_clstrtab = dlsym(h,"__get_clstrtab");
+//
+//			get_int_func_t __get_clsymtab_n = dlsym(h,"__get_clsymtab_n");
+//			get_ptr_func_t __get_clsymtab = dlsym(h,"__get_clsymtab");
+//
+//			get_int_func_t __get_clargtab_n = dlsym(h,"__get_clargtab_n");
+//			get_ptr_func_t __get_clargtab = dlsym(h,"__get_clargtab");
+//
+//			get_ptr_func_t __get_cltextb = dlsym(h,"__get_cltextb");
 
-			get_ptr_func_t __get_shstrtab = dlsym(h,"__get_shstrtab");
+	Elf64_Ehdr* ehdr = (Elf64_Ehdr*)e;
+	Elf64_Shdr* shdr = (Elf64_Shdr*)((intptr_t)e + ehdr->e_shoff);
+	char* shstrtab = (char*)((intptr_t)e + shdr[ehdr->e_shstrndx].sh_offset);
 
-			get_sz_func_t __get_clstrtab_sz = dlsym(h,"__get_clstrtab_sz");
-			get_ptr_func_t __get_clstrtab = dlsym(h,"__get_clstrtab");
+	size_t clstrtab_sz = 0;
+	char* clstrtab = 0;
+	int clsymtab_n = 0;
+	struct clsymtab_entry* clsymtab = 0;
+	int clargtab_n = 0;
+	struct clargtab_entry* clargtab = 0;
+	char* cltextb = 0;
 
-			get_int_func_t __get_clsymtab_n = dlsym(h,"__get_clsymtab_n");
-			get_ptr_func_t __get_clsymtab = dlsym(h,"__get_clsymtab");
+	for(i=0;i<ehdr->e_shnum;i++,shdr++) {
+		if (!strncmp(shstrtab+shdr->sh_name,".clstrtab",9)) {
+			clstrtab_sz =shdr->sh_size;
+			clstrtab =(char*)((intptr_t)e + shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".clsymtab",9)) {
+			clsymtab_n =shdr->sh_size/sizeof(struct clsymtab_entry);
+			clsymtab =(struct clsymtab_entry*)((intptr_t)e+shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".clargtab",9)) {
+			clargtab_n =shdr->sh_size/sizeof(struct clargtab_entry);
+			clargtab =(struct clargtab_entry*)((intptr_t)e+shdr->sh_offset);
+		} else if (!strncmp(shstrtab+shdr->sh_name,".cltextb",8)) {
+			cltextb =(char*)((intptr_t)e+shdr->sh_offset);
+		}
+	}
+	
+//			char* shstrtab = __get_shstrtab();
+//
+//			size_t clstrtab_sz = __get_clstrtab_sz();
+//			char* clstrtab = __get_clstrtab();
+//
+//			int clsymtab_n = __get_clsymtab_n();
+//			struct clsymtab_entry* clsymtab = __get_clsymtab();
+//
+//			int clargtab_n = __get_clargtab_n();
+//			struct clargtab_entry* clargtab = __get_clargtab();
+//
+//			DEBUG(__FILE__,__LINE__,"clstrtab_sz %d\n",clstrtab_sz);
 
-			get_int_func_t __get_clargtab_n = dlsym(h,"__get_clargtab_n");
-			get_ptr_func_t __get_clargtab = dlsym(h,"__get_clargtab");
-
-			get_ptr_func_t __get_cltextb = dlsym(h,"__get_cltextb");
-
-			char* shstrtab = __get_shstrtab();
-
-			size_t clstrtab_sz = __get_clstrtab_sz();
-			char* clstrtab = __get_clstrtab();
-
-			int clsymtab_n = __get_clsymtab_n();
-			struct clsymtab_entry* clsymtab = __get_clsymtab();
-
-			int clargtab_n = __get_clargtab_n();
-			struct clargtab_entry* clargtab = __get_clargtab();
-
-			DEBUG(__FILE__,__LINE__,"clstrtab_sz %d\n",clstrtab_sz);
-
-			char* ppp = (char*)__get_cltextb();
+//			char* ppp = (char*)__get_cltextb();
+			char* ppp = (char*)cltextb;
 			printf("is image an ELF? %s\n",ppp);
 
 			#if defined(XCL_DEBUG)
@@ -602,7 +677,8 @@ cl_int __do_build_program_from_binary(
 				CALimage calimg = 0;
 				CALmodule calmod = 0;
 
-				calimg = (CALimage)__get_cltextb();
+//				calimg = (CALimage)__get_cltextb();
+				calimg = (CALimage)cltextb;
 				err = calModuleLoad(&calmod,prg->ctx->imp.calctx[devnum],calimg);
 				DEBUG(__FILE__,__LINE__,"calModuleLoad returned %d",err);
 				DEBUG(__FILE__,__LINE__,"calmod %p",calmod);

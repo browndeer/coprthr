@@ -62,7 +62,7 @@ callback(struct dl_phdr_info *info, size_t size, void *data)
 #define INSTALL_LIB_DIR "/usr/local/browndeer/lib"
 #endif
 
-#define NMFILTER "grep -v -e barrier -e get_work_dim -e get_local_size -e get_local_id -e get_num_groups -e get_global_size -e get_group_id -e get_global_id"
+#define NMFILTER "grep -v -e barrier -e get_work_dim -e get_local_size -e get_local_id -e get_num_groups -e get_global_size -e get_group_id -e get_global_id -e __read_imagei_image2d2i32"
 
 /*
 
@@ -144,6 +144,7 @@ int shell( char* command, char* options, char* output );
 
 #define __writefile(file,filesz,pfile) do { \
 	FILE* fp = fopen(file,"w"); \
+	fprintf(fp,"#include \"__libocl.h\"\n"); \
 	DEBUG(__FILE__,__LINE__,"trying to write %d bytes",filesz); \
 	if (fwrite(pfile,1,filesz,fp) != filesz) { \
 		ERROR(__FILE__,__LINE__,"error: write '%s' failed",file); \
@@ -254,6 +255,9 @@ void* compile_x86_64(
 
 		DEBUG(__FILE__,__LINE__,"compile: %p %p",src,bin);
 
+	/* with cltrace LD_PRELOAD env var is problem so just prevent intercepts */
+	unsetenv("LD_PRELOAD");
+
 		if (!bin) { /* use source */
 
 			if (src) {
@@ -263,15 +267,19 @@ void* compile_x86_64(
 
 				/* copy rt objects to work dir */
 
-				__command("cp "INSTALL_LIB_DIR"/__elfcl_rt.o %s",wd);
-				__log(logp,"]%s\n",buf1); \
-				__execshell(buf1,logp);
+//				__command("cp "INSTALL_LIB_DIR"/__elfcl_rt.o %s",wd);
+//				__log(logp,"]%s\n",buf1); \
+//				__execshell(buf1,logp);
 
 				__command("cp "INSTALL_LIB_DIR"/__vcore_rt.bc %s",wd);
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
 
 				__command("cp "INSTALL_INCLUDE_DIR"/vcore.h %s",wd);
+				__log(logp,"]%s\n",buf1); \
+				__execshell(buf1,logp);
+
+				__command("cp "INSTALL_INCLUDE_DIR"/__libocl.h %s",wd);
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
 
@@ -290,11 +298,11 @@ void* compile_x86_64(
 				/* clc compile */
 
 				if (opt) {
-					__command("cd %s; clc %s -o __%s.ll %s 2>&1",
+					__command("cd %s; clc21 %s -o __%s.ll %s 2>&1",
 						wd,opt,filebase,file_cl); 
 				} else {
 					DEBUG(__FILE__,__LINE__,"no options");
-					__command("cd %s; clc -o __%s.ll %s 2>&1",wd,filebase,file_cl); 
+					__command("cd %s; clc21 -o __%s.ll %s 2>&1",wd,filebase,file_cl); 
 				}
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
@@ -341,16 +349,19 @@ void* compile_x86_64(
             }
 #else
             if (need_builtins) {
-					__command("cp %s/ati_builtins_x86_64_patch.bc %s",
-						INSTALL_LIB_DIR,wd);
-					__log(logp,"]%s\n",buf1); \
-					__execshell(buf1,logp);
+
+//					__command("cp %s/ati_builtins_x86_64_patch.bc %s",
+//						INSTALL_LIB_DIR,wd);
+//					__log(logp,"]%s\n",buf1); \
+//					__execshell(buf1,logp);
 
 					/* XXX hardcoding is hack.  find way to correctly/recursively extract -DAR */
+
+		/* XXX builtins_x86-64.bc == v2.1 / builtins-x86_64.bc = v2.3 */
                __command(
                   "cd %s;"
-//                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins_x86-64.bc"
-                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64.bc"
+                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64-21.bc"
+//                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64-23.bc"
                   " -o builtins.bc",
                   wd,buf2,ATISTREAMSDK);
                __log(logp,"]%s\n",buf1);
@@ -358,6 +369,13 @@ void* compile_x86_64(
 
             }
 #endif
+
+	/* XXX moving cp of patch outside of if-need-builtin conditional -DAR */
+
+				__command("cp %s/ati_builtins_x86_64_patch.bc %s",
+					INSTALL_LIB_DIR,wd);
+				__log(logp,"]%s\n",buf1); 
+				__execshell(buf1,logp);
 
 
 				/* link with vcore_rt bc */
@@ -388,7 +406,7 @@ void* compile_x86_64(
 #endif
             } else {
                __command(
-                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc 2>&1",
+                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc ati_builtins_x86_64_patch.bc 2>&1",
                   wd,filebase,filebase);
             }
             __log(logp,"]%s\n",buf1); \
@@ -433,11 +451,9 @@ void* compile_x86_64(
 
 #if defined(USE_FAST_SETJMP)
 				__command(
-//					"cd %s; gcc -g -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
 					"cd %s; gcc -O2 -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
-//				__command("cd %s; gcc -g -fPIC -I%s -c _kcall_%s.c 2>&1",
 				__command("cd %s; gcc -O2 -fPIC -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #endif
@@ -606,6 +622,7 @@ DEBUG(0,0,"HERE");
 
 
 
+
 				/* now build elf/cl object */
 
 				snprintf(buf1,256,"%s/%s.elfcl",wd,filebase);
@@ -629,13 +646,15 @@ DEBUG(0,0,"HERE");
 
 //				__command("cd %s; gcc -g -shared -Wl,-soname,%s.so -o %s.so"
 				__command("cd %s; gcc -O2 -shared -Wl,-soname,%s.so -o %s.so"
-					" _opt_%s.o _kcall_%s.o __elfcl_rt.o"
+//					" _opt_%s.o _kcall_%s.o __elfcl_rt.o"
+					" _opt_%s.o _kcall_%s.o "
 //					" fast_setjmp.o"
 					" %s.elfcl 2>&1",
 					wd,filebase,filebase,filebase,filebase,filebase);
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
 
+DEBUG(__FILE__,__LINE__,"HERE");
 
 
 			} else {
@@ -681,6 +700,7 @@ DEBUG(0,0,"HERE");
 	if (dlerr) fprintf(stderr,"%s\n",dlerr);
 	DEBUG(__FILE__,__LINE__,"dlopen handle %p\n",h);
 
+	int fd1 = open(buf1, O_RDONLY, 0);
 
 	/* XXX problems with mmap protections, mark entire .so as READ|EXEC 
 	 * XXX and note that this is reckless, be more precise later -DAR */
@@ -691,16 +711,58 @@ DEBUG(0,0,"HERE");
 
 	if (rt) printf("matching baseaddr %p\n",dum.addr);
 
+	size_t sz;
 	{
 	struct stat fst; stat(buf1,&fst);
-   size_t sz = fst.st_size; 
+   sz = fst.st_size; 
 	size_t page_mask = ~(getpagesize()-1);
 	intptr_t p = ((intptr_t)dum.addr)&page_mask;
 	sz += (size_t)((intptr_t)dum.addr-p);
 	mprotect((void*)p,sz,PROT_READ|PROT_EXEC);
 	}
+
+ typedef void*(*get_ptr_func_t)();
+   typedef int(*get_int_func_t)();
+   typedef size_t(*get_sz_func_t)();
+//   dladdr(h,&info);
+//   printf("XXX %s\n",info.dli_fname);
+   get_ptr_func_t __get_shstrtab = dlsym(h,"__get_shstrtab");
+   Dl_info info;
+   dladdr(__get_shstrtab,&info);
+
+//	Elf* e = elf_begin(fd1, ELF_C_READ, NULL);
+	Elf* e = (Elf*)mmap(0,sz,PROT_READ,MAP_SHARED,fd1,0);
+//   Elf* e = (Elf*)info.dli_fbase;
+	Elf64_Ehdr* ehdr = (Elf64_Ehdr*)e;
+	DEBUG(__FILE__,__LINE__,"XXX e %p",e);
+	DEBUG(__FILE__,__LINE__,"XXX e_shoff %d",ehdr->e_shoff);
+	DEBUG(__FILE__,__LINE__,"XXX e_shnum %d",ehdr->e_shnum);
+	DEBUG(__FILE__,__LINE__,"XXX e_shstrndx %d",ehdr->e_shstrndx);
+	DEBUG(__FILE__,__LINE__,"XXX %c%c%c%c",ehdr->e_ident[0],ehdr->e_ident[1],ehdr->e_ident[2],ehdr->e_ident[3]);
+
+	Elf64_Shdr* shdr = (Elf64_Shdr*)((intptr_t)e + ehdr->e_shoff);	
+	DEBUG(__FILE__,__LINE__,"XXX shstrtab offset %d",shdr[ehdr->e_shstrndx].sh_offset);
+	char* shstrtab = (char*)e + shdr[ehdr->e_shstrndx].sh_offset;
+
+//   for(i=0;i<ehdr->e_shnum;i++,shdr++) {
+//		printf("%s\n",shstrtab+shdr->sh_name);
+//   }
+
+
+	close(fd1);
+
 	
-	return(h);
+DEBUG(__FILE__,__LINE__,"XXX filename %s %d",buf1,strlen(buf1));
+
+	struct _elf_data* edata 
+		= (struct _elf_data*)malloc(sizeof(struct _elf_data));
+	__init_elf_data(*edata);
+	strncpy(edata->filename,buf1,256);
+	edata->dlh = h;
+	edata->map = (void*)e;
+
+//	return(h);
+	return((void*)edata);
 
 }
 

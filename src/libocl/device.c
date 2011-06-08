@@ -28,6 +28,11 @@
 #include <unistd.h>
 #include <stdio.h>
 
+#if defined(__FreeBSD__)
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#endif
+
 //#define _GNU_SOURCE
 //#include <sched.h>
 
@@ -108,7 +113,7 @@ void __do_discover_devices(
 		8,4,2,1,2,1,	/* pref_char/short/int/long/float/double/n */
 		0,				/* max_freq */
 		64,			/* bits */
-		128*1024*1024,		/* max_mem_alloc_sz */
+		1024*1024*1024,		/* max_mem_alloc_sz */
 		CL_FALSE,	/* supp_img */
 		0,0, 			/* img_max_narg_r, img_max_narg_w */
 		0,0,			/* img2d_max_width, img2d_max_height */
@@ -158,15 +163,38 @@ void __do_discover_devices(
 	FILE* fp;
 	struct stat fs;
 	char buf[1024];
+	size_t sz;
 
+#if defined(__FreeBSD__)
+
+	int val=0;
+	sz=4;
+	sysctlbyname("hw.ncpu",&val,&sz,0,0);
+	printf("ncpu %d %d\n",val,sz);
+	dtab[0].imp.max_compute_units = val;
+
+	sz=4;
+	sysctlbyname("hw.clockrate",&val,&sz,0,0);
+	printf("clockrate %d %d\n",val,sz);
+	dtab[0].imp.max_freq = val;
+
+	sz=1024;
+	sysctlbyname("hw.model",buf,&sz,0,0);
+	printf("model %s %d\n",buf,sz);
+
+	char* bufp = truncate_ws(buf);
+	sz = 1+strnlen(bufp,__CLMAXSTR_LEN);
+	strncpy(dstrtab+dstrtab_sz,bufp,sz);
+	dtab[0].imp.name = dstrtab+dstrtab_sz;
+	dstrtab_sz += sz;
+
+#else
 	if (stat("/proc/cpuinfo",&fs)) {
 		WARN(__FILE__,__LINE__,"stat failed on /proc/cpuinfo");
 		return;
 	}
 
 	fp = fopen("/proc/cpuinfo","r");
-
-	size_t sz;
 
 	while (fgets(buf,1024,fp)) {
 
@@ -231,6 +259,8 @@ void __do_discover_devices(
 
 	fclose(fp);
 
+#endif
+
 	
 	dtab[0].imp.comp = (void*)compile_x86_64;
 	dtab[0].imp.ilcomp = 0;
@@ -248,6 +278,11 @@ void __do_discover_devices(
 	int i;
 
 	unsigned int ncore = sysconf(_SC_NPROCESSORS_ONLN);
+
+	if (getenv("COPRTHR_VCORE_NE"))
+		ncore = min(ncore,atoi(getenv("COPRTHR_VCORE_NE")));
+
+//ncore = 1;
 
 #ifdef ENABLE_NCPU
 //	char buf[256];

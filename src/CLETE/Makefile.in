@@ -4,9 +4,9 @@ exec_prefix=@exec_prefix@
 
 INSTALL_INCLUDE_DIR=@includedir@/CLETE
 
-GEN_HDRS = OperatorTags.h clvector_Operators.h
+GEN_HDRS = OperatorTags.h clvector_Operators.h clmulti_array_Operators.h
 
-HDRS = clvector_CLETE.h Combiners.h CreateLeaf.h ForEach.h Functors.h PETE.h PrintF.h PrintType.h Scalar.h TreeNodes.h TypeComputations.h $(GEN_HDRS)
+HDRS = clvector_CLETE.h clmulti_array_CLETE.h Combiners.h CreateLeaf.h ForEach.h Functors.h PETE.h PrintF.h PrintType.h Scalar.h TreeNodes.h TypeComputations.h $(GEN_HDRS)
 
 INSTALL_INCS = $(HDRS)
 
@@ -17,6 +17,10 @@ OperatorTags.h:
 
 clvector_Operators.h:
 	./tools/gen_operators --classes ./tools/clvector_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLVECTOROPERATORS_H --assign-ops > clvector_Operators.h 
+
+clmulti_array_Operators.h:
+	./tools/gen_operators --classes ./tools/clmulti_array_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLMULTI_ARRAY_OPERATORS_H --assign-ops > clmulti_array_Operators.h 
+
 
 check_root:
 #ifneq ($(shell whoami),root)
@@ -34,4 +38,6 @@ uninstall: check_root
 
 clean:
 	rm -f $(GEN_HDRS)
+
+distclean: clean
 

@@ -27,6 +27,7 @@
 static void __attribute__((constructor)) __watermark_ctor()
 { 
 	fprintf(stderr,
-		COPRTHR_VERSION_STRING ": For Testing Only, Do Not Distribute\n"); 
+//		COPRTHR_VERSION_STRING ": For Testing Only, Do Not Distribute\n"); 
+		COPRTHR_VERSION_STRING "\n"); 
 }
 

@@ -40,6 +40,7 @@ struct type_entry {
 };
 
 struct type_entry type_table[] = {
+	{ TYPE_OPAQUE, 0, "void", "void" },
 	{ TYPE_VOID, 0, "void", "void" },
 	{ TYPE_INT8, 1, "char", "char" },
 	{ TYPE_INT16, 2, "short", "short" },
@@ -492,7 +493,7 @@ int main( int argc, char** argv)
 					fprintf_sym(fp,
 						symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
 
-					fprintf(fp,"(void*p)");
+					fprintf(fp,"(void* p)");
 
 					fprintf(fp,"{\n");
 
@@ -508,8 +509,8 @@ int main( int argc, char** argv)
 
 					fprintf(fp,"\tstruct vc_data* data = __getvcdata();\n");
 
-//					fprintf(fp,"\tint vcid = data->vcid;\n");
 
+//					fprintf(fp,"\tint vcid = data->vcid;\n");
 
 					if (opt_kcall_debug) {
 						fprintf(fp,"\tprintf(\"__XCL_call_");
@@ -518,7 +519,7 @@ int main( int argc, char** argv)
 						fprintf(fp,": vcore[%%d] running\\n\",vcid);\n");
 					}
 
-					fprintf(fp,"\t++edata->vc_runc;\n");
+					fprintf(fp,"\t++(edata->vc_runc);\n");
 
 					fprintf(fp,
 //						"\tif (!(setjmp(*(data->this_jbufp))))"
@@ -549,7 +550,7 @@ int main( int argc, char** argv)
 
 					fprintf(fp,"\t);\n");
 
-					fprintf(fp,"\t--edata->vc_runc;\n");
+					fprintf(fp,"\t--(edata->vc_runc);\n");
 
 //					fprintf(fp,"\tlongjmp(*(data->vcengine_jbufp),vcid+1);\n");
 //					fprintf(fp,"\tlongjmp(*(data->vcengine_jbufp),0);\n");

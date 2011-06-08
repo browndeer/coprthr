@@ -106,7 +106,7 @@ FILE* __xclnm_yyin;
 
 "%"{SYM}{SYMDOT}*	{__plb();  
 							if (is_type(yytext)) {
-								return(TYPE_OPAQUE); 
+								ival_return(TYPE_OPAQUE); 
 							} else {							
 								__xclnm_lval.ival = add_str(symbuf,&symbuf_sz,yytext);
 								return(LOCAL_SYMBOL); 
@@ -129,7 +129,7 @@ FILE* __xclnm_yyin;
 
 "target"[^\n]+"\n"	{ __plb(); ival_return(SKIP); };
 
-"="{WS}+"type"{WS}+"opaque"[^\n]+"\n"	{ __plb(); ival_return(TYPEDEF_OPAQUE); };
+"="{WS}+"type"{WS}+"opaque"+"\n"	{ __plb(); ival_return(TYPEDEF_OPAQUE); };
 
 "type"[^\n]+"\n"	{__plb(); ival_return(SKIP); };
 

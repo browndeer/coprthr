@@ -30,12 +30,15 @@
 using namespace std;
 
 #include <stdcl.h>
-#include <clvector.h>
+//#include <clvector.h>
 
 #include "CLETE/PrintType.h"
 
 template <class T>
 struct PrintF {
+
+	inline static std::string type_str( std::string x ) 
+	{ return "@arg-str-unknown@:" + x; }
 
 	inline static std::string arg_str( std::string x ) 
 	{ return "@arg-str-unknown@:" + x; }
@@ -54,17 +57,20 @@ struct PrintF {
 template < class T > 
 struct PrintF< Scalar<T> > { 
 
+	inline static std::string type_str() 
+	{ return PrintType<T>::type_str(); }
+
 	inline static std::string arg_str( std::string x) 
-	{ return PrintType<T>::type_str() + " a" + x; }
+	{ return "a" + x; }
 
 	inline static std::string tmp_decl_str( std::string x ) 
-	{ return PrintType<T>::type_str() + " tmp" + x + " = a" + x + ";"; }
+	{ return PrintType<T>::type_str() + " tmp" + x + " = a" + x; }
 
 	inline static std::string tmp_ref_str( std::string x ) 
 	{ return "tmp" + x; }
 
 	inline static std::string store_str( std::string x ) 
-	{ return "a" + x + " = "; }
+	{ return "a" + x; }
 
 };
 

@@ -30,6 +30,7 @@
 #include "cal.h"
 #endif
 
+#include "cpuset_type.h"
 #include "cmdcall.h"
 
 #ifndef min
@@ -250,11 +251,15 @@ struct _imp_event {
 	TAILQ_ENTRY(_cl_event) cmds;
 };
 
+#if defined(__FreeBSD__)
+#define PTHREAD_MUTEX_ERRORCHECK_NP PTHREAD_MUTEX_ERRORCHECK
+#endif
+
 #define __imp_init_event(imp) do { \
 	pthread_mutexattr_t attr; \
 	int attrtype = PTHREAD_MUTEX_ERRORCHECK_NP; \
 	pthread_mutexattr_init(&attr); \
-	pthread_mutexattr_settype(&attr,&attrtype); \
+	pthread_mutexattr_settype(&attr,attrtype); \
 	pthread_mutex_init(&imp.mtx,&attr); \
 	pthread_cond_init(&imp.sig,0); \
 	pthread_mutex_unlock(&imp.mtx); \
@@ -378,6 +383,19 @@ struct _imp_context {
 #else
 #define __imp_free_context(imp) do { } while(0)
 #endif
+
+struct _elf_data {
+	char filename[256];
+	void* dlh;
+	void* map;
+};
+
+#define __init_elf_data(ed) do { \
+   (ed).filename[0] = '\0'; \
+   (ed).dlh = 0; \
+   (ed).map = 0; \
+   } while(0)
+
 
 
 #endif

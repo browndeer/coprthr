@@ -32,6 +32,10 @@
 
 #include "vcore.h"
 
+#if defined(__FreeBSD__)
+typedef unsigned int uint;
+#endif
+
 
 /*
  * intrinsics called from kernels

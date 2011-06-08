@@ -68,7 +68,9 @@ template < class T > class clmalloc_allocator
 
 		const_pointer address( const_reference x) const { return &x; };
 
-		pointer allocate( size_type n, clmalloc_allocator<void>::const_pointer hint = 0 )
+		pointer allocate( 
+			size_type n, clmalloc_allocator<void>::const_pointer hint = 0 
+		)
 		{ return (pointer)::clmalloc(0,n * sizeof(value_type), CL_MEM_DETACHED); }
 
 		void deallocate( pointer p, size_type )

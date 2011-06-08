@@ -49,7 +49,7 @@ void __do_discover_platforms()
 	
 	__ptab[0].imp = (struct _imp_platform){
 		"<profile>",
-		"0.0.0",
+		"1.2.0",
 		"coprthr",
 		"Brown Deer Technology, LLC.",
 		"<extensions>",

@@ -67,3 +67,7 @@ quicktest: clean $(addsuffix .x,$(TESTS))
 clean:
 	rm -f *.o *.x
 	rm -f $(SRC_TESTS) $(CLSRC_TESTS)
+
+distclean:
+	rm -f ./scripts/run_tests.sh ./scripts/run_quick_tests.sh
+

@@ -24,12 +24,17 @@
 /* XXX to do, add err code checks, other safety checks * -DAR */
 /* XXX to do, clvplat_destroy should automatically release all txts -DAR */
 
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
 #include <unistd.h>
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <assert.h>
-#include <dlfcn.h>
+//#include <dlfcn.h>
 
 #include <CL/cl.h>
 //#include "stdcl.h"
@@ -41,14 +46,7 @@
 #define __error(e) do { errno=e; return(-1); } while(0); 
 
 
-/* XXX hack to work around the problem with clCreateCommandQueue -DAR */
-//static inline void __cmdq__(CONTEXT* cp, cl_uint n)
-//{
-//   if (!cp->cmdq[n]) 
-//      cp->cmdq[n] = clCreateCommandQueue(cp->ctx,cp->dev[n],0,0);
-//}
-
-
+LIBSTDCL_API
 cl_event clfork(
 	CONTEXT* cp, cl_uint devnum, 
 	cl_kernel krn, struct clndrange_struct* ndr, int flags
@@ -67,9 +65,21 @@ cl_event clfork(
 	DEBUG(__FILE__,__LINE__,"clfork: devnum=%d\n",devnum);
 	DEBUG(__FILE__,__LINE__,"clfork: kev,evp %p,%p\n",cp->kev[devnum].ev,evp);
 
-//	__cmdq__(cp,devnum); // XXX this is a hack -DAR
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
 
 	 DEBUG(__FILE__,__LINE__,"clfork: ndr.dim=%d\n",ndr->dim);
+
+#if defined(CL_VERSION_1_1)
+	 DEBUG(__FILE__,__LINE__,"clfork: using CL_VERSION_1_1");
+#endif
+
+#if defined(CL_VERSION_1_1)
+	 DEBUG(__FILE__,__LINE__,"clfork: ndr.gtid_offset=%d %d %d %d\n",
+		ndr->gtid_offset[0],ndr->gtid_offset[1],
+		ndr->gtid_offset[2],ndr->gtid_offset[3]);
+#endif
 	 DEBUG(__FILE__,__LINE__,"clfork: ndr.gtid=%d %d %d %d\n",
 		ndr->gtid[0],ndr->gtid[1],ndr->gtid[2],ndr->gtid[3]);
 	 DEBUG(__FILE__,__LINE__,"clfork: ndr.ltid=%d %d %d %d\n",
@@ -77,8 +87,16 @@ cl_event clfork(
 
 	if (flags & CL_FAST) {
 
+#if defined(CL_VERSION_1_1)
+	 DEBUG(__FILE__,__LINE__,"clfork: using CL_VERSION_1_1");
+#endif
+
 	int err = clEnqueueNDRangeKernel(
+#if defined(CL_VERSION_1_1)
+		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr->ltid,
+#else
 		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr->ltid,
+#endif
 		0,0,0
 	);
 	return((cl_event)0);
@@ -87,7 +105,11 @@ cl_event clfork(
 	} else {
 
 	int err = clEnqueueNDRangeKernel(
+#if defined(CL_VERSION_1_1)
+		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr->ltid,
+#else
 		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr->ltid,
+#endif
 		(evp)?1:0,evp,&ev
 	);
 
@@ -107,12 +129,17 @@ cl_event clfork(
 		err = clWaitForEvents( 1, &ev);
 		DEBUG(__FILE__,__LINE__,"clfork: clWaitForEvents %d",err);
 
-		if (flags & CL_EVENT_RELEASE) {
-		
+//#ifdef USE_DEPRECATED_FLAGS
+//		if (flags & CL_EVENT_RELEASE && !(flags & CL_EVENT_NORELEASE) ) {
+//			clReleaseEvent(ev);
+//			ev = (cl_event)0;
+//		}
+//#else
+		if ( !(flags & CL_EVENT_NORELEASE) ) {
 			clReleaseEvent(ev);
 			ev = (cl_event)0;
-
 		}
+//#endif
 
 	}
 
@@ -126,22 +153,33 @@ cl_event clfork(
 }
 
 
+LIBSTDCL_API
 cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 {
 	int err;
 	int n;
 	cl_event* evp;
 
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
+
 	if (flags&CL_FAST) {
 		clFinish(cp->cmdq[0]);
 		return((cl_event)0);
 	}
 
-	/* XXX clwait should be responsive to this flag, fix -DAR */
+	/* XXX clwait should be responsive to these flags, fix -DAR */
 
-	if (!flags&CL_EVENT_RELEASE) {
-		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
+//#ifdef USE_DEPRECATED_FLAGS
+//	if ( !flags&CL_EVENT_RELEASE ) {
+//		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
+//	}
+//#else
+	if ( flags&CL_EVENT_NORELEASE ) {
+		WARN(__FILE__,__LINE__,"clwait: ignoring CL_EVENT_NORELEASE");
 	}
+//#endif
 
 	/* provide warning if no event list has been chosen */
 
@@ -149,6 +187,9 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 		WARN(__FILE__,__LINE__,"clwait: no event list specified");
 	}
 
+
+	DEBUG(__FILE__,__LINE__,"clwait: devnum=%d kev.ndev=%d mev.nev=%d",
+		devnum,cp->kev[devnum].nev,cp->mev[devnum].nev);
 
 	/*
 	 * wait on kernel events
@@ -290,17 +331,24 @@ DEBUG(__FILE__,__LINE__, "clwait: here");
 }
 
 
+LIBSTDCL_API
 cl_event clwaitev(
   CONTEXT* cp, unsigned int devnum, const cl_event ev, int flags
 )
 {
 	int err;
 
-	/* XXX clwait should be responsive to this flag, fix -DAR */
+	/* XXX clwait should be responsive to these flags, fix -DAR */
 
-	if (!flags&CL_EVENT_RELEASE) {
-		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
+//#ifdef USE_DEPRECATED_FLAGS
+//	if ( !flags&CL_EVENT_RELEASE ) {
+//		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
+//	}
+//#else
+	if ( flags&CL_EVENT_NORELEASE ) {
+		WARN(__FILE__,__LINE__,"clwait: ignoring CL_EVENT_NORELEASE");
 	}
+//#endif
 
 
 	err = clWaitForEvents(1,&ev);
@@ -312,6 +360,7 @@ cl_event clwaitev(
 }
 
 
+LIBSTDCL_API
 int clflush(CONTEXT* cp, unsigned int devnum, int flags)
 {
 
@@ -319,6 +368,10 @@ int clflush(CONTEXT* cp, unsigned int devnum, int flags)
 //		clFinish(cp->cmdq[0]);
 //		return((cl_event)0);
 //	}
+
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
 
 	clFlush(cp->cmdq[devnum]);
 

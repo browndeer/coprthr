@@ -24,17 +24,23 @@
 /* XXX to do, add err code checks, other safety checks * -DAR */
 /* XXX to do, clvplat_destroy should automatically release all txts -DAR */
 
-#include <sys/types.h>
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
 #include <unistd.h>
+#include <sys/mman.h>
+#include <elf.h>
+#endif
+
+#include <sys/types.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <assert.h>
 #include <fcntl.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 
-#include <elf.h>
+
 
 #include <CL/cl.h>
 
@@ -54,10 +60,10 @@
  * global CONTEXT structs 
  */
 
-CONTEXT* stddev = 0;
-CONTEXT* stdcpu = 0;
-CONTEXT* stdgpu = 0;
-CONTEXT* stdrpu = 0;
+LIBSTDCL_API CONTEXT* stddev = 0;
+LIBSTDCL_API CONTEXT* stdcpu = 0;
+LIBSTDCL_API CONTEXT* stdgpu = 0;
+LIBSTDCL_API CONTEXT* stdrpu = 0;
 
 int procelf_fd = -1;
 void* procelf = 0;
@@ -65,6 +71,7 @@ size_t procelf_sz = 0;
 
 struct _proc_cl_struct _proc_cl = { 0,0, 0,0, 0,0, 0,0, 0,0 };
 
+char* __log_automatic_kernels_filename = 0;
 
 #define min(a,b) ((a<b)?a:b)
 
@@ -81,7 +88,12 @@ static int __getenv_token(
  * libstdcl initialization ctor and dtor 
  */
 
+#ifdef _WIN64
+//LIBSTDCL_API void _libstdcl_init()
+void _libstdcl_init()
+#else
 void __attribute__((__constructor__)) _libstdcl_init()
+#endif
 {
 
 	int i;
@@ -92,6 +104,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	int enable;
 	cl_uint ndev;
 	char env_max_ndev[256];
+	int lock_key;
 
 
 	DEBUG(__FILE__,__LINE__,"_libstdcl_init() called");
@@ -99,6 +112,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	/*
 	 * set _proc_cl struct
  	 */
+
+#ifndef _WIN64
 
 	pid_t pid = getpid();
 	DEBUG(__FILE__,__LINE__,"_libstdcl_init: pid=%d\n",pid);
@@ -193,6 +208,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		_proc_cl.cltextb,_proc_cl.clstrtab
 	);
 
+#endif
 
 #if(0)
 	/*
@@ -206,7 +222,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
    clGetPlatformIDs(0,0,&nplatforms);
 
-printf("XXX %d\n",nplatforms);
+//printf("XXX %d\n",nplatforms);
 
 	if (nplatforms) {
 
@@ -250,39 +266,20 @@ printf("XXX %d\n",nplatforms);
 #endif
 
 
-/*
-	WARN(__FILE__,__LINE__,"_libstdcl_init:"
-		" forcing selection of \"ATI Stream\" as default platform");
-
-	cl_platform_id default_platformid = (cl_platform_id)0;
-
-	for(i=0;i<nplatform;i++) {
-
-		char info[1024];
-
-		clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1023,info,0);
-
-		if (!strncmp(info,"ATI Stream",10)) {
-			default_platformid = platforms[i];
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: default_platformid=%p\n", default_platformid);
-		}
-
-	}
-
-*/
-
-
 
 	/*
 	 * initialize stddev (all CL devices)
 	 */
 
+	DEBUG(__FILE__,__LINE__,"clinit: initialize stddev");
+
+/*
 	if (!__getenv_token("STDDEV",0,env_max_ndev,256)) {
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
 		enable = 1;
+		//enable = 0;
 	}
 
 	stddev = 0;
@@ -304,6 +301,36 @@ printf("XXX %d\n",nplatforms);
 //		} 
 
 	}
+*/
+
+	stddev = 0;
+	ndev = 0; /* this is a special case that implies all available -DAR */
+	enable = 1;
+	lock_key = 0;
+
+	if (getenv("STDDEV")) enable = atoi(getenv("STDDEV"));
+
+	if (enable) {
+
+		char name[256];
+		if (getenv("STDDEV_PLATFORM_NAME"))
+			strncpy(name,getenv("STDDEV_PLATFORM_NAME"),256);
+		else name[0]='\0';
+
+		if (getenv("STDDEV_MAX_NDEV"))
+			ndev = atoi(getenv("STDDEV_MAX_NDEV"));
+
+		if (getenv("STDDEV_LOCK"))
+			lock_key = atoi(getenv("STDDEV_LOCK"));
+
+		stddev = clcontext_create(name,CL_DEVICE_TYPE_ALL,ndev,0,lock_key);
+
+	}
+
+	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
+
+
+
 
 
 
@@ -311,11 +338,15 @@ printf("XXX %d\n",nplatforms);
 	 * initialize stdcpu (all CPU CL devices)
 	 */
 
+	DEBUG(__FILE__,__LINE__,"clinit: initialize stdcpu");
+
+/*
 	if (!__getenv_token("STDCPU",0,env_max_ndev,256)) {
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
 		enable = 1;
+		//enable = 0;
 	}
 
 	stdcpu = 0;
@@ -337,6 +368,34 @@ printf("XXX %d\n",nplatforms);
 //		}
 
 	}
+*/
+
+	stdcpu = 0;
+	ndev = 0; /* this is a special case that implies all available -DAR */
+	enable = 1;
+	lock_key = 0;
+
+	if (getenv("STDCPU")) enable = atoi(getenv("STDCPU"));
+
+	if (enable) {
+
+		char name[256];
+		if (getenv("STDCPU_PLATFORM_NAME"))
+			strncpy(name,getenv("STDCPU_PLATFORM_NAME"),256);
+		else name[0]='\0';
+
+		if (getenv("STDCPU_MAX_NDEV"))
+			ndev = atoi(getenv("STDCPU_MAX_NDEV"));
+
+		if (getenv("STDCPU_LOCK"))
+			lock_key = atoi(getenv("STDCPU_LOCK"));
+
+		stdcpu = clcontext_create(name,CL_DEVICE_TYPE_CPU,ndev,0,lock_key);
+
+	}
+
+	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
+
 
 
 
@@ -344,33 +403,42 @@ printf("XXX %d\n",nplatforms);
 	 * initialize stdgpu (all GPU CL devices)
 	 */
 
+	DEBUG(__FILE__,__LINE__,"clinit: initialize stdgpu");
+
+/*
 	if (!__getenv_token("STDGPU",0,env_max_ndev,256)) {
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
 		enable = 1;
 	}
+*/
 
 	stdgpu = 0;
+	ndev = 0; /* this is a special case that implies all available -DAR */
+	enable = 1;
+	lock_key = 0;
+
+	if (getenv("STDGPU")) enable = atoi(getenv("STDGPU"));
 
 	if (enable) {
 
-//		platformid = _select_platformid(nplatforms,platforms,"STDGPU");
 		char name[256];
-		__getenv_token("STDGPU","platform_name",name,256);
+		if (getenv("STDGPU_PLATFORM_NAME"))
+			strncpy(name,getenv("STDGPU_PLATFORM_NAME"),256);
+		else name[0]='\0';
 
-//		if (platformid != (cl_platform_id)(-1)) {
+		if (getenv("STDGPU_MAX_NDEV"))
+			ndev = atoi(getenv("STDGPU_MAX_NDEV"));
 
-//			DEBUG(__FILE__,__LINE__,
-//				"_libstdcl_init: stdgpu platformid %p",platformid);
+		if (getenv("STDGPU_LOCK"))
+			lock_key = atoi(getenv("STDGPU_LOCK"));
 
-//			stdgpu = clcontext_create(platformid,CL_DEVICE_TYPE_GPU,ndev,0);
-			stdgpu = clcontext_create(name,CL_DEVICE_TYPE_GPU,ndev,0,0);
-
-//		}
+		stdgpu = clcontext_create(name,CL_DEVICE_TYPE_GPU,ndev,0,lock_key);
 
 	}
 
+	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
 
 
 	/*
@@ -404,16 +472,39 @@ printf("XXX %d\n",nplatforms);
 */
 
 
+	char buf[256];
+	if (!__getenv_token("COPRTHR","log_automatic_kernels",buf,256)) {
+		__log_automatic_kernels_filename = (char*)malloc(256+6);
+		if (!strncasecmp(buf,"log_automatic_kernels",256)) {
+			snprintf(
+				__log_automatic_kernels_filename,256+6,
+				"coprthr.autokern.log.%d",getpid());
+		} else {
+			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
+		}
+		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
+			__log_automatic_kernels_filename);
+	}
+
 	clUnloadCompiler();	
+
 }
 
 
+#ifdef _WIN64
+void _libstdcl_fini()
+#else
 void __attribute__((__destructor__)) _libstdcl_fini()
+#endif
 {
 	DEBUG(__FILE__,__LINE__,"_libstdcl_fini() called");
 
+	if (stdgpu) clcontext_destroy(stdgpu);
+
+#ifndef _WIN64
 	munmap(procelf,procelf_sz);
 	close(procelf_fd);
+#endif
 
 /* Dangerous, order of destructors not well-controled, just let them die -DAR 
 	if (stddev) clcontext_destroy(stddev);
@@ -453,12 +544,22 @@ __getenv_token( const char* name, const char* token, char* value, size_t n )
 
 			}
 
-      } else if (!token) {
+      } else if (!token) { /* this is a legacy case -DAR */
 
 			strncpy(value,clause,min(strlen(clause)+1,n));
 			return(0);
 
-      }
+      } else {
+
+			if ( strlen(token) == strlen(clause) 
+				&& !strncasecmp(token,clause,strlen(token))) {
+
+				strncpy(value,clause,strlen(clause)+1);
+				return(0);
+
+			}
+
+		}
 
       clause = strtok_r(0,":",&ptr);
    }

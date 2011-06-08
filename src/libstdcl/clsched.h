@@ -29,9 +29,12 @@
 
 #define CL_FAST      0x08
 
-#define CL_EVENT_WAIT      0x01
-#define CL_EVENT_NOWAIT    0x02
-#define CL_EVENT_RELEASE   0x04
+#define CL_EVENT_WAIT     	0x01
+#define CL_EVENT_NOWAIT   	0x02
+#ifdef ALLOW_DEPRECATED_FLAGS
+#define CL_EVENT_RELEASE  	0x04
+#endif
+#define CL_EVENT_NORELEASE	0x08
 
 #define CL_KERNEL_EVENT		0x10
 #define CL_MEM_EVENT			0x20
@@ -49,14 +52,14 @@ struct clndrange_struct {
 extern "C" {
 #endif
 
-cl_event clfork(CONTEXT* cp, cl_uint devnum, cl_kernel krn, struct clndrange_struct* ndr, int flags);
+LIBSTDCL_API cl_event clfork(CONTEXT* cp, cl_uint devnum, cl_kernel krn, struct clndrange_struct* ndr, int flags);
 
-cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags);
-cl_event clwaitev(
+LIBSTDCL_API cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags);
+LIBSTDCL_API cl_event clwaitev(
    CONTEXT* cp, unsigned int devnum, const cl_event ev, int flags
 );
 
-int clflush(CONTEXT* cp, unsigned int devnum, int flags);
+LIBSTDCL_API int clflush(CONTEXT* cp, unsigned int devnum, int flags);
 
 #ifdef __cplusplus
 }
