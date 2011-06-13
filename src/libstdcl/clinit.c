@@ -472,6 +472,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 */
 
 
+/*
 	char buf[256];
 	if (!__getenv_token("COPRTHR","log_automatic_kernels",buf,256)) {
 		__log_automatic_kernels_filename = (char*)malloc(256+6);
@@ -482,6 +483,20 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		} else {
 			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
 		}
+		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
+			__log_automatic_kernels_filename);
+	}
+*/
+//	char buf[256];
+	if (getenv("COPRTHR_LOG_AUTOKERN")) {
+		__log_automatic_kernels_filename = (char*)malloc(256+6);
+//		if (!strncasecmp(buf,"log_automatic_kernels",256)) {
+			snprintf(
+				__log_automatic_kernels_filename,256+6,
+				"coprthr.autokern.log.%d",getpid());
+//		} else {
+//			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
+//		}
 		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
 			__log_automatic_kernels_filename);
 	}
