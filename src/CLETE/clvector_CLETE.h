@@ -238,6 +238,7 @@ struct PrintF< clvector<T, Allocator> > {
 			std::ios_base::out|std::ios_base::app); \
 		ofs<<srcstr<<"\n"; \
 		ofs.close(); \
+	} \
 	} while (0)
 
 
@@ -315,7 +316,8 @@ inline void evaluate(
 
 		srcstr += "}\n";
 
-		std::cout<<srcstr;
+//		std::cout<<srcstr;
+		log_kernel(srcstr);
 
 		void* clh = clsopen(stdgpu,srcstr.c_str(),CLLD_NOW);
 		krn = clsym(stdgpu,clh,"kern",CLLD_NOW);
@@ -353,7 +355,7 @@ inline void evaluate(
 
 		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -368,7 +370,7 @@ inline void evaluate(
 
 #elif defined(__CLVECTOR_SEMIAUTO)
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT);
 
 #endif
 
