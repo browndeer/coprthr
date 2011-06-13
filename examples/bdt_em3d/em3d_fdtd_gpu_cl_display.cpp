@@ -258,7 +258,8 @@ iterate_gpu_cl_display(
         glutInitWindowPosition(100,10);
         glutInitWindowSize(512,512);
         glutInitDisplayMode( GLUT_RGB | GLUT_DOUBLE );
-        glutCreateWindow("Brown Deer Technology 3D Seismic Simulation");
+        glutCreateWindow(
+				"Brown Deer Technology 3D Electromagnetic FDTD Simulation");
         display_init();
         glutDisplayFunc(displayfunc);
         glutReshapeFunc(reShape);
