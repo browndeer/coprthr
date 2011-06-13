@@ -1,4 +1,4 @@
-/* clopen_example.c */
+/* clopen_example2.c */
 
 #include <stdio.h>
 #include <stdcl.h>
