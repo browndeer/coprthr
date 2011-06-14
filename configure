@@ -2906,19 +2906,20 @@ fi;
 
 if test $ENABLE_LIBOCL -eq 1; then
 
-	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
-		{ { echo "$as_me:$LINENO: error: libocl requres clc21, file not found" >&5
-echo "$as_me: error: libocl requres clc21, file not found" >&2;}
+#	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
+#		AC_MSG_ERROR([libocl requres clc21, file not found])
+#	fi;
+	if ! test -e $ATI_SDK_21; then
+		{ { echo "$as_me:$LINENO: error: libocl requres ATI SDK v2.1, path not found" >&5
+echo "$as_me: error: libocl requres ATI SDK v2.1, path not found" >&2;}
    { (exit 1); exit 1; }; }
 	fi;
 
-	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64-21.bc; then
-		{ { echo "$as_me:$LINENO: error: libocl requres builtins-x86_64-21.bc, file not found" >&5
-echo "$as_me: error: libocl requres builtins-x86_64-21.bc, file not found" >&2;}
-   { (exit 1); exit 1; }; }
-#	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
-#		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
-	fi;
+#	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64-21.bc; then
+#		AC_MSG_ERROR([libocl requres builtins-x86_64-21.bc, file not found])
+##	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
+##		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
+#	fi;
 
 fi;
 
@@ -2963,8 +2964,6 @@ fi;
 
           ac_config_files="$ac_config_files test/test_ocl/Makefile"
 
-          ac_config_files="$ac_config_files test/test_CLETE/Makefile"
-
           ac_config_files="$ac_config_files include/Makefile"
 
 
@@ -2975,7 +2974,6 @@ fi;
           ac_config_files="$ac_config_files test/test_stdcl/scripts/run_tests.sh"
 
           ac_config_files="$ac_config_files test/test_stdcl/scripts/run_quick_tests.sh"
-
 
 
 cat >confcache <<\_ACEOF
@@ -3539,7 +3537,6 @@ do
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "test/test_stdcl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_stdcl/Makefile" ;;
   "test/test_ocl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_ocl/Makefile" ;;
-  "test/test_CLETE/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_CLETE/Makefile" ;;
   "include/Makefile" ) CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
   "test/test_ocl/scripts/run_tests.sh" ) CONFIG_FILES="$CONFIG_FILES test/test_ocl/scripts/run_tests.sh" ;;
   "test/test_ocl/scripts/run_quick_tests.sh" ) CONFIG_FILES="$CONFIG_FILES test/test_ocl/scripts/run_quick_tests.sh" ;;

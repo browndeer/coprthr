@@ -192,15 +192,18 @@ AC_ARG_WITH(ati-sdk-21,
 
 if test $ENABLE_LIBOCL -eq 1; then 
 
-	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
-		AC_MSG_ERROR([libocl requres clc21, file not found])
+#	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
+#		AC_MSG_ERROR([libocl requres clc21, file not found])
+#	fi;
+	if ! test -e $ATI_SDK_21; then
+		AC_MSG_ERROR([libocl requres ATI SDK v2.1, path not found])
 	fi;
 
-	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64-21.bc; then
-		AC_MSG_ERROR([libocl requres builtins-x86_64-21.bc, file not found])
-#	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
-#		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
-	fi;
+#	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64-21.bc; then
+#		AC_MSG_ERROR([libocl requres builtins-x86_64-21.bc, file not found])
+##	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
+##		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
+#	fi;
 
 fi;
 
@@ -235,14 +238,12 @@ AC_CONFIG_FILES([tools/clld/Makefile])
 AC_CONFIG_FILES([test/Makefile])
 AC_CONFIG_FILES([test/test_stdcl/Makefile])
 AC_CONFIG_FILES([test/test_ocl/Makefile])
-AC_CONFIG_FILES([test/test_CLETE/Makefile])
 AC_CONFIG_FILES([include/Makefile])
 
 AC_CONFIG_FILES([test/test_ocl/scripts/run_tests.sh],[chmod +x test/test_ocl/scripts/run_tests.sh])
 AC_CONFIG_FILES([test/test_ocl/scripts/run_quick_tests.sh],[chmod +x test/test_ocl/scripts/run_quick_tests.sh])
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_tests.sh],[chmod +x test/test_stdcl/scripts/run_tests.sh])
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_quick_tests.sh],[chmod +x test/test_stdcl/scripts/run_quick_tests.sh])
-
 
 AC_OUTPUT
 
