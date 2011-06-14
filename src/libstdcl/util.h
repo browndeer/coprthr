@@ -2,10 +2,14 @@
 #ifndef _UTIL
 #define _UTIL
 
-#include <stdio.h>
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
 #include <sys/types.h>
 #include <unistd.h>
+#endif
 
+#include <stdio.h>
 
 #ifdef _WIN64
 #define ERROR CLERROR

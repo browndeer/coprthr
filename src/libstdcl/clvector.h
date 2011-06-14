@@ -87,8 +87,10 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 	
 };
 
+#ifndef _WIN64
 //#include "Eval.h"
 #include "CLETE/clvector_CLETE.h"
+#endif
 
   template < typename T, typename A> template<class RHS>
   clvector<T,A>& clvector<T,A>::operator=(const Expression<RHS> &rhs)

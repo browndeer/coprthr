@@ -308,22 +308,29 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 		/* XXX any more checks that should be done? -DAR */
 
-		DEBUG(__FILE__,__LINE__," file ok ");
-
 		len = fs.st_size;
 
 #ifdef _WIN64
+
+		/* windows implementation of stat() is broken, try something else */
 		fp = fopen(fname,"r");
-		ptr = malloc(len);
+		fseek(fp, 0L, SEEK_END); 
+		len = ftell(fp);
+		fseek(fp, 0L, SEEK_SET);
+		ptr = malloc(len+1);
+		memset(ptr,'\0',len+1);
 		fread(ptr,1,len,fp);
 		fclose(fp);
-
+		
+		len = strlen((char*)ptr);
+		
 //		prgs = (_prgs_struct *)clload(cp,ptr,len,flags);
 		prgs = (struct _prgs_struct *)clload(cp,ptr,len,flags);
 		prgs->fname = fname;
 		prgs->fp = fp;
 
 #else
+
 		if ((fd = open(fname,O_RDONLY)) == -1) return(0); 
 
 		DEBUG(__FILE__,__LINE__," file open ");
