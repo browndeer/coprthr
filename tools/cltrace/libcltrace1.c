@@ -182,10 +182,22 @@ static char* cltrace_timer = 0;
 static int init_skip = 0;
 static int fini_defer = 0;
 
+static void* h = 0;
+
 //void __attribute__((__constructor__(101))) _libcltrace1_init(void)
 void __attribute__((__constructor__)) _libcltrace1_init(void)
 {
 	if (init_skip==1) return;
+
+	if (getenv("CLTRACE_OPENCL_LIB")) {
+		h = dlopen(getenv("CLTRACE_OPENCL_LIB"),RTLD_LAZY);
+		fprintf(stderr,"cltrace: using OpenCL lib '%s'\n",
+			getenv("CLTRACE_OPENCL_LIB"));
+	} else {
+		h = dlopen("libOpenCL.so",RTLD_LAZY);
+		fprintf(stderr,"cltrace: using OpenCL lib 'libOpenCL.so'\n");
+	}
+
 
 	cltrace_report = getenv("CLTRACE_REPORT");
 	cltrace_timestamp = getenv("CLTRACE_TIMESTAMP");
@@ -244,8 +256,6 @@ void __attribute__((__destructor__)) _libcltrace1_fini(void)
 }
 
 #include "_interceptor.h"
-
-static void* h = 0;
 
 
 _d_dpe( 1,libOpenCL.so, cl_int ,

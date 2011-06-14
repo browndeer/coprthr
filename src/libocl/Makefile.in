@@ -23,6 +23,7 @@ INSTALL_MAN_DIR=@mandir@
 #ATISTREAMSDK = /usr/local/atistream/atistream_sdk-2.0/
 #ATISTREAMSDK = /usr/local/atistream/
 ATISTREAMSDK=@AMD_SDK@
+ATISTREAMSDK21=@ATI_SDK_21@
 
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
@@ -48,6 +49,7 @@ RT_BC = __vcore_rt.bc bdt_builtins_x86_64.bc
 
 
 DEFS += -DATISTREAMSDK=\"$(ATISTREAMSDK)\" 
+DEFS += -DATISTREAMSDK21=\"$(ATISTREAMSDK21)\" 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 
 ifeq ($(ENABLE_ATIGPU),1)
@@ -183,5 +185,7 @@ uninstall: check_root
 clean:
 	rm -f *.o *.so
 	rm -f *.bc
+
+distclean: clean
 
 

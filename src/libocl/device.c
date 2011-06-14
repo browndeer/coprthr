@@ -113,7 +113,7 @@ void __do_discover_devices(
 		8,4,2,1,2,1,	/* pref_char/short/int/long/float/double/n */
 		0,				/* max_freq */
 		64,			/* bits */
-		128*1024*1024,		/* max_mem_alloc_sz */
+		1024*1024*1024,		/* max_mem_alloc_sz */
 		CL_FALSE,	/* supp_img */
 		0,0, 			/* img_max_narg_r, img_max_narg_w */
 		0,0,			/* img2d_max_width, img2d_max_height */
@@ -278,6 +278,9 @@ void __do_discover_devices(
 	int i;
 
 	unsigned int ncore = sysconf(_SC_NPROCESSORS_ONLN);
+
+	if (getenv("COPRTHR_VCORE_NE"))
+		ncore = min(ncore,atoi(getenv("COPRTHR_VCORE_NE")));
 
 //ncore = 1;
 

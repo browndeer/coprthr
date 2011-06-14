@@ -20,8 +20,8 @@
 
 /* DAR */
 
-#include <iostream>
-using namespace std;
+//#include <iostream>
+//using namespace std;
 
 /* XXX to do, add err code checks, other safety checks * -DAR */
 /* XXX to do, clvplat_destroy should automatically release all txts -DAR */
@@ -56,7 +56,8 @@ using namespace std;
 #ifdef DEFAULT_OPENCL_PLATFORM
 #define DEFAULT_PLATFORM_NAME DEFAULT_OPENCL_PLATFORM
 #else
-#define DEFAULT_PLATFORM_NAME "ATI"
+//#define DEFAULT_PLATFORM_NAME "ATI"
+#define DEFAULT_PLATFORM_NAME "AMD"
 #endif
 
 #ifndef min
@@ -113,47 +114,6 @@ clcontext_create(
 
 	DEBUG(__FILE__,__LINE__,"clcontext_create() called");
 
-/*
-	nplatforms;
-
-	err = clGetPlatformIDs(0,0,&nplatforms);
-
-	cout<<nplatforms<<" platforms\n";
-	cout<<err<<" err\n";
-
-	platforms = (cl_platform_id*)malloc(nplatforms*sizeof(cl_platform_id));
-	clGetPlatformIDs(nplatforms,platforms,0);
-
-	cout<<platforms[0]<<" platform ID\n";
-
-	cl_context_properties ctxprop[3] = {
-		(cl_context_properties)CL_CONTEXT_PLATFORM,
-		(cl_context_properties)platforms[0],
-		(cl_context_properties)0
-	};
-	cl_context ctx = clCreateContextFromType(ctxprop,CL_DEVICE_TYPE_GPU,0,0,&err);
-	cout<<ctx<<" context \n";
-
-	devlist_sz;
-	ndev;
-	err = clGetContextInfo(ctx,CL_CONTEXT_DEVICES,0,0,&devlist_sz);
-	ndev = devlist_sz/sizeof(cl_device_id);
-
-	cout<<ndev<<" devices\n";
-
-	cl_device_id dev[8];
-
-	err = clGetContextInfo(ctx,CL_CONTEXT_DEVICES,devlist_sz,dev,0);
-	cout<<dev[0]<<" device[0]\n";
-
-	cl_command_queue cmdq = clCreateCommandQueue(ctx,dev[0],0,&err);
-
-	cout<<err<<" err from clCreateCommandQueue\n";
-
-	DEBUG(__FILE__,__LINE__,"MADE IT"); return (CONTEXT*)0;
-*/
-
-	
 
 //	if (ndevmax) 
 //		WARN(__FILE__,__LINE__,"__clcontext_create(): ndevmax argument ignored");
@@ -307,6 +267,10 @@ clcontext_create(
 
 		cl_uint platform_ndev;
 		err = clGetDeviceIDs(platformid,devtyp,0,0,&platform_ndev);
+//		cl_uint platform_vndev = 2*platform_ndev;
+		cl_uint platform_vndev = platform_ndev;
+
+//DEBUG(__FILE__,__LINE__,"%d %d",platform_ndev,platform_vndev);
 	
 		cl_device_id* platform_dev 
 			= (cl_device_id*)malloc(platform_ndev*sizeof(cl_device_id));
@@ -371,9 +335,11 @@ clcontext_create(
 			__ctx_lock = (struct __ctx_lock_struct*)p0;
 
 			pthread_mutex_lock(&__ctx_lock->mtx);
-			if (__ctx_lock->refc < platform_ndev) {
+//			if (__ctx_lock->refc < platform_ndev) {
+			if (__ctx_lock->refc < platform_vndev) {
 				noff = __ctx_lock->refc;
-				ndev = min(ndevmax,platform_ndev-noff);
+//				ndev = min(ndevmax,platform_ndev-noff);
+				ndev = min(ndevmax,platform_vndev-noff);
 				__ctx_lock->refc += ndev;
 			}
 			pthread_mutex_unlock(&__ctx_lock->mtx);
@@ -396,7 +362,9 @@ clcontext_create(
 			__ctx_lock->magic = 20110415;
 			__ctx_lock->key = lock_key;
 			pthread_mutex_init(&__ctx_lock->mtx,0);
-			ndev = min(ndevmax,platform_ndev);
+//			ndev = min(ndevmax,platform_ndev);
+			ndev = min(ndevmax,platform_vndev);
+		DEBUG(__FILE__,__LINE__,"ndev=%d %d %d",ndev,ndevmax,platform_vndev);
 			__ctx_lock->refc = ndev;
 
 			fchmod(fd,S_IRUSR|S_IWUSR);
@@ -405,9 +373,13 @@ clcontext_create(
 
 		}
 
-		if (noff < platform_ndev) {
+		DEBUG(__FILE__,__LINE__,"ndev=%d",ndev);
 
-			cp->ctx = clCreateContext(ctxprop,ndev,platform_dev + noff,0,0,&err);
+//		if (noff < platform_ndev) {
+		if (noff < platform_vndev) {
+
+//			cp->ctx = clCreateContext(ctxprop,ndev,platform_dev + noff,0,0,&err);
+			cp->ctx = clCreateContext(ctxprop,ndev,platform_dev + noff%platform_ndev,0,0,&err);
 
 			DEBUG(__FILE__,__LINE__,
 				"clcontext_create: platform_ndev=%d ndev=%d noffset=%d",
@@ -427,7 +399,6 @@ clcontext_create(
 
 	}
 #endif
-
 
 	if (cp->ctx) {
 
@@ -460,9 +431,9 @@ clcontext_create(
 			pthread_mutex_unlock(&__ctx_lock->mtx);
 		}
 
-		_aligned_free(cp);
-#else
 		free(cp);
+#else
+		_aligned_free(cp);
 #endif
 
       return((CONTEXT*)0);

@@ -66,7 +66,7 @@ MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
 	clarg_set_local.3 clmsync.3 clopen.3 clclose.3 clndrange_init1d.3 \
 	clsizeofmem.3 clerror.3 clndrange_init2d.3 clsym.3 clfork.3 \
 	clndrange_init3d.3 clwait.3 clfree.3 clndrange_init.3 stdcl.3 \
-	clload.3 clndrange_set1d.3
+	clndrange_set1d.3 clflush.3
 
 INSTALL_INCS = $(HDRS)
 INSTALL_LIBS = libstdcl.so libstdcl_d.so
@@ -135,4 +135,5 @@ clean:
 	rm -f _interceptor.h 
 	rm -f *.so
 
+distclean: clean
 

@@ -266,61 +266,42 @@ void __attribute__((__constructor__)) _libstdcl_init()
 #endif
 
 
-/*
-	WARN(__FILE__,__LINE__,"_libstdcl_init:"
-		" forcing selection of \"ATI Stream\" as default platform");
-
-	cl_platform_id default_platformid = (cl_platform_id)0;
-
-	for(i=0;i<nplatform;i++) {
-
-		char info[1024];
-
-		clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1023,info,0);
-
-		if (!strncmp(info,"ATI Stream",10)) {
-			default_platformid = platforms[i];
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: default_platformid=%p\n", default_platformid);
-		}
-
-	}
-
-*/
-
-
 
 	/*
 	 * initialize stddev (all CL devices)
 	 */
 
-	if (!__getenv_token("STDDEV",0,env_max_ndev,256)) {
-		enable = ndev = atoi(env_max_ndev);
-	} else {
-		ndev = 0;
-		//enable = 1;
-		enable = 0;
-	}
+	DEBUG(__FILE__,__LINE__,"clinit: initialize stddev");
+
 
 	stddev = 0;
+	ndev = 0; /* this is a special case that implies all available -DAR */
+	enable = 1;
+	lock_key = 0;
+
+	if (getenv("STDDEV")) enable = atoi(getenv("STDDEV"));
 
 	if (enable) {
 
-//		platformid = _select_platformid(nplatforms,platforms,"STDDEV");
 		char name[256];
-		__getenv_token("STDDEV","platform_name",name,256);
+		if (getenv("STDDEV_PLATFORM_NAME"))
+			strncpy(name,getenv("STDDEV_PLATFORM_NAME"),256);
+		else name[0]='\0';
 
-//		if (platformid != (cl_platform_id)(-1)) {
+		if (getenv("STDDEV_MAX_NDEV"))
+			ndev = atoi(getenv("STDDEV_MAX_NDEV"));
 
-//			DEBUG(__FILE__,__LINE__,
-//				"_libstdcl_init: stddev platformid %p",platformid);
+		if (getenv("STDDEV_LOCK"))
+			lock_key = atoi(getenv("STDDEV_LOCK"));
 
-//			stddev = clcontext_create(platformid,CL_DEVICE_TYPE_ALL,ndev,0);
-			stddev = clcontext_create(name,CL_DEVICE_TYPE_ALL,ndev,0,0);
-
-//		} 
+		stddev = clcontext_create(name,CL_DEVICE_TYPE_ALL,ndev,0,lock_key);
 
 	}
+
+	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
+
+
+
 
 
 
@@ -328,33 +309,35 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	 * initialize stdcpu (all CPU CL devices)
 	 */
 
-	if (!__getenv_token("STDCPU",0,env_max_ndev,256)) {
-		enable = ndev = atoi(env_max_ndev);
-	} else {
-		ndev = 0;
-		//enable = 1;
-		enable = 0;
-	}
+	DEBUG(__FILE__,__LINE__,"clinit: initialize stdcpu");
+
 
 	stdcpu = 0;
+	ndev = 0; /* this is a special case that implies all available -DAR */
+	enable = 1;
+	lock_key = 0;
+
+	if (getenv("STDCPU")) enable = atoi(getenv("STDCPU"));
 
 	if (enable) {
 
-//		platformid = _select_platformid(nplatforms,platforms,"STDCPU");
 		char name[256];
-		__getenv_token("STDCPU","platform_name",name,256);
+		if (getenv("STDCPU_PLATFORM_NAME"))
+			strncpy(name,getenv("STDCPU_PLATFORM_NAME"),256);
+		else name[0]='\0';
 
-//		if (platformid != (cl_platform_id)(-1)) {
+		if (getenv("STDCPU_MAX_NDEV"))
+			ndev = atoi(getenv("STDCPU_MAX_NDEV"));
 
-//			DEBUG(__FILE__,__LINE__,
-//				"_libstdcl_init: stdcpu platformid %p",platformid);
+		if (getenv("STDCPU_LOCK"))
+			lock_key = atoi(getenv("STDCPU_LOCK"));
 
-//			stdcpu = clcontext_create(platformid,CL_DEVICE_TYPE_CPU,ndev,0);
-			stdcpu = clcontext_create(name,CL_DEVICE_TYPE_CPU,ndev,0,0);
-
-//		}
+		stdcpu = clcontext_create(name,CL_DEVICE_TYPE_CPU,ndev,0,lock_key);
 
 	}
+
+	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
+
 
 
 
@@ -362,28 +345,30 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	 * initialize stdgpu (all GPU CL devices)
 	 */
 
+	DEBUG(__FILE__,__LINE__,"clinit: initialize stdgpu");
+
+/*
 	if (!__getenv_token("STDGPU",0,env_max_ndev,256)) {
 		enable = ndev = atoi(env_max_ndev);
 	} else {
 		ndev = 0;
 		enable = 1;
 	}
+*/
 
 	stdgpu = 0;
 	ndev = 0; /* this is a special case that implies all available -DAR */
 	enable = 1;
 	lock_key = 0;
 
-	char name[256];
-
-	if (getenv("STDGPU") && !strncmp(getenv("STDGPU"),"0",2)) enable = 0;
+	if (getenv("STDGPU")) enable = atoi(getenv("STDGPU"));
 
 	if (enable) {
 
 		char name[256];
-		__getenv_token("STDGPU_PLATFORM_NAME","platform_name",name,256);
 		if (getenv("STDGPU_PLATFORM_NAME"))
 			strncpy(name,getenv("STDGPU_PLATFORM_NAME"),256);
+		else name[0]='\0';
 
 		if (getenv("STDGPU_MAX_NDEV"))
 			ndev = atoi(getenv("STDGPU_MAX_NDEV"));
@@ -429,6 +414,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 */
 
 
+/*
 	char buf[256];
 	if (!__getenv_token("COPRTHR","log_automatic_kernels",buf,256)) {
 		__log_automatic_kernels_filename = (char*)malloc(256+6);
@@ -439,6 +425,20 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		} else {
 			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
 		}
+		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
+			__log_automatic_kernels_filename);
+	}
+*/
+//	char buf[256];
+	if (getenv("COPRTHR_LOG_AUTOKERN")) {
+		__log_automatic_kernels_filename = (char*)malloc(256+6);
+//		if (!strncasecmp(buf,"log_automatic_kernels",256)) {
+			snprintf(
+				__log_automatic_kernels_filename,256+6,
+				"coprthr.autokern.log.%d",getpid());
+//		} else {
+//			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
+//		}
 		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
 			__log_automatic_kernels_filename);
 	}

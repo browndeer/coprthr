@@ -1,10 +1,10 @@
-.TH CLMATTACH "3" "2010-8-12" "libstdcl-1.0" "Standard Compute Layer (CL) Manual"
+.TH CLMATTACH "3" "2011-6-13" "libstdcl-1.2" "Standard Compute Layer (CL) Manual"
 .SH NAME
 clmattach, clmdetach \- Attach and detach memory from a CL context
 .SH SYNOPSIS
 #include <stdcl.h>
 .sp
-int clmattach( CONTEXT* cp, void* ptr );
+int clmattach( CLCONTEXT* cp, void* ptr );
 .sp
 int clmdetach( void* ptr );
 .sp
@@ -32,7 +32,7 @@ Written by David Richie.
 .SH REPORTING BUGS
 Report bugs to <support@browndeertechnology.com>
 .SH COPYRIGHT
-Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the
+Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
 GNU Lesser General Public License version 3 (LGPLv3).
 There is NO WARRANTY to the extent permitted by law.
 .SH SEE ALSO

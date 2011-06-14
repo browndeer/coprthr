@@ -36,4 +36,5 @@ uninstall: check_root
 
 clean:
 
+distclean: clean
 

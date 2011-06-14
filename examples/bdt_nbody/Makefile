@@ -11,10 +11,10 @@ CLSRC = nbody_kern.cl
 #OBJS += out_clld.o
 DEFS += -DENABLE_CL
 INCS += -I$(CL_ROOT)/include -I$(LIBSTDCL_ROOT)/include
-#LIBS += -L$(CL_ROOT)/lib/x86_64 -lOpenCL -lpthread -ldl \
-#	-L$(LIBSTDCL_ROOT)/lib -lstdcl
 LIBS += -L$(CL_ROOT)/lib/x86_64 -lOpenCL -lpthread -ldl \
 	-L$(LIBSTDCL_ROOT)/lib -lstdcl
+#LIBS += -L$(CL_ROOT)/lib/x86_64 -locl -lpthread -ldl \
+#	-L$(LIBSTDCL_ROOT)/lib -lstdcl
 
 ANNOUNCEMENT = "\a\n\n*****PLEASE NOTE *****\n\nMake sure "$(LIBSTDCL_ROOT)"/lib \nis added to LD_LIBRARY_PATH\n\n"
 

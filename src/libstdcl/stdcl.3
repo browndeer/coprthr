@@ -1,16 +1,16 @@
-.TH STDLC "3" "2010-8-12"	"libstdcl-1.0" "Standard Compute Layer (CL) Manual"
+.TH STDLC "3" "2011-6-13"	"libstdcl-1.2" "Standard Compute Layer (CL) Manual"
 .SH NAME
 stdcl - standard compute layer (CL) library functions
 .SH SYNOPSIS
 .B #include <stdcl.h>
 .sp
-.BI "CONTEXT* " stddev ;
+.BI "CLCONTEXT* " stddev ;
 .br
-.BI "CONTEXT* " stdcpu ;
+.BI "CLCONTEXT* " stdcpu ;
 .br
-.BI "CONTEXT* " stdgpu ;
+.BI "CLCONTEXT* " stdgpu ;
 .br
-.BI "CONTEXT* " stdrpu ;
+.BI "CLCONTEXT* " stdrpu ;
 .sp
 Link with \fI\-lstdcl\fP.
 .SH DESCRIPTION
@@ -103,10 +103,10 @@ int main() {
 
 	clndrange_t ndr = clndrange_init1d(0,n,4);
 
-	clarg_set(krn,0,n);
-	clarg_set_global(krn,1,aa);
-	clarg_set_global(krn,2,bb);
-	clarg_set_global(krn,3,cc);
+	clarg_set(stdgpu,krn,0,n);
+	clarg_set_global(stdgpu,krn,1,aa);
+	clarg_set_global(stdgpu,krn,2,bb);
+	clarg_set_global(stdgpu,krn,3,cc);
 
 	clfork(stdgpu,0,krn,ndr,CL_EVENT_NOWAIT);
 
@@ -128,37 +128,53 @@ Executables that use the \fIlibstdcl\fP library are affected by environment
 variables that control the behavior of the API.  
 The environment variables 
 \fISTDDEV\fP, \fISTDCPU\fP, \fISTDGPU\fP, \fISTDRPU\fP 
-may be set to
-pass a string used to control the behavior of the respective default
-contexts when a program is executed.  Each string may contain one or more
-colon-separated clauses.  
+may be set to 0 or 1 to disable or enable the context, respectively.  
+Additional environment variables are used to control the behavior of the 
+context.  
+.PP
+The environment variables 
+\fISTDDEV_PLATFORM_NAME\fP, \fISTDCPU_PLATFORM_NAME\fP, 
+\fISTDGPU_PLATFORM_NAME\fP, \fISTDRPU_PLATFORM_NAME\fP
+can be used to set the name of the preffered
+OpenCL platform to use for the context.
 .PP
 As an example, the following would force the stdgpu
-context to use the ATI Stream platform:
+context to use the AMD APP platform:
 .in +4n
 .nf
 
-   setenv STDGPU platform_name="ATI STREAM"
+   setenv STDGPU_PLATFORM_NAME AMD
 
-.if
-.in
-A context can be disabled by setting the respective envinoment variable to 0,
-for example, the following will disable the stddev context:
-.in +4n
-.nf
-
-   setenv STDDEV 0
-
-.if
+.fi
 .in
 .PP
-The allowed clauses are platform and context dependent.
+The environment varialble \fISTDDEV_MAX_NDEV\fP, \fISTDCPU_MAX_NDEV\fP, \fISTDGPU_MAX_NDEV\fP, \fISTDRPU_MAX_NDEV\fP
+can be used to set the maximum number of devices provided by the respective 
+context regardless of the number of devices available.
+.PP
+The environment variables
+\fISTDDEV_LOCK\fP, \fISTDCPU_LOCK\fP, \fISTDGPU_LOCK\fP, \fISTDRPU_LOCK\fP
+can be used to setup exclusive locking of devices across processes with 
+matching lock values.  In combination with setting the maximum number of 
+devices in the context, the lock can be used to achieve efficient device
+management between related processes.
+.PP
+As an example, the following would allow the individual MPI processes on a 
+given node to have exclusive access to a single GPU provided that the number
+of MPI processes per node did not exceed the number of available GPUs:
+.in 
+.nf
+
+   setenv STDGPU_MAX_NDEV 1; setenv STDGPU_LOCK $(MPI_JOB_ID)
+
+.fi
+.in
 .SH AUTHOR
 Written by David Richie.
 .SH REPORTING BUGS
 Report bugs to <support@browndeertechnology.com>
 .SH COPYRIGHT
-Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the 
+Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the 
 GNU Lesser General Public License version 3.
 There is NO WARRANTY to the extent permitted by law.
 .SH SEE ALSO

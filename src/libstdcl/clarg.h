@@ -25,6 +25,8 @@
 
 #ifdef _WIN64
 #include "fix_windows.h"
+#else
+#define LIBSTDCL_API 
 #endif
 
 #include <CL/cl.h>

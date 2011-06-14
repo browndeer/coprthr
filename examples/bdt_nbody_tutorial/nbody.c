@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 
       clmsync(stdgpu,0,pos1,CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-      clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+      clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
    }
 

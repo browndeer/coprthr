@@ -26,6 +26,8 @@
 
 #ifdef _WIN64
 #include "fix_windows.h"
+#else
+#define LIBSTDCL_API 
 #endif
 
 #include <stdarg.h>
@@ -119,7 +121,7 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
 cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 #endif
 
-/* XXX WIN64
+#ifndef _WIN64
 static 
 __inline__
 int clmctl( void* ptr, int op, ... )
@@ -130,9 +132,9 @@ int clmctl( void* ptr, int op, ... )
 	va_end(ap); 
 	return(rc);
 }
-*/
+#endif
 
-__inline int
+static __inline int
 __test_memd_magic(void* ptr) 
 {
 	intptr_t ptri = (intptr_t)ptr - sizeof(struct _memd_struct);

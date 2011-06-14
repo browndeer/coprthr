@@ -8,7 +8,6 @@ USE_OPENCL_LIBS=-L@libdir@ -locl
 TESTS = test_arg_int test_block_int test_arg_int4 \
 	test_arg_float test_block_float test_arg_float4 \
 	test_special \
-	test_math_float \
 	test_block2_int
 
 #TESTS = test_faf
@@ -67,3 +66,7 @@ quicktest: clean $(addsuffix .x,$(TESTS))
 clean:
 	rm -f *.o *.x
 	rm -f $(SRC_TESTS) $(CLSRC_TESTS)
+
+distclean:
+	rm -f ./scripts/run_tests.sh ./scripts/run_quick_tests.sh
+

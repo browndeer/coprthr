@@ -1,10 +1,10 @@
-.TH CLFLUSH "3" "2010-8-12" "libstdcl-1.0" "Standard Compute Layer (CL) Manual"
+.TH CLFLUSH "3" "2011-6-13" "libstdcl-1.2" "Standard Compute Layer (CL) Manual"
 .SH NAME
 clflush \- Flush the CL command queue
 .SH SYNOPSIS
 .B #include <stdcl.h>
 .sp
-.BI "int clflush( CONTEXT* " cp ", cl_uint " devnum ", int " flags );
+.BI "int clflush( CLCONTEXT* " cp ", cl_uint " devnum ", int " flags );
 .sp
 Link with \fI\-lstdcl\fP.
 .SH DESCRIPTION
@@ -20,7 +20,7 @@ Written by David Richie.
 .SH REPORTING BUGS
 Report bugs to <support@browndeertechnology.com>
 .SH COPYRIGHT
-Copyright (C) 2010 Brown Deer Technology, LLC.  Licensed under the
+Copyright (C) 2010-2011 Brown Deer Technology, LLC.  Licensed under the
 GNU Lesser General Public License version 3 (LGPLv3).
 There is NO WARRANTY to the extent permitted by law.
 .SH SEE ALSO

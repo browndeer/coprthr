@@ -72,8 +72,8 @@ int main(int argc, char** argv)
          clflush(stdgpu,0,0);
          clflush(stdgpu,1,0);
 
-         clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
-         clwait(stdgpu,1,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+         clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
+         clwait(stdgpu,1,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
          clmsync(stdgpu,0,pos2b,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
          clmsync(stdgpu,1,pos2a,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
@@ -96,18 +96,20 @@ int main(int argc, char** argv)
          clflush(stdgpu,0,0);
          clflush(stdgpu,1,0);
 
-         clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
-         clwait(stdgpu,1,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+         clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
+         clwait(stdgpu,1,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
-         clmsync(stdgpu,0,pos1b,CL_MEM_DEVICE|CL_EVENT_WAIT|CL_EVENT_RELEASE);
-         clmsync(stdgpu,1,pos1a,CL_MEM_DEVICE|CL_EVENT_WAIT|CL_EVENT_RELEASE);
+
+         clmsync(stdgpu,0,pos1b,CL_MEM_DEVICE|CL_EVENT_WAIT);
+         clmsync(stdgpu,1,pos1a,CL_MEM_DEVICE|CL_EVENT_WAIT);
 
       }
 
       clflush(stdgpu,0,0);
       clflush(stdgpu,1,0);
-      clwait(stdcpu,0,CL_MEM_EVENT|CL_EVENT_RELEASE);
-      clwait(stdcpu,1,CL_MEM_EVENT|CL_EVENT_RELEASE);
+
+      clwait(stdgpu,0,CL_MEM_EVENT);
+      clwait(stdgpu,1,CL_MEM_EVENT);
 
    }
 
@@ -116,7 +118,7 @@ int main(int argc, char** argv)
 
    nbody_output(nparticle,pos1,vel);
 
-   clclose(stdcpu,h);
+   clclose(stdgpu,h);
 
    clfree(pos1);
    clfree(pos1a);

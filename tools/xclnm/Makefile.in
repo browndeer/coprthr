@@ -70,3 +70,5 @@ clean:
 	rm -f $(BIN_NAME)
 	rm -f xclnm_gram.c xclnm_gram.h xclnm_scan.c y.output
 
+distclean: clean
+

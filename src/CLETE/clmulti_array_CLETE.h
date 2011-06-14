@@ -461,6 +461,7 @@ struct PrintF< clmulti_array<T, 2> > {
          std::ios_base::out|std::ios_base::app); \
       ofs<<srcstr<<"\n"; \
       ofs.close(); \
+	} \
    } while (0)
 
 
@@ -583,7 +584,7 @@ inline void evaluate(
 
 		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -598,7 +599,7 @@ inline void evaluate(
 
 #elif defined(__CLMULTI_ARRAY_SEMIAUTO)
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT);
 
 #endif
 
@@ -745,7 +746,7 @@ inline void evaluate(
 
 		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -760,7 +761,7 @@ inline void evaluate(
 
 #elif defined(__CLMULTI_ARRAY_SEMIAUTO)
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT);
 
 #endif
 
@@ -912,7 +913,7 @@ inline void evaluate(
 
 		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -927,7 +928,7 @@ inline void evaluate(
 
 #elif defined(__CLMULTI_ARRAY_SEMIAUTO)
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT);
 
 #endif
 
@@ -1084,7 +1085,7 @@ inline void evaluate(
 
 		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -1099,7 +1100,7 @@ inline void evaluate(
 
 #elif defined(__CLMULTI_ARRAY_SEMIAUTO)
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
+		clwait(stdgpu,0,CL_KERNEL_EVENT);
 
 #endif
 

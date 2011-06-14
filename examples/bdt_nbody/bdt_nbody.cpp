@@ -46,7 +46,7 @@
 
 
 
-CONTEXT* cp = 0; /* selects CL context */
+CLCONTEXT* cp = 0; /* selects CL context */
 
 int devnum = 0;
 
@@ -396,7 +396,7 @@ void iterate_cl(
 
 	clmsync(cp,devnum,pp,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 	clmsync(cp,devnum,vv,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
-	clwait(cp,devnum,CL_MEM_EVENT|CL_EVENT_RELEASE);
+	clwait(cp,devnum,CL_MEM_EVENT);
 	Start(0); 
 
 //	for(int burst = 0; burst<nburst; burst+=2) {
@@ -414,14 +414,14 @@ void iterate_cl(
 
 	}
 
-//	clwait(cp,devnum,CL_KERNEL_EVENT|CL_EVENT_RELEASE);
+//	clwait(cp,devnum,CL_KERNEL_EVENT);
 //	Stop(0);
 
 //	clmsync(cp,devnum,pp2,CL_MEM_HOST|CL_EVENT_NOWAIT);
 	clmsync(cp,devnum,pp,CL_MEM_HOST|CL_EVENT_NOWAIT);
 	clmsync(cp,devnum,vv,CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-	clwait(cp,devnum,CL_ALL_EVENT|CL_EVENT_RELEASE);
+	clwait(cp,devnum,CL_ALL_EVENT);
 
 	Stop(0);
 
