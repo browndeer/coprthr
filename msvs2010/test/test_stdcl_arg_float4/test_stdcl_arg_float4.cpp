@@ -28,7 +28,7 @@ close(fd); \
 //do { fprintf("error code %d\n",err); exit(line); } while(0)
 
 #define __exit(line) \
-do { printf("error code at line %d\n",err); exit(line); } while(0)
+do { printf("error code at line %d\n",line); exit(line); } while(0)
 
 int main( int argc, char** argv )
 {
@@ -101,6 +101,7 @@ aa6[i] = i*1.1f+13.1f*6; bb6[i] = 0;
 aa7[i] = i*1.1f+13.1f*7; bb7[i] = 0; 
 }
 void* clh = clopen(cp,"test_arg_float4.cl",CLLD_NOW);
+printf("%p\n",clh);
 cl_kernel krn;
 clndrange_t ndr = clndrange_init1d(0,size4,blocksize);
 cl_event ev[10];

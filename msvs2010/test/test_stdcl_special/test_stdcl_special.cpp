@@ -27,7 +27,7 @@ close(fd); \
 //do { fprintf("error code %d\n",err); __exit(line); } while(0)
 
 #define __exit(line) \
-do { printf("error code at line %d\n",err); exit(line); } while(0)
+do { printf("error code at line %d\n",line); exit(line); } while(0)
 
 int main( int argc, char** argv)
 {
