@@ -65,7 +65,7 @@ install: subdirs
 	@cp -Rf ./examples $(prefix)
 	@cp -Rf ./test $(prefix)
 	@chmod -R a+rX $(prefix)
-	install -m 644 install-message.txt $(prefix)/$(prefix)
+	install -m 644 install-message.txt $(prefix)/install-message.txt
 	@cat install-message.txt
 
 uninstall: subdirs
