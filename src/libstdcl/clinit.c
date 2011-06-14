@@ -273,35 +273,6 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 	DEBUG(__FILE__,__LINE__,"clinit: initialize stddev");
 
-/*
-	if (!__getenv_token("STDDEV",0,env_max_ndev,256)) {
-		enable = ndev = atoi(env_max_ndev);
-	} else {
-		ndev = 0;
-		enable = 1;
-		//enable = 0;
-	}
-
-	stddev = 0;
-
-	if (enable) {
-
-//		platformid = _select_platformid(nplatforms,platforms,"STDDEV");
-		char name[256];
-		__getenv_token("STDDEV","platform_name",name,256);
-
-//		if (platformid != (cl_platform_id)(-1)) {
-
-//			DEBUG(__FILE__,__LINE__,
-//				"_libstdcl_init: stddev platformid %p",platformid);
-
-//			stddev = clcontext_create(platformid,CL_DEVICE_TYPE_ALL,ndev,0);
-			stddev = clcontext_create(name,CL_DEVICE_TYPE_ALL,ndev,0,0);
-
-//		} 
-
-	}
-*/
 
 	stddev = 0;
 	ndev = 0; /* this is a special case that implies all available -DAR */
@@ -340,35 +311,6 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 	DEBUG(__FILE__,__LINE__,"clinit: initialize stdcpu");
 
-/*
-	if (!__getenv_token("STDCPU",0,env_max_ndev,256)) {
-		enable = ndev = atoi(env_max_ndev);
-	} else {
-		ndev = 0;
-		enable = 1;
-		//enable = 0;
-	}
-
-	stdcpu = 0;
-
-	if (enable) {
-
-//		platformid = _select_platformid(nplatforms,platforms,"STDCPU");
-		char name[256];
-		__getenv_token("STDCPU","platform_name",name,256);
-
-//		if (platformid != (cl_platform_id)(-1)) {
-
-//			DEBUG(__FILE__,__LINE__,
-//				"_libstdcl_init: stdcpu platformid %p",platformid);
-
-//			stdcpu = clcontext_create(platformid,CL_DEVICE_TYPE_CPU,ndev,0);
-			stdcpu = clcontext_create(name,CL_DEVICE_TYPE_CPU,ndev,0,0);
-
-//		}
-
-	}
-*/
 
 	stdcpu = 0;
 	ndev = 0; /* this is a special case that implies all available -DAR */
@@ -472,6 +414,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 */
 
 
+/*
 	char buf[256];
 	if (!__getenv_token("COPRTHR","log_automatic_kernels",buf,256)) {
 		__log_automatic_kernels_filename = (char*)malloc(256+6);
@@ -482,6 +425,20 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		} else {
 			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
 		}
+		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
+			__log_automatic_kernels_filename);
+	}
+*/
+//	char buf[256];
+	if (getenv("COPRTHR_LOG_AUTOKERN")) {
+		__log_automatic_kernels_filename = (char*)malloc(256+6);
+//		if (!strncasecmp(buf,"log_automatic_kernels",256)) {
+			snprintf(
+				__log_automatic_kernels_filename,256+6,
+				"coprthr.autokern.log.%d",getpid());
+//		} else {
+//			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
+//		}
 		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
 			__log_automatic_kernels_filename);
 	}

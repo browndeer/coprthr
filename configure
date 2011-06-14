@@ -274,7 +274,7 @@ PACKAGE_STRING='coprthr 1.1'
 PACKAGE_BUGREPORT='support@browndeertechnology.com'
 
 ac_default_prefix=/usr/local/browndeer
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS ENABLE_DEPRECATED_FLAGS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_CLLD ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK ATI_SDK_21 LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -814,20 +814,19 @@ Optional Features:
   --enable-debug-libs     enable building debug versions of librarires
                           (default=yes)
   --enable-cltrace        enable building cltrace tool (default=yes)
+  --enable-clld           enable building clld tool (default=yes)
   --enable-libocl         enable building libocl (default=no)
   --enable-libocl-ncpu    enable libocl ncpu (default=yes)
   --enable-libocl-atigpu  enable libocl atigpu (default=no)
   --enable-libocl-bdt-builtins
                           enable libocl bdt builtins (default=no)
-  --enable-deprecated-flags
-                          enable deprecated flags for backward compatibility
-                          (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-amd-sdk=DIR      Use AMD SDK in DIR
   --with-nvidia-sdk=DIR   Use Nvidia SDK in DIR
+  --with-ati-sdk-21=DIR   Use ATI SDK v2.1 in DIR
 
 Some influential environment variables:
   CC          C compiler command
@@ -2647,6 +2646,14 @@ else
   enable_cltrace=yes
 fi;
 
+# Check whether --enable-clld or --disable-clld was given.
+if test "${enable_clld+set}" = set; then
+  enableval="$enable_clld"
+
+else
+  enable_clld=yes
+fi;
+
 # Check whether --enable-libocl or --disable-libocl was given.
 if test "${enable_libocl+set}" = set; then
   enableval="$enable_libocl"
@@ -2677,14 +2684,6 @@ if test "${enable_libocl_bdt_builtins+set}" = set; then
 
 else
   enable_libocl_bdt_builtins=no
-fi;
-
-# Check whether --enable-deprecated-flags or --disable-deprecated-flags was given.
-if test "${enable_deprecated_flags+set}" = set; then
-  enableval="$enable_deprecated_flags"
-
-else
-  enable_deprecated_flags=no
 fi;
 
 
@@ -2730,6 +2729,14 @@ if test x$enable_cltrace != xno; then
 			ENABLE_CLTRACE=0
 		fi;
 
+if test x$enable_clld != xno; then
+			echo "enabled "building clld tool""
+			ENABLE_CLLD=1
+		else
+			echo "disabled "building clld tool""
+			ENABLE_CLLD=0
+		fi;
+
 if test x$enable_libocl != xno; then
 			echo "enabled "building libocl""
 			ENABLE_LIBOCL=1
@@ -2760,14 +2767,6 @@ if test x$enable_libocl_bdt_builtins != xno; then
 		else
 			echo "disabled "libocl use bdt builtins""
 			ENABLE_BDT_BUILTINS=0
-		fi;
-
-if test x$enable_deprecated_flags != xno; then
-			echo "enabled "use deprecated flags for backward compatibility""
-			ENABLE_DEPRECATED_FLAGS=1
-		else
-			echo "disabled "use deprecated flags for backward compatibility""
-			ENABLE_DEPRECATED_FLAGS=0
 		fi;
 
 
@@ -2864,21 +2863,63 @@ fi;
 
 OPENCL_LIBNAME=OpenCL
 
+
+
+# Check whether --with-ati-sdk-21 or --without-ati-sdk-21 was given.
+if test "${with_ati_sdk_21+set}" = set; then
+  withval="$with_ati_sdk_21"
+
+    if test x$withval == xno; then
+		withval=/usr/local/atistream
+	 fi;
+
+      if test -d $withval; then
+         echo "found ATI SDK v2.1 path"
+			ATI_SDK_21=$withval
+      else
+         { { echo "$as_me:$LINENO: error: Could not find ATI SDK v2.1 path" >&5
+echo "$as_me: error: Could not find ATI SDK v2.1 path" >&2;}
+   { (exit 1); exit 1; }; }
+      fi;
+
+     if test -e $withval/bin/x86_64/clc; then
+         echo "found ATI SDK v2.1 clc"
+      else
+         { { echo "$as_me:$LINENO: error: Could not find ATI Stream SDK v2.1 clc" >&5
+echo "$as_me: error: Could not find ATI Stream SDK v2.1 clc" >&2;}
+   { (exit 1); exit 1; }; }
+      fi;
+
+      if test -e $withval/lib/x86_64/builtins_x86-64.bc; then
+         echo "found ATI SDK v2.1 builtins"
+      else
+         { { echo "$as_me:$LINENO: error: Could not find ATI SDK v2.1 builtins" >&5
+echo "$as_me: error: Could not find ATI SDK v2.1 builtins" >&2;}
+   { (exit 1); exit 1; }; }
+      fi;
+
+
+else
+  ATI_SDK_21=/usr/local/atistream/ati-stream-sdk-v2.1-lnx64
+fi;
+
+
 if test $ENABLE_LIBOCL -eq 1; then
 
-	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
-		{ { echo "$as_me:$LINENO: error: libocl requres clc21, file not found" >&5
-echo "$as_me: error: libocl requres clc21, file not found" >&2;}
+#	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
+#		AC_MSG_ERROR([libocl requres clc21, file not found])
+#	fi;
+	if ! test -e $ATI_SDK_21; then
+		{ { echo "$as_me:$LINENO: error: libocl requres ATI SDK v2.1, path not found" >&5
+echo "$as_me: error: libocl requres ATI SDK v2.1, path not found" >&2;}
    { (exit 1); exit 1; }; }
 	fi;
 
-	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64-21.bc; then
-		{ { echo "$as_me:$LINENO: error: libocl requres builtins-x86_64-21.bc, file not found" >&5
-echo "$as_me: error: libocl requres builtins-x86_64-21.bc, file not found" >&2;}
-   { (exit 1); exit 1; }; }
-#	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
-#		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
-	fi;
+#	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64-21.bc; then
+#		AC_MSG_ERROR([libocl requres builtins-x86_64-21.bc, file not found])
+##	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
+##		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
+#	fi;
 
 fi;
 
@@ -2902,6 +2943,7 @@ fi;
 #AC_SUBST(AMD_SDK_INC)
 #AC_SUBST(AMD_SDK_LIB)
 
+
           ac_config_files="$ac_config_files Makefile"
 
           ac_config_files="$ac_config_files src/libstdcl/Makefile"
@@ -2922,8 +2964,6 @@ fi;
 
           ac_config_files="$ac_config_files test/test_ocl/Makefile"
 
-          ac_config_files="$ac_config_files test/test_CLETE/Makefile"
-
           ac_config_files="$ac_config_files include/Makefile"
 
 
@@ -2934,7 +2974,6 @@ fi;
           ac_config_files="$ac_config_files test/test_stdcl/scripts/run_tests.sh"
 
           ac_config_files="$ac_config_files test/test_stdcl/scripts/run_quick_tests.sh"
-
 
 
 cat >confcache <<\_ACEOF
@@ -3498,7 +3537,6 @@ do
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "test/test_stdcl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_stdcl/Makefile" ;;
   "test/test_ocl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_ocl/Makefile" ;;
-  "test/test_CLETE/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_CLETE/Makefile" ;;
   "include/Makefile" ) CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
   "test/test_ocl/scripts/run_tests.sh" ) CONFIG_FILES="$CONFIG_FILES test/test_ocl/scripts/run_tests.sh" ;;
   "test/test_ocl/scripts/run_quick_tests.sh" ) CONFIG_FILES="$CONFIG_FILES test/test_ocl/scripts/run_quick_tests.sh" ;;
@@ -3606,16 +3644,17 @@ s,@ENABLE_CLGL@,$ENABLE_CLGL,;t t
 s,@ENABLE_CLETE@,$ENABLE_CLETE,;t t
 s,@ENABLE_DEBUG_LIBS@,$ENABLE_DEBUG_LIBS,;t t
 s,@ENABLE_CLTRACE@,$ENABLE_CLTRACE,;t t
+s,@ENABLE_CLLD@,$ENABLE_CLLD,;t t
 s,@ENABLE_LIBOCL@,$ENABLE_LIBOCL,;t t
 s,@ENABLE_NCPU@,$ENABLE_NCPU,;t t
 s,@ENABLE_ATIGPU@,$ENABLE_ATIGPU,;t t
 s,@ENABLE_BDT_BUILTINS@,$ENABLE_BDT_BUILTINS,;t t
-s,@ENABLE_DEPRECATED_FLAGS@,$ENABLE_DEPRECATED_FLAGS,;t t
 s,@OPENCL_INC@,$OPENCL_INC,;t t
 s,@OPENCL_LIB@,$OPENCL_LIB,;t t
 s,@OPENCL_LIBNAME@,$OPENCL_LIBNAME,;t t
 s,@DEFAULT_OPENCL_PLATFORM@,$DEFAULT_OPENCL_PLATFORM,;t t
 s,@AMD_SDK@,$AMD_SDK,;t t
+s,@ATI_SDK_21@,$ATI_SDK_21,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF

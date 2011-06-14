@@ -86,7 +86,9 @@ class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
 	
 };
 
+#ifndef _WIN64
 #include "CLETE/clmulti_array_CLETE.h"
+#endif
 
   template < typename T, std::size_t D >  template<class RHS>
   clmulti_array<T,D>& 

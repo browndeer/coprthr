@@ -1,4 +1,4 @@
-.TH CLMSYNC "3" "2010-8-12" "libstdcl-1.0" "Standard Compute Layer (CL) Manual"
+.TH CLMSYNC "3" "2011-6-13" "libstdcl-1.2" "Standard Compute Layer (CL) Manual"
 .SH NAME
 clmsync \- Synchronize memory between host and co-processor device
 .SH SYNOPSIS
@@ -31,11 +31,14 @@ clmsync() will block until the operation has completed.
 clmsync() will return immediately.  The programmer must ensure that the
 operation has completed using clwait() or clwaitev().
 .TP
-.B CL_EVENT_RELEASE
-Used with CL_EVENT_WAIT to force clmsync() to release the CL event generated
-by the operation.  If this flag is not used the programmer is responsible
+.B CL_EVENT_NORELEASE
+Used with CL_EVENT_WAIT to prevent clfork() from releasing the CL event
+generated
+by the operation.  If this flag is used the programmer is responsible
 for releasing the returned event using clReleaseEvent().  This flag has
 no effect when CL_EVENT_NOWAIT is used.
+.B CL_EVENT_RELEASE
+This flag is deprecated and should no longer be used.
 .SH RETURN VALUE
 On error clmsync() will return (cl_event)(-1) and errno is set appropriately.
 .SH AUTHOR
@@ -43,7 +46,7 @@ Written by David Richie.
 .SH REPORTING BUGS
 Report bugs to <support@browndeertechnology.com>
 .SH COPYRIGHT
-Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the
+Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
 GNU Lesser General Public License version 3 (LGPLv3).
 There is NO WARRANTY to the extent permitted by law.
 .SH SEE ALSO

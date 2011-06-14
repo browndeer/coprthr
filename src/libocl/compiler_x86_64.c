@@ -298,11 +298,20 @@ void* compile_x86_64(
 				/* clc compile */
 
 				if (opt) {
-					__command("cd %s; clc21 %s -o __%s.ll %s 2>&1",
-						wd,opt,filebase,file_cl); 
+#if defined(__FreeBSD__)
+					__command("cd %s; %s/bin/x86/clc %s -o __%s.ll %s 2>&1",
+#else
+					__command("cd %s; %s/bin/x86_64/clc %s -o __%s.ll %s 2>&1",
+#endif
+						wd,ATISTREAMSDK21,opt,filebase,file_cl); 
 				} else {
 					DEBUG(__FILE__,__LINE__,"no options");
-					__command("cd %s; clc21 -o __%s.ll %s 2>&1",wd,filebase,file_cl); 
+#if defined(__FreeBSD__)
+					__command("cd %s; %s/bin/x86/clc -o __%s.ll %s 2>&1",
+#else
+					__command("cd %s; %s/bin/x86_64/clc -o __%s.ll %s 2>&1",
+#endif
+						wd,ATISTREAMSDK21,filebase,file_cl); 
 				}
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
@@ -360,10 +369,14 @@ void* compile_x86_64(
 		/* XXX builtins_x86-64.bc == v2.1 / builtins-x86_64.bc = v2.3 */
                __command(
                   "cd %s;"
-                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64-21.bc"
-//                  " llvm-ex -f -func=__select_2i322i32,%s %s/lib/x86_64/builtins-x86_64-23.bc"
+                  " llvm-ex -f -func=__select_2i322i32,%s"
+#if defined(__FreeBSD__)
+						" %s/lib/x86/builtins_x86-64.bc"
+#else
+						" %s/lib/x86_64/builtins_x86-64.bc"
+#endif
                   " -o builtins.bc",
-                  wd,buf2,ATISTREAMSDK);
+                  wd,buf2,ATISTREAMSDK21);
                __log(logp,"]%s\n",buf1);
                __execshell(buf1,logp);
 

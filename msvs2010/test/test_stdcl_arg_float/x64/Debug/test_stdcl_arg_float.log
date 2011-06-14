@@ -1,5 +1,9 @@
-﻿Build started 5/17/2011 2:48:20 AM.
+﻿Build started 6/13/2011 10:18:18 PM.
+     1>Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\test_stdcl_arg_float\test_stdcl_arg_float.vcxproj" on node 3 (clean target(s)).
+     1>_PrepareForClean:
+         Deleting file "x64\Debug\test_stdcl_arg_float.lastbuildstate".
+     1>Done Building Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\test\test_stdcl_arg_float\test_stdcl_arg_float.vcxproj" (clean target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.01
+Time Elapsed 00:00:00.04

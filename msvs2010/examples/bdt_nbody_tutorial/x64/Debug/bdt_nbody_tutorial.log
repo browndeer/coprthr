@@ -1,0 +1,9 @@
+﻿Build started 6/14/2011 2:52:10 AM.
+     1>Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\examples\bdt_nbody_tutorial\bdt_nbody_tutorial.vcxproj" on node 2 (clean target(s)).
+     1>_PrepareForClean:
+         Deleting file "x64\Debug\bdt_nbody_tutorial.lastbuildstate".
+     1>Done Building Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\examples\bdt_nbody_tutorial\bdt_nbody_tutorial.vcxproj" (clean target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.04

@@ -1,13 +1,21 @@
-.TH CLMALLOC "3" "2010-8-12" "libstdcl-1.0" "Standard Compute Layer (CL) Manual"
+.TH CLMALLOC "3" "2011-6-13" "libstdcl-1.2" "Standard Compute Layer (CL) Manual"
 .SH NAME
 clmalloc, clfree, clsizeofmem \- Allocate and free dynamic memory with CL bindings for use
 with co-processor devices
 .SH SYNOPSIS
 .B #include <stdcl.h>
 .sp
-.BI "void* clmalloc( CONTEXT* " cp ", size_t " size ", int " flags );
+.BI "void* clmalloc( CLCONTEXT* " cp ", size_t " size ", int " flags );
+.sp
+.BI "void* clmrealloc( CLCONTEXT* " cp ", void* " ptr ", size_t " size ", int " flags );
 .sp
 .BI "void clfree( void* " ptr );
+.sp
+.BI "void clmctl( void* " ptr );
+.sp
+.BI "int clmctl( void* " ptr ", int " op ", ... " );
+.sp
+.BI "int clmctl_va( void* " ptr ", int " op ", va_list " ap );
 .sp
 .BI "size_t clsizeofmem(void* " ptr );
 .sp
@@ -17,12 +25,21 @@ clmalloc() allocates memory suitable for sharing between compute layer (CL)
 co-processor devices within a CL context.  
 clmalloc() allocates size bytes and returns a pointer to the allocated memory.
 The memory is not cleared.  If size is 0, then clmalloc() returns a unique 
-pointer value that can later be safely passed to clfree().  
+pointer value that can later be safely passed to clfree().  If called with
+the flag CL_MEM_DETACHED the allocation will no be attached to a CL context.
+.PP
+clmrealloc() re-allocates memory suitable for sharing between compute layer 
+(CL) co-processor devices within a CL context.  If ptr is 0 or NULL clmalloc()
+is called.  If size is 0, then clmalloc() returns a unique
+pointer value that can later be safely passed to clfree().
 .PP
 clfree() frees the memory space pointed to by ptr, which must have been
 returned by a previous call to clmalloc().  
 Otherwise, or if clfree(ptr) has already been called before, the behavior is 
 undefined.  It is considered an error to call clfree(ptr) if ptr is 0 or NULL.
+.PP
+clmctl() and clmctl_va() are used to control the state of the allocated memory.
+The only distinction is that clmctl_va() accepts a va_list directly.
 .PP
 clsizeofmem() returns the size of the allocated memory associated with ptr.
 If ptr does not reference memory allocated by a call to clmalloc(), and for
@@ -40,7 +57,7 @@ Written by David Richie.
 .SH REPORTING BUGS
 Report bugs to <support@browndeertechnology.com>
 .SH COPYRIGHT
-Copyright (C) 2009 Brown Deer Technology, LLC.  Licensed under the
+Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
 GNU Lesser General Public License version 3 (LGPLv3).
 There is NO WARRANTY to the extent permitted by law.
 .SH SEE ALSO

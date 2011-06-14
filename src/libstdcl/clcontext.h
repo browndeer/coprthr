@@ -88,11 +88,11 @@ struct _clcontext_ptr_struct {
 
 	struct _event_list_struct* mev;
 
-#ifdef ENABLE_CLEXPORT
-	cl_uint ndev_v;
-	pthread_t extd;
-	pthread_t imtd;
-#endif
+//#ifdef ENABLE_CLEXPORT
+//	cl_uint ndev_v;
+//	pthread_t extd;
+//	pthread_t imtd;
+//#endif
 
 };
 typedef struct _clcontext_ptr_struct CLCONTEXT;
