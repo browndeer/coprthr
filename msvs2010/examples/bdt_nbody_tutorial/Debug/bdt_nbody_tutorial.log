@@ -1,0 +1,18 @@
+﻿Build started 6/14/2011 2:41:13 AM.
+     1>Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\examples\bdt_nbody_tutorial\bdt_nbody_tutorial.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\bdt_nbody_tutorial.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /I"C:\Program Files (x86)\AMD APP\\include" /I"C:\Program Files\Brown Deer Technology\libstdcl\include" /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TC /analyze- /errorReport:prompt nbody.c nbody_init.c nbody_output.c
+         nbody_output.c
+     1>c:\program files\brown deer technology\libstdcl\include\clinit.h(34): fatal error C1083: Cannot open include file: 'elf.h': No such file or directory
+         nbody_init.c
+     1>c:\program files\brown deer technology\libstdcl\include\clinit.h(34): fatal error C1083: Cannot open include file: 'elf.h': No such file or directory
+         nbody.c
+     1>c:\program files\brown deer technology\libstdcl\include\clinit.h(34): fatal error C1083: Cannot open include file: 'elf.h': No such file or directory
+         Generating Code...
+     1>Done Building Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\examples\bdt_nbody_tutorial\bdt_nbody_tutorial.vcxproj" (build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.68

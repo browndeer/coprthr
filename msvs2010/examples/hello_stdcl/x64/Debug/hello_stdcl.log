@@ -1,0 +1,9 @@
+﻿Build started 6/14/2011 2:52:14 AM.
+     1>Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\examples\hello_stdcl\hello_stdcl.vcxproj" on node 2 (clean target(s)).
+     1>_PrepareForClean:
+         Deleting file "x64\Debug\hello_stdcl.lastbuildstate".
+     1>Done Building Project "C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\examples\hello_stdcl\hello_stdcl.vcxproj" (clean target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.04
