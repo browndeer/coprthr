@@ -536,11 +536,11 @@ clcontext_create(
 		cp->mev[i].nev = cp->mev[i].ev_first = cp->mev[i].ev_free = 0;
 	}
 
-#ifdef ENABLE_CLEXPORT
-	cp->ndev_v = 0;
-	cp->extd = 0;
-	cp->imtd = 0;
-#endif
+//#ifdef ENABLE_CLEXPORT
+//	cp->ndev_v = 0;
+//	cp->extd = 0;
+//	cp->imtd = 0;
+//#endif
 
 
 	if (platforms) free(platforms);
