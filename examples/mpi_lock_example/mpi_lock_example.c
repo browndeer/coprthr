@@ -1,4 +1,4 @@
-/* clopen_example1.c */
+/* mpi_lock_example.c */
 
 #include <stdio.h>
 #include <stdcl.h>
