@@ -1,0 +1,38 @@
+
+                 COPRTHR SDK v1.2 (middletown) release
+
+
+*** IMPORTANT ***
+
+Please ensure that  @prefix@/bin  is added to PATH
+if it is not in the standard search path for executables.
+For example:
+   set path = (@prefix@/bin $path)
+
+Please ensure that @libdir@ is added to  LD_LIBRARY_PATH
+if it is not in the standard search path for libraries.
+For example:
+   setenv LD_LIBRARY_PATH @prefix@/lib:$LD_LIBRARY_PATH
+
+Please ensure that @prefix@/man is added to  MANPATH
+
+In order to test the installation, make a copy of the test/ directory and type:
+   gmake test
+
+Testing can take several minutes, for a quick test type:
+   gmake quicktest
+
+When compiling programs that use libstcl include the following:
+   INCS += -I@prefix@/include
+   LIBS += -L@prefix@/lib -lstdcl
+
+When compiling programs that use libocl include the following:
+   INCS += -I@prefix@/include
+   LIBS += -L@prefix@/lib -locl
+
+Further documentation can be found in the directory @prefix@/doc/
+
+Examples can be found in the directory @prefix@/examples/ 
+
+/* DAR */
+
