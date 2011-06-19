@@ -748,7 +748,7 @@ void _libstdcl_fini(void) {
 	if (!h) { fprintf(stderr,"libcltrace1: open libstdcl failed\n"); exit(-1); } 
 	pfunc_t pf = (pfunc_t)dlsym(h,"_libstdcl_fini"); 
 	if (!pf) { 
-		fprintf(stderr,"libcltrace1: get symbol " "_libstdcl_fini" " failed\n"); 
+//		fprintf(stderr,"libcltrace1: get symbol " "_libstdcl_fini" " failed\n"); 
 		exit(-1); 
 	} 
 //	struct timeval time0,time1; 
