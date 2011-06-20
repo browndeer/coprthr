@@ -157,7 +157,53 @@ AC_ARG_WITH(nvidia-sdk,
   ],
   [])
 
-OPENCL_LIBNAME=OpenCL
+AC_ARG_WITH(intel-sdk,
+  AC_HELP_STRING([--with-intel-sdk=DIR], [Use Intel SDK in DIR]),
+  [
+    if test x$withval == xno; then
+		withval=/usr/local
+	 fi;
+
+      if test -d $withval; then
+         echo "found Intel SDK path"
+      else
+         AC_MSG_ERROR([Could not find Intel SDK path])
+      fi;
+
+      if test -e $withval/include/CL/cl.h; then
+        OPENCL_INC="$withval/include"
+         echo "found Intel SDK include path"
+      else
+         AC_MSG_ERROR([Could not find Intel SDK include path])
+      fi;
+
+      if test -e $withval/lib/libOpenCL.so; then
+        OPENCL_LIB="$withval/lib"
+         echo "found Intel SDK lib path"
+		elif test -e /usr/lib64/libOpenCL.so; then
+        OPENCL_LIB="/usr/lib64"
+         echo "found Intel SDK lib path"
+      else
+         AC_MSG_ERROR([Could not find Intel SDK lib path])
+      fi;
+
+	 DEFAULT_OPENCL_PLATFORM=Intel;
+  ],
+  [])
+
+
+#OPENCL_LIBNAME=OpenCL
+case $build_os in
+
+	freebsd*) 
+		OPENCL_LIBNAME=ocl
+		;;
+
+	*) 
+		OPENCL_LIBNAME=OpenCL
+		;;
+
+esac
 
 
 AC_ARG_WITH(ati-sdk-21,
@@ -207,6 +253,9 @@ if test $ENABLE_LIBOCL -eq 1; then
 
 fi;
 
+BASH=`which bash`
+
+AC_SUBST(BASH)
 
 AC_SUBST(ENABLE_CLGL)
 AC_SUBST(ENABLE_CLETE)
@@ -229,6 +278,7 @@ AC_SUBST(AMD_SDK)
 AC_SUBST(ATI_SDK_21)
 
 AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([install-message.txt])
 AC_CONFIG_FILES([src/libstdcl/Makefile])
 AC_CONFIG_FILES([src/CLETE/Makefile])
 AC_CONFIG_FILES([src/libocl/Makefile])

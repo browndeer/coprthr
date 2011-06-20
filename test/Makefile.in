@@ -21,7 +21,7 @@ subdirs: $(SUBDIRS)
 $(SUBDIRS):
 	echo $(MAKECMDGOALS)
 #	make -C $@ $(MAKEFLAGS) $(MAKECMDGOALS)
-	make -C $@ $(MAKECMDGOALS)
+	gmake -C $@ $(MAKECMDGOALS)
 
 clean: subdirs
 #	make $(MAKEFLAGS) $(MAKECMDGOALS)

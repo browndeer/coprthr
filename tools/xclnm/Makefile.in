@@ -18,6 +18,13 @@ INSTALL_MAN_DIR=@mandir@
 #INCS = -I. -I../../src/xcl
 INCS = -I. -I../../src/libocl
 
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+INCS += -I/usr/local/include
+else
+INCS += -I/usr/local/include/libelf
+endif
+
+
 LIBS = -lfl -lelf 
 
 OBJS = xclnm.o xclnm_scan.o xclnm_gram.o xclnm_node.o 
