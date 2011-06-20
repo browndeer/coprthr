@@ -24,8 +24,8 @@
 #define _VERSION_H
 
 
-#define COPRTHR_ALPHA	1	/* @ALPHA */
-#define COPRTHR_BETA		0	/* @BETA */
+#define COPRTHR_ALPHA	0	/* @ALPHA */
+#define COPRTHR_BETA		1	/* @BETA */
 
 
 #define __quote(x) #x
