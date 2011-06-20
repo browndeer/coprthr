@@ -467,8 +467,13 @@ void* compile_x86_64(
 					"cd %s; gcc -O2 -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
+#if defined(__FreeBSD__)
+				__command("cd %s; gcc -O0 -fPIC -I%s -c _kcall_%s.c 2>&1",
+					wd,INSTALL_INCLUDE_DIR,filebase); 
+#else
 				__command("cd %s; gcc -O2 -fPIC -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
+#endif
 #endif
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);

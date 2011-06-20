@@ -75,10 +75,21 @@ endif
 
 TOPDIR ?= ../../
 
-INCS += -I. -I$(TOPDIR)/include -I/usr/local/include/libelf
+INCS += -I. -I$(TOPDIR)/include 
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+INCS += -I/usr/local/include
+else
+INCS += -I/usr/local/include/libelf
+endif
 
-LIBS += -lfl -lpthread -L/usr/local/lib -lelf -ldl
-#LIBS += -lfl -lpthread -ldl 
+
+LIBS += -lfl -L/usr/local/lib -lelf  -lpthread -lrt
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+LIBS += -lc 
+else
+LIBS += -ldl 
+endif
+
 
 OBJS = $(XCL_OBJS) $(IMP_OBJS)
 

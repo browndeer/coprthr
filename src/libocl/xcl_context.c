@@ -157,7 +157,7 @@ clCreateContextFromType(
 
 	if (ndev == 0) __error_return(CL_DEVICE_NOT_FOUND,cl_context);
 
-	if (!(devices = realloc(devices,ndev))) 
+	if (!(devices = realloc(devices,ndev*sizeof(cl_device_id)))) 
 		__error_return(CL_OUT_OF_HOST_MEMORY,cl_context);
 		
 

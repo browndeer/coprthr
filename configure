@@ -826,6 +826,7 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-amd-sdk=DIR      Use AMD SDK in DIR
   --with-nvidia-sdk=DIR   Use Nvidia SDK in DIR
+  --with-intel-sdk=DIR    Use Intel SDK in DIR
   --with-ati-sdk-21=DIR   Use ATI SDK v2.1 in DIR
 
 Some influential environment variables:
@@ -2861,7 +2862,61 @@ echo "$as_me: error: Could not find Nvidia SDK lib path" >&2;}
 
 fi;
 
-OPENCL_LIBNAME=OpenCL
+
+# Check whether --with-intel-sdk or --without-intel-sdk was given.
+if test "${with_intel_sdk+set}" = set; then
+  withval="$with_intel_sdk"
+
+    if test x$withval == xno; then
+		withval=/usr/local
+	 fi;
+
+      if test -d $withval; then
+         echo "found Intel SDK path"
+      else
+         { { echo "$as_me:$LINENO: error: Could not find Intel SDK path" >&5
+echo "$as_me: error: Could not find Intel SDK path" >&2;}
+   { (exit 1); exit 1; }; }
+      fi;
+
+      if test -e $withval/include/CL/cl.h; then
+        OPENCL_INC="$withval/include"
+         echo "found Intel SDK include path"
+      else
+         { { echo "$as_me:$LINENO: error: Could not find Intel SDK include path" >&5
+echo "$as_me: error: Could not find Intel SDK include path" >&2;}
+   { (exit 1); exit 1; }; }
+      fi;
+
+      if test -e $withval/lib/libOpenCL.so; then
+        OPENCL_LIB="$withval/lib"
+         echo "found Intel SDK lib path"
+		elif test -e /usr/lib64/libOpenCL.so; then
+        OPENCL_LIB="/usr/lib64"
+         echo "found Intel SDK lib path"
+      else
+         { { echo "$as_me:$LINENO: error: Could not find Intel SDK lib path" >&5
+echo "$as_me: error: Could not find Intel SDK lib path" >&2;}
+   { (exit 1); exit 1; }; }
+      fi;
+
+	 DEFAULT_OPENCL_PLATFORM=Intel;
+
+fi;
+
+
+#OPENCL_LIBNAME=OpenCL
+case $build_os in
+
+	freebsd*)
+		OPENCL_LIBNAME=ocl
+		;;
+
+	*)
+		OPENCL_LIBNAME=OpenCL
+		;;
+
+esac
 
 
 
@@ -2923,6 +2978,9 @@ echo "$as_me: error: libocl requres ATI SDK v2.1, path not found" >&2;}
 
 fi;
 
+BASH=`which bash`
+
+
 
 
 
@@ -2945,6 +3003,8 @@ fi;
 
 
           ac_config_files="$ac_config_files Makefile"
+
+          ac_config_files="$ac_config_files install-message.txt"
 
           ac_config_files="$ac_config_files src/libstdcl/Makefile"
 
@@ -3528,6 +3588,7 @@ do
   case "$ac_config_target" in
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
+  "install-message.txt" ) CONFIG_FILES="$CONFIG_FILES install-message.txt" ;;
   "src/libstdcl/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libstdcl/Makefile" ;;
   "src/CLETE/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/CLETE/Makefile" ;;
   "src/libocl/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libocl/Makefile" ;;

@@ -47,7 +47,7 @@ $(SUBDIRS):
 
 clean: subdirs
 	$(MAKE) -C ./test $(MAKECMDGOALS)
-	$(MAKE) -C ./examples $(MAKECMDGOALS)
+#	$(MAKE) -C ./examples $(MAKECMDGOALS)
 
 distclean:
 	@dirs="$(DISTCLEAN_DIRS)"; for dir in $$dirs; do \

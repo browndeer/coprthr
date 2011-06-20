@@ -1,11 +1,16 @@
 #!/bin/bash
 
-export CLTRACE_OPENCL_LIB=`ldd $1 | grep libOpenCL | awk '{print $3}'`
+EXE=$1
+
+if [ "$EXE" = "-T" ]; then
+   EXE=$2;
+fi
+
+export CLTRACE_OPENCL_LIB=`ldd $EXE | grep libOpenCL | awk '{print $3}'`
 
 if [ "$CLTRACE_OPENCL_LIB" = "" ]; then
-	export CLTRACE_OPENCL_LIB=`ldd $1 | grep libocl | awk '{print $3}'`
+   export CLTRACE_OPENCL_LIB=`ldd $EXE | grep libocl | awk '{print $3}'`
 fi;
-
 
 arg1="";
 

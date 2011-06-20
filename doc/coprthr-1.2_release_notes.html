@@ -1,0 +1,568 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+  <title>coprthr v1.1 Release Notes</title>
+  <meta name="generator" content="Amaya, see http://www.w3.org/Amaya/" />
+  <style type="text/css" title="Amaya theme">
+/* Modern style for Amaya Editor Lite */
+
+/* default rules for the whole document */
+body {
+    font-size: 12pt;
+    font-family: Times New Roman,Times,serif; /* Helvetica, Arial, sans-serif; */
+    font-weight: normal;
+    font-style: normal;
+    color: black;
+    background-color: white;
+    line-height: 1.2em;
+    margin-left: 4em;
+    margin-right: 2em;
+   }
+
+/* paragraphs */
+p  {
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-align: left;
+   }
+
+/* headings */
+h1 {
+    font-size: 180%;
+    font-weight: bold;
+    font-style: normal;
+    font-variant: small-caps;
+    text-align: left;
+    padding: 0;
+    margin-top: 1.7em;
+    margin-bottom: 1.7em;
+   }
+h2 {
+    font-size: 150%;
+    font-weight: bold;
+    font-style: normal;
+    padding: 0;
+    margin-top: 1.5em;
+    margin-bottom: 1.1em;
+   }
+h3 {
+    font-size: 130%;
+    font-weight: bold;
+    font-style: normal;
+    padding: 0;
+    margin-top: 1.3em;
+    margin-bottom: 1.1em;
+   }
+h4 {
+    font-size: 110%;
+    font-weight: bold;
+    font-style: normal;
+    padding: 0;
+    margin-top: 1.1em;
+    margin-bottom: 1.1em;
+   }
+h5 {
+    font-size: 100%;
+    font-weight: bold;
+    font-style: italic;
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+h6 {
+    font-size: 100%;
+    font-weight: normal;
+    font-style: italic;
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+
+/* divisions */
+div {
+    padding: 0;
+    margin-top: 0em;
+    margin-bottom: 0em;
+   }
+
+/* lists */
+ul, ol {
+    padding: 0 0 0 3em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+ul ul, ol ol, ul ol, ol ul {
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+li {
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    text-align: left;
+   }
+li p {
+    margin-top: 1em;
+    margin-bottom: 1em;
+   }
+dl {
+    padding: 0;
+    margin-top: 1em;
+    margin-bottom: 1em;
+    margin-left: 1em;
+   }
+dl dl {
+    margin-top: 0em;
+    margin-bottom: 0em;
+   }
+dt {
+    padding: 0;
+    font-weight: bold;
+    margin-top: .3em;
+    margin-bottom: .3em;
+   }
+dd {
+    padding: 0;
+    margin-top: .3em;
+    margin-left: 3em;
+    margin-bottom: .3em;
+   }
+dl p {
+    margin-top: .3em;
+    margin-bottom: .3em;
+   }
+
+/* inline */
+strong {
+    font-weight: bold;
+   }
+em {
+    font-style: italic;
+   }
+code {
+    font-family: Courier New, Courier, monospace;
+   }
+ins {
+    background-color: yellow;
+    text-decoration: underline;
+   }
+del {
+    text-decoration: line-through;
+   }
+
+/* anchors */
+a[href] {
+    color: blue;
+    text-decoration: underline;
+   }
+
+/* end */
+  </style>
+</head>
+
+<body>
+<p><img alt="" src="img/bdt.jpg" width="201" height="70" /></p>
+
+<h2 style="text-align:center;margin-left:auto;margin-right:auto;"><span
+style="font-family: Times New Roman,Times,serif"><span
+style="font-family: Arial,Helvetica,sans-serif">COPRTHR version 1.2
+(middletown) Release Notes</span></span></h2>
+
+<p style="text-align:center;margin-left:auto;margin-right:auto;">Copyright ©
+2011 Brown Deer Technology, LLC</p>
+
+<p style="text-align:center;margin-left:auto;margin-right:auto;"><span
+style="font-size: 10pt"><span
+style="font-family: Times New Roman,Times,serif"><em>Verbatim copying and
+distribution of this entire document is </em></span></span><span
+style="font-family: Times New Roman,Times,serif"><span
+style="font-size: 10pt"><em>permitted </em></span></span><span
+style="font-size: 10pt"><span
+style="font-family: Times New Roman,Times,serif"><em>in any medium, provided
+this notice is preserved.</em></span></span></p>
+<hr />
+The CO-PRocessing THReads (COPRTHR) SDK provides several OpenCL&trade; related
+libraries and tools for developers targeting GPU compute technology and hybrid
+CPU/GPU computing architectures. 
+<hr />
+<ul style="list-style: none;">
+  <li style="line-height:1em;">1 <a href="#New">New in version 1.2 (middletown)
+    release</a></li>
+  <li style="line-height:1em;">2 <a href="#Support">Support and
+  Requirements</a></li>
+  <li style="line-height:1em;">3 <a href="#Important">Important Notes</a></li>
+  <li style="line-height:1em;">4 <a href="#Frequently">Frequently Asked
+    Questions</a></li>
+  <li style="line-height:1em;">5 <a href="#More">More Information</a></li>
+</ul>
+<hr />
+
+<h3><a name="New" id="New">1 New In Version 1.2 (middletown release) </a></h3>
+<ul>
+  <li>Expanded Operating System support: 
+    <ul>
+      <li>Full SDK support for FreeBSD-8 including an open-source OpenCL
+        implementation (libocl) for amd64</li>
+      <li>STDCL beta support for Windows 7 / MSVS 2010</li>
+    </ul>
+  </li>
+  <li>C++ container classes with OpenCL device-sharable memory: 
+    <ul>
+      <li>OpenCL extension of STL vector and BOOST multi_array</li>
+      <li>Containers allow conventional data management on the host side with
+        memory synchronization for OpenCL devices</li>
+    </ul>
+  </li>
+  <li>Transparent/automatic GPU acceleration of vector operations for C++
+    containers 
+    <ul>
+      <li>Automatic kernel generation and host interfacing uses CLETE
+        expression template engine</li>
+    </ul>
+  </li>
+  <li>Improvements to the SDTCL interface including 
+    <ul>
+      <li>Support for image2D memory allocation using clmalloc</li>
+      <li>CLGL buffer sharing support</li>
+      <li>Run-time device management including exclusive device locks for MPI
+        support</li>
+    </ul>
+  </li>
+  <li>Improvements to the open-source OpenCL run-time (libocl) including 
+    <ul>
+      <li>Partial support for images</li>
+      <li>Many enhancements for performance and functionality</li>
+    </ul>
+  </li>
+  <li>Updated examples and documentation</li>
+  <li>STDCL now tested against AMD SDK v2.4, Nvidia CUDA 4.0, Intel OpenCL SDK
+    v1.1</li>
+</ul>
+<hr />
+
+<h2>2 <a name="Support" id="Support">Support and Requirements</a></h2>
+
+<p>With this release, support has been expanded to included FreeBSD-8 and
+Windows 7 operating systems, with Windows support limited to the basic
+functionality provided by the STDCL interface to OpenCL. Support continues for
+most modern Linux distributions including RHEL 5.4/5.5, CentOS 5.4/5.5,
+OpenSuSE 11.2/11.3 and Ubuntu 10.4. Specific feature support by operating
+system is shown in the table below.</p>
+
+<table border="1">
+  <col />
+  <col />
+  <col />
+  <col />
+  <col />
+  <tbody>
+    <tr>
+      <td><strong>COPRTHR Feature</strong></td>
+      <td
+        style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Description</strong></td>
+      <td><strong>Linux</strong></td>
+      <td><strong>FreeBSD</strong></td>
+      <td><strong>Windows</strong></td>
+    </tr>
+    <tr>
+      <td>libstdcl</td>
+      <td>STDCL interface</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
+    </tr>
+    <tr>
+      <td>cltrace</td>
+      <td>tracing tool</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>clld</td>
+      <td>link tool</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
+      <td></td>
+    </tr>
+    <tr>
+      <td>libocl</td>
+      <td>OpenCL x86_64 runtime</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>This release is compatible with the OpenCL implementations provided with AMD
+APP v2.4, Nvidia CUDA-4 and Intel OpenCL SDK v1.1. In addition, an open-source
+OpenCL run-time implementation for x86_64 multi-core processors is provided as
+part of the COPRTHR SDK, which may be used on platforms for which no vendor
+support is available. The COPRTHR OpenCL implementation may also be of interest
+since it exhibits better performance than vendor implementations on some
+real-world benchmarks.</p>
+
+<p>This release supports x86_64 CPUs from AMD and Intel as well as GPUs from
+AMD and Nvidia, and has been tested successfully on the following graphics
+cards: AMD Radeon HD 4850, 4870, 4870X2, 5870, 5970, 6970, AMD FirePro V8800,
+Nvidia Tesla S1070, C2050, and C2070.<br />
+</p>
+
+<p>If you are only interested in the basic functionality of the STDCL interface
+for OpenCL, no additional packages are required beyond the standard vendor
+implementation of OpenCL for your platform. (If none is available, try the
+open-source implementation provided by with COPRTHR SDK.)</p>
+
+<p>If you wish to use the <code>clld</code> tool for embedding OpenCL kernel
+code into ELF objects to create single executables, you will need to install
+libelf-0.8.13. Note that versions of libelf typically found on Linux
+distributions (designated 1.x) are <em>not compatible</em> and not very useful
+since they often contain many undocumented behaviors, and should not be used.
+</p>
+
+<p>If you wish to use the open-source OpenCL run-time implementation provided
+by COPRTHR SDK you will need to install libelf-0.8.13 along with a few
+additional packages. Specifically, you will need LLVM and CLANG v2.6 and the
+ATI Stream SDK v2.1 . (Newer versions of the AMD SDK are <em>not</em> valid
+substitutes.)</p>
+
+<p>The table below provides a comprehensive matrix of required packages matched
+to a specific platform and feature set.</p>
+
+<table border="1">
+  <col />
+  <col />
+  <col />
+  <col />
+  <col />
+  <col />
+  <tbody>
+    <tr>
+      <td colspan="4"
+      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>COPRTHR
+        Feature</strong></td>
+      <td rowspan="2"
+      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Package</strong></td>
+      <td rowspan="2"
+      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Download</strong></td>
+    </tr>
+    <tr>
+      <td>libstdcl</td>
+      <td>cltrace</td>
+      <td>clld</td>
+      <td>libocl</td>
+    </tr>
+    <tr>
+      <td colspan="6"
+      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Linux
+        Red Hat 5.4/5.5, CentOS 5.4/5.5, OpenSuSE 11.2</strong></td>
+    </tr>
+    <tr>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>AMD APP v2.4</td>
+      <td><a
+        href="http://developer.amd.com/sdks/AMDAPPSDK/downloads">http://developer.amd.com/sdks/AMDAPPSDK/downloads</a></td>
+    </tr>
+    <tr>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>Nvidia CUDA 4</td>
+      <td><a
+        href="http://developer.nvidia.com/cuda-toolkit-40">http://developer.nvidia.com/cuda-toolkit-40</a></td>
+    </tr>
+    <tr>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>Intel OpenCL SDK-1.1</td>
+      <td><a
+        href="http://software.intel.com/en-us/articles/download-intel-opencl-sdk">http://software.intel.com/en-us/articles/download-intel-opencl-sdk</a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td>libelf 0.8.13</td>
+      <td><a
+        href="http://www.mr511.de/software/libelf-0.8.13.tar.gz">http://www.mr511.de/software/libelf-0.8.13.tar.gz</a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td>LLVM-2.6</td>
+      <td><a
+        href="http://llvm.org/releases/2.6/llvm-2.6.tar.gz">http://llvm.org/releases/2.6/llvm-2.6.tar.gz</a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td>CLANG-2.6</td>
+      <td><a
+        href="http://llvm.org/releases/2.6/clang-2.6.tar.gz">http://llvm.org/releases/2.6/clang-2.6.tar.gz</a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td>ATI Stream SDK-v2.1</td>
+      <td><a
+        href="http://developer.amd.com/Downloads/ati-stream-sdk-v2.1-lnx64.tgz">http://developer.amd.com/Downloads/ati-stream-sdk-v2.1-lnx64.tgz</a></td>
+    </tr>
+    <tr>
+      <td colspan="6"
+      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>FreeBSD-8</strong></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td>libelf 0.8.13</td>
+      <td><a
+        href="http://www.mr511.de/software/libelf-0.8.13.tar.gz">http://www.mr511.de/software/libelf-0.8.13.tar.gz</a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td>LLVM-2.6</td>
+      <td><a
+        href="http://llvm.org/releases/2.6/llvm-2.6.tar.gz">http://llvm.org/releases/2.6/llvm-2.6.tar.gz</a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td>CLANG-2.6</td>
+      <td><a
+        href="http://llvm.org/releases/2.6/clang-2.6.tar.gz">http://llvm.org/releases/2.6/clang-2.6.tar.gz</a></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
+      <td>ATI Stream SDK-v2.1</td>
+      <td><a
+        href="http://developer.amd.com/Downloads/ati-stream-sdk-v2.1-lnx32.tgz">http://developer.amd.com/Downloads/ati-stream-sdk-v2.1-lnx32.tgz</a></td>
+    </tr>
+    <tr>
+      <td colspan="6"
+      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Windows
+        7</strong></td>
+    </tr>
+    <tr>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>AMD APP v2.4</td>
+      <td><a
+        href="http://developer.amd.com/sdks/AMDAPPSDK/downloads">http://developer.amd.com/sdks/AMDAPPSDK/downloads</a>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>Nvidia CUDA 4</td>
+      <td><a
+        href="http://developer.nvidia.com/cuda-toolkit-40">http://developer.nvidia.com/cuda-toolkit-40</a>
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>Intel OpenCL SDK-1.1</td>
+      <td><a
+        href="http://software.intel.com/en-us/articles/download-intel-opencl-sdk">http://software.intel.com/en-us/articles/download-intel-opencl-sdk</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>O=Optional, R=Required</p>
+<hr />
+
+<h3><a name="Important" id="Important">3 Important Notes</a></h3>
+<ul>
+  <li>The libraries <code>libstdcl</code> and <code>libocl</code> are provided
+    with debug versions <code>libstdcl_d</code> and <code>libocl_d</code>,
+    respectively. Linking against these libraries can be very useful for
+    debugging as well as understanding how each library operates.</li>
+  <li>If you install a binary release, it may not have been compiled with your
+    preferred OpenCL implementation as a default. The most reliable way to
+    ensure the correct implementation is used is to set the appropriate
+    environment variable. The following are examples: 
+    <dl>
+      <dt>export STDGPU_PLATFORM_NAME=nvidia</dt>
+        <dd>Use the Nvidia OpenCL implementation for the stdgpu context</dd>
+      <dt>export STDCPU_PLATFORM_NAME=intel</dt>
+        <dd>Use the Intel OpenCL implementation for the stdcpu context</dd>
+    </dl>
+  </li>
+  <li>The flag CL_EVENT_RELEASE has been removed and the flag
+    CL_EVENT_NORELEASE has been added; the default behavior of event management
+    calls has been changed so as to always release events unless the latter
+    flag is used.</li>
+  <li>The use of environment variable to control certain aspects of each
+    default context has been changed. As an example, the environment variable
+    STDGPU is now only checked for a 0 or 1 to determine whether the context is
+    enabled. For more information see the revised STDCL reference manual
+    (revision 1.2). </li>
+  <li>The type of STDCL context pointers has been changed from CONTEXT* to
+    CLCONTEXT* to avoid namespace collisions on Windows 7. The use of CONTEXT*
+    is still acceptable but should be considered deprecated since its use will
+    eventually be removed.</li>
+</ul>
+<hr />
+
+<h3>4 <a name="Frequently" id="Frequently">Frequently Asked Questions</a></h3>
+
+<p>Below are answers to frequently asked questions regarding COPRTHR SDK and
+STDCL.</p>
+<dl>
+  <dt>Does STDCL require the BDT OpenCL run-time?</dt>
+    <dd>No. The basic installation of libstdcl.so will work with any compliant
+      OpenCL installation including the latest implementations from AMD, Nvidia
+      and Intel.</dd>
+  <dt>Will using STDCL reduce performance or limit access to OpenCL
+  functionality?</dt>
+    <dd>No. STDCL is implemented as a very light-weight interface and does not
+      restrict access to direct OpenCL and fully supports asynchronous
+      operations across multiple devices.</dd>
+  <dt>Are STDCL calls simply wrappers for OpenCL calls?</dt>
+    <dd>No. There is a bit more to the interface than wrapping OpenCL calls.
+      For the curious, take a look at the source code.</dd>
+</dl>
+<hr />
+
+<h3>5 <a name="More" id="More">More Information</a></h3>
+
+<p>Additional information including installation instructions and examples may
+be found in <strong>The COPRTHR Primer</strong> revision 1.2 along with more
+detailed documentation and examples.</p>
+<hr />
+<span style="font-size: 9pt">revised 18 June 2011 by DAR</span> </body>
+</html>
