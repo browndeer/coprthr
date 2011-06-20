@@ -27,7 +27,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_256D2EB29A3C48CAB9C971994C3C72D2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_31734D5EACEA4B53878B4F9503EF4B0F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3A4E50C0D3FD48E9B0A511BBB8AA9DD8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3B59877529D444A6B79AA0D06A6D788A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -51,7 +69,55 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_52B18217F2DE4CD0A8EFA24D3EB6EB90"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5F6304D518E44DEB8CC66812ACAB2D2D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6851DCB3FA4140E1BE6DF02D3F2D0394"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6BA9A81978FB471A8F3C3FBE2206A0E4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_7026B3784DC44AEDBFDC0B866D2A4DC9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_80D6BB57E0F64959B6135CEA52576612"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_83ADB4A0E4F64285B76DD515942409E2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_863F22089CD14F92A68454B4E36B7192"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_93C232D6854A41809C7E81CF01198845"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -75,7 +141,49 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9FCD04A1FA724FA8A7ABFDC3EFC0E8FB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A35E4B4F1A4B4C81A770076B986B7DC0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A6E6FC9182BF477EB564EDA57FC1AEC7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A74DE163458642DB98E14971EDB69704"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A89FB555A9BA4394948A8E7330AAC66D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A99EEBBAA5B64145946F6B04FB9E0331"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AAF6D2C82D004CCBAC3B3B8E00A7B3F2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_ABB5F8A03B2F407CBD03ED08DBC0948F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -93,6 +201,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D2315F0D35D34BF882F9A49F7D980ED9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D4974A74FF2B44DF92BD7D2164C7DD51"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -105,13 +219,43 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_DB127D31470C4ED9920EB375073ED134"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E36CE4A707264F87A241F4E76409DFA9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_E69CEEBB66094237A0C692A29C0351C5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E81C146B95004DDF831F58AE93CF0101"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E96B1B90C15C4EEB8D44894E786F2C09"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FC60182143364D3DB97FA1430491433C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FFD2C996B23E4897899678BE13A885F5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -252,12 +396,72 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_256D2EB29A3C48CAB9C971994C3C72D2"
+            {
+            "SourcePath" = "8:..\\..\\doc\\coprthr-1.2_release_notes.html"
+            "TargetName" = "8:coprthr-1.2_release_notes.html"
+            "Tag" = "8:"
+            "Folder" = "8:_538719D97E304C06B3D3C7BC8D6BF335"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_31734D5EACEA4B53878B4F9503EF4B0F"
+            {
+            "SourcePath" = "8:..\\..\\src\\libstdcl\\clvector.h"
+            "TargetName" = "8:clvector.h"
+            "Tag" = "8:"
+            "Folder" = "8:_3EF73C50B98F4B01A8E6B343264D7CD4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3A4E50C0D3FD48E9B0A511BBB8AA9DD8"
             {
             "SourcePath" = "8:..\\..\\src\\libstdcl\\clmalloc.h"
             "TargetName" = "8:clmalloc.h"
             "Tag" = "8:"
             "Folder" = "8:_3EF73C50B98F4B01A8E6B343264D7CD4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B59877529D444A6B79AA0D06A6D788A"
+            {
+            "SourcePath" = "8:..\\..\\doc\\img\\particle_data_decomposition.gif"
+            "TargetName" = "8:particle_data_decomposition.gif"
+            "Tag" = "8:"
+            "Folder" = "8:_DEA104CE00FA4704A97A7F02AFCE5E31"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -332,12 +536,172 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_52B18217F2DE4CD0A8EFA24D3EB6EB90"
+            {
+            "SourcePath" = "8:..\\examples\\hello_stdcl\\matvecmult.cl"
+            "TargetName" = "8:matvecmult.cl"
+            "Tag" = "8:"
+            "Folder" = "8:_B739D78A7C8B4E1C9A7FECD82EFA8E00"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5F6304D518E44DEB8CC66812ACAB2D2D"
+            {
+            "SourcePath" = "8:..\\..\\doc\\coprthr-primer-rev1.2.html"
+            "TargetName" = "8:coprthr-primer-rev1.2.html"
+            "Tag" = "8:"
+            "Folder" = "8:_538719D97E304C06B3D3C7BC8D6BF335"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6851DCB3FA4140E1BE6DF02D3F2D0394"
+            {
+            "SourcePath" = "8:..\\..\\src\\libstdcl\\clmulti_array.h"
+            "TargetName" = "8:clmulti_array.h"
+            "Tag" = "8:"
+            "Folder" = "8:_3EF73C50B98F4B01A8E6B343264D7CD4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6BA9A81978FB471A8F3C3FBE2206A0E4"
+            {
+            "SourcePath" = "8:..\\..\\doc\\coprthr-primer-rev1.2.pdf"
+            "TargetName" = "8:coprthr-primer-rev1.2.pdf"
+            "Tag" = "8:"
+            "Folder" = "8:_538719D97E304C06B3D3C7BC8D6BF335"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7026B3784DC44AEDBFDC0B866D2A4DC9"
             {
             "SourcePath" = "8:..\\libstdcl\\x64\\Debug\\libstdcl_d.lib"
             "TargetName" = "8:libstdcl_d.lib"
             "Tag" = "8:"
             "Folder" = "8:_EA9D972B5E454541BC341C3C65BD28A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_80D6BB57E0F64959B6135CEA52576612"
+            {
+            "SourcePath" = "8:..\\examples\\hello_stdcl\\hello_stdcl.vcxproj.filters"
+            "TargetName" = "8:hello_stdcl.vcxproj.filters"
+            "Tag" = "8:"
+            "Folder" = "8:_B739D78A7C8B4E1C9A7FECD82EFA8E00"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_83ADB4A0E4F64285B76DD515942409E2"
+            {
+            "SourcePath" = "8:..\\..\\src\\libstdcl\\clmalloc_allocator.h"
+            "TargetName" = "8:clmalloc_allocator.h"
+            "Tag" = "8:"
+            "Folder" = "8:_3EF73C50B98F4B01A8E6B343264D7CD4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_863F22089CD14F92A68454B4E36B7192"
+            {
+            "SourcePath" = "8:..\\examples\\examples.sln"
+            "TargetName" = "8:examples.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_D1A412C772914C71A1F17FCABEDEAF14"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93C232D6854A41809C7E81CF01198845"
+            {
+            "SourcePath" = "8:..\\examples\\bdt_nbody_tutorial\\nbody_kern.cl"
+            "TargetName" = "8:nbody_kern.cl"
+            "Tag" = "8:"
+            "Folder" = "8:_63334D7DF29942DB878ACD1E054BC8BD"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -412,12 +776,152 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FCD04A1FA724FA8A7ABFDC3EFC0E8FB"
+            {
+            "SourcePath" = "8:..\\..\\doc\\img\\screenshot.png"
+            "TargetName" = "8:screenshot.png"
+            "Tag" = "8:"
+            "Folder" = "8:_DEA104CE00FA4704A97A7F02AFCE5E31"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A35E4B4F1A4B4C81A770076B986B7DC0"
+            {
+            "SourcePath" = "8:..\\..\\doc\\coprthr-1.2_release_notes.pdf"
+            "TargetName" = "8:coprthr-1.2_release_notes.pdf"
+            "Tag" = "8:"
+            "Folder" = "8:_538719D97E304C06B3D3C7BC8D6BF335"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A6E6FC9182BF477EB564EDA57FC1AEC7"
+            {
+            "SourcePath" = "8:..\\examples\\bdt_nbody_tutorial\\nbody_output.cpp"
+            "TargetName" = "8:nbody_output.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_63334D7DF29942DB878ACD1E054BC8BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A74DE163458642DB98E14971EDB69704"
+            {
+            "SourcePath" = "8:..\\examples\\bdt_nbody_tutorial\\nbody.cpp"
+            "TargetName" = "8:nbody.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_63334D7DF29942DB878ACD1E054BC8BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A89FB555A9BA4394948A8E7330AAC66D"
+            {
+            "SourcePath" = "8:..\\examples\\hello_stdcl\\hello_stdcl.vcxproj.user"
+            "TargetName" = "8:hello_stdcl.vcxproj.user"
+            "Tag" = "8:"
+            "Folder" = "8:_B739D78A7C8B4E1C9A7FECD82EFA8E00"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A99EEBBAA5B64145946F6B04FB9E0331"
             {
             "SourcePath" = "8:..\\..\\src\\libstdcl\\util.h"
             "TargetName" = "8:util.h"
             "Tag" = "8:"
             "Folder" = "8:_3EF73C50B98F4B01A8E6B343264D7CD4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AAF6D2C82D004CCBAC3B3B8E00A7B3F2"
+            {
+            "SourcePath" = "8:..\\examples\\hello_stdcl\\hello_stdcl.cpp"
+            "TargetName" = "8:hello_stdcl.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_B739D78A7C8B4E1C9A7FECD82EFA8E00"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ABB5F8A03B2F407CBD03ED08DBC0948F"
+            {
+            "SourcePath" = "8:..\\..\\doc\\stdcl-manual-rev1.2.pdf"
+            "TargetName" = "8:stdcl-manual-rev1.2.pdf"
+            "Tag" = "8:"
+            "Folder" = "8:_538719D97E304C06B3D3C7BC8D6BF335"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -472,6 +976,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D2315F0D35D34BF882F9A49F7D980ED9"
+            {
+            "SourcePath" = "8:..\\examples\\hello_stdcl\\hello_stdcl.vcxproj"
+            "TargetName" = "8:hello_stdcl.vcxproj"
+            "Tag" = "8:"
+            "Folder" = "8:_B739D78A7C8B4E1C9A7FECD82EFA8E00"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D4974A74FF2B44DF92BD7D2164C7DD51"
             {
             "SourcePath" = "8:..\\libstdcl\\x64\\Release\\libstdcl.dll"
@@ -512,6 +1036,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DB127D31470C4ED9920EB375073ED134"
+            {
+            "SourcePath" = "8:..\\examples\\bdt_nbody_tutorial\\README.txt"
+            "TargetName" = "8:README.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_63334D7DF29942DB878ACD1E054BC8BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E36CE4A707264F87A241F4E76409DFA9"
             {
             "SourcePath" = "8:..\\..\\src\\libstdcl\\clcontext.h"
@@ -532,12 +1076,92 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E69CEEBB66094237A0C692A29C0351C5"
+            {
+            "SourcePath" = "8:..\\..\\doc\\img\\cpu-gpu.gif"
+            "TargetName" = "8:cpu-gpu.gif"
+            "Tag" = "8:"
+            "Folder" = "8:_DEA104CE00FA4704A97A7F02AFCE5E31"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E81C146B95004DDF831F58AE93CF0101"
+            {
+            "SourcePath" = "8:..\\..\\doc\\img\\bdt.jpg"
+            "TargetName" = "8:bdt.jpg"
+            "Tag" = "8:"
+            "Folder" = "8:_DEA104CE00FA4704A97A7F02AFCE5E31"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E96B1B90C15C4EEB8D44894E786F2C09"
             {
             "SourcePath" = "8:..\\..\\src\\libstdcl\\clsched.h"
             "TargetName" = "8:clsched.h"
             "Tag" = "8:"
             "Folder" = "8:_3EF73C50B98F4B01A8E6B343264D7CD4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FC60182143364D3DB97FA1430491433C"
+            {
+            "SourcePath" = "8:..\\examples\\bdt_nbody_tutorial\\nbody_init.cpp"
+            "TargetName" = "8:nbody_init.cpp"
+            "Tag" = "8:"
+            "Folder" = "8:_63334D7DF29942DB878ACD1E054BC8BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FFD2C996B23E4897899678BE13A885F5"
+            {
+            "SourcePath" = "8:..\\..\\doc\\stdcl-manual-rev1.2.html"
+            "TargetName" = "8:stdcl-manual-rev1.2.html"
+            "Tag" = "8:"
+            "Folder" = "8:_538719D97E304C06B3D3C7BC8D6BF335"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -623,6 +1247,61 @@
                             }
                         }
                     }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_538719D97E304C06B3D3C7BC8D6BF335"
+                    {
+                    "Name" = "8:doc"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_A9DD9475DBCE478A9540F30E511945E5"
+                        "Folders"
+                        {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_DEA104CE00FA4704A97A7F02AFCE5E31"
+                            {
+                            "Name" = "8:img"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_E305914233E145C0951852E8B7DC8174"
+                                "Folders"
+                                {
+                                }
+                            }
+                        }
+                    }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_D1A412C772914C71A1F17FCABEDEAF14"
+                    {
+                    "Name" = "8:examples"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_A3ACC6BA593344388B38EF07705C6E60"
+                        "Folders"
+                        {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_63334D7DF29942DB878ACD1E054BC8BD"
+                            {
+                            "Name" = "8:bdt_nbody_tutorial"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_DD0A17AF17F84206913B53ECD6FA8AB3"
+                                "Folders"
+                                {
+                                }
+                            }
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_B739D78A7C8B4E1C9A7FECD82EFA8E00"
+                            {
+                            "Name" = "8:hello_stdcl"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_C77C4D1864474AFEA82DBE283C5CE3DB"
+                                "Folders"
+                                {
+                                }
+                            }
+                        }
+                    }
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_EA9D972B5E454541BC341C3C65BD28A9"
                     {
                     "Name" = "8:lib"
@@ -653,7 +1332,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:libstdcl"
         "ProductCode" = "8:{0CBF7EAE-B129-49AC-9A21-30FB20A03812}"
-        "PackageCode" = "8:{604C9118-64B9-43DC-B037-15E0F9EC3D22}"
+        "PackageCode" = "8:{F2A60CC3-2E3D-48B3-9CBE-A88BDB3249B2}"
         "UpgradeCode" = "8:{E3B1F281-F912-42D5-9149-990EF8DFE97A}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
