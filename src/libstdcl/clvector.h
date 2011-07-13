@@ -56,6 +56,16 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 
 	public:
 
+		clvector()
+			: std::vector< T, clmalloc_allocator<T> >() {}
+
+		clvector( size_t n, const T& value = T() )
+			: std::vector< T, clmalloc_allocator<T> >( n, value ) {}
+
+		template < class InputIterator >
+		clvector( InputIterator first, InputIterator last )
+			: std::vector< T, clmalloc_allocator<T> >( first, last ) {}
+
 		void clmattach( CONTEXT* cp )
 		{ 
 			if (this->_M_impl._M_start)
