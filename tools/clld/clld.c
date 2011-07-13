@@ -34,7 +34,7 @@
 #include <libelf.h>
 #include <errno.h>
 
-#include "_version.h"
+//#include "_version.h"
 
 
 #define DEFAULT_STR_SIZE	1024
@@ -128,7 +128,8 @@ void usage()
 
 void version()
 {
-	printf("BDT clld version " VERSION "\n"); 
+//	printf("BDT clld version " VERSION "\n"); 
+	printf("BDT clld\n"); 
 	printf(
 		"Copyright (c) 2008 Brown Deer Technology, LLC.  All Rights Reserved.\n"
 	);
