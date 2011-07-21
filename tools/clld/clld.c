@@ -216,7 +216,8 @@ int main(int argc, char** argv)
 	char* clstrtab_strp = clstrtab_str;
 	
 
-	char fullpath[DEFAULT_STR_SIZE];
+//	char fullpath[DEFAULT_STR_SIZE];
+	char* fullpath = (char*)malloc(DEFAULT_STR_SIZE);
 
 
 	i = 1;
