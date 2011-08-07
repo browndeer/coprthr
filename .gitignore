@@ -2,8 +2,13 @@
 *.x
 *.so
 *~
+*.sdf
 test/test_*.c
 test/test_*.cl
 iltest/
 gputest/
 tools/optamdil/
+ipch/
+msvs2010/examples/x64/
+msvs2010/examples/hello_stdcl/x64/
+msvs2010/libstdcl/x64/
