@@ -89,8 +89,8 @@ static int __getenv_token(
  */
 
 #ifdef _WIN64
-//LIBSTDCL_API void _libstdcl_init()
-void _libstdcl_init()
+LIBSTDCL_API void _libstdcl_init()
+//void _libstdcl_init()
 #else
 void __attribute__((__constructor__)) _libstdcl_init()
 #endif

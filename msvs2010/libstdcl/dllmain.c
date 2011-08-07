@@ -12,13 +12,14 @@ BOOL APIENTRY DllMain( HMODULE hModule,
 	switch (ul_reason_for_call)
 	{
 	case DLL_PROCESS_ATTACH:
-		_libstdcl_init();
+		// XXX sadly dllmain is no substitute for gcc constructur attribute, basically useless -DAR
+		//_libstdcl_init(); 
 		break;
 	case DLL_THREAD_ATTACH:
 	case DLL_THREAD_DETACH:
 		break;
 	case DLL_PROCESS_DETACH:
-		_libstdcl_fini();
+		//_libstdcl_fini();
 		break;
 	}
 	return TRUE;
