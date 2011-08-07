@@ -121,7 +121,7 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
 cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 #endif
 
-#ifndef _WIN64
+//#ifndef _WIN64
 static 
 __inline__
 int clmctl( void* ptr, int op, ... )
@@ -132,7 +132,7 @@ int clmctl( void* ptr, int op, ... )
 	va_end(ap); 
 	return(rc);
 }
-#endif
+//#endif
 
 static __inline int
 __test_memd_magic(void* ptr) 
