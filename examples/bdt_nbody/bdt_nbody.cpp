@@ -366,6 +366,7 @@ void iterate_cpu(
 #ifdef ENABLE_CL
 
 cl_float* pp2 = 0;
+cl_float* pp3 = 0;
 
 void iterate_cl(
    int nburst, int nparticle, int nthread,
@@ -377,6 +378,7 @@ void iterate_cl(
 	double time_old = GetElapsedTime(0);
 
 	if (pp2==0) pp2 = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
+	if (pp3==0) pp3 = (cl_float*)clmalloc(cp,sizeof(cl_float)*4*nparticle,0);
 
 
 //	int n = nparticle;
@@ -406,7 +408,8 @@ void iterate_cl(
 		clarg_set_global(cp,k_nbody,5,pp);
 		clfork(cp,devnum,k_nbody,&ndr,CL_EVENT_NOWAIT);
 
-		clfork(cp,devnum,krn2,&ndr2,CL_EVENT_NOWAIT);
+//		clfork(cp,devnum,krn2,&ndr2,CL_EVENT_NOWAIT);
+	clmcopy(cp,devnum,pp2,pp,CL_EVENT_NOWAIT); // XXX
 
 //		clarg_set_global(cp,k_nbody,3,pp);
 //		clarg_set_global(cp,k_nbody,5,pp2);
