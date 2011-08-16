@@ -563,6 +563,141 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 }
 
+
+LIBSTDCL_API
+cl_event 
+clmcopy(
+	CONTEXT* cp, unsigned int devnum, void* src, void* dst, int flags )
+{
+	int err;
+
+	cl_event ev;
+
+	if (!src || !dst) return((cl_event)0);
+
+	intptr_t src_ptri = (intptr_t)src - sizeof(struct _memd_struct);
+	struct _memd_struct* src_memd = (struct _memd_struct*)src_ptri;
+	intptr_t dst_ptri = (intptr_t)dst - sizeof(struct _memd_struct);
+	struct _memd_struct* dst_memd = (struct _memd_struct*)dst_ptri;
+
+	if (src_memd->magic != CLMEM_MAGIC) {
+		for (
+         src_memd = cp->memd_listhead.lh_first; src_memd != 0;
+         src_memd = src_memd->memd_list.le_next
+         ) {
+            intptr_t p1 = (intptr_t)src_memd + sizeof(struct _memd_struct);
+            intptr_t p2 = p1 + src_memd->sz;
+            if (p1 < (intptr_t)src && (intptr_t)src < p2) {
+               DEBUG(__FILE__,__LINE__,"memd match");
+					src = (void*)p1;
+               break;
+            }
+      }
+
+		if (src_memd == 0) {
+
+			WARN(__FILE__,__LINE__,"clmsync: bad pointer");
+
+			return((cl_event)0);
+
+		}
+
+	}
+
+	if (dst_memd->magic != CLMEM_MAGIC) {
+		for (
+         dst_memd = cp->memd_listhead.lh_first; dst_memd != 0;
+         dst_memd = dst_memd->memd_list.le_next
+         ) {
+            intptr_t p1 = (intptr_t)dst_memd + sizeof(struct _memd_struct);
+            intptr_t p2 = p1 + dst_memd->sz;
+            if (p1 < (intptr_t)dst && (intptr_t)dst < p2) {
+               DEBUG(__FILE__,__LINE__,"memd match");
+					dst = (void*)p1;
+               break;
+            }
+      }
+
+		if (dst_memd == 0) {
+
+			WARN(__FILE__,__LINE__,"clmsync: bad pointer");
+
+			return((cl_event)0);
+
+		}
+
+	}
+
+	DEBUG(__FILE__,__LINE__,"clmcopy: (src) memd = %p, base_ptr = %p",
+		src_memd,(intptr_t)src_memd+sizeof(struct _memd_struct));
+
+	DEBUG(__FILE__,__LINE__,"clmsync: (dst) memd = %p, base_ptr = %p",
+		dst_memd,(intptr_t)dst_memd+sizeof(struct _memd_struct));
+
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
+
+	if (src_memd->flags&__MEMD_F_IMG2D) {
+
+		if (dst_memd->flags&__MEMD_F_IMG2D) {
+			
+			DEBUG(__FILE__,__LINE__,"%d %d",src_memd->sz,src_memd->sz1);
+			DEBUG(__FILE__,__LINE__,"%d %d",dst_memd->sz,dst_memd->sz1);
+
+			size_t origin[3] = {0,0,0};
+			size_t region[3] = { src_memd->sz, src_memd->sz1, 1 };
+
+			err = clEnqueueCopyImage( 
+				cp->cmdq[devnum],src_memd->clbuf, dst_memd->clbuf,
+				origin,origin,region, 0,0,&ev
+			);
+
+			DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueCopyImage err %d",err);
+
+		} else {
+
+		}
+
+	} else {
+
+		if (dst_memd->flags&__MEMD_F_IMG2D) {
+
+		} else {
+
+			err = clEnqueueCopyBuffer(
+				cp->cmdq[devnum],src_memd->clbuf,dst_memd->clbuf,
+				0,0,src_memd->sz,0,0,&ev
+  	 		);
+
+			DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueCopyBuffer err %d",err);
+
+		}
+
+	}
+
+	if (flags & CL_EVENT_NOWAIT) {
+
+		cp->mev[devnum].ev[cp->mev[devnum].ev_free++] = ev;
+		cp->mev[devnum].ev_free %= STDCL_EVENTLIST_MAX;
+		++cp->mev[devnum].nev;
+
+	} else { /* CL_EVENT_WAIT */
+
+		err = clWaitForEvents(1,&ev);
+
+		if ( !(flags & CL_EVENT_NORELEASE) ) {
+			clReleaseEvent(ev);
+			ev = (cl_event)0;
+		}
+
+	}
+
+	return(ev);
+
+}
+
+
 LIBSTDCL_API
 void* clmemptr( CONTEXT* cp, void* ptr ) 
 {
