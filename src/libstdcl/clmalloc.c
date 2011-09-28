@@ -48,31 +48,25 @@
 
 
 
-#define __MEMD_F_R			0x0001
-#define __MEMD_F_W			0x0002
-#define __MEMD_F_RW 			(__MEMD_F_R|__MEMD_F_W)
-#define __MEMD_F_ATTACHED	0x0004
-#define __MEMD_F_LOCKED		0x0008
-#define __MEMD_F_DIRTY		0x0010
-#define __MEMD_F_TRACKED	0x0020
+#define __MEMD_F_R				0x0001
+#define __MEMD_F_W				0x0002
+#define __MEMD_F_RW 				(__MEMD_F_R|__MEMD_F_W)
+#define __MEMD_F_ATTACHED		0x0004
+#define __MEMD_F_LOCKED			0x0008
+#define __MEMD_F_DIRTY			0x0010
+#define __MEMD_F_TRACKED		0x0020
 
-#define __MEMD_F_IMG2D		0x0200
+#define __MEMD_F_IMG				0x0100
+#define __MEMD_F_IMG2D			(__MEMD_F_IMG|0x0200)
+#define __MEMD_F_IMG3D			(__MEMD_F_IMG|0x0400)
 
 #ifdef ENABLE_CLGL
-#define __MEMD_F_GLBUF		0x1000
+#define __MEMD_F_GLBUF			0x1000
+#define __MEMD_F_GLTEX2D		0x2000
+#define __MEMD_F_GLTEX3D		0x4000
+#define __MEMD_F_GLRBUF			0x8000
 #endif
 
-
-/*
-inline int
-__test_memd_magic(void* ptr) 
-{
-	intptr_t ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
-	struct _memd_struct* memd = (struct _memd_struct*)ptri;
-	if (memd->magic == CLMEM_MAGIC) return(1);
-	return(0);
-}
-*/
 
 LIBSTDCL_API 
 void* clmalloc(CONTEXT* cp, size_t size, int flags)
@@ -304,14 +298,11 @@ int clmdetach( void* ptr )
 }
 
 
-//int clmctl( void* ptr, int op, int arg )
-//int clmctl( void* ptr, int op, ... )
 LIBSTDCL_API
 int clmctl_va( void* ptr, int op, va_list ap )
 {
 	int err; 
 	int retval = 0;
-//	va_list ap;
 
 	if (!__test_memd_magic(ptr)) {
 
@@ -332,8 +323,6 @@ int clmctl_va( void* ptr, int op, va_list ap )
 		return(EFAULT);
 
 	}
-
-//	va_start(ap,op);
 
 	void* ptmp;
 
@@ -403,8 +392,6 @@ int clmctl_va( void* ptr, int op, va_list ap )
 
 	}
 
-//	va_end(ap);
-
 	return(retval);
 
 }
@@ -454,17 +441,16 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	__cmdq_create(cp,devnum);
 #endif
 
-//	if (flags&CL_MEM_WRITE || flags&CL_MEM_DEVICE) {
 	if (flags&CL_MEM_DEVICE) {
 
 		/* XXX this is a test for tracking-DAR */
 		if (flags&CL_MEM_NOFORCE && memd->devnum == devnum) {
 			WARN(__FILE__,__LINE__,"clmsync/CL_MEM_NOFORCE no transfer");
-//			printf("clmsync/CL_MEM_NOFORCE no transfer\n");
 			return((cl_event)0);
 		}
 
-		if (memd->flags&__MEMD_F_IMG2D) {
+//		if (memd->flags&__MEMD_F_IMG2D) {
+		if (memd->flags&__MEMD_F_IMG) {
 
 			DEBUG(__FILE__,__LINE__,"%d %d",memd->sz,memd->sz1);
 
@@ -494,11 +480,11 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 		/* XXX this is a test for tracking-DAR */
 		if (flags&CL_MEM_NOFORCE && memd->devnum == -1) {
 			WARN(__FILE__,__LINE__,"clmsync/CL_MEM_NOFORCE no transfer");
-//			printf("clmsync/CL_MEM_NOFORCE no transfer\n");
 			return((cl_event)0);
 		}
 
-		if (memd->flags&__MEMD_F_IMG2D) {
+//		if (memd->flags&__MEMD_F_IMG2D) {
+		if (memd->flags&__MEMD_F_IMG) {
 
 			size_t origin[3] = {0,0,0};
 			size_t region[3] = { memd->sz, memd->sz1, 1 };
@@ -522,10 +508,6 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 	} else {
 
-//			err = clEnqueueReadBuffer(
-//				cp->cmdq[devnum],memd->clbuf,CL_FALSE,0,memd->sz,ptr,0,0,&ev
-//  		 	);
-
 		WARN(__FILE__,__LINE__,"clmsync: no target specified");
 
 		return((cl_event)0);
@@ -545,17 +527,10 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		err = clWaitForEvents(1,&ev);
 
-//#ifdef USE_DEPRECATED_FLAGS
-//		if (flags & CL_EVENT_RELEASE && !(flags & CL_EVENT_NORELEASE) ) {
-//			clReleaseEvent(ev);
-//			ev = (cl_event)0;
-//		}
-//#else
 		if ( !(flags & CL_EVENT_NORELEASE) ) {
 			clReleaseEvent(ev);
 			ev = (cl_event)0;
 		}
-//#endif
 
 	}
 
@@ -638,9 +613,11 @@ clmcopy(
 	__cmdq_create(cp,devnum);
 #endif
 
-	if (src_memd->flags&__MEMD_F_IMG2D) {
+//	if (src_memd->flags&__MEMD_F_IMG2D) {
+	if (src_memd->flags&__MEMD_F_IMG) {
 
-		if (dst_memd->flags&__MEMD_F_IMG2D) {
+//		if (dst_memd->flags&__MEMD_F_IMG2D) {
+		if (dst_memd->flags&__MEMD_F_IMG) {
 			
 			DEBUG(__FILE__,__LINE__,"%d %d",src_memd->sz,src_memd->sz1);
 			DEBUG(__FILE__,__LINE__,"%d %d",dst_memd->sz,dst_memd->sz1);
@@ -661,7 +638,8 @@ clmcopy(
 
 	} else {
 
-		if (dst_memd->flags&__MEMD_F_IMG2D) {
+//		if (dst_memd->flags&__MEMD_F_IMG2D) {
+		if (dst_memd->flags&__MEMD_F_IMG) {
 
 		} else {
 
@@ -888,18 +866,138 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 
 	tmp_clbuf = clCreateFromGLBuffer(
      	cp->ctx,CL_MEM_READ_WRITE,
-     	glbuf,&err
+     	glbuf, &err
   	);
 
 	DEBUG(__FILE__,__LINE__,
 		"clglmalloc: clCreateFromGLBuffer clbuf=%p",tmp_clbuf);
 
-	DEBUG(__FILE__,__LINE__, "clmalloc: err from clCreateFromGLBuffer %d",err);
+	DEBUG(__FILE__,__LINE__, "clglmalloc: err from clCreateFromGLBuffer %d",err);
 
 	size_t size;
 	err = clGetMemObjectInfo(tmp_clbuf,CL_MEM_SIZE,sizeof(size_t),&size,0);
 
-	DEBUG(__FILE__,__LINE__,"clglmalloc: clCreateFromGLBuffer err %d",err);
+	DEBUG(__FILE__,__LINE__,"clglmalloc: clGetMemObjectInfo err %d",err);
+
+	if (size == 0) {
+
+		WARN(__FILE__,__LINE__,"clglmalloc: size=0, something went wrong");
+
+		clReleaseMemObject(tmp_clbuf);
+
+		return(0);
+
+	}
+
+	intptr_t ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
+
+	if (ptri == 0) {
+
+		WARN(__FILE__,__LINE__,"clglmalloc: out of memory");
+
+		clReleaseMemObject(tmp_clbuf);
+
+		return(0);
+
+	}
+
+	intptr_t ptr = ptri+sizeof(struct _memd_struct);
+	struct _memd_struct* memd = (struct _memd_struct*)ptri;
+
+	DEBUG(__FILE__,__LINE__,"clglmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
+
+	DEBUG(__FILE__,__LINE__,"clglmalloc: sizeof struct _memd_struct %d",
+		sizeof(struct _memd_struct));
+
+	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
+		WARN(__FILE__,__LINE__,
+			"clglmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
+	} //// XXX CL_MEM_READ_WRITE implied -DAR
+
+	memd->clbuf = tmp_clbuf;
+	memd->magic = CLMEM_MAGIC;
+	memd->flags = __MEMD_F_RW|__MEMD_F_GLBUF|__MEMD_F_ATTACHED;
+	memd->sz = size;
+
+	LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);
+
+	return((void*)ptr);
+
+}
+
+
+void* xxx_clglmalloc(
+	CONTEXT* cp, cl_GLuint glbuf, int flags, 
+	cl_GLenum target, cl_GLint miplevel 
+)
+{
+
+	DEBUG(__FILE__,__LINE__,"xxx_clglmalloc: glbuf=%d flag=%d",glbuf,flags);
+
+	int err;
+
+	unsigned int tmp_flags = 0;
+	cl_mem tmp_clbuf = 0;
+	
+	if (flags&CL_MEM_DETACHED) {
+	
+		WARN(__FILE__,__LINE__,"xxx_clglmalloc: invalid flag: CL_MEM_DETACHED");
+
+		return(0);
+
+	}
+
+	tmp_clbuf = clCreateFromGLBuffer(
+     	cp->ctx,CL_MEM_READ_WRITE,
+     	glbuf,&err
+  	);
+
+	if (flags&CL_MEM_GLTEX2D) {
+
+		tmp_clbuf = clCreateFromGLTexture2D(
+    	 	cp->ctx,CL_MEM_READ_WRITE,
+			target,miplevel,
+    	 	glbuf,&err
+  		);
+
+		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG2D|__MEMD_F_GLTEX2D|__MEMD_F_ATTACHED;
+
+	} else if (flags&CL_MEM_GLTEX3D) {
+
+		tmp_clbuf = clCreateFromGLTexture3D(
+    	 	cp->ctx,CL_MEM_READ_WRITE,
+			target,miplevel,
+    	 	glbuf,&err
+  		);
+
+		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG3D|__MEMD_F_GLTEX3D|__MEMD_F_ATTACHED;
+
+	} else if (flags&CL_MEM_GLRBUF) {
+
+		tmp_clbuf = clCreateFromGLRenderbuffer(
+    	 	cp->ctx,CL_MEM_READ_WRITE,
+    	 	glbuf,&err
+  		);
+
+		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG2D|__MEMD_F_GLRBUF|__MEMD_F_ATTACHED;
+
+	} else {
+
+		WARN(__FILE__,__LINE__,"xxx_clglmalloc: invalid flags");
+
+		return(0);
+
+	}
+
+	DEBUG(__FILE__,__LINE__,
+		"xxx_clglmalloc: clCreateFromGL* clbuf=%p",tmp_clbuf);
+
+	DEBUG(__FILE__,__LINE__, "xxx_clglmalloc: err from clCreateFromGL* %d",err);
+
+	size_t size;
+	err = clGetMemObjectInfo(tmp_clbuf,CL_MEM_SIZE,sizeof(size_t),&size,0);
+
+	DEBUG(__FILE__,__LINE__,"clglmalloc: clGetMemObjectInfo err %d",err);
 
 	if (size == 0) {
 
@@ -936,10 +1034,12 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 			"clmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
 	} //// XXX CL_MEM_READ_WRITE implied -DAR
 
+
 	memd->clbuf = tmp_clbuf;
 	memd->magic = CLMEM_MAGIC;
-	memd->flags = __MEMD_F_RW|__MEMD_F_GLBUF|__MEMD_F_ATTACHED;
+	memd->flags = tmp_flags;
 	memd->sz = size;
+
 
 	LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);
 
@@ -1022,17 +1122,10 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		err = clWaitForEvents(1,&ev);
 
-//#ifdef USE_DEPRECATED_FLAGS
-//		if (flags & CL_EVENT_RELEASE && !(flags & CL_EVENT_NORELEASE) ) {
-//			clReleaseEvent(ev);
-//			ev = (cl_event)0;
-//		}
-//#else
 		if ( !(flags & CL_EVENT_NORELEASE) ) {
 			clReleaseEvent(ev);
 			ev = (cl_event)0;
 		}
-//#endif
 
 	}
 
