@@ -727,13 +727,22 @@ LIBSTDCL_API int  clgetdevinfo( CONTEXT* cp, struct cldev_info* info)
 			);
 
 
-			cl_ulong ultmp;
+//			cl_ulong ultmp;
+//			err = clGetDeviceInfo(
+//            *d,CL_DEVICE_MAX_MEM_ALLOC_SIZE,
+//            sizeof(cl_ulong),&ultmp,0
+//			);	
+//			printf("XXX CL_DEVICE_GLOBAL_MEM_SIZE %d\n",(int)ultmp);
+
+			err = clGetDeviceInfo(
+            *d,CL_DEVICE_GLOBAL_MEM_SIZE,
+            sizeof(cl_ulong),&di->dev_global_mem_sz,0
+			);	
 
 			err = clGetDeviceInfo(
             *d,CL_DEVICE_MAX_MEM_ALLOC_SIZE,
-            sizeof(cl_ulong),&ultmp,0
+            sizeof(cl_ulong),&di->dev_max_mem_alloc_sz,0
 			);	
-//			printf("XXX CL_DEVICE_GLOBAL_MEM_SIZE %d\n",(int)ultmp);
 
 
 			/*
