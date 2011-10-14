@@ -24,6 +24,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 #AC_PROG_LIBTOOL
 AC_PATH_PROG([BASH],[bash],,[path=`$path`])
+AC_CHECK_PROG(F90,gfortran44,gfortran44)
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lOpenCL':
@@ -256,6 +257,7 @@ fi;
 BASH=`which bash`
 
 AC_SUBST(BASH)
+AC_SUBST(F90)
 
 AC_SUBST(ENABLE_CLGL)
 AC_SUBST(ENABLE_CLETE)
