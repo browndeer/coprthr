@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "hello_stdcl", "hello_stdcl\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bdt_nbody_tutorial", "bdt_nbody_tutorial\bdt_nbody_tutorial.vcxproj", "{3DCF6391-7CA2-4FF0-8BFD-5AA3E4319CFB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "clvector_example", "clvector_example\clvector_example.vcxproj", "{98876090-0E61-4F44-9705-30CE4207206A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -24,7 +26,13 @@ Global
 		{3DCF6391-7CA2-4FF0-8BFD-5AA3E4319CFB}.Debug|x64.ActiveCfg = Debug|x64
 		{3DCF6391-7CA2-4FF0-8BFD-5AA3E4319CFB}.Release|Win32.ActiveCfg = Release|Win32
 		{3DCF6391-7CA2-4FF0-8BFD-5AA3E4319CFB}.Release|Win32.Build.0 = Release|Win32
-		{3DCF6391-7CA2-4FF0-8BFD-5AA3E4319CFB}.Release|x64.ActiveCfg = Release|Win32
+		{3DCF6391-7CA2-4FF0-8BFD-5AA3E4319CFB}.Release|x64.ActiveCfg = Release|x64
+		{98876090-0E61-4F44-9705-30CE4207206A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{98876090-0E61-4F44-9705-30CE4207206A}.Debug|Win32.Build.0 = Debug|Win32
+		{98876090-0E61-4F44-9705-30CE4207206A}.Debug|x64.ActiveCfg = Debug|x64
+		{98876090-0E61-4F44-9705-30CE4207206A}.Release|Win32.ActiveCfg = Release|Win32
+		{98876090-0E61-4F44-9705-30CE4207206A}.Release|Win32.Build.0 = Release|Win32
+		{98876090-0E61-4F44-9705-30CE4207206A}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
