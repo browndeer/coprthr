@@ -28,6 +28,7 @@
 
 	integer, parameter:: CL_INT = C_INT
 	integer, parameter:: CL_FLOAT = C_FLOAT
+	integer, parameter:: CL_DOUBLE = C_DOUBLE
 
 	integer, parameter :: CLLD_DEFAULT = 0
 	integer, parameter :: CLLD_LAZY    = 1
@@ -204,6 +205,20 @@
 		end function clmsync
 
 
+		type(C_PTR) function clmcopy( cp, devnum, src, dst, flags ) bind(C)
+
+			use iso_c_binding
+			implicit none
+
+			type(C_PTR), value, intent(in) :: cp
+			integer(C_INT), value, intent(in) :: devnum
+			type(C_PTR), value, intent(in) :: src
+			type(C_PTR), value, intent(in) :: dst
+			integer(C_INT), value, intent(in) :: flags
+
+		end function clmcopy
+
+
 		type(C_PTR) function clmattach( cp, ptr ) bind(C)
 
 			use iso_c_binding
@@ -228,53 +243,6 @@
 
 
 		!!!! kernel management declarations
-
-!		type(clndrange_struct) function clndrange_init1d(gto0,gt0,lt0)
-!
-!			use iso_c_binding
-!			implicit none
-!
-!			integer(C_INT), value :: gto0
-!			integer(C_INT), value :: gt0
-!			integer(C_INT), value :: lt0
-!
-!		end function clndrange_init1d
-		
-
-!		type(clndrange_struct) function clndrange_init2d(gto0,gt0,lt0, &
-!				gto1,gt1,lt1)
-!
-!			use iso_c_binding
-!			implicit none
-!
-!			integer(C_INT), value :: gto0
-!			integer(C_INT), value :: gt0
-!			integer(C_INT), value :: lt0
-!			integer(C_INT), value :: gto1
-!			integer(C_INT), value :: gt1
-!			integer(C_INT), value :: lt1
-!
-!		end function clndrange_init2d
-		
-
-!		type(clndrange_struct) function clndrange_init3d(gto0,gt0,lt0, &
-!				gto1,gt1,lt1,gto2,gt2,lt2)
-!
-!			use iso_c_binding
-!			implicit none
-!
-!			integer(C_INT), value :: gto0
-!			integer(C_INT), value :: gt0
-!			integer(C_INT), value :: lt0
-!			integer(C_INT), value :: gto1
-!			integer(C_INT), value :: gt1
-!			integer(C_INT), value :: lt1
-!			integer(C_INT), value :: gto2
-!			integer(C_INT), value :: gt2
-!			integer(C_INT), value :: lt2
-!
-!		end function clndrange_init3d
-		
 
 		integer(C_INT) function clarg_set_global(cp, krn, argnum, ptr) bind(C)
 
@@ -350,7 +318,7 @@
 
 
 	interface clarg_set
-		module procedure clarg_set_int, clarg_set_float
+		module procedure clarg_set_int, clarg_set_float, clarg_set_double
 	end interface clarg_set
 
 
@@ -446,6 +414,22 @@
 		clarg_set_float = 0
 
 	end function clarg_set_float
+
+
+ 	integer(C_INT) function clarg_set_double( cp, krn, argnum, arg )
+
+		use iso_c_binding
+		implicit none
+		type(C_PTR), value, intent(in) :: cp
+		type(C_PTR), value, intent(in) :: krn
+		integer(C_INT), value, intent(in) :: argnum
+		real(C_DOUBLE), target, intent(in) :: arg
+
+		call clSetKernelArg(krn,argnum,4_8,C_LOC(arg))
+
+		clarg_set_double = 0
+
+	end function clarg_set_double
 
 
 	end module
