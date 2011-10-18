@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # 
-# Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+# Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
 #
 # This software was developed by Brown Deer Technology, LLC.
 # For more information contact info@browndeertechnology.com
@@ -117,6 +117,10 @@ for($c=0;$c<10;++$c) {
    for($a=1;$a<$c;++$a) {
       $b=$c-$a;
 
+###
+### test use of set arg calls and clfork()
+###
+
 printf "krn = clsym(cp,clh,\"$testprefix".$a."_".$b."_kern\",CLLD_NOW);\n";
 printf "if (!krn) exit(__LINE__);\n";
 
@@ -157,6 +161,52 @@ printf "for(i=0;i<size;i++) sum += bb".$j."[i];\n";
 printf "printf(\"(%%e) sum ".$a." ".$b." %%e\",sum_correct,sum);\n";
 printf "printf(\" relerr %%e (%%e)\\n\",fabs((sum-sum_correct)/sum_correct),tol);\n";
 printf "if (fabs((sum-sum_correct)/sum_correct) > tol) exit(__LINE__);\n";
+
+###
+### test use of clforka()
+###
+
+printf "krn = clsym(cp,clh,\"$testprefix".$a."_".$b."_kern\",CLLD_NOW);\n";
+printf "if (!krn) exit(__LINE__);\n";
+
+for($i=0;$i<$a;++$i) {
+printf "if (!clmsync(cp,0,aa$i,CL_MEM_DEVICE|CL_EVENT_NOWAIT))\n";
+printf "exit(__LINE__);\n";
+}
+
+printf "if (!clforka(cp,0,krn,&ndr,CL_EVENT_NOWAIT";
+for($i=0;$i<$a;++$i) {
+printf ",aa$i";
+}
+for($j=0;$j<$b;++$j) {
+$k = $a+$j;
+printf ",bb$j";
+}
+printf "))\n";
+printf "exit(__LINE__);\n";
+
+for($j=0;$j<$b;++$j) {
+printf "if (!clmsync(cp,0,bb$j,CL_MEM_HOST|CL_EVENT_NOWAIT))\n";
+printf "exit(__LINE__);\n";
+}
+
+printf "clwait(cp,0,CL_KERNEL_EVENT|CL_MEM_EVENT);\n";
+
+printf "sum_correct = 0;\n";
+printf "for(i=0;i<$a;++i)\n";
+printf "for(j=0;j<$b;++j)\n";
+#printf "sum_correct += (j+1.1)*( (size*(size-1)*1.1)/2 + (1+13.1)*i*size + 0.1*size + size*0.4575);\n";
+printf "sum_correct += (j+1.1)*( (size*(size-1)*1.1)/2 + (1+13.1)*i*size + 0.1*size);\n";
+
+printf "sum = 0;\n";
+for($j=0;$j<$b;++$j) {
+printf "for(i=0;i<size;i++) sum += bb".$j."[i];\n";
+}
+printf "printf(\"(%%e) sum ".$a." ".$b." %%e\",sum_correct,sum);\n";
+printf "printf(\" relerr %%e (%%e)\\n\",fabs((sum-sum_correct)/sum_correct),tol);\n";
+printf "if (fabs((sum-sum_correct)/sum_correct) > tol) exit(__LINE__);\n";
+
+
 
 }
 
