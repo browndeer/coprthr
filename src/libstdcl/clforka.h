@@ -48,11 +48,11 @@
 
 #define __concat(func,nargs) func ## nargs
 
-#define clforka( cp, devnum, krn, p_ndr, flags, ... ) do { \
+#define clforka( cp, devnum, krn, p_ndr, flags, ... ) ({ cl_event ev; do { \
 	__clarg_set_(__VA_NARGS__(__VA_ARGS__)) \
 		( cp, krn, 0, __VA_ARGS__); \
-	clfork(cp,devnum,krn,p_ndr,flags); \
-} while(0)
+	ev = clfork(cp,devnum,krn,p_ndr,flags); \
+} while(0); ev; })
 
 #define __clarg_set_(nargs)__concat(__clarg_set,nargs)
 
