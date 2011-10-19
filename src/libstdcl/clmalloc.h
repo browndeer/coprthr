@@ -104,7 +104,8 @@ size_t clsizeofmem(void* ptr)
 
 LIBSTDCL_API void* clmalloc(CONTEXT* cp, size_t size, int flag);
 //LIBSTDCL_API void* clmalloc_img(CONTEXT* cp, size_t size, int flag);
-LIBSTDCL_API void clfree( void* ptr );
+//LIBSTDCL_API void clfree( void* ptr );
+LIBSTDCL_API int clfree( void* ptr );
 LIBSTDCL_API int clmattach( CONTEXT* cp, void* ptr );
 LIBSTDCL_API int clmdetach( void* ptr );
 //int clmctl( void* ptr, int op, int arg );

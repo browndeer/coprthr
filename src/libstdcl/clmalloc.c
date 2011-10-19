@@ -162,7 +162,8 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 
 
 LIBSTDCL_API
-void clfree( void* ptr )
+//void clfree( void* ptr )
+int clfree( void* ptr )
 {
 	int err;
 
@@ -172,11 +173,11 @@ void clfree( void* ptr )
 
 		WARN(__FILE__,__LINE__,"clfree: invalid ptr");
 
-		return;
+		return 0 ;
 
 	}
 	
-	if (!ptr) { WARN(__FILE__,__LINE__,"clfree: null ptr"); return; }
+	if (!ptr) { WARN(__FILE__,__LINE__,"clfree: null ptr"); return 0; }
 
 //	if (!assert_cldev_valid(dev)) return (0);
 
@@ -192,7 +193,8 @@ void clfree( void* ptr )
 	}
 
 	free((void*)ptri);	
-			
+		
+	return 0;	
 }
 
 
