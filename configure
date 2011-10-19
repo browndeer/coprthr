@@ -2872,7 +2872,10 @@ echo "$as_me: error: Could not find Nvidia SDK path" >&2;}
    { (exit 1); exit 1; }; }
       fi;
 
-      if test -e $withval/include/CL/cl.h; then
+      if test -e $withval/OpenCL/common/inc/CL/cl.h; then
+        OPENCL_INC="$withval/OpenCL/common/inc"
+         echo "found Nvidia SDK include path"
+      elif test -e $withval/include/CL/cl.h; then
         OPENCL_INC="$withval/include"
          echo "found Nvidia SDK include path"
       else
@@ -2881,7 +2884,10 @@ echo "$as_me: error: Could not find Nvidia SDK include path" >&2;}
    { (exit 1); exit 1; }; }
       fi;
 
-      if test -e $withval/lib/libOpenCL.so; then
+      if test -e $withval/OpenCL/common/lib/Linux64/libOpenCL.so; then
+        OPENCL_LIB="$withval/OpenCL/common/lib/Linux64"
+          echo "found Nvidia SDK lib path"
+      elif test -e $withval/lib/libOpenCL.so; then
         OPENCL_LIB="$withval/lib"
          echo "found Nvidia SDK lib path"
 		elif test -e /usr/lib64/libOpenCL.so; then
