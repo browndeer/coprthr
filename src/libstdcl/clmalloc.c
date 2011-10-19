@@ -929,8 +929,7 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 
 
 void* xxx_clglmalloc(
-	CONTEXT* cp, cl_GLuint glbuf, int flags, 
-	cl_GLenum target, cl_GLint miplevel 
+	CONTEXT* cp, cl_GLuint glbuf, cl_GLenum target, cl_GLint miplevel, int flags
 )
 {
 
@@ -949,12 +948,14 @@ void* xxx_clglmalloc(
 
 	}
 
-	tmp_clbuf = clCreateFromGLBuffer(
-     	cp->ctx,CL_MEM_READ_WRITE,
-     	glbuf,&err
-  	);
+	if (flags&CL_MEM_GLBUF) {
 
-	if (flags&CL_MEM_GLTEX2D) {
+		tmp_clbuf = clCreateFromGLBuffer(
+ 	    	cp->ctx,CL_MEM_READ_WRITE,
+ 	    	glbuf,&err
+ 	 	);
+
+	} else if (flags&CL_MEM_GLTEX2D) {
 
 		tmp_clbuf = clCreateFromGLTexture2D(
     	 	cp->ctx,CL_MEM_READ_WRITE,
@@ -983,9 +984,13 @@ void* xxx_clglmalloc(
 
 		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG2D|__MEMD_F_GLRBUF|__MEMD_F_ATTACHED;
 
-	} else {
+	} else { /* default case, consider deprecating to be safe -DAR */
 
-		WARN(__FILE__,__LINE__,"xxx_clglmalloc: invalid flags");
+//		WARN(__FILE__,__LINE__,"xxx_clglmalloc: invalid flags");
+		tmp_clbuf = clCreateFromGLBuffer(
+    	 	cp->ctx,CL_MEM_READ_WRITE,
+    	 	glbuf,&err
+  		);
 
 		return(0);
 
