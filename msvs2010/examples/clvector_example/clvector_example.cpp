@@ -6,7 +6,7 @@
 
 int main()
 {
-	stdcl_init();
+	stdcl_init(); // this is only necessary for Windows
 
    size_t n = 1024;
 
