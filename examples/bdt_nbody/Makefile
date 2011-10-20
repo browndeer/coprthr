@@ -12,7 +12,7 @@ CLSRC = nbody_kern.cl
 DEFS += -DENABLE_CL
 INCS += -I$(CL_ROOT)/include -I$(LIBSTDCL_ROOT)/include
 LIBS += -L$(CL_ROOT)/lib/x86_64 -lOpenCL -lpthread -ldl \
-	-L$(LIBSTDCL_ROOT)/lib -lstdcl_d
+	-L$(LIBSTDCL_ROOT)/lib -lstdcl
 #LIBS += -L$(CL_ROOT)/lib/x86_64 -locl -lpthread -ldl \
 #	-L$(LIBSTDCL_ROOT)/lib -lstdcl
 

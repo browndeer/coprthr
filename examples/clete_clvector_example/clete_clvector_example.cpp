@@ -17,7 +17,7 @@ using namespace std;
 //////////////////////////////////////////////////////////////////////////////
 
 #include <stdcl.h>
-//#define __CLVECTOR_FULLAUTO
+#define __CLVECTOR_FULLAUTO
 #include <clvector.h>
 
 int main()
