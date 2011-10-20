@@ -122,8 +122,8 @@ LIBSTDCL_API cl_event clmcopy(CONTEXT* cp, unsigned int devnum,
 LIBSTDCL_API void* clmemptr( CONTEXT* CP, void* ptr );
 
 #ifdef ENABLE_CLGL
-void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
-void* xxx_clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, cl_GLenum target, 
+//void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
+void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, cl_GLenum target, 
 	cl_GLint miplevel, int flags );
 cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 #endif

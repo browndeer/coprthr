@@ -849,6 +849,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 #ifdef ENABLE_CLGL
 
+#if(0)
 void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 {
 
@@ -926,14 +927,15 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 	return((void*)ptr);
 
 }
+#endif
 
 
-void* xxx_clglmalloc(
+void* clglmalloc(
 	CONTEXT* cp, cl_GLuint glbuf, cl_GLenum target, cl_GLint miplevel, int flags
 )
 {
 
-	DEBUG(__FILE__,__LINE__,"xxx_clglmalloc: glbuf=%d flag=%d",glbuf,flags);
+	DEBUG(__FILE__,__LINE__,"clglmalloc: glbuf=%d flag=%d",glbuf,flags);
 
 	int err;
 
@@ -942,7 +944,7 @@ void* xxx_clglmalloc(
 	
 	if (flags&CL_MEM_DETACHED) {
 	
-		WARN(__FILE__,__LINE__,"xxx_clglmalloc: invalid flag: CL_MEM_DETACHED");
+		WARN(__FILE__,__LINE__,"clglmalloc: invalid flag: CL_MEM_DETACHED");
 
 		return(0);
 
@@ -986,7 +988,7 @@ void* xxx_clglmalloc(
 
 	} else { /* default case, consider deprecating to be safe -DAR */
 
-//		WARN(__FILE__,__LINE__,"xxx_clglmalloc: invalid flags");
+//		WARN(__FILE__,__LINE__,"clglmalloc: invalid flags");
 		tmp_clbuf = clCreateFromGLBuffer(
     	 	cp->ctx,CL_MEM_READ_WRITE,
     	 	glbuf,&err
@@ -997,9 +999,9 @@ void* xxx_clglmalloc(
 	}
 
 	DEBUG(__FILE__,__LINE__,
-		"xxx_clglmalloc: clCreateFromGL* clbuf=%p",tmp_clbuf);
+		"clglmalloc: clCreateFromGL* clbuf=%p",tmp_clbuf);
 
-	DEBUG(__FILE__,__LINE__, "xxx_clglmalloc: err from clCreateFromGL* %d",err);
+	DEBUG(__FILE__,__LINE__, "clglmalloc: err from clCreateFromGL* %d",err);
 
 	size_t size;
 	err = clGetMemObjectInfo(tmp_clbuf,CL_MEM_SIZE,sizeof(size_t),&size,0);
