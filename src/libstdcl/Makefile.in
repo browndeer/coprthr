@@ -81,11 +81,15 @@ CCFLAGS += -g -O2 -fPIC
 F90FLAGS = -fPIC
 
 # note that fortran mods must preceed objects -DAR
-ifneq ($F90,)
+ifneq ($(F90),)
 TARGET = $(MODS)
+LIB_OBJS = $(F90_OBJS)
+LIB_OBJS_D = $(F90_OBJS)
 endif
 
 TARGET += libstdcl.so $(addsuffix .gz,$(MAN3))
+LIB_OBJS += $(OBJS)
+LIB_OBJS_D += $(OBJS_D)
 
 ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
 TARGET += libstdcl_d.so 
@@ -97,11 +101,11 @@ all: $(TARGET)
 
 libstdcl.so: $(OBJS)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \
-		-o libstdcl.so $(OBJS) $(F90_OBJS) $(LIBS)
+		-o libstdcl.so $(LIB_OBJS) $(LIBS)
 
 libstdcl_d.so: $(OBJS_D)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl_d.so \
-		-o libstdcl_d.so $(OBJS_D) $(F90_OBJS_D) $(LIBS)
+		-o libstdcl_d.so $(LIB_OBJS_D) $(LIBS)
 
 .SUFFIXES:
 .SUFFIXES: .c .o .f90 .mod
@@ -134,7 +138,7 @@ install: check_root $(INSTALL_INCS) $(INSTALL_LIBS) $(addsuffix .gz,$(MAN3))
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_MAN_DIR)/man3 || install -m 755 -d $(INSTALL_MAN_DIR)/man3
 	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
-ifneq ($MODS,)
+ifneq ($(F90),)
 	install -m 644 $(MODS) $(INSTALL_INCLUDE_DIR)
 endif
 	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
@@ -142,7 +146,7 @@ endif
 
 uninstall: check_root
 	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 
-ifneq ($MODS,)
+ifneq ($(F90),)
 	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(MODS)) 
 endif
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS)) 

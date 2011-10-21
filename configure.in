@@ -53,7 +53,16 @@ AC_ARG_ENABLE(clld,
   AC_HELP_STRING([--enable-clld],[enable building clld tool (default=yes)]),, enable_clld=yes)
 
 AC_ARG_ENABLE(libocl,
-  AC_HELP_STRING([--enable-libocl],[enable building libocl (default=no)]),, enable_libocl=no)
+  AC_HELP_STRING([--enable-libocl],[enable building libocl (default=no)]),
+  [
+    AC_CHECK_PROG(LLVM_EX,llvm-ex,llvm-ex)
+    if test $LLVM_EX; then
+      echo "found llvm-ex"
+    else  
+     AC_MSG_ERROR([Could not find llvm-ex, suggest cd ./tools/llvm-ex and follow the instructions carefully, then try to configure again.])
+    fi;
+  ], 
+  enable_libocl=no)
 
 AC_ARG_ENABLE(libocl-ncpu,
   AC_HELP_STRING([--enable-libocl-ncpu],[enable libocl ncpu (default=yes)]),, enable_libocl_ncpu=yes)
@@ -94,8 +103,14 @@ AC_ARG_WITH(amd-sdk,
   AC_HELP_STRING([--with-amd-sdk=DIR], [Use AMD SDK in DIR]),
   [
     if test x$withval == xno; then
+
+	if test -e /opt/AMDAPP; then
+		withval=/opt/AMDAPP
+	elif test -e /usr/local/atistream; then 
 		withval=/usr/local/atistream
 	 fi;
+
+	fi;
 
       if test -d $withval; then
          echo "found AMD SDK path"
@@ -122,7 +137,8 @@ AC_ARG_WITH(amd-sdk,
 	 DEFAULT_OPENCL_PLATFORM=AMD;
 
   ],
-  [OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=AMD; AMD_SDK=/usr/local/atistream])
+#  [OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=AMD; AMD_SDK=/usr/local/atistream])
+  [ if test -d /usr/local/atistream; then AMD_SDK=/usr/local/atistream; elif test -d /opt/AMDAPP; then AMD_SDK=/opt/AMDAPP; fi; if test -d $AMD_SDK; then OPENCL_LIB=$AMD_SDK/lib/x86_64; OPENCL_INC=$AMD_SDK/include; DEFAULT_OPENCL_PLATFORM=AMD; fi; ])
 
 AC_ARG_WITH(nvidia-sdk,
   AC_HELP_STRING([--with-nvidia-sdk=DIR], [Use Nvidia SDK in DIR]),
@@ -212,6 +228,8 @@ case $build_os in
 
 esac
 
+echo $OPENCL_INC
+echo $OPENCL_LIB
 
 AC_ARG_WITH(ati-sdk-21,
   AC_HELP_STRING([--with-ati-sdk-21=DIR], [Use ATI SDK v2.1 in DIR]),
@@ -259,6 +277,19 @@ if test $ENABLE_LIBOCL -eq 1; then
 #	fi;
 
 fi;
+
+
+AC_ARG_WITH(fortran,
+  AC_HELP_STRING([--with-fortran=PROG], [Use fortran compiler PROG]),
+  [
+    if test x$withval == xno; then
+        AC_CHECK_PROG(F90,gfortran44,gfortran44)
+    else
+    	F90=$withval
+    fi;
+    echo $F90
+  ],
+  []) 
 
 BASH=`which bash`
 

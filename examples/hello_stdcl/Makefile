@@ -2,6 +2,8 @@ NAME = hello_stdcl
 
 OPENCL_INC_PATH = /usr/local/atistream/include
 OPENCL_LIB_PATH = /usr/local/atistream/lib/x86_64
+#OPENCL_INC_PATH = /opt/AMDAPP/include
+#OPENCL_LIB_PATH = /opt/AMDAPP/lib/x86_64
 
 STDCL_INC_PATH = /usr/local/browndeer/include
 STDCL_LIB_PATH = /usr/local/browndeer/lib
@@ -22,7 +24,7 @@ $(NAME).x: $(NAME).o $(OBJS)
 	$(CC) $(CCFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) $(LIBS)
 
 fortran: 
-	$(F90) $(F90FLAGS) $(INCS) -o $(NAME).x $(NAME).f90 $(OBJS) $(LIBS)
+	$(F90) $(F90FLAGS) $(INCS) -o $(NAME)_f90.x $(NAME).f90 $(OBJS) $(LIBS)
 
 .SUFFIXES:
 .SUFFIXES: .c .o
