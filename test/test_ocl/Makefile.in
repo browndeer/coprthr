@@ -60,6 +60,7 @@ test: clean $(addsuffix .x,$(TESTS))
 	/usr/bin/time ./scripts/run_tests.sh $(PRG_TESTS)
 
 quicktest: clean $(addsuffix .x,$(TESTS))
+	./getndev --cpu
 	/usr/bin/time ./scripts/run_quick_tests.sh $(PRG_TESTS)
 
 
