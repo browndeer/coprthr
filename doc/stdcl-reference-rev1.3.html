@@ -177,7 +177,7 @@ style="font-family: Arial,Helvetica,sans-serif">A Simplified C Interface for
 OpenCL</span></span></h2>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;">revision
-1.2</p>
+1.3</p>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;">Copyright ©
 2009-2011 Brown Deer Technology, LLC</p>
@@ -269,7 +269,8 @@ style="font-family: Courier New,Courier,monospace">STDCL_VERSION_HEX</span></p>
     <dd><span style="font-family: Times New Roman,Times,serif"><span
       style="font-family: Courier New,Courier,monospace"><span
       style="font-family: Times New Roman,Times,serif"><span
-      style="font-family: Courier New,Courier,monospace">clfork()</span></span></span></span></dd>
+      style="font-family: Courier New,Courier,monospace">clfork(),
+      clforka()</span></span></span></span></dd>
   <dt>Synchronization</dt>
     <dd><span style="font-family: Courier New,Courier,monospace"><span
       style="font-family: Times New Roman,Times,serif"><code>clflush(),
@@ -322,7 +323,7 @@ succeeds is for the programmer to decide.</span></p>
 (API)</a></h2>
 
 <p>The STDCL interface provides support for <a href="#Default"><em>default
-contexts</em></a>, <a href="#Dynamic"><em>dynamic CL program loader</em></a>,
+contexts</em></a>, a <a href="#Dynamic"><em>dynamic CL program loader</em></a>,
 <a href="#Memory"><em>memory management</em></a>, <a href="#Kernel"><em>kernel
 execution</em></a>, and <em><a href="#Asynchrono">asynchronous
 operations</a></em>. In addition, <a href="#Environmen">environment
@@ -379,6 +380,12 @@ for a given platform supported by the OpenCL API.</span></p>
 
 <p style="margin-left:2em;">This call returns the number of devices in the CL
 context cp.</p>
+
+<p><strong><code>void stdcl_init();</code></strong></p>
+
+<p style="margin-left:2em;">This call should be made once prior to using the
+default contexts. This call is required for Windows only. Linux and FreeBSD
+will simply ignore the call.</p>
 
 <p></p>
 
@@ -581,22 +588,31 @@ style="font-family: Courier New,Courier,monospace">flags</span></strong> is 0
 the default behavior is to allocate memory attached to a specified CL context.
 </p>
 
-<p><strong><code>void* clglmalloc( CLCONTEXT* cp, cl_GLuint glbufobj, int
-flag);</code></strong></p>
+<p><strong><code>void* clglmalloc( CLCONTEXT* cp, cl_GLuint glbufobj, cl_GLenum
+target, cl_GLint miplevel, int flags);</code></strong></p>
 
 <p style="margin-left:2em;">This call allocates memory suitable for sharing
 between OpenCL co-processor devices within a CL context based on an existing
-OpenGL memory buffer <strong><code>glbufobj</code></strong>. The size of the
-allocation is implied by the OpenGL buffer size. The memory is not cleared. The
-last argument is used to pass flags to control the behavior of function. The
-flag <span
+OpenGL memory object <strong><code>glbufobj</code></strong>. The OpenGL memory
+object can be either a memory buffer, a 2D texture, a 3D texture or a render
+buffer. The additional argunts <span
+style="font-family: Courier New,Courier,monospace"><strong>target</strong></span>
+and <strong><span
+style="font-family: Courier New,Courier,monospace">miplevel</span></strong> are
+used for textures and ignored oterwise. The size of the allocation is implied
+by the OpenGL memory size. The memory is not cleared. The last argument
+<strong><span
+style="font-family: Courier New,Courier,monospace">flags</span></strong> is
+used to select the type of OpenGL memory object and control the behavior of
+function. This argument must include one and only one of the following:
+CL_MEM_GLBUF, CL_MEM_GLTEX2D, CL_MEM_GLTEX3D, CL_MEM_GLRBUF. The flag <span
 style="font-family: Courier New,Courier,monospace">CL_MEM_DETACHED</span> may
 be used to allocate memory that is not attached to a CL context in which case
 <strong style="font-family: Courier New,Courier,monospace">cp</strong> must be
 0. If <strong><span
 style="font-family: Courier New,Courier,monospace">flags</span></strong> is 0
-the default behavior is to allocate memory attached to a specified CL context.
-</p>
+the default behavior is to allocate memory attached to a specified CL
+context.</p>
 
 <p><strong><span style="font-family: Courier New,Courier,monospace">void
 clfree( void* ptr);</span></strong></p>
@@ -661,8 +677,8 @@ synchronize memory between the host platform and OpenCL co-processor devices.
 The memory specified by <strong><span
 style="font-family: Courier New,Courier,monospace">ptr</span></strong> must
 have been allocated by <span
-style="font-family: Courier New,Courier,monospace">clmalloc()</span> and
-associated with a CL context. </span></p>
+style="font-family: Courier New,Courier,monospace">clmalloc()</span> or an
+equivalent call and associated with a CL context. </span></p>
 
 <p style="text-align:justify;margin-left:2em"><span
 style="font-family: Times New Roman,Times,serif">The behavior of <span
@@ -710,6 +726,38 @@ style="font-family: Courier New,Courier,monospace">clmsync(stdgpu,0,ptr,CL_MEM_D
 
 <p style="margin-left:4em"><span
 style="font-family: Courier New,Courier,monospace">clmsync(stdgpu,0,ptr,CL_MEM_HOST|CL_EVENT_WAIT);</span></p>
+
+<p><strong><span style="font-family: Courier New,Courier,monospace">cl_event
+clmcopy( CLCONTEXT* cp, unsigned int devnum, void* src, void* dst, int
+flags);</span></strong></p>
+
+<p style="text-align:justify;margin-left:2em"><span
+style="font-family: Times New Roman,Times,serif">This call is used to copy
+memory on an OpenCL device. The memory specified by <strong><span
+style="font-family: Courier New,Courier,monospace">src</span></strong> and
+<strong><span
+style="font-family: Courier New,Courier,monospace">dst</span></strong> must
+have been allocated by <span
+style="font-family: Courier New,Courier,monospace">clmalloc()</span> or an
+equivalent call and associated with a CL context. </span></p>
+
+<p style="text-align:justify;margin-left:2em"><span
+style="font-family: Times New Roman,Times,serif">The behavior of <span
+style="font-family: Courier New,Courier,monospace">clmcopy()</span> is
+controlled by the <strong><span
+style="font-family: Courier New,Courier,monospace">flags</span></strong>
+argument. The flags <span
+style="font-family: Courier New,Courier,monospace">CL_EVENT_WAIT</span> and
+<span style="font-family: Courier New,Courier,monospace">CL_EVENT_NOWAIT</span>
+control the blocking behavior for the call. For a blocking call the flag <span
+style="font-family: Courier New,Courier,monospace">CL_EVENT_NORELEASE</span>
+may be specified to prevent the call from releasing OpenCL events created as a
+result of the call.</span><span
+style="font-family: Times New Roman,Times,serif">If the flag <span
+style="font-family: Courier New,Courier,monospace">CL_EVENT_NORELEASE</span> is
+specified, the programmer is responsible for releasing the returned event with
+the OpenCL call <span
+style="font-family: Courier New,Courier,monospace">clReleaseEvent()</span>.</span></p>
 
 <p><strong><code>cl_event clglmsync( CLCONTEXT* cp, unsigned int devnum, void*
 ptr, int flags);</code></strong></p>
@@ -814,18 +862,25 @@ style="font-family: Courier New,Courier,monospace">sizeb</span></strong> bytes
 will be allocated for use by the OpenCL kernel.</span></p>
 
 <p><strong style="font-family: Courier New,Courier,monospace">cl_event clfork(
-CLCONTEXT* cp, unsigned int devnum, cl_kernel krn, clndrange* ndr, int flags
+CLCONTEXT* cp, unsigned int devnum, cl_kernel krn, clndrange_t* ndr, int flags
 );</strong></p>
 
+<p><strong style="font-family: Courier New,Courier,monospace">cl_event clforka(
+CLCONTEXT* cp, unsigned int devnum, cl_kernel krn, clndrange_t* ndr, int
+flags</strong> [<strong style="font-family: Courier New,Courier,monospace">,
+arg0, ..., argN </strong>]<strong
+style="font-family: Courier New,Courier,monospace">);</strong></p>
+
 <p style="text-align:justify;margin-left:2em;"><span
-style="font-family: Times New Roman,Times,serif">This call is used to execute a
-kernel on the OpenCL co-processor device specified by <strong><span
-style="font-family: Courier New,Courier,monospace">devnum</span></strong>. The
-arguments for the kernel must be set prior to the call to <span
-style="font-family: Courier New,Courier,monospace">clfork()</span> using the
-<span style="font-family: Courier New,Courier,monospace">clarg_set*()</span>
-functions described above. The kernel is executed over an index-space of
-work-items defined by <strong><span
+style="font-family: Times New Roman,Times,serif">These calls are used to
+execute a kernel on the OpenCL device specified by <strong><span
+style="font-family: Courier New,Courier,monospace">devnum</span></strong>. In
+the case of clfork() the kernel arguments must be set prior to the call using
+the <span
+style="font-family: Courier New,Courier,monospace">clarg_set*()</span>
+functions described above. In the case of clforka() the kernel arguments may
+simply be added, in correct order, to the calls argument list. The kernel is
+executed over an index-space of work-items defined by <strong><span
 style="font-family: Courier New,Courier,monospace">ndr</span></strong>.</span></p>
 
 <p style="text-align:justify;margin-left:2em;"><span
@@ -853,7 +908,8 @@ the OpenCL call <span
 style="font-family: Courier New,Courier,monospace">clReleaseEvent()</span>.</span></p>
 
 <p style="margin-left:2em;">The following examples demonstrate typical uses of
-<span style="font-family: Courier New,Courier,monospace">clfork()</span>:</p>
+<span style="font-family: Courier New,Courier,monospace">clfork()</span> and
+<span style="font-family: Courier New,Courier,monospace">clforka()</span>:</p>
 
 <p style="margin-left:2em;">Blocking execution of a kernel on device number 0
 automatically releasing the associated event:</p>
@@ -868,6 +924,22 @@ style="font-family: Courier New,Courier,monospace">clfork( stdgpu, 0, my_krn,
 <p style="margin-left:4em"><span
 style="font-family: Courier New,Courier,monospace">clfork( stdgpu, 2, my_krn,
 &amp;ndr, CL_EVENT_NOWAIT);</span></p>
+
+<p style="margin-left:2em;">Blocking execution of a kernel on device number 0,
+setting three kernel arguments a, b, and c, and automatically releasing the
+associated event:</p>
+
+<p style="margin-left:4em"><span
+style="font-family: Courier New,Courier,monospace">clforka( stdgpu, 0, my_krn,
+&amp;ndr, CL_EVENT_WAIT, a, b, c );</span></p>
+
+<p style="margin-left:2em;">Non-blocking execution of a kernel on device number
+2, setting three kernel arguments a, b, and c, and automatically releasing the
+associated event:</p>
+
+<p style="margin-left:4em"><span
+style="font-family: Courier New,Courier,monospace">clforka( stdgpu, 2, my_krn,
+&amp;ndr, CL_EVENT_NOWAIT, a, b, c);</span></p>
 
 <p></p>
 
@@ -1014,6 +1086,8 @@ CPU:</span></p>
 
 int main()
 {
+   stdcl_init(); // requred for Windows only, Linux and FreeBSD will ignore this call
+
    int i;
 
    CLCONTEXT* cp = (stdgpu)? stdgpu : stdcpu;
@@ -1037,11 +1111,7 @@ int main()
    clmsync(cp,0,aa,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
    clmsync(cp,0,bb,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 
-   clarg_set_global(cp,k_addvec,0,aa);
-   clarg_set_global(cp,k_addvec,1,bb);
-   clarg_set_global(cp,k_addvec,2,cc);
-
-   clfork(cp,0,k_addvec,&amp;ndr,CL_EVENT_NOWAIT);
+   clforka(cp,0,k_addvec,&amp;ndr,CL_EVENT_NOWAIT, aa, bb, cc);
 
    clmsync(cp,0,cc,CL_MEM_HOST|CL_EVENT_NOWAIT);
 
@@ -1062,7 +1132,7 @@ int main()
 
 <p><span style="font-family: Times New Roman,Times,serif">The following example
 shows the use of STDCL for a simple program that adds two vectors on two
-GPU:</span></p>
+GPUs:</span></p>
 
 <div style="background-color:#e8e8e8;">
 <pre>/* example #2 */
@@ -1075,6 +1145,8 @@ GPU:</span></p>
 
 int main()
 {
+   stdcl_init(); // required for Windows only, Linux and FreeBSD will ignore this call
+
    int i,n;
 
    CLCONTEXT* cp = stdgpu;
@@ -1110,11 +1182,11 @@ int main()
    clmsync(cp,0,bb[0],CL_MEM_DEVICE|CL_EVENT_NOWAIT);
    clmsync(cp,1,bb[1],CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 
-   clarg_set_global(cp,k_addvec,0,aa[0]);
+   clarg_set_global(cp,k_addvec,0,aa[0]); 
    clarg_set_global(cp,k_addvec,1,bb[0]);
    clarg_set_global(cp,k_addvec,2,cc[0]);
 
-   clfork(cp,0,k_addvec,&amp;ndr,CL_EVENT_NOWAIT);
+   clfork(cp,0,k_addvec,&amp;ndr,CL_EVENT_NOWAIT); // clforka() could be used to elimiate the set-arg calls above
 
    clmsync(cp,0,cc[0],CL_MEM_HOST|CL_EVENT_NOWAIT);
 
@@ -1124,7 +1196,7 @@ int main()
    clarg_set_global(cp,k_addvec,1,bb[1]);
    clarg_set_global(cp,k_addvec,2,cc[1]);
 
-   clfork(cp,1,k_addvec,&amp;ndr,CL_EVENT_NOWAIT);
+   clfork(cp,1,k_addvec,&amp;ndr,CL_EVENT_NOWAIT); // clforka() could be used to elimiate the set-arg calls above
 
    clmsync(cp,1,cc[1],CL_MEM_HOST|CL_EVENT_NOWAIT);
 
@@ -1149,896 +1221,6 @@ int main()
 </div>
 
 <p></p>
-<hr />
-
-<h2><a name="Manual" id="Manual">Manual Pages</a></h2>
-
-<table border="1">
-  <col />
-  <col />
-  <tbody>
-    <tr>
-      <td>overview</td>
-      <td><a href="#STDLC">stdcl(3)</a></td>
-    </tr>
-    <tr>
-      <td>dynamic loader</td>
-      <td><a href="#CLOPEN">clopen(3)</a>, <a href="#CLOPEN">clsym(3)</a>, <a
-        href="#CLOPEN">clclose(3)</a></td>
-    </tr>
-    <tr>
-      <td>memory management</td>
-      <td><a href="#CLMALLOC">clmalloc(3)</a>, <a
-        href="#CLMALLOC">clfree(3)</a>, <a href="#CLMALLOC">clsizeofmem(3)</a>,
-        <a href="#CLMSYNC">clmsync(3)</a>, <a
-        href="#CLMATTACH">clmattach(3)</a>, <a
-        href="#CLMATTACH">clmdetach(3)</a></td>
-    </tr>
-    <tr>
-      <td>kernel management</td>
-      <td><a href="#CLNDRANGE_INIT">clndrange_init1d(3)</a>, <a
-        href="#CLNDRANGE_INIT">clndrange_init2d(3)</a>, <a
-        href="#CLNDRANGE_INIT">clndrange_init3d(3)</a>, 
-
-        <p><a href="#CLARG_SET">clarg_set(3)</a>, <a
-        href="#CLARG_SET">clarg_set_global(3)</a>, <a
-        href="#CLARG_SET">clarg_set_local(3)</a>, <a href="#CLFORK"></a></p>
-
-        <p><a href="#CLFORK">clfork(3)</a></p>
-      </td>
-    </tr>
-    <tr>
-      <td>asynchronous operations</td>
-      <td><a href="#CLFLUSH">clflush(3)</a>, <a
-      href="#CLWAIT">clwait(3)</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<p></p>
-<hr />
-
-<div>
-<pre><a name="STDLC" id="STDLC">STDLC</a>(3)              Standard Compute Layer (CL) Manual              STDLC(3)
-
-
-
-NAME
-       stdcl - standard compute layer (CL) library functions
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       CLCONTEXT* stddev;
-       CLCONTEXT* stdcpu;
-       CLCONTEXT* stdgpu;
-       CLCONTEXT* stdrpu;
-
-       Link with -lstdcl.
-
-DESCRIPTION
-       The  standard  compute layer (CL) library (libstdcl) provides a simpli-
-       fied interface to OpenCL designed to support the most typical use-cases
-       in  a  style  inspired by familiar and traditional UNIX APIs for C pro-
-       gramming.
-
-       libstdcl provides managed OpenCL contexts  identified  with  a  context
-       pointer  that is generally provided as an argument to library functions
-       that transparently manage OpenCL constructs such as contexts,  devices,
-       memory, kernels and events in a manner that simplifies their use.
-
-       Default Contexts
-
-       libstdcl  provides  several default contexts similar to the default I/O
-       streams provided by stdio.  the following  default  contexts  are  pro-
-       vided:
-
-       stddev All devices for a given platform supported by the OpenCL API.
-
-       stdcpu All  multi-core CPU processors for a given platform supported by
-              the OpenCL API.
-
-       stdgpu All many-core GPU processors for a given platform  supported  by
-              the OpenCL API.
-
-       stdrpu All  reconfigurable processors for a given platform supported by
-              the OpenCL API.
-
-       Dynamic CL Program Loader
-
-       libstdcl provides a convenient interface  for  dynamically  loading  CL
-       programs  and  accessing  CL  kernels.   Using the tool clld CL program
-       source and binary files can be embedded  within  special  ELF  sections
-       linked  against  other  object files on the host platform to generate a
-       single executable.  The set of functions clopen(),  clsym(),  clclose()
-       provide  a  convenient interface capable of dynamically loading CL pro-
-       grams embedded within the executable as well as from an external  file.
-       CL prorgams.
-
-       Memory Management
-
-       libstdcl provides functions for allocating and managing memory that may
-       be shared between the host and CL co-processor devices.  Memory may  be
-       allocated  with  clmalloc() and used transparently as the global memory
-       for kernel execution on a CL device.   The  programmer  uses  a  single
-       pointer  representing  the allocated memory which may be re-attached to
-       various CL contexts using clmattach() and clmdetach().  Memory  consis-
-       tency can be maintained using the clmsync() function which synchronizes
-       memory between host and CL co-processor device.
-
-       Kernel Execution
-
-       libstdcl provides simplified interfaces for setting up the  index-space
-       and arguments for kernel execution.  Executing a kernel on a particular
-       CL co-processor device is supported using clfork() which allows  block-
-       ing and non-blocking execution behavior.
-
-       Management of Asynchronous Operations
-
-       libstdcl  provides  event  management per device within each context to
-       simplify the management of asynchronous multi-device  operations.   The
-       function clwait() can be used to block on selected events within one of
-       several per device event lists managed transparently.
-
-EXAMPLE
-       The following example shows a very simple program for  calculating  the
-       outer product of two vectors using a GPU:
-
-           #include &lt;stdcl.h&gt;
-
-           int main() {
-
-                int n = 1024;
-
-                cl_float* aa = (cl_float*)clmalloc(stdgpu,n,0);
-                cl_float* bb = (cl_float*)clmalloc(stdgpu,n,0);
-                cl_float* cc = (cl_float*)clmalloc(stdgpu,n,0);
-
-                /* initialize aa and bb */
-
-                void* h = clopen(stdgpu,"outer_prod_kern.cl",0);
-                cl_kernel krn = clsym(stdgpu,h,"outer_prod_kern");
-
-                clndrange_t ndr = clndrange_init1d(0,n,4);
-
-                clarg_set(stdgpu,krn,0,n);
-                clarg_set_global(stdgpu,krn,1,aa);
-                clarg_set_global(stdgpu,krn,2,bb);
-                clarg_set_global(stdgpu,krn,3,cc);
-
-                clfork(stdgpu,0,krn,ndr,CL_EVENT_NOWAIT);
-
-                clmsync(stdgpu,0,cc,CL_EVENT_NOWAIT);
-
-                clwait(stdgpu,0,CL_ALL_EVENTS|CL_EVENT_RELEASE);
-
-                clclose(h);
-
-                clfree(aa);
-                clfree(bb);
-                clfree(cc);
-
-           }
-
-ENVIRONMENT
-       Executables  that  use the libstdcl library are affected by environment
-       variables that control the behavior of the API.  The environment  vari-
-       ables STDDEV, STDCPU, STDGPU, STDRPU may be set to 0 or 1 to disable or
-       enable the context, respectively.  Additional environment variables are
-       used to control the behavior of the context.
-
-       The  environment  variables STDDEV_PLATFORM_NAME, STDCPU_PLATFORM_NAME,
-       STDGPU_PLATFORM_NAME, STDRPU_PLATFORM_NAME can be used to set the  name
-       of the preffered OpenCL platform to use for the context.
-
-       As  an example, the following would force the stdgpu context to use the
-       AMD APP platform:
-
-              setenv STDGPU_PLATFORM_NAME AMD
-
-
-       The    environment    varialble    STDDEV_MAX_NDEV,    STDCPU_MAX_NDEV,
-       STDGPU_MAX_NDEV,  STDRPU_MAX_NDEV can be used to set the maximum number
-       of devices provided by the respective context regardless of the  number
-       of devices available.
-
-       The   environment   variables  STDDEV_LOCK,  STDCPU_LOCK,  STDGPU_LOCK,
-       STDRPU_LOCK can be used to setup exclusive locking  of  devices  across
-       processes  with  matching lock values.  In combination with setting the
-       maximum number of devices in the context,  the  lock  can  be  used  to
-       achieve efficient device management between related processes.
-
-       As  an  example, the following would allow the individual MPI processes
-       on a given node to have exclusive access to a single GPU provided  that
-       the  number  of  MPI  processes  per  node did not exceed the number of
-       available GPUs:
-
-          setenv STDGPU_MAX_NDEV 1; setenv STDGPU_LOCK $(MPI_JOB_ID)
-
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU  Lesser  General Public License version 3.  There is NO WARRANTY to
-       the extent permitted by law.
-
-SEE ALSO
-       clld(1),  clopen(3),  clsym(3),  clclose(3),  clmalloc(3),   clmsync(),
-       clfork(3), clwait(3)
-
-
-
-     "libstdcl-1.2"                2011-6-13                          STDLC(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLOPEN" id="CLOPEN">CLOPEN</a>(3)             Standard Compute Layer (CL) Manual             CLOPEN(3)
-
-
-
-NAME
-       clopen,  clsym,  clclose,  clerror,  claddr  - programming interface to
-       dynamic CL loader
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       void* clopen( CLCONTEXT* cp, const char* filename, int flags);
-
-       void* clbuild( CLCONTEXT* cp, void* handle, char* uopts, int flags);
-
-       cl_kernel clsym( CLCONTEXT* cp, void* handle, const char*  symbol,  int
-       flags);
-
-       int claddr( CLCONTEXT* cp, void* addr, CL_info* info);
-
-       char* clerror( void );
-
-       int clclose( CLCONTEXT* cp, void* handle);
-
-       Link with -lstdcl.
-
-DESCRIPTION
-       The  functions clopen(), clsym(), clclose(), and clerror() implement an
-       interface for dynamically loading compute layer (CL) kernels.
-
-       The function clopen() loads the CL source or binary program file  named
-       by  the  NULL-terminated  string  filename and returns an opaque handle
-       that may be used as a reference in subsequent calls.  If filename is  a
-       NULL pointer then a handle for the main program executable is returned.
-       If the flag CLLD_NOBUILD is used then the CL source will  not  be  com-
-       piled.   This  may  be  used  to defer the compilation and build to the
-       clbuild() call which can accept compiler options.
-
-       The function clbuild() is used for defered compilation and allows  com-
-       piler  options to be passed.  The combination of clopen() with the flag
-       CLLD_NOBUILD and clbuild() is equivalent to a standard clopen() call.
-
-       The funcion clsym() takes a handle to a CL source or binary program and
-       a  NULL-terminated symbol name and returns the associated CL kernel.  A
-       CL context pointer must be specififed to identify  the  appropriate  CL
-       kernel  to  return.  If handle is NULL then all CL programs loaded into
-       the specified CL context are searched.
-
-       The function clclose() decrements the reference count on the associated
-       handle.   If  the  reference count drops to zero then the CL program is
-       unloaded.  The function clclose() returns the reference count  on  suc-
-       cess and -1 on error.
-
-       The  function  clerror() returns a human readable string describing the
-       most recent error that has occured as a result of a call to any of  the
-       functions  clopen(),  clsym(),  clclose()  since the last call to cler-
-       ror().  If no error has occured NULL is returned.
-
-       The function claddr() takes as an argument a CL  kernel  and  tries  to
-       resolve the name and file where it is located.  Information is returned
-       in the cl_kernel_info structure:
-
-           struct cl_kernel_info {
-                const char* cli_fname;
-                CLCONTEXT* cli_cp;
-                unsigned int cli_devnum;
-                const char* cli_kname;
-           };
-
-       If no matching kernel is found the fields are set  to  NULL.   claddr()
-       returns zero on error and non-zero on success.
-
-EXAMPLE
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clld(1), clload(3), stdcl(3)
-
-
-
-libstdcl-1.2                       2011-6-13                         CLOPEN(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLMALLOC" id="CLMALLOC">CLMALLOC</a>(3)           Standard Compute Layer (CL) Manual           CLMALLOC(3)
-
-
-
-NAME
-       clmalloc,  clfree,  clsizeofmem - Allocate and free dynamic memory with
-       CL bindings for use with co-processor devices
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       void* clmalloc( CLCONTEXT* cp, size_t size, int flags);
-
-       void* clmrealloc( CLCONTEXT* cp, void* ptr, size_t size, int flags);
-
-       void clfree( void* ptr);
-
-       void clmctl( void* ptr);
-
-       int clmctl( void* ptr, int op, ... );
-
-       int clmctl_va( void* ptr, int op, va_list ap);
-
-       size_t clsizeofmem(void* ptr);
-
-       Link with -lstdcl.
-
-DESCRIPTION
-       clmalloc() allocates memory suitable for sharing between compute  layer
-       (CL)  co-processor  devices  within a CL context.  clmalloc() allocates
-       size bytes and returns a pointer to the allocated memory.   The  memory
-       is not cleared.  If size is 0, then clmalloc() returns a unique pointer
-       value that can later be safely passed to clfree().  If called with  the
-       flag  CL_MEM_DETACHED  the  allocation will no be attached to a CL con-
-       text.
-
-       clmrealloc() re-allocates memory suitable for sharing  between  compute
-       layer  (CL)  co-processor  devices within a CL context.  If ptr is 0 or
-       NULL clmalloc() is called.  If size is 0,  then  clmalloc()  returns  a
-       unique pointer value that can later be safely passed to clfree().
-
-       clfree() frees the memory space pointed to by ptr, which must have been
-       returned  by  a  previous  call  to  clmalloc().   Otherwise,   or   if
-       clfree(ptr)  has already been called before, the behavior is undefined.
-       It is considered an error to call clfree(ptr) if ptr is 0 or NULL.
-
-       clmctl() and clmctl_va() are used to control the state of the allocated
-       memory.   The  only  distinction  is that clmctl_va() accepts a va_list
-       directly.
-
-       clsizeofmem() returns the size of the allocated memory associated  with
-       ptr.   If  ptr  does not reference memory allocated by a call to clmal-
-       loc(), and for which clfree() has not  been  called,  the  behavior  is
-       undefined.
-
-RETURN VALUE
-       If  successful  clmalloc(3)  returns  a pointer to the allocated memory
-       that is suitably aligned and suitable for sharing with CL  co-processor
-       devices.  On error, returns NULL.
-
-       clfree() returns no value.
-
-       clsizeofmem()  returns  the  size  in bytes of the memory pointed to by
-       ptr.
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clmattach(3), clmdetach(3), clmsync(3), stdcl(3), malloc(3)
-
-
-
-libstdcl-1.2                       2011-6-13                       CLMALLOC(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLMATTACH" id="CLMATTACH">CLMATTACH</a>(3)          Standard Compute Layer (CL) Manual          CLMATTACH(3)
-
-
-
-NAME
-       clmattach, clmdetach - Attach and detach memory from a CL context
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       int clmattach( CLCONTEXT* cp, void* ptr );
-
-       int clmdetach( void* ptr );
-
-       Link with -lstdcl.
-
-DESCRIPTION
-       clmattach()  is  used to attach memory to a compute layer (CL) context.
-       The memory pointed to by ptr must  be  allocated  with  clmalloc()  and
-       suitable  for sharing between the host and CL co-processor devices.  In
-       order to change the  attachment  of  memory  from  one  CL  context  to
-       another,  the  memory  must  first be unattached using a call to clmde-
-       tach().  It is an error to pass  clmattach()  memory  that  is  already
-       attached to a CL context.
-
-       clmdetach()  is  used  to  detach memory from a CL context.  The memory
-       pointed to by ptr must be allocated with clmalloc()  and  suitable  for
-       sharing between the host and CL co-processor devices.
-
-       If ptr does not point to memory allocated by clmalloc() the behavior of
-       clmattach() and clmdetach() is undefined.
-
-RETURN VALUE
-       Both clmattach() and clmdetach() return 0 on success.  On error, -1  is
-       returned and errno is set appropriately.
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clmalloc(3), clfree(3), clmsync(3), malloc(3), stdcl(3)
-
-
-
-libstdcl-1.2                       2011-6-13                      CLMATTACH(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLMSYNC" id="CLMSYNC">CLMSYNC</a>(3)            Standard Compute Layer (CL) Manual            CLMSYNC(3)
-
-
-
-NAME
-       clmsync - Synchronize memory between host and co-processor device
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       cl_event  clmsync(  CONTEXT*  cp,  unsigned  int devnum, void* ptr, int
-       flags);
-
-       Link with -lstdcl.
-
-DESCRIPTION
-       clmsync() is used to synchronize memory between the host and a  compute
-       layer (CL) co-processor device.  The memory pointed to by ptr must have
-       been created using a call to clmalloc() and associated with a  CL  con-
-       text.
-
-       The  behavior  of  clmsync()  is controlled by the flags argument which
-       must be set with either CL_MEM_HOST or CL_MEM_DEVICE.  These flags  are
-       mutually exclusive and it is an error to set both or none.  The follow-
-       ing flags may be used:
-
-       CL_MEM_HOST
-              clmsync() will sync the memory on the host.
-
-       CL_MEM_DEVICE
-              clmsync() will sync the memory on the device.
-
-       CL_EVENT_WAIT
-              clmsync() will block until the operation has completed.
-
-       CL_EVENT_NOWAIT
-              clmsync() will return immediately.  The programmer  must  ensure
-              that the operation has completed using clwait() or clwaitev().
-
-       CL_EVENT_NORELEASE
-              Used  with  CL_EVENT_WAIT to prevent clfork() from releasing the
-              CL event generated by the operation.  If this flag is  used  the
-              programmer is responsible for releasing the returned event using
-              clReleaseEvent().  This flag has no effect when  CL_EVENT_NOWAIT
-              is used.  CL_EVENT_RELEASE This flag is deprecated and should no
-              longer be used.
-
-RETURN VALUE
-       On error clmsync() will return (cl_event)(-1) and errno is  set  appro-
-       priately.
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clwait(3), clwaitev(3), clmalloc(3), clfree(3), stdcl(3)
-
-
-
-libstdcl-1.2                       2011-6-13                        CLMSYNC(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLNDRANGE_1" id="CLNDRANGE_1">CLNDRANGE_INIT</a>(3)     Standard Compute Layer (CL) Manual     CLNDRANGE_INIT(3)
-
-
-
-NAME
-       clndrange_init1d,  clndrange_init2d,  clndrange_init3d - Initialize the
-       index-space (NDRange) for the execution of a CL kernel
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       clndrange_t clndrange_init1d( gtoff0,gt0,lt0);
-
-       clndrange_t clndrange_init2d( gtoff0,gt0,lt0, gtoff1,gt1,lt1);
-
-       clndrange_t    clndrange_init3d(    gtoff0,gt0,lt0,     gtoff1,gt1,lt1,
-       gtoff2,gt2,lt2);
-
-DESCRIPTION
-       clndrange_init()  family  of macros are used to initialize an object of
-       type clndrange_t that defines the index-space for the execution of a CL
-       kernel.  The values of gtoffn, gtn, ltn define the global index offset,
-       global index range and local index range, respectively,  for  dimension
-       n.   The  index-space defines the work-group and work-item partitioning
-       for the kernel execution.
-
-EXAMPLES
-       The initialization of a 1-D index-space of  16  work-items  with  work-
-       group size of 2 and no global offset:
-
-               clndrange_t ndr = clndrange_init1d( 0,16,2 );
-
-       The  initialization  of  a 2-D index-space of 64 by 128 work-items with
-       work-group size of 2 by 4 with a global work-item offset of 32,64:
-
-               clndrange_t ndr = clndrange_init1d( 32,64,2, 64,128,4 );
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clndrange_set(3), clfork(3), stdcl(3)
-
-
-
-libstdcl-1.2                       2011-6-13                 CLNDRANGE_INIT(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLNDRANGE_" id="CLNDRANGE_">CLNDRANGE_SET</a>(3)      Standard Compute Layer (CL) Manual      CLNDRANGE_SET(3)
-
-
-
-NAME
-       clndrange_set1d, clndrange_set2d, clndrange_set3d - Set the index-space
-       (NDRange) for the execution of a CL kernel
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       clndrange_set1d( clndrange_t ndr, gtoff0,gt0,lt0);
-
-       clndrange_set2d( clndrange_t ndr, gtoff0,gt0,lt0, gtoff1,gt1,lt1);
-
-       clndrange_set3d(  clndrange_t  ndr,   gtoff0,gt0,lt0,   gtoff1,gt1,lt1,
-       gtoff2,gt2,lt2);
-
-DESCRIPTION
-       clndrange_set()  family  of  macros  are  used to set an object of type
-       clndrange_t to define the index-space for the execution of a CL kernel.
-       The  values  of gtoffn, gtn, ltn define the global index offset, global
-       index range and local index range, respectively, for dimension n.   The
-       index-space  defines  the work-group and work-item partitioning for the
-       kernel execution.
-
-EXAMPLES
-       Setting a 1-D index-space of 16 work-items with work-group  size  of  2
-       and no global offset:
-
-               clndrange_t ndr;
-               ...
-               clndrange_set1d( ndr, 0,16,2 );
-
-       Setting  a 2-D index-space of 64 by 128 work-items with work-group size
-       of 2 by 4 with a global work-item offset of 32,64:
-
-               clndrange_t ndr;
-               ...
-               clndrange_set2d( ndr, 32,64,2, 64,128,4 );
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clndrange_init(3), clfork(3), stdcl(3)
-
-
-
-libstdcl-1.2                       2011-6-13                  CLNDRANGE_SET(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLARG_SET" id="CLARG_SET">CLARG_SET</a>(3)          Standard Compute Layer (CL) Manual          CLARG_SET(3)
-
-
-
-NAME
-       clarg_set, clarg_set_global, clarg_set_local - Set CL kernel arguments
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       void  clarg_set(  CLCONTEXT* cp, cl_kernel krn, unsigned int argnum, Tn
-       arg);
-
-       void clarg_set_global(  CLCONTEXT*  cp,  cl_kernel  krn,  unsigned  int
-       argnum, void* ptr);
-
-       void  clarg_set_local(  CLCONTEXT*  cp,  cl_kernel  krn,  unsigned  int
-       argnum, size_t sizeb);
-
-DESCRIPTION
-       clarg_set(), clarg_set_global() and clarg_set_local() are used  to  set
-       the argnum argument of the CL kernel krn prior to kernel execution.
-
-       clarg_set()  is  used  for  setting arguments of intrinsic type such as
-       cl_int, cl_float or cl_float4, etc.  For  clarg_set()  Tn  can  be  any
-       valid scalar or vector type.
-
-       clarg_set_global  is  used  for setting arguments of pointers to global
-       memory where ptr points to memory that was allocated using  a  call  to
-       clmalloc() and attached to the CL context of the target kernel.
-
-       clarg_set_local()  is  used  for setting arguments of pointers to local
-       memory where sizeb indicates the size in bytes of the local memory that
-       is to be allocated.
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clfork(3), clsym(3), clmalloc(3), stdcl(3)
-
-
-
-libstdcl-1.2                       2011-6-13                      CLARG_SET(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLFORK" id="CLFORK">CLFORK</a>(3)             Standard Compute Layer (CL) Manual             CLFORK(3)
-
-
-
-NAME
-       clfork - Execute a CL kernel
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       cl_event  clfork(  CLCONTEXT*  cp,  unsigned int devnum, cl_kernel krn,
-       clndrange_t* ndr, int flags);
-
-       Link with -lstdcl.
-
-DESCRIPTION
-       clfork() is used to execute a CL kernel on a  specified  compute  layer
-       (CL)  co-processor  device.   The  arguments for the kernel must be set
-       prior to the call to clfork() using the  clarg_set*()  functions.   The
-       kernel is executed over an index-space of work-items defined by ndr.
-
-       The behavior of clfork() can be controlled using the following flags:
-
-       CL_EVENT_WAIT
-              clfork() will block until the operation has completed.
-
-       CL_EVENT_NOWAIT
-              clfork()  will  return  immediately.  The programmer must ensure
-              that the operation has completed using clwait() or clwaitev().
-
-       CL_EVENT_NORELEASE
-              Used with CL_EVENT_WAIT to prevent clfork() from  releasing  the
-              CL  event  generated by the operation.  If this flag is used the
-              programmer is responsible for releasing the returned event using
-              clReleaseEvent().   This flag has no effect when CL_EVENT_NOWAIT
-              is used.  CL_EVENT_RELEASE This flag is deprecated and should no
-              longer be used.
-
-RETURN VALUE
-       On error clfork() will return (cl_event)(-1) and errno is set appropri-
-       ately.
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clarg_set(3),    clndrange_init(3),    clndrange_set(3),     clwait(3),
-       clwaitev(3), stdcl(3)
-
-
-
-libstdcl-1.2                       2011-6-13                         CLFORK(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLFLUSH" id="CLFLUSH">CLFLUSH</a>(3)            Standard Compute Layer (CL) Manual            CLFLUSH(3)
-
-
-
-NAME
-       clflush - Flush the CL command queue
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       int clflush( CLCONTEXT* cp, cl_uint devnum, int flags);
-
-       Link with -lstdcl.
-
-DESCRIPTION
-       clflush()  is  used to flush the OpenCL command queue for device number
-       devnum within a CL context.  For certain OpenCL implementations this is
-       necessary to initiate operations to be executed asychronously.
-
-       The flags argument is reserved for future use and presently ignored.
-
-RETURN VALUE
-       On  error  clflush() will return (cl_event)(-1) and errno is set appro-
-       priately.
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2010-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clfork(3), clmsync(3), clwait(3), stdcl(3)
-
-
-
-libstdcl-1.2                       2011-6-13                        CLFLUSH(3)</pre>
-</div>
-<hr />
-
-<div>
-<pre><a name="CLWAIT" id="CLWAIT">CLWAIT</a>(3)             Standard Compute Layer (CL) Manual             CLWAIT(3)
-
-
-
-NAME
-       clwait - Block on one or more CL events
-
-SYNOPSIS
-       #include &lt;stdcl.h&gt;
-
-       cl_event clwait( CLCONTEXT* cp, cl_uint devnum, int flags);
-
-       Link with -lstdcl.
-
-DESCRIPTION
-       clwait()  is used to block on the completion of one or more outstanding
-       events for device number devnum within  a  CL  context.   The  type  of
-       events are specificed by selecting one or more event lists as described
-       below.
-
-       One or more event lists may be selected using a combination of the fol-
-       lowing flags:
-
-       CL_KERNEL_EVENT
-              Block on events in the ordered kernel event list.
-
-       CL_MEM_EVENT
-              Block on events in the ordered memory event list.
-
-       Note that if both kernel and memory event lists are specified, the ker-
-       nel event list has first priority.  Specifically, clwait()  will  first
-       block  on  all  outstanding kernel events and subsequently block on all
-       outstanding memory events.
-
-       The bahavior of clwait() can be controlled using the following flags:
-
-       CL_EVENT_NORELEASE
-              Used with CL_EVENT_WAIT to prevent clfork() from  releasing  the
-              CL  event  generated by the operation.  If this flag is used the
-              programmer is responsible for releasing the returned event using
-              clReleaseEvent().   This flag has no effect when CL_EVENT_NOWAIT
-              is used.  CL_EVENT_RELEASE This flag is deprecated and should no
-              longer be used.
-
-RETURN VALUE
-       On error clwait() will return (cl_event)(-1) and errno is set appropri-
-       ately.
-
-AUTHOR
-       Written by David Richie.
-
-REPORTING BUGS
-       Report bugs to &lt;support@browndeertechnology.com&gt;
-
-COPYRIGHT
-       Copyright (C) 2009-2011 Brown Deer Technology, LLC.  Licensed under the
-       GNU Lesser General Public License version 3 (LGPLv3).  There is NO WAR-
-       RANTY to the extent permitted by law.
-
-SEE ALSO
-       clfork(3), clmsync(3), clwaitev(3), stdcl(3)
-
-
-
-libstdcl-1.2                       2011-6-13                         CLWAIT(3)</pre>
-</div>
 <hr />
 
 <p></p>
