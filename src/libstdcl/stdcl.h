@@ -48,6 +48,7 @@
 #include "clmalloc.h"
 #include "clfcn.h"
 #include "clarg.h"
+#include "clforka.h"
 
 
 typedef struct clndrange_struct clndrange_t;

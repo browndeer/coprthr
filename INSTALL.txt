@@ -1,4 +1,4 @@
-***** current branch working toward v1.2 (middletown) release *****
+***** current branch working toward v1.3 (lakeside) release *****
 
 Installation:
 

@@ -1,6 +1,6 @@
 /* clvector.h
  *
- * Copyright (c) 2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2010-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -49,6 +49,13 @@
 template<class T>
 class Expression;
 
+/* address the difference in implementations -DAR */
+#ifdef _WIN64
+#define _clvector_ptr (this->_Myfirst)
+#else
+#define _clvector_ptr (this->_M_impl._M_start)
+#endif
+
 template < typename T, typename A = clmalloc_allocator<T> >
 class clvector : public std::vector< T, clmalloc_allocator<T> >
 {
@@ -67,27 +74,18 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 			: std::vector< T, clmalloc_allocator<T> >( first, last ) {}
 
 		void clmattach( CONTEXT* cp )
-		{ 
-			if (this->_M_impl._M_start)
-				::clmattach(cp, (void*)this->_M_impl._M_start); 
-		}
+		{ if (_clvector_ptr) ::clmattach(cp, (void*)_clvector_ptr); }
 		
 		void clmdetach()
-		{ 
-			if (this->_M_impl._M_start)
-				::clmdetach((void*)this->_M_impl._M_start); 
-		}
+		{ if (_clvector_ptr) ::clmdetach((void*)_clvector_ptr); }
 	
 		void clmsync( CONTEXT* cp, unsigned int devnum, int flags = 0 )
-		{ 
-			if (this->_M_impl._M_start)
-				::clmsync(cp, devnum, (void*)this->_M_impl._M_start, flags); 
-		}
+		{ if (_clvector_ptr) ::clmsync(cp, devnum, (void*)_clvector_ptr, flags); }
 	
 		void clarg_set_global( CONTEXT* cp, cl_kernel krn, unsigned int argnum )
 		{ 
-			if (this->_M_impl._M_start) 
-				::clarg_set_global(cp, krn, argnum,(void*)this->_M_impl._M_start); 
+			if (_clvector_ptr) 
+				::clarg_set_global(cp, krn, argnum,(void*)_clvector_ptr); 
 		}
 
 
@@ -98,7 +96,6 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 };
 
 #ifndef _WIN64
-//#include "Eval.h"
 #include "CLETE/clvector_CLETE.h"
 #endif
 

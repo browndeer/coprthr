@@ -2,8 +2,14 @@
 *.x
 *.so
 *~
+*.sdf
+config.status
+config.log
 test/test_*.c
 test/test_*.cl
 iltest/
 gputest/
 tools/optamdil/
+ipch/
+msvs2010/*/Debug/
+msvs2010/*/Release/

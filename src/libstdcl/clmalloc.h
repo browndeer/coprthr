@@ -40,22 +40,22 @@
 
 #define CL_MEM_WRITE		0x200
 
-//#define CL_MEM_READ				0x001
-//#define CL_MEM_WRITE				0x002
-//#define CL_MEM_READ_WRITE		0x003
-#define CL_MEM_RO					0x000001
-#define CL_MEM_WO					0x000002
-#define CL_MEM_RW					0x000003
-#define CL_MEM_HOST				0x000100
-#define CL_MEM_DEVICE			0x000200
-#define CL_MEM_NOCOPY			0x000400
-#define CL_MEM_DETACHED			0x001000
-#define CL_MEM_NOFORCE			0x002000
-#define CL_MEM_IMAGE2D			0x010000
+#define CL_MEM_RO					0x00000001
+#define CL_MEM_WO					0x00000002
+#define CL_MEM_RW					0x00000003
+#define CL_MEM_HOST				0x00000100
+#define CL_MEM_DEVICE			0x00000200
+#define CL_MEM_NOCOPY			0x00000400
+#define CL_MEM_DETACHED			0x00001000
+#define CL_MEM_NOFORCE			0x00002000
+#define CL_MEM_IMAGE2D			0x00010000
 
 #ifdef ENABLE_CLGL
-#define CL_MEM_CLBUF				0x100000
-#define CL_MEM_GLBUF				0x200000
+#define CL_MEM_CLBUF				0x00100000
+#define CL_MEM_GLBUF				0x00200000
+#define CL_MEM_GLTEX2D			0x02000000
+#define CL_MEM_GLTEX3D			0x04000000
+#define CL_MEM_GLRBUF			0x08000000
 #endif
 
 #define CL_MCTL_GET_STATUS		1
@@ -103,7 +103,9 @@ size_t clsizeofmem(void* ptr)
 
 
 LIBSTDCL_API void* clmalloc(CONTEXT* cp, size_t size, int flag);
-LIBSTDCL_API void clfree( void* ptr );
+//LIBSTDCL_API void* clmalloc_img(CONTEXT* cp, size_t size, int flag);
+//LIBSTDCL_API void clfree( void* ptr );
+LIBSTDCL_API int clfree( void* ptr );
 LIBSTDCL_API int clmattach( CONTEXT* cp, void* ptr );
 LIBSTDCL_API int clmdetach( void* ptr );
 //int clmctl( void* ptr, int op, int arg );
@@ -114,14 +116,18 @@ LIBSTDCL_API void* clmrealloc(CONTEXT* cp, void* ptr, size_t size, int flag);
 
 LIBSTDCL_API cl_event clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 
+LIBSTDCL_API cl_event clmcopy(CONTEXT* cp, unsigned int devnum, 
+	void* src, void* dst, int flags);
+
 LIBSTDCL_API void* clmemptr( CONTEXT* CP, void* ptr );
 
 #ifdef ENABLE_CLGL
-void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
+//void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
+void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, cl_GLenum target, 
+	cl_GLint miplevel, int flags );
 cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
 #endif
 
-#ifndef _WIN64
 static 
 __inline__
 int clmctl( void* ptr, int op, ... )
@@ -132,7 +138,6 @@ int clmctl( void* ptr, int op, ... )
 	va_end(ap); 
 	return(rc);
 }
-#endif
 
 static __inline int
 __test_memd_magic(void* ptr) 

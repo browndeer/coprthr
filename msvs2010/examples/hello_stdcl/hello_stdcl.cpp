@@ -6,6 +6,8 @@
 
 int main()
 {
+	stdcl_init(); // this is only necessary for Windows
+
    cl_uint n = 64;
 
 #if(1)
@@ -65,5 +67,7 @@ int main()
    clclose(cp,clh);
 
 #endif
+
+	system("pause");
 
 }

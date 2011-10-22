@@ -274,7 +274,7 @@ PACKAGE_STRING='coprthr 1.1'
 PACKAGE_BUGREPORT='support@browndeertechnology.com'
 
 ac_default_prefix=/usr/local/browndeer
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_CLLD ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK ATI_SDK_21 LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH F90 LLVM_EX ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_CLLD ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK ATI_SDK_21 LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -828,6 +828,7 @@ Optional Packages:
   --with-nvidia-sdk=DIR   Use Nvidia SDK in DIR
   --with-intel-sdk=DIR    Use Intel SDK in DIR
   --with-ati-sdk-21=DIR   Use ATI SDK v2.1 in DIR
+  --with-fortran=PROG     Use fortran compiler PROG
 
 Some influential environment variables:
   CC          C compiler command
@@ -2401,6 +2402,41 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
+# Extract the first word of "gfortran44", so it can be a program name with args.
+set dummy gfortran44; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_F90+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$F90"; then
+  ac_cv_prog_F90="$F90" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_F90="gfortran44"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+fi
+fi
+F90=$ac_cv_prog_F90
+if test -n "$F90"; then
+  echo "$as_me:$LINENO: result: $F90" >&5
+echo "${ECHO_T}$F90" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lOpenCL':
@@ -2659,6 +2695,49 @@ fi;
 if test "${enable_libocl+set}" = set; then
   enableval="$enable_libocl"
 
+    # Extract the first word of "llvm-ex", so it can be a program name with args.
+set dummy llvm-ex; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_LLVM_EX+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$LLVM_EX"; then
+  ac_cv_prog_LLVM_EX="$LLVM_EX" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_LLVM_EX="llvm-ex"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+fi
+fi
+LLVM_EX=$ac_cv_prog_LLVM_EX
+if test -n "$LLVM_EX"; then
+  echo "$as_me:$LINENO: result: $LLVM_EX" >&5
+echo "${ECHO_T}$LLVM_EX" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+    if test $LLVM_EX; then
+      echo "found llvm-ex"
+    else
+     { { echo "$as_me:$LINENO: error: Could not find llvm-ex, suggest cd ./tools/llvm-ex and follow the instructions carefully, then try to configure again." >&5
+echo "$as_me: error: Could not find llvm-ex, suggest cd ./tools/llvm-ex and follow the instructions carefully, then try to configure again." >&2;}
+   { (exit 1); exit 1; }; }
+    fi;
+
 else
   enable_libocl=no
 fi;
@@ -2782,8 +2861,14 @@ if test "${with_amd_sdk+set}" = set; then
   withval="$with_amd_sdk"
 
     if test x$withval == xno; then
+
+	if test -e /opt/AMDAPP; then
+		withval=/opt/AMDAPP
+	elif test -e /usr/local/atistream; then
 		withval=/usr/local/atistream
 	 fi;
+
+	fi;
 
       if test -d $withval; then
          echo "found AMD SDK path"
@@ -2817,7 +2902,8 @@ echo "$as_me: error: Could not find AMD SDK lib path" >&2;}
 
 
 else
-  OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=AMD; AMD_SDK=/usr/local/atistream
+  #  [OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=AMD; AMD_SDK=/usr/local/atistream])
+   if test -d /usr/local/atistream; then AMD_SDK=/usr/local/atistream; elif test -d /opt/AMDAPP; then AMD_SDK=/opt/AMDAPP; fi; if test -d $AMD_SDK; then OPENCL_LIB=$AMD_SDK/lib/x86_64; OPENCL_INC=$AMD_SDK/include; DEFAULT_OPENCL_PLATFORM=AMD; fi;
 fi;
 
 
@@ -2837,7 +2923,10 @@ echo "$as_me: error: Could not find Nvidia SDK path" >&2;}
    { (exit 1); exit 1; }; }
       fi;
 
-      if test -e $withval/include/CL/cl.h; then
+      if test -e $withval/OpenCL/common/inc/CL/cl.h; then
+        OPENCL_INC="$withval/OpenCL/common/inc"
+         echo "found Nvidia SDK include path"
+      elif test -e $withval/include/CL/cl.h; then
         OPENCL_INC="$withval/include"
          echo "found Nvidia SDK include path"
       else
@@ -2846,7 +2935,10 @@ echo "$as_me: error: Could not find Nvidia SDK include path" >&2;}
    { (exit 1); exit 1; }; }
       fi;
 
-      if test -e $withval/lib/libOpenCL.so; then
+      if test -e $withval/OpenCL/common/lib/Linux64/libOpenCL.so; then
+        OPENCL_LIB="$withval/OpenCL/common/lib/Linux64"
+          echo "found Nvidia SDK lib path"
+      elif test -e $withval/lib/libOpenCL.so; then
         OPENCL_LIB="$withval/lib"
          echo "found Nvidia SDK lib path"
 		elif test -e /usr/lib64/libOpenCL.so; then
@@ -2918,6 +3010,8 @@ case $build_os in
 
 esac
 
+echo $OPENCL_INC
+echo $OPENCL_LIB
 
 
 # Check whether --with-ati-sdk-21 or --without-ati-sdk-21 was given.
@@ -2978,7 +3072,57 @@ echo "$as_me: error: libocl requres ATI SDK v2.1, path not found" >&2;}
 
 fi;
 
+
+
+# Check whether --with-fortran or --without-fortran was given.
+if test "${with_fortran+set}" = set; then
+  withval="$with_fortran"
+
+    if test x$withval == xno; then
+        # Extract the first word of "gfortran44", so it can be a program name with args.
+set dummy gfortran44; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_prog_F90+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -n "$F90"; then
+  ac_cv_prog_F90="$F90" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_F90="gfortran44"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+done
+
+fi
+fi
+F90=$ac_cv_prog_F90
+if test -n "$F90"; then
+  echo "$as_me:$LINENO: result: $F90" >&5
+echo "${ECHO_T}$F90" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+    else
+    	F90=$withval
+    fi;
+    echo $F90
+
+fi;
+
 BASH=`which bash`
+
 
 
 
@@ -3701,6 +3845,8 @@ s,@INSTALL_PROGRAM@,$INSTALL_PROGRAM,;t t
 s,@INSTALL_SCRIPT@,$INSTALL_SCRIPT,;t t
 s,@INSTALL_DATA@,$INSTALL_DATA,;t t
 s,@BASH@,$BASH,;t t
+s,@F90@,$F90,;t t
+s,@LLVM_EX@,$LLVM_EX,;t t
 s,@ENABLE_CLGL@,$ENABLE_CLGL,;t t
 s,@ENABLE_CLETE@,$ENABLE_CLETE,;t t
 s,@ENABLE_DEBUG_LIBS@,$ENABLE_DEBUG_LIBS,;t t

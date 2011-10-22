@@ -37,7 +37,7 @@
 #endif
 
 #ifndef COPRTHR_REVISION
-#define COPRTHR_REVISION 2 /* @REVISION */
+#define COPRTHR_REVISION 3 /* @REVISION */
 #endif
 
 #ifndef COPRTHR_RELEASE
@@ -45,7 +45,7 @@
 #endif
 
 #ifndef COPRTHR_NAME
-#define COPRTHR_NAME "middletown"
+#define COPRTHR_NAME "lakeside"
 #endif
 
 

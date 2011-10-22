@@ -117,6 +117,13 @@ extern "C" {
 
 extern void _assert_proto_stub(void);
 //LIBSTDCL_API void _libstdcl_init();
+#ifdef _WIN64
+LIBSTDCL_API void _libstdcl_init();
+#define stdcl_init() _libstdcl_init()
+#else 
+#define stdcl_init()
+#endif
+
 
 #ifdef __cplusplus
 }

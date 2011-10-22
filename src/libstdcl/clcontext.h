@@ -137,6 +137,7 @@ struct cldev_info {
 	cl_uint dev_pref_vec_double;
 	cl_uint dev_max_freq;
 	cl_bitfield dev_addr_bits;
+	cl_ulong dev_global_mem_sz;
 	cl_ulong dev_max_mem_alloc_sz;
 	cl_bool dev_img_sup;
 	cl_uint dev_max_img_args_r;

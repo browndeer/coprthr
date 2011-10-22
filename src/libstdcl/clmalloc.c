@@ -48,31 +48,25 @@
 
 
 
-#define __MEMD_F_R			0x0001
-#define __MEMD_F_W			0x0002
-#define __MEMD_F_RW 			(__MEMD_F_R|__MEMD_F_W)
-#define __MEMD_F_ATTACHED	0x0004
-#define __MEMD_F_LOCKED		0x0008
-#define __MEMD_F_DIRTY		0x0010
-#define __MEMD_F_TRACKED	0x0020
+#define __MEMD_F_R				0x0001
+#define __MEMD_F_W				0x0002
+#define __MEMD_F_RW 				(__MEMD_F_R|__MEMD_F_W)
+#define __MEMD_F_ATTACHED		0x0004
+#define __MEMD_F_LOCKED			0x0008
+#define __MEMD_F_DIRTY			0x0010
+#define __MEMD_F_TRACKED		0x0020
 
-#define __MEMD_F_IMG2D		0x0200
+#define __MEMD_F_IMG				0x0100
+#define __MEMD_F_IMG2D			(__MEMD_F_IMG|0x0200)
+#define __MEMD_F_IMG3D			(__MEMD_F_IMG|0x0400)
 
 #ifdef ENABLE_CLGL
-#define __MEMD_F_GLBUF		0x1000
+#define __MEMD_F_GLBUF			0x1000
+#define __MEMD_F_GLTEX2D		0x2000
+#define __MEMD_F_GLTEX3D		0x4000
+#define __MEMD_F_GLRBUF			0x8000
 #endif
 
-
-/*
-inline int
-__test_memd_magic(void* ptr) 
-{
-	intptr_t ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
-	struct _memd_struct* memd = (struct _memd_struct*)ptri;
-	if (memd->magic == CLMEM_MAGIC) return(1);
-	return(0);
-}
-*/
 
 LIBSTDCL_API 
 void* clmalloc(CONTEXT* cp, size_t size, int flags)
@@ -168,7 +162,8 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 
 
 LIBSTDCL_API
-void clfree( void* ptr )
+//void clfree( void* ptr )
+int clfree( void* ptr )
 {
 	int err;
 
@@ -178,11 +173,11 @@ void clfree( void* ptr )
 
 		WARN(__FILE__,__LINE__,"clfree: invalid ptr");
 
-		return;
+		return 0 ;
 
 	}
 	
-	if (!ptr) { WARN(__FILE__,__LINE__,"clfree: null ptr"); return; }
+	if (!ptr) { WARN(__FILE__,__LINE__,"clfree: null ptr"); return 0; }
 
 //	if (!assert_cldev_valid(dev)) return (0);
 
@@ -198,7 +193,8 @@ void clfree( void* ptr )
 	}
 
 	free((void*)ptri);	
-			
+		
+	return 0;	
 }
 
 
@@ -304,14 +300,11 @@ int clmdetach( void* ptr )
 }
 
 
-//int clmctl( void* ptr, int op, int arg )
-//int clmctl( void* ptr, int op, ... )
 LIBSTDCL_API
 int clmctl_va( void* ptr, int op, va_list ap )
 {
 	int err; 
 	int retval = 0;
-//	va_list ap;
 
 	if (!__test_memd_magic(ptr)) {
 
@@ -332,8 +325,6 @@ int clmctl_va( void* ptr, int op, va_list ap )
 		return(EFAULT);
 
 	}
-
-//	va_start(ap,op);
 
 	void* ptmp;
 
@@ -403,8 +394,6 @@ int clmctl_va( void* ptr, int op, va_list ap )
 
 	}
 
-//	va_end(ap);
-
 	return(retval);
 
 }
@@ -454,17 +443,16 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	__cmdq_create(cp,devnum);
 #endif
 
-//	if (flags&CL_MEM_WRITE || flags&CL_MEM_DEVICE) {
 	if (flags&CL_MEM_DEVICE) {
 
 		/* XXX this is a test for tracking-DAR */
 		if (flags&CL_MEM_NOFORCE && memd->devnum == devnum) {
 			WARN(__FILE__,__LINE__,"clmsync/CL_MEM_NOFORCE no transfer");
-//			printf("clmsync/CL_MEM_NOFORCE no transfer\n");
 			return((cl_event)0);
 		}
 
-		if (memd->flags&__MEMD_F_IMG2D) {
+//		if (memd->flags&__MEMD_F_IMG2D) {
+		if (memd->flags&__MEMD_F_IMG) {
 
 			DEBUG(__FILE__,__LINE__,"%d %d",memd->sz,memd->sz1);
 
@@ -494,11 +482,11 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 		/* XXX this is a test for tracking-DAR */
 		if (flags&CL_MEM_NOFORCE && memd->devnum == -1) {
 			WARN(__FILE__,__LINE__,"clmsync/CL_MEM_NOFORCE no transfer");
-//			printf("clmsync/CL_MEM_NOFORCE no transfer\n");
 			return((cl_event)0);
 		}
 
-		if (memd->flags&__MEMD_F_IMG2D) {
+//		if (memd->flags&__MEMD_F_IMG2D) {
+		if (memd->flags&__MEMD_F_IMG) {
 
 			size_t origin[3] = {0,0,0};
 			size_t region[3] = { memd->sz, memd->sz1, 1 };
@@ -522,10 +510,6 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 	} else {
 
-//			err = clEnqueueReadBuffer(
-//				cp->cmdq[devnum],memd->clbuf,CL_FALSE,0,memd->sz,ptr,0,0,&ev
-//  		 	);
-
 		WARN(__FILE__,__LINE__,"clmsync: no target specified");
 
 		return((cl_event)0);
@@ -545,23 +529,154 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		err = clWaitForEvents(1,&ev);
 
-//#ifdef USE_DEPRECATED_FLAGS
-//		if (flags & CL_EVENT_RELEASE && !(flags & CL_EVENT_NORELEASE) ) {
-//			clReleaseEvent(ev);
-//			ev = (cl_event)0;
-//		}
-//#else
 		if ( !(flags & CL_EVENT_NORELEASE) ) {
 			clReleaseEvent(ev);
 			ev = (cl_event)0;
 		}
-//#endif
 
 	}
 
 	return(ev);
 
 }
+
+
+LIBSTDCL_API
+cl_event 
+clmcopy(
+	CONTEXT* cp, unsigned int devnum, void* src, void* dst, int flags )
+{
+	int err;
+
+	cl_event ev;
+
+	if (!src || !dst) return((cl_event)0);
+
+	intptr_t src_ptri = (intptr_t)src - sizeof(struct _memd_struct);
+	struct _memd_struct* src_memd = (struct _memd_struct*)src_ptri;
+	intptr_t dst_ptri = (intptr_t)dst - sizeof(struct _memd_struct);
+	struct _memd_struct* dst_memd = (struct _memd_struct*)dst_ptri;
+
+	if (src_memd->magic != CLMEM_MAGIC) {
+		for (
+         src_memd = cp->memd_listhead.lh_first; src_memd != 0;
+         src_memd = src_memd->memd_list.le_next
+         ) {
+            intptr_t p1 = (intptr_t)src_memd + sizeof(struct _memd_struct);
+            intptr_t p2 = p1 + src_memd->sz;
+            if (p1 < (intptr_t)src && (intptr_t)src < p2) {
+               DEBUG(__FILE__,__LINE__,"memd match");
+					src = (void*)p1;
+               break;
+            }
+      }
+
+		if (src_memd == 0) {
+
+			WARN(__FILE__,__LINE__,"clmsync: bad pointer");
+
+			return((cl_event)0);
+
+		}
+
+	}
+
+	if (dst_memd->magic != CLMEM_MAGIC) {
+		for (
+         dst_memd = cp->memd_listhead.lh_first; dst_memd != 0;
+         dst_memd = dst_memd->memd_list.le_next
+         ) {
+            intptr_t p1 = (intptr_t)dst_memd + sizeof(struct _memd_struct);
+            intptr_t p2 = p1 + dst_memd->sz;
+            if (p1 < (intptr_t)dst && (intptr_t)dst < p2) {
+               DEBUG(__FILE__,__LINE__,"memd match");
+					dst = (void*)p1;
+               break;
+            }
+      }
+
+		if (dst_memd == 0) {
+
+			WARN(__FILE__,__LINE__,"clmsync: bad pointer");
+
+			return((cl_event)0);
+
+		}
+
+	}
+
+	DEBUG(__FILE__,__LINE__,"clmcopy: (src) memd = %p, base_ptr = %p",
+		src_memd,(intptr_t)src_memd+sizeof(struct _memd_struct));
+
+	DEBUG(__FILE__,__LINE__,"clmsync: (dst) memd = %p, base_ptr = %p",
+		dst_memd,(intptr_t)dst_memd+sizeof(struct _memd_struct));
+
+#ifdef _WIN64
+	__cmdq_create(cp,devnum);
+#endif
+
+//	if (src_memd->flags&__MEMD_F_IMG2D) {
+	if (src_memd->flags&__MEMD_F_IMG) {
+
+//		if (dst_memd->flags&__MEMD_F_IMG2D) {
+		if (dst_memd->flags&__MEMD_F_IMG) {
+			
+			DEBUG(__FILE__,__LINE__,"%d %d",src_memd->sz,src_memd->sz1);
+			DEBUG(__FILE__,__LINE__,"%d %d",dst_memd->sz,dst_memd->sz1);
+
+			size_t origin[3] = {0,0,0};
+			size_t region[3] = { src_memd->sz, src_memd->sz1, 1 };
+
+			err = clEnqueueCopyImage( 
+				cp->cmdq[devnum],src_memd->clbuf, dst_memd->clbuf,
+				origin,origin,region, 0,0,&ev
+			);
+
+			DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueCopyImage err %d",err);
+
+		} else {
+
+		}
+
+	} else {
+
+//		if (dst_memd->flags&__MEMD_F_IMG2D) {
+		if (dst_memd->flags&__MEMD_F_IMG) {
+
+		} else {
+
+			err = clEnqueueCopyBuffer(
+				cp->cmdq[devnum],src_memd->clbuf,dst_memd->clbuf,
+				0,0,src_memd->sz,0,0,&ev
+  	 		);
+
+			DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueCopyBuffer err %d",err);
+
+		}
+
+	}
+
+	if (flags & CL_EVENT_NOWAIT) {
+
+		cp->mev[devnum].ev[cp->mev[devnum].ev_free++] = ev;
+		cp->mev[devnum].ev_free %= STDCL_EVENTLIST_MAX;
+		++cp->mev[devnum].nev;
+
+	} else { /* CL_EVENT_WAIT */
+
+		err = clWaitForEvents(1,&ev);
+
+		if ( !(flags & CL_EVENT_NORELEASE) ) {
+			clReleaseEvent(ev);
+			ev = (cl_event)0;
+		}
+
+	}
+
+	return(ev);
+
+}
+
 
 LIBSTDCL_API
 void* clmemptr( CONTEXT* cp, void* ptr ) 
@@ -734,6 +849,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 #ifdef ENABLE_CLGL
 
+#if(0)
 void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 {
 
@@ -753,18 +869,144 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 
 	tmp_clbuf = clCreateFromGLBuffer(
      	cp->ctx,CL_MEM_READ_WRITE,
-     	glbuf,&err
+     	glbuf, &err
   	);
 
 	DEBUG(__FILE__,__LINE__,
 		"clglmalloc: clCreateFromGLBuffer clbuf=%p",tmp_clbuf);
 
-	DEBUG(__FILE__,__LINE__, "clmalloc: err from clCreateFromGLBuffer %d",err);
+	DEBUG(__FILE__,__LINE__, "clglmalloc: err from clCreateFromGLBuffer %d",err);
 
 	size_t size;
 	err = clGetMemObjectInfo(tmp_clbuf,CL_MEM_SIZE,sizeof(size_t),&size,0);
 
-	DEBUG(__FILE__,__LINE__,"clglmalloc: clCreateFromGLBuffer err %d",err);
+	DEBUG(__FILE__,__LINE__,"clglmalloc: clGetMemObjectInfo err %d",err);
+
+	if (size == 0) {
+
+		WARN(__FILE__,__LINE__,"clglmalloc: size=0, something went wrong");
+
+		clReleaseMemObject(tmp_clbuf);
+
+		return(0);
+
+	}
+
+	intptr_t ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
+
+	if (ptri == 0) {
+
+		WARN(__FILE__,__LINE__,"clglmalloc: out of memory");
+
+		clReleaseMemObject(tmp_clbuf);
+
+		return(0);
+
+	}
+
+	intptr_t ptr = ptri+sizeof(struct _memd_struct);
+	struct _memd_struct* memd = (struct _memd_struct*)ptri;
+
+	DEBUG(__FILE__,__LINE__,"clglmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
+
+	DEBUG(__FILE__,__LINE__,"clglmalloc: sizeof struct _memd_struct %d",
+		sizeof(struct _memd_struct));
+
+	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
+		WARN(__FILE__,__LINE__,
+			"clglmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
+	} //// XXX CL_MEM_READ_WRITE implied -DAR
+
+	memd->clbuf = tmp_clbuf;
+	memd->magic = CLMEM_MAGIC;
+	memd->flags = __MEMD_F_RW|__MEMD_F_GLBUF|__MEMD_F_ATTACHED;
+	memd->sz = size;
+
+	LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);
+
+	return((void*)ptr);
+
+}
+#endif
+
+
+void* clglmalloc(
+	CONTEXT* cp, cl_GLuint glbuf, cl_GLenum target, cl_GLint miplevel, int flags
+)
+{
+
+	DEBUG(__FILE__,__LINE__,"clglmalloc: glbuf=%d flag=%d",glbuf,flags);
+
+	int err;
+
+	unsigned int tmp_flags = 0;
+	cl_mem tmp_clbuf = 0;
+	
+	if (flags&CL_MEM_DETACHED) {
+	
+		WARN(__FILE__,__LINE__,"clglmalloc: invalid flag: CL_MEM_DETACHED");
+
+		return(0);
+
+	}
+
+	if (flags&CL_MEM_GLBUF) {
+
+		tmp_clbuf = clCreateFromGLBuffer(
+ 	    	cp->ctx,CL_MEM_READ_WRITE,
+ 	    	glbuf,&err
+ 	 	);
+
+	} else if (flags&CL_MEM_GLTEX2D) {
+
+		tmp_clbuf = clCreateFromGLTexture2D(
+    	 	cp->ctx,CL_MEM_READ_WRITE,
+			target,miplevel,
+    	 	glbuf,&err
+  		);
+
+		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG2D|__MEMD_F_GLTEX2D|__MEMD_F_ATTACHED;
+
+	} else if (flags&CL_MEM_GLTEX3D) {
+
+		tmp_clbuf = clCreateFromGLTexture3D(
+    	 	cp->ctx,CL_MEM_READ_WRITE,
+			target,miplevel,
+    	 	glbuf,&err
+  		);
+
+		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG3D|__MEMD_F_GLTEX3D|__MEMD_F_ATTACHED;
+
+	} else if (flags&CL_MEM_GLRBUF) {
+
+		tmp_clbuf = clCreateFromGLRenderbuffer(
+    	 	cp->ctx,CL_MEM_READ_WRITE,
+    	 	glbuf,&err
+  		);
+
+		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG2D|__MEMD_F_GLRBUF|__MEMD_F_ATTACHED;
+
+	} else { /* default case, consider deprecating to be safe -DAR */
+
+//		WARN(__FILE__,__LINE__,"clglmalloc: invalid flags");
+		tmp_clbuf = clCreateFromGLBuffer(
+    	 	cp->ctx,CL_MEM_READ_WRITE,
+    	 	glbuf,&err
+  		);
+
+		return(0);
+
+	}
+
+	DEBUG(__FILE__,__LINE__,
+		"clglmalloc: clCreateFromGL* clbuf=%p",tmp_clbuf);
+
+	DEBUG(__FILE__,__LINE__, "clglmalloc: err from clCreateFromGL* %d",err);
+
+	size_t size;
+	err = clGetMemObjectInfo(tmp_clbuf,CL_MEM_SIZE,sizeof(size_t),&size,0);
+
+	DEBUG(__FILE__,__LINE__,"clglmalloc: clGetMemObjectInfo err %d",err);
 
 	if (size == 0) {
 
@@ -801,10 +1043,12 @@ void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
 			"clmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
 	} //// XXX CL_MEM_READ_WRITE implied -DAR
 
+
 	memd->clbuf = tmp_clbuf;
 	memd->magic = CLMEM_MAGIC;
-	memd->flags = __MEMD_F_RW|__MEMD_F_GLBUF|__MEMD_F_ATTACHED;
+	memd->flags = tmp_flags;
 	memd->sz = size;
+
 
 	LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);
 
@@ -887,17 +1131,10 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		err = clWaitForEvents(1,&ev);
 
-//#ifdef USE_DEPRECATED_FLAGS
-//		if (flags & CL_EVENT_RELEASE && !(flags & CL_EVENT_NORELEASE) ) {
-//			clReleaseEvent(ev);
-//			ev = (cl_event)0;
-//		}
-//#else
 		if ( !(flags & CL_EVENT_NORELEASE) ) {
 			clReleaseEvent(ev);
 			ev = (cl_event)0;
 		}
-//#endif
 
 	}
 
