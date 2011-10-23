@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
   bool insertOp = flagOption(argc,argv,"--insert-op");
   bool addPeteOps = (!flagOption(argc,argv,"--operators")) ||
     flagOption(argc,argv,"--pete-ops");
-//  bool lanlBoilerplate = flagOption(argc,argv,"--lanl-boilerplate");
+  bool lanlBoilerplate = flagOption(argc,argv,"--lanl-boilerplate");
 
   string prefix, suffix;
 
