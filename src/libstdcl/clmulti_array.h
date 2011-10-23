@@ -79,6 +79,7 @@ class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
 		void clarg_set_global( CONTEXT* cp, cl_kernel krn, unsigned int argnum )
 		{ ::clarg_set_global(cp, krn, argnum, (void*)this->origin()); }
 
+		void* get_ptr() { return (void*)this->origin(); }
 
   template<class RHS>
   clmulti_array<T,D>& operator=(const Expression<RHS> &rhs);

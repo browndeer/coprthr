@@ -48,7 +48,7 @@
 #include "clmalloc.h"
 #include "clfcn.h"
 #include "clarg.h"
-#include "clforka.h"
+//#include "clforka.h"
 
 
 typedef struct clndrange_struct clndrange_t;
@@ -173,6 +173,8 @@ inline void clarg_set_local(cl_kernel krn, unsigned int argnum, size_t arg)
 #ifdef __cplusplus
 }
 #endif
+
+#include "clforka.h"
 
 #endif
 

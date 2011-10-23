@@ -126,16 +126,56 @@
 	else if (__builtin_types_compatible_p(typeof(a),t*)) \
 		clarg_set_global(cp,krn,ia,(t*)(intptr_t)(a));
 
+#ifdef __cplusplus
+
+inline static
+void __clarg_set(CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_int a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_uint a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_float a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_int2 a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_uint2 a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_float2 a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_int4 a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_uint4 a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_float4 a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, void* a)
+{ ::clarg_set_global(cp,krn,ia,(a)); }
+
+#else
+
 #define __clarg_set(cp,krn,ia,a) \
 ({ \
 __iftype_clarg_set(cp,krn,ia,a,cl_int) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_int2) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_uint2) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_float2) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_int4) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint4) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float4) \
 else { fprintf(stderr,"__clarg_set: unrecognized type\n"); exit(-1); } \
 })
+
+#endif
 
 #endif
 
