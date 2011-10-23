@@ -129,13 +129,13 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
       txt = cp->txt_listhead.lh_first; txt != 0;
       txt = txt->txt_list.le_next
    ) {
-		if (prgs==0 || txt->prgs == prgs) break;
-   }
+//		if (prgs==0 || txt->prgs == prgs) break;
+//   }
 
-	if (!txt) {
-		DEBUG(__FILE__,__LINE__,"clbuild: bad handle");
-		return((void*)-1);
-	}
+//	if (!txt) {
+//		DEBUG(__FILE__,__LINE__,"clbuild: bad handle");
+//		return((void*)-1);
+//	}
 
 //// begin compile
 
@@ -230,6 +230,8 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 		DEBUG(__FILE__,__LINE__,"clbuild: %s %d %p %p\n",
 			txt->krntab[n].kname,txt->krntab[n].nargs,
 			txt->krntab[n].kctx,txt->krntab[n].kprg);
+	}
+
 	}
 
 	return(0);
