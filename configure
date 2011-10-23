@@ -810,7 +810,7 @@ Optional Features:
                           enable libstdcl CLGL buffer sharing support
                           (default=no)
   --enable-clete          enable clete expression template acceleration
-                          (default=no)
+                          (default=yes)
   --enable-debug-libs     enable building debug versions of librarires
                           (default=yes)
   --enable-cltrace        enable building cltrace tool (default=yes)

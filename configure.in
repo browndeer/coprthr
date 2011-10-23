@@ -41,7 +41,7 @@ AC_ARG_ENABLE(libstdcl-clgl-support,
   AC_HELP_STRING([--enable-libstdcl-clgl-support],[enable libstdcl CLGL buffer sharing support (default=no)]),, enable_libstdcl_clgl_support=no)
 
 AC_ARG_ENABLE(clete,
-  AC_HELP_STRING([--enable-clete],[enable clete expression template acceleration (default=no)]),, enable_clete=yes)
+  AC_HELP_STRING([--enable-clete],[enable clete expression template acceleration (default=yes)]),, enable_clete=yes)
 
 AC_ARG_ENABLE(debug-libs,
   AC_HELP_STRING([--enable-debug-libs],[enable building debug versions of librarires (default=yes)]),, enable_debug_libs=yes)
