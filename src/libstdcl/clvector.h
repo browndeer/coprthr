@@ -88,6 +88,8 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 				::clarg_set_global(cp, krn, argnum,(void*)_clvector_ptr); 
 		}
 
+		void* get_ptr() { return (void*)_clvector_ptr; }
+
 
   template<class RHS>
   clvector<T,A>& operator=(const Expression<RHS> &rhs);
