@@ -364,7 +364,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Release\\libstdcl-1.3-rc0-win7_install.msi"
+        "OutputFilename" = "8:Release\\libstdcl-1.3.0-rc1-win7_install.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
