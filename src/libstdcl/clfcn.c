@@ -107,6 +107,8 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 }
 
 
+static int _clbuild_zero = 0; 
+
 LIBSTDCL_API void* 
 clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 {
@@ -117,6 +119,8 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 	DEBUG(__FILE__,__LINE__," checking cp ");
 
 	if (!cp) return(0);
+
+	if (_clbuild_zero) return(0);
 
 	DEBUG(__FILE__,__LINE__," cp ok ");
 
@@ -136,6 +140,8 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 //		DEBUG(__FILE__,__LINE__,"clbuild: bad handle");
 //		return((void*)-1);
 //	}
+
+	if ( (prgs==0 && txt->prgs->fname==0) || txt->prgs == prgs) {
 
 //// begin compile
 
@@ -234,10 +240,16 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 
 	}
 
+	}
+
+	if (prgs==0) _clbuild_zero = 1;
+
 	return(0);
 
 }
 
+
+static int _clopen_zero = 0;
 
 LIBSTDCL_API void* 
 clopen( CONTEXT* cp, const char* fname, int flags )
@@ -262,6 +274,11 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 	if (!fname) {
 
+	if (_clopen_zero) {
+		DEBUG(__FILE__,__LINE__,"already here");
+		return(0);
+	}
+
 #ifdef _WIN64
 
 		WARN(__FILE__,__LINE__,"embedded kernels not supported for Windows");
@@ -278,6 +295,8 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 			_proc_cl.clstrtab);
 
  		DEBUG(__FILE__,__LINE__,"clopen: %s",&_proc_cl.clstrtab[1]);
+
+		DEBUG(__FILE__,__LINE__,"clopen: _proc_cl.clprgs_n=%d",_proc_cl.clprgs_n);
 
 		struct clprgs_entry* sp;
 		for(n=0,sp=_proc_cl.clprgs;n<_proc_cl.clprgs_n;n++,sp++) {
@@ -296,6 +315,8 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 //		prgs->fd = fd;
 
 #endif
+
+		_clopen_zero = 1;
 
 		return(0);
 
