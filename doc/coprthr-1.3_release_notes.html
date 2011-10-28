@@ -522,9 +522,15 @@ to a specific platform and feature set.</p>
     flag is used.</li>
   <li>The platform that you select may not support certain types of devices,
     e.g., the Nvidia SDK does not suport CPUs. This may cause problems with
-    some configurations. The easiest solution is to disable context for which
-    no devices are supported, e.g., setting the environment variable SDTCPU=0
-    will cause the runtime to ignore the CPU context.</li>
+    some configurations. The easiest solution is to disable the context for
+    which no devices are supported, e.g., setting the environment variable
+    SDTCPU=0 will cause the runtime to ignore the CPU context.</li>
+  <li>The version of the boost library (1.47.0) used here for development
+    unfortunately has a very minor bug that prevents it from working with MSVS
+    2010. A fix to the boost package is provided in this release. Just follow
+    the instructions under the msvs2010/boost_1_47_0-multi_array-iterator-fix/
+    directory. (All you need to do is copy over a replacement for
+  iterator.hpp.)</li>
 </ul>
 <hr />
 
