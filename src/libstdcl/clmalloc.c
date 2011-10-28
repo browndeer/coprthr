@@ -230,7 +230,8 @@ int clmattach( CONTEXT* cp, void* ptr )
 
 	if (memd->flags&__MEMD_F_ATTACHED) return(EINVAL);
 
-	if (memd->flags&__MEMD_F_IMG2D) {
+//	if (memd->flags&__MEMD_F_IMG2D) {
+	if (memd->flags&__MEMD_F_IMG) {
 
 			cl_image_format fmt = memd->imgfmt;
 			DEBUG(__FILE__,__LINE__,"clmattach: order = %x",fmt.image_channel_order);
