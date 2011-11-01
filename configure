@@ -3329,6 +3329,8 @@ BASH=`which bash`
 
           ac_config_files="$ac_config_files tools/xclnm/Makefile"
 
+          ac_config_files="$ac_config_files tools/xclnm2/Makefile"
+
           ac_config_files="$ac_config_files tools/clld/Makefile"
 
           ac_config_files="$ac_config_files test/Makefile"
@@ -3907,6 +3909,7 @@ do
   "src/libocl/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libocl/Makefile" ;;
   "tools/cltrace/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/cltrace/Makefile" ;;
   "tools/xclnm/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/xclnm/Makefile" ;;
+  "tools/xclnm2/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/xclnm2/Makefile" ;;
   "tools/clld/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/clld/Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
   "test/test_stdcl/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/test_stdcl/Makefile" ;;
