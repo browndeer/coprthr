@@ -33,14 +33,28 @@
 
 
 /* XXX this is a hack, copied from xclnm_gram.h, fix this! -DAR */
-#define __TYPE_OPAQUE  262
-#define __TYPE_VOID  263
-#define __TYPE_INT8  264
-#define __TYPE_INT16  265
-#define __TYPE_INT32  266
-#define __TYPE_INT64  267
-#define __TYPE_FLOAT  268
-#define __TYPE_DOUBLE  269
+//#define __TYPE_OPAQUE  262
+//#define __TYPE_VOID  263
+//#define __TYPE_INT8  264
+//#define __TYPE_INT16  265
+//#define __TYPE_INT32  266
+//#define __TYPE_INT64  267
+//#define __TYPE_FLOAT  268
+//#define __TYPE_DOUBLE  269
+#define __TYPE_OPAQUE  261
+#define __TYPE_VOID  262
+#define __TYPE_INT8  263
+#define __TYPE_INT16  264
+#define __TYPE_INT32  265
+#define __TYPE_INT64  266
+#define __TYPE_UINT8  267
+#define __TYPE_UINT16  268
+#define __TYPE_UINT32  269
+#define __TYPE_UINT64  270
+#define __TYPE_FLOAT  271
+#define __TYPE_DOUBLE  272
+
+
 
 
 void __do_create_program(cl_program prg) 
@@ -212,23 +226,31 @@ cl_int __do_build_program_from_source(
 
 				switch(prg->imp.clargtab[arg].e_datatype) {
 
-					case __TYPE_INT8: sz=1; 
-					DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT8",arg);
-					break;
+					case __TYPE_INT8:
+					case __TYPE_UINT8: 
+						sz=1; 
+						DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT8",arg);
+						break;
 						
-					case __TYPE_INT16: sz=2; 
-					DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT16",arg);
-					break;
+					case __TYPE_INT16:
+					case __TYPE_UINT16: 
+						sz=2; 
+						DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT16",arg);
+						break;
 
+					case __TYPE_INT32:
+					case __TYPE_UINT32: 
 					case __TYPE_FLOAT:
-					case __TYPE_INT32: sz=4; 
-					DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT32",arg);
-					break;
+						sz=4; 
+						DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT32",arg);
+						break;
 
+					case __TYPE_INT64: 
+					case __TYPE_UINT64: 
 					case __TYPE_DOUBLE:
-					case __TYPE_INT64: sz=8; 
-					DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT64",arg);
-					break;
+						sz=8; 
+						DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT64",arg);
+						break;
 
 					case __TYPE_VOID:
 					default: sz=0; 
@@ -255,7 +277,12 @@ cl_int __do_build_program_from_source(
 
 				} else if (prg->imp.clargtab[arg].e_ptrc == 1) {
 
-					if (prg->imp.clargtab[arg].e_addrspace == 1) {
+					if (prg->imp.clargtab[arg].e_addrspace == 0) { /* XXX promote */
+
+						prg->imp.karg_kind[i][j] = CLARG_KIND_GLOBAL;
+						sz = sz_ptr;
+
+					} else if (prg->imp.clargtab[arg].e_addrspace == 1) {
 
 						prg->imp.karg_kind[i][j] = CLARG_KIND_GLOBAL;
 						sz = sz_ptr;
@@ -333,9 +360,10 @@ cl_int __do_build_program_from_source(
 
 	for(i=0;i<prg->imp.nclsym;i++) {
 
-		strncpy(name,"__OpenCL_",1024);
-		strncat(name,prg->imp.kname[i],1024);
-		strncat(name,"_kernel",1024);
+//		strncpy(name,"__OpenCL_",1024);
+//		strncat(name,prg->imp.kname[i],1024);
+		strncpy(name,prg->imp.kname[i],1024);
+//		strncat(name,"_kernel",1024);
 
 		DEBUG(__FILE__,__LINE__,"devnum knum %d %d",devnum,i);
 

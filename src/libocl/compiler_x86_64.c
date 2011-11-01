@@ -271,7 +271,8 @@ void* compile_x86_64(
 //				__log(logp,"]%s\n",buf1); \
 //				__execshell(buf1,logp);
 
-				__command("cp "INSTALL_LIB_DIR"/__vcore_rt.bc %s",wd);
+//				__command("cp "INSTALL_LIB_DIR"/__vcore_rt.bc %s",wd);
+				__command("cp "INSTALL_LIB_DIR"/__vcore_rt.o %s",wd);
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
 
@@ -294,160 +295,168 @@ void* compile_x86_64(
 
 				DEBUG(__FILE__,__LINE__,"%s written\n",buf1);
 
+				__command("cd %s; cp %s.cl %s.c",wd,filebase,filebase);
+				__log(logp,"]%s\n",buf1); \
+				__execshell(buf1,logp);
+
 
 				/* clc compile */
 
-				if (opt) {
-#if defined(__FreeBSD__)
-					__command("cd %s; %s/bin/x86/clc %s -o __%s.ll %s 2>&1",
-#else
-					__command("cd %s; %s/bin/x86_64/clc %s -o __%s.ll %s 2>&1",
-#endif
-						wd,ATISTREAMSDK21,opt,filebase,file_cl); 
-				} else {
-					DEBUG(__FILE__,__LINE__,"no options");
-#if defined(__FreeBSD__)
-					__command("cd %s; %s/bin/x86/clc -o __%s.ll %s 2>&1",
-#else
-					__command("cd %s; %s/bin/x86_64/clc -o __%s.ll %s 2>&1",
-#endif
-						wd,ATISTREAMSDK21,filebase,file_cl); 
-				}
-				__log(logp,"]%s\n",buf1); \
-				__execshell(buf1,logp);
+//				if (opt) {
+//#if defined(__FreeBSD__)
+//					__command("cd %s; %s/bin/x86/clc %s -o __%s.ll %s 2>&1",
+//#else
+//					__command("cd %s; %s/bin/x86_64/clc %s -o __%s.ll %s 2>&1",
+//#endif
+//						wd,ATISTREAMSDK21,opt,filebase,file_cl); 
+//				} else {
+//					DEBUG(__FILE__,__LINE__,"no options");
+//#if defined(__FreeBSD__)
+//					__command("cd %s; %s/bin/x86/clc -o __%s.ll %s 2>&1",
+//#else
+//					__command("cd %s; %s/bin/x86_64/clc -o __%s.ll %s 2>&1",
+//#endif
+//						wd,ATISTREAMSDK21,filebase,file_cl); 
+//				}
+//				__log(logp,"]%s\n",buf1); \
+//				__execshell(buf1,logp);
 
 
 				/* strip target specification  */
-				__command("cd %s;"
-					" grep -v -e 'target datalayout' -e 'target triple' __%s.ll"
-					" > %s.ll ",wd,filebase,filebase);
-				__log(logp,"]%s\n",buf1); \
-				__execshell(buf1,logp);
+//				__command("cd %s;"
+//					" grep -v -e 'target datalayout' -e 'target triple' __%s.ll"
+//					" > %s.ll ",wd,filebase,filebase);
+//				__log(logp,"]%s\n",buf1); \
+//				__execshell(buf1,logp);
 
 
 				/* assemble to bc */
 
-				__command("cd %s; llvm-as -f %s.ll 2>&1",wd,filebase); 
-				__log(logp,"]%s\n",buf1); \
-				__execshell(buf1,logp);
+//				__command("cd %s; llvm-as -f %s.ll 2>&1",wd,filebase); 
+//				__log(logp,"]%s\n",buf1); \
+//				__execshell(buf1,logp);
 
 
             /* extract undefined symbols from builtins */
 
-            __command(
-               "cd %s; llvm-nm %s.bc|" NMFILTER 
-					"|awk '/^[ \t]+U / {printf $2 \",\";}'",
-               wd,filebase);
-            *buf2 = '\0';
-            DEBUG(__FILE__,__LINE__,"%s",buf1);
-            fp = popen(buf1,"r");
-            fgets(buf2,DEFAULT_BUF2_SZ,fp);
-            DEBUG(__FILE__,__LINE__,"%s",buf2);
-            pclose(fp);
-            int need_builtins = (strnlen(buf2,DEFAULT_BUF2_SZ)>0)? 1 : 0;
-            DEBUG(__FILE__,__LINE__,"need_builtins %d",need_builtins);
-#if defined(USE_BDT_BUILTINS)
-            if (need_builtins) {
-               __command(
-                  "cd %s;"
-                  " llvm-ex -f -func=%s %s/bdt_builtins_x86_64.bc"
-                  " -o builtins.bc",
-                  wd,buf2,INSTALL_LIB_DIR);
-               __log(logp,"]%s\n",buf1);
-               __execshell(buf1,logp);
-            }
-#else
-            if (need_builtins) {
-
-//					__command("cp %s/ati_builtins_x86_64_patch.bc %s",
-//						INSTALL_LIB_DIR,wd);
-//					__log(logp,"]%s\n",buf1); \
-//					__execshell(buf1,logp);
-
-					/* XXX hardcoding is hack.  find way to correctly/recursively extract -DAR */
-
-		/* XXX builtins_x86-64.bc == v2.1 / builtins-x86_64.bc = v2.3 */
-               __command(
-                  "cd %s;"
-                  " llvm-ex -f -func=__select_2i322i32,%s"
-#if defined(__FreeBSD__)
-						" %s/lib/x86/builtins_x86-64.bc"
-#else
-						" %s/lib/x86_64/builtins_x86-64.bc"
-#endif
-                  " -o builtins.bc",
-                  wd,buf2,ATISTREAMSDK21);
-               __log(logp,"]%s\n",buf1);
-               __execshell(buf1,logp);
-
-            }
-#endif
+//            __command(
+//               "cd %s; llvm-nm %s.bc|" NMFILTER 
+//					"|awk '/^[ \t]+U / {printf $2 \",\";}'",
+//               wd,filebase);
+//            *buf2 = '\0';
+//            DEBUG(__FILE__,__LINE__,"%s",buf1);
+//            fp = popen(buf1,"r");
+//            fgets(buf2,DEFAULT_BUF2_SZ,fp);
+//            DEBUG(__FILE__,__LINE__,"%s",buf2);
+//            pclose(fp);
+//            int need_builtins = (strnlen(buf2,DEFAULT_BUF2_SZ)>0)? 1 : 0;
+//            DEBUG(__FILE__,__LINE__,"need_builtins %d",need_builtins);
+//#if defined(USE_BDT_BUILTINS)
+//            if (need_builtins) {
+//               __command(
+//                  "cd %s;"
+//                  " llvm-ex -f -func=%s %s/bdt_builtins_x86_64.bc"
+//                  " -o builtins.bc",
+//                  wd,buf2,INSTALL_LIB_DIR);
+//               __log(logp,"]%s\n",buf1);
+//               __execshell(buf1,logp);
+//            }
+//#else
+//            if (need_builtins) {
+//
+////					__command("cp %s/ati_builtins_x86_64_patch.bc %s",
+////						INSTALL_LIB_DIR,wd);
+////					__log(logp,"]%s\n",buf1); \
+////					__execshell(buf1,logp);
+//
+//					/* XXX hardcoding is hack.  find way to correctly/recursively extract -DAR */
+//
+//		/* XXX builtins_x86-64.bc == v2.1 / builtins-x86_64.bc = v2.3 */
+//               __command(
+//                  "cd %s;"
+//                  " llvm-ex -f -func=__select_2i322i32,%s"
+//#if defined(__FreeBSD__)
+//						" %s/lib/x86/builtins_x86-64.bc"
+//#else
+//						" %s/lib/x86_64/builtins_x86-64.bc"
+//#endif
+//                  " -o builtins.bc",
+//                  wd,buf2,ATISTREAMSDK21);
+//               __log(logp,"]%s\n",buf1);
+//               __execshell(buf1,logp);
+//
+//            }
+//#endif
 
 	/* XXX moving cp of patch outside of if-need-builtin conditional -DAR */
 
-				__command("cp %s/ati_builtins_x86_64_patch.bc %s",
-					INSTALL_LIB_DIR,wd);
-				__log(logp,"]%s\n",buf1); 
-				__execshell(buf1,logp);
+//				__command("cp %s/ati_builtins_x86_64_patch.bc %s",
+//					INSTALL_LIB_DIR,wd);
+//				__log(logp,"]%s\n",buf1); 
+//				__execshell(buf1,logp);
 
 
 				/* link with vcore_rt bc */
 
+////				__command(
+////					"cd %s; llvm-link -f -o _link_%s.bc %s.bc __vcore_rt.bc 2>&1",
+////					wd,filebase,filebase); 
+////				__log(logp,"]%s\n",buf1); \
+////				__execshell(buf1,logp);
+
+
+          /* link bc */
+
+////need_builtins = 0;
+
+//            if (need_builtins) {
+//#if defined(USE_BDT_BUILTINS)
+//               __command(
+//                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc"
+//						" builtins.bc 2>&1",
+//                 wd,filebase,filebase);
+//#else
+//               __command(
+//                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc"
+////						" builtins.bc  2>&1",
+//						" builtins.bc  ati_builtins_x86_64_patch.bc 2>&1",
+//                  wd,filebase,filebase);
+//#endif
+//            } else {
+//               __command(
+//                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc ati_builtins_x86_64_patch.bc 2>&1",
+//                  wd,filebase,filebase);
+//            }
+//            __log(logp,"]%s\n",buf1); \
+//            __execshell(buf1,logp);
+
+
+				/* inline optimization */
+
 //				__command(
-//					"cd %s; llvm-link -f -o _link_%s.bc %s.bc __vcore_rt.bc 2>&1",
+//					"cd %s; opt -f -std-compile-opts -inline -O3"
+//					" -o _opt_%s.bc _link_%s.bc 2>&1",
 //					wd,filebase,filebase); 
 //				__log(logp,"]%s\n",buf1); \
 //				__execshell(buf1,logp);
 
 
-          /* link bc */
-
-//need_builtins = 0;
-
-            if (need_builtins) {
-#if defined(USE_BDT_BUILTINS)
-               __command(
-                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc"
-						" builtins.bc 2>&1",
-                 wd,filebase,filebase);
-#else
-               __command(
-                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc"
-//						" builtins.bc  2>&1",
-						" builtins.bc  ati_builtins_x86_64_patch.bc 2>&1",
-                  wd,filebase,filebase);
-#endif
-            } else {
-               __command(
-                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc ati_builtins_x86_64_patch.bc 2>&1",
-                  wd,filebase,filebase);
-            }
-            __log(logp,"]%s\n",buf1); \
-            __execshell(buf1,logp);
-
-
-				/* inline optimization */
-
-				__command(
-					"cd %s; opt -f -std-compile-opts -inline -O3"
-					" -o _opt_%s.bc _link_%s.bc 2>&1",
-					wd,filebase,filebase); 
-				__log(logp,"]%s\n",buf1); \
-				__execshell(buf1,logp);
-
-
 				/* assemble bc to native asm */
 
-				__command("cd %s; llc -O3 -march=x86-64"
-					" --relocation-model=pic _opt_%s.bc 2>&1",wd,filebase); 
-				__log(logp,"]%s\n",buf1); \
-				__execshell(buf1,logp);
+//				__command("cd %s; llc -O3 -march=x86-64"
+//					" --relocation-model=pic _opt_%s.bc 2>&1",wd,filebase); 
+//				__log(logp,"]%s\n",buf1); \
+//				__execshell(buf1,logp);
 
 
 				/* assemble to native object */
 
-//				__command("cd %s; gcc -O3 -fPIC -g -c _opt_%s.s 2>&1",wd,filebase); 
-				__command("cd %s; gcc -O2 -fPIC -c _opt_%s.s 2>&1",wd,filebase); 
+////				__command("cd %s; gcc -O3 -fPIC -g -c _opt_%s.s 2>&1",wd,filebase); 
+//				__command("cd %s; gcc -O2 -fPIC -c _opt_%s.s 2>&1",wd,filebase); 
+//				__log(p2,"]%s\n",buf1); \
+//				__execshell(buf1,p2);
+
+				__command("cd %s; gcc -O2 -fPIC -c %s.c 2>&1",wd,filebase); 
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
 
@@ -455,7 +464,7 @@ void* compile_x86_64(
 				/* generate kcall wrappers */
 
 				__command("cd %s; xclnm --kcall -d -c %s -o _kcall_%s.c 2>&1",
-					wd,file_ll,filebase); 
+					wd,file_cl,filebase); 
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
 
@@ -493,7 +502,7 @@ void* compile_x86_64(
 
 				DEBUG(__FILE__,__LINE__,"extract arg data");
 
-				__command("cd %s; xclnm -n -d %s",wd,file_ll); 
+				__command("cd %s; xclnm -n -d %s",wd,file_cl); 
 				fp = popen(buf1,"r");
 				fscanf(fp,"%d",&nsym);
 				pclose(fp); 
@@ -518,7 +527,7 @@ void* compile_x86_64(
 				int ptrc;
 				int n;
 				int arg0;
-				__command("cd %s; xclnm --clsymtab -d -c %s.ll",wd,filebase);
+				__command("cd %s; xclnm --clsymtab -d -c %s.cl",wd,filebase);
 				fp = popen(buf1,"r");
 				while (!feof(fp)) {
 					if (fscanf(fp,"%d %c %s %d %d %d %d %d %d %d",
@@ -573,7 +582,7 @@ void* compile_x86_64(
 				i=0;
 				char aname[256];
 				int argn;
-				__command("cd %s; xclnm --clargtab -d -c %s.ll",wd,filebase);
+				__command("cd %s; xclnm --clargtab -d -c %s.cl",wd,filebase);
 				fp = popen(buf1,"r");
 				while (!feof(fp)) {
 
@@ -662,11 +671,9 @@ DEBUG(0,0,"HERE");
 
 				/* now build .so that will be used for link */
 
-//				__command("cd %s; gcc -g -shared -Wl,-soname,%s.so -o %s.so"
 				__command("cd %s; gcc -O2 -shared -Wl,-soname,%s.so -o %s.so"
-//					" _opt_%s.o _kcall_%s.o __elfcl_rt.o"
-					" _opt_%s.o _kcall_%s.o "
-//					" fast_setjmp.o"
+//					" _opt_%s.o _kcall_%s.o "
+					" %s.o _kcall_%s.o __vcore_rt.o "
 					" %s.elfcl 2>&1",
 					wd,filebase,filebase,filebase,filebase,filebase);
 				__log(p2,"]%s\n",buf1); \
@@ -742,15 +749,11 @@ DEBUG(__FILE__,__LINE__,"HERE");
  typedef void*(*get_ptr_func_t)();
    typedef int(*get_int_func_t)();
    typedef size_t(*get_sz_func_t)();
-//   dladdr(h,&info);
-//   printf("XXX %s\n",info.dli_fname);
    get_ptr_func_t __get_shstrtab = dlsym(h,"__get_shstrtab");
    Dl_info info;
    dladdr(__get_shstrtab,&info);
 
-//	Elf* e = elf_begin(fd1, ELF_C_READ, NULL);
 	Elf* e = (Elf*)mmap(0,sz,PROT_READ,MAP_SHARED,fd1,0);
-//   Elf* e = (Elf*)info.dli_fbase;
 	Elf64_Ehdr* ehdr = (Elf64_Ehdr*)e;
 	DEBUG(__FILE__,__LINE__,"XXX e %p",e);
 	DEBUG(__FILE__,__LINE__,"XXX e_shoff %d",ehdr->e_shoff);
