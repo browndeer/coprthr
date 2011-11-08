@@ -61,26 +61,63 @@ FILE* __xclnm_yyin;
 
 %% /* rules */
 
-"__kernel" 	{ __plb(); ival_return(KERNEL); }
-"__global" 	{ __plb(); }
-"__local" 	{ __plb(); }
-"__read_only" 	{ __plb(); }
+"__kernel" 			{ __plb(); ival_return(KERNEL); }
+"__global" 			{ __plb(); ival_return(ADDRSPACE_GLOBAL); }
+"__local" 			{ __plb(); ival_return(ADDRSPACE_LOCAL); }
+"__read_only" 		{ __plb(); }
 "__write_only" 	{ __plb(); }
 
-"void" 		{ __plb(); ival_return(TYPE_VOID); }
-"i8" 			{ __plb(); ival_return(TYPE_INT8); }
-"i16" 		{ __plb(); ival_return(TYPE_INT16); }
-"i32" 		{ __plb(); ival_return(TYPE_INT32); }
-"int" 		{ __plb(); ival_return(TYPE_INT32); }
-"uint" 		{ __plb(); ival_return(TYPE_UINT32); }
-"i64" 		{ __plb(); ival_return(TYPE_INT64); }
-"float" 		{ __plb(); ival_return(TYPE_FLOAT); }
-"double"		{ __plb(); ival_return(TYPE_DOUBLE); }
+"void" 							{ __plb(); ival_return(TYPE_VOID); }
+"char" 							{ __plb(); ival_return(TYPE_INT8); }
+"short" 							{ __plb(); ival_return(TYPE_INT16); }
+"int" 							{ __plb(); ival_return(TYPE_INT32); }
+"long" 							{ __plb(); ival_return(TYPE_INT64); }
+"uchar" 							{ __plb(); ival_return(TYPE_UINT8); }
+"unsigned"{WS}+"char" 		{ __plb(); ival_return(TYPE_UINT8); }
+"ushort"							{ __plb(); ival_return(TYPE_UINT16); }
+"unsigned"{WS}+"short"		{ __plb(); ival_return(TYPE_UINT16); }
+"uint" 							{ __plb(); ival_return(TYPE_UINT32); }
+"unsigned"{WS}+"int" 		{ __plb(); ival_return(TYPE_UINT32); }
+"ulong" 							{ __plb(); ival_return(TYPE_UINT64); }
+"unsigned"{WS}+"long" 		{ __plb(); ival_return(TYPE_UINT64); }
+"float" 							{ __plb(); ival_return(TYPE_FLOAT); }
+"double"							{ __plb(); ival_return(TYPE_DOUBLE); }
+
 "image2d_t"	{ __plb(); ival_return(TYPE_OPAQUE); }
+
+"char2" 							{ __plb(); ival_return(TYPE_INT8_VEC2); }
+"short2" 						{ __plb(); ival_return(TYPE_INT16_VEC2); }
+"int2" 							{ __plb(); ival_return(TYPE_INT32_VEC2); }
+"long2" 							{ __plb(); ival_return(TYPE_INT64_VEC2); }
+"uchar2"							{ __plb(); ival_return(TYPE_UINT8_VEC2); }
+"unsigned"{WS}+"char2"		{ __plb(); ival_return(TYPE_UINT8_VEC2); }
+"ushort2" 						{ __plb(); ival_return(TYPE_UINT16_VEC2); }
+"unsigned"{WS}+"short2" 	{ __plb(); ival_return(TYPE_UINT16_VEC2); }
+"uint2" 							{ __plb(); ival_return(TYPE_UINT32_VEC2); }
+"unsigned"{WS}+"int2" 		{ __plb(); ival_return(TYPE_UINT32_VEC2); }
+"ulong2"							{ __plb(); ival_return(TYPE_UINT64_VEC2); }
+"unsigned"{WS}+"ulong2"		{ __plb(); ival_return(TYPE_UINT64_VEC2); }
+"float2" 							{ __plb(); ival_return(TYPE_FLOAT_VEC2); }
+"double2"							{ __plb(); ival_return(TYPE_DOUBLE_VEC2); }
+
+"char4" 							{ __plb(); ival_return(TYPE_INT8_VEC4); }
+"short4" 						{ __plb(); ival_return(TYPE_INT16_VEC4); }
+"int4" 							{ __plb(); ival_return(TYPE_INT32_VEC4); }
+"long4" 							{ __plb(); ival_return(TYPE_INT32_VEC4); }
+"uchar4" 						{ __plb(); ival_return(TYPE_UINT8_VEC4); }
+"unsigned"{WS}+"char4" 		{ __plb(); ival_return(TYPE_UINT8_VEC4); }
+"ushort4" 						{ __plb(); ival_return(TYPE_UINT16_VEC4); }
+"unsigned"{WS}+"short4" 	{ __plb(); ival_return(TYPE_UINT16_VEC4); }
+"uint4" 							{ __plb(); ival_return(TYPE_UINT32_VEC4); }
+"unsigned"{WS}+"int4" 		{ __plb(); ival_return(TYPE_UINT32_VEC4); }
+"ulong4" 						{ __plb(); ival_return(TYPE_UINT32_VEC4); }
+"unsigned"{WS}+"long4" 		{ __plb(); ival_return(TYPE_UINT32_VEC4); }
+"float4" 						{ __plb(); ival_return(TYPE_FLOAT_VEC4); }
+"double4"						{ __plb(); ival_return(TYPE_DOUBLE_VEC4); }
 
 "..."			{ __plb(); return(VARG); }
 
-{DIG}+		{ __plb(); __xclnm_lval.ival = atoi(yytext); return(ICONST); }
+{DIG}+		{ __plb(); __xclnm_lval.ival = atoi(yytext); fprintf(stderr,"XXX %d\n",__xclnm_lval.ival); return(ICONST); }
 
 {DIG}+{WS}*x		{ __plb(); __xclnm_lval.ival = atoi(yytext); return(VECN); }
 
@@ -102,7 +139,6 @@ FILE* __xclnm_yyin;
 				c = input();
 				if (c=='{') ++level;
 				else if (c=='}') --level;
-//fprintf(stderr,"XXX |%c|\n",c);
 			}
 			ival_return(BODY); 
 		};
