@@ -1,6 +1,6 @@
-/* compiler.c 
+/* compiler_x86_64.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -19,6 +19,34 @@
  */
 
 /* DAR */
+
+
+/* select compiler preferernces */
+
+#define CCEXE " gcc44 "
+#define CXXEXE " g++44 "
+
+#define CCFLAGS_OCL_O2 \
+	" -fthread-jumps -fcrossjumping -foptimize-sibling-calls " \
+	" -fcse-follow-jumps  -fcse-skip-blocks -fgcse -fgcse-lm  " \
+	" -fexpensive-optimizations -fstrength-reduce " \
+	" -frerun-cse-after-loop -frerun-loop-opt -fcaller-saves " \
+	" -fpeephole2 -fschedule-insns -fschedule-insns2 " \
+	" -fsched-interblock  -fsched-spec -fregmove " \
+	" -fstrict-aliasing -fdelete-null-pointer-checks " \
+	" -freorder-blocks -freorder-functions " \
+	" -falign-functions -falign-jumps -falign-loops  -falign-labels " \
+	" -ftree-vrp -ftree-pre" 
+
+/* XXX note that most flags suposedly enabled by -O2 are added explicitly
+ * XXX for CCFLAGS_OCL because this inexplicably improves performance by 2%.
+ * XXX the primary issue seems to be -fschedule-insns -fschedule-insns2 .
+ * XXX also, do not raise CCFLAGS_KCALL, effect is to break everything. -DAR */
+
+#define CCFLAGS_OCL " -O2 -msse3 " CCFLAGS_OCL_O2
+#define CCFLAGS_KCALL " -O0 "
+#define CCFLAGS_LINK 
+
 
 #define _GNU_SOURCE
 #include <link.h>
@@ -153,6 +181,18 @@ int shell( char* command, char* options, char* output );
 	fclose(fp); \
 	} while(0);
 
+#define __writefile_cpp(file,filesz,pfile) do { \
+	FILE* fp = fopen(file,"w"); \
+	fprintf(fp,"#include \"__libocl.h\"\nextern \"C\" {\n"); \
+	DEBUG(__FILE__,__LINE__,"trying to write %d bytes",filesz); \
+	if (fwrite(pfile,1,filesz,fp) != filesz) { \
+		ERROR(__FILE__,__LINE__,"error: write '%s' failed",file); \
+		return((void*)CLERROR_BUILD_FAILED); \
+	} \
+	fprintf(fp,"\n}\n"); \
+	fclose(fp); \
+	} while(0);
+
 
 #define __mapfile(file,filesz,pfile) do { \
 	int fd = open(file,O_RDONLY); \
@@ -214,9 +254,11 @@ void* compile_x86_64(
 #endif
 
 	char file_cl[256];
+	char file_cpp[256];
 	char file_ll[256];
 
 	snprintf(file_cl,256,"%s/%s.cl",wd,filebase);
+	snprintf(file_cpp,256,"%s/%s.cpp",wd,filebase);
 	snprintf(file_ll,256,"%s/%s.ll",wd,filebase);
 
 	size_t filesz_cl = 0;
@@ -267,11 +309,6 @@ void* compile_x86_64(
 
 				/* copy rt objects to work dir */
 
-//				__command("cp "INSTALL_LIB_DIR"/__elfcl_rt.o %s",wd);
-//				__log(logp,"]%s\n",buf1); \
-//				__execshell(buf1,logp);
-
-//				__command("cp "INSTALL_LIB_DIR"/__vcore_rt.bc %s",wd);
 				__command("cp "INSTALL_LIB_DIR"/__vcore_rt.o %s",wd);
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
@@ -292,171 +329,21 @@ void* compile_x86_64(
 				DEBUG(__FILE__,__LINE__,"compile: writefile %s %d %p",
 					file_cl,filesz_cl,pfile_cl);
 				__writefile(file_cl,filesz_cl,pfile_cl);
-
 				DEBUG(__FILE__,__LINE__,"%s written\n",buf1);
 
-				__command("cd %s; cp %s.cl %s.c",wd,filebase,filebase);
-				__log(logp,"]%s\n",buf1); \
-				__execshell(buf1,logp);
-
-
-				/* clc compile */
-
-//				if (opt) {
-//#if defined(__FreeBSD__)
-//					__command("cd %s; %s/bin/x86/clc %s -o __%s.ll %s 2>&1",
-//#else
-//					__command("cd %s; %s/bin/x86_64/clc %s -o __%s.ll %s 2>&1",
-//#endif
-//						wd,ATISTREAMSDK21,opt,filebase,file_cl); 
-//				} else {
-//					DEBUG(__FILE__,__LINE__,"no options");
-//#if defined(__FreeBSD__)
-//					__command("cd %s; %s/bin/x86/clc -o __%s.ll %s 2>&1",
-//#else
-//					__command("cd %s; %s/bin/x86_64/clc -o __%s.ll %s 2>&1",
-//#endif
-//						wd,ATISTREAMSDK21,filebase,file_cl); 
-//				}
-//				__log(logp,"]%s\n",buf1); \
-//				__execshell(buf1,logp);
-
-
-				/* strip target specification  */
-//				__command("cd %s;"
-//					" grep -v -e 'target datalayout' -e 'target triple' __%s.ll"
-//					" > %s.ll ",wd,filebase,filebase);
-//				__log(logp,"]%s\n",buf1); \
-//				__execshell(buf1,logp);
-
-
-				/* assemble to bc */
-
-//				__command("cd %s; llvm-as -f %s.ll 2>&1",wd,filebase); 
-//				__log(logp,"]%s\n",buf1); \
-//				__execshell(buf1,logp);
-
-
-            /* extract undefined symbols from builtins */
-
-//            __command(
-//               "cd %s; llvm-nm %s.bc|" NMFILTER 
-//					"|awk '/^[ \t]+U / {printf $2 \",\";}'",
-//               wd,filebase);
-//            *buf2 = '\0';
-//            DEBUG(__FILE__,__LINE__,"%s",buf1);
-//            fp = popen(buf1,"r");
-//            fgets(buf2,DEFAULT_BUF2_SZ,fp);
-//            DEBUG(__FILE__,__LINE__,"%s",buf2);
-//            pclose(fp);
-//            int need_builtins = (strnlen(buf2,DEFAULT_BUF2_SZ)>0)? 1 : 0;
-//            DEBUG(__FILE__,__LINE__,"need_builtins %d",need_builtins);
-//#if defined(USE_BDT_BUILTINS)
-//            if (need_builtins) {
-//               __command(
-//                  "cd %s;"
-//                  " llvm-ex -f -func=%s %s/bdt_builtins_x86_64.bc"
-//                  " -o builtins.bc",
-//                  wd,buf2,INSTALL_LIB_DIR);
-//               __log(logp,"]%s\n",buf1);
-//               __execshell(buf1,logp);
-//            }
-//#else
-//            if (need_builtins) {
-//
-////					__command("cp %s/ati_builtins_x86_64_patch.bc %s",
-////						INSTALL_LIB_DIR,wd);
-////					__log(logp,"]%s\n",buf1); \
-////					__execshell(buf1,logp);
-//
-//					/* XXX hardcoding is hack.  find way to correctly/recursively extract -DAR */
-//
-//		/* XXX builtins_x86-64.bc == v2.1 / builtins-x86_64.bc = v2.3 */
-//               __command(
-//                  "cd %s;"
-//                  " llvm-ex -f -func=__select_2i322i32,%s"
-//#if defined(__FreeBSD__)
-//						" %s/lib/x86/builtins_x86-64.bc"
-//#else
-//						" %s/lib/x86_64/builtins_x86-64.bc"
-//#endif
-//                  " -o builtins.bc",
-//                  wd,buf2,ATISTREAMSDK21);
-//               __log(logp,"]%s\n",buf1);
-//               __execshell(buf1,logp);
-//
-//            }
-//#endif
-
-	/* XXX moving cp of patch outside of if-need-builtin conditional -DAR */
-
-//				__command("cp %s/ati_builtins_x86_64_patch.bc %s",
-//					INSTALL_LIB_DIR,wd);
-//				__log(logp,"]%s\n",buf1); 
-//				__execshell(buf1,logp);
-
-
-				/* link with vcore_rt bc */
-
-////				__command(
-////					"cd %s; llvm-link -f -o _link_%s.bc %s.bc __vcore_rt.bc 2>&1",
-////					wd,filebase,filebase); 
-////				__log(logp,"]%s\n",buf1); \
-////				__execshell(buf1,logp);
-
-
-          /* link bc */
-
-////need_builtins = 0;
-
-//            if (need_builtins) {
-//#if defined(USE_BDT_BUILTINS)
-//               __command(
-//                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc"
-//						" builtins.bc 2>&1",
-//                 wd,filebase,filebase);
-//#else
-//               __command(
-//                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc"
-////						" builtins.bc  2>&1",
-//						" builtins.bc  ati_builtins_x86_64_patch.bc 2>&1",
-//                  wd,filebase,filebase);
-//#endif
-//            } else {
-//               __command(
-//                  "cd %s; llvm-ld -b _link_%s.bc %s.bc __vcore_rt.bc ati_builtins_x86_64_patch.bc 2>&1",
-//                  wd,filebase,filebase);
-//            }
-//            __log(logp,"]%s\n",buf1); \
-//            __execshell(buf1,logp);
-
-
-				/* inline optimization */
-
-//				__command(
-//					"cd %s; opt -f -std-compile-opts -inline -O3"
-//					" -o _opt_%s.bc _link_%s.bc 2>&1",
-//					wd,filebase,filebase); 
-//				__log(logp,"]%s\n",buf1); \
-//				__execshell(buf1,logp);
-
-
-				/* assemble bc to native asm */
-
-//				__command("cd %s; llc -O3 -march=x86-64"
-//					" --relocation-model=pic _opt_%s.bc 2>&1",wd,filebase); 
-//				__log(logp,"]%s\n",buf1); \
-//				__execshell(buf1,logp);
+				DEBUG(__FILE__,__LINE__,"compile: writefile_cpp %s %d %p",
+					file_cpp,filesz_cl,pfile_cl);
+				__writefile_cpp(file_cpp,filesz_cl,pfile_cl);
+				DEBUG(__FILE__,__LINE__,"%s written\n",buf1);
 
 
 				/* assemble to native object */
 
-////				__command("cd %s; gcc -O3 -fPIC -g -c _opt_%s.s 2>&1",wd,filebase); 
-//				__command("cd %s; gcc -O2 -fPIC -c _opt_%s.s 2>&1",wd,filebase); 
-//				__log(p2,"]%s\n",buf1); \
-//				__execshell(buf1,p2);
-
-				__command("cd %s; gcc -O2 -fPIC -c %s.c 2>&1",wd,filebase); 
+//				__command("cd %s; gcc -O2 -msse -fPIC -c -g %s.cpp 2>&1",
+//				__command("cd %s; gcc -O1 -msse -fPIC -c -g %s.cpp 2>&1",
+				__command(
+					"cd %s; gcc44 " CCFLAGS_OCL " -msse -fPIC -c -g %s.cpp 2>&1",
+					wd,filebase); 
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
 
@@ -471,19 +358,20 @@ void* compile_x86_64(
 
 				/* gcc compile kcall wrappers */
 
-#if defined(USE_FAST_SETJMP)
-				__command(
-					"cd %s; gcc -O2 -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
-					wd,INSTALL_INCLUDE_DIR,filebase); 
-#else
+//#if defined(USE_FAST_SETJMP)
+//				__command(
+//					"cd %s; gcc -O2 -fPIC -DUSE_FAST_SETJMP -I%s -c _kcall_%s.c 2>&1",
+//					wd,INSTALL_INCLUDE_DIR,filebase); 
+//#else
 #if defined(__FreeBSD__)
 				__command("cd %s; gcc -O0 -fPIC -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
-				__command("cd %s; gcc -O2 -fPIC -I%s -c _kcall_%s.c 2>&1",
+				__command(
+					"cd %s; gcc44 " CCFLAGS_KCALL " -fPIC -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #endif
-#endif
+//#endif
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
 
@@ -671,9 +559,12 @@ DEBUG(0,0,"HERE");
 
 				/* now build .so that will be used for link */
 
-				__command("cd %s; gcc -O2 -shared -Wl,-soname,%s.so -o %s.so"
+//				__command("cd %s; g++ -O2 -shared -Wl,-soname,%s.so -o %s.so"
+				__command(
+					"cd %s; g++44 " CCFLAGS_LINK " -shared -Wl,-soname,%s.so -o %s.so"
 //					" _opt_%s.o _kcall_%s.o "
 					" %s.o _kcall_%s.o __vcore_rt.o "
+//					" %s.o _kcall_%s.o "
 					" %s.elfcl 2>&1",
 					wd,filebase,filebase,filebase,filebase,filebase);
 				__log(p2,"]%s\n",buf1); \

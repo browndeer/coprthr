@@ -25,8 +25,8 @@ INSTALL_MAN_DIR=@mandir@
 
 #ATISTREAMSDK = /usr/local/atistream/atistream_sdk-2.0/
 #ATISTREAMSDK = /usr/local/atistream/
-ATISTREAMSDK=@AMD_SDK@
-ATISTREAMSDK21=@ATI_SDK_21@
+#ATISTREAMSDK=@AMD_SDK@
+#ATISTREAMSDK21=@ATI_SDK_21@
 
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
@@ -46,13 +46,14 @@ IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 
 
 #RT_OBJS = __elfcl_rt.o fast_setjmp.o
-RT_OBJS = fast_setjmp.o __vcore_rt.o
+#RT_OBJS = fast_setjmp.o __vcore_rt.o
+RT_OBJS = fast_setjmp.o 
 
-RT_BC = __vcore_rt.bc bdt_builtins_x86_64.bc
+#RT_BC = __vcore_rt.bc bdt_builtins_x86_64.bc
 
 
-DEFS += -DATISTREAMSDK=\"$(ATISTREAMSDK)\" 
-DEFS += -DATISTREAMSDK21=\"$(ATISTREAMSDK21)\" 
+#DEFS += -DATISTREAMSDK=\"$(ATISTREAMSDK)\" 
+#DEFS += -DATISTREAMSDK21=\"$(ATISTREAMSDK21)\" 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 
 #ifeq ($(ENABLE_ATIGPU),1)
@@ -108,7 +109,8 @@ DEFS += \
 	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
 
 #CCFLAGS += -O1 -fPIC -fbounds-check -g
-CCFLAGS += -O1 -fPIC -funroll-loops -fstrict-aliasing
+CCFLAGS += -O1 -fPIC 
+CCFLAGS_VCORE_RT = -O1 -fPIC -funroll-loops -fstrict-aliasing
 
 
 #YACC = yacc
@@ -120,7 +122,8 @@ LEXFLAGS =
 
 XCLNM_YYPREFIX = __xclnm_
 
-TARGET = libocl.so $(RT_OBJS) $(RT_BC) ati_builtins_x86_64_patch.bc
+#TARGET = libocl.so $(RT_OBJS) $(RT_BC) ati_builtins_x86_64_patch.bc
+TARGET = libocl.so $(RT_OBJS) 
 #ifeq ($(ENABLE_DEBUG_LIBOCL),1)
 TARGET += libocl_d.so
 #endif
@@ -155,21 +158,24 @@ libocl_d.so: $(OBJS_D) $(RT_OBJS)
 	$(CC) $(CCFLAGS) $(INCS) \
 		-shared -Wl,-soname,libocl_d.so -o libocl_d.so  $(OBJS_D) $(LIBS)
 
-__vcore_rt.bc: __vcore_rt.c
-	clang -c -emit-llvm $(DEFS) $(INCS) -o __vcore_rt.bc __vcore_rt.c
+#__vcore_rt.bc: __vcore_rt.c
+#	clang -c -emit-llvm $(DEFS) $(INCS) -o __vcore_rt.bc __vcore_rt.c
 
-bdt_builtins_x86_64.bc: bdt_builtins_x86_64.c
-	clang -c -emit-llvm $(DEFS) $(INCS) -o bdt_builtins_x86_64.bc \
-		bdt_builtins_x86_64.c
+#bdt_builtins_x86_64.bc: bdt_builtins_x86_64.c
+#	clang -c -emit-llvm $(DEFS) $(INCS) -o bdt_builtins_x86_64.bc \
+#		bdt_builtins_x86_64.c
 
-ati_builtins_x86_64_patch.bc: ati_builtins_x86_64_patch.c
-	clang -c -emit-llvm $(DEFS) $(INCS) -o ati_builtins_x86_64_patch.bc \
-		ati_builtins_x86_64_patch.c
+#ati_builtins_x86_64_patch.bc: ati_builtins_x86_64_patch.c
+#	clang -c -emit-llvm $(DEFS) $(INCS) -o ati_builtins_x86_64_patch.bc \
+#		ati_builtins_x86_64_patch.c
+
+__vcore_rt.o: __vcore_rt.c
+	$(CC) -c $(CCFLAGS_VCORE_RT) $(DEFS) $(INCS) -o __vcore_rt.o __vcore_rt.c
 
 
 
 
-check_root:
+#check_root:
 #ifneq ($(shell whoami),root)
 #	$(error install must be done as root)
 #endif
@@ -179,30 +185,32 @@ debug:
 	make -f Makefile all
 
 
-install: check_root
+#install: check_root
+install: 
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	install -m 755 libocl.so $(INSTALL_LIB_DIR)
 	install -m 755 libocl_d.so $(INSTALL_LIB_DIR)
 	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
-	install -m 755 $(RT_BC) $(INSTALL_LIB_DIR)
-	install -m 755 ati_builtins_x86_64_patch.bc $(INSTALL_LIB_DIR)
+#	install -m 755 $(RT_BC) $(INSTALL_LIB_DIR)
+#	install -m 755 ati_builtins_x86_64_patch.bc $(INSTALL_LIB_DIR)
 	install -m 755 vcore.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 __libocl.h $(INSTALL_INCLUDE_DIR)
 	test -d /etc/OpenCL/vendors || install -m 755 -d /etc/OpenCL/vendors
 	echo $(INSTALL_LIB_DIR)/libocl.so > /etc/OpenCL/vendors/coprthr.icd
 #	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so
 
-uninstall: check_root
+#uninstall: check_root
+uninstall: 
 	rm -f $(INSTALL_LIB_DIR)/libocl.so
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
-	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_BC))
+#	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_BC))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,vcore.h)
 
 clean:
 	rm -f *.o *.so
-	rm -f *.bc
+#	rm -f *.bc
 
 distclean: clean
 

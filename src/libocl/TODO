@@ -1,6 +1,6 @@
 
 note: program.c contains defines copied from xclnm_gram.h and this should
-be fixed since its very fragile. -DAR
+be fixed since its very fragile. -DAR THIS WAS FIXED WITH ocl_types.h
 
 
 

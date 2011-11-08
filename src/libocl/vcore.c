@@ -338,6 +338,7 @@ vcproc_startup( void* p )
 
 	if (getenv("COPRTHR_VCORE_NE")) 
 		vcore_ne = min(vcore_ne,atoi(getenv("COPRTHR_VCORE_NE")));
+//		vcore_ne = max(vcore_ne,atoi(getenv("COPRTHR_VCORE_NE")));
 
 	DEBUG(__FILE__,__LINE__,"vcore_ne = %d",vcore_ne);
 

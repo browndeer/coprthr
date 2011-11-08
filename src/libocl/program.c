@@ -30,6 +30,7 @@
 #include "elf_cl.h"
 #include "cmdcall.h" /* XXX this is only used for backdoor -DAR */
 #include "vcore.h"	/* XXX this is only used for backdoor -DAR */
+#include "ocl_types.h"
 
 
 /* XXX this is a hack, copied from xclnm_gram.h, fix this! -DAR */
@@ -41,19 +42,32 @@
 //#define __TYPE_INT64  267
 //#define __TYPE_FLOAT  268
 //#define __TYPE_DOUBLE  269
-#define __TYPE_OPAQUE  261
-#define __TYPE_VOID  262
-#define __TYPE_INT8  263
-#define __TYPE_INT16  264
-#define __TYPE_INT32  265
-#define __TYPE_INT64  266
-#define __TYPE_UINT8  267
-#define __TYPE_UINT16  268
-#define __TYPE_UINT32  269
-#define __TYPE_UINT64  270
-#define __TYPE_FLOAT  271
-#define __TYPE_DOUBLE  272
 
+//#define __TYPE_OPAQUE  261
+//#define __TYPE_VOID  262
+//#define __TYPE_INT8  263
+//#define __TYPE_INT16  264
+//#define __TYPE_INT32  265
+//#define __TYPE_INT64  266
+//#define __TYPE_UINT8  267
+//#define __TYPE_UINT16  268
+//#define __TYPE_UINT32  269
+//#define __TYPE_UINT64  270
+//#define __TYPE_FLOAT  271
+//#define __TYPE_DOUBLE  272
+
+//#define __TYPE_OPAQUE TYPE_OPAQUE
+//#define __TYPE_VOID  TYPE_VOID
+//#define __TYPE_INT8  TYPE_INT8
+//#define __TYPE_INT16  TYPE_INT16
+//#define __TYPE_INT32  TYPE_INT32
+//#define __TYPE_INT64  TYPE_INT64
+//#define __TYPE_UINT8  TYPE_UINT8
+//#define __TYPE_UINT16  TYPE_UINT16
+//#define __TYPE_UINT32  TYPE_UINT32
+//#define __TYPE_UINT64  TYPE_UINT64
+//#define __TYPE_FLOAT  TYPE_FLOAT
+//#define __TYPE_DOUBLE  TYPE_DOUBLE
 
 
 
@@ -226,35 +240,52 @@ cl_int __do_build_program_from_source(
 
 				switch(prg->imp.clargtab[arg].e_datatype) {
 
-					case __TYPE_INT8:
-					case __TYPE_UINT8: 
+//					case __TYPE_INT8:
+//					case __TYPE_UINT8: 
+					case TYPEID_CHAR:
+					case TYPEID_UCHAR: 
 						sz=1; 
-						DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT8",arg);
+						DEBUG(__FILE__,__LINE__,"arg type [%d] ~char",arg);
 						break;
 						
-					case __TYPE_INT16:
-					case __TYPE_UINT16: 
+//					case __TYPE_INT16:
+//					case __TYPE_UINT16: 
+					case TYPEID_SHORT:
+					case TYPEID_USHORT: 
 						sz=2; 
-						DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT16",arg);
+						DEBUG(__FILE__,__LINE__,"arg type [%d] ~short",arg);
 						break;
 
-					case __TYPE_INT32:
-					case __TYPE_UINT32: 
-					case __TYPE_FLOAT:
+//					case __TYPE_INT32:
+//					case __TYPE_UINT32: 
+//					case __TYPE_FLOAT:
+					case TYPEID_INT:
+					case TYPEID_UINT: 
+					case TYPEID_FLOAT:
 						sz=4; 
-						DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT32",arg);
+						DEBUG(__FILE__,__LINE__,"arg type [%d] ~int",arg);
 						break;
 
-					case __TYPE_INT64: 
-					case __TYPE_UINT64: 
-					case __TYPE_DOUBLE:
+//					case __TYPE_INT64: 
+//					case __TYPE_UINT64: 
+//					case __TYPE_DOUBLE:
+					case TYPEID_LONG: 
+					case TYPEID_ULONG: 
+					case TYPEID_DOUBLE:
 						sz=8; 
-						DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_INT64",arg);
+						DEBUG(__FILE__,__LINE__,"arg type [%d] ~long",arg);
 						break;
 
-					case __TYPE_VOID:
+					case TYPEID_OPAQUE:
+//						sz=8; 
+						sz=0; 
+						DEBUG(__FILE__,__LINE__,"arg type [%d] ~opaque",arg);
+						break;
+
+//					case __TYPE_VOID:
+					case TYPEID_VOID:
 					default: sz=0; 
-					DEBUG(__FILE__,__LINE__,"arg type [%d] __TYPE_VOID",arg);
+					DEBUG(__FILE__,__LINE__,"arg type [%d] ~void",arg);
 					break;
 
 				}

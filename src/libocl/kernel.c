@@ -94,6 +94,9 @@ int __do_set_kernel_arg(
 
 	cl_uint arg_kind = krn->imp.arg_kind[argn];
 
+	/* XXX hack to allow user to strongly imply local address space -DAR */
+	if (arg_sz > 0 && arg_val == 0) arg_kind = CLARG_KIND_LOCAL;
+
 	switch (arg_kind) {
 
 		case CLARG_KIND_VOID:
