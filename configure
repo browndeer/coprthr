@@ -812,7 +812,6 @@ Optional Features:
                           (default=yes)
   --enable-cltrace        enable building cltrace tool (default=yes)
   --enable-clld           enable building clld tool (default=yes)
-  --enable-libocl         enable building libocl (default=no)
   --enable-libocl-ncpu    enable libocl ncpu (default=yes)
   --enable-fortran        enable fortran bindings (default=no)
 
@@ -2722,57 +2721,6 @@ if test "${enable_clld+set}" = set; then
 
 else
   enable_clld=yes
-fi;
-
-# Check whether --enable-libocl or --disable-libocl was given.
-if test "${enable_libocl+set}" = set; then
-  enableval="$enable_libocl"
-
-    # Extract the first word of "llvm-ex", so it can be a program name with args.
-set dummy llvm-ex; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_LLVM_EX+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$LLVM_EX"; then
-  ac_cv_prog_LLVM_EX="$LLVM_EX" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_LLVM_EX="llvm-ex"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-fi
-fi
-LLVM_EX=$ac_cv_prog_LLVM_EX
-if test -n "$LLVM_EX"; then
-  echo "$as_me:$LINENO: result: $LLVM_EX" >&5
-echo "${ECHO_T}$LLVM_EX" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
-    if test $LLVM_EX; then
-      echo "found llvm-ex"
-    else
-     { { echo "$as_me:$LINENO: error: Could not find llvm-ex, suggest cd ./tools/llvm-ex and follow the instructions carefully, then try to configure again." >&5
-echo "$as_me: error: Could not find llvm-ex, suggest cd ./tools/llvm-ex and follow the instructions carefully, then try to configure again." >&2;}
-   { (exit 1); exit 1; }; }
-    fi;
-
-else
-  enable_libocl=no
 fi;
 
 # Check whether --enable-libocl-ncpu or --disable-libocl-ncpu was given.
