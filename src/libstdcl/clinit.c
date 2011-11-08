@@ -20,7 +20,6 @@
 
 /* DAR */
 
-
 /* XXX to do, add err code checks, other safety checks * -DAR */
 /* XXX to do, clvplat_destroy should automatically release all txts -DAR */
 
@@ -40,11 +39,11 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 
-
-
 #include <CL/cl.h>
 
 #include "util.h"
+
+#define __STDCL__
 #include "clinit.h"
 #include "clcontext.h"
 

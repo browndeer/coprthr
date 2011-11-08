@@ -1,6 +1,6 @@
 /* clarg.h
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -23,6 +23,10 @@
 #ifndef _CLARG_H
 #define _CLARG_H
 
+#ifndef __STDCL__
+#error Do not include clarg.h directly, include stdcl.h instead.
+#endif
+
 #ifdef _WIN64
 #include "fix_windows.h"
 #else
@@ -30,8 +34,8 @@
 #endif
 
 #include <CL/cl.h>
-#include "clcontext.h"
 
+#include "clcontext.h"
 
 
 #ifdef __cplusplus

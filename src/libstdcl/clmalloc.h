@@ -1,6 +1,6 @@
 /* clmalloc.h
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -24,6 +24,10 @@
 #ifndef _CLMALLOC_H
 #define _CLMALLOC_H
 
+#ifndef __STDCL__
+#error Do not include clmalloc.h directly, include stdcl.h instead.
+#endif
+
 #ifdef _WIN64
 #include "fix_windows.h"
 #else
@@ -32,13 +36,8 @@
 
 #include <stdarg.h>
 
-//#include "stdcl.h"
 #include "clcontext.h"
 
-
-/* XXX use of CL_MEM_WRITE is deprecated! remove it -DAR */
-
-#define CL_MEM_WRITE		0x200
 
 #define CL_MEM_RO					0x00000001
 #define CL_MEM_WO					0x00000002

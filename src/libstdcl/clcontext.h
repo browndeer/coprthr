@@ -1,6 +1,6 @@
 /* clcontext.h
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -23,9 +23,12 @@
 #ifndef _CLCONTEXT_H
 #define _CLCONTEXT_H
 
+#ifndef __STDCL__
+#error Do not include clcontext.h directly, include stdcl.h instead.
+#endif
+
 #include <string.h>
 #include <stdio.h>
-//#include <pthread.h>
 
 #ifdef _WIN64
 #include "fix_windows.h"
@@ -36,8 +39,6 @@
 #include <sys/queue.h>
 
 #include <CL/cl.h>
-
-//#include "util.h"
 
 struct _prgs_struct;
 struct _txt_struct;

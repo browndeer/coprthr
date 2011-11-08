@@ -34,8 +34,9 @@
 #include <sys/types.h>
 #include <sys/queue.h>
 
-#include "stdcl.h"
 #include "util.h"
+
+#include "stdcl.h"
 #include "clmalloc.h"
 #include "clsched.h"
 

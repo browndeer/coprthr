@@ -26,8 +26,10 @@
 
 #include <CL/cl.h>
 
-#include "clmalloc.h"
 #include "util.h"
+
+#define __STDCL__
+#include "clmalloc.h"
 
 
 #ifdef __cplusplus

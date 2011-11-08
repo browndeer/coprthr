@@ -20,9 +20,6 @@
 
 /* DAR */
 
-//#include <iostream>
-//using namespace std;
-
 /* XXX to do, add err code checks, other safety checks * -DAR */
 /* XXX to do, clvplat_destroy should automatically release all txts -DAR */
 
@@ -34,7 +31,6 @@
 #include <pthread.h>
 #endif
 
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -45,10 +41,11 @@
 
 #include <fcntl.h>
 
-
 #include <CL/cl.h>
 
 #include "util.h"
+
+#define __STDCL__
 #include "clinit.h"
 #include "clfcn.h"
 #include "clcontext.h"
