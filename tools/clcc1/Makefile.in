@@ -1,4 +1,4 @@
-# Makefile for clld
+# Makefile for clcc1
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -9,19 +9,22 @@ exec_prefix=@exec_prefix@
 
 ######################################################################
 
-BIN_NAME = clld
-MAN1 = clld.1
+BIN_NAME = clcc1
+#MAN1 = clcc1.1
 
 INSTALL_BIN_DIR=@bindir@
 INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
-INCS = -I../../include
+INCS = -I/usr/local/atistream/include
 
 LIBS = -lelf -lssl
+LIBS += -L../../src/libclelf -lclelf
+LIBS += -L/usr/local/atistream/lib/x86_64 -lOpenCL 
 
-OBJS = clld.o 
+
+OBJS = clcc1.o 
 
 CCFLAGS += -O1 -fPIC 
 
@@ -33,7 +36,7 @@ all: $(BIN_NAME) $(addsuffix .gz,$(MAN1))
 .SUFFIXES: .c .o 
 
 $(BIN_NAME): $(OBJS)
-	$(CC) $(CCFLAGS) $(DEFS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
+	$(CC) $(CCFLAGS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
 
 .c.o:
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<

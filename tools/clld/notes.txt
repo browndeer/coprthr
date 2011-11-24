@@ -1,0 +1,50 @@
+
+clld
+
+-mplatform <platform list>
+-mplatform=<platform list>
+
+-mplatform-exclude <platform list>
+-mplatform-exclude=<platform list>
+
+-mdevice <device list>
+-mdevice=<device list>
+
+-mdevice-exclude <device list>
+-mdevice-exclude=<device list>
+
+-mall		all devices supports
+-mavail	only devices available on machine
+
+-mgpu
+
+-mcpu
+
+-s
+--strip-bin
+
+--strip-src
+
+-o
+
+-v
+
+-q
+
+--version
+
+-h
+--help
+
+--one-per-device	use only one bin per device
+
+---------------------------------------------
+
+--allow-multiple-definition
+
+--b TARGET
+--format TARGET
+
+--b 
+--output-target=binary
+

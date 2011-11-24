@@ -1,0 +1,116 @@
+#
+# Makefile for libclelf
+#
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+### select default OpenCL implementation if not already defined
+USE_OPENCL_INCS = -I@OPENCL_INC@
+#USE_OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
+
+### enable build of debug version if not already defined
+ifeq (@ENABLE_DEBUG_LIBS@,1)
+ENABLE_DEBUG_LIBCLELF=1
+else
+ENABLE_DEBUG_LIBCLELF=0
+endif
+
+
+DEFS += -DCLELF_WARN 
+
+
+ifneq (@DEFAULT_OPENCL_PLATFORM@,)
+DEFS += -DDEFAULT_OPENCL_PLATFORM=\"@DEFAULT_OPENCL_PLATFORM@\"
+endif
+
+
+INSTALL_INCLUDE_DIR=@includedir@
+INSTALL_BIN_DIR=@bindir@
+INSTALL_LIB_DIR=@libdir@
+INSTALL_MAN_DIR=@mandir@
+
+
+############################################################################
+##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
+############################################################################
+
+#VPATH = .:./man/man3
+
+INCS += -I../../include $(USE_OPENCL_INCS)
+LIBS += $(USE_OPENCL_LIBS)
+
+#ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+#LIBS += -lpthread -lc -lrt
+#else
+#LIBS += -lpthread -ldl -lrt
+#endif
+
+
+OBJS = clelf.o
+OBJS_D = $(subst .o,_d.o,$(OBJS)) 
+
+
+HDRS = clelf.h 
+
+INSTALL_INCS = $(HDRS)
+INSTALL_LIBS = libclelf.so libclelf_d.so
+
+CCFLAGS += -g -O2 -fPIC
+
+TARGET += libclelf.so libclelf.a
+LIB_OBJS += $(OBJS)
+LIB_OBJS_D += $(OBJS_D)
+
+ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
+TARGET += libclelf_d.so libclelf_d.a
+endif
+
+all: $(TARGET)
+
+.phony: install uninstall clean distclean check_root debug
+
+libclelf.so: $(OBJS)
+	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclelf.so \
+		-o libclelf.so $(LIB_OBJS) $(LIBS)
+
+libclelf_d.so: $(OBJS_D)
+	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclelf_d.so \
+		-o libclelf_d.so $(LIB_OBJS_D) $(LIBS)
+
+libclelf.a:	$(OBJS)
+	ar rcv libclelf.a $(LIB_OBJS)
+
+libclelf_d.a:	$(OBJS_D)
+	ar rcv libclelf_d.a $(LIB_OBJS_D)
+
+
+.SUFFIXES:
+.SUFFIXES: .c .o 
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+%_d.o:
+	$(CC) $(CCFLAGS) $(DEFS) -DCLELF_DEBUG $(INCS) -c $*.c -o $*_d.o
+
+
+#install: check_root all
+install: $(INSTALL_INCS) $(INSTALL_LIBS) 
+	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
+	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
+	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
+
+uninstall: 
+	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS)) 
+
+
+clean:
+	rm -f *.o 
+	rm -f *.so
+	rm -f *.a
+
+distclean: clean
+

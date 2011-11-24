@@ -7,8 +7,8 @@ LIBELF_INC=@libelf_inc@
 LIBELF_LIB=@libelf_lib@
 
 
-#DEF = -DSTDCL_WARN -DSTDCL_DEBUG
-#DEF = -DSTDCL_WARN
+#DEFS = -DSTDCL_WARN -DSTDCL_DEBUG
+#DEFS = -DSTDCL_WARN
 
 ######################################################################
 
@@ -23,8 +23,9 @@ INSTALL_MAN_DIR=@mandir@
 INCS = -I../../include
 INCS += $(LIBELF_INC)
 
-#LIBS = -lelf 
-LIBS = $(LIBELF_LIB)
+LIBS = $(LIBELF_LIB)  -lssl 
+LIBS += -L../../src/libclelf -lclelf
+LIBS += -L/usr/local/atistream/lib/x86_64 -lOpenCL
 
 OBJS = clld.o 
 
@@ -38,7 +39,7 @@ all: $(BIN_NAME) $(addsuffix .gz,$(MAN1))
 .SUFFIXES: .c .o 
 
 $(BIN_NAME): $(OBJS)
-	$(CC) $(CCFLAGS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
+	$(CC) $(CCFLAGS) $(DEFS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
 
 .c.o:
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<

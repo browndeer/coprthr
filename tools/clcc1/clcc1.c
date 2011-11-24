@@ -1,4 +1,4 @@
-/* clcc.c
+/* clcc1.c
  *
  * Copyright (c) 2008-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -68,7 +68,7 @@ char* platform_name_string[] = {
 
 void usage() 
 {
-	printf("usage: WRONG-FIX clcc [options] file...\n");
+	printf("usage: WRONG-FIX clcc1 [options] file...\n");
 	printf("options:\n");
 	printf("\t--cl-binary \n");
 	printf("\t--cl-device DEVICE\n");
@@ -81,12 +81,12 @@ void usage()
 
 void version()
 {
-	printf("BDT clcc\n"); 
+	printf("BDT clcc1\n"); 
 	printf(
 		"Copyright (c) 2008-2011 Brown Deer Technology, LLC."
 		" All Rights Reserved.\n"
 	);
-	printf("This program is free software distributed under LGPLv3.\n");
+	printf("This program is free software distributed under GPLv3.\n");
 }
 
 void add_path( char* path_str, size_t* path_str_len, char* path )
@@ -94,7 +94,7 @@ void add_path( char* path_str, size_t* path_str_len, char* path )
 	size_t len = strnlen(path,1024);
 
 	if (*path_str_len + len + 2 > DEFAULT_STR_SIZE) {
-		fprintf(stderr,"clcc: error: path buffer overflow\n");
+		fprintf(stderr,"clcc1: error: path buffer overflow\n");
 		exit(-1);
 	}
 
@@ -245,14 +245,14 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
    struct stat st;
    if ( stat(fname,&st) == -1 || !S_ISREG(st.st_mode)) {
-   fprintf(stderr,"clcc: '%s' no such file\n",fname);
+   fprintf(stderr,"clcc1: '%s' no such file\n",fname);
       exit(-1);
    }
 
 	int fd = open(fname,O_RDONLY);
 
 	if (fd < 0) {
-      fprintf(stderr,"clcc: '%s' open failed\n",fname);
+      fprintf(stderr,"clcc1: '%s' open failed\n",fname);
       exit(-1);
    }
 
@@ -483,17 +483,17 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
 				data.cltextbin_bufp += bin_sizes[j];
 
-				printf("clcc: compile '%s' [%s:%s]\n",fname,
+				printf("clcc1: compile '%s' [%s:%s]\n",fname,
 					platform_name_string[platform_code],device_name);
 
 			} else if (status == CL_BUILD_NONE) {
 
-				printf("clcc: compile '%s' [%s:%s] FAILED\n",fname,
+				printf("clcc1: compile '%s' [%s:%s] FAILED\n",fname,
 					platform_name_string[platform_code],device_name);
 
 			} else if (status == CL_BUILD_ERROR || bins[j]==0) {	
 
-				printf("clcc: compile '%s' [%s:%s] FAILED\n",info,fname,
+				printf("clcc1: compile '%s' [%s:%s] FAILED\n",info,fname,
 					platform_name_string[platform_code],device_name);
 
 				char* build_log;
@@ -583,7 +583,7 @@ printf("\nXXX add option to use only devices that are present\n\n");
 	fd = mkstemp(tfname);
 
 	if (fd < 0) {
-		fprintf(stderr,"clcc: mkstemp failed");
+		fprintf(stderr,"clcc1: mkstemp failed");
 		exit(-1);
 	}
 

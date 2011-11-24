@@ -36,8 +36,8 @@
 #define DEFAULT_BUF_ALLOC			1048576
 #define DEFAULT_CLPRGTAB_NALLOC	16
 #define DEFAULT_CLKRNTAB_NALLOC	16
-#define DEFAULT_CLPRGS_NALLOC		16
-#define DEFAULT_CLPRGB_NALLOC		128
+#define DEFAULT_CLPRGSRC_NALLOC	16
+#define DEFAULT_CLPRGBIN_NALLOC	128
 
 
 #if defined(__x86_64__)
@@ -45,10 +45,10 @@
 struct clprgtab_entry {
 	Elf64_Word e_name;
 	Elf64_Word e_info;
-	Elf64_Half e_prgs;
-	Elf64_Half e_nprgs;
-	Elf64_Half e_prgb;
-	Elf64_Half e_nprgb;
+	Elf64_Half e_prgsrc;
+	Elf64_Half e_nprgsrc;
+	Elf64_Half e_prgbin;
+	Elf64_Half e_nprgbin;
 	Elf64_Half e_krn;
 	Elf64_Half e_nkrn;
 };
@@ -59,7 +59,7 @@ struct clkrntab_entry {
 	Elf64_Half e_prg;
 };
 
-struct clprgs_entry {
+struct clprgsrc_entry {
 	Elf64_Word e_name;
 	Elf64_Word e_info;
 	Elf64_Word e_platform;
@@ -69,7 +69,7 @@ struct clprgs_entry {
 	Elf64_Xword e_size;
 };
 
-struct clprgb_entry {
+struct clprgbin_entry {
 	Elf64_Word e_name;
 	Elf64_Word e_info;
 	Elf64_Word e_platform;
@@ -84,13 +84,13 @@ struct clprgb_entry {
 struct clprgtab_entry {
 	Elf32_Word e_name;
 	Elf32_Word e_info;
-	Elf32_Half e_prgs;
-	Elf32_Half e_nprgs;
-	Elf32_Half e_prgb;
-	Elf32_Half e_nprgb;
+	Elf32_Half e_prgsrc;
+	Elf32_Half e_nprgsrc;
+	Elf32_Half e_prgbin;
+	Elf32_Half e_nprgbin;
 };
 
-struct clprgs_entry {
+struct clprgsrc_entry {
 	Elf32_Word e_name;
 	Elf32_Word e_info;
 	Elf32_Half e_platform;
@@ -100,7 +100,7 @@ struct clprgs_entry {
 	Elf32_Xword e_size;
 };
 
-struct clprgb_entry {
+struct clprgbin_entry {
 	Elf32_Word e_name;
 	Elf32_Word e_info;
 	Elf32_Half e_platform;
@@ -114,13 +114,98 @@ struct clprgb_entry {
 
 #define __clprgtab_entry_sz sizeof(struct clprgtab_entry)
 #define __clkrntab_entry_sz sizeof(struct clkrntab_entry)
-#define __clprgs_entry_sz sizeof(struct clprgs_entry)
-#define __clprgb_entry_sz sizeof(struct clprgb_entry)
+#define __clprgsrc_entry_sz sizeof(struct clprgsrc_entry)
+#define __clprgbin_entry_sz sizeof(struct clprgbin_entry)
 
 
 #define LANG_OPENCL  1
 #define LANG_STDCL   2
 #define LANG_CUDA    3
+
+
+struct clelf_sect_struct {
+
+#if defined(__x86_64__)
+      Elf64_Shdr* p_shdr;
+      Elf64_Sym* symtab;
+      size_t symtab_n;
+      char* strtab;
+#elif defined(__i386__)
+      Elf32_Shdr* p_shdr;
+      Elf32_Sym* symtab;
+      size_t symtab_n;
+      char* strtab;
+#endif
+	
+   unsigned int clprgtab_n;
+   struct clprgtab_entry* clprgtab;
+
+   unsigned int clkrntab_n;
+   struct clkrntab_entry* clkrntab;
+
+   unsigned int clprgsrc_n;
+   struct clprgsrc_entry* clprgsrc;
+
+   size_t cltextsrc_sz;
+   char* cltextsrc;
+
+   unsigned int clprgbin_n;
+   struct clprgbin_entry* clprgbin;
+
+   size_t cltextbin_sz;
+   char* cltextbin;
+
+   size_t clstrtab_sz;
+   char* clstrtab;
+
+   int has_any_clelf_section;
+   int has_clprgtab;
+   int has_clkrntab;
+   int has_clstrtab;
+   int has_text;
+
+};
+
+struct clelf_data_struct{
+
+   unsigned int clprgtab_nalloc;
+   struct clprgtab_entry* clprgtab;
+   unsigned int clprgtab_n;
+   
+   unsigned int clkrntab_nalloc;
+   struct clkrntab_entry* clkrntab;
+   unsigned int clkrntab_n;
+   
+   unsigned int clprgsrc_nalloc;
+   struct clprgsrc_entry* clprgsrc;
+   unsigned int clprgsrc_n;
+   
+   unsigned int clprgbin_nalloc;
+   struct clprgbin_entry* clprgbin ;
+   unsigned int clprgbin_n;
+
+   size_t cltextsrc_buf_alloc;
+   char* cltextsrc_buf;
+   char* cltextsrc_bufp;
+
+   size_t cltextbin_buf_alloc;
+   char* cltextbin_buf;
+   char* cltextbin_bufp;
+
+   size_t clstrtab_str_alloc;
+   char* clstrtab_str;
+   char* clstrtab_strp;
+
+};
+
+
+extern int shstrtab_offset[];
+
+int clelf_init_data( struct clelf_data_struct* data );
+int clelf_write_file( int fd, struct clelf_data_struct* );
+int clelf_load_sections( char* elf_ptr, struct clelf_sect_struct* );
+int clelf_check_hash( char* elf_ptr, struct clelf_sect_struct* );
+
 
 #endif
 

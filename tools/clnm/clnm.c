@@ -1,4 +1,4 @@
-/* clld.c
+/* clnm.c
  *
  * Copyright (c) 2008-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -21,8 +21,6 @@
 
 /* DAR */
 
-
-//#define CLCC_TEST
 
 #include <string.h>
 #include <stdio.h>
@@ -67,7 +65,7 @@ void usage()
 
 void version()
 {
-	printf("BDT clld\n"); 
+	printf("BDT clnm\n"); 
 	printf(
 		"Copyright (c) 2008-2011 Brown Deer Technology, LLC."
 		" All Rights Reserved.\n"
@@ -75,6 +73,7 @@ void version()
 	printf("This program is free software distributed under GPLv3.\n");
 }
 
+/*
 void add_path( char* path_str, size_t* path_str_len, char* path )
 {
 	size_t len = strnlen(path,DEFAULT_STR_SIZE);
@@ -110,6 +109,8 @@ int resolve_fullpath(
 
 	return(-1);
 }
+*/
+
 
 void append_str( char* str1, char* str2 )
 {
@@ -193,12 +194,12 @@ int main(int argc, char** argv)
 	int i,j,k;
 	int n;
 
+/*
 	char default_platform[] = "platform-unknown";
 	char default_device[] = "device-unknown";
 
 	char* platform = default_platform;
 	char* device = default_device;
-
 
 	char* path_str = (char*)calloc(1,DEFAULT_STR_SIZE);
 	path_str[0] = '.';
@@ -209,6 +210,7 @@ int main(int argc, char** argv)
 
 	char* fopt_str = (char*)calloc(1,DEFAULT_STR_SIZE);
 	fopt_str[0] = '\0';
+*/
 
 	struct clelf_data_struct data;
    clelf_init_data(&data);
@@ -224,35 +226,35 @@ int main(int argc, char** argv)
 	char** argv1 = (char**)calloc(sizeof(char*),argc);
 	int argc1 = 0;	
 
-	int lang = LANG_OPENCL;
+//	int lang = LANG_OPENCL;
 	int en_openmp = 0;
 	int en_src = 1;
 	int en_bin = 1;
 
-	int quiet = 1;
+//	int quiet = 1;
 
-	char* platform_select = 0;
-	char* platform_exclude = 0;
-	char* device_select = 0;
-	char* device_exclude = 0;
+//	char* platform_select = 0;
+//	char* platform_exclude = 0;
+//	char* device_select = 0;
+//	char* device_exclude = 0;
 
-	char default_ofname[] = "out_clld.o";
-	char* ofname = default_ofname;
+//	char default_ofname[] = "out_clld.o";
+//	char* ofname = default_ofname;
 
 
 	/* XXX todo - add ability to provide lang specific options -DAR */
 
-	FILE* fp;
+//	FILE* fp;
 
-   char wdtemp[] = "/tmp/xclXXXXXX";
-   char* wd = mkdtemp(wdtemp);
+//   char wdtemp[] = "/tmp/xclXXXXXX";
+//   char* wd = mkdtemp(wdtemp);
 
 
 
 	n = 1;
 	while (n < argc) {
 
-
+/*
 		if (!strncmp(argv[n],"-mplatform",10)) {
 
 			char* p = strchr(argv[n],'=');
@@ -308,11 +310,13 @@ int main(int argc, char** argv)
 		} else if (!strcmp(argv[n],"--no-bin")) {
 			
 			en_bin = 0;
+*/
 			
-		} else if (!strcmp(argv[n],"-o")) {
+		if (!strcmp(argv[n],"-o")) {
 
-			ofname = argv[++n];
+//			ofname = argv[++n];
 
+/*
 		} else if (!strcmp(argv[n],"-q")) {
 
 			quiet = 1;
@@ -320,13 +324,14 @@ int main(int argc, char** argv)
 		} else if (!strcmp(argv[n],"-v")) {
 
 			quiet = 0;
+*/
 
 		} else if (!strcmp(argv[n],"-h")||!strcmp(argv[n],"--help")) {
 
 			usage(); 
 			exit(0);
 
-		} else if (!strcmp(argv[n],"--version")) {
+		} else if (!strcmp(argv[n],"-V") || !strcmp(argv[n],"--version")) {
 
 			version(); 
 			exit(0);
@@ -382,7 +387,8 @@ int main(int argc, char** argv)
 	/***
 	 *** process platform and device select/exclude lists
 	 ***/
-	
+
+/*	
 	int pselc = 0;
 	char** pselv = 0;
 	int pexclc = 0;
@@ -454,12 +460,14 @@ int main(int argc, char** argv)
       }
 
 	}
+*/
 
 
 	/***
 	 *** check the machine to determine available platforms and devices
 	 ***/
 
+/*
    int err;
 
    cl_uint nplatforms;
@@ -549,7 +557,7 @@ int main(int argc, char** argv)
 		clReleaseContext(context);
 
 	}
-
+*/
 
 
 	/***
@@ -674,22 +682,16 @@ int main(int argc, char** argv)
  	     		realloc(data.clprgbin,__clprgbin_entry_sz*data.clprgbin_nalloc);
  	  	}
 
-/*
-		size_t offset = clstrtab_strp-clstrtab_str;
-   	while (offset + sect.clprgbin_n >= clstrtab_str_alloc) {
-  	   	clstrtab_str_alloc += DEFAULT_STR_SIZE;
- 	     	clstrtab_str = (char*)realloc(clstrtab_str,clstrtab_str_alloc);
-			clstrtab_strp = clstrtab_str + offset;
- 	  	}
-*/
-
 		for(i=0; i<sect.clprgtab_n; i++) {
 
-   		data.clprgtab[data.clprgtab_n].e_name = (intptr_t)(data.clstrtab_strp-data.clstrtab_str);
+   		data.clprgtab[data.clprgtab_n].e_name 
+				= (intptr_t)(data.clstrtab_strp-data.clstrtab_str);
 			char* name = sect.clstrtab + sect.clprgtab[i].e_name;
-			add_strtab(data.clstrtab_str,data.clstrtab_strp,data.clstrtab_str_alloc,name);
+			add_strtab(data.clstrtab_str,data.clstrtab_strp,
+				data.clstrtab_str_alloc,name);
    		data.clprgtab[data.clprgtab_n].e_info = sect.clprgtab[i].e_info;
-   		data.clprgtab[data.clprgtab_n].e_prgsrc = sect.clprgtab[i].e_prgsrc + data.clprgsrc_n;
+   		data.clprgtab[data.clprgtab_n].e_prgsrc 
+				= sect.clprgtab[i].e_prgsrc + data.clprgsrc_n;
    		data.clprgtab[data.clprgtab_n].e_nprgsrc = sect.clprgtab[i].e_nprgsrc;
    		data.clprgtab[data.clprgtab_n].e_prgbin = data.clprgbin_n;
 			/* defer clprgtab[clprgtab_n].e_nprgbin */
@@ -712,6 +714,7 @@ int main(int argc, char** argv)
 
 				int l;
 
+/*
 				if (pselv) {
 					pselect = 0;
 					for(l=0;l<pselc;l++) 
@@ -739,10 +742,11 @@ int main(int argc, char** argv)
 
 				DEBUG2("se (%d %d) (%d %d) (%d %d)",
 					pselect,pexclude,dselect,dexclude,select,exclude);
+*/
 
-				if (select && !exclude) {
+//				if (select && !exclude) {
 
-					if (!quiet) printf("clld: '%s' bin [%s:%s]\n",name,
+					printf("clld: '%s' bin [%s:%s]\n",name,
 						platform_name_string[platform_code],device_name);
 	
    				data.clprgbin[data.clprgbin_n].e_name 
@@ -777,7 +781,7 @@ int main(int argc, char** argv)
 
 				}
 
-			}
+//			}
 
    		data.clprgtab[data.clprgtab_n].e_nprgbin = nprgbin;
 
@@ -795,7 +799,7 @@ int main(int argc, char** argv)
    			data.clkrntab[data.clkrntab_n].e_prg = data.clprgtab_n;
    			++data.clkrntab_n;
 
-				if (!quiet) printf("clld: '%s' ksym %s\n",name,kname);
+				printf("clld: '%s' ksym %s\n",name,kname);
 			}
 
    		++data.clprgtab_n;
@@ -823,7 +827,7 @@ int main(int argc, char** argv)
    		data.clprgsrc[data.clprgsrc_n].e_size = sect.clprgsrc[i].e_size;
    		++data.clprgsrc_n;
 
-			if (!quiet) printf("clld: '%s' src [<generic>]\n",name);
+			printf("clld: '%s' src [<generic>]\n",name);
 
 			size_t offset = (intptr_t)(data.cltextsrc_bufp-data.cltextsrc_buf);
 			while (offset + sect.clprgsrc[i].e_size > data.cltextsrc_buf_alloc) {
@@ -846,6 +850,7 @@ int main(int argc, char** argv)
 	 *** calculate md5 has for cltextsrc and cltextbin
 	 ***/
 
+/*
 	unsigned long cltextsrchash[2];
 	unsigned long cltextbinhash[2];
 
@@ -863,8 +868,10 @@ int main(int argc, char** argv)
 			(unsigned char*)cltextbinhash);
 		DEBUG2("%lx %lx",cltextbinhash[0],cltextbinhash[1]);
 	}
+*/
 
 
+/*
 	char tfname[] = "/tmp/clldXXXXXX";
 	int fd = mkstemp(tfname);
 
@@ -915,6 +922,7 @@ int main(int argc, char** argv)
 #ifndef CLCC_TEST
 	unlink(tfname);
 #endif
+*/
 	
 	return(0);
 
