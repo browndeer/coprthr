@@ -25,7 +25,7 @@ TOPDIR ?= ../
 INCS += $(USE_OPENCL_INCS) $(USE_STDCL_INCS)
 LIBS += $(USE_OPENCL_LIBS) $(USE_STDCL_LIBS)
 
-LIBS += -lm
+LIBS += -lm -lssl -lelf -lclelf
 
 SRC_TESTS = $(addprefix test_stdcl_,$(addsuffix .c,$(TESTS)))
 #CLSRC = $(addprefix test_,$(addsuffix .cl,$(TESTS)))
