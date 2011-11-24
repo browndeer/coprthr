@@ -35,6 +35,7 @@ extern char* yy_ch_pos;
 
 
 #include "elf_cl.h"
+#include "../../src/libocl/ocl_types.h"
 
 #include "xclnm_node.h"
 

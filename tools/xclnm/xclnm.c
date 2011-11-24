@@ -30,6 +30,7 @@
 #include "xclnm.h"
 #include "xclnm_node.h"
 #include "xclnm_gram.h"
+#include "../../src/libocl/ocl_types.h"
 
 
 struct type_entry {
@@ -40,14 +41,18 @@ struct type_entry {
 };
 
 struct type_entry type_table[] = {
-	{ TYPE_OPAQUE, 0, "void", "void" },
-	{ TYPE_VOID, 0, "void", "void" },
-	{ TYPE_INT8, 1, "char", "char" },
-	{ TYPE_INT16, 2, "short", "short" },
-	{ TYPE_INT32, 4, "int", "int" },
-	{ TYPE_INT64, 8, "long", "long" },
-	{ TYPE_FLOAT, 4, "float", "float" },
-	{ TYPE_DOUBLE, 8, "double", "double" },
+	{ TYPEID_OPAQUE, 8, "void", "void" },
+	{ TYPEID_VOID, 0, "void", "void" },
+	{ TYPEID_CHAR, 1, "char", "char" },
+	{ TYPEID_SHORT, 2, "short", "short" },
+	{ TYPEID_INT, 4, "int", "int" },
+	{ TYPEID_LONG, 8, "long", "long" },
+	{ TYPEID_UCHAR, 1, "unsigned char", "uchar" },
+	{ TYPEID_USHORT, 2, "unsigned short", "ushort" },
+	{ TYPEID_UINT, 4, "unsigned int", "uint" },
+	{ TYPEID_ULONG, 8, "unsigned long", "ulong" },
+	{ TYPEID_FLOAT, 4, "float", "float" },
+	{ TYPEID_DOUBLE, 8, "double", "double" },
 };
 
 int ntypes = sizeof(type_table)/sizeof(struct type_entry);
@@ -260,7 +265,7 @@ int main( int argc, char** argv)
 	if (opt_version) {
 
 		printf("xclnm ( " COPRTHR_VERSION_STRING " )\n" );
-		printf("Copyright 2008-2009 Brown Deer Technology, LLC.\n");
+		printf("Copyright 2008-2011 Brown Deer Technology, LLC.\n");
 		printf( GPL3_NOTICE );
 
 		exit(0);
@@ -462,7 +467,7 @@ int main( int argc, char** argv)
 
 
 					/* print typedef */
-	
+
 					fprintf(fp,"typedef %s",type_table[type_ival2index(
 						nptr1->n_func.rettype->n_type.datatype)].c_type);
 

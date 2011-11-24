@@ -1,7 +1,7 @@
 %{
 /* xclnm_gram.y
  *
- * Copyright (c) 2008-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2008-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -31,29 +31,56 @@
 /* DAR */
 %}
 
-%token	TARGET DECLARE DEFINE
+%token	KERNEL
+%token	GLOBAL
+%token	ADDRSPACE_GLOBAL ADDRSPACE_LOCAL
 
 %token	VECN
 
 /* types */
 %token 	TYPE_OPAQUE
+
 %token 	TYPE_VOID
 %token 	TYPE_INT8
 %token 	TYPE_INT16
 %token 	TYPE_INT32
 %token 	TYPE_INT64
-%token 	TYPE_FLOAT
-%token 	TYPE_DOUBLE
+%token 	TYPE_UINT8
+%token 	TYPE_UINT16
+%token 	TYPE_UINT32
+%token 	TYPE_UINT64
+%token 	TYPE_FLOAT 
+%token	TYPE_DOUBLE
+
+%token 	TYPE_INT8_VEC2
+%token 	TYPE_INT16_VEC2
+%token 	TYPE_INT32_VEC2
+%token 	TYPE_INT64_VEC2
+%token 	TYPE_UINT8_VEC2
+%token 	TYPE_UINT16_VEC2
+%token 	TYPE_UINT32_VEC2
+%token 	TYPE_UINT64_VEC2
+%token 	TYPE_FLOAT_VEC2
+%token	TYPE_DOUBLE_VEC2
+
+%token 	TYPE_INT8_VEC4
+%token 	TYPE_INT16_VEC4
+%token 	TYPE_INT32_VEC4
+%token 	TYPE_INT64_VEC4
+%token 	TYPE_UINT8_VEC4
+%token 	TYPE_UINT16_VEC4
+%token 	TYPE_UINT32_VEC4
+%token 	TYPE_UINT64_VEC4
+%token 	TYPE_FLOAT_VEC4
+%token	TYPE_DOUBLE_VEC4
 
 /* qualifiers */
-%token ADDRSPACE
 
 /* generic tokens */
 %token	ICONST
 %token	TYPE
-%token	GLOBAL_SYMBOL GLOBAL_SYMBOL_DOT LOCAL_SYMBOL GENERIC_SYMBOL
+%token	SYMBOL
 %token	BODY OPEN_BODY CLOSE_BODY
-%token	COMMENT
 %token	STRING
 %token	VARG
 %token	TYPEDEF_OPAQUE
@@ -75,24 +102,54 @@ void yyerror(const char*);
 	node_t* node;
 }
 
-%type <ival> TARGET DECLARE DEFINE
+%type <ival> KERNEL
+%type <ival> GLOBAL
+%type <ival> ADDRSPACE_GLOBAL ADDRSPACE_LOCAL
 %type <ival> VECN
 %type <ival> TYPE_OPAQUE
 %type <ival> TYPE_VOID
-%type <ival> TYPE_INT8 TYPE_INT16 TYPE_INT32 TYPE_INT64
+
+%type <ival> TYPE_INT8
+%type <ival> TYPE_INT16
+%type <ival> TYPE_INT32
+%type <ival> TYPE_INT64
+%type <ival> TYPE_UINT8
+%type <ival> TYPE_UINT16
+%type <ival> TYPE_UINT32
+%type <ival> TYPE_UINT64
 %type <ival> TYPE_FLOAT
 %type <ival> TYPE_DOUBLE
-%type <ival> ADDRSPACE
+
+%type <ival> TYPE_INT8_VEC2
+%type <ival> TYPE_INT16_VEC2
+%type <ival> TYPE_INT32_VEC2
+%type <ival> TYPE_INT64_VEC2
+%type <ival> TYPE_UINT8_VEC2
+%type <ival> TYPE_UINT16_VEC2
+%type <ival> TYPE_UINT32_VEC2
+%type <ival> TYPE_UINT64_VEC2
+%type <ival> TYPE_FLOAT_VEC2
+%type <ival> TYPE_DOUBLE_VEC2
+
+%type <ival> TYPE_INT8_VEC4
+%type <ival> TYPE_INT16_VEC4
+%type <ival> TYPE_INT32_VEC4
+%type <ival> TYPE_INT64_VEC4
+%type <ival> TYPE_UINT8_VEC4
+%type <ival> TYPE_UINT16_VEC4
+%type <ival> TYPE_UINT32_VEC4
+%type <ival> TYPE_UINT64_VEC4
+%type <ival> TYPE_FLOAT_VEC4
+%type <ival> TYPE_DOUBLE_VEC4
+
 %type <ival> ICONST
 %type <ival> TYPE
-%type <ival> GLOBAL_SYMBOL GLOBAL_SYMBOL_DOT LOCAL_SYMBOL GENERIC_SYMBOL
+%type <ival> SYMBOL
 %type <ival> BODY OPEN_BODY CLOSE_BODY
-%type <ival> COMMENT
 %type <ival> STRING
 %type <node> func_dec func_def
 %type <node> args arg type
-%type <ival> datatype
-%type <ival> addrspace ptrc
+%type <ival> ptrc
 %type <ival> vecn
 %type <ival> body
 
@@ -111,46 +168,68 @@ input:	/* empty */ { $$=0; }
 			| input line ;
 
 line: 	'\n' { $$=0; }
-			| func_dec '\n' { __rlb(); cur_nptr = node_insert(cur_nptr,$1); }
-			| func_def '\n' { __rlb(); cur_nptr = node_insert(cur_nptr,$1); }
-			| COMMENT { __rlb(); }
-			| LOCAL_SYMBOL TYPEDEF_OPAQUE { __rlb(); add_typedef(symbuf+$1); }
-			| LOCAL_SYMBOL SKIP {__rlb(); }
-			| GLOBAL_SYMBOL SKIP {__rlb(); }
-			| GLOBAL_SYMBOL_DOT SKIP {__rlb(); }
+			| func_dec { __rlb(); cur_nptr = node_insert(cur_nptr,$1); }
+			| func_def { __rlb(); cur_nptr = node_insert(cur_nptr,$1); }
 			| SKIP {__rlb(); };
 
 
 
-func_dec:	DECLARE type GLOBAL_SYMBOL '(' ')' 
-					{$$=node_create_func_dec($2,$3,0);};
-				| DECLARE type GLOBAL_SYMBOL '(' args ')' 
-					{$$=node_create_func_dec($2,$3,$5);};
+func_dec:	type SYMBOL '(' ')' ';'
+					{$$=node_create_func_dec($1,$2,0);};
+				| type SYMBOL '(' args ')' ';'
+					{$$=node_create_func_dec($1,$2,$4);};
 
-func_def: 	DEFINE type GLOBAL_SYMBOL '(' ')' body
+func_def: 	type SYMBOL '(' ')' body
+					{ $$=node_create_func_def($1,$2,0);};
+				| type SYMBOL '(' args ')' body
+					{ $$=node_create_func_def($1,$2,$4);};
+				| KERNEL type SYMBOL '(' ')' body
 					{ $$=node_create_func_def($2,$3,0);};
-				| DEFINE type GLOBAL_SYMBOL '(' args ')' body
+				| KERNEL type SYMBOL '(' args ')' body
 					{ $$=node_create_func_def($2,$3,$5);};
 
 args:		args ',' arg { $$ = node_insert_tail($1,$3); } 
 			| arg ;
 
-arg:	type LOCAL_SYMBOL { $$ = node_create_arg($1,$2); }
+arg:	type SYMBOL { $$ = node_create_arg($1,$2); }
 		| type { $$ = node_create_arg($1,0); }
-		| VARG { $$ = node_create_arg($1,0); };
+		| VARG { $$ = node_create_arg($1,0); } ;
 
-type:	datatype { $$ = node_create_type(1,1,$1,0,0); } ;
-		| type addrspace { $$=node_set_addrspace($1,$2); }
-		| type ptrc { $$=node_set_ptrc($1,$2); }
-		| '<' vecn datatype '>' { $$=node_create_type(1,$2,$3,0,0); } 
-		| '[' vecn type ']' { $$=node_set_arrn($3,$2); } ;
-
-datatype:	TYPE_VOID 
-				| TYPE_INT8 | TYPE_INT16 | TYPE_INT32 | TYPE_INT64
-				| TYPE_FLOAT | TYPE_DOUBLE 
-				| TYPE_OPAQUE ;
-
-addrspace: 	ADDRSPACE '(' ICONST ')' { $$ = $3; }
+type:	TYPE_VOID { $$ = node_create_type(1,1,TYPEID_VOID,0,0); } 
+		| TYPE_INT8 { $$ = node_create_type(1,1,TYPEID_CHAR,0,0); } 
+		| TYPE_INT16 { $$ = node_create_type(1,1,TYPEID_SHORT,0,0); } 
+		| TYPE_INT32 { $$ = node_create_type(1,1,TYPEID_INT,0,0); } 
+		| TYPE_INT64 { $$ = node_create_type(1,1,TYPEID_LONG,0,0); } 
+		| TYPE_UINT8 { $$ = node_create_type(1,1,TYPEID_UCHAR,0,0); } 
+		| TYPE_UINT16 { $$ = node_create_type(1,1,TYPEID_USHORT,0,0); } 
+		| TYPE_UINT32 { $$ = node_create_type(1,1,TYPEID_UINT,0,0); } 
+		| TYPE_UINT64 { $$ = node_create_type(1,1,TYPEID_ULONG,0,0); } 
+		| TYPE_FLOAT { $$ = node_create_type(1,1,TYPEID_FLOAT,0,0); } 
+		| TYPE_DOUBLE { $$ = node_create_type(1,1,TYPEID_DOUBLE,0,0); } 
+		| TYPE_OPAQUE { $$ = node_create_type(1,1,TYPEID_OPAQUE,0,1); } 
+		| TYPE_INT8_VEC2 { $$ = node_create_type(1,2,TYPEID_CHAR,0,0); } 
+		| TYPE_INT16_VEC2 { $$ = node_create_type(1,2,TYPEID_SHORT,0,0); } 
+		| TYPE_INT32_VEC2 { $$ = node_create_type(1,2,TYPEID_INT,0,0); } 
+		| TYPE_INT64_VEC2 { $$ = node_create_type(1,2,TYPEID_LONG,0,0); } 
+		| TYPE_UINT8_VEC2 { $$ = node_create_type(1,2,TYPEID_UCHAR,0,0); } 
+		| TYPE_UINT16_VEC2 { $$ = node_create_type(1,2,TYPEID_USHORT,0,0); } 
+		| TYPE_UINT32_VEC2 { $$ = node_create_type(1,2,TYPEID_UINT,0,0); } 
+		| TYPE_UINT64_VEC2 { $$ = node_create_type(1,2,TYPEID_ULONG,0,0); } 
+		| TYPE_FLOAT_VEC2 { $$ = node_create_type(1,2,TYPEID_FLOAT,0,0); } 
+		| TYPE_DOUBLE_VEC2 { $$ = node_create_type(1,2,TYPEID_DOUBLE,0,0); } 
+		| TYPE_INT8_VEC4 { $$ = node_create_type(1,4,TYPEID_CHAR,0,0); } 
+		| TYPE_INT16_VEC4 { $$ = node_create_type(1,4,TYPEID_SHORT,0,0); } 
+		| TYPE_INT32_VEC4 { $$ = node_create_type(1,4,TYPEID_INT,0,0); } 
+		| TYPE_INT64_VEC4 { $$ = node_create_type(1,4,TYPEID_LONG,0,0); } 
+		| TYPE_UINT8_VEC4 { $$ = node_create_type(1,4,TYPEID_UCHAR,0,0); } 
+		| TYPE_UINT16_VEC4 { $$ = node_create_type(1,4,TYPEID_USHORT,0,0); } 
+		| TYPE_UINT32_VEC4 { $$ = node_create_type(1,4,TYPEID_UINT,0,0); } 
+		| TYPE_UINT64_VEC4 { $$ = node_create_type(1,4,TYPEID_ULONG,0,0); } 
+		| TYPE_FLOAT_VEC4 { $$ = node_create_type(1,4,TYPEID_FLOAT,0,0); } 
+		| TYPE_DOUBLE_VEC4 { $$ = node_create_type(1,4,TYPEID_DOUBLE,0,0); } 
+		| ADDRSPACE_GLOBAL type { $$=node_set_addrspace($2,1); } 
+		| ADDRSPACE_LOCAL type { $$=node_set_addrspace($2,3); } 
+		| type ptrc { $$=node_set_ptrc($1,$2); } ;
 
 ptrc:		ptrc '*' { $$ = $1+1; }
 			| '*' { $$ = 1; }
