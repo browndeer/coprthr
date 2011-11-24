@@ -40,6 +40,8 @@
 
 #include <CL/cl.h>
 
+#define CL_DEVICE_TYPE_RPU CL_DEVICE_TYPE_ACCELERATOR
+
 struct _prgs_struct;
 struct _txt_struct;
 struct _memd_struct;

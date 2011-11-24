@@ -68,15 +68,16 @@ int procelf_fd = -1;
 void* procelf = 0;
 size_t procelf_sz = 0;
 
-struct _proc_cl_struct _proc_cl = { 0,0, 0,0, 0,0, 0,0, 0,0 };
+//struct _proc_cl_struct _proc_cl = { 0,0, 0,0, 0,0, 0,0, 0,0 };
+struct clelf_sect_struct* _proc_clelf_sect = 0;
 
 char* __log_automatic_kernels_filename = 0;
 
 #define min(a,b) ((a<b)?a:b)
 
-static int __getenv_token( 
-	const char* name, const char* token, char* value, size_t n
-);
+//static int __getenv_token( 
+//	const char* name, const char* token, char* value, size_t n
+//);
 
 //static cl_platform_id _select_platformid( 
 //	cl_uint nplatforms, cl_platform_id* platforms, const char* env_var
@@ -137,131 +138,86 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		DEBUG(__FILE__,__LINE__,"_libstdcl_init: procelf size %d bytes\n",
 			st.st_size);
 
-		// printf("procelf ptr %p %d\n",procelf,errno); fflush(stdout);
+//		// printf("procelf ptr %p %d\n",procelf,errno); fflush(stdout);
+//
+//#if defined(__x86_64__)
+//		Elf64_Ehdr* elf = (Elf64_Ehdr*)procelf;
+//		Elf64_Shdr* p_shdr = procelf + elf->e_shoff;
+//#elif defined(__i386__)
+//		Elf32_Ehdr* elf = (Elf32_Ehdr*)procelf;
+//		Elf32_Shdr* p_shdr = procelf + elf->e_shoff;
+//#endif
+//
+//		char buf[EI_NIDENT+1];
+//		strncpy(buf,elf->e_ident,EI_NIDENT);
+//		DEBUG(__FILE__,__LINE__,"_libstdcl_init: e_ident|%s|\n",buf);
+//
+//		// printf("number of section headers %d\n",elf->e_shnum);
+//
+//		char* shstr = (char*)procelf + p_shdr[elf->e_shstrndx].sh_offset;
+//	
+//		// printf("sh str table index %d\n",elf->e_shstrndx);
+//	
+//		// p_shdr += 1; /* skip first section */
+//	
+//		for(n=1;n<elf->e_shnum;n++) {
+//
+//			DEBUG(__FILE__,__LINE__,
+//				"section offset in img %d bytes (%s) size %d\n", 
+//				p_shdr->sh_offset,
+//				shstr+p_shdr->sh_name,p_shdr->sh_size
+//			);
+//
+//			if (!strncmp(shstr+p_shdr->sh_name,".clprgs",7)) {
+//
+//				_proc_cl.clprgs=(struct clprgs_entry*)(procelf+p_shdr->sh_offset);
+//				_proc_cl.clprgs_n=p_shdr->sh_size/__clprgs_entry_sz;
+//
+//			} else if (!strncmp(shstr+p_shdr->sh_name,".cltexts",8)) {
+//
+//				_proc_cl.cltexts = (char*)(procelf + p_shdr->sh_offset);
+//				_proc_cl.cltexts_sz = p_shdr->sh_size;
+//
+//			} else if (!strncmp(shstr+p_shdr->sh_name,".clprgb",7)) {
+//
+//				_proc_cl.clprgb=(struct clprgb_entry*)(procelf+p_shdr->sh_offset);
+//				_proc_cl.clprgb_n=p_shdr->sh_size/__clprgb_entry_sz;
+//
+//			} else if (!strncmp(shstr+p_shdr->sh_name,".cltextb",8)) {
+//
+//				_proc_cl.cltextb = (char*)(procelf + p_shdr->sh_offset);
+//				_proc_cl.cltextb_sz = p_shdr->sh_size;
+//
+//			} else if (!strncmp(shstr+p_shdr->sh_name,".clstrtab",9)) {
+//
+//				_proc_cl.clstrtab = (char*)(procelf + p_shdr->sh_offset);
+//				_proc_cl.clstrtab_sz = p_shdr->sh_size;
+//
+//			}
+//		
+//			p_shdr += 1;
+//		}
 
-#if defined(__x86_64__)
-		Elf64_Ehdr* elf = (Elf64_Ehdr*)procelf;
-		Elf64_Shdr* p_shdr = procelf + elf->e_shoff;
-#elif defined(__i386__)
-		Elf32_Ehdr* elf = (Elf32_Ehdr*)procelf;
-		Elf32_Shdr* p_shdr = procelf + elf->e_shoff;
-#endif
+		_proc_clelf_sect 
+			= (struct clelf_sect_struct*)malloc(sizeof(struct clelf_sect_struct));
 
-		char buf[EI_NIDENT+1];
-		strncpy(buf,elf->e_ident,EI_NIDENT);
-		DEBUG(__FILE__,__LINE__,"_libstdcl_init: e_ident|%s|\n",buf);
-
-		// printf("number of section headers %d\n",elf->e_shnum);
-
-		char* shstr = (char*)procelf + p_shdr[elf->e_shstrndx].sh_offset;
-	
-		// printf("sh str table index %d\n",elf->e_shstrndx);
-	
-		// p_shdr += 1; /* skip first section */
-	
-		for(n=1;n<elf->e_shnum;n++) {
-
-			DEBUG(__FILE__,__LINE__,
-				"section offset in img %d bytes (%s) size %d\n", 
-				p_shdr->sh_offset,
-				shstr+p_shdr->sh_name,p_shdr->sh_size
-			);
-
-			if (!strncmp(shstr+p_shdr->sh_name,".clprgs",7)) {
-
-				_proc_cl.clprgs=(struct clprgs_entry*)(procelf+p_shdr->sh_offset);
-				_proc_cl.clprgs_n=p_shdr->sh_size/__clprgs_entry_sz;
-
-			} else if (!strncmp(shstr+p_shdr->sh_name,".cltexts",8)) {
-
-				_proc_cl.cltexts = (char*)(procelf + p_shdr->sh_offset);
-				_proc_cl.cltexts_sz = p_shdr->sh_size;
-
-			} else if (!strncmp(shstr+p_shdr->sh_name,".clprgb",7)) {
-
-				_proc_cl.clprgb=(struct clprgb_entry*)(procelf+p_shdr->sh_offset);
-				_proc_cl.clprgb_n=p_shdr->sh_size/__clprgb_entry_sz;
-
-			} else if (!strncmp(shstr+p_shdr->sh_name,".cltextb",8)) {
-
-				_proc_cl.cltextb = (char*)(procelf + p_shdr->sh_offset);
-				_proc_cl.cltextb_sz = p_shdr->sh_size;
-
-			} else if (!strncmp(shstr+p_shdr->sh_name,".clstrtab",9)) {
-
-				_proc_cl.clstrtab = (char*)(procelf + p_shdr->sh_offset);
-				_proc_cl.clstrtab_sz = p_shdr->sh_size;
-
-			}
-		
-			p_shdr += 1;
-		}
+		clelf_load_sections(procelf,_proc_clelf_sect);
 
 	}
 
-	DEBUG(__FILE__,__LINE__,"_libstdcl_init: procelf cl sections:"
-		" %p %p %p %p %p\n",
-		_proc_cl.clprgs,
-		_proc_cl.cltexts,
-		_proc_cl.clprgb,
-		_proc_cl.cltextb,_proc_cl.clstrtab
+	struct clelf_sect_struct* sect = _proc_clelf_sect;
+
+	DEBUG(__FILE__,__LINE__,"_libstdcl_init: proc clelf sections:"
+		" %p %p %p %p %p %p %p\n",
+		sect->clprgtab,
+		sect->clkrntab,
+		sect->clprgsrc,
+		sect->cltextsrc,
+		sect->clprgbin,
+		sect->cltextbin,
+		sect->clstrtab
 	);
 
-#endif
-
-#if(0)
-	/*
-	 * get platform information
-	 */
-
-	cl_platform_id* platforms = 0;
-   cl_uint nplatforms;
-
-   char info[1024];
-
-   clGetPlatformIDs(0,0,&nplatforms);
-
-//printf("XXX %d\n",nplatforms);
-
-	if (nplatforms) {
-
-		platforms = (cl_platform_id*)malloc(nplatforms*sizeof(cl_platform_id));
-   	clGetPlatformIDs(nplatforms,platforms,0);
-
-		for(i=0;i<nplatforms;i++) {
-
-			char info[1024];
-
-			DEBUG(__FILE__,__LINE__,"_libstdcl_init: available platform:");
-
-			clGetPlatformInfo(platforms[i],CL_PLATFORM_PROFILE,1024,info,0);
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: [%p]CL_PLATFORM_PROFILE=%s",platforms[i],info);
-
-			clGetPlatformInfo(platforms[i],CL_PLATFORM_VERSION,1024,info,0);
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: [%p]CL_PLATFORM_VERSION=%s",platforms[i],info);
-
-			clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: [%p]CL_PLATFORM_NAME=%s",platforms[i],info);
-
-			clGetPlatformInfo(platforms[i],CL_PLATFORM_VENDOR,1024,info,0);
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: [%p]CL_PLATFORM_VENDOR=%s",platforms[i],info);
-
-			clGetPlatformInfo(platforms[i],CL_PLATFORM_EXTENSIONS,1024,info,0);
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: [%p]CL_PLATFORM_EXTENSIONS=%s",platforms[i],info);
-
-		}
-
-	} else {
-
-		WARN(__FILE__,__LINE__,
-			"_libstdcl_init: no platforms found, continue and hope for the best");
-
-	}
 #endif
 
 
@@ -303,9 +259,6 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	}
 
 	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
-
-
-
 
 
 
@@ -356,15 +309,6 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 	DEBUG(__FILE__,__LINE__,"clinit: initialize stdgpu");
 
-/*
-	if (!__getenv_token("STDGPU",0,env_max_ndev,256)) {
-		enable = ndev = atoi(env_max_ndev);
-	} else {
-		ndev = 0;
-		enable = 1;
-	}
-*/
-
 	stdgpu = 0;
 	ndev = 0; /* this is a special case that implies all available -DAR */
 	enable = 1;
@@ -397,67 +341,55 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
 
 
+
 	/*
 	 * initialize stdrpu (all RPU CL devices)
 	 */
 
-/* XXX old style, need to update -DAR
-	if (!__getenv_token("STDRPU",0,env_max_ndev,256)) {
-		enable = ndev = atoi(env_max_ndev);
-	} else {
-		ndev = 0;
-		enable = 1;
-	}
+	DEBUG(__FILE__,__LINE__,"clinit: initialize stdrpu");
 
 	stdrpu = 0;
+	ndev = 0; /* this is a special case that implies all available -DAR */
+	enable = 1;
+	lock_key = 0;
+
+	if (getenv("STDRPU")) enable = atoi(getenv("STDRPU"));
 
 	if (enable) {
 
-		platformid = _select_platformid(nplatforms,platforms,"STDRPU");
+		char name[256];
+		if (getenv("STDRPU_PLATFORM_NAME"))
+			strncpy(name,getenv("STDRPU_PLATFORM_NAME"),256);
+		else name[0]='\0';
 
-		if (platformid != (cl_platform_id)(-1)) {
+		if (getenv("STDRPU_MAX_NDEV"))
+			ndev = atoi(getenv("STDRPU_MAX_NDEV"));
 
-			DEBUG(__FILE__,__LINE__,
-				"_libstdcl_init: stdrpu platformid %p",platformid);
+		if (getenv("STDRPU_LOCK"))
+			lock_key = atoi(getenv("STDRPU_LOCK"));
 
-			stdrpu = clcontext_create(platformid,CL_DEVICE_TYPE_RPU,ndev,0);
-
-		}
+		stdrpu = clcontext_create(name,CL_DEVICE_TYPE_RPU,ndev,0,lock_key);
 
 	}
-*/
+
+	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
 
 
-/*
-	char buf[256];
-	if (!__getenv_token("COPRTHR","log_automatic_kernels",buf,256)) {
-		__log_automatic_kernels_filename = (char*)malloc(256+6);
-		if (!strncasecmp(buf,"log_automatic_kernels",256)) {
-			snprintf(
-				__log_automatic_kernels_filename,256+6,
-				"coprthr.autokern.log.%d",getpid());
-		} else {
-			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
-		}
-		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
-			__log_automatic_kernels_filename);
-	}
-*/
-//	char buf[256];
+
+	/*
+	 * initialize autokern logging
+	 */
+
 	if (getenv("COPRTHR_LOG_AUTOKERN")) {
 		__log_automatic_kernels_filename = (char*)malloc(256+6);
-//		if (!strncasecmp(buf,"log_automatic_kernels",256)) {
 			snprintf(
 				__log_automatic_kernels_filename,256+6,
 				"coprthr.autokern.log.%d",getpid());
-//		} else {
-//			snprintf(__log_automatic_kernels_filename,256+6,"%s.%d",buf,getpid());
-//		}
 		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
 			__log_automatic_kernels_filename);
 	}
 
-	clUnloadCompiler();	
+//	clUnloadCompiler();	
 
 }
 
@@ -487,6 +419,7 @@ void __attribute__((__destructor__)) _libstdcl_fini()
 }
 
 
+#if(0)
 void _assert_proto_stub(void) {  }
 
 
@@ -571,9 +504,6 @@ _select_platformid(
 		char info[1024];
 		clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
 
-//		DEBUG(__FILE__,__LINE__,
-//			"_select_platformid: [%p]CL_PLATFORM_PROFILE=%s",platforms[i],info);
-
 		DEBUG(__FILE__,__LINE__,"_select_platformid: compare |%s|%s|",name,info);
 
 		if (!strncasecmp(name,info,strlen(name))) {
@@ -593,7 +523,7 @@ _select_platformid(
 
 }
 
-
+#endif
 
 
 

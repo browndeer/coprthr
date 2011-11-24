@@ -52,6 +52,11 @@ struct _prgs_struct {
 #endif
 	void* ptr;
 	unsigned int refc;
+
+	unsigned int nbin;
+	char** bin;
+	size_t* bin_sz;
+
 };
 
 
@@ -79,10 +84,14 @@ extern "C" {
 #endif
 
 LIBSTDCL_API void* clload( CONTEXT* cp, void* ptr, size_t sz, int flags );
-LIBSTDCL_API void* clbuild( CONTEXT* cp, void* handle, char* options, int flags );
+LIBSTDCL_API void* clloadb( CONTEXT* cp, int nbin, char** bin, size_t bin_sz, 
+	int flags );
+LIBSTDCL_API void* clbuild( CONTEXT* cp, void* handle, char* options, 
+	int flags );
 LIBSTDCL_API void* clopen( CONTEXT* cp, const char* fname, int flags );
 LIBSTDCL_API void* clsopen( CONTEXT* cp, const char* srcstr, int flags );
-LIBSTDCL_API cl_kernel clsym( CONTEXT* cp, void* handle, const char* sname, int flags );
+LIBSTDCL_API cl_kernel clsym( CONTEXT* cp, void* handle, const char* sname, 
+	int flags );
 LIBSTDCL_API int clclose(CONTEXT* cp, void* handle);
 LIBSTDCL_API char* clerror(void);
 

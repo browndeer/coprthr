@@ -1,6 +1,6 @@
 /* clfcn.c
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -102,6 +102,119 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 
 //	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
 
+	
+	return((void*)prgs);
+
+}
+
+
+LIBSTDCL_API void* 
+clloadb( CONTEXT* cp, int nbin, char** bin, size_t bin_sz, int flags )
+{
+	int n;
+	int err;
+
+	DEBUG(__FILE__,__LINE__,"clloadb: checking cp ");
+
+	if (!cp) return(0);
+
+	DEBUG(__FILE__,__LINE__,"clloadb: cp ok ");
+
+
+	struct _prgs_struct* prgs
+		= (struct _prgs_struct*)malloc(sizeof(struct _prgs_struct));
+
+	prgs->fname = 0;
+#ifdef _WIN64
+	prgs->fp = 0;
+#else
+	prgs->fd = -1;
+#endif
+//	prgs->len = len;
+//	prgs->ptr = ptr;
+	prgs->nbin = nbin;
+	prgs->bin = bin;
+	prgs->bin_sz = bin_sz;
+	prgs->refc = 1;
+
+	LIST_INSERT_HEAD(&cp->prgs_listhead, prgs, prgs_list);
+
+
+	struct _txt_struct* txt
+		= (struct _txt_struct*)malloc(sizeof(struct _txt_struct));
+	
+	txt->prgs = prgs;
+	txt->krn = 0;
+
+//	txt->prg = clCreateProgramWithSource(
+//		cp->ctx,1,(const char**)&ptr,&len,&err
+//	);
+
+	cl_int* bin_stat = (cl_int*)calloc(sizeof(cl_int),cp->ndev);
+
+	txt->prg = clCreateProgramWithBinary(cp->ctx,cp->ndev,cp->dev,
+		bin_sz,bin,bin_stat,&err);
+
+	DEBUG2("clloadb: err from clCreateProgramWithBinary %d (%p)",err,txt->prg);
+
+	for(n=0;n<cp->ndev;n++) {
+		DEBUG2("clloadb: bin stat [%d] %d",n,bin_stat[n]);
+	}
+	DEBUG2("clloadb: err from clCreateProgramWithBinary %d",err);
+
+	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
+
+
+
+//	if (!(flags&CLLD_NOBUILD)) {
+//		DEBUG(__FILE__,__LINE__,"clload: calling clbuild");
+//		clbuild(cp,prgs,0,flags);
+//	}
+
+	err = clBuildProgram(txt->prg,cp->ndev,cp->dev,0,0,0);
+	DEBUG2("clloadb: err from clBuildProgram %d",err);
+
+
+//	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
+
+
+	/* extract the kernels */
+
+	err = clCreateKernelsInProgram(txt->prg,0,0,&txt->nkrn);
+	DEBUG2("clloadb: err from clCreateKernelsInProgram %d",err);
+	DEBUG2("clloadb: NUMBER OF KERNELS %d",txt->nkrn);
+
+	txt->krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
+
+	err = clCreateKernelsInProgram(txt->prg,txt->nkrn,txt->krn,0);
+
+
+	txt->krntab = (struct _krntab_struct*)malloc(
+		sizeof(struct _krntab_struct)*txt->nkrn
+	);
+
+	for(n=0;n<txt->nkrn;n++) {
+
+		clGetKernelInfo( txt->krn[n],CL_KERNEL_FUNCTION_NAME,256,
+			txt->krntab[n].kname,0);
+
+		clGetKernelInfo( txt->krn[n],CL_KERNEL_NUM_ARGS,sizeof(cl_uint),
+			&txt->krntab[n].nargs,0);
+
+		clGetKernelInfo( txt->krn[n],CL_KERNEL_REFERENCE_COUNT,
+			sizeof(cl_uint), &txt->krntab[n].refc,0);
+
+		clGetKernelInfo( txt->krn[n],CL_KERNEL_CONTEXT,sizeof(cl_context),
+				&txt->krntab[n].kctx,0);
+
+		clGetKernelInfo(txt->krn[n],CL_KERNEL_PROGRAM,sizeof(cl_program),
+				&txt->krntab[n].kprg,0);
+
+		DEBUG(__FILE__,__LINE__,"clloadb: %s %d %p %p\n",
+			txt->krntab[n].kname,txt->krntab[n].nargs,
+			txt->krntab[n].kctx,txt->krntab[n].kprg);
+
+	}
 	
 	return((void*)prgs);
 
@@ -275,10 +388,10 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 	if (!fname) {
 
-	if (_clopen_zero) {
-		DEBUG(__FILE__,__LINE__,"already here");
-		return(0);
-	}
+		if (_clopen_zero) {
+			DEBUG(__FILE__,__LINE__,"already here");
+			return(0);
+		}
 
 #ifdef _WIN64
 
@@ -286,34 +399,129 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 #else
 
-		DEBUG(__FILE__,__LINE__," fname null, search _proc_cl");
+		DEBUG(__FILE__,__LINE__," fname null, search _proc_clelf_sect");
+
+		if (!_proc_clelf_sect) {
+			DEBUG2("clopen: _proc_clelf_sect is null");
+			return(0);
+		}
+
+		struct clelf_sect_struct* sect = _proc_clelf_sect;
+
+		if (!sect->has_any_clelf_section) {
+			DEBUG2("clopen: no CLELF sections found");
+			return(0);
+		}
 
 		fd = -1;
 		ptr = 0;
 		len = 0;
 
-		DEBUG(__FILE__,__LINE__,"clopen: %p searching _proc_cl for prgs...",
-			_proc_cl.clstrtab);
+//		DEBUG(__FILE__,__LINE__,"clopen: %p searching _proc_cl for prgs...",
+//			_proc_cl.clstrtab);
+//
+// 		DEBUG(__FILE__,__LINE__,"clopen: %s",&_proc_cl.clstrtab[1]);
+//
+//		DEBUG(__FILE__,__LINE__,"clopen: _proc_cl.clprgs_n=%d",_proc_cl.clprgs_n);
+//
+//		struct clprgs_entry* sp;
+//		for(n=0,sp=_proc_cl.clprgs;n<_proc_cl.clprgs_n;n++,sp++) {
+//			DEBUG(__FILE__,__LINE__,"found %s (%d bytes)\n",
+//				&_proc_cl.clstrtab[sp->e_name],sp->e_size);
+//			ptr = _proc_cl.cltexts+sp->e_offset;
+//			len = sp->e_size;
+//		
+//			prgs = clload(cp,ptr,len,flags);
+//			prgs->fname = fname;
+//			prgs->fd = fd;
+//		}
 
- 		DEBUG(__FILE__,__LINE__,"clopen: %s",&_proc_cl.clstrtab[1]);
+		DEBUG2("clopen: need %d devices for binary kernels",cp->ndev);
+		int m;
+		struct cldev_info* di
+			= (struct cldev_info*)malloc(cp->ndev * sizeof(struct cldev_info));
+		clgetdevinfo(cp,di);
+		for(m=0; m<cp->ndev; m++) {
+			DEBUG2("clopen: dev[%d] name |%s|",m,di[m].dev_name);
+		}
+	
+		DEBUG2("clopen: _proc_clelf_sect %p",_proc_clelf_sect);
 
-		DEBUG(__FILE__,__LINE__,"clopen: _proc_cl.clprgs_n=%d",_proc_cl.clprgs_n);
+		if (sect->has_clprgtab) {
 
-		struct clprgs_entry* sp;
-		for(n=0,sp=_proc_cl.clprgs;n<_proc_cl.clprgs_n;n++,sp++) {
-			DEBUG(__FILE__,__LINE__,"found %s (%d bytes)\n",
-				&_proc_cl.clstrtab[sp->e_name],sp->e_size);
-			ptr = _proc_cl.cltexts+sp->e_offset;
-			len = sp->e_size;
-		
-			prgs = clload(cp,ptr,len,flags);
-			prgs->fname = fname;
-			prgs->fd = fd;
+			DEBUG2("clopen: searching clprgtab (%d entries) ...",sect->clprgtab_n);
+
+			char** bin = (char**)calloc( sizeof(char*), cp->ndev );
+			size_t* bin_sz = (size_t*)calloc( sizeof(size_t), cp->ndev );
+			int nbin = 0;
+
+			struct clprgtab_entry* p = sect->clprgtab;
+
+         for(n=0; n<sect->clprgtab_n; n++,p++) {
+
+				DEBUG2("clopen: checking %d binaries ...",p->e_nprgbin);
+
+				int nb;
+				struct clprgbin_entry* pb = sect->clprgbin + p->e_prgbin;
+				for(nb=0; nb < p->e_nprgbin; nb++,pb++ ) {
+					for(m=0;m<cp->ndev; m++) {
+						DEBUG2("clopen: test |%s|%s|",di[m].dev_name,
+							sect->clstrtab + pb->e_device);
+						if (!strncmp(di[m].dev_name,
+							sect->clstrtab+pb->e_device,256)) {
+								bin[m] = sect->cltextbin + pb->e_offset;
+								bin_sz[m] = pb->e_size;
+								++nbin;
+						}
+					}
+				}
+
+				if (nbin == cp->ndev) {
+
+					DEBUG2("clopen: found all binaries");
+
+					prgs = clloadb(cp,nbin,bin,bin_sz,flags);
+					prgs->fname = fname;
+					prgs->fd = fd;
+
+
+				} else { 
+
+					DEBUG2("clopen: binary load failed, check for source");
+
+					if (p->e_nprgsrc) {
+
+						/* XXX here we only take first source for now -DAR */
+
+						struct clprgbin_entry* ps = sect->clprgsrc + p->e_prgsrc;
+						ptr = sect->cltextsrc + ps->e_offset;
+						len = ps->e_size;
+
+						DEBUG2("clopen: source %p (%d bytes)",ptr,len);
+
+						prgs = clload(cp,ptr,len,flags);
+						prgs->fname = fname;
+						prgs->fd = fd;
+
+					} else {
+
+						DEBUG2("clopen: no source found");
+
+					}
+
+				}
+
+			}
+
+		} else if (_proc_clelf_sect->has_text) { /* might be legacy format */
+
+		} else {
+
+			DEBUG2("clopen: proc contains no CLELF sections");
+
 		}
 
-//		prgs = clload(cp,ptr,len,flags);
-//		prgs->fname = fname;
-//		prgs->fd = fd;
+		free(di);
 
 #endif
 
@@ -348,7 +556,6 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 		
 		len = strlen((char*)ptr);
 		
-//		prgs = (_prgs_struct *)clload(cp,ptr,len,flags);
 		prgs = (struct _prgs_struct *)clload(cp,ptr,len,flags);
 		prgs->fname = fname;
 		prgs->fp = fp;

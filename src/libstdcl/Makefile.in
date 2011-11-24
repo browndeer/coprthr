@@ -44,9 +44,11 @@ INSTALL_MAN_DIR=@mandir@
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
-VPATH = .:./man/man1:./man/man3
+#VPATH = .:../libclelf:./man/man1:./man/man3
 
 INCS += -I../../include $(USE_OPENCL_INCLUDES)
+INCS += -I../libclelf
+
 LIBS += $(USE_OPENCL_LIBS)
 
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
@@ -54,6 +56,11 @@ LIBS += -lpthread -lc -lrt
 else
 LIBS += -lpthread -ldl -lrt
 endif
+
+#LIBCLELF = ../libclelf/libclelf.a
+#LIBCLELF_D = ../libclelf/libclelf_d.a
+
+LIBS += -L../libclelf -lclelf
 
 OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
@@ -95,17 +102,18 @@ ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
 TARGET += libstdcl_d.so 
 endif
 
+
 all: $(TARGET)
 
 .phony: install uninstall clean distclean check_root debug
 
-libstdcl.so: $(OBJS)
+libstdcl.so: $(OBJS) $(LIBCLELF)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \
-		-o libstdcl.so $(LIB_OBJS) $(LIBS)
+		-o libstdcl.so $(LIB_OBJS) $(LIBCLELF) $(LIBS) 
 
-libstdcl_d.so: $(OBJS_D)
+libstdcl_d.so: $(OBJS_D) $(LIBCLELF_D)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl_d.so \
-		-o libstdcl_d.so $(LIB_OBJS_D) $(LIBS)
+		-o libstdcl_d.so $(LIB_OBJS_D) $(LIBCLELF_D) $(LIBS)
 
 .SUFFIXES:
 .SUFFIXES: .c .o .f90 .mod

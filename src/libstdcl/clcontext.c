@@ -1,6 +1,6 @@
 /* clcontext.c
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -53,7 +53,6 @@
 #ifdef DEFAULT_OPENCL_PLATFORM
 #define DEFAULT_PLATFORM_NAME DEFAULT_OPENCL_PLATFORM
 #else
-//#define DEFAULT_PLATFORM_NAME "ATI"
 #define DEFAULT_PLATFORM_NAME "AMD"
 #endif
 
@@ -309,12 +308,6 @@ clcontext_create(
 
 	while (ctxprop_ext != 0 && ctxprop_ext[nctxprop] != 0) ++nctxprop;
 
-//	cl_context_properties ctxprop[3] = {
-//		(cl_context_properties)CL_CONTEXT_PLATFORM,
-//		(cl_context_properties)platformid,
-//		(cl_context_properties)0
-//	};
-
 	nctxprop += 3;
 
 	ctxprop = (cl_context_properties*)
@@ -376,11 +369,8 @@ clcontext_create(
 
 		cl_uint platform_ndev;
 		err = clGetDeviceIDs(platformid,devtyp,0,0,&platform_ndev);
-//		cl_uint platform_vndev = 2*platform_ndev;
 		cl_uint platform_vndev = platform_ndev;
 
-//DEBUG(__FILE__,__LINE__,"%d %d",platform_ndev,platform_vndev);
-	
 		cl_device_id* platform_dev 
 			= (cl_device_id*)malloc(platform_ndev*sizeof(cl_device_id));
 
@@ -391,8 +381,6 @@ clcontext_create(
 		pid_t pid = getpid();
 
 		size_t sz_page = getpagesize();
-
-//		system("ls /dev/shm");
 
 		char shmobj[64];
 		snprintf(shmobj,64,"/stdcl_ctx_lock%d.%d",devtyp,lock_key);
@@ -444,10 +432,8 @@ clcontext_create(
 			__ctx_lock = (struct __ctx_lock_struct*)p0;
 
 			pthread_mutex_lock(&__ctx_lock->mtx);
-//			if (__ctx_lock->refc < platform_ndev) {
 			if (__ctx_lock->refc < platform_vndev) {
 				noff = __ctx_lock->refc;
-//				ndev = min(ndevmax,platform_ndev-noff);
 				ndev = min(ndevmax,platform_vndev-noff);
 				__ctx_lock->refc += ndev;
 			}
@@ -471,7 +457,6 @@ clcontext_create(
 			__ctx_lock->magic = 20110415;
 			__ctx_lock->key = lock_key;
 			pthread_mutex_init(&__ctx_lock->mtx,0);
-//			ndev = min(ndevmax,platform_ndev);
 			ndev = min(ndevmax,platform_vndev);
 		DEBUG(__FILE__,__LINE__,"ndev=%d %d %d",ndev,ndevmax,platform_vndev);
 			__ctx_lock->refc = ndev;
@@ -484,11 +469,10 @@ clcontext_create(
 
 		DEBUG(__FILE__,__LINE__,"ndev=%d",ndev);
 
-//		if (noff < platform_ndev) {
 		if (noff < platform_vndev) {
 
-//			cp->ctx = clCreateContext(ctxprop,ndev,platform_dev + noff,0,0,&err);
-			cp->ctx = clCreateContext(ctxprop,ndev,platform_dev + noff%platform_ndev,0,0,&err);
+			cp->ctx = clCreateContext(ctxprop,ndev,
+				platform_dev + noff%platform_ndev,0,0,&err);
 
 			DEBUG(__FILE__,__LINE__,
 				"clcontext_create: platform_ndev=%d ndev=%d noffset=%d",
@@ -517,16 +501,6 @@ clcontext_create(
 		cp->dev = (cl_device_id*)malloc(10*devlist_sz);
 		err=clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,devlist_sz,cp->dev,0);
 
-//		cp->devtyp = devtyp;
-//		err = clGetDeviceIDs(platformid,devtyp,0,0,&(cp->ndev));
-//		DEBUG(__FILE__,__LINE__,"xxx %d",err);
-//		DEBUG(__FILE__,__LINE__,"number of devices %d",cp->ndev);
-//		cp->dev = (cl_device_id*)malloc(cp->ndev * sizeof(cl_device_id) );
-//		err = clGetDeviceIDs(platformid,devtyp,cp->ndev,cp->dev,&(cp->ndev));
-//		DEBUG(__FILE__,__LINE__,"xxx %d",err);
-//		DEBUG(__FILE__,__LINE__," %p device[0]",cp->dev[0]);
-
-		
 	} else {
 
 		WARN(__FILE__,__LINE__,"clcontext_create: failed");
@@ -547,14 +521,9 @@ clcontext_create(
 
    }
 
-
 	DEBUG(__FILE__,__LINE__,"number of devices %d",cp->ndev);
 
 		
-	/* XXX XXX TESTING ONLY!!!! */
-	//_aligned_free(cp);
-	//DEBUG(__FILE__,__LINE__,"MADE IT"); return (CONTEXT*)0;
-
 
 	/***
 	 *** create command queues
@@ -566,28 +535,18 @@ clcontext_create(
 
 	
 
-// XXX something is broken in clCreateCommandQueue, using lazy creation
-// XXX as a workaround -DAR
-//	{
-		//cl_command_queue_properties prop = 00;
-		//prop |= CL_QUEUE_PROFILING_ENABLE; /* XXX this should be choice -DAR */
 		for(i=0;i<cp->ndev;i++) {
-			//DEBUG(__FILE__,__LINE__,"%d calling clCreateCommandQueue(%p,%p,%x,%p)",i,cp->ctx,cp->dev[i],prop,&err);
 #ifdef _WIN64
 			cp->cmdq[i] = 0; /* have to defer, dllmain limitations */
 #else
 			cp->cmdq[i] = clCreateCommandQueue(cp->ctx,cp->dev[i],prop,&err);
-			//cp->cmdq[i] = clCreateCommandQueue(cp->ctx,cp->dev[i],0,&err);
-			//cl_command_queue cmdq = clCreateCommandQueue(cp->ctx,cp->dev[0],0,&err);
 
-			DEBUG(__FILE__,__LINE__,"clcontext_create: error from create cmdq %d (%p)\n",
+			DEBUG(__FILE__,__LINE__,"clcontext_create:"
+				" error from create cmdq %d (%p)\n",
 				err,cp->cmdq[i]);
 #endif
 			//DEBUG(__FILE__,__LINE__,"MADE IT"); return (CONTEXT*)0;
 		}
-//	}
-//	printf("WARNING CMDQs NOT CREATED\n");
-//	for(i=0;i<cp->ndev;i++) cp->cmdq[i] = (cl_command_queue)0;
 
 
 
@@ -596,38 +555,15 @@ clcontext_create(
 	 ***/
 
 	LIST_INIT(&cp->prgs_listhead);
-
 	LIST_INIT(&cp->txt_listhead);
-
 	LIST_INIT(&cp->memd_listhead);
 
-
-//	struct _prgs_struct* prgs 
-//		= (struct _prgs_struct*)malloc(sizeof(struct _prgs_struct));
-//	prgs->len=-1;
-//	LIST_INSERT_HEAD(&cp->prgs_listhead, prgs, prgs_list);
-//
-//	prgs = (struct _prgs_struct*)malloc(sizeof(struct _prgs_struct));
-//	prgs->len=-2;
-//	LIST_INSERT_HEAD(&cp->prgs_listhead, prgs, prgs_list);
-
-/*
-	printf("%p searching _proc_cl for prgs...\n",_proc_cl.clstrtab);
-	printf("%s\n",&_proc_cl.clstrtab[1]);
-	struct clprgs_entry* sp;
-	for(n=0,sp=_proc_cl.clprgs;n<_proc_cl.clprgs_n;n++,sp++) {
-		printf("found %s (%d bytes)\n",&_proc_cl.clstrtab[sp->e_name],sp->e_size);
-		struct _prgs_struct* prgs = (struct _prgs_struct*)
-			clload(cp,_proc_cl.cltexts+sp->e_offset,sp->e_size,0);
-	}
-*/
 
 
 	/*** 
 	 *** initialize event lists
 	 ***/
 	
-//	cp->nkev = cp->kev_first = cp->kev_free = 0;
 	cp->kev = (struct _event_list_struct*)
 		malloc(cp->ndev*sizeof(struct _event_list_struct));
 
@@ -635,19 +571,12 @@ clcontext_create(
 		cp->kev[i].nev = cp->kev[i].ev_first = cp->kev[i].ev_free = 0;
 	}
 
-//	cp->nmev = cp->mev_first = cp->mev_free = 0;
 	cp->mev = (struct _event_list_struct*)
 		malloc(cp->ndev*sizeof(struct _event_list_struct));
 
 	for(i=0;i<cp->ndev;i++) {
 		cp->mev[i].nev = cp->mev[i].ev_first = cp->mev[i].ev_free = 0;
 	}
-
-//#ifdef ENABLE_CLEXPORT
-//	cp->ndev_v = 0;
-//	cp->extd = 0;
-//	cp->imtd = 0;
-//#endif
 
 
 	if (platforms) free(platforms);
@@ -674,16 +603,7 @@ clcontext_destroy(CONTEXT* cp)
 
 	if (cp->kev) free(cp->kev);
 
-//	struct _prgs_struct* prgs;
-//   for (
-//		prgs = cp->prgs_listhead.lh_first; prgs != 0; 
-//		prgs = prgs->prgs_list.le_next
-//	) {
-//      printf("%d\n",prgs->len);
-//   }
-
 	while (cp->prgs_listhead.lh_first != 0)   
-//		LIST_REMOVE(cp->prgs_listhead.lh_first, prgs_list);
 		clclose(cp,cp->prgs_listhead.lh_first);
 
 	/* XXX here force detach of any clmalloc() memory -DAR */
@@ -763,8 +683,6 @@ LIBSTDCL_API int  clgetdevinfo( CONTEXT* cp, struct cldev_info* info)
 
 		for(n=0,d=cp->dev,di=info;n<ndev;n++,d++,di++) {
 
-//			printf("%p\n",di);
-
 			err = clGetDeviceInfo(
   		    	*d,CL_DEVICE_TYPE,
   		    	sizeof(cl_device_type),&di->dev_type,0
@@ -834,14 +752,6 @@ LIBSTDCL_API int  clgetdevinfo( CONTEXT* cp, struct cldev_info* info)
 				*d,CL_DEVICE_ADDRESS_BITS,
 				sizeof(cl_bitfield),&di->dev_addr_bits,0
 			);
-
-
-//			cl_ulong ultmp;
-//			err = clGetDeviceInfo(
-//            *d,CL_DEVICE_MAX_MEM_ALLOC_SIZE,
-//            sizeof(cl_ulong),&ultmp,0
-//			);	
-//			printf("XXX CL_DEVICE_GLOBAL_MEM_SIZE %d\n",(int)ultmp);
 
 			err = clGetDeviceInfo(
             *d,CL_DEVICE_GLOBAL_MEM_SIZE,
@@ -978,12 +888,6 @@ LIBSTDCL_API void  clfreport_devinfo( FILE* fp, size_t ndev, struct cldev_info* 
 		);  
    	fprintf(fp,"CL_DEVICE_MAX_CLOCK_FREQUENCY=%d\n",di->dev_max_freq);
 
-// XXX SDK does not define CL_DEVICE_ADDRESS_32_BITS,CL_DEVICE_ADDRESS_64_BITS
-// 	fprintf(fp,"CL_DEVICE_ADDRESS_BITS=");
-// 	if (di->dev_addr_bits&CL_DEVICE_ADDRESS_32_BIT) fprintf(fp," 32-bit");
-// 	if (di->dev_addr_bits&CL_DEVICE_ADDRESS_64_BITS) fprintf(fp," 64-bit");
-// 	if (!di->dev_addr_bits) fprintf(fp," no");
-// 	fprintf(fp," address space support\n");
 		fprintf(fp,"CL_DEVICE_ADDRESS_BITS=0x%x\n",di->dev_addr_bits);
 
 	   if (di->dev_img_sup) {
