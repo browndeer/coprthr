@@ -3,6 +3,9 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
+LIBELF_INC=@libelf_inc@
+LIBELF_LIB=@libelf_lib@
+
 #DEFS += -DXCL_DEBUG -DXCL_WARN
 #DEFS += -DXCL_WARN
 
@@ -18,14 +21,17 @@ INSTALL_MAN_DIR=@mandir@
 #INCS = -I. -I../../src/xcl
 INCS = -I. -I../../src/libocl
 
-ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
-INCS += -I/usr/local/include
-else
-INCS += -I/usr/local/include/libelf
-endif
+#ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+#INCS += -I/usr/local/include
+#else
+#INCS += -I/usr/local/include/libelf
+#endif
+INCS += $(LIBELF_INC)
 
 
-LIBS = -lfl -lelf 
+#LIBS = -lfl -lelf 
+LIBS += -lfl
+LIBS += $(LIBELF_LIB)
 
 OBJS = xclnm.o xclnm_scan.o xclnm_gram.o xclnm_node.o 
 

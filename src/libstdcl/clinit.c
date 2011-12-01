@@ -285,7 +285,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		char name[256];
 		if (getenv("STDDEV_PLATFORM_NAME"))
 			strncpy(name,getenv("STDDEV_PLATFORM_NAME"),256);
-		else name[0]='\0';
+//		else name[0]='\0';
+		else strncpy(name,DEFAULT_OPENCL_PLATFORM,256);
 
 		if (getenv("STDDEV_MAX_NDEV"))
 			ndev = atoi(getenv("STDDEV_MAX_NDEV"));
@@ -323,7 +324,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		char name[256];
 		if (getenv("STDCPU_PLATFORM_NAME"))
 			strncpy(name,getenv("STDCPU_PLATFORM_NAME"),256);
-		else name[0]='\0';
+//		else name[0]='\0';
+		else strncpy(name,DEFAULT_OPENCL_PLATFORM,256);
 
 		if (getenv("STDCPU_MAX_NDEV"))
 			ndev = atoi(getenv("STDCPU_MAX_NDEV"));
@@ -367,7 +369,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 		char name[256];
 		if (getenv("STDGPU_PLATFORM_NAME"))
 			strncpy(name,getenv("STDGPU_PLATFORM_NAME"),256);
-		else name[0]='\0';
+//		else name[0]='\0';
+		else strncpy(name,DEFAULT_OPENCL_PLATFORM,256);
 
 		if (getenv("STDGPU_MAX_NDEV"))
 			ndev = atoi(getenv("STDGPU_MAX_NDEV"));

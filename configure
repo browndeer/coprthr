@@ -274,7 +274,7 @@ PACKAGE_STRING='coprthr 1.1'
 PACKAGE_BUGREPORT='support@browndeertechnology.com'
 
 ac_default_prefix=/usr/local/browndeer
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH F90 LLVM_EX ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_CLLD ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INC OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM AMD_SDK ATI_SDK_21 LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH LLVM_EX F90 ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_CLLD ENABLE_LIBOCL ENABLE_NCPU ENABLE_ATIGPU ENABLE_BDT_BUILTINS OPENCL_INCLUDE OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM ATI_SDK_21 libelf_inc libelf_lib LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -806,9 +806,6 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-libstdcl-clgl-support
-                          enable libstdcl CLGL buffer sharing support
-                          (default=no)
   --enable-clete          enable clete expression template acceleration
                           (default=yes)
   --enable-debug-libs     enable building debug versions of librarires
@@ -817,18 +814,20 @@ Optional Features:
   --enable-clld           enable building clld tool (default=yes)
   --enable-libocl         enable building libocl (default=no)
   --enable-libocl-ncpu    enable libocl ncpu (default=yes)
-  --enable-libocl-atigpu  enable libocl atigpu (default=no)
-  --enable-libocl-bdt-builtins
-                          enable libocl bdt builtins (default=no)
+  --enable-fortran        enable fortran bindings (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-amd-sdk=DIR      Use AMD SDK in DIR
-  --with-nvidia-sdk=DIR   Use Nvidia SDK in DIR
-  --with-intel-sdk=DIR    Use Intel SDK in DIR
+  --with-opencl-platform=NAMELIST
+                          specify default platform selection as a comma
+                          seperated list
+  --with-opencl-include=DIR
+                          specify OpenCL include path
+  --with-opencl-lib=DIR   specify OpenCL lib path
   --with-ati-sdk-21=DIR   Use ATI SDK v2.1 in DIR
   --with-fortran=PROG     Use fortran compiler PROG
+  --with-libelf=DIR       specify path to libelf
 
 Some influential environment variables:
   CC          C compiler command
@@ -2402,41 +2401,7 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
-# Extract the first word of "gfortran44", so it can be a program name with args.
-set dummy gfortran44; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_prog_F90+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  if test -n "$F90"; then
-  ac_cv_prog_F90="$F90" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_prog_F90="gfortran44"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-fi
-fi
-F90=$ac_cv_prog_F90
-if test -n "$F90"; then
-  echo "$as_me:$LINENO: result: $F90" >&5
-echo "${ECHO_T}$F90" >&6
-else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
-fi
-
+#AC_CHECK_PROG(F90,gfortran44,gfortran44)
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lOpenCL':
@@ -2649,15 +2614,83 @@ fi
 
 
 
-### extract enable/disable options
-
-# Check whether --enable-libstdcl-clgl-support or --disable-libstdcl-clgl-support was given.
-if test "${enable_libstdcl_clgl_support+set}" = set; then
-  enableval="$enable_libstdcl_clgl_support"
-
+echo "$as_me:$LINENO: checking for elf64_getehdr in -lelf" >&5
+echo $ECHO_N "checking for elf64_getehdr in -lelf... $ECHO_C" >&6
+if test "${ac_cv_lib_elf_elf64_getehdr+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  enable_libstdcl_clgl_support=no
-fi;
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lelf  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char elf64_getehdr ();
+int
+main ()
+{
+elf64_getehdr ();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_lib_elf_elf64_getehdr=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_lib_elf_elf64_getehdr=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+echo "$as_me:$LINENO: result: $ac_cv_lib_elf_elf64_getehdr" >&5
+echo "${ECHO_T}$ac_cv_lib_elf_elf64_getehdr" >&6
+if test $ac_cv_lib_elf_elf64_getehdr = yes; then
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_LIBELF 1
+_ACEOF
+
+  LIBS="-lelf $LIBS"
+
+fi
+
+
+
+
+### extract enable/disable options
 
 # Check whether --enable-clete or --disable-clete was given.
 if test "${enable_clete+set}" = set; then
@@ -2750,41 +2783,33 @@ else
   enable_libocl_ncpu=yes
 fi;
 
-# Check whether --enable-libocl-atigpu or --disable-libocl-atigpu was given.
-if test "${enable_libocl_atigpu+set}" = set; then
-  enableval="$enable_libocl_atigpu"
+#AC_ARG_ENABLE(libocl-atigpu,
+#  AC_HELP_STRING([--enable-libocl-atigpu],[enable libocl atigpu (default=no)]),, enable_libocl_atigpu=no)
+#
+#AC_ARG_ENABLE(libocl-bdt-builtins,
+#  AC_HELP_STRING([--enable-libocl-bdt-builtins],[enable libocl bdt builtins (default=no)]),, enable_libocl_bdt_builtins=no)
+
+# Check whether --enable-fortran or --disable-fortran was given.
+if test "${enable_fortran+set}" = set; then
+  enableval="$enable_fortran"
 
 else
-  enable_libocl_atigpu=no
-fi;
-
-# Check whether --enable-libocl-bdt-builtins or --disable-libocl-bdt-builtins was given.
-if test "${enable_libocl_bdt_builtins+set}" = set; then
-  enableval="$enable_libocl_bdt_builtins"
-
-else
-  enable_libocl_bdt_builtins=no
+  enable_fortran=yes
 fi;
 
 
 ### check and process option dependencies and inferences
-if test x$enable_libocl == xno; then
-	enable_libocl_ncpu=no;
-	enable_libocl_atigpu=no;
-	enable_libocl_bdt_builtins=no;
-fi;
+#if test x$enable_libocl = xno; then
+#	enable_libocl_ncpu=no;
+#	enable_libocl_atigpu=no;
+#	enable_libocl_bdt_builtins=no;
+#fi;
+enable_libocl_ncpu=enable_libocl;
 
 
 ### now process the selected options
 
-if test x$enable_libstdcl_clgl_support != xno; then
-			echo "enabled "CLGL support""
-			ENABLE_CLGL=1
-		else
-			echo "disabled "CLGL support""
-			ENABLE_CLGL=0
-		fi;
-
+#SET_OPT($enable_libstdcl_clgl_support, ENABLE_CLGL, "CLGL support")
 if test x$enable_clete != xno; then
 			echo "enabled "CLETE expression template acceleration""
 			ENABLE_CLETE=1
@@ -2825,179 +2850,255 @@ if test x$enable_libocl != xno; then
 			ENABLE_LIBOCL=0
 		fi;
 
-if test x$enable_libocl_ncpu != xno; then
-			echo "enabled "libocl ncpu support""
-			ENABLE_NCPU=1
+#SET_OPT($enable_libocl_ncpu, ENABLE_NCPU, "libocl ncpu support")
+if test x$enable_fortran != xno; then
+			echo "enabled "fortran binding support""
+			ENABLE_FORTRAN=1
 		else
-			echo "disabled "libocl ncpu support""
-			ENABLE_NCPU=0
+			echo "disabled "fortran binding support""
+			ENABLE_FORTRAN=0
 		fi;
 
-if test x$enable_libocl_atigpu != xno; then
-			echo "enabled "libocl atigpu support""
-			ENABLE_ATIGPU=1
-		else
-			echo "disabled "libocl atigpu support""
-			ENABLE_ATIGPU=0
-		fi;
-
-if test x$enable_libocl_bdt_builtins != xno; then
-			echo "enabled "libocl use bdt builtins""
-			ENABLE_BDT_BUILTINS=1
-		else
-			echo "disabled "libocl use bdt builtins""
-			ENABLE_BDT_BUILTINS=0
-		fi;
+#SET_OPT($enable_libocl_atigpu, ENABLE_ATIGPU, "libocl atigpu support")
+#SET_OPT($enable_libocl_bdt_builtins, ENABLE_BDT_BUILTINS, "libocl use bdt builtins")
 
 
+#OPENCL_INCLUDE=
+#OPENCL_LIB=
+#OPENCL_LIBNAME=
+#DEFAULT_DEFAULT_OPENCL_PLATFORM=
+#AMD_SDK=
 
-OPENCL_INC=
-OPENCL_LIB=
-DEFAULT_OPENCL_PLATFORM=
-AMD_SDK=
+###
+### OpenCL platform selection is somewhat complicated.  Here are the rules:
+###
+###    1) gather locations of vendor include and lib paths following best
+###       known search path and save temporarily for use in the next steps
+###
+###    2) test for --with-opencl-platform, set DEFAULT_OPENCL_PLATFORM.  If it is
+###       not set, use /etc/OpenCL/vendors to build list in this order:
+###       amdapp,nvidia,intel
+###
+###    3) if set scan DEFAULT_OPENCL_PLATFORM in order and set OPENCL_INCLUDE and
+###       OPENCL_LIB to be first platform for which we have good paths
+###
+###    4) test for --with-opencl-include and --with-opencl-lib, and override
+###       OPENCL_INCLUDE and OPENCL_LIB as necessary
+###
 
-# Check whether --with-amd-sdk or --without-amd-sdk was given.
-if test "${with_amd_sdk+set}" = set; then
-  withval="$with_amd_sdk"
 
-    if test x$withval == xno; then
+### step 1)
+### XXX add vendor checks to make sure there are no collisions -DAR
 
-	if test -e /opt/AMDAPP; then
-		withval=/opt/AMDAPP
-	elif test -e /usr/local/atistream; then
-		withval=/usr/local/atistream
-	 fi;
-
-	fi;
-
-      if test -d $withval; then
-         echo "found AMD SDK path"
-			AMD_SDK=$withval
-      else
-         { { echo "$as_me:$LINENO: error: Could not find AMD SDK path" >&5
-echo "$as_me: error: Could not find AMD SDK path" >&2;}
-   { (exit 1); exit 1; }; }
+# find best known AMDAPP paths
+if test -e /etc/OpenCL/vendors/ati*.icd; then
+  tmp_amdapp_sdk=1;
+elif test -e /etc/OpenCL/vendors/amd*.icd; then
+  tmp_amdapp_sdk=1;
+fi;
+if test $tmp_amdapp_sdk = 1; then
+  for d in /opt/AMDAPP /usr/local/atistream
+  do
+    if test -e $d/include/CL/cl.h; then
+      if test -e $d/lib/x86_64/libOpenCL.so; then
+        tmp_amdapp_include=$d/include;
+        tmp_amdapp_lib=$d/lib/x86_64;
+        break;
       fi;
+    fi;
+  done;
+fi;
 
-      if test -e $withval/include/CL/cl.h; then
-        OPENCL_INC="$withval/include"
-         echo "found AMD SDK include path"
-      else
-         { { echo "$as_me:$LINENO: error: Could not find AMD SDK include path" >&5
-echo "$as_me: error: Could not find AMD SDK include path" >&2;}
-   { (exit 1); exit 1; }; }
+# find best known Nvidia paths
+if test -e /etc/OpenCL/vendors/nvidia*.icd; then
+  tmp_nvidia_sdk=1;
+  for d in /usr/local/cuda
+  do
+    if test -e $d/OpenCL/common/inc/CL/cl.h; then
+      if test -e $d/OpenCL/common/lib/Linux64/libOpenCL.so; then
+        tmp_nvidia_include=$d/OpenCL/common/inc;
+        tmp_nvidia_lib=$d/OpenCL/common/lib/Linux64;
+        break;
+      elif test -e /usr/lib64/libOpenCL.so; then
+        tmp_nvidia_include=$d/OpenCL/common/inc;
+        tmp_nvidia_lib=/usr/lib64;
+        break;
       fi;
-
-      if test -e $withval/lib/x86_64/libOpenCL.so; then
-        OPENCL_LIB="$withval/lib/x86_64"
-         echo "found AMD SDK lib path"
-      else
-         { { echo "$as_me:$LINENO: error: Could not find AMD SDK lib path" >&5
-echo "$as_me: error: Could not find AMD SDK lib path" >&2;}
-   { (exit 1); exit 1; }; }
+    elif test -e $d/include/CL/cl.h; then
+      if test -e $d/lib/libOpenCL.so; then
+        tmp_nvidia_include=$d/include;
+        tmp_nvidia_lib=$d/lib64;
+        break;
+      elif test -e /usr/lib64/libOpenCL.so; then
+        tmp_nvidia_include=$d/include;
+        tmp_nvidia_lib=/usr/lib64;
+        break;
       fi;
+    fi;
+  done;
+fi;
 
-#	 DEFAULT_OPENCL_PLATFORM=ATI;
-	 DEFAULT_OPENCL_PLATFORM=AMD;
+# find best known Intel paths
+if test -e /etc/OpenCL/vendors/intel*.icd; then
+  tmp_intel_sdk=1;
+  for d in /usr/local
+  do
+    if test -e $d/include/CL/cl.h; then
+      if test -e $d/lib64/libOpenCL.so; then
+        tmp_intel_include=$d/include;
+        tmp_intel_lib=$d/lib64;
+        break;
+      elif test -e /usr/lib/libOpenCL.so; then
+        tmp_intel_include=$d/include;
+        tmp_intel_lib=/usr/lib;
+        break;
+      fi;
+    fi;
+  done;
+fi;
 
+
+### step 2)
+
+# test for --with-opencl-platform specification
+
+# Check whether --with-opencl-platform or --without-opencl-platform was given.
+if test "${with_opencl_platform+set}" = set; then
+  withval="$with_opencl_platform"
+
+    if test x$withval = xyes; then
+      { { echo "$as_me:$LINENO: error: usage: --with-opencl-platform=NAMELIST" >&5
+echo "$as_me: error: usage: --with-opencl-platform=NAMELIST" >&2;}
+   { (exit 1); exit 1; }; }
+    else
+		DEFAULT_OPENCL_PLATFORM=$withval;
+    fi;
 
 else
-  #  [OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=AMD; AMD_SDK=/usr/local/atistream])
-   if test -d /usr/local/atistream; then AMD_SDK=/usr/local/atistream; elif test -d /opt/AMDAPP; then AMD_SDK=/opt/AMDAPP; fi; if test -d $AMD_SDK; then OPENCL_LIB=$AMD_SDK/lib/x86_64; OPENCL_INC=$AMD_SDK/include; DEFAULT_OPENCL_PLATFORM=AMD; fi;
-fi;
 
+    if test $tmp_amdapp_sdk -eq 1; then
+      DEFAULT_OPENCL_PLATFORM=amdapp;
+    fi;
 
-# Check whether --with-nvidia-sdk or --without-nvidia-sdk was given.
-if test "${with_nvidia_sdk+set}" = set; then
-  withval="$with_nvidia_sdk"
-
-    if test x$withval == xno; then
-		withval=/usr/local/cuda
-	 fi;
-
-      if test -d $withval; then
-         echo "found Nvidia SDK path"
+    if test $tmp_nvidia_sdk -eq 1; then
+      if test DEFAULT_OPENCL_PLATFORM; then
+        DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,nvidia;
       else
-         { { echo "$as_me:$LINENO: error: Could not find Nvidia SDK path" >&5
-echo "$as_me: error: Could not find Nvidia SDK path" >&2;}
-   { (exit 1); exit 1; }; }
+        DEFAULT_OPENCL_PLATFORM=nvidia;
       fi;
+    fi;
 
-      if test -e $withval/OpenCL/common/inc/CL/cl.h; then
-        OPENCL_INC="$withval/OpenCL/common/inc"
-         echo "found Nvidia SDK include path"
-      elif test -e $withval/include/CL/cl.h; then
-        OPENCL_INC="$withval/include"
-         echo "found Nvidia SDK include path"
+    if test $tmp_intel_sdk -eq 1; then
+      if test DEFAULT_OPENCL_PLATFORM; then
+        DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,intel;
       else
-         { { echo "$as_me:$LINENO: error: Could not find Nvidia SDK include path" >&5
-echo "$as_me: error: Could not find Nvidia SDK include path" >&2;}
-   { (exit 1); exit 1; }; }
+        DEFAULT_OPENCL_PLATFORM=intel;
       fi;
-
-      if test -e $withval/OpenCL/common/lib/Linux64/libOpenCL.so; then
-        OPENCL_LIB="$withval/OpenCL/common/lib/Linux64"
-          echo "found Nvidia SDK lib path"
-      elif test -e $withval/lib/libOpenCL.so; then
-        OPENCL_LIB="$withval/lib"
-         echo "found Nvidia SDK lib path"
-		elif test -e /usr/lib64/libOpenCL.so; then
-        OPENCL_LIB="/usr/lib64"
-         echo "found Nvidia SDK lib path"
-      else
-         { { echo "$as_me:$LINENO: error: Could not find Nvidia SDK lib path" >&5
-echo "$as_me: error: Could not find Nvidia SDK lib path" >&2;}
-   { (exit 1); exit 1; }; }
-      fi;
-
-	 DEFAULT_OPENCL_PLATFORM=NVIDIA;
+    fi;
 
 fi;
 
 
-# Check whether --with-intel-sdk or --without-intel-sdk was given.
-if test "${with_intel_sdk+set}" = set; then
-  withval="$with_intel_sdk"
+### step 3)
 
-    if test x$withval == xno; then
-		withval=/usr/local
-	 fi;
+list2=`echo $DEFAULT_OPENCL_PLATFORM | awk '{sub(/,/," ");print}'`
+echo "list2 is " $list2
+for p in $list2
+do
+  echo $p
 
-      if test -d $withval; then
-         echo "found Intel SDK path"
-      else
-         { { echo "$as_me:$LINENO: error: Could not find Intel SDK path" >&5
-echo "$as_me: error: Could not find Intel SDK path" >&2;}
+  case $p in
+
+    amd*)
+      OPENCL_INCLUDE=$tmp_amdapp_include;
+      OPENCL_LIB=$tmp_amdapp_lib;
+      OPENCL_LIBNAME=libOpenCL.so;
+      break
+		;;
+
+    nvidia*)
+      OPENCL_INCLUDE=$tmp_nvidia_include;
+      OPENCL_LIB=$tmp_nvidia_lib;
+      OPENCL_LIBNAME=libOpenCL.so;
+      break
+		;;
+
+    intel*)
+      OPENCL_INCLUDE=$tmp_intel_include;
+      OPENCL_LIB=$tmp_intel_lib;
+      OPENCL_LIBNAME=libOpenCL.so;
+      break
+		;;
+
+    *)
+      echo "unknown OpenCL platform '" $p "'";
+      ;;
+esac
+done
+
+
+### step 4)
+
+# test for --with-opencl-include specification
+
+# Check whether --with-opencl-include or --without-opencl-include was given.
+if test "${with_opencl_include+set}" = set; then
+  withval="$with_opencl_include"
+
+    if test x$withval = xyes; then
+      { { echo "$as_me:$LINENO: error: usage: --with-opencl-include=DIR" >&5
+echo "$as_me: error: usage: --with-opencl-include=DIR" >&2;}
    { (exit 1); exit 1; }; }
-      fi;
-
-      if test -e $withval/include/CL/cl.h; then
-        OPENCL_INC="$withval/include"
-         echo "found Intel SDK include path"
-      else
-         { { echo "$as_me:$LINENO: error: Could not find Intel SDK include path" >&5
-echo "$as_me: error: Could not find Intel SDK include path" >&2;}
+    elif ! test -e $withval/CL/cl.h; then
+      { { echo "$as_me:$LINENO: error: bad include path, could not find CL/cl.h" >&5
+echo "$as_me: error: bad include path, could not find CL/cl.h" >&2;}
    { (exit 1); exit 1; }; }
-      fi;
+    else
+		OPENCL_INCLUDE=$withval;
+    fi;
 
-      if test -e $withval/lib/libOpenCL.so; then
-        OPENCL_LIB="$withval/lib"
-         echo "found Intel SDK lib path"
-		elif test -e /usr/lib64/libOpenCL.so; then
-        OPENCL_LIB="/usr/lib64"
-         echo "found Intel SDK lib path"
-      else
-         { { echo "$as_me:$LINENO: error: Could not find Intel SDK lib path" >&5
-echo "$as_me: error: Could not find Intel SDK lib path" >&2;}
+fi;
+
+# test for --with-opencl-lib specification
+
+# Check whether --with-opencl-lib or --without-opencl-lib was given.
+if test "${with_opencl_lib+set}" = set; then
+  withval="$with_opencl_lib"
+
+    if test x$withval = xyes; then
+      { { echo "$as_me:$LINENO: error: usage: --with-opencl-lib=DIR" >&5
+echo "$as_me: error: usage: --with-opencl-lib=DIR" >&2;}
    { (exit 1); exit 1; }; }
-      fi;
-
-	 DEFAULT_OPENCL_PLATFORM=Intel;
+    elif ! test -e $withval/$OPENCL_LIBNAME; then
+      { { echo "$as_me:$LINENO: error: bad lib path, could not find $OPENCL_LIB" >&5
+echo "$as_me: error: bad lib path, could not find $OPENCL_LIB" >&2;}
+   { (exit 1); exit 1; }; }
+    else
+		OPENCL_LIB=$withval;
+    fi;
 
 fi;
 
 
-#OPENCL_LIBNAME=OpenCL
+echo "tmp_amdapp_sdk = " $tmp_amdapp_sdk
+echo "tmp_amdapp_include = " $tmp_amdapp_include
+echo "tmp_amdapp_lib = " $tmp_amdapp_lib
+
+echo "tmp_nvidia_sdk = " $tmp_nvidia_sdk
+echo "tmp_nvidia_include = " $tmp_nvidia_include
+echo "tmp_nvidia_lib = " $tmp_nvidia_lib
+
+echo "tmp_intel_sdk = " $tmp_intel_sdk
+echo "tmp_intel_include = " $tmp_intel_include
+echo "tmp_intel_lib = " $tmp_intel_lib
+
+echo "DEFAULT_OPENCL_PLATFORM = " $DEFAULT_OPENCL_PLATFORM
+echo "OPENCL_INCLUDE = " $OPENCL_INCLUDE
+echo "OPENCL_LIB = " $OPENCL_LIB
+echo "OPENCL_LIBNAME = " $OPENCL_LIBNAME
+
+
+
 case $build_os in
 
 	freebsd*)
@@ -3010,15 +3111,14 @@ case $build_os in
 
 esac
 
-echo $OPENCL_INC
-echo $OPENCL_LIB
 
+# XXX this option is going away in echo release -DAR
 
 # Check whether --with-ati-sdk-21 or --without-ati-sdk-21 was given.
 if test "${with_ati_sdk_21+set}" = set; then
   withval="$with_ati_sdk_21"
 
-    if test x$withval == xno; then
+    if test x$withval = xno; then
 		withval=/usr/local/atistream
 	 fi;
 
@@ -3078,8 +3178,21 @@ fi;
 if test "${with_fortran+set}" = set; then
   withval="$with_fortran"
 
-    if test x$withval == xno; then
-        # Extract the first word of "gfortran44", so it can be a program name with args.
+    if test x$withval = xno; then
+#        AC_CHECK_PROG(F90,gfortran44,gfortran44)
+         { { echo "$as_me:$LINENO: error: no fortran compiler specified" >&5
+echo "$as_me: error: no fortran compiler specified" >&2;}
+   { (exit 1); exit 1; }; }
+    else
+    	F90=$withval
+    fi;
+    echo $F90
+
+fi;
+
+if test x$enable_fortran = xyes; then
+	if ! test -d F90; then
+		# Extract the first word of "gfortran44", so it can be a program name with args.
 set dummy gfortran44; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
@@ -3114,12 +3227,59 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
+	fi;
+fi;
+
+echo $F90
+
+
+### now address a constant annoyance.
+### we will require a path for libelf and most importantly we will
+### reject attempts to use libelf.so.1 because its useless -DAR
+
+
+# Check whether --with-libelf or --without-libelf was given.
+if test "${with_libelf+set}" = set; then
+  withval="$with_libelf"
+
+    if test x$withval = xno; then
+         { { echo "$as_me:$LINENO: error: usage: --with-libelf=DIR" >&5
+echo "$as_me: error: usage: --with-libelf=DIR" >&2;}
+   { (exit 1); exit 1; }; }
     else
-    	F90=$withval
+      LIBELF_PATH=$withval
     fi;
-    echo $F90
+    echo $LIBELF_PATH
+
+else
+
+    if test -e /usr/local/lib/libelf.so; then
+      LIBELF_PATH=/usr/local;
+    else
+      { { echo "$as_me:$LINENO: error: cannot find libelf, try --with-libelf=DIR" >&5
+echo "$as_me: error: cannot find libelf, try --with-libelf=DIR" >&2;}
+   { (exit 1); exit 1; }; }
+    fi;
 
 fi;
+
+echo $LIBELF_PATH
+
+# XXX this seems like a sledge hammer, but its all i could come up with -DAR
+tmp_test_libelf=`readelf -d $LIBELF_PATH/lib/libelf.so | grep 'Library soname' | awk '{print $5}'`
+
+if ! test x$tmp_test_libelf = x[libelf.so.0]; then
+	echo $tmp_test_libelf
+	{ { echo "$as_me:$LINENO: error: incorrect version of libelf specified" >&5
+echo "$as_me: error: incorrect version of libelf specified" >&2;}
+   { (exit 1); exit 1; }; }
+fi;
+
+libelf_inc="-I$LIBELF_PATH/include"
+libelf_lib="-L$LIBELF_PATH/lib -lelf"
+
+### XXX clean up this syntax - above - for setting paths and such -DAR
+
 
 BASH=`which bash`
 
@@ -3141,9 +3301,12 @@ BASH=`which bash`
 
 
 
-
+#AC_SUBST(AMD_SDK)
 #AC_SUBST(AMD_SDK_INC)
 #AC_SUBST(AMD_SDK_LIB)
+
+
+
 
 
           ac_config_files="$ac_config_files Makefile"
@@ -3845,8 +4008,8 @@ s,@INSTALL_PROGRAM@,$INSTALL_PROGRAM,;t t
 s,@INSTALL_SCRIPT@,$INSTALL_SCRIPT,;t t
 s,@INSTALL_DATA@,$INSTALL_DATA,;t t
 s,@BASH@,$BASH,;t t
-s,@F90@,$F90,;t t
 s,@LLVM_EX@,$LLVM_EX,;t t
+s,@F90@,$F90,;t t
 s,@ENABLE_CLGL@,$ENABLE_CLGL,;t t
 s,@ENABLE_CLETE@,$ENABLE_CLETE,;t t
 s,@ENABLE_DEBUG_LIBS@,$ENABLE_DEBUG_LIBS,;t t
@@ -3856,12 +4019,13 @@ s,@ENABLE_LIBOCL@,$ENABLE_LIBOCL,;t t
 s,@ENABLE_NCPU@,$ENABLE_NCPU,;t t
 s,@ENABLE_ATIGPU@,$ENABLE_ATIGPU,;t t
 s,@ENABLE_BDT_BUILTINS@,$ENABLE_BDT_BUILTINS,;t t
-s,@OPENCL_INC@,$OPENCL_INC,;t t
+s,@OPENCL_INCLUDE@,$OPENCL_INCLUDE,;t t
 s,@OPENCL_LIB@,$OPENCL_LIB,;t t
 s,@OPENCL_LIBNAME@,$OPENCL_LIBNAME,;t t
 s,@DEFAULT_OPENCL_PLATFORM@,$DEFAULT_OPENCL_PLATFORM,;t t
-s,@AMD_SDK@,$AMD_SDK,;t t
 s,@ATI_SDK_21@,$ATI_SDK_21,;t t
+s,@libelf_inc@,$libelf_inc,;t t
+s,@libelf_lib@,$libelf_lib,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF

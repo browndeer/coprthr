@@ -24,7 +24,7 @@ AC_PROG_CC
 AC_PROG_INSTALL
 #AC_PROG_LIBTOOL
 AC_PATH_PROG([BASH],[bash],,[path=`$path`])
-AC_CHECK_PROG(F90,gfortran44,gfortran44)
+#AC_CHECK_PROG(F90,gfortran44,gfortran44)
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lOpenCL':
@@ -34,11 +34,11 @@ AC_CHECK_LIB([dl], [main])
 # FIXME: Replace `main' with a function in `-lpthread':
 AC_CHECK_LIB([pthread], [main])
 
+AC_CHECK_LIB([elf],[elf64_getehdr])
+
+
 
 ### extract enable/disable options
-
-AC_ARG_ENABLE(libstdcl-clgl-support,
-  AC_HELP_STRING([--enable-libstdcl-clgl-support],[enable libstdcl CLGL buffer sharing support (default=no)]),, enable_libstdcl_clgl_support=no)
 
 AC_ARG_ENABLE(clete,
   AC_HELP_STRING([--enable-clete],[enable clete expression template acceleration (default=yes)]),, enable_clete=yes)
@@ -67,155 +67,260 @@ AC_ARG_ENABLE(libocl,
 AC_ARG_ENABLE(libocl-ncpu,
   AC_HELP_STRING([--enable-libocl-ncpu],[enable libocl ncpu (default=yes)]),, enable_libocl_ncpu=yes)
 
-AC_ARG_ENABLE(libocl-atigpu,
-  AC_HELP_STRING([--enable-libocl-atigpu],[enable libocl atigpu (default=no)]),, enable_libocl_atigpu=no)
+#AC_ARG_ENABLE(libocl-atigpu,
+#  AC_HELP_STRING([--enable-libocl-atigpu],[enable libocl atigpu (default=no)]),, enable_libocl_atigpu=no)
+#
+#AC_ARG_ENABLE(libocl-bdt-builtins,
+#  AC_HELP_STRING([--enable-libocl-bdt-builtins],[enable libocl bdt builtins (default=no)]),, enable_libocl_bdt_builtins=no)
 
-AC_ARG_ENABLE(libocl-bdt-builtins,
-  AC_HELP_STRING([--enable-libocl-bdt-builtins],[enable libocl bdt builtins (default=no)]),, enable_libocl_bdt_builtins=no)
+AC_ARG_ENABLE(fortran,
+  AC_HELP_STRING([--enable-fortran],[enable fortran bindings (default=no)]),, enable_fortran=yes)
 
 
 ### check and process option dependencies and inferences
-if test x$enable_libocl == xno; then
-	enable_libocl_ncpu=no;
-	enable_libocl_atigpu=no;
-	enable_libocl_bdt_builtins=no;
-fi;
+#if test x$enable_libocl = xno; then
+#	enable_libocl_ncpu=no;
+#	enable_libocl_atigpu=no;
+#	enable_libocl_bdt_builtins=no;
+#fi;
+enable_libocl_ncpu=enable_libocl;
 
 
 ### now process the selected options
 
-SET_OPT($enable_libstdcl_clgl_support, ENABLE_CLGL, "CLGL support")
+#SET_OPT($enable_libstdcl_clgl_support, ENABLE_CLGL, "CLGL support")
 SET_OPT($enable_clete, ENABLE_CLETE, "CLETE expression template acceleration")
 SET_OPT($enable_debug_libs, ENABLE_DEBUG_LIBS, "building debug versions of librarires - use \<libname\>_d.so")
 SET_OPT($enable_cltrace, ENABLE_CLTRACE, "building cltrace tool")
 SET_OPT($enable_clld, ENABLE_CLLD, "building clld tool")
 SET_OPT($enable_libocl, ENABLE_LIBOCL, "building libocl")
-SET_OPT($enable_libocl_ncpu, ENABLE_NCPU, "libocl ncpu support")
-SET_OPT($enable_libocl_atigpu, ENABLE_ATIGPU, "libocl atigpu support")
-SET_OPT($enable_libocl_bdt_builtins, ENABLE_BDT_BUILTINS, "libocl use bdt builtins")
+#SET_OPT($enable_libocl_ncpu, ENABLE_NCPU, "libocl ncpu support")
+SET_OPT($enable_fortran, ENABLE_FORTRAN, "fortran binding support")
+#SET_OPT($enable_libocl_atigpu, ENABLE_ATIGPU, "libocl atigpu support")
+#SET_OPT($enable_libocl_bdt_builtins, ENABLE_BDT_BUILTINS, "libocl use bdt builtins")
 
 
-OPENCL_INC=
-OPENCL_LIB=
-DEFAULT_OPENCL_PLATFORM=
-AMD_SDK=
-AC_ARG_WITH(amd-sdk,
-  AC_HELP_STRING([--with-amd-sdk=DIR], [Use AMD SDK in DIR]),
+#OPENCL_INCLUDE=
+#OPENCL_LIB=
+#OPENCL_LIBNAME=
+#DEFAULT_DEFAULT_OPENCL_PLATFORM=
+#AMD_SDK=
+
+###
+### OpenCL platform selection is somewhat complicated.  Here are the rules:
+### 
+###    1) gather locations of vendor include and lib paths following best
+###       known search path and save temporarily for use in the next steps
+###    
+###    2) test for --with-opencl-platform, set DEFAULT_OPENCL_PLATFORM.  If it is
+###       not set, use /etc/OpenCL/vendors to build list in this order:
+###       amdapp,nvidia,intel
+###   
+###    3) if set scan DEFAULT_OPENCL_PLATFORM in order and set OPENCL_INCLUDE and
+###       OPENCL_LIB to be first platform for which we have good paths
+###
+###    4) test for --with-opencl-include and --with-opencl-lib, and override
+###       OPENCL_INCLUDE and OPENCL_LIB as necessary
+###
+
+
+### step 1)
+### XXX add vendor checks to make sure there are no collisions -DAR
+
+# find best known AMDAPP paths
+if test -e /etc/OpenCL/vendors/ati*.icd; then
+  tmp_amdapp_sdk=1;
+elif test -e /etc/OpenCL/vendors/amd*.icd; then
+  tmp_amdapp_sdk=1;
+fi;
+if test $tmp_amdapp_sdk = 1; then
+  for d in /opt/AMDAPP /usr/local/atistream
+  do
+    if test -e $d/include/CL/cl.h; then
+      if test -e $d/lib/x86_64/libOpenCL.so; then
+        tmp_amdapp_include=$d/include;
+        tmp_amdapp_lib=$d/lib/x86_64;
+        break;
+      fi;
+    fi;
+  done;
+fi;
+
+# find best known Nvidia paths
+if test -e /etc/OpenCL/vendors/nvidia*.icd; then
+  tmp_nvidia_sdk=1;
+  for d in /usr/local/cuda 
+  do 
+    if test -e $d/OpenCL/common/inc/CL/cl.h; then
+      if test -e $d/OpenCL/common/lib/Linux64/libOpenCL.so; then
+        tmp_nvidia_include=$d/OpenCL/common/inc;
+        tmp_nvidia_lib=$d/OpenCL/common/lib/Linux64;
+        break;
+      elif test -e /usr/lib64/libOpenCL.so; then
+        tmp_nvidia_include=$d/OpenCL/common/inc;
+        tmp_nvidia_lib=/usr/lib64;
+        break;
+      fi;
+    elif test -e $d/include/CL/cl.h; then
+      if test -e $d/lib/libOpenCL.so; then
+        tmp_nvidia_include=$d/include;
+        tmp_nvidia_lib=$d/lib64;
+        break;
+      elif test -e /usr/lib64/libOpenCL.so; then
+        tmp_nvidia_include=$d/include;
+        tmp_nvidia_lib=/usr/lib64;
+        break;
+      fi;
+    fi;
+  done;
+fi;
+
+# find best known Intel paths
+if test -e /etc/OpenCL/vendors/intel*.icd; then
+  tmp_intel_sdk=1;
+  for d in /usr/local
+  do 
+    if test -e $d/include/CL/cl.h; then
+      if test -e $d/lib64/libOpenCL.so; then
+        tmp_intel_include=$d/include;
+        tmp_intel_lib=$d/lib64;
+        break;
+      elif test -e /usr/lib/libOpenCL.so; then
+        tmp_intel_include=$d/include;
+        tmp_intel_lib=/usr/lib;
+        break;
+      fi;
+    fi;
+  done;
+fi;
+
+
+### step 2)
+
+# test for --with-opencl-platform specification
+AC_ARG_WITH(opencl-platform,
+  AC_HELP_STRING([--with-opencl-platform=NAMELIST], 
+  [specify default platform selection as a comma seperated list]),
   [
-    if test x$withval == xno; then
-
-	if test -e /opt/AMDAPP; then
-		withval=/opt/AMDAPP
-	elif test -e /usr/local/atistream; then 
-		withval=/usr/local/atistream
-	 fi;
-
-	fi;
-
-      if test -d $withval; then
-         echo "found AMD SDK path"
-			AMD_SDK=$withval
-      else
-         AC_MSG_ERROR([Could not find AMD SDK path])
-      fi;
-
-      if test -e $withval/include/CL/cl.h; then
-        OPENCL_INC="$withval/include"
-         echo "found AMD SDK include path"
-      else
-         AC_MSG_ERROR([Could not find AMD SDK include path])
-      fi;
-
-      if test -e $withval/lib/x86_64/libOpenCL.so; then
-        OPENCL_LIB="$withval/lib/x86_64"
-         echo "found AMD SDK lib path"
-      else
-         AC_MSG_ERROR([Could not find AMD SDK lib path])
-      fi;
-
-#	 DEFAULT_OPENCL_PLATFORM=ATI;
-	 DEFAULT_OPENCL_PLATFORM=AMD;
-
+    if test x$withval = xyes; then
+      AC_MSG_ERROR([usage: --with-opencl-platform=NAMELIST])
+    else
+		DEFAULT_OPENCL_PLATFORM=$withval;
+    fi;
   ],
-#  [OPENCL_LIB=/usr/local/atistream/lib/x86_64; OPENCL_INC=/usr/local/atistream/include; DEFAULT_OPENCL_PLATFORM=AMD; AMD_SDK=/usr/local/atistream])
-  [ if test -d /usr/local/atistream; then AMD_SDK=/usr/local/atistream; elif test -d /opt/AMDAPP; then AMD_SDK=/opt/AMDAPP; fi; if test -d $AMD_SDK; then OPENCL_LIB=$AMD_SDK/lib/x86_64; OPENCL_INC=$AMD_SDK/include; DEFAULT_OPENCL_PLATFORM=AMD; fi; ])
-
-AC_ARG_WITH(nvidia-sdk,
-  AC_HELP_STRING([--with-nvidia-sdk=DIR], [Use Nvidia SDK in DIR]),
   [
-    if test x$withval == xno; then
-		withval=/usr/local/cuda
-	 fi;
+    if test $tmp_amdapp_sdk -eq 1; then
+      DEFAULT_OPENCL_PLATFORM=amdapp;
+    fi;
 
-      if test -d $withval; then
-         echo "found Nvidia SDK path"
+    if test $tmp_nvidia_sdk -eq 1; then
+      if test DEFAULT_OPENCL_PLATFORM; then
+        DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,nvidia;
       else
-         AC_MSG_ERROR([Could not find Nvidia SDK path])
+        DEFAULT_OPENCL_PLATFORM=nvidia;
       fi;
+    fi;
 
-      if test -e $withval/OpenCL/common/inc/CL/cl.h; then
-        OPENCL_INC="$withval/OpenCL/common/inc"
-         echo "found Nvidia SDK include path"
-      elif test -e $withval/include/CL/cl.h; then
-        OPENCL_INC="$withval/include"
-         echo "found Nvidia SDK include path"
+    if test $tmp_intel_sdk -eq 1; then
+      if test DEFAULT_OPENCL_PLATFORM; then
+        DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,intel;
       else
-         AC_MSG_ERROR([Could not find Nvidia SDK include path])
+        DEFAULT_OPENCL_PLATFORM=intel;
       fi;
+    fi;
+  ])
 
-      if test -e $withval/OpenCL/common/lib/Linux64/libOpenCL.so; then
-        OPENCL_LIB="$withval/OpenCL/common/lib/Linux64"
-          echo "found Nvidia SDK lib path"
-      elif test -e $withval/lib/libOpenCL.so; then
-        OPENCL_LIB="$withval/lib"
-         echo "found Nvidia SDK lib path"
-		elif test -e /usr/lib64/libOpenCL.so; then
-        OPENCL_LIB="/usr/lib64"
-         echo "found Nvidia SDK lib path"
-      else
-         AC_MSG_ERROR([Could not find Nvidia SDK lib path])
-      fi;
 
-	 DEFAULT_OPENCL_PLATFORM=NVIDIA;
+### step 3)
+
+list2=`echo $DEFAULT_OPENCL_PLATFORM | awk '{sub(/,/," ");print}'`
+echo "list2 is " $list2
+for p in $list2
+do
+  echo $p
+
+  case $p in
+
+    amd*) 
+      OPENCL_INCLUDE=$tmp_amdapp_include;
+      OPENCL_LIB=$tmp_amdapp_lib;
+      OPENCL_LIBNAME=libOpenCL.so;
+      break      
+		;;
+
+    nvidia*) 
+      OPENCL_INCLUDE=$tmp_nvidia_include;
+      OPENCL_LIB=$tmp_nvidia_lib;
+      OPENCL_LIBNAME=libOpenCL.so;
+      break      
+		;;
+
+    intel*) 
+      OPENCL_INCLUDE=$tmp_intel_include;
+      OPENCL_LIB=$tmp_intel_lib;
+      OPENCL_LIBNAME=libOpenCL.so;
+      break      
+		;;
+
+    *)
+      echo "unknown OpenCL platform '" $p "'";
+      ;;
+esac
+done
+
+
+### step 4)
+
+# test for --with-opencl-include specification
+AC_ARG_WITH(opencl-include,
+  AC_HELP_STRING([--with-opencl-include=DIR], 
+  [specify OpenCL include path]),
+  [
+    if test x$withval = xyes; then
+      AC_MSG_ERROR([usage: --with-opencl-include=DIR])
+    elif ! test -e $withval/CL/cl.h; then
+      AC_MSG_ERROR([bad include path, could not find CL/cl.h])
+    else
+		OPENCL_INCLUDE=$withval;
+    fi;
   ],
   [])
 
-AC_ARG_WITH(intel-sdk,
-  AC_HELP_STRING([--with-intel-sdk=DIR], [Use Intel SDK in DIR]),
+# test for --with-opencl-lib specification
+AC_ARG_WITH(opencl-lib,
+  AC_HELP_STRING([--with-opencl-lib=DIR], 
+  [specify OpenCL lib path]),
   [
-    if test x$withval == xno; then
-		withval=/usr/local
-	 fi;
-
-      if test -d $withval; then
-         echo "found Intel SDK path"
-      else
-         AC_MSG_ERROR([Could not find Intel SDK path])
-      fi;
-
-      if test -e $withval/include/CL/cl.h; then
-        OPENCL_INC="$withval/include"
-         echo "found Intel SDK include path"
-      else
-         AC_MSG_ERROR([Could not find Intel SDK include path])
-      fi;
-
-      if test -e $withval/lib/libOpenCL.so; then
-        OPENCL_LIB="$withval/lib"
-         echo "found Intel SDK lib path"
-		elif test -e /usr/lib64/libOpenCL.so; then
-        OPENCL_LIB="/usr/lib64"
-         echo "found Intel SDK lib path"
-      else
-         AC_MSG_ERROR([Could not find Intel SDK lib path])
-      fi;
-
-	 DEFAULT_OPENCL_PLATFORM=Intel;
+    if test x$withval = xyes; then
+      AC_MSG_ERROR([usage: --with-opencl-lib=DIR])
+    elif ! test -e $withval/$OPENCL_LIBNAME; then
+      AC_MSG_ERROR([bad lib path, could not find $OPENCL_LIB])
+    else
+		OPENCL_LIB=$withval;
+    fi;
   ],
   [])
 
 
-#OPENCL_LIBNAME=OpenCL
+echo "tmp_amdapp_sdk = " $tmp_amdapp_sdk
+echo "tmp_amdapp_include = " $tmp_amdapp_include
+echo "tmp_amdapp_lib = " $tmp_amdapp_lib
+
+echo "tmp_nvidia_sdk = " $tmp_nvidia_sdk
+echo "tmp_nvidia_include = " $tmp_nvidia_include
+echo "tmp_nvidia_lib = " $tmp_nvidia_lib
+
+echo "tmp_intel_sdk = " $tmp_intel_sdk
+echo "tmp_intel_include = " $tmp_intel_include
+echo "tmp_intel_lib = " $tmp_intel_lib
+
+echo "DEFAULT_OPENCL_PLATFORM = " $DEFAULT_OPENCL_PLATFORM
+echo "OPENCL_INCLUDE = " $OPENCL_INCLUDE
+echo "OPENCL_LIB = " $OPENCL_LIB
+echo "OPENCL_LIBNAME = " $OPENCL_LIBNAME
+
+
+
 case $build_os in
 
 	freebsd*) 
@@ -228,13 +333,12 @@ case $build_os in
 
 esac
 
-echo $OPENCL_INC
-echo $OPENCL_LIB
 
+# XXX this option is going away in echo release -DAR
 AC_ARG_WITH(ati-sdk-21,
   AC_HELP_STRING([--with-ati-sdk-21=DIR], [Use ATI SDK v2.1 in DIR]),
   [
-    if test x$withval == xno; then
+    if test x$withval = xno; then
 		withval=/usr/local/atistream
 	 fi;
 
@@ -282,14 +386,62 @@ fi;
 AC_ARG_WITH(fortran,
   AC_HELP_STRING([--with-fortran=PROG], [Use fortran compiler PROG]),
   [
-    if test x$withval == xno; then
-        AC_CHECK_PROG(F90,gfortran44,gfortran44)
+    if test x$withval = xno; then
+#        AC_CHECK_PROG(F90,gfortran44,gfortran44)
+         AC_MSG_ERROR([no fortran compiler specified])
     else
     	F90=$withval
     fi;
     echo $F90
   ],
   []) 
+
+if test x$enable_fortran = xyes; then
+	if ! test -d F90; then
+		AC_CHECK_PROG(F90,gfortran44,gfortran44)
+	fi;
+fi;
+
+echo $F90
+
+
+### now address a constant annoyance.  
+### we will require a path for libelf and most importantly we will 
+### reject attempts to use libelf.so.1 because its useless -DAR
+
+AC_ARG_WITH(libelf,
+  AC_HELP_STRING([--with-libelf=DIR], [specify path to libelf]),
+  [
+    if test x$withval = xno; then
+         AC_MSG_ERROR([usage: --with-libelf=DIR])
+    else
+      LIBELF_PATH=$withval
+    fi;
+    echo $LIBELF_PATH
+  ],
+  [
+    if test -e /usr/local/lib/libelf.so; then
+      LIBELF_PATH=/usr/local;
+    else
+      AC_MSG_ERROR([cannot find libelf, try --with-libelf=DIR])
+    fi;
+  ])
+
+echo $LIBELF_PATH
+
+# XXX this seems like a sledge hammer, but its all i could come up with -DAR
+tmp_test_libelf=`readelf -d $LIBELF_PATH/lib/libelf.so | grep 'Library soname' | awk '{print $5}'`
+
+if ! test x$tmp_test_libelf = x@<:@libelf.so.0@:>@; then
+	echo $tmp_test_libelf
+	AC_MSG_ERROR([incorrect version of libelf specified])
+fi;
+
+libelf_inc="-I$LIBELF_PATH/include"
+libelf_lib="-L$LIBELF_PATH/lib -lelf"
+
+### XXX clean up this syntax - above - for setting paths and such -DAR
+
 
 BASH=`which bash`
 
@@ -306,15 +458,18 @@ AC_SUBST(ENABLE_NCPU)
 AC_SUBST(ENABLE_ATIGPU)
 AC_SUBST(ENABLE_BDT_BUILTINS)
 
-AC_SUBST(OPENCL_INC)
+AC_SUBST(OPENCL_INCLUDE)
 AC_SUBST(OPENCL_LIB)
 AC_SUBST(OPENCL_LIBNAME)
 AC_SUBST(DEFAULT_OPENCL_PLATFORM)
 
-AC_SUBST(AMD_SDK)
+#AC_SUBST(AMD_SDK)
 #AC_SUBST(AMD_SDK_INC)
 #AC_SUBST(AMD_SDK_LIB)
 AC_SUBST(ATI_SDK_21)
+
+AC_SUBST(libelf_inc)
+AC_SUBST(libelf_lib)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install-message.txt])

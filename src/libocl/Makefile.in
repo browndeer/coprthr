@@ -5,6 +5,9 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
+LIBELF_INC=@libelf_inc@
+LIBELF_LIB=@libelf_lib@
+
 #ENABLE_NCPU=@ENABLE_NCPU@
 #ENABLE_ATIGPU=@ENABLE_ATIGPU@
 #USE_BDT_BUILTINS=@ENABLE_BDT_BUILTINS@
@@ -52,20 +55,20 @@ DEFS += -DATISTREAMSDK=\"$(ATISTREAMSDK)\"
 DEFS += -DATISTREAMSDK21=\"$(ATISTREAMSDK21)\" 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 
-ifeq ($(ENABLE_ATIGPU),1)
-DEFS += -DENABLE_ATIGPU 
-INCS += -I$(ATISTREAMSDK)/include
-LIBS += -laticalrt -laticalcl
-IMP_OBJS += compiler_atigpu.o cmdcall_atigpu.o ircompiler_atigpu.o
-endif
+#ifeq ($(ENABLE_ATIGPU),1)
+#DEFS += -DENABLE_ATIGPU 
+#INCS += -I$(ATISTREAMSDK)/include
+#LIBS += -laticalrt -laticalcl
+#IMP_OBJS += compiler_atigpu.o cmdcall_atigpu.o ircompiler_atigpu.o
+#endif
 
-ifeq (@ENABLE_NCPU@,1)
+#ifeq (@ENABLE_NCPU@,1)
 DEFS += -DENABLE_NCPU
-endif
+#endif
 
-ifeq (@ENABLE_BDT_BUILTINS@,1)
-DEFS += -DUSE_BDT_BUILTINS
-endif
+#ifeq (@ENABLE_BDT_BUILTINS@,1)
+#DEFS += -DUSE_BDT_BUILTINS
+#endif
 
 #ifeq (@ENABLE_DEBUG_LIBS@,1)
 #DEFS += -DXCL_DEBUG 
@@ -76,14 +79,18 @@ endif
 TOPDIR ?= ../../
 
 INCS += -I. -I$(TOPDIR)/include 
-ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
-INCS += -I/usr/local/include
-else
-INCS += -I/usr/local/include/libelf
-endif
 
+#ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+#INCS += -I/usr/local/include
+#else
+#INCS += -I/usr/local/include/libelf
+#endif
+INCS += $(LIBELF_INC)
 
-LIBS += -lfl -L/usr/local/lib -lelf  -lpthread -lrt
+LIBS += $(LIBELF_LIB)
+
+#LIBS += -lfl -L/usr/local/lib -lelf  -lpthread -lrt
+LIBS += -lfl  -lpthread -lrt
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
 else

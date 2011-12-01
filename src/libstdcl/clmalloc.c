@@ -61,12 +61,12 @@
 #define __MEMD_F_IMG2D			(__MEMD_F_IMG|0x0200)
 #define __MEMD_F_IMG3D			(__MEMD_F_IMG|0x0400)
 
-#ifdef ENABLE_CLGL
+//#ifdef ENABLE_CLGL
 #define __MEMD_F_GLBUF			0x1000
 #define __MEMD_F_GLTEX2D		0x2000
 #define __MEMD_F_GLTEX3D		0x4000
 #define __MEMD_F_GLRBUF			0x8000
-#endif
+//#endif
 
 
 LIBSTDCL_API 
@@ -746,14 +746,14 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 		memd = (struct _memd_struct*)ptri;
 		memd_flags = memd->flags;
 
-#ifdef ENABLE_CLGL
+//#ifdef ENABLE_CLGL
 		if (memd_flags&__MEMD_F_GLBUF) {
 
 			ERROR(__FILE__,__LINE__,"clmrealloc: invalid ptr");
 
 			return(0);
 		}
-#endif
+//#endif
 
 		if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
 			|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
@@ -849,7 +849,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 }
 
 
-#ifdef ENABLE_CLGL
+//#ifdef ENABLE_CLGL
 
 #if(0)
 void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
@@ -1144,5 +1144,5 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 }
 
-#endif
+//#endif
 
