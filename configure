@@ -2895,6 +2895,8 @@ if test -e /etc/OpenCL/vendors/ati*.icd; then
   tmp_amdapp_sdk=1;
 elif test -e /etc/OpenCL/vendors/amd*.icd; then
   tmp_amdapp_sdk=1;
+else
+  tmp_amdapp_sdk=0;
 fi;
 if test $tmp_amdapp_sdk = 1; then
   for d in /opt/AMDAPP /usr/local/atistream
@@ -2936,6 +2938,8 @@ if test -e /etc/OpenCL/vendors/nvidia*.icd; then
       fi;
     fi;
   done;
+else
+  tmp_nvidia_sdk=0;
 fi;
 
 # find best known Intel paths
@@ -2955,6 +2959,8 @@ if test -e /etc/OpenCL/vendors/intel*.icd; then
       fi;
     fi;
   done;
+else
+  tmp_intel_sdk=0;
 fi;
 
 
@@ -2981,7 +2987,7 @@ else
     fi;
 
     if test $tmp_nvidia_sdk -eq 1; then
-      if test DEFAULT_OPENCL_PLATFORM; then
+      if test -n $DEFAULT_OPENCL_PLATFORM; then
         DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,nvidia;
       else
         DEFAULT_OPENCL_PLATFORM=nvidia;
@@ -2989,7 +2995,7 @@ else
     fi;
 
     if test $tmp_intel_sdk -eq 1; then
-      if test DEFAULT_OPENCL_PLATFORM; then
+      if test -n $DEFAULT_OPENCL_PLATFORM; then
         DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,intel;
       else
         DEFAULT_OPENCL_PLATFORM=intel;
