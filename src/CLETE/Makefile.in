@@ -10,16 +10,22 @@ HDRS = clvector_CLETE.h clmulti_array_CLETE.h Combiners.h CreateLeaf.h ForEach.h
 
 INSTALL_INCS = $(HDRS)
 
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+GEN_OPERATORS = ./tools/gen_operators-fbsd
+else
+GEN_OPERATORS = ./tools/gen_operators-linux
+endif
+
 all: $(GEN_HDRS)
 
 OperatorTags.h:
-	./tools/gen_operators --op-tags --operators ./tools/CLETE_Ops.in --guard _CLETEOPERATORTAGS_H > OperatorTags.h 
+	$(GEN_OPERATORS) --op-tags --operators ./tools/CLETE_Ops.in --guard _CLETEOPERATORTAGS_H > OperatorTags.h 
 
 clvector_Operators.h:
-	./tools/gen_operators --classes ./tools/clvector_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLVECTOROPERATORS_H --assign-ops > clvector_Operators.h 
+	$(GEN_OPERATORS) --classes ./tools/clvector_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLVECTOROPERATORS_H --assign-ops > clvector_Operators.h 
 
 clmulti_array_Operators.h:
-	./tools/gen_operators --classes ./tools/clmulti_array_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLMULTI_ARRAY_OPERATORS_H --assign-ops > clmulti_array_Operators.h 
+	$(GEN_OPERATORS) --classes ./tools/clmulti_array_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLMULTI_ARRAY_OPERATORS_H --assign-ops > clmulti_array_Operators.h 
 
 
 check_root:
