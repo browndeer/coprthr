@@ -443,7 +443,7 @@ if ! test x$tmp_test_libelf = x@<:@libelf.so.0@:>@; then
 	AC_MSG_ERROR([incorrect version of libelf specified])
 fi;
 
-libelf_inc="-I$LIBELF_PATH/include"
+libelf_inc="-I$LIBELF_PATH/include/libelf"
 libelf_lib="-L$LIBELF_PATH/lib -lelf"
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR

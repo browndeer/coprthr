@@ -3281,7 +3281,7 @@ echo "$as_me: error: incorrect version of libelf specified" >&2;}
    { (exit 1); exit 1; }; }
 fi;
 
-libelf_inc="-I$LIBELF_PATH/include"
+libelf_inc="-I$LIBELF_PATH/include/libelf"
 libelf_lib="-L$LIBELF_PATH/lib -lelf"
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR
