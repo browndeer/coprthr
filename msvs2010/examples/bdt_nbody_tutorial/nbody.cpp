@@ -6,7 +6,7 @@ void nbody_output( int n, cl_float4* pos, cl_float4* vel);
 
 int main(int argc, char** argv) 
 {
-
+	stdcl_init();
    int step,burst;
 
    int nparticle = 8192; /* MUST be a nice power of two for simplicity */
