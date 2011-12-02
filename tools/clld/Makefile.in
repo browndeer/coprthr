@@ -3,6 +3,9 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
+LIBELF_INC=@libelf_inc@
+LIBELF_LIB=@libelf_lib@
+
 
 #DEF = -DSTDCL_WARN -DSTDCL_DEBUG
 #DEF = -DSTDCL_WARN
@@ -18,8 +21,10 @@ INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
 INCS = -I../../include
+INCS += $(LIBELF_INC)
 
-LIBS = -lelf 
+#LIBS = -lelf 
+LIBS = $(LIBELF_LIB)
 
 OBJS = clld.o 
 

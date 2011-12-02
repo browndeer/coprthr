@@ -34,7 +34,8 @@
 
 
 #include "CL/cl.h"
-//#include "stdcl.h"
+
+#define __STDCL__
 #include "clfcn.h"
 #include "util.h"
 

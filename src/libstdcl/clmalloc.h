@@ -1,6 +1,6 @@
 /* clmalloc.h
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -24,6 +24,10 @@
 #ifndef _CLMALLOC_H
 #define _CLMALLOC_H
 
+#ifndef __STDCL__
+#error Do not include clmalloc.h directly, include stdcl.h instead.
+#endif
+
 #ifdef _WIN64
 #include "fix_windows.h"
 #else
@@ -32,13 +36,8 @@
 
 #include <stdarg.h>
 
-//#include "stdcl.h"
 #include "clcontext.h"
 
-
-/* XXX use of CL_MEM_WRITE is deprecated! remove it -DAR */
-
-#define CL_MEM_WRITE		0x200
 
 #define CL_MEM_RO					0x00000001
 #define CL_MEM_WO					0x00000002
@@ -50,19 +49,21 @@
 #define CL_MEM_NOFORCE			0x00002000
 #define CL_MEM_IMAGE2D			0x00010000
 
-#ifdef ENABLE_CLGL
+//#ifdef ENABLE_CLGL
 #define CL_MEM_CLBUF				0x00100000
 #define CL_MEM_GLBUF				0x00200000
 #define CL_MEM_GLTEX2D			0x02000000
 #define CL_MEM_GLTEX3D			0x04000000
 #define CL_MEM_GLRBUF			0x08000000
-#endif
+//#endif
 
 #define CL_MCTL_GET_STATUS		1
 #define CL_MCTL_GET_DEVNUM		2
 #define CL_MCTL_SET_DEVNUM		3
 #define CL_MCTL_MARK_CLEAN		4
 #define CL_MCTL_SET_IMAGE2D	5
+#define CL_MCTL_SET_USRFLAGS	6
+#define CL_MCTL_CLR_USRFLAGS	7
 
 
 
@@ -78,6 +79,7 @@ struct _memd_struct {
          cl_mem clbuf;
 			int devnum;
 			cl_image_format imgfmt;
+			cl_mem_flags usrflags;
       };
       char __pad[128];
    };
@@ -121,12 +123,12 @@ LIBSTDCL_API cl_event clmcopy(CONTEXT* cp, unsigned int devnum,
 
 LIBSTDCL_API void* clmemptr( CONTEXT* CP, void* ptr );
 
-#ifdef ENABLE_CLGL
+//#ifdef ENABLE_CLGL
 //void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
 void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, cl_GLenum target, 
 	cl_GLint miplevel, int flags );
 cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
-#endif
+//#endif
 
 static 
 __inline__

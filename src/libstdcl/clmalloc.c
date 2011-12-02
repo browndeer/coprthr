@@ -34,8 +34,9 @@
 #include <sys/types.h>
 #include <sys/queue.h>
 
-#include "stdcl.h"
 #include "util.h"
+
+#include "stdcl.h"
 #include "clmalloc.h"
 #include "clsched.h"
 
@@ -60,12 +61,12 @@
 #define __MEMD_F_IMG2D			(__MEMD_F_IMG|0x0200)
 #define __MEMD_F_IMG3D			(__MEMD_F_IMG|0x0400)
 
-#ifdef ENABLE_CLGL
+//#ifdef ENABLE_CLGL
 #define __MEMD_F_GLBUF			0x1000
 #define __MEMD_F_GLTEX2D		0x2000
 #define __MEMD_F_GLTEX3D		0x4000
 #define __MEMD_F_GLRBUF			0x8000
-#endif
+//#endif
 
 
 LIBSTDCL_API 
@@ -78,6 +79,7 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 	intptr_t ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
 	intptr_t ptr = ptri+sizeof(struct _memd_struct);
 	struct _memd_struct* memd = (struct _memd_struct*)ptri;
+	bzero(memd,sizeof(struct _memd_struct));
 
 	DEBUG(__FILE__,__LINE__,"clmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
 
@@ -99,6 +101,7 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 			memd->imgfmt.image_channel_order = CL_RGBA;
 			memd->imgfmt.image_channel_data_type = CL_FLOAT;
 	}
+	memd->usrflags = (cl_mem_flags)0;
 
 	memd->devnum = -1;
 
@@ -238,7 +241,8 @@ int clmattach( CONTEXT* cp, void* ptr )
 			DEBUG(__FILE__,__LINE__,"clmattach: type = %x",fmt.image_channel_data_type);
 
 		memd->clbuf = clCreateImage2D(
-			cp->ctx, CL_MEM_READ_WRITE, &(memd->imgfmt), 
+//			cp->ctx, CL_MEM_READ_WRITE, &(memd->imgfmt), 
+			cp->ctx, CL_MEM_READ_WRITE|memd->usrflags, &(memd->imgfmt), 
 			memd->sz, memd->sz1, memd->sz2,
 			NULL, &err
 		);
@@ -246,8 +250,8 @@ int clmattach( CONTEXT* cp, void* ptr )
 	} else {
 
 		memd->clbuf = clCreateBuffer(
-//    	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR,
-    	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+//    	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+    	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR|memd->usrflags,
     	 	memd->sz,(void*)ptr,&err
   		);
 
@@ -384,6 +388,44 @@ int clmctl_va( void* ptr, int op, va_list ap )
 			}
 
 			break;
+
+		case CL_MCTL_SET_USRFLAGS:
+
+			if (memd->flags&__MEMD_F_ATTACHED) {
+
+				WARN(__FILE__,__LINE__,"clmctl: operation not permitted");
+
+				retval = EPERM;
+
+			} else {
+
+				cl_mem_flags usrflags = va_arg(ap,cl_mem_flags);
+
+				memd->usrflags |= usrflags;
+
+				DEBUG(__FILE__,__LINE__,"clmctl: set usrflags: 0x%x",
+					memd->usrflags);
+
+			}
+
+		case CL_MCTL_CLR_USRFLAGS:
+
+			if (memd->flags&__MEMD_F_ATTACHED) {
+
+				WARN(__FILE__,__LINE__,"clmctl: operation not permitted");
+
+				retval = EPERM;
+
+			} else {
+
+				cl_mem_flags usrflags = va_arg(ap,cl_mem_flags);
+
+				memd->usrflags &= ~usrflags;
+
+				DEBUG(__FILE__,__LINE__,"clmctl: clr usrflags: 0x%x",
+					memd->usrflags);
+
+			}
 
 		default:
 
@@ -745,14 +787,14 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 		memd = (struct _memd_struct*)ptri;
 		memd_flags = memd->flags;
 
-#ifdef ENABLE_CLGL
+//#ifdef ENABLE_CLGL
 		if (memd_flags&__MEMD_F_GLBUF) {
 
 			ERROR(__FILE__,__LINE__,"clmrealloc: invalid ptr");
 
 			return(0);
 		}
-#endif
+//#endif
 
 		if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
 			|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
@@ -803,7 +845,8 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 		if (memd->flags&__MEMD_F_IMG2D) {
 
 			memd->clbuf = clCreateImage2D(
-				cp->ctx, CL_MEM_READ_WRITE, &(memd->imgfmt), 
+//				cp->ctx, CL_MEM_READ_WRITE, &(memd->imgfmt), 
+				cp->ctx, CL_MEM_READ_WRITE|memd->usrflags, &(memd->imgfmt), 
 				memd->sz, memd->sz1, memd->sz2,
 				NULL, &err
 			);
@@ -811,7 +854,8 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 		} else {
 
 			memd->clbuf = clCreateBuffer(
-  	   	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+//  	   	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
+  	   	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR|memd->usrflags,
   	  	  		size,(void*)ptr,&err
   		 	);
 
@@ -848,88 +892,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 }
 
 
-#ifdef ENABLE_CLGL
-
-#if(0)
-void* clglmalloc(CONTEXT* cp, cl_GLuint glbuf, int flags)
-{
-
-	DEBUG(__FILE__,__LINE__,"clglmalloc: glbuf=%d flag=%d",glbuf,flags);
-
-	int err;
-
-	cl_mem tmp_clbuf;
-	
-	if (flags&CL_MEM_DETACHED) {
-	
-		WARN(__FILE__,__LINE__,"clglmalloc: invalid flag: CL_MEM_DETACHED");
-
-		return(0);
-
-	}
-
-	tmp_clbuf = clCreateFromGLBuffer(
-     	cp->ctx,CL_MEM_READ_WRITE,
-     	glbuf, &err
-  	);
-
-	DEBUG(__FILE__,__LINE__,
-		"clglmalloc: clCreateFromGLBuffer clbuf=%p",tmp_clbuf);
-
-	DEBUG(__FILE__,__LINE__, "clglmalloc: err from clCreateFromGLBuffer %d",err);
-
-	size_t size;
-	err = clGetMemObjectInfo(tmp_clbuf,CL_MEM_SIZE,sizeof(size_t),&size,0);
-
-	DEBUG(__FILE__,__LINE__,"clglmalloc: clGetMemObjectInfo err %d",err);
-
-	if (size == 0) {
-
-		WARN(__FILE__,__LINE__,"clglmalloc: size=0, something went wrong");
-
-		clReleaseMemObject(tmp_clbuf);
-
-		return(0);
-
-	}
-
-	intptr_t ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
-
-	if (ptri == 0) {
-
-		WARN(__FILE__,__LINE__,"clglmalloc: out of memory");
-
-		clReleaseMemObject(tmp_clbuf);
-
-		return(0);
-
-	}
-
-	intptr_t ptr = ptri+sizeof(struct _memd_struct);
-	struct _memd_struct* memd = (struct _memd_struct*)ptri;
-
-	DEBUG(__FILE__,__LINE__,"clglmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
-
-	DEBUG(__FILE__,__LINE__,"clglmalloc: sizeof struct _memd_struct %d",
-		sizeof(struct _memd_struct));
-
-	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
-		WARN(__FILE__,__LINE__,
-			"clglmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
-	} //// XXX CL_MEM_READ_WRITE implied -DAR
-
-	memd->clbuf = tmp_clbuf;
-	memd->magic = CLMEM_MAGIC;
-	memd->flags = __MEMD_F_RW|__MEMD_F_GLBUF|__MEMD_F_ATTACHED;
-	memd->sz = size;
-
-	LIST_INSERT_HEAD(&cp->memd_listhead, memd, memd_list);
-
-	return((void*)ptr);
-
-}
-#endif
-
+//#ifdef ENABLE_CLGL
 
 void* clglmalloc(
 	CONTEXT* cp, cl_GLuint glbuf, cl_GLenum target, cl_GLint miplevel, int flags
@@ -1143,5 +1106,5 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 }
 
-#endif
+//#endif
 

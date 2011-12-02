@@ -1,6 +1,6 @@
 /* clfcn.h
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -23,9 +23,13 @@
 #ifndef _CLFCN_H
 #define _CLFCN_H
 
+#ifndef __STDCL__
+#error Do not include clfcn.h directly, include stdcl.h instead.
+#endif
+
 #include <CL/cl.h>
-//#include "stdcl.h"
 #include <sys/queue.h>
+
 #include "clcontext.h"
 #include "clinit.h"
 

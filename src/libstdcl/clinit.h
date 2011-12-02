@@ -1,6 +1,6 @@
-/* stdcl.h
+/* clinit.h
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -22,6 +22,10 @@
 
 #ifndef _CLINIT_H
 #define _CLINIT_H
+
+#ifndef __STDCL__
+#error Do not include clinit.h directly, include stdcl.h instead.
+#endif
 
 #include <string.h>
 #include <stdio.h>

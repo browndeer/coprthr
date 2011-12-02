@@ -20,9 +20,6 @@
 
 /* DAR */
 
-//#include <iostream>
-//using namespace std;
-
 /* XXX to do, add err code checks, other safety checks * -DAR */
 /* XXX to do, clvplat_destroy should automatically release all txts -DAR */
 
@@ -34,7 +31,6 @@
 #include <pthread.h>
 #endif
 
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -45,10 +41,11 @@
 
 #include <fcntl.h>
 
-
 #include <CL/cl.h>
 
 #include "util.h"
+
+#define __STDCL__
 #include "clinit.h"
 #include "clfcn.h"
 #include "clcontext.h"
@@ -89,7 +86,7 @@ __get_platformid(
 
 LIBSTDCL_API CONTEXT* 
 clcontext_create( 
-	const char* platform_name, 
+	const char* platform_select, 
 	int devtyp, 
 	size_t ndevmax,
 	cl_context_properties* ctxprop_ext, 
@@ -99,13 +96,13 @@ clcontext_create(
 
 	int n;
 	int err = 0;
-	int i;
+	int i,j;
 	size_t devlist_sz;
 	CONTEXT* cp = 0;
 	cl_platform_id* platforms = 0;
 	cl_uint nplatforms;
 	char info[1024];
-	cl_platform_id platformid;
+	cl_platform_id platformid = 0;
 	int nctxprop = 0;
 	cl_context_properties* ctxprop;
 	size_t sz;
@@ -115,10 +112,6 @@ clcontext_create(
 	DEBUG(__FILE__,__LINE__,"clcontext_create() called");
 
 
-//	if (ndevmax) 
-//		WARN(__FILE__,__LINE__,"__clcontext_create(): ndevmax argument ignored");
-
-
 	/***
 	 *** allocate CONTEXT struct
 	 ***/
@@ -126,16 +119,15 @@ clcontext_create(
 	DEBUG(__FILE__,__LINE__,
 		"clcontext_create: sizeof CONTEXT %d",sizeof(CONTEXT));
 
-//	cp = (CONTEXT*)malloc(sizeof(CONTEXT));
 	assert(sizeof(CONTEXT)<getpagesize());
 #ifdef _WIN64
 	cp = (CONTEXT*)_aligned_malloc(sizeof(CONTEXT),getpagesize());
 	if (!cp) {
-		WARN(__FILE__,__LINE__,"memalign failed");
+		WARN(__FILE__,__LINE__,"clcontext_create: memalign failed");
 	}
 #else
 	if (posix_memalign((void**)&cp,getpagesize(),sizeof(CONTEXT))) {
-		WARN(__FILE__,__LINE__,"posix_memalign failed");
+		WARN(__FILE__,__LINE__,"clcontext_create: posix_memalign failed");
 	}
 #endif
 
@@ -153,15 +145,20 @@ clcontext_create(
 
    /***
     *** get platform id
+	 *** 
+	 *** New policy:
+	 *** 	- User may specify a comma separated list of platform names by setting
+	 ***	  the env var STD*_PLATFORM_NAME .  
+	 ***	- The first platform to match this prioritized list that supports
+	 ***	  at least one device is selected.
+	 ***	- If no such platform is found, the platform that supports the most
+	 ***	  devices is selected.
+	 ***	- If no platform is found supporting at least 1 device, return 0.
     ***/
-
-
 
    clGetPlatformIDs(0,0,&nplatforms);
 
-//	printf("XXX %d\n",nplatforms);
-
-   if (nplatforms) {
+   if (nplatforms > 0) {
 
       platforms = (cl_platform_id*)malloc(nplatforms*sizeof(cl_platform_id));
       clGetPlatformIDs(nplatforms,platforms,0);
@@ -170,39 +167,136 @@ clcontext_create(
 
          char info[1024];
 
-         DEBUG(__FILE__,__LINE__,"_libstdcl_init: available platform:");
+         DEBUG(__FILE__,__LINE__,"clcontext_create: available platform:");
 
          clGetPlatformInfo(platforms[i],CL_PLATFORM_PROFILE,1024,info,0);
          DEBUG(__FILE__,__LINE__,
-            "_libstdcl_init: [%p]CL_PLATFORM_PROFILE=%s",platforms[i],info);
+            "clcontext_create: [%p]CL_PLATFORM_PROFILE=%s",platforms[i],info);
 
          clGetPlatformInfo(platforms[i],CL_PLATFORM_VERSION,1024,info,0);
          DEBUG(__FILE__,__LINE__,
-            "_libstdcl_init: [%p]CL_PLATFORM_VERSION=%s",platforms[i],info);
+            "clcontext_create: [%p]CL_PLATFORM_VERSION=%s",platforms[i],info);
 
          clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
          DEBUG(__FILE__,__LINE__,
-            "_libstdcl_init: [%p]CL_PLATFORM_NAME=%s",platforms[i],info);
+            "clcontext_create: [%p]CL_PLATFORM_NAME=%s",platforms[i],info);
 
          clGetPlatformInfo(platforms[i],CL_PLATFORM_VENDOR,1024,info,0);
          DEBUG(__FILE__,__LINE__,
-            "_libstdcl_init: [%p]CL_PLATFORM_VENDOR=%s",platforms[i],info);
+            "clcontext_create: [%p]CL_PLATFORM_VENDOR=%s",platforms[i],info);
 
          clGetPlatformInfo(platforms[i],CL_PLATFORM_EXTENSIONS,1024,info,0);
          DEBUG(__FILE__,__LINE__,
-            "_libstdcl_init: [%p]CL_PLATFORM_EXTENSIONS=%s",platforms[i],info);
+            "clcontext_create: [%p]CL_PLATFORM_EXTENSIONS=%s",
+				platforms[i],info);
 
       }
 
    } else {
 
-      WARN(__FILE__,__LINE__,
-         "_libstdcl_init: no platforms found, continue and hope for the best");
+      WARN(__FILE__,__LINE__, "clcontext_create: no platforms found!");
+
+		return((CONTEXT*)0);
 
    }
 
-	platformid 
-		= __get_platformid(nplatforms, platforms, platform_name);
+
+//	platformid 
+//		= __get_platformid(nplatforms, platforms, platform_select);
+
+
+	/* XXX assume no more than 8 platforms availabile, this is reality -DAR */
+ 
+	char* select_name[8] = { 0,0,0,0,0,0,0,0 };
+	cl_platform_id select_id[8] = { 0,0,0,0,0,0,0,0 };
+	char buf[512];
+	char* tmp_ptr;
+	int nselect = 0;
+	if (platform_select) {
+		strncpy(buf,platform_select,512);
+		char* tok = strtok_r(buf, ",", &tmp_ptr);
+		if (tok) select_name[nselect++] = tok;
+		while (tok && nselect < 8) { 
+			tok = strtok_r(0, ",", &tmp_ptr); 
+			if (tok) select_name[nselect++] = tok;
+		}
+		for(i=0; i< nselect; i++) {
+			if (!select_name[i]) break;
+			DEBUG(__FILE__,__LINE__,
+				"clcontext_create: platform priority [%d] |%s|",
+				i,select_name[i]);
+		}
+	}
+
+	int platform_devcount[8] = { 0,0,0,0,0,0,0,0 };
+
+   for(i=0;i<nplatforms;i++) {
+
+      char name[64];
+      clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,64,name,0);
+
+		for(j=0; j< nselect; j++) {
+
+			if (!strncasecmp(select_name[j],name,strnlen(select_name[j],64))) {
+
+				select_id[j] = platforms[i];
+
+			}
+			
+		}
+
+		err = clGetDeviceIDs(platforms[i],devtyp,0,0,&platform_devcount[i]);
+	}
+
+
+	if (nplatforms == 1) {
+
+		if (platform_devcount[0] == 0) {
+
+      	WARN(__FILE__,__LINE__, 
+				"clcontext_create: no platforms supporting device type!");
+
+			return((CONTEXT*)0);
+
+		} else {
+
+			platformid = platforms[0];
+
+		}
+
+	} else {
+
+		for(i=0; i< nselect; i++) if (select_id[j]) { 
+
+			platformid = select_id[j];
+			break;
+
+		}
+
+		if (!platformid) {
+
+			int nmax = 0;
+			for(i=0; i< nplatforms; i++) if (platform_devcount[i] > nmax) {
+
+				nmax = platform_devcount[i];
+				platformid = platforms[i];
+
+			}
+
+		}
+
+	}
+
+	if (!platformid) {
+
+     	WARN(__FILE__,__LINE__, 
+			"clcontext_create: no platforms supporting device type!");
+
+		return((CONTEXT*)0);
+
+	}	
+
+
 
 	DEBUG(__FILE__,__LINE__,"clcontext_create: platformid=%p",platformid);
 
@@ -211,8 +305,6 @@ clcontext_create(
 	/***
 	 *** create context
 	 ***/
-
-	
 
 	while (ctxprop_ext != 0 && ctxprop_ext[nctxprop] != 0) ++nctxprop;
 
@@ -224,7 +316,8 @@ clcontext_create(
 
 	nctxprop += 3;
 
-	ctxprop = (cl_context_properties*)malloc(nctxprop*sizeof(cl_context_properties));
+	ctxprop = (cl_context_properties*)
+		malloc(nctxprop*sizeof(cl_context_properties));
 
 	ctxprop[0] = (cl_context_properties)CL_CONTEXT_PLATFORM;
 	ctxprop[1] = (cl_context_properties)platformid;
@@ -232,33 +325,48 @@ clcontext_create(
 	for(i=0;i<nctxprop-3;i++) ctxprop[2+i] = ctxprop_ext[i];
 
 	ctxprop[nctxprop-1] =  (cl_context_properties)0;
-
 	
 
 	clGetPlatformInfo(platformid,CL_PLATFORM_PROFILE,0,0,&sz);
+
 	cp->platform_profile = (char*)malloc(sz);
+
 	clGetPlatformInfo(platformid,CL_PLATFORM_PROFILE,sz,cp->platform_profile,0);
 
 	clGetPlatformInfo(platformid,CL_PLATFORM_VERSION,0,0,&sz);
+
 	cp->platform_version = (char*)malloc(sz);
+
 	clGetPlatformInfo(platformid,CL_PLATFORM_VERSION,sz,cp->platform_version,0);
 
 	clGetPlatformInfo(platformid,CL_PLATFORM_NAME,0,0,&sz);
+
 	cp->platform_name = (char*)malloc(sz);
+
 	clGetPlatformInfo(platformid,CL_PLATFORM_NAME,sz,cp->platform_name,0);
 
 	clGetPlatformInfo(platformid,CL_PLATFORM_VENDOR,0,0,&sz);
+
 	cp->platform_vendor = (char*)malloc(sz);
+
 	clGetPlatformInfo(platformid,CL_PLATFORM_VENDOR,sz,cp->platform_vendor,0);
 
 	clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,0,0,&sz);
+
 	cp->platform_extensions = (char*)malloc(sz);
+
 	clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,sz,
 		cp->platform_extensions,0);
 
 
+	DEBUG(__FILE__,__LINE__,"clcontext_create: selected platform: |%s|",
+		cp->platform_name);	
+
+
 #ifdef _WIN64
+
 	cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
+
 #else
 
 	if (lock_key > 0) {
@@ -949,9 +1057,7 @@ __get_platformid(
 
    int i,j;
    char name[256];
-//   _getenv_token(env_var,"platform_name",name,256);
 
-//   if (name[0] == '\0') {
    if (platform_name == 0 || platform_name[0] == '\0') {
 
       strcpy(name,DEFAULT_PLATFORM_NAME);
@@ -962,9 +1068,6 @@ __get_platformid(
    } else {
 
       strncpy(name,platform_name,256);
-
-//      DEBUG(__FILE__,__LINE__,
-//         "__get_platformid: environment platform_name |%s|",name);
 
    }
 

@@ -37,7 +37,7 @@ int main()
    clforka(cp,devnum,krn,&ndr,CL_EVENT_NOWAIT,n,aa,b,c);
 
    /* non-blocking sync vector c to host memory (copy back to host) */
-   clmsync(cp,0,c,CL_MEM_HOST|CL_EVENT_NOWAIT);
+   clmsync(cp,devnum,c,CL_MEM_HOST|CL_EVENT_NOWAIT);
 
    /* force execution of operations in command queue (non-blocking call) */
    clflush(cp,devnum,0);

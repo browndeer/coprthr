@@ -23,6 +23,10 @@
 #ifndef _CLFORKA_H
 #define _CLFORKA_H
 
+#ifndef _STDCL_H
+#error Do not include clforka.h directly, include stdcl.h instead.
+#endif
+
 #define __VA_NARGS__(...) __VANUMARGS(__VA_ARGS__,__VANUMARGS_RSEQ_N())
 
 #define __VANUMARGS(...) __VANUMARGS_N(__VA_ARGS__)

@@ -23,6 +23,8 @@
 #ifndef _STDCL_H
 #define _STDCL_H
 
+#define __STDCL__
+
 #ifdef _WIN64
 #include "fix_windows.h"
 #else
@@ -48,7 +50,6 @@
 #include "clmalloc.h"
 #include "clfcn.h"
 #include "clarg.h"
-//#include "clforka.h"
 
 
 typedef struct clndrange_struct clndrange_t;

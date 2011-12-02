@@ -34,13 +34,12 @@
 #include <stdio.h>
 #include <errno.h>
 #include <assert.h>
-//#include <dlfcn.h>
 
 #include <CL/cl.h>
-//#include "stdcl.h"
 #include "util.h"
-#include "clsched.h"
 
+#define __STDCL__
+#include "clsched.h"
 
 
 #define __error(e) do { errno=e; return(-1); } while(0); 

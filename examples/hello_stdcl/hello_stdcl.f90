@@ -81,7 +81,7 @@
 
 
    !!!! non-blocking sync vector c to host memory (copy back to host) 
-	ev = clmsync(cp,0,p_c,CL_MEM_HOST+CL_EVENT_NOWAIT)
+	ev = clmsync(cp,devnum,p_c,CL_MEM_HOST+CL_EVENT_NOWAIT)
 
 
    !!!! force execution of operations in command queue (non-blocking call) 
