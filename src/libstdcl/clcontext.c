@@ -228,7 +228,8 @@ clcontext_create(
 		}
 	}
 
-	int platform_devcount[8] = { 0,0,0,0,0,0,0,0 };
+//	int platform_devcount[8] = { 0,0,0,0,0,0,0,0 };
+	cl_uint platform_devcount[8] = { 0,0,0,0,0,0,0,0 };
 
    for(i=0;i<nplatforms;i++) {
 
