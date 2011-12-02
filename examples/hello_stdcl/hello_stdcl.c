@@ -12,8 +12,11 @@ int main()
 
    unsigned int devnum = 0;
 
-   void* clh = clopen(cp,"matvecmult.cl",CLLD_NOW);
-   cl_kernel krn = clsym(cp,clh,"matvecmult_kern",0);
+	clopen(cp,0,CLLD_NOW);
+
+//   void* clh = clopen(cp,"matvecmult.cl",CLLD_NOW);
+//   cl_kernel krn = clsym(cp,clh,"matvecmult_kern",0);
+   cl_kernel krn = clsym(cp,0,"matvecmult_kern",0);
 
    /* allocate OpenCL device-sharable memory */
    cl_float* aa = (float*)clmalloc(cp,n*n*sizeof(cl_float),0);
@@ -51,5 +54,5 @@ int main()
    clfree(b);
    clfree(c);
 
-   clclose(cp,clh);
+//   clclose(cp,clh);
 }

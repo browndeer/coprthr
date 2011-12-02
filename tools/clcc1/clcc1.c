@@ -39,24 +39,8 @@
 #include <CL/cl.h>
 #define CL_CONTEXT_OFFLINE_DEVICES_AMD 0x403F
 
-//#include "clelf.h"
+#include "util.h"
 #include "../../src/libclelf/clelf.h"
-
-#if(0)
-char shstrtab[] = { 
-		"\0"
-		".clprgtab\0" 	/* section 1, 10, shstrtab offset 1 */
-		".clkrntab\0" 	/* section 2, 10, shstrtab offset 11 */
-		".clprgsrc\0" 	/* section 3, 10, shstrtab offset 21 */
-		".cltextsrc\0" /* section 4, 11, shstrtab offset 31 */
-		".clprgbin\0" 	/* section 5, 10, shstrtab offset 42 */
-		".cltextbin\0" /* section 6, 11, shstrtab offset 52 */
-		".clstrtab\0" 	/* section 7, 10, shstrtab offset 63 */
-		".shstrtab\0" 	/* section 8, 10, shstrtab offset 73 */
-};
-
-int shstrtab_offset[] = { 0,1,11,21,29,38,46,55,65 };
-#endif
 
 char* platform_name_string[] = {
       "unknown",
@@ -66,28 +50,71 @@ char* platform_name_string[] = {
       "intel"
 };
 
+__inline
+int str_match_exact( char* arg, char* flag )
+{
+   if (!strcmp(arg,flag))
+      return 1;
+   else
+      return 0;
+}
+
+__inline
+int str_match_fused( char* arg, char* flag )
+{
+   size_t arglen = strlen(arg);
+   size_t flaglen = strlen(flag);
+   if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
+      return 1;
+   else
+      return 0;
+}
+__inline
+int str_match_seteq( char* arg, char* flag )
+{
+   size_t arglen = strlen(arg);
+   size_t flaglen = strlen(flag);
+   if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
+      return 1;
+   else
+      return 0;
+}
+
+
 void usage() 
 {
-	printf("usage: WRONG-FIX clcc1 [options] file...\n");
+	printf("usage: clcc1 [options] file\n");
 	printf("options:\n");
-	printf("\t--cl-binary \n");
-	printf("\t--cl-device DEVICE\n");
-	printf("\t--cl-path PATH\n");
-	printf("\t--cl-platform PLATFORM\n");
-	printf("\t--cl-source\n");
-	printf("\t--help, -h\n");
-	printf("\t--version, -v\n");
+	printf("\t-c\n");
+   printf("\t-x <language>\n");
+   printf("\t-o <file>\n");
+   printf("\t-I <directory>\n");
+   printf("\t-v\n");
+   printf("\t--help, -h\n");
+   printf("\t--version, -v\n");
+   printf("\t-fopencl\n");
+   printf("\t-fstdcl\n");
+   printf("\t-fcuda\n");
+   printf("\t-fopenmp\n");
+   printf("\t-mplatform=<platform-list>\n");
+   printf("\t-mplatform-exclude=<platform-list>\n");
+   printf("\t-mdevice=<device-list>\n");
+   printf("\t-mdevice-exclude=<device-list>\n");
+   printf("\t-mall\n");
+   printf("\t-mavail\n");
 }
 
 void version()
 {
-	printf("BDT clcc1\n"); 
+	printf("COPRTHR clcc1\n"); 
 	printf(
 		"Copyright (c) 2008-2011 Brown Deer Technology, LLC."
 		" All Rights Reserved.\n"
 	);
 	printf("This program is free software distributed under GPLv3.\n");
 }
+
+
 
 void add_path( char* path_str, size_t* path_str_len, char* path )
 {
@@ -139,6 +166,23 @@ int resolve_fullpath(
    } while(0)
 
 
+void append_str( char* str1, char* str2, char* sep, size_t n )
+{
+   if (!str1 || !str2) return;
+
+   size_t len = strlen(str2);
+
+   if (sep) {
+      str1 = (char*)realloc(str1,strlen(str1)+len+2);
+      strcat(str1,sep);
+   } else {
+      str1 = (char*)realloc(str1,strlen(str1)+len+1);
+   }
+   strncat(str1,str2, ((n==0)?len:n) );
+
+}
+
+
 int main(int argc, char** argv)
 {
 	int i,j,k;
@@ -150,12 +194,12 @@ int main(int argc, char** argv)
 	char* platform = default_platform;
 	char* device = default_device;
 
-//	int sw_src_bin = 0;
-
 	char* path_str = (char*)calloc(1,DEFAULT_STR_SIZE);
 	path_str[0] = '.';
 	size_t path_str_len = 2;
 
+	char* opt_str = (char*)calloc(1,DEFAULT_STR_SIZE);
+	opt_str[0] = '\0';
 
 	struct clelf_data_struct data;
 	clelf_init_data(&data);	
@@ -170,72 +214,89 @@ int main(int argc, char** argv)
    /* XXX todo - add ability to provide lang specific options -DAR */
 
 
-   char wdtemp[] = "/tmp/xclXXXXXX";
-   char* wd = mkdtemp(wdtemp);
-
 	char* fname = 0;
+	char* ofname = 0;
 
 	int quiet = 0;
 
 printf("\nXXX add option to use only devices that are present\n\n");
 
-	i = 1;
-	while (i < argc) {
+	n = 1;
+	while (n < argc) {
 
-      if (!strcmp(argv[i],"-fopencl")) {
+      if (str_match_exact(argv[n],"-fopencl")) {
 
          lang = LANG_OPENCL;
 
-      } else if (!strcmp(argv[i],"-fstdcl")) {
+      } else if (str_match_exact(argv[n],"-fstdcl")) {
 
          lang = LANG_STDCL;
 
-      } else if (!strcmp(argv[i],"-fcuda")) {
+      } else if (str_match_exact(argv[n],"-fcuda")) {
 
          lang = LANG_CUDA;
 
-      } else if (!strcmp(argv[i],"-fopenmp")) {
+      } else if (str_match_exact(argv[n],"-fopenmp")) {
 
          en_openmp = 1;
 
-      } else if (!strcmp(argv[i],"--no-source")) {
+      } else if (str_match_exact(argv[n],"--no-source")) {
 
          en_source = 0;
 
-      } else if (!strcmp(argv[i],"--no-binary")) {
+      } else if (str_match_exact(argv[n],"--no-binary")) {
 
          en_binary = 0;
 
-		} else if (!strcmp(argv[i],"--cl-path")) {
+		} else if (str_match_fused(argv[n],"-D")) {
 
-			add_path(path_str,&path_str_len,argv[++i]);
+			append_str(opt_str,argv[n]," ",0);
 
-		} else if (!strcmp(argv[i],"-v")) {
+		} else if (str_match_fused(argv[n],"-I")) {
 
-			quiet = 1;
+			append_str(opt_str,argv[n]," ",0);
 
-		} else if (!strcmp(argv[i],"-v")) {
+		} else if (str_match_exact(argv[n],"-o")) {
+
+			ofname = argv[++n];
+
+		} else if (str_match_exact(argv[n],"-v")) {
 
 			quiet = 0;
 
-		} else if (!strcmp(argv[i],"-h")||!strcmp(argv[i],"--help")) {
+		} else if (str_match_exact(argv[n],"--help")) {
 
 			usage(); 
 			exit(0);
 
-		} else if (!strcmp(argv[i],"--version")) {
+		} else if (!strcmp(argv[n],"--version")) {
 
 			version(); 
 			exit(0);
 
 		} else { /* nothing left, assume the arg is a filename */
 
-         fname = argv[i];
+			if (fname) {
+				ERROR2("clcc1 called with multiple input files");
+				exit(-1);
+			}
+
+         fname = argv[n];
 
 		}
 
-		++i;
+		++n;
 
+	}
+
+
+	if (!ofname) {
+		size_t fname_len = strlen(fname);
+		char* fname_ext = strrchr(fname,'.');
+		ofname = (char*)calloc(1,fname_len+1);
+		if (fname_ext) strncpy(ofname,fname,(size_t)(fname_ext-fname));
+      else strncpy(ofname,fname,fname_len);
+		strncat(ofname,".o",fname_len);
 	}
 
 
@@ -373,7 +434,7 @@ printf("\nXXX add option to use only devices that are present\n\n");
 		programs[i] = clCreateProgramWithSource(
    		contexts[i], 1, (const char**)&file_ptr, &file_sz, &err );
 
-		err = clBuildProgram( programs[i], 0, 0, 0, 0, 0 );
+		err = clBuildProgram( programs[i], 0, opt_str, 0, 0, 0 );
 
 		cl_uint ndev;
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_NUM_DEVICES,
@@ -450,7 +511,7 @@ printf("\nXXX add option to use only devices that are present\n\n");
 				if (data.clprgbin_n >= data.clprgbin_nalloc) {
 					data.clprgbin_nalloc += DEFAULT_CLPRGBIN_NALLOC;
 					data.clprgbin = (struct clprgbin_entry*)
-						realloc(data.clprgbin,__clprgbin_entry_sz*data.clprgbin_nalloc);
+					realloc(data.clprgbin,__clprgbin_entry_sz*data.clprgbin_nalloc);
 				}
 
 				data.clprgbin[data.clprgbin_n].e_name 
@@ -568,10 +629,12 @@ printf("\nXXX add option to use only devices that are present\n\n");
 	unsigned long cltextbinhash[2];
 
 	size_t len = (intptr_t)(data.cltextsrc_bufp-data.cltextsrc_buf);
-	MD5((const unsigned char*)data.cltextsrc_buf,len,(unsigned char*)cltextsrchash);
+	MD5((const unsigned char*)data.cltextsrc_buf,len,
+		(unsigned char*)cltextsrchash);
 
 	len = (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
-	MD5((const unsigned char*)data.cltextbin_buf,len,(unsigned char*)cltextbinhash);
+	MD5((const unsigned char*)data.cltextbin_buf,len,
+		(unsigned char*)cltextbinhash);
 
 
 
@@ -593,13 +656,16 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
 	char cmd[1024];
 
-	snprintf( cmd, 1024, "ld -r -o out_clcc.o"
+//	snprintf( cmd, 1024, "ld -r -o out_clcc.o"
+	snprintf( cmd, 1024, "ld -r -o %s"
 		" %s"
 		" --defsym _CLTEXTSHASH0=0x%lx"
 		" --defsym _CLTEXTSHASH1=0x%lx"
 		" --defsym _CLTEXTBHASH0=0x%lx"
 		" --defsym _CLTEXTBHASH1=0x%lx",
-		tfname,cltextsrchash[0], cltextsrchash[1], cltextbinhash[0], cltextbinhash[1] );
+		ofname,
+		tfname,cltextsrchash[0], cltextsrchash[1], 
+		cltextbinhash[0], cltextbinhash[1] );
 //	printf("|%s|\n",cmd);
 	system(cmd);
 

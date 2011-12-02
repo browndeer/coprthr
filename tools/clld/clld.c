@@ -52,17 +52,77 @@ char* platform_name_string[] = {
 		"intel" 
 };
 
+__inline
+int str_match_exact( char* arg, char* flag )
+{
+   if (!strcmp(arg,flag))
+      return 1;
+   else
+      return 0;
+}
+
+__inline
+int str_match_fused( char* arg, char* flag )
+{
+   size_t arglen = strlen(arg);
+   size_t flaglen = strlen(flag);
+   if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
+      return 1;
+   else
+      return 0;
+}
+
+__inline
+int str_match_seteq( char* arg, char* flag )
+{
+   size_t arglen = strlen(arg);
+   size_t flaglen = strlen(flag);
+   if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
+      return 1;
+   else
+      return 0;
+}
+
+__inline
+char* str_get_fused( char* arg, char* flag )
+{ return arg + strlen(flag); }
+
+__inline
+char* str_get_seteq( char* arg, char* flag )
+{ return arg + strlen(flag) + 1; }
+
+
+void append_str( char* str1, char* str2, char* sep, size_t n )
+{
+   if (!str1 || !str2) return;
+
+   size_t len = strlen(str2);
+
+   if (sep) {
+      str1 = (char*)realloc(str1,strlen(str1)+len+2);
+      strcat(str1,sep);
+   } else {
+      str1 = (char*)realloc(str1,strlen(str1)+len+1);
+   }
+   strncat(str1,str2, ((n==0)?len:n) );
+
+}
+
+
 void usage() 
 {
-	printf("usage: WRONG-FIX clld [options] file...\n");
+	printf("usage: clld [options] file...\n");
 	printf("options:\n");
-	printf("\t--cl-binary \n");
-	printf("\t--cl-device DEVICE\n");
-	printf("\t--cl-path PATH\n");
-	printf("\t--cl-platform PLATFORM\n");
-	printf("\t--cl-source\n");
-	printf("\t--help, -h\n");
-	printf("\t--version, -v\n");
+	printf("\t-o <file>\n");
+   printf("\t-v\n");
+   printf("\t--help, -h\n");
+   printf("\t--version, -v\n");
+   printf("\t-mplatform=<platform-list>\n");
+   printf("\t-mplatform-exclude=<platform-list>\n");
+   printf("\t-mdevice=<device-list>\n");
+   printf("\t-mdevice-exclude=<device-list>\n");
+   printf("\t-mall\n");
+   printf("\t-mavail\n");
 }
 
 void version()
@@ -111,6 +171,7 @@ int resolve_fullpath(
 	return(-1);
 }
 
+/*
 void append_str( char* str1, char* str2 )
 {
 	if (strnlen(str1,DEFAULT_STR_SIZE) 
@@ -123,6 +184,7 @@ void append_str( char* str1, char* str2 )
 	strncat(str1," ",DEFAULT_STR_SIZE);
 	strncat(str1,str2,DEFAULT_STR_SIZE);
 }
+*/
 
 
 void list_add_str( char** pstr1, char* str2 )
@@ -253,55 +315,76 @@ int main(int argc, char** argv)
 	while (n < argc) {
 
 
-		if (!strncmp(argv[n],"-mplatform",10)) {
+		if (str_match_exact(argv[n],"-mplatform")) {
 
-			char* p = strchr(argv[n],'=');
+			list_add_str(&platform_select,argv[++n]);
 
-			if (!p) p = argv[++n];
-			else p += 1;
+		} else if (str_match_seteq(argv[n],"-mplatform")) {
 
-			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
+//			char* p = strchr(argv[n],'=');
+//
+//			if (!p) p = argv[++n];
+//			else p += 1;
+//
+//			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
 
-			list_add_str(&platform_select,p);
+			list_add_str(&platform_select,str_get_seteq(argv[n],"-mplatform"));
 
-		} else if (!strncmp(argv[n],"-mplatform-exclude",18)) {
+		} else if (str_match_exact(argv[n],"-mplatform-exclude")) {
 
-			char* p = strchr(argv[n],'=');
+			list_add_str(&platform_exclude,argv[++n]);
 
-			if (!p) p = argv[++n];
-			else p += 1;
+		} else if (str_match_seteq(argv[n],"-mplatform-exclude")) {
 
-			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
+//			char* p = strchr(argv[n],'=');
+//
+//			if (!p) p = argv[++n];
+//			else p += 1;
+//
+//			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
 
-			list_add_str(&platform_exclude,p);
+			list_add_str(&platform_exclude,
+				str_get_seteq(argv[n],"-mplatform-exclude"));
 			
-		} else if (!strncmp(argv[n],"-mdevice",8)) {
+		} else if (str_match_exact(argv[n],"-mdevice")) {
 
-			char* p = strchr(argv[n],'=');
+			list_add_str(&device_select,argv[++n]);
 
-			if (!p) p = argv[++n];
-			else p += 1;
+		} else if (str_match_seteq(argv[n],"-mdevice")) {
 
-			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
+//			char* p = strchr(argv[n],'=');
+//
+//			if (!p) p = argv[++n];
+//			else p += 1;
+//
+//			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
 
-			list_add_str(&device_select,p);
+			list_add_str(&device_select,str_get_seteq(argv[n],"-mdevice"));
 			
-		} else if (!strncmp(argv[n],"-mdevice-exclude",16)) {
+		} else if (str_match_exact(argv[n],"-mdevice-exclude")) {
 
-			char* p = strchr(argv[n],'=');
+			list_add_str(&device_exclude,argv[++n]);
 
-			if (!p) p = argv[++n];
-			else p += 1;
+		} else if (str_match_seteq(argv[n],"-mdevice-exclude")) {
 
-			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
+//			char* p = strchr(argv[n],'=');
+//
+//			if (!p) p = argv[++n];
+//			else p += 1;
+//
+//			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
 
-			list_add_str(&device_exclude,p);
+			list_add_str(&device_exclude,
+				str_get_seteq(argv[n],"-mdevice-exclude"));
 
 		} else if (!strcmp(argv[n],"-mcpu")) {
 			
 		} else if (!strcmp(argv[n],"-mgpu")) {
 			
 		} else if (!strcmp(argv[n],"-mrpu")) {
+
+		} else if (str_match_seteq(argv[n],"-s")
+			||str_match_seteq(argv[n],"--no-src")) {
 			
 			en_src = 0;
 			
@@ -313,15 +396,11 @@ int main(int argc, char** argv)
 
 			ofname = argv[++n];
 
-		} else if (!strcmp(argv[n],"-q")) {
-
-			quiet = 1;
-
 		} else if (!strcmp(argv[n],"-v")) {
 
 			quiet = 0;
 
-		} else if (!strcmp(argv[n],"-h")||!strcmp(argv[n],"--help")) {
+		} else if (str_match_exact(argv[n],"--help")) {
 
 			usage(); 
 			exit(0);

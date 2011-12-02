@@ -3279,11 +3279,9 @@ BASH=`which bash`
 
           ac_config_files="$ac_config_files tools/xclnm/Makefile"
 
-          ac_config_files="$ac_config_files tools/xclnm2/Makefile"
-
           ac_config_files="$ac_config_files tools/clld/Makefile"
 
-          ac_config_files="$ac_config_files tools/clld2/Makefile"
+          ac_config_files="$ac_config_files tools/clcc/Makefile"
 
           ac_config_files="$ac_config_files tools/clcc1/Makefile"
 
@@ -3866,9 +3864,8 @@ do
   "src/libclelf/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/libclelf/Makefile" ;;
   "tools/cltrace/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/cltrace/Makefile" ;;
   "tools/xclnm/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/xclnm/Makefile" ;;
-  "tools/xclnm2/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/xclnm2/Makefile" ;;
   "tools/clld/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/clld/Makefile" ;;
-  "tools/clld2/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/clld2/Makefile" ;;
+  "tools/clcc/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/clcc/Makefile" ;;
   "tools/clcc1/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/clcc1/Makefile" ;;
   "tools/clnm/Makefile" ) CONFIG_FILES="$CONFIG_FILES tools/clnm/Makefile" ;;
   "test/Makefile" ) CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
