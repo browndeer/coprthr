@@ -62,6 +62,8 @@
 #define CL_MCTL_SET_DEVNUM		3
 #define CL_MCTL_MARK_CLEAN		4
 #define CL_MCTL_SET_IMAGE2D	5
+#define CL_MCTL_SET_USRFLAGS	6
+#define CL_MCTL_CLR_USRFLAGS	7
 
 
 
@@ -77,6 +79,7 @@ struct _memd_struct {
          cl_mem clbuf;
 			int devnum;
 			cl_image_format imgfmt;
+			cl_mem_flags usrflags;
       };
       char __pad[128];
    };
