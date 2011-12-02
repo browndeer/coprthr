@@ -36,6 +36,7 @@
 #include <stdio.h>
 
 #include <CL/cl.h>
+#include <CL/cl_gl.h>
 
 
 #define cl_float4_x(f) (((cl_float*)&(f))[0])

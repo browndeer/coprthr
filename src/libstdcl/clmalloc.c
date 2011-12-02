@@ -79,7 +79,8 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 	intptr_t ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
 	intptr_t ptr = ptri+sizeof(struct _memd_struct);
 	struct _memd_struct* memd = (struct _memd_struct*)ptri;
-	bzero(memd,sizeof(struct _memd_struct));
+//	bzero(memd,sizeof(struct _memd_struct));
+	memset(memd,0,sizeof(struct _memd_struct));
 
 	DEBUG(__FILE__,__LINE__,"clmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
 
