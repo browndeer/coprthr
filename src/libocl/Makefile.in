@@ -46,8 +46,8 @@ IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 
 
 #RT_OBJS = __elfcl_rt.o fast_setjmp.o
-#RT_OBJS = fast_setjmp.o __vcore_rt.o
-RT_OBJS = fast_setjmp.o 
+RT_OBJS = fast_setjmp.o __vcore_rt.o
+#RT_OBJS = fast_setjmp.o 
 
 #RT_BC = __vcore_rt.bc bdt_builtins_x86_64.bc
 

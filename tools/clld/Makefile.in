@@ -56,11 +56,11 @@ install: check_root
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_MAN_DIR)/man1 || install -m 755 -d $(INSTALL_MAN_DIR)/man1
 	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)
-	install -m 644 $(addsuffix .gz,$(MAN1)) $(INSTALL_MAN_DIR)/man1
+#	install -m 644 $(addsuffix .gz,$(MAN1)) $(INSTALL_MAN_DIR)/man1
 
 uninstall: check_root
 	rm -f $(INSTALL_BIN_DIR)/$(BIN_NAME)
-	rm -f $(addsuffix .gz,$(addprefix $(INSTALL_MAN_DIR)/man1/,$(MAN1)))
+#	rm -f $(addsuffix .gz,$(addprefix $(INSTALL_MAN_DIR)/man1/,$(MAN1)))
 
 clean:
 	rm -f *.o 

@@ -10,12 +10,12 @@ USE_OPENCL_INCS = -I@OPENCL_INC@
 #USE_OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
 
 ### enable build of debug version if not already defined
-ifeq (@ENABLE_DEBUG_LIBS@,1)
-ENABLE_DEBUG_LIBCLELF=1
-else
-ENABLE_DEBUG_LIBCLELF=0
-endif
-
+#ifeq (@ENABLE_DEBUG_LIBS@,1)
+#ENABLE_DEBUG_LIBCLELF=1
+#else
+#ENABLE_DEBUG_LIBCLELF=0
+#endif
+ENABLE_DEBUG_LIB=@ENABLE_DEBUG_LIBS@
 
 DEFS += -DCLELF_WARN 
 
@@ -62,7 +62,7 @@ TARGET += libclelf.so libclelf.a
 LIB_OBJS += $(OBJS)
 LIB_OBJS_D += $(OBJS_D)
 
-ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
+ifeq ($(ENABLE_DEBUG_LIB),1)
 TARGET += libclelf_d.so libclelf_d.a
 endif
 

@@ -57,10 +57,11 @@ else
 LIBS += -lpthread -ldl -lrt
 endif
 
-#LIBCLELF = ../libclelf/libclelf.a
-#LIBCLELF_D = ../libclelf/libclelf_d.a
+### choosing to static link libclelf into libstdcl to simplify use -DAR
+LIBCLELF = ../libclelf/libclelf.a
+LIBCLELF_D = ../libclelf/libclelf_d.a
 
-LIBS += -L../libclelf -lclelf
+#LIBS += -L../libclelf -lclelf
 
 OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
