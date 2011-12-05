@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
-  <title>coprthr v1.1 Release Notes</title>
+  <title>coprthr v1.3.1 Release Notes</title>
   <meta name="generator" content="Amaya, see http://www.w3.org/Amaya/" />
   <style type="text/css" title="Amaya theme">
 /* Modern style for Amaya Editor Lite */
@@ -169,8 +169,8 @@ a[href] {
 
 <h2 style="text-align:center;margin-left:auto;margin-right:auto;"><span
 style="font-family: Times New Roman,Times,serif"><span
-style="font-family: Arial,Helvetica,sans-serif">COPRTHR version 1.3 (lakeside)
-Release Notes</span></span></h2>
+style="font-family: Arial,Helvetica,sans-serif">COPRTHR version 1.3.1
+(lakeside) Release Notes</span></span></h2>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;">Copyright ©
 2011 Brown Deer Technology, LLC</p>
@@ -531,6 +531,24 @@ to a specific platform and feature set.</p>
     the instructions under the msvs2010/boost_1_47_0-multi_array-iterator-fix/
     directory. (All you need to do is copy over a replacement for
   iterator.hpp.)</li>
+  <li><span style="color:#ff0000">(New with v1.3.1 update)</span> Configure
+    script options have been revised to provide better automatic platform
+    detection and better user control over platform selection. Additionally,
+    the libelf dependency is more carefully checked to avoid a previously
+    common installation error.</li>
+  <li><span style="color:#ff0000">(New with v1.3.1 update)</span> A new
+    platform selection policy is used that allows a priority-ordered comma
+    separated list of platform names that are used to determine which platform
+    should be used for default contexts. The new policy is more robust and will
+    only fail if no platform is found capable of supporting at least one
+    context device type.</li>
+  <li><span style="color:#ff0000">(New with v1.3.1 update)</span> The
+    operations CL_MCTL_SET_USERFLAGS and CL_MCTL_CLR_USERFLAGS have been added
+    to the clmct() call to allow setting vendor/device specific additional
+    cl_mem_flags not directly controlled by STDCL. These operations cna only be
+    performed on a detached allocation and will be applied by the calls
+    clmattach() or clmrealloc(). The behavior of the specified flags is not
+    checked therefore these operations should be used with caution.</li>
 </ul>
 <hr />
 
@@ -560,5 +578,5 @@ STDCL.</p>
 be found in <strong>The COPRTHR Primer</strong> revision 1.3 along with more
 detailed documentation and examples.</p>
 <hr />
-<span style="font-size: 9pt">revised 22 October 2011 by DAR</span> </body>
+<span style="font-size: 9pt">revised 4 December 2011 by DAR</span> </body>
 </html>

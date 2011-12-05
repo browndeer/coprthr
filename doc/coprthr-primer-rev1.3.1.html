@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
-  <title>The COPRTHR Primer revision 1.2</title>
+  <title>The COPRTHR Primer revision 1.3.1</title>
   <meta name="generator" content="Amaya, see http://www.w3.org/Amaya/" />
   <style type="text/css" title="Amaya theme">
 /* Modern style for Amaya Editor Lite */
@@ -173,7 +173,7 @@ style="font-family: Arial,Helvetica,sans-serif">The COPRTHR
 Primer</span></span></h2>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;">revision
-1.3</p>
+1.3.1</p>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;">Copyright ©
 2011 Brown Deer Technology, LLC</p>
@@ -581,6 +581,24 @@ to a specific platform and feature set.</p>
     the instructions under the msvs2010/boost_1_47_0-multi_array-iterator-fix/
     directory. (All you need to do is copy over a replacement for
   iterator.hpp.)</li>
+  <li><span style="color:#ff0000">(New with v1.3.1 update)</span> Configure
+    script options have been revised to provide better automatic platform
+    detection and better user control over platform selection. Additionally,
+    the libelf dependency is more carefully checked to avoid a previously
+    common installation error.</li>
+  <li><span style="color:#ff0000">(New with v1.3.1 update)</span> A new
+    platform selection policy is used that allows a priority-ordered comma
+    separated list of platform names that are used to determine which platform
+    should be used for default contexts. The new policy is more robust and will
+    only fail if no platform is found capable of supporting at least one
+    context device type.</li>
+  <li><span style="color:#ff0000">(New with v1.3.1 update)</span> The
+    operations CL_MCTL_SET_USERFLAGS and CL_MCTL_CLR_USERFLAGS have been added
+    to the clmct() call to allow setting vendor/device specific additional
+    cl_mem_flags not directly controlled by STDCL. These operations cna only be
+    performed on a detached allocation and will be applied by the calls
+    clmattach() or clmrealloc(). The behavior of the specified flags is not
+    checked therefore these operations should be used with caution.</li>
 </ul>
 <hr />
 
@@ -649,25 +667,29 @@ your own application.</p>
 <p>Run the Windows installer (libstdcl-1.3-win7-install.msi) and set the
 appropriate paths to use the headers and library from your application.</p>
 
-<h3>2.5 <a name="Configure" id="Configure">Configure Options</a></h3>
+<h3>2.5 <a name="Configure" id="Configure">Configure Options <span
+style="color:#ff0000">(Note that these were revised with the updated release of
+v1.3.1)</span></a></h3>
 
 <p>When building from source the configure script supports the following
 options:</p>
 <dl>
   <dt><code>--prefix=/path/to/target-install-dir</code></dt>
     <dd>set the root directory for installation</dd>
-  <dt><code>--with-amd-sdk=/path/to/amd-sdk</code></dt>
-    <dd>set the root directory for the AMD APP SDK. The default location
-      searched is /usr/local/atistream .</dd>
+  <dt><code>--with-opencl-platform=NAMELIST</code></dt>
+    <dd>specify default platform selection as a priority-ordered comma
+      seperated list</dd>
+  <dt><code>--with-opencl-include=DIR</code></dt>
+    <dd>specify OpenCL include path</dd>
+  <dt><code>--with-opencl-lib=DIR</code></dt>
+    <dd>specify OpenCL lib path</dd>
+  <dt><code>--with-fortran=PROG</code></dt>
+    <dd>specify Fortran compiler PROG</dd>
+  <dt><code>--with-libelf=DIR</code></dt>
+    <dd>specify path to libelf</dd>
   <dt><code>--with-ati-sdk-21=/path/to/ati-sdk-21</code></dt>
     <dd>set the root directory for the ATI Stream SDK v2.1. The default
       location searched is /usr/local/atistream/ati-stream-sdk-v2.1-lnx64 .</dd>
-  <dt><code>--with-nvidia-sdk=/path/to/nvidia-sdk</code></dt>
-    <dd>set the root directory for the Nvidia SDK</dd>
-  <dt><code>--with-intel-sdk=/path/to/intel-sdk</code></dt>
-    <dd>set the root directory for the Intel SDK</dd>
-  <dt><code>--with-fortran=fortran-compiler</code></dt>
-    <dd>set the fortran compiler, the default is gfortran44</dd>
   <dt><code>--enable-debug-libs</code></dt>
     <dd>enable building debug version of libstdcl and libocl (enabled by
       default)</dd>
@@ -681,6 +703,8 @@ options:</p>
     <dd>enable building experimental libocl (disabled by default)</dd>
   <dt><code>--enable-libocl-ngpu</code></dt>
     <dd>enable multiple CPU device support in libocl (disabled by default)</dd>
+  <dt><code>--enable-fortran</code></dt>
+    <dd>enable fortran binding (disabled by default)</dd>
     <dd></dd>
 </dl>
 <hr />
@@ -2293,5 +2317,5 @@ cltrace1: clReleaseProgram(0x162ac180) = 0
     prevents concurency and not a flaw in the implementation of STDCL.</li>
 </ul>
 <hr />
-<span style="font-size: 9pt">revised 22 June 2011 by DAR</span> </body>
+<span style="font-size: 9pt">revised 4 December 2011 by DAR</span> </body>
 </html>
