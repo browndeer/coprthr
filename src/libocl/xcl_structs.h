@@ -1,6 +1,6 @@
 /* xcl_structs.h 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -62,6 +62,7 @@
  */
 
 struct _cl_platform_id {
+	void* _reserved;
 	struct _imp_platform imp;
 };
 
@@ -83,6 +84,7 @@ struct _cl_platform_id {
  */
 
 struct _cl_device_id {
+	void* _reserved;
 	struct _imp_device imp;
 };
 
@@ -104,6 +106,7 @@ struct _cl_device_id {
  */
 
 struct _cl_context {
+	void* _reserved;
 	cl_uint refc;
 	cl_context_properties* prop;
 	cl_uint ndev;
@@ -140,6 +143,7 @@ struct _cl_context {
  */
 
 struct _cl_command_queue {
+	void* _reserved;
 	cl_uint refc;
 	cl_context ctx;
 	cl_device_id devid;
@@ -169,6 +173,7 @@ struct _cl_command_queue {
  */
 
 struct _cl_mem {
+	void* _reserved;
 	cl_context ctx;
 	size_t sz;
 	size_t width;
@@ -233,15 +238,16 @@ struct _cl_mapped_ptr_info {
  */
 
 struct _cl_program {
+	void* _reserved;
 	cl_uint refc;
 	cl_context ctx;
 	cl_uint ndev;
 	cl_device_id* devices;
 	size_t src_sz;
-	unsigned char* src;
+	char* src;
 	cl_uint* bin_stat;
 	size_t* bin_sz;
-	unsigned char** bin;
+	char** bin;
 	cl_build_status* build_stat;
 	char** build_options;
 	char** build_log;
@@ -299,6 +305,7 @@ struct _cl_program {
  */
 
 struct _cl_kernel {
+	void* _reserved;
 	cl_uint refc;
 	cl_context ctx;
 	cl_program prg;
@@ -344,6 +351,7 @@ struct _cl_kernel {
  */
 
 struct _cl_event {
+	void* _reserved;
 	cl_uint refc;
 	cl_context ctx;
 	cl_command_queue cmdq;
@@ -391,6 +399,7 @@ struct _cl_event {
  */
 
 struct _cl_sampler {
+	void* _reserved;
 	int dummy;
 };
 
