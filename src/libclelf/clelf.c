@@ -35,7 +35,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <elf.h>
-#include <libelf.h>
+#include <libelf/libelf.h>
 #include <errno.h>
 
 //#include "_version.h"
@@ -81,6 +81,23 @@ char* platform_name_string[] = {
 		"coprthr", 
 		"intel" 
 };
+
+char* device_name_alias[][2] = {
+	"Intel(R) Core(TM)","x86_64"
+};
+
+int clelf_device_name_alias( char* dname )
+{
+	int i;
+	for(i=0;i<sizeof(device_name_alias)/(2*sizeof(char*));i++)  {
+		char* s = device_name_alias[i][0];
+		if (!strncasecmp(dname,s,strlen(s))) {
+			strcpy(dname,device_name_alias[i][1]);
+			return(1);
+		}
+	}
+	return(0);
+}
 
 int clelf_init_data( struct clelf_data_struct* data) 
 {

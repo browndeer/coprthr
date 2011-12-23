@@ -206,6 +206,7 @@ int clelf_write_file( int fd, struct clelf_data_struct* );
 int clelf_load_sections( char* elf_ptr, struct clelf_sect_struct* );
 int clelf_check_hash( char* elf_ptr, struct clelf_sect_struct* );
 
+int clelf_device_name_alias( char* dname );
 
 #endif
 
