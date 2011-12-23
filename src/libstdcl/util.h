@@ -61,7 +61,7 @@
 
 #else
 
-#define WARN(f,l,msg) do {} while(0)
+#define WARN(f,l,msg,...) do {} while(0)
 
 #define WARN2(msg,...)  do {} while(0)
 
