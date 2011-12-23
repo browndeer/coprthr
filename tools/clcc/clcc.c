@@ -455,7 +455,7 @@ printf("compare |%s|\n",argv[n]);
 	}
 
 	if (ofname && flist_n > 1) {
-		ERROR2("cannot specify -o with ultiple files");
+		ERROR2("cannot specify -o with multiple files");
 		exit(-1);
 	} 
 
@@ -496,15 +496,16 @@ printf("compare |%s|\n",argv[n]);
 		int fd = mkstemp(tfname);
 		close(fd);
 
-		snprintf(cmd,1024,"clcc1 -c -o %s %s %s",tfname,cc1_opt_str,fname);
+		snprintf(cmd,1024,"clcc1 -o %s %s %s",tfname,cc1_opt_str,fname);
 		DEBUG2("%s",cmd);
 		system(cmd);
 	
 		if (!ofname) {
-			char* ofname = (char*)calloc(1,fname_len+1);
+			ofname = (char*)calloc(1,fname_len+1);
 			if (fname_ext) strncpy(ofname,fname,(size_t)(fname_ext-fname));
 			else strncpy(ofname,fname,fname_len);
 			strncat(ofname,".o",fname_len);
+printf("output filename %s\n",ofname);
 		}
 
 		snprintf(cmd,1024,"clld -o %s %s %s",ofname,linker_opt_str,tfname);

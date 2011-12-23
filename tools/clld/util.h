@@ -20,7 +20,7 @@
 #endif
 
 
-#ifdef STDCL_DEBUG
+#ifdef CLLD_DEBUG
 
 #define DEBUG(f,l,msg,...)  do { \
 	fprintf(stderr,"[%d]clld: debug: %s(%d): " msg "\n", \
@@ -43,7 +43,7 @@
 #endif
 
 
-#if defined(STDCL_WARN) || defined(STDCL_DEBUG)
+#if defined(CLLD_WARN) || defined(CLLD_DEBUG)
 
 //#define WARN(f,l,msg)  \
 //	fprintf(stderr,"clld: warning: %s(%d): " msg "\n",f,l); 

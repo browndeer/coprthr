@@ -599,8 +599,10 @@ int main(int argc, char** argv)
 
       }
 
+DEBUG2("before");
       cl_context context 
 			= clCreateContextFromType(cprops,CL_DEVICE_TYPE_ALL,0,0,&err);
+DEBUG2("after");
 
 		size_t dev_sz;
 		err = clGetContextInfo(context,CL_CONTEXT_DEVICES,0,0,&dev_sz);
