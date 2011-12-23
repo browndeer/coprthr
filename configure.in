@@ -36,6 +36,7 @@ AC_CHECK_LIB([pthread], [main])
 
 AC_CHECK_LIB([elf],[elf64_getehdr])
 
+PWD=`pwd`
 
 
 ### extract enable/disable options
@@ -51,6 +52,9 @@ AC_ARG_ENABLE(cltrace,
 
 AC_ARG_ENABLE(clld,
   AC_HELP_STRING([--enable-clld],[enable building clld tool (default=yes)]),, enable_clld=yes)
+
+AC_ARG_ENABLE(libocl,
+  AC_HELP_STRING([--enable-libocl],[enable libocl (default=no)]),, enable_libocl=no)
 
 AC_ARG_ENABLE(libocl-ncpu,
   AC_HELP_STRING([--enable-libocl-ncpu],[enable libocl ncpu (default=yes)]),, enable_libocl_ncpu=yes)
@@ -75,6 +79,7 @@ AC_ARG_ENABLE(fortran,
 #fi;
 enable_libocl_ncpu=enable_libocl;
 
+echo enable_libocl $enable_libocl
 
 ### now process the selected options
 
@@ -210,7 +215,7 @@ AC_ARG_WITH(opencl-platform,
     fi;
 
     if test $tmp_nvidia_sdk -eq 1; then
-      if test -n $DEFAULT_OPENCL_PLATFORM; then
+      if ! test -z $DEFAULT_OPENCL_PLATFORM; then
         DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,nvidia;
       else
         DEFAULT_OPENCL_PLATFORM=nvidia;
@@ -218,7 +223,7 @@ AC_ARG_WITH(opencl-platform,
     fi;
 
     if test $tmp_intel_sdk -eq 1; then
-      if test -n $DEFAULT_OPENCL_PLATFORM; then
+      if ! test -z $DEFAULT_OPENCL_PLATFORM; then
         DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,intel;
       else
         DEFAULT_OPENCL_PLATFORM=intel;
@@ -310,12 +315,28 @@ echo "tmp_intel_sdk = " $tmp_intel_sdk
 echo "tmp_intel_include = " $tmp_intel_include
 echo "tmp_intel_lib = " $tmp_intel_lib
 
+if test -z $OPENCL_INCLUDE; then
+	if test x$enable_libocl = xyes; then
+		OPENCL_INCLUDE=$PWD/include;
+		echo no OpenCL include path, libocl enabled, using bootstrap;
+	else
+		AC_MSG_ERROR([no OpenCL include path, try --with-opencl-include=DIR])
+	fi
+fi
+
+if test -z $OPENCL_LIB; then
+	if test x$enable_libocl = xyes; then
+		OPENCL_LIB=$PWD/src/libocl;
+		echo no OpenCL lib path, libocl enabled, using bootstrap;
+	else
+		AC_MSG_ERROR([no OpenCL lib path, try --with-opencl-lib=DIR])
+	fi
+fi
+
 echo "DEFAULT_OPENCL_PLATFORM = " $DEFAULT_OPENCL_PLATFORM
 echo "OPENCL_INCLUDE = " $OPENCL_INCLUDE
 echo "OPENCL_LIB = " $OPENCL_LIB
 echo "OPENCL_LIBNAME = " $OPENCL_LIBNAME
-
-
 
 case $build_os in
 
@@ -433,7 +454,7 @@ if ! test x$tmp_test_libelf = x@<:@libelf.so.0@:>@; then
 	AC_MSG_ERROR([incorrect version of libelf specified])
 fi;
 
-libelf_inc="-I$LIBELF_PATH/include/libelf"
+libelf_inc="-I$LIBELF_PATH/include"
 libelf_lib="-L$LIBELF_PATH/lib -lelf"
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR
@@ -472,6 +493,7 @@ AC_CONFIG_FILES([install-message.txt])
 AC_CONFIG_FILES([src/libstdcl/Makefile])
 AC_CONFIG_FILES([src/CLETE/Makefile])
 AC_CONFIG_FILES([src/libocl/Makefile])
+#AC_CONFIG_FILES([src/libcoprthr/Makefile])
 AC_CONFIG_FILES([src/libclelf/Makefile])
 AC_CONFIG_FILES([tools/cltrace/Makefile])
 AC_CONFIG_FILES([tools/xclnm/Makefile])

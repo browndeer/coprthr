@@ -4,19 +4,23 @@ MAKE = gmake
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
+### this useless define is needed to silence useless autoconf warning
+datarootdir=@datarootdir@
+
+
 INSTALL_BIN_DIR=@bindir@
 INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
+ifeq (@ENABLE_LIBOCL@,1)
+SUBDIRS += ./src/libocl ./tools/xclnm
+endif
+
 SUBDIRS += ./include ./src/libclelf ./src/libstdcl 
 
 ifeq (@ENABLE_CLLD@,1)
 SUBDIRS += ./tools/clcc ./tools/clcc1 ./tools/clld ./tools/clnm
-endif
-
-ifeq (@ENABLE_LIBOCL@,1)
-SUBDIRS += ./src/libocl ./tools/xclnm
 endif
 
 #ifneq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
@@ -32,7 +36,7 @@ endif
 #SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))
 #SUBDIRS += $(addprefix ./tools/,$(BUILD_TOOLS)) 
 
-DISTCLEAN_DIRS = ./src/libstdcl ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_ocl ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf
+DISTCLEAN_DIRS = ./src/libstdcl ./src/libocl ./src/libcoprthr ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_ocl ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf
 
 export TOPDIR = $(CURDIR)
 
