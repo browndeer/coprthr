@@ -12,7 +12,7 @@ INSTALL_INCLUDE_DIR=@includedir@
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
-HDRS_CL = CL/cl.h CL/cl_platform.h
+HDRS_CL = CL/cl.h CL/cl_platform.h CL/cl_gl.h
 
 INSTALL_INCS = $(HDRS)
 INSTALL_INCS_CL = $(HDRS_CL)
