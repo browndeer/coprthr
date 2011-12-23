@@ -170,9 +170,11 @@ void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, void* a)
 __iftype_clarg_set(cp,krn,ia,a,cl_int) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_double) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_int2) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint2) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float2) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_double2) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_int4) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint4) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float4) \
