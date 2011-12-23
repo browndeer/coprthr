@@ -1,73 +1,87 @@
-/* util.h 
- *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
- *
- * This software was developed by Brown Deer Technology, LLC.
- * For more information contact info@browndeertechnology.com
- *
- * This program is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License version 3 (LGPLv3)
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/* DAR */
 
 #ifndef _UTIL
 #define _UTIL
 
+#ifdef _WIN64
+#include "fix_windows.h"
+#else
 #include <sys/types.h>
 #include <unistd.h>
+#endif
+
 #include <stdio.h>
+
+#ifdef _WIN64
+#define ERROR CLERROR
+#endif
+
+#ifdef _WIN64
+#define ERROR CLERROR
+#endif
+
 
 #ifdef XCL_DEBUG
 
 #define DEBUG(f,l,msg,...)  do { \
-	fprintf(stderr, \
-	"[%d.%p]xcl: debug: %s(%d): " msg "\n", \
-	getpid(),pthread_self(),f,l,##__VA_ARGS__); \
+	fprintf(stderr,"[%d]xcl: debug: %s(%d): " msg "\n", \
+		getpid(),f,l,##__VA_ARGS__); \
 	fflush(stderr); \
 	} while(0)
 
-#else
+#define DEBUG2(msg,...)  do { \
+	fprintf(stderr, "[%d]xcl: debug: %s(%d): " msg "\n", \
+		getpid(),__FILE__,__LINE__,##__VA_ARGS__); \
+	fflush(stderr); \
+	} while(0)
+
+#else 
 
 #define DEBUG(f,l,msg,...)  do {} while(0)
 
+#define DEBUG2(msg,...)  do {} while(0)
+
 #endif
 
 
-#if XCL_WARN || XCL_DEBUG
+#if defined(XCL_WARN) || defined(XCL_DEBUG)
 
+//#define WARN(f,l,msg)  \
+//	fprintf(stderr,"xcl: warning: %s(%d): " msg "\n",f,l); 
 #define WARN(f,l,msg,...)  do { \
-	fprintf(stderr,"xcl: warning: %s(%d): " msg "\n",f,l,##__VA_ARGS__); \
+	fprintf(stderr,"[%d]xcl: warning: %s(%d): " msg "\n", \
+		getpid(),f,l,##__VA_ARGS__); \
 	fflush(stderr); \
-	} while(0)
+	} while (0)
 
-//#define ERROR(f,l,msg,...)  \
-//	fprintf(stderr,"xcl: error: %s(%d): " msg "\n",f,l,##__VA_ARGS__); \
-//	fflush(stderr);
-	
+#define WARN2(msg,...)  do { \
+	fprintf(stderr,"[%d]xcl: warning: %s(%d): " msg "\n", \
+		getpid(),__FILE__,__LINE__,##__VA_ARGS__); \
+	fflush(stderr); \
+	} while (0)
+
 #else
 
 #define WARN(f,l,msg,...) do {} while(0)
-//#define ERROR(f,l,msg,...) do {} while(0); 
+
+#define WARN2(msg,...)  do {} while(0)
 
 #endif
 
 
+//#define ERROR(f,l,msg) \
+//	fprintf(stderr,"xcl: error: %s(%d): " msg "\n",f,l); 
 #define ERROR(f,l,msg,...)  do { \
-	fprintf(stderr,"xcl: error: %s(%d): " msg "\n",f,l,##__VA_ARGS__); \
+	fprintf(stderr,"[%d]xcl: warning: %s(%d): " msg "\n", \
+		getpid(),f,l,##__VA_ARGS__); \
 	fflush(stderr); \
-	exit(-1); \
 	} while(0)
-	
+
+#define ERROR2(msg,...)  do { \
+	fprintf(stderr,"[%d]xcl: warning: %s(%d): " msg "\n", \
+		getpid(),__FILE__,__LINE__,##__VA_ARGS__); \
+	fflush(stderr); \
+	} while(0)
+
 
 #define fprintb(fp,buf,len) do { \
 	char* p = buf; size_t n = len; \
