@@ -93,6 +93,8 @@ clCreateProgramWithSource(
 		prg->build_options = (char**)calloc(ndev,sizeof(char*));
 		prg->build_log = (char**)calloc(ndev,sizeof(char*));
 
+		for(i=0; i<ndev; i++) prg->build_stat[i] = CL_BUILD_NONE;
+
 		__do_create_program(prg);
 
 		prg->refc = 1;
@@ -147,7 +149,8 @@ clCreateProgramWithBinary(
 		prg->ndev = ndev;
 		__clone(prg->devices,devices,ndev,cl_device_id);
 
-		prg->bin_stat = (cl_uint*)malloc(ndev*sizeof(cl_uint));
+		/* XXX is this used for aything? -DAR */
+		prg->bin_stat = (cl_uint*)calloc(ndev,sizeof(cl_uint));
 
 		__clone(prg->bin,bins,ndev,unsigned char*);
 		__clone(prg->bin_sz,lens,ndev,size_t);
@@ -155,6 +158,10 @@ clCreateProgramWithBinary(
 		prg->build_stat = (cl_build_status*)malloc(ndev*sizeof(cl_build_status));
 		prg->build_options = (char**)malloc(ndev*sizeof(char*));
 		prg->build_log = (char**)malloc(ndev*sizeof(char*));
+
+		for(i=0; i<ndev; i++) 
+			prg->build_stat[i] = (prg->bin[i] && prg->bin_sz[i] > 0)? 
+				CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 
 		__do_create_program(prg);
 
@@ -239,22 +246,17 @@ clBuildProgram(
 			DEBUG(__FILE__,__LINE__,
 				"compiler avail %d",__do_check_compiler_available(devices[j]));
 
-			if (!__do_check_compiler_available(devices[j])) 
-				return(CL_COMPILER_NOT_AVAILABLE);
-
-			if (options) prg->build_options[j] = options;
-
 			err = __do_build_program_from_source(prg,devid,j);
 
 		} else {
 
-			if (!prg->bin[j]) return(CL_INVALID_BINARY);
+			if (!prg->bin[j] || prg->bin_sz[j]) return(CL_INVALID_BINARY);
 
 			err = __do_build_program_from_binary(prg,devid,j);
 
-//			WARN(__FILE__,__LINE__,"clBuildProgram: build failed");
-
 		}
+
+		prg->build_stat[j] = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 
 		if (err != CL_SUCCESS) return(err);
 	}
@@ -319,6 +321,12 @@ clGetProgramInfo(
 
 			break;
 
+		case CL_PROGRAM_BINARY_SIZES:
+
+			__case_get_param(prg->ndev*sizeof(size_t),prg->bin_sz);
+
+			break;
+
 		case CL_PROGRAM_BINARIES:
 
 			__case_get_param(prg->ndev*sizeof(unsigned char*),prg->bin);
@@ -349,14 +357,17 @@ clGetProgramBuildInfo(
 
 	if (__invalid_program(prg)) return(CL_INVALID_PROGRAM);
 
+	int j;
 	size_t sz;
+
+	for(j=0;j<prg->ndev;j++) if (devid == prg->devices[j]) break;
 
 	switch (param_name) {
 
 		case CL_PROGRAM_BUILD_STATUS:
 
-			__case_get_param(sizeof(cl_build_status),&prg->build_stat);
-
+			__case_get_param(sizeof(cl_build_status),&prg->build_stat[j]);
+printf("%d\n",(int)prg->build_stat[j]);
 			break;
 
 		case CL_PROGRAM_BUILD_OPTIONS:

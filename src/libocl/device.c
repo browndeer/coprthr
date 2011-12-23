@@ -582,7 +582,8 @@ void __do_get_ndevices(
 	for(devnum=0;devnum<ndevices;devnum++) {
 		DEBUG(__FILE__,__LINE__,"match devtype %d %d",
 			dtab[devnum].imp.devtype,devtype);
-		if (dtab[devnum].imp.devtype == devtype) n++;
+//		if (dtab[devnum].imp.devtype == devtype) n++;
+		if (dtab[devnum].imp.devtype & devtype) n++;
 	}
 
 	DEBUG(__FILE__,__LINE__,"n = %d",n);
@@ -605,7 +606,8 @@ void __do_get_devices(
 printf("devtype %d\n",devtype);
 
 	for(devnum=0;devnum<ndevices;devnum++) 
-		if (n<ndev && dtab[devnum].imp.devtype == devtype) 
+//		if (n<ndev && dtab[devnum].imp.devtype == devtype) 
+		if (n<ndev && dtab[devnum].imp.devtype & devtype) 
 			devices[n++] = &__resolve_platformid(platformid,dtab[devnum]);
 
 }

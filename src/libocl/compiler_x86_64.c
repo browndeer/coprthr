@@ -23,8 +23,10 @@
 
 /* select compiler preferernces */
 
-#define CCEXE " gcc44 "
-#define CXXEXE " g++44 "
+//#define CCEXE " gcc44 "
+//#define CXXEXE " g++44 "
+#define CC_COMPILER " gcc "
+#define CXX_COMPILER " g++ "
 
 #define CCFLAGS_OCL_O2 \
 	" -fthread-jumps -fcrossjumping -foptimize-sibling-calls " \
@@ -229,9 +231,9 @@ int shell( char* command, char* options, char* output );
 void* compile_x86_64(
 	cl_device_id devid,
 	unsigned char* src, size_t src_sz, 
-	unsigned char* bin, size_t bin_sz, 
+	unsigned char** p_bin, size_t* p_bin_sz, 
 //	char** opt, char** log 
-	char* opt, char* log 
+	char* opt, char** log 
 )
 {
 	int i;
@@ -295,12 +297,13 @@ void* compile_x86_64(
 		char* p2 = buf2;
 		char* logp = logbuf;
 
-		DEBUG(__FILE__,__LINE__,"compile: %p %p",src,bin);
+//		DEBUG(__FILE__,__LINE__,"compile: %p %p",src,bin);
+		DEBUG(__FILE__,__LINE__,"compile: %p",src);
 
 	/* with cltrace LD_PRELOAD env var is problem so just prevent intercepts */
 	unsetenv("LD_PRELOAD");
 
-		if (!bin) { /* use source */
+//		if (!bin) { /* use source */
 
 			if (src) {
 
@@ -342,7 +345,8 @@ void* compile_x86_64(
 //				__command("cd %s; gcc -O2 -msse -fPIC -c -g %s.cpp 2>&1",
 //				__command("cd %s; gcc -O1 -msse -fPIC -c -g %s.cpp 2>&1",
 				__command(
-					"cd %s; gcc44 " CCFLAGS_OCL " -msse -fPIC -c -g %s.cpp 2>&1",
+					"cd %s; "
+					CC_COMPILER CCFLAGS_OCL " -msse -fPIC -c -g %s.cpp 2>&1",
 					wd,filebase); 
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
@@ -368,7 +372,8 @@ void* compile_x86_64(
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
 				__command(
-					"cd %s; gcc44 " CCFLAGS_KCALL " -fPIC -I%s -c _kcall_%s.c 2>&1",
+					"cd %s; "
+					CC_COMPILER CCFLAGS_KCALL " -fPIC -I%s -c _kcall_%s.c 2>&1",
 					wd,INSTALL_INCLUDE_DIR,filebase); 
 #endif
 //#endif
@@ -561,7 +566,8 @@ DEBUG(0,0,"HERE");
 
 //				__command("cd %s; g++ -O2 -shared -Wl,-soname,%s.so -o %s.so"
 				__command(
-					"cd %s; g++44 " CCFLAGS_LINK " -shared -Wl,-soname,%s.so -o %s.so"
+					"cd %s; "
+					CXX_COMPILER CCFLAGS_LINK " -shared -Wl,-soname,%s.so -o %s.so"
 //					" _opt_%s.o _kcall_%s.o "
 					" %s.o _kcall_%s.o __vcore_rt.o "
 //					" %s.o _kcall_%s.o "
@@ -577,10 +583,13 @@ DEBUG(__FILE__,__LINE__,"HERE");
 
 				/* error no source or binary */
 
-				WARN(__FILE__,__LINE__,"compile: no source or binary");
+//				WARN(__FILE__,__LINE__,"compile: no source or binary");
+				WARN(__FILE__,__LINE__,"compile: no source");
+				return(-1);
 
 			}
 
+#if(0)
 		} else {
 
 			DEBUG(__FILE__,__LINE__,"compile: build from binary");
@@ -600,15 +609,28 @@ DEBUG(__FILE__,__LINE__,"HERE");
 			if (bin[1]=='E' && bin[2]=='L' && bin[3]=='F') {}
 
 		}
+#endif
 
-		/* assume LL */
 
-		/*
-		 * xclnm .ll > .clsymtab
-		 * llvm-as .bc -> .o
-		 * cc .o > .so
-		 */
+/* XXX here we are going to pass back the new format by filling bin,bin_sz */
 
+	char ofname[256];
+	snprintf(ofname,256,"%s/%s.so",wd,filebase);
+
+	int ofd = open(ofname,O_RDONLY,0);
+	struct stat ofst; 
+	stat(ofname,&ofst);
+	size_t ofsz = ofst.st_size;
+	*p_bin_sz = ofsz;
+	*p_bin = (char*)malloc(ofsz);
+	void* p = mmap(0,ofsz,PROT_READ,MAP_PRIVATE,ofd,0);
+	memcpy(*p_bin,p,ofsz);
+	munmap(p,ofsz);
+	close(ofd);
+
+	return(0);
+
+#if(0)	
 	snprintf(buf1,256,"%s/%s.so",wd,filebase);
 	dlerror();
 	void* h = dlopen(buf1,RTLD_LAZY);
@@ -675,6 +697,7 @@ DEBUG(__FILE__,__LINE__,"XXX filename %s %d",buf1,strlen(buf1));
 
 //	return(h);
 	return((void*)edata);
+#endif
 
 }
 
