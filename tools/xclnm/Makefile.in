@@ -3,6 +3,9 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
+### this useless define is needed to silence useless autoconf warning
+datarootdir=@datarootdir@
+
 LIBELF_INC=@libelf_inc@
 LIBELF_LIB=@libelf_lib@
 
@@ -67,15 +70,10 @@ xclnm_scan.c: xclnm_scan.l xclnm_gram.c xclnm_gram.h
 .c.o:
 	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
-check_root:
-#ifneq ($(shell whoami),root)
-#	$(error install must be done as root)
-#endif
-
-install: check_root
+install:
 	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)
 
-uninstall: check_root
+uninstall:
 	rm -f $(INSTALL_BIN_DIR)/$(BIN_NAME)
 
 clean:

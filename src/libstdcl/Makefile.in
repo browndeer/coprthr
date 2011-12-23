@@ -4,6 +4,10 @@
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
+
+### this useless define is needed to silence useless autoconf warning
+datarootdir=@datarootdir@
+
 F90=@F90@
 
 ### select default OpenCL implementation if not already defined

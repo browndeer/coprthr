@@ -3,6 +3,9 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
+### this useless define is needed to silence useless autoconf warning
+datarootdir=@datarootdir@
+
 USE_OPENCL_INCS = -I@OPENCL_INCLUDE@
 USE_OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
 
@@ -31,11 +34,8 @@ INSTALL_BIN_DIR=@bindir@
 INSTALL_LIB_DIR=@libdir@
 INSTALL_MAN_DIR=@mandir@
 
-#INCS = -I../../include -I/usr/local/atistream/include
-#INCS = -I../../include $(USE_OPENCL_INCS)
 INCS += $(USE_OPENCL_INCS)
 
-#LIBS = -lelf -L/usr/local/atistream/lib/x86_64
 LIBS = $(USE_OPENCL_LIBS)
 
 OBJS = clld.o 
@@ -45,7 +45,7 @@ CCFLAGS += -O1 -fPIC
 
 all: $(BIN_NAME) $(addsuffix .gz,$(MAN1))
 
-.PHONY: check_root install uninstall clean
+.PHONY: install uninstall clean
 
 .SUFFIXES:
 .SUFFIXES: .c .o
@@ -78,19 +78,14 @@ libcltrace1.so: _interceptor.h libcltrace1.o
 %.1.gz:
 	-gzip -f -c $*.1 > $*.1.gz
 
-check_root:
-#ifneq ($(shell whoami),root)
-#	$(error install must be done as root)
-#endif
-
-install: check_root
+install:
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)
 	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
 	install -m 644 $(addsuffix .gz,$(MAN1)) $(INSTALL_MAN_DIR)/man1
 
-uninstall: check_root
+uninstall:
 	rm -f $(INSTALL_BIN_DIR)/$(BIN_NAME)
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
 	rm -f $(addsuffix .gz,$(addprefix $(INSTALL_MAN)/man1/,$(MAN1)))
