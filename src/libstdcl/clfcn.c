@@ -288,7 +288,8 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 
 	if (uopts) {
 
-		n = strnlen(uopts,64);
+//		n = strnlen(uopts,64);
+		n = strnlen(uopts,1024);
 		DEBUG(__FILE__,__LINE__,"%d",n);
 		if (n-strnlen(opts,1024)>1022) {
 			WARN(__FILE__,__LINE__,
