@@ -36,7 +36,7 @@ endif
 #SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))
 #SUBDIRS += $(addprefix ./tools/,$(BUILD_TOOLS)) 
 
-DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_ocl ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf
+DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf
 
 export TOPDIR = $(CURDIR)
 
