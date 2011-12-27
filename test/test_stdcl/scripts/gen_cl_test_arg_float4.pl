@@ -36,7 +36,7 @@ for($c=0;$c<10;++$c) {
 		}
 		printf ")\n";
 		printf "{\n";
-		printf "\tfloat4 za = (float4)(0.75f,0.5f,0.25f,0.33f);\n";
+		printf "\tfloat4 za = __builtin_vector_float4(0.75f,0.5f,0.25f,0.33f);\n";
 		printf "\tuint gtid = get_global_id(0);\n";
 		for($i=0;$i<$a;++$i) {
 			printf "\tfloat4 tmp$i = a$i\[gtid] + $i.1f + za;\n";

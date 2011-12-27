@@ -36,7 +36,7 @@ for($c=0;$c<10;++$c) {
 		}
 		printf ")\n";
 		printf "{\n";
-		printf "\tint4 za = (int4)(0,1,2,3);\n";
+		printf "\tint4 za = __builtin_vector_int4(0,1,2,3);\n";
 		printf "\tuint gtid = get_global_id(0);\n";
 		for($i=0;$i<$a;++$i) {
 			printf "\tint4 tmp$i = a$i\[gtid] + $i + za;\n";
