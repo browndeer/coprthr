@@ -2,8 +2,12 @@
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
-USE_OPENCL_INCS=-I@includedir@
-USE_OPENCL_LIBS=-L@libdir@ -locl
+OPENCL_INC_DIR = @OPENCL_INCLUDE@
+OPENCL_LIB_DIR = @OPENCL_LIB@
+OPENCL_LIBNAME = @OPENCL_LIBNAME@
+
+USE_OPENCL_INCS=-I$(OPENCL_INC_DIR)
+USE_OPENCL_LIBS=-L$(OPENCL_LIB_DIR) -l$(OPENCL_LIBNAME)
 
 TESTS = test_arg_int test_block_int test_arg_int4 \
 	test_arg_float test_block_float test_arg_float4 \
