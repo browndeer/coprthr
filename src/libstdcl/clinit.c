@@ -207,16 +207,20 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 	struct clelf_sect_struct* sect = _proc_clelf_sect;
 
-	DEBUG(__FILE__,__LINE__,"_libstdcl_init: proc clelf sections:"
-		" %p %p %p %p %p %p %p\n",
-		sect->clprgtab,
-		sect->clkrntab,
-		sect->clprgsrc,
-		sect->cltextsrc,
-		sect->clprgbin,
-		sect->cltextbin,
-		sect->clstrtab
-	);
+	if (sect) {
+
+		DEBUG(__FILE__,__LINE__,"_libstdcl_init: proc clelf sections:"
+			" %p %p %p %p %p %p %p\n",
+			sect->clprgtab,
+			sect->clkrntab,
+			sect->clprgsrc,
+			sect->cltextsrc,
+			sect->clprgbin,
+			sect->cltextbin,
+			sect->clstrtab
+		);
+
+	}
 
 #endif
 
