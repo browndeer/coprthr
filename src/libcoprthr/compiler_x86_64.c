@@ -618,16 +618,24 @@ DEBUG(__FILE__,__LINE__,"HERE");
 	snprintf(ofname,256,"%s/%s.so",wd,filebase);
 
 	int ofd = open(ofname,O_RDONLY,0);
+	if (ofd < 0) return(-1);
+
 	struct stat ofst; 
 	stat(ofname,&ofst);
-	size_t ofsz = ofst.st_size;
-	*p_bin_sz = ofsz;
-	*p_bin = (char*)malloc(ofsz);
-	void* p = mmap(0,ofsz,PROT_READ,MAP_PRIVATE,ofd,0);
-	memcpy(*p_bin,p,ofsz);
-	munmap(p,ofsz);
-	close(ofd);
 
+	if (S_ISREG(ofst.st_mode) && ofst.st_size > 0) {
+		size_t ofsz = ofst.st_size;
+		*p_bin_sz = ofsz;
+		*p_bin = (char*)malloc(ofsz);
+		void* p = mmap(0,ofsz,PROT_READ,MAP_PRIVATE,ofd,0);
+		memcpy(*p_bin,p,ofsz);
+		munmap(p,ofsz);
+	} else {
+		close(ofd);
+		return(-1);
+	}
+
+	close(ofd);
 	return(0);
 
 #if(0)	
