@@ -186,6 +186,8 @@ struct _int2 {
 	_int2( int a, int b ) : x(a), y(b) {}
 	_int2( int* p ) : x(p[0]), y(p[1]) {}
 	_int2& operator+ () { return *this; }
+	_int2& operator += ( _int2 b ) 
+		{ vec = _mm_add_pi32( vec, b.vec ); return *this; }
 	union {
 		struct { __m64 vec; };
 		struct { int x,y; };
@@ -204,6 +206,8 @@ struct _int4 {
 	_int4( int a, int b, int c, int d ) : x(a), y(b), z(c), w(d) {}
 	_int4( int* p ) : x(p[0]), y(p[1]), z(p[2]), w(p[3]) {}
 	_int4& operator+ () { return *this; }
+	_int4& operator += ( _int4 b ) 
+		{ vec = _mm_add_epi32( vec, b.vec ); return *this; }
 	union {
 		struct { __m128i vec; };
 		struct { int x,y,z,w; };
@@ -224,6 +228,8 @@ struct _long2 {
 	_long2( long a, long b ) : x(a), y(b) {}
 	_long2( long* p ) : x(p[0]), y(p[1]) {}
 	_long2& operator+ () { return *this; }
+	_long2& operator += ( _long2 b ) 
+		{ vec = _mm_add_epi64( vec, b.vec ); return *this; }
 	union {
 		struct { __m128i vec; };
 		struct { long x,y; };
@@ -242,6 +248,8 @@ struct _uint2 {
 	_uint2( unsigned int a, unsigned int b ) : x(a), y(b) {}
 	_uint2( unsigned int* p ) : x(p[0]), y(p[1]) {}
 	_uint2& operator+ () { return *this; }
+	_uint2& operator += ( _uint2 b ) 
+		{ x += x + b.x; y += y + b.y; return *this; }
 	union {
 		struct { __m64 vec;};
 		struct { unsigned int x,y; };
@@ -261,6 +269,8 @@ struct _uint4 {
 		: x(a), y(b), z(c), w(d) {}
 	_uint4( unsigned int* p ) : x(p[0]), y(p[1]), z(p[2]), w(p[3]) {}
 	_uint4& operator+ () { return *this; }
+	_uint4& operator += ( _uint4 b ) 
+		{ x += x + b.x; y += y + b.y; z += z + b.z; w += w + b.w; return *this; }
 	union {
 		struct { __m128i vec; };
 		struct { unsigned int x,y,z,w; };
@@ -281,6 +291,8 @@ struct _ulong2 {
 	_ulong2( unsigned long a, unsigned long b ) : x(a), y(b) {}
 	_ulong2( unsigned long* p ) : x(p[0]), y(p[1]) {}
 	_ulong2& operator+ () { return *this; }
+	_ulong2& operator += ( _ulong2 b ) 
+		{ x += x + b.x; y += y + b.y; return *this; }
 	union {
 		struct { __m128i vec; };
 		struct { unsigned long x,y; };
@@ -299,6 +311,8 @@ struct _float2 {
 	_float2( float a, float b ) : x(a), y(b) {}
 	_float2( float* p ) : x(p[0]), y(p[1]) {}
 	_float2& operator+ () { return *this; }
+	_float2& operator += ( _float2 b ) 
+		{ x += x + b.x; y += y + b.y; return *this; }
 	union {
 		struct { __m64 vec; };
 		struct { float x,y; };
@@ -318,6 +332,8 @@ struct _float4 {
 		: x(a), y(b), z(c), w(d) {}
 	_float4( float* p ) : x(p[0]), y(p[1]), z(p[2]), w(p[3]) {}
 	_float4& operator+ () { return *this; }
+	_float4& operator += ( _float4 b ) 
+		{ vec = _mm_add_ps( vec, b.vec ); return *this; }
 	union {
 		struct { __m128 vec; };
 		struct { float x,y,z,w; };
@@ -338,6 +354,8 @@ struct _double2 {
 	_double2( double a, double b ) : x(a), y(b) {}
 	_double2( double* p ) : x(p[0]), y(p[1]) {}
 	_double2& operator+ () { return *this; }
+	_double2& operator += ( _double2 b ) 
+		{ vec = _mm_add_pd( vec, b.vec ); return *this; }
 	union {
 		struct { __m128d vec;	};
 		struct { double x,y; };
