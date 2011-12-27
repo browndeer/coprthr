@@ -30,7 +30,8 @@
 #include "xclnm.h"
 #include "xclnm_node.h"
 #include "xclnm_gram.h"
-#include "../../src/libocl/ocl_types.h"
+//#include "../../src/libocl/ocl_types.h"
+#include "ocl_types.h"
 
 
 struct type_entry {

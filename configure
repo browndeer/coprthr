@@ -574,7 +574,7 @@ OPENCL_LIBNAME
 OPENCL_LIB
 OPENCL_INCLUDE
 ENABLE_NCPU
-ENABLE_LIBOCL
+ENABLE_LIBCOPRTHR
 ENABLE_CLLD
 ENABLE_CLTRACE
 ENABLE_DEBUG_LIBS
@@ -637,17 +637,17 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+enable_clgl
 enable_clete
 enable_debug_libs
 enable_cltrace
 enable_clld
-enable_libocl
-enable_libocl_ncpu
+enable_libcoprthr
+enable_libcoprthr_ncpu
 enable_fortran
 with_opencl_platform
 with_opencl_include
 with_opencl_lib
-with_ati_sdk_21
 with_fortran
 with_libelf
 '
@@ -1273,14 +1273,16 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-clgl           enable clgl support (default=yes)
   --enable-clete          enable clete expression template acceleration
                           (default=yes)
   --enable-debug-libs     enable building debug versions of librarires
                           (default=yes)
   --enable-cltrace        enable building cltrace tool (default=yes)
   --enable-clld           enable building clld tool (default=yes)
-  --enable-libocl         enable libocl (default=no)
-  --enable-libocl-ncpu    enable libocl ncpu (default=yes)
+  --enable-libcoprthr     enable libcoprthr (default=no)
+  --enable-libcoprthr-ncpu
+                          enable libcoprthr ncpu (default=yes)
   --enable-fortran        enable fortran bindings (default=no)
 
 Optional Packages:
@@ -1292,7 +1294,6 @@ Optional Packages:
   --with-opencl-include=DIR
                           specify OpenCL include path
   --with-opencl-lib=DIR   specify OpenCL lib path
-  --with-ati-sdk-21=DIR   Use ATI SDK v2.1 in DIR
   --with-fortran=PROG     Use fortran compiler PROG
   --with-libelf=DIR       specify path to libelf
 
@@ -2996,6 +2997,14 @@ PWD=`pwd`
 
 ### extract enable/disable options
 
+# Check whether --enable-clgl was given.
+if test "${enable_clgl+set}" = set; then :
+  enableval=$enable_clgl;
+else
+  enable_clgl=yes
+fi
+
+
 # Check whether --enable-clete was given.
 if test "${enable_clete+set}" = set; then :
   enableval=$enable_clete;
@@ -3028,27 +3037,27 @@ else
 fi
 
 
-# Check whether --enable-libocl was given.
-if test "${enable_libocl+set}" = set; then :
-  enableval=$enable_libocl;
+# Check whether --enable-libcoprthr was given.
+if test "${enable_libcoprthr+set}" = set; then :
+  enableval=$enable_libcoprthr;
 else
-  enable_libocl=no
+  enable_libcoprthr=no
 fi
 
 
-# Check whether --enable-libocl-ncpu was given.
-if test "${enable_libocl_ncpu+set}" = set; then :
-  enableval=$enable_libocl_ncpu;
+# Check whether --enable-libcoprthr-ncpu was given.
+if test "${enable_libcoprthr_ncpu+set}" = set; then :
+  enableval=$enable_libcoprthr_ncpu;
 else
-  enable_libocl_ncpu=yes
+  enable_libcoprthr_ncpu=yes
 fi
 
 
-#AC_ARG_ENABLE(libocl-atigpu,
-#  AC_HELP_STRING([--enable-libocl-atigpu],[enable libocl atigpu (default=no)]),, enable_libocl_atigpu=no)
+#AC_ARG_ENABLE(libcoprthr-atigpu,
+#  AC_HELP_STRING([--enable-libcoprthr-atigpu],[enable libcoprthr atigpu (default=no)]),, enable_libcoprthr_atigpu=no)
 #
-#AC_ARG_ENABLE(libocl-bdt-builtins,
-#  AC_HELP_STRING([--enable-libocl-bdt-builtins],[enable libocl bdt builtins (default=no)]),, enable_libocl_bdt_builtins=no)
+#AC_ARG_ENABLE(libcoprthr-bdt-builtins,
+#  AC_HELP_STRING([--enable-libcoprthr-bdt-builtins],[enable libcoprthr bdt builtins (default=no)]),, enable_libcoprthr_bdt_builtins=no)
 
 # Check whether --enable-fortran was given.
 if test "${enable_fortran+set}" = set; then :
@@ -3058,22 +3067,21 @@ else
 fi
 
 
-#AC_ARG_ENABLE(libocl-bdt-builtins,
-#  AC_HELP_STRING([--enable-libocl-bdt-builtins],[enable libocl bdt builtins (default=no)]),, enable_libocl_bdt_builtins=no)
+#AC_ARG_ENABLE(libcoprthr-bdt-builtins,
+#  AC_HELP_STRING([--enable-libcoprthr-bdt-builtins],[enable libcoprthr bdt builtins (default=no)]),, enable_libcoprthr_bdt_builtins=no)
 
 ### check and process option dependencies and inferences
-#if test x$enable_libocl = xno; then
-#	enable_libocl_ncpu=no;
-#	enable_libocl_atigpu=no;
-#	enable_libocl_bdt_builtins=no;
+#if test x$enable_libcoprthr = xno; then
+#	enable_libcoprthr_ncpu=no;
+#	enable_libcoprthr_atigpu=no;
+#	enable_libcoprthr_bdt_builtins=no;
 #fi;
-enable_libocl_ncpu=enable_libocl;
+enable_libcoprthr_ncpu=enable_libcoprthr;
 
-echo enable_libocl $enable_libocl
+echo enable_libcoprthr $enable_libcoprthr
 
 ### now process the selected options
 
-#SET_OPT($enable_libstdcl_clgl_support, ENABLE_CLGL, "CLGL support")
 if test x$enable_clete != xno; then
 			echo "enabled "CLETE expression template acceleration""
 			ENABLE_CLETE=1
@@ -3106,15 +3114,15 @@ if test x$enable_clld != xno; then
 			ENABLE_CLLD=0
 		fi;
 
-if test x$enable_libocl != xno; then
-			echo "enabled "building libocl""
-			ENABLE_LIBOCL=1
+if test x$enable_libcoprthr != xno; then
+			echo "enabled "building libcoprthr""
+			ENABLE_LIBCOPRTHR=1
 		else
-			echo "disabled "building libocl""
-			ENABLE_LIBOCL=0
+			echo "disabled "building libcoprthr""
+			ENABLE_LIBCOPRTHR=0
 		fi;
 
-#SET_OPT($enable_libocl_ncpu, ENABLE_NCPU, "libocl ncpu support")
+#SET_OPT($enable_libcoprthr_ncpu, ENABLE_NCPU, "libcoprthr ncpu support")
 if test x$enable_fortran != xno; then
 			echo "enabled "fortran binding support""
 			ENABLE_FORTRAN=1
@@ -3123,8 +3131,8 @@ if test x$enable_fortran != xno; then
 			ENABLE_FORTRAN=0
 		fi;
 
-#SET_OPT($enable_libocl_atigpu, ENABLE_ATIGPU, "libocl atigpu support")
-#SET_OPT($enable_libocl_bdt_builtins, ENABLE_BDT_BUILTINS, "libocl use bdt builtins")
+#SET_OPT($enable_libcoprthr_atigpu, ENABLE_ATIGPU, "libcoprthr atigpu support")
+#SET_OPT($enable_libcoprthr_bdt_builtins, ENABLE_BDT_BUILTINS, "libcoprthr use bdt builtins")
 
 
 #OPENCL_INCLUDE=
@@ -3206,6 +3214,11 @@ else
   tmp_nvidia_sdk=0;
 fi;
 
+# set COPRTHR paths for bootstrap
+tmp_coprthr_sdk=1;
+tmp_coprthr_include=$PWD/include
+tmp_coprthr_lib=$PWD/src/libcoprthr
+
 # find best known Intel paths
 if test -e /etc/OpenCL/vendors/intel*.icd; then
   tmp_intel_sdk=1;
@@ -3270,7 +3283,6 @@ fi
 ### step 3)
 
 list2=`echo $DEFAULT_OPENCL_PLATFORM | awk '{sub(/,/," ");print}'`
-echo "list2 is " $list2
 for p in $list2
 do
   echo $p
@@ -3280,21 +3292,28 @@ do
     amd*)
       OPENCL_INCLUDE=$tmp_amdapp_include;
       OPENCL_LIB=$tmp_amdapp_lib;
-      OPENCL_LIBNAME=libOpenCL.so;
+      OPENCL_LIBNAME=OpenCL;
       break
 		;;
 
     nvidia*)
       OPENCL_INCLUDE=$tmp_nvidia_include;
       OPENCL_LIB=$tmp_nvidia_lib;
-      OPENCL_LIBNAME=libOpenCL.so;
+      OPENCL_LIBNAME=OpenCL;
+      break
+		;;
+
+    coprthr*)
+      OPENCL_INCLUDE=$tmp_coprthr_include;
+      OPENCL_LIB=$tmp_coprthr_lib;
+      OPENCL_LIBNAME=coprthr;
       break
 		;;
 
     intel*)
       OPENCL_INCLUDE=$tmp_intel_include;
       OPENCL_LIB=$tmp_intel_lib;
-      OPENCL_LIBNAME=libOpenCL.so;
+      OPENCL_LIBNAME=OpenCL;
       break
 		;;
 
@@ -3348,97 +3367,102 @@ echo "tmp_nvidia_sdk = " $tmp_nvidia_sdk
 echo "tmp_nvidia_include = " $tmp_nvidia_include
 echo "tmp_nvidia_lib = " $tmp_nvidia_lib
 
+echo "tmp_coprthr_sdk = " $tmp_coprthr_sdk
+echo "tmp_coprthr_include = " $tmp_coprthr_include
+echo "tmp_coprthr_lib = " $tmp_coprthr_lib
+
 echo "tmp_intel_sdk = " $tmp_intel_sdk
 echo "tmp_intel_include = " $tmp_intel_include
 echo "tmp_intel_lib = " $tmp_intel_lib
 
 if test -z $OPENCL_INCLUDE; then
-	if test x$enable_libocl = xyes; then
+	if test x$enable_libcoprthr = xyes; then
 		OPENCL_INCLUDE=$PWD/include;
-		echo no OpenCL include path, libocl enabled, using bootstrap;
+		echo no OpenCL include path, libcoprthr enabled, using bootstrap;
 	else
 		as_fn_error $? "no OpenCL include path, try --with-opencl-include=DIR" "$LINENO" 5
 	fi
 fi
 
 if test -z $OPENCL_LIB; then
-	if test x$enable_libocl = xyes; then
-		OPENCL_LIB=$PWD/src/libocl;
-		echo no OpenCL lib path, libocl enabled, using bootstrap;
+	if test x$enable_libcoprthr = xyes; then
+		OPENCL_LIB=$PWD/src/libcoprthr;
+		echo no OpenCL lib path, libcoprthr enabled, using bootstrap;
 	else
 		as_fn_error $? "no OpenCL lib path, try --with-opencl-lib=DIR" "$LINENO" 5
 	fi
 fi
+
+if test -z $OPENCL_LIBNAME; then
+	if test x$enable_libcoprthr = xyes; then
+		OPENCL_LIBNAME=coprthr;
+		echo no OpenCL lib name, libcoprthr enabled, using bootstrap;
+	else
+		as_fn_error $? "no OpenCL lib name" "$LINENO" 5
+	fi
+fi
+
 
 echo "DEFAULT_OPENCL_PLATFORM = " $DEFAULT_OPENCL_PLATFORM
 echo "OPENCL_INCLUDE = " $OPENCL_INCLUDE
 echo "OPENCL_LIB = " $OPENCL_LIB
 echo "OPENCL_LIBNAME = " $OPENCL_LIBNAME
 
-case $build_os in
+# XXX this might be obsolete
+#case $build_os in
+#
+#	freebsd*)
+#		OPENCL_LIBNAME=coprthr
+#		;;
+#
+#	*)
+#		OPENCL_LIBNAME=OpenCL
+#		;;
+#
+#esac
 
-	freebsd*)
-		OPENCL_LIBNAME=ocl
-		;;
+if test x$OPENCL_LIBNAME = xcoprthr; then
+	enable_clgl=no;
+fi
+if test x$enable_clgl != xno; then
+			echo "enabled "CLGL support""
+			ENABLE_CLGL=1
+		else
+			echo "disabled "CLGL support""
+			ENABLE_CLGL=0
+		fi;
 
-	*)
-		OPENCL_LIBNAME=OpenCL
-		;;
-
-esac
 
 
 # XXX this option is going away in echo release -DAR
-
-# Check whether --with-ati-sdk-21 was given.
-if test "${with_ati_sdk_21+set}" = set; then :
-  withval=$with_ati_sdk_21;
-    if test x$withval = xno; then
-		withval=/usr/local/atistream
-	 fi;
-
-      if test -d $withval; then
-         echo "found ATI SDK v2.1 path"
-			ATI_SDK_21=$withval
-      else
-         as_fn_error $? "Could not find ATI SDK v2.1 path" "$LINENO" 5
-      fi;
-
-     if test -e $withval/bin/x86_64/clc; then
-         echo "found ATI SDK v2.1 clc"
-      else
-         as_fn_error $? "Could not find ATI Stream SDK v2.1 clc" "$LINENO" 5
-      fi;
-
-      if test -e $withval/lib/x86_64/builtins_x86-64.bc; then
-         echo "found ATI SDK v2.1 builtins"
-      else
-         as_fn_error $? "Could not find ATI SDK v2.1 builtins" "$LINENO" 5
-      fi;
-
-
-else
-  ATI_SDK_21=/usr/local/atistream/ati-stream-sdk-v2.1-lnx64
-fi
-
-
-
-#if test $ENABLE_LIBOCL -eq 1; then
-
-#	if ! test -e $AMD_SDK/bin/x86_64/clc21; then
-#		AC_MSG_ERROR([libocl requres clc21, file not found])
-#	fi;
-#	if ! test -e $ATI_SDK_21; then
-#		AC_MSG_ERROR([libocl requres ATI SDK v2.1, path not found])
-#	fi;
-
-#	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64-21.bc; then
-#		AC_MSG_ERROR([libocl requres builtins-x86_64-21.bc, file not found])
-##	if ! test -e $AMD_SDK/lib/x86_64/builtins-x86_64.bc; then
-##		AC_MSG_ERROR([libocl requres builtins-x86_64.bc, file not found])
-#	fi;
-
-#fi;
+#AC_ARG_WITH(ati-sdk-21,
+#  AC_HELP_STRING([--with-ati-sdk-21=DIR], [Use ATI SDK v2.1 in DIR]),
+#  [
+#    if test x$withval = xno; then
+#		withval=/usr/local/atistream
+#	 fi;
+#
+#      if test -d $withval; then
+#         echo "found ATI SDK v2.1 path"
+#			ATI_SDK_21=$withval
+#      else
+#         AC_MSG_ERROR([Could not find ATI SDK v2.1 path])
+#      fi;
+#
+#     if test -e $withval/bin/x86_64/clc; then
+#         echo "found ATI SDK v2.1 clc"
+#      else
+#         AC_MSG_ERROR([Could not find ATI Stream SDK v2.1 clc])
+#      fi;
+#
+#      if test -e $withval/lib/x86_64/builtins_x86-64.bc; then
+#         echo "found ATI SDK v2.1 builtins"
+#      else
+#         AC_MSG_ERROR([Could not find ATI SDK v2.1 builtins])
+#      fi;
+#
+#  ],
+#  [ATI_SDK_21=/usr/local/atistream/ati-stream-sdk-v2.1-lnx64])
 
 
 
@@ -3446,7 +3470,6 @@ fi
 if test "${with_fortran+set}" = set; then :
   withval=$with_fortran;
     if test x$withval = xno; then
-#        AC_CHECK_PROG(F90,gfortran44,gfortran44)
          as_fn_error $? "no fortran compiler specified" "$LINENO" 5
     else
     	F90=$withval
@@ -3563,11 +3586,6 @@ BASH=`which bash`
 
 
 
-#AC_SUBST(AMD_SDK)
-#AC_SUBST(AMD_SDK_INC)
-#AC_SUBST(AMD_SDK_LIB)
-#AC_SUBST(ATI_SDK_21)
-
 
 
 
@@ -3579,9 +3597,8 @@ ac_config_files="$ac_config_files src/libstdcl/Makefile"
 
 ac_config_files="$ac_config_files src/CLETE/Makefile"
 
-ac_config_files="$ac_config_files src/libocl/Makefile"
+ac_config_files="$ac_config_files src/libcoprthr/Makefile"
 
-#AC_CONFIG_FILES([src/libcoprthr/Makefile])
 ac_config_files="$ac_config_files src/libclelf/Makefile"
 
 ac_config_files="$ac_config_files tools/cltrace/Makefile"
@@ -3600,14 +3617,14 @@ ac_config_files="$ac_config_files test/Makefile"
 
 ac_config_files="$ac_config_files test/test_stdcl/Makefile"
 
-ac_config_files="$ac_config_files test/test_ocl/Makefile"
+ac_config_files="$ac_config_files test/test_libcoprthr/Makefile"
 
 ac_config_files="$ac_config_files include/Makefile"
 
 
-ac_config_files="$ac_config_files test/test_ocl/scripts/run_tests.sh"
+ac_config_files="$ac_config_files test/test_libcoprthr/scripts/run_tests.sh"
 
-ac_config_files="$ac_config_files test/test_ocl/scripts/run_quick_tests.sh"
+ac_config_files="$ac_config_files test/test_libcoprthr/scripts/run_quick_tests.sh"
 
 ac_config_files="$ac_config_files test/test_stdcl/scripts/run_tests.sh"
 
@@ -4336,7 +4353,7 @@ do
     "install-message.txt") CONFIG_FILES="$CONFIG_FILES install-message.txt" ;;
     "src/libstdcl/Makefile") CONFIG_FILES="$CONFIG_FILES src/libstdcl/Makefile" ;;
     "src/CLETE/Makefile") CONFIG_FILES="$CONFIG_FILES src/CLETE/Makefile" ;;
-    "src/libocl/Makefile") CONFIG_FILES="$CONFIG_FILES src/libocl/Makefile" ;;
+    "src/libcoprthr/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr/Makefile" ;;
     "src/libclelf/Makefile") CONFIG_FILES="$CONFIG_FILES src/libclelf/Makefile" ;;
     "tools/cltrace/Makefile") CONFIG_FILES="$CONFIG_FILES tools/cltrace/Makefile" ;;
     "tools/xclnm/Makefile") CONFIG_FILES="$CONFIG_FILES tools/xclnm/Makefile" ;;
@@ -4346,10 +4363,10 @@ do
     "tools/clnm/Makefile") CONFIG_FILES="$CONFIG_FILES tools/clnm/Makefile" ;;
     "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
     "test/test_stdcl/Makefile") CONFIG_FILES="$CONFIG_FILES test/test_stdcl/Makefile" ;;
-    "test/test_ocl/Makefile") CONFIG_FILES="$CONFIG_FILES test/test_ocl/Makefile" ;;
+    "test/test_libcoprthr/Makefile") CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr/Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
-    "test/test_ocl/scripts/run_tests.sh") CONFIG_FILES="$CONFIG_FILES test/test_ocl/scripts/run_tests.sh" ;;
-    "test/test_ocl/scripts/run_quick_tests.sh") CONFIG_FILES="$CONFIG_FILES test/test_ocl/scripts/run_quick_tests.sh" ;;
+    "test/test_libcoprthr/scripts/run_tests.sh") CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr/scripts/run_tests.sh" ;;
+    "test/test_libcoprthr/scripts/run_quick_tests.sh") CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr/scripts/run_quick_tests.sh" ;;
     "test/test_stdcl/scripts/run_tests.sh") CONFIG_FILES="$CONFIG_FILES test/test_stdcl/scripts/run_tests.sh" ;;
     "test/test_stdcl/scripts/run_quick_tests.sh") CONFIG_FILES="$CONFIG_FILES test/test_stdcl/scripts/run_quick_tests.sh" ;;
 
@@ -4772,8 +4789,8 @@ which seems to be undefined.  Please make sure it is defined" >&2;}
 
 
   case $ac_file$ac_mode in
-    "test/test_ocl/scripts/run_tests.sh":F) chmod +x test/test_ocl/scripts/run_tests.sh ;;
-    "test/test_ocl/scripts/run_quick_tests.sh":F) chmod +x test/test_ocl/scripts/run_quick_tests.sh ;;
+    "test/test_libcoprthr/scripts/run_tests.sh":F) chmod +x test/test_libcoprthr/scripts/run_tests.sh ;;
+    "test/test_libcoprthr/scripts/run_quick_tests.sh":F) chmod +x test/test_libcoprthr/scripts/run_quick_tests.sh ;;
     "test/test_stdcl/scripts/run_tests.sh":F) chmod +x test/test_stdcl/scripts/run_tests.sh ;;
     "test/test_stdcl/scripts/run_quick_tests.sh":F) chmod +x test/test_stdcl/scripts/run_quick_tests.sh ;;
 

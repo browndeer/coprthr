@@ -254,7 +254,8 @@ clcontext_create(
 		if (platform_devcount[0] == 0) {
 
       	WARN(__FILE__,__LINE__, 
-				"clcontext_create: no platforms supporting device type!");
+				"clcontext_create: no platforms supporting device type (%d)!",
+				devtyp);
 
 			return((CONTEXT*)0);
 

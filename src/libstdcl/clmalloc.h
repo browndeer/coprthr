@@ -49,13 +49,13 @@
 #define CL_MEM_NOFORCE			0x00002000
 #define CL_MEM_IMAGE2D			0x00010000
 
-//#ifdef ENABLE_CLGL
+#ifndef DISABLE_CLGL
 #define CL_MEM_CLBUF				0x00100000
 #define CL_MEM_GLBUF				0x00200000
 #define CL_MEM_GLTEX2D			0x02000000
 #define CL_MEM_GLTEX3D			0x04000000
 #define CL_MEM_GLRBUF			0x08000000
-//#endif
+#endif
 
 #define CL_MCTL_GET_STATUS		1
 #define CL_MCTL_GET_DEVNUM		2
@@ -123,12 +123,11 @@ LIBSTDCL_API cl_event clmcopy(CONTEXT* cp, unsigned int devnum,
 
 LIBSTDCL_API void* clmemptr( CONTEXT* CP, void* ptr );
 
-//#ifdef ENABLE_CLGL
-//void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, int flag);
+#ifndef DISABLE_CLGL
 void* clglmalloc(CONTEXT* cp, cl_GLuint glbufobj, cl_GLenum target, 
 	cl_GLint miplevel, int flags );
 cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags);
-//#endif
+#endif
 
 static 
 __inline__

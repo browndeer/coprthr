@@ -9,6 +9,8 @@ USE_OPENCL_LIBS=-L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
 USE_STDCL_INCS=-I@includedir@
 USE_STDCL_LIBS=-L@libdir@ -lstdcl
 
+LIBELF_INC = @libelf_inc@
+LIBELF_LIB = @libelf_lib@
 
 TESTS = arg_int arg_int4 arg_float arg_float4 block_int block_float special \
 	ndev_float4
@@ -25,7 +27,8 @@ TOPDIR ?= ../
 INCS += $(USE_OPENCL_INCS) $(USE_STDCL_INCS)
 LIBS += $(USE_OPENCL_LIBS) $(USE_STDCL_LIBS)
 
-LIBS += -lm -lssl -lelf -lclelf
+#LIBS += -lm -lssl -lelf -lclelf
+LIBS += -lm -lssl $(LIBELF_LIB) -lclelf
 
 SRC_TESTS = $(addprefix test_stdcl_,$(addsuffix .c,$(TESTS)))
 #CLSRC = $(addprefix test_,$(addsuffix .cl,$(TESTS)))

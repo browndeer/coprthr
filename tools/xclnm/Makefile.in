@@ -22,7 +22,7 @@ INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
 #INCS = -I. -I../../src/xcl
-INCS = -I. -I../../src/libocl
+INCS = -I. -I../../src/libcoprthr
 
 #ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 #INCS += -I/usr/local/include

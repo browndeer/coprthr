@@ -1,8 +1,8 @@
 
 TESTS = test_stdcl 
 
-ifeq (@ENABLE_LIBOCL@,1)
-TESTS += test_ocl
+ifeq (@ENABLE_LIBCOPRTHR@,1)
+TESTS += test_libcoprthr
 endif
 
 ##### DO NOT EDIT BELOW THIS LINE #####
@@ -28,7 +28,7 @@ clean: subdirs
 
 distclean: 
 #distclean: subdirs
-#	make -C ./test_ocl $(MAKECMDGOALS)
+#	make -C ./test_libcoprthr $(MAKECMDGOALS)
 
 test: subdirs
 #	make -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)

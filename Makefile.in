@@ -13,8 +13,8 @@ INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
-ifeq (@ENABLE_LIBOCL@,1)
-SUBDIRS += ./src/libocl ./tools/xclnm
+ifeq (@ENABLE_LIBCOPRTHR@,1)
+SUBDIRS += ./src/libcoprthr ./tools/xclnm
 endif
 
 SUBDIRS += ./include ./src/libclelf ./src/libstdcl 
@@ -36,7 +36,7 @@ endif
 #SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))
 #SUBDIRS += $(addprefix ./tools/,$(BUILD_TOOLS)) 
 
-DISTCLEAN_DIRS = ./src/libstdcl ./src/libocl ./src/libcoprthr ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_ocl ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf
+DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_ocl ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf
 
 export TOPDIR = $(CURDIR)
 
@@ -84,8 +84,8 @@ quicktest:
 test-libstdcl: 
 	$(MAKE) -C ./test/test_stdcl $(MAKEFLAGS) test
 
-test-libocl: 
-	$(MAKE) -C ./test/test_ocl $(MAKEFLAGS) test
+test-libcoprthr: 
+	$(MAKE) -C ./test/test_libcoprthr $(MAKEFLAGS) test
 
 test-CLETE: 
 	$(MAKE) -C ./test/test_CLETE $(MAKEFLAGS) test
@@ -94,7 +94,7 @@ test-CLETE:
 quicktest-libstdcl: 
 	$(MAKE) -C ./test/test_stdcl $(MAKEFLAGS) quicktest
 
-quicktest-libocl: 
-	$(MAKE) -C ./test/test_ocl $(MAKEFLAGS) quicktest
+quicktest-libcoprthr: 
+	$(MAKE) -C ./test/test_libcoprthr $(MAKEFLAGS) quicktest
 
 

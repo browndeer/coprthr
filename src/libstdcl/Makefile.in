@@ -40,9 +40,9 @@ INSTALL_MAN_DIR=@mandir@
 
 #DEFS += -DENABLE_CLEXPORT ### XXX experimental
 
-#ifeq (@ENABLE_CLGL@,1)
-#DEFS += -DENABLE_CLGL ### XXX experimental
-#endif
+ifneq (@ENABLE_CLGL@,1)
+DEFS += -DDISABLE_CLGL 
+endif
 
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
