@@ -3597,6 +3597,8 @@ ac_config_files="$ac_config_files src/libstdcl/Makefile"
 
 ac_config_files="$ac_config_files src/CLETE/Makefile"
 
+ac_config_files="$ac_config_files src/libocl/Makefile"
+
 ac_config_files="$ac_config_files src/libcoprthr/Makefile"
 
 ac_config_files="$ac_config_files src/libclelf/Makefile"
@@ -4353,6 +4355,7 @@ do
     "install-message.txt") CONFIG_FILES="$CONFIG_FILES install-message.txt" ;;
     "src/libstdcl/Makefile") CONFIG_FILES="$CONFIG_FILES src/libstdcl/Makefile" ;;
     "src/CLETE/Makefile") CONFIG_FILES="$CONFIG_FILES src/CLETE/Makefile" ;;
+    "src/libocl/Makefile") CONFIG_FILES="$CONFIG_FILES src/libocl/Makefile" ;;
     "src/libcoprthr/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr/Makefile" ;;
     "src/libclelf/Makefile") CONFIG_FILES="$CONFIG_FILES src/libclelf/Makefile" ;;
     "tools/cltrace/Makefile") CONFIG_FILES="$CONFIG_FILES tools/cltrace/Makefile" ;;

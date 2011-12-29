@@ -145,7 +145,6 @@ check_root:
 #endif
 
 
-#install: check_root all
 install: check_root $(INSTALL_INCS) $(INSTALL_LIBS) $(addsuffix .gz,$(MAN3))
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)

@@ -203,14 +203,12 @@ install:
 #	ln -sf $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libOpenCL.so
 
 uninstall: 
-	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so
+	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr_d.so
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
-#	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_BC))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,vcore.h)
 
 clean:
 	rm -f *.o *.so
-#	rm -f *.bc
 
 distclean: clean
 
