@@ -432,8 +432,7 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
 		}
 			
-//		contexts[i] = clCreateContextFromType(cprops,CL_DEVICE_TYPE_ALL,0,0,&err);	
-		contexts[i] = clCreateContextFromType(cprops,CL_DEVICE_TYPE_CPU,0,0,&err);	
+		contexts[i] = clCreateContextFromType(cprops,CL_DEVICE_TYPE_ALL,0,0,&err);	
 		programs[i] = clCreateProgramWithSource(
    		contexts[i], 1, (const char**)&file_ptr, &file_sz, &err );
 

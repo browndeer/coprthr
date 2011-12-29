@@ -783,6 +783,7 @@ DEBUG2("after");
 
 				int k = sect.clprgtab[i].e_prgbin + j;
 		
+				char* name = sect.clstrtab + sect.clprgbin[k].e_name;
 				int platform_code = sect.clprgbin[k].e_platform;
 				char* device_name = sect.clstrtab + sect.clprgbin[k].e_device;
 
@@ -828,16 +829,24 @@ DEBUG2("after");
 	
    				data.clprgbin[data.clprgbin_n].e_name 
 						= (intptr_t)(data.clstrtab_strp-data.clstrtab_str);
-					char* name = sect.clstrtab + sect.clprgbin[k].e_name;
 					add_strtab(data.clstrtab_str,data.clstrtab_strp,
 						data.clstrtab_str_alloc,name);
+
    				data.clprgbin[data.clprgbin_n].e_info = sect.clprgbin[k].e_info;
-   				data.clprgbin[data.clprgbin_n].e_platform =sect.clprgbin[k].e_platform;
-   				data.clprgbin[data.clprgbin_n].e_device = sect.clprgbin[k].e_device;
+
+   				data.clprgbin[data.clprgbin_n].e_platform = platform_code;
+
+   				data.clprgbin[data.clprgbin_n].e_device 
+						= (intptr_t)(data.clstrtab_strp-data.clstrtab_str);
+					add_strtab(data.clstrtab_str,data.clstrtab_strp,
+                  data.clstrtab_str_alloc,device_name);
+
    				data.clprgbin[data.clprgbin_n].e_shndx = -1;
+
    				data.clprgbin[data.clprgbin_n].e_offset 
 						= (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
    				data.clprgbin[data.clprgbin_n].e_size = sect.clprgbin[k].e_size;
+
    				++data.clprgbin_n;
 
 					size_t offset = (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
