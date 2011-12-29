@@ -3349,7 +3349,7 @@ if test "${with_opencl_lib+set}" = set; then :
   withval=$with_opencl_lib;
     if test x$withval = xyes; then
       as_fn_error $? "usage: --with-opencl-lib=DIR" "$LINENO" 5
-    elif ! test -e $withval/$OPENCL_LIBNAME; then
+    elif ! test -e $withval/lib$OPENCL_LIBNAME.so; then
       as_fn_error $? "bad lib path, could not find $OPENCL_LIB" "$LINENO" 5
     else
 		OPENCL_LIB=$withval;

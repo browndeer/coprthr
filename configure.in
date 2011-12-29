@@ -307,7 +307,7 @@ AC_ARG_WITH(opencl-lib,
   [
     if test x$withval = xyes; then
       AC_MSG_ERROR([usage: --with-opencl-lib=DIR])
-    elif ! test -e $withval/$OPENCL_LIBNAME; then
+    elif ! test -e $withval/lib$OPENCL_LIBNAME.so; then
       AC_MSG_ERROR([bad lib path, could not find $OPENCL_LIB])
     else
 		OPENCL_LIB=$withval;
