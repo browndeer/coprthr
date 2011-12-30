@@ -13,6 +13,8 @@ STDCL_LIB_PATH = /usr/local/browndeer/lib
 INCS = -I$(OPENCL_INC_PATH) -I$(STDCL_INC_PATH)
 LIBS = -L$(OPENCL_LIB_PATH) -lOpenCL -L$(STDCL_LIB_PATH) -lstdcl
 
+LIBS += -lssl -L/usr/local/lib -lelf
+
 CCFLAGS += -O3
 
 all: $(PROG)
@@ -23,12 +25,12 @@ clopen_example1.x: clopen_example1.o
 clopen_example2.x: clopen_example2.o 
 	$(CC) $(CCFLAGS) $(INCS) -o clopen_example2.x clopen_example2.o $(LIBS)
 
-clopen_example3.x: clopen_example3.o out_clld.o
+clopen_example3.x: clopen_example3.o outerprod_three.o
 	$(CC) $(CCFLAGS) $(INCS) -o clopen_example3.x clopen_example3.o $(LIBS) \
-		out_clld.o
+		outerprod_three.o
 
-out_clld.o: outerprod_three.cl
-	clld --cl-source outerprod_three.cl
+outerprod_three.o: outerprod_three.cl
+	clcc outerprod_three.cl 
 
 .SUFFIXES:
 .SUFFIXES: .c .o
