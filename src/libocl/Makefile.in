@@ -26,7 +26,7 @@ INSTALL_MAN_DIR=@mandir@
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
-OBJS = libocl.o
+OBJS = libocl.o oclcall.o
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 
@@ -76,7 +76,6 @@ all: $(TARGET)
 .SUFFIXES:
 .SUFFIXES: .l .y .S .s .c .o
 
-
 .c.o:
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
@@ -89,8 +88,11 @@ all: $(TARGET)
 %_d.o:
 	$(CC) $(CCFLAGS) $(DEFS) -DXCL_DEBUG $(INCS) -c $*.c -o $*_d.o
 
+oclcall.o: oclcall.master
+	perl gen_call_tables.pl
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c oclcall.c
 
-libocl.so: $(OBJS) $(RT_OBJS)
+libocl.so: oclcall.o $(OBJS) $(RT_OBJS)
 	$(CC) $(CCFLAGS) $(INCS) \
 		-shared -Wl,-soname,libocl.so -o libocl.so  $(OBJS) $(LIBS)
 
@@ -116,6 +118,7 @@ uninstall:
 
 clean:
 	rm -f *.o *.so
+	rm -f oclcall.h oclcall.c
 
 distclean: clean
 
