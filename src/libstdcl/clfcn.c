@@ -462,20 +462,28 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 				DEBUG2("clopen: checking %d binaries ...",p->e_nprgbin);
 
-				int nb;
-				struct clprgbin_entry* pb = sect->clprgbin + p->e_prgbin;
-				for(nb=0; nb < p->e_nprgbin; nb++,pb++ ) {
-					for(m=0;m<cp->ndev; m++) {
+				for(m=0;m<cp->ndev; m++) {
+
+					int nb;
+					struct clprgbin_entry* pb = sect->clprgbin + p->e_prgbin;
+					for(nb=0; nb < p->e_nprgbin; nb++,pb++ ) {
+
 						DEBUG2("clopen: test |%s|%s|",di[m].dev_name,
 							sect->clstrtab + pb->e_device);
+
 						if (!strncmp(di[m].dev_name,
 							sect->clstrtab+pb->e_device,256)) {
 								bin[m] = sect->cltextbin + pb->e_offset;
 								bin_sz[m] = pb->e_size;
 								++nbin;
+								break;
 						}
+
 					}
+
 				}
+
+				DEBUG2("clopen: nbin=%d ndev=%d",nbin,cp->ndev);
 
 				if (nbin == cp->ndev) {
 
