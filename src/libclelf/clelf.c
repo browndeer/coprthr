@@ -83,7 +83,10 @@ char* platform_name_string[] = {
 };
 
 char* device_name_alias[][2] = {
-	"Intel(R) Core(TM)","x86_64"
+	"Intel(R) Core","x86_64",
+	"Intel(R) Xeon","x86_64",
+	"AMD Athlon","x86_64",
+	"AMD Phenom","x86_64"
 };
 
 int clelf_device_name_alias( char* dname )
