@@ -822,6 +822,37 @@ DEBUG2("after");
 				DEBUG2("se (%d %d) (%d %d) (%d %d)",
 					pselect,pexclude,dselect,dexclude,select,exclude);
 
+
+				size_t alias_offset = 0;
+
+				unsigned int n;
+
+				for(n=data.clprgbin_n - nprgbin; n<data.clprgbin_n; n++) {
+
+					char* name = data.clstrtab_str + data.clprgbin[n].e_device;
+
+					if (!strcasecmp(device_name,name)) {
+						exclude = 1;
+						DEBUG2("exclude bin for identical device |%s|%s|",
+							device_name,name);
+						break;
+					}
+
+					size_t offset = data.clprgbin[n].e_offset;
+					size_t size = data.clprgbin[n].e_size;
+					char* p = data.cltextbin_buf + offset;
+
+					if (sect.clprgbin[k].e_size != size) continue;
+
+					if (!memcmp(sect.cltextbin + sect.clprgbin[k].e_offset,p,size)) {
+						alias_offset = offset;
+						DEBUG2("alias bin for device |%s|%s|",
+							device_name,name);
+						break;
+					}
+						
+				}
+
 				if (select && !exclude) {
 
 					if (!quiet) printf("clld: '%s' bin [%s:%s]\n",name,
@@ -843,26 +874,48 @@ DEBUG2("after");
 
    				data.clprgbin[data.clprgbin_n].e_shndx = -1;
 
-   				data.clprgbin[data.clprgbin_n].e_offset 
-						= (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
-   				data.clprgbin[data.clprgbin_n].e_size = sect.clprgbin[k].e_size;
+					if (alias_offset) {
+
+	   				data.clprgbin[data.clprgbin_n].e_offset = alias_offset;
+
+						data.clprgbin[data.clprgbin_n].e_size
+							= sect.clprgbin[k].e_size;
+
+					} else {
+
+	   				data.clprgbin[data.clprgbin_n].e_offset 
+							= (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
+
+  	 					data.clprgbin[data.clprgbin_n].e_size 
+							= sect.clprgbin[k].e_size;
+
+//   					++data.clprgbin_n;
+
+						size_t offset 
+							= (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
+
+						size_t s = offset + sect.clprgbin[k].e_size;
+
+						while (s > data.cltextbin_buf_alloc) {
+
+     						data.cltextbin_buf_alloc += DEFAULT_BUF_ALLOC;
+
+     						data.cltextbin_buf = realloc(data.cltextbin_buf,
+								data.cltextbin_buf_alloc);
+
+     						data.cltextbin_bufp = data.cltextbin_buf + offset;
+
+   					}
+
+						memcpy(data.cltextbin_bufp,
+							sect.cltextbin + sect.clprgbin[k].e_offset,
+							sect.clprgbin[k].e_size);
+
+         			data.cltextbin_bufp += sect.clprgbin[k].e_size;
+
+					}
 
    				++data.clprgbin_n;
-
-					size_t offset = (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
-
-					while (offset + sect.clprgbin[k].e_size > data.cltextbin_buf_alloc) {
-     					data.cltextbin_buf_alloc += DEFAULT_BUF_ALLOC;
-     					data.cltextbin_buf = realloc(data.cltextbin_buf,
-							data.cltextbin_buf_alloc);
-     					data.cltextbin_bufp = data.cltextbin_buf + offset;
-   				}
-
-					memcpy(data.cltextbin_bufp,sect.cltextbin + sect.clprgbin[k].e_offset,
-						sect.clprgbin[k].e_size);
-
-         		data.cltextbin_bufp += sect.clprgbin[k].e_size;
-
 					++nprgbin;
 
 				}
