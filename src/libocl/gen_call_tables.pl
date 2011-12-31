@@ -83,10 +83,11 @@ open(OUT, ">oclcall.c");
 printf OUT "\n#include <stdio.h>\n";
 printf OUT "\n#include <CL/cl.h>\n";
 printf OUT "#include \"oclcall.h\"\n";
+printf OUT "#include \"util.h\"\n";
 
 printf OUT "\nstatic void _ocl_no_implementation()\n";
 printf OUT "{\n";
-printf OUT "\tfprintf(stderr,\"libocl: fatal error: \"\n";
+printf OUT "\tERROR2(\"libocl: fatal error: \"\n";
 printf OUT "\t\t\" platform provides no implementation for this call\\n\");\n";
 printf OUT "\texit(-1);\n";
 printf OUT "}\n";
@@ -150,23 +151,59 @@ foreach $l (@lines) {
 			if ($type == 0) {
 
 				printf OUT "\n$retype $name($atlist)\n{\n";
-				printf OUT "\tvoid** cv = *(void***)a0;\n";
+				printf OUT "\tDEBUG2(\"$name:\");\n";
+				printf OUT "\tstruct oclent_struct* oclent \n";
+				printf OUT "\t\t= *(struct oclent_struct**)a0;\n";
+				printf OUT "\tDEBUG2(\"\toclent=%%p\",oclent);\n";
 
 				printf OUT "\ttypedef $retype (*pf_t) ($tlist);\n";
 
-				printf OUT "\t$retype rv = ((pf_t)(cv[OCLCALL_$name\]))($alist);\n";
+				printf OUT "\t$retype rv \n";
+				printf OUT "\t\t= ((pf_t)(oclent[OCLCALL_$name\].ocl_call))($alist);\n";
 				printf OUT "\treturn rv;\n";	
 				printf OUT "}\n\n";
 
 			} elsif ($type == 1) {
 
 				printf OUT "\n$retype $name($atlist)\n{\n";
-				printf OUT "\tvoid** cv = *(void***)a0;\n";
+				printf OUT "\tDEBUG2(\"$name:\");\n";
+				printf OUT "\tstruct oclent_struct* oclent \n";
+				printf OUT "\t\t= *(struct oclent_struct**)a0;\n";
+				printf OUT "\tDEBUG2(\"\toclent=%%p\",oclent);\n";
 
 				printf OUT "\ttypedef $retype (*pf_t) ($tlist);\n";
 
-				printf OUT "\t$retype rv = ((pf_t)(cv[OCLCALL_$name\]))($alist);\n";
-				printf OUT "\t*(void***)rv = cv;\n";
+				printf OUT "\t$retype rv \n";
+				printf OUT "\t\t= ((pf_t)(oclent[OCLCALL_$name\].ocl_call))($alist);\n";
+				printf OUT "\t*(void***)rv = (void**)oclent;\n";
+				printf OUT "\treturn rv;\n";	
+				printf OUT "}\n\n";
+
+			} elsif ($type == 2) {
+
+				for($k=0; $k < $#args+1; $k+=1 ) {
+					if ($args[$k] =~ /^cl_event\*$/) { last; }
+				}
+
+				if ($k == $#args + 1) {
+					print "internal error: cannot find cl_event* argument\n";
+					print "$name\n";
+					print "$k\n";
+					exit;
+				}
+
+				printf OUT "\n$retype $name($atlist)\n{\n";
+				printf OUT "\tDEBUG2(\"$name:\");\n";
+				printf OUT "\tstruct oclent_struct* oclent \n";
+				printf OUT "\t\t= *(struct oclent_struct**)a0;\n";
+				printf OUT "\tDEBUG2(\"\toclent=%%p\",oclent);\n";
+
+				printf OUT "\ttypedef $retype (*pf_t) ($tlist);\n";
+
+				printf OUT "\t$retype rv \n";
+				printf OUT "\t\t= ((pf_t)(oclent[OCLCALL_$name\].ocl_call))($alist);\n";
+#				printf OUT "\t*(void***)rv = (void**)oclent;\n";
+				printf OUT "\t*(void***)(*a$k) = (void**)oclent;\n";
 				printf OUT "\treturn rv;\n";	
 				printf OUT "}\n\n";
 
@@ -176,79 +213,6 @@ foreach $l (@lines) {
 		}
 	}
 }
-
-printf OUT "\ncl_int clUnloadCompiler(void)\n";
-printf OUT "{ return (cl_int)CL_SUCCESS; }\n";
-
-# custom
-
-printf OUT "\ncl_context clCreateContext(\n";
-printf OUT "\tconst cl_context_properties* a0,\n";
-printf OUT "\tcl_uint a1,const cl_device_id* a2,\n";
-printf OUT "\tcl_pfn_notify_t a3,void* a4,cl_int* a5\n";
-printf OUT ")\n";
-printf OUT "{\n";
-printf OUT "\tcl_context_properties* p = (cl_context_properties*)a0;\n";
-printf OUT "\tint n=0;\n";
-printf OUT "\tfor(;*p != 0 && n<256; p+=2,n++)\n";
-printf OUT "\t\tif (*p == CL_CONTEXT_PLATFORM) { ++p; break; }\n";
-printf OUT "\tif (*p==0 || n==256) return (cl_context)0;\n";
-printf OUT "\tvoid** cv = *(void***)(*p);\n";
-printf OUT "\ttypedef cl_context (*pf_t) (const cl_context_properties*,\n";
-printf OUT "\t\tcl_uint,const cl_device_id*,cl_pfn_notify_t,void*,cl_int*);\n";
-printf OUT "\tcl_context rv \n";
-printf OUT "\t\t= ((pf_t)(cv[OCLCALL_clCreateContext]))(a0,a1,a2,a3,a4,a5);\n";
-printf OUT "\t*(void***)rv = cv;\n";
-printf OUT "\treturn rv;\n";
-printf OUT "}\n";
-
-printf OUT "\ncl_context clCreateContextFromType(\n";
-printf OUT "\tconst cl_context_properties* a0,\n";
-printf OUT "\tcl_device_type a1,cl_pfn_notify_t a2,void* a3,cl_int* a4\n";
-printf OUT ")\n";
-printf OUT "{\n";
-printf OUT "\tcl_context_properties* p = (cl_context_properties*)a0;\n";
-printf OUT "\tint n=0;\n";
-printf OUT "\tfor(;*p != 0 && n<256; p+=2,n++)\n";
-printf OUT "\t\tif (*p == CL_CONTEXT_PLATFORM) { ++p; break; }\n";
-printf OUT "\tif (*p==0 || n==256) return (cl_context)0;\n";
-printf OUT "\tvoid** cv = *(void***)(*p);\n";
-printf OUT "\ttypedef cl_context (*pf_t) (const cl_context_properties*,\n";
-printf OUT "\t\tcl_device_type,cl_pfn_notify_t,void*,cl_int*);\n";
-printf OUT "\tcl_context rv \n";
-printf OUT "\t\t= ((pf_t)(cv[OCLCALL_clCreateContextFromType]))(a0,a1,a2,a3,a4);\n";
-printf OUT "\t*(void***)rv = cv;\n";
-printf OUT "\treturn rv;\n";
-printf OUT "}\n";
-
-printf OUT "\ncl_int clWaitForEvents(\n";
-printf OUT "\tcl_uint a0,const cl_event* a1\n";
-printf OUT ")\n";
-printf OUT "{\n";
-printf OUT "\tif (a0<1) return CL_INVALID_VALUE;\n";
-printf OUT "\tif (a1=0) return CL_INVALID_EVENT;\n";
-printf OUT "\tvoid** cv = *(void***)(*a1);\n";
-printf OUT "\ttypedef cl_int (*pf_t) (cl_uint,const cl_event*);\n";
-printf OUT "\tcl_int rv \n";
-printf OUT "\t\t= ((pf_t)(cv[OCLCALL_clWaitForEvents]))(a0,a1);\n";
-printf OUT "\treturn rv;\n";
-printf OUT "}\n";
-
-printf OUT "/*\n";
-
-printf OUT "\ncl_int clCreateKernelsInProgram(\n";
-printf OUT "\tcl_program a0,cl_uint a1,cl_kernel* a2,cl_uint* a3\n";
-printf OUT ")\n";
-printf OUT "{\n";
-printf OUT "\tvoid** cv = *(void***)a0;\n";
-printf OUT "\ttypedef cl_int (*pf_t) (cl_program,cl_uint,cl_kernel*,cl_uint*);\n";
-printf OUT "\tcl_int rv = ((pf_t)(cv[OCLCALL_clCreateKernelsInProgram]))(a0,a1,a2,a3);\n";
-printf OUT "\tint n=0;\n";
-printf OUT "\tfor(n=0;n<a1;n++,a2++) *(void***)(*a2) = cv;\n";
-printf OUT "\treturn rv;\n";
-printf OUT "}\n";
-
-printf OUT "*/\n";
 
 close(OUT);
 

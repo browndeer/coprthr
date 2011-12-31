@@ -26,12 +26,12 @@ INSTALL_MAN_DIR=@mandir@
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
-OBJS = libocl.o oclcall.o
+OBJS = libocl.o oclcall.o 
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 
 #ifeq (@ENABLE_DEBUG_LIBS@,1)
-#DEFS += -DLIBOCL_DEBUG 
+#DEFS += -DOCL_DEBUG 
 #endif
 
 ######################################################################
@@ -65,9 +65,9 @@ CCFLAGS_VCORE_RT = -O1 -fPIC -funroll-loops -fstrict-aliasing
 
 
 TARGET = libocl.so $(RT_OBJS) 
-#ifeq ($(ENABLE_DEBUG_LIBCOPRTHR),1)
+ifeq (@ENABLE_DEBUG_LIBS@,1)
 TARGET += libocl_d.so
-#endif
+endif
 
 all: $(TARGET) 
 
@@ -86,7 +86,7 @@ all: $(TARGET)
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
 %_d.o:
-	$(CC) $(CCFLAGS) $(DEFS) -DXCL_DEBUG $(INCS) -c $*.c -o $*_d.o
+	$(CC) $(CCFLAGS) $(DEFS) -DOCL_DEBUG $(INCS) -c $*.c -o $*_d.o
 
 oclcall.o: oclcall.master
 	perl gen_call_tables.pl
@@ -111,10 +111,14 @@ install:
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	install -m 755 libocl.so $(INSTALL_LIB_DIR)
 	install -m 755 libocl_d.so $(INSTALL_LIB_DIR)
-#	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so
+	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so
+#ifeq ($(ENABLE_DEBUG_LIBCOPRTHR),1)
+	ln -sf $(INSTALL_LIB_DIR)/libocl_d.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
+#endif
 
 uninstall: 
 	rm -f $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libocl_d.so
+	rm -f $(INSTALL_LIB_DIR)/libOpenCL.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
 
 clean:
 	rm -f *.o *.so

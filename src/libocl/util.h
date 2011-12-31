@@ -20,16 +20,16 @@
 #endif
 
 
-#ifdef XCL_DEBUG
+#ifdef OCL_DEBUG
 
 #define DEBUG(f,l,msg,...)  do { \
-	fprintf(stderr,"[%d]xcl: debug: %s(%d): " msg "\n", \
+	fprintf(stderr,"[%d]ocl: debug: %s(%d): " msg "\n", \
 		getpid(),f,l,##__VA_ARGS__); \
 	fflush(stderr); \
 	} while(0)
 
 #define DEBUG2(msg,...)  do { \
-	fprintf(stderr, "[%d]xcl: debug: %s(%d): " msg "\n", \
+	fprintf(stderr, "[%d]ocl: debug: %s(%d): " msg "\n", \
 		getpid(),__FILE__,__LINE__,##__VA_ARGS__); \
 	fflush(stderr); \
 	} while(0)
@@ -43,18 +43,18 @@
 #endif
 
 
-#if defined(XCL_WARN) || defined(XCL_DEBUG)
+#if defined(OCL_WARN) || defined(OCL_DEBUG)
 
 //#define WARN(f,l,msg)  \
-//	fprintf(stderr,"xcl: warning: %s(%d): " msg "\n",f,l); 
+//	fprintf(stderr,"ocl: warning: %s(%d): " msg "\n",f,l); 
 #define WARN(f,l,msg,...)  do { \
-	fprintf(stderr,"[%d]xcl: warning: %s(%d): " msg "\n", \
+	fprintf(stderr,"[%d]ocl: warning: %s(%d): " msg "\n", \
 		getpid(),f,l,##__VA_ARGS__); \
 	fflush(stderr); \
 	} while (0)
 
 #define WARN2(msg,...)  do { \
-	fprintf(stderr,"[%d]xcl: warning: %s(%d): " msg "\n", \
+	fprintf(stderr,"[%d]ocl: warning: %s(%d): " msg "\n", \
 		getpid(),__FILE__,__LINE__,##__VA_ARGS__); \
 	fflush(stderr); \
 	} while (0)
@@ -69,15 +69,15 @@
 
 
 //#define ERROR(f,l,msg) \
-//	fprintf(stderr,"xcl: error: %s(%d): " msg "\n",f,l); 
+//	fprintf(stderr,"ocl: error: %s(%d): " msg "\n",f,l); 
 #define ERROR(f,l,msg,...)  do { \
-	fprintf(stderr,"[%d]xcl: warning: %s(%d): " msg "\n", \
+	fprintf(stderr,"[%d]ocl: warning: %s(%d): " msg "\n", \
 		getpid(),f,l,##__VA_ARGS__); \
 	fflush(stderr); \
 	} while(0)
 
 #define ERROR2(msg,...)  do { \
-	fprintf(stderr,"[%d]xcl: warning: %s(%d): " msg "\n", \
+	fprintf(stderr,"[%d]ocl: warning: %s(%d): " msg "\n", \
 		getpid(),__FILE__,__LINE__,##__VA_ARGS__); \
 	fflush(stderr); \
 	} while(0)

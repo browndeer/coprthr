@@ -17,7 +17,7 @@ ifeq (@ENABLE_LIBCOPRTHR@,1)
 SUBDIRS += ./src/libcoprthr ./tools/xclnm
 endif
 
-SUBDIRS += ./include ./src/libclelf ./src/libstdcl 
+SUBDIRS += ./include ./src/libclelf ./src/libocl ./src/libstdcl 
 
 ifeq (@ENABLE_CLLD@,1)
 SUBDIRS += ./tools/clcc ./tools/clcc1 ./tools/clld ./tools/clnm

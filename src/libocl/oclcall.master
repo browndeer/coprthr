@@ -21,20 +21,21 @@
 
 # call types:
 #	0	generic
-#	1	smash_pointer
-#	2	custom
+#	1	smash pointer on returned object
+#	2	smash pointer on implicitly created event
+#	3	custom
 
 # <name>		<type>	<args>
 
-clGetPlatformIDs				2	cl_int	cl_uint,cl_platform_id*,cl_uint*
+clGetPlatformIDs				3	cl_int	cl_uint,cl_platform_id*,cl_uint*
 clGetPlatformInfo				0	cl_int	cl_platform_id,cl_platform_info,size_t,void*,size_t* 
-clGetDeviceIDs					0	cl_int	cl_platform_id,cl_device_type,cl_uint,cl_device_id*,cl_uint* 
+clGetDeviceIDs					3	cl_int	cl_platform_id,cl_device_type,cl_uint,cl_device_id*,cl_uint* 
 clGetDeviceInfo				0	cl_int	cl_device_id,cl_device_info,size_t,void*,size_t* 
-clCreateContext				2	cl_context	const~cl_context_properties*,cl_uint,const~cl_device_id*,cl_pfn_notify_t,void*,cl_int* 
-clCreateContextFromType		2	cl_context	const~cl_context_properties*,cl_device_type,cl_pfn_notify_t,void*,cl_int* 
+clCreateContext				3	cl_context	const~cl_context_properties*,cl_uint,const~cl_device_id*,cl_pfn_notify_t,void*,cl_int* 
+clCreateContextFromType		3	cl_context	const~cl_context_properties*,cl_device_type,cl_pfn_notify_t,void*,cl_int* 
 clRetainContext				0	cl_int	cl_context 
 clReleaseContext				0	cl_int	cl_context 
-clGetContextInfo				0	cl_int	cl_context,cl_context_info,size_t,void*,size_t* 
+clGetContextInfo				3	cl_int	cl_context,cl_context_info,size_t,void*,size_t* 
 clCreateCommandQueue			1	cl_command_queue	cl_context,cl_device_id,cl_command_queue_properties,cl_int* 
 clRetainCommandQueue			0	cl_int	cl_command_queue
 clReleaseCommandQueue		0	cl_int	cl_command_queue
@@ -57,40 +58,40 @@ clCreateProgramWithBinary	1	cl_program	cl_context,cl_uint,const~cl_device_id*,co
 clRetainProgram				0	cl_int	cl_program
 clReleaseProgram				0	cl_int	cl_program
 clBuildProgram					0	cl_int	cl_program,cl_uint,const~cl_device_id*,const~char*,cl_pfn_notify2_t,void* 
-clUnloadCompiler				2	cl_int	void
+clUnloadCompiler				3	cl_int	void
 clGetProgramInfo				0	cl_int	cl_program,cl_program_info,size_t,void*,size_t* 
 clGetProgramBuildInfo		0	cl_int	cl_program,cl_device_id,cl_program_build_info,size_t,void*,size_t*
 clCreateKernel					1	cl_kernel	cl_program,const~char*,cl_int* 
-clCreateKernelsInProgram	2	cl_int	cl_program,cl_uint,cl_kernel*,cl_uint* 
+clCreateKernelsInProgram	3	cl_int	cl_program,cl_uint,cl_kernel*,cl_uint* 
 clRetainKernel					0	cl_int	cl_kernel
 clReleaseKernel				0	cl_int	cl_kernel
 clSetKernelArg					0	cl_int	cl_kernel,cl_uint,size_t,const~void* 
 clGetKernelInfo				0	cl_int	cl_kernel,cl_kernel_info,size_t,void*,size_t* 
 clGetKernelWorkGroupInfo	0	cl_int	cl_kernel,cl_device_id,cl_kernel_work_group_info,size_t,void*,size_t* 
-clWaitForEvents				2	cl_int	cl_uint,const~cl_event* 
+clWaitForEvents				3	cl_int	cl_uint,const~cl_event* 
 clGetEventInfo					0	cl_int	cl_event,cl_event_info,size_t,void*,size_t* 
 clRetainEvent					0	cl_int	cl_event
 clReleaseEvent					0	cl_int	cl_event
 clGetEventProfilingInfo		0	cl_int	cl_event,cl_profiling_info,size_t,void*,size_t* 
 clFlush							0	cl_int	cl_command_queue
 clFinish							0	cl_int	cl_command_queue
-clEnqueueReadBuffer			0	cl_int	cl_command_queue,cl_mem,cl_bool,size_t,size_t,void*,cl_uint,const~cl_event*,cl_event*
-clEnqueueWriteBuffer			0	cl_int	cl_command_queue,cl_mem,cl_bool,size_t,size_t,const~void*,cl_uint,const~cl_event*,cl_event* 
-clEnqueueCopyBuffer			0	cl_int	cl_command_queue,cl_mem,cl_mem,size_t,size_t,size_t,cl_uint,const~cl_event*,cl_event* 
-clEnqueueReadImage			0	cl_int	cl_command_queue,cl_mem,cl_bool,const~size_t*,const~size_t*,size_t,size_t,void*,cl_uint,const~cl_event*,cl_event* 
-clEnqueueWriteImage			0	cl_int	cl_command_queue,cl_mem,cl_bool,const~size_t*,const~size_t*,size_t,size_t,const~void*,cl_uint,const~cl_event*,cl_event* 
-clEnqueueCopyImage			0	cl_int	cl_command_queue,cl_mem,cl_mem,const~size_t*,const~size_t*,const~size_t*,cl_uint,const~cl_event*,cl_event* 
-clEnqueueCopyImageToBuffer	0	cl_int	cl_command_queue,cl_mem,cl_mem,const~size_t*,const~size_t*,size_t,cl_uint,const~cl_event*,cl_event* 
-clEnqueueCopyBufferToImage	0	cl_int	cl_command_queue,cl_mem,cl_mem,size_t,const~size_t*,const~size_t*,cl_uint,const~cl_event*,cl_event* 
-clEnqueueMapBuffer			0	void*		cl_command_queue,cl_mem,cl_bool,cl_map_flags,size_t,size_t,cl_uint,const~cl_event*,cl_event*,cl_int*
-clEnqueueMapImage				0	void*		cl_command_queue,cl_mem,cl_bool,cl_map_flags,const~size_t*,const~size_t*,size_t*,size_t*,cl_uint,const~cl_event*,cl_event*,cl_int* 
-clEnqueueUnmapMemObject		0	cl_int	cl_command_queue,cl_mem,void*,cl_uint,const~cl_event*,cl_event* 
-clEnqueueNDRangeKernel		0	cl_int	cl_command_queue,cl_kernel,cl_uint,const~size_t*,const~size_t*,const~size_t*,cl_uint,const~cl_event*,cl_event* 
-clEnqueueTask					0	cl_int	cl_command_queue,cl_kernel,cl_uint,const~cl_event*,cl_event* 
-clEnqueueNativeKernel		0	cl_int	cl_command_queue,cl_user_func_t,void*,size_t,cl_uint,const~cl_mem*,const~void**,cl_uint,const~cl_event*,cl_event* 
-clEnqueueMarker				0	cl_int	cl_command_queue,cl_event* 
+clEnqueueReadBuffer			2	cl_int	cl_command_queue,cl_mem,cl_bool,size_t,size_t,void*,cl_uint,const~cl_event*,cl_event*
+clEnqueueWriteBuffer			2	cl_int	cl_command_queue,cl_mem,cl_bool,size_t,size_t,const~void*,cl_uint,const~cl_event*,cl_event* 
+clEnqueueCopyBuffer			2	cl_int	cl_command_queue,cl_mem,cl_mem,size_t,size_t,size_t,cl_uint,const~cl_event*,cl_event* 
+clEnqueueReadImage			2	cl_int	cl_command_queue,cl_mem,cl_bool,const~size_t*,const~size_t*,size_t,size_t,void*,cl_uint,const~cl_event*,cl_event* 
+clEnqueueWriteImage			2	cl_int	cl_command_queue,cl_mem,cl_bool,const~size_t*,const~size_t*,size_t,size_t,const~void*,cl_uint,const~cl_event*,cl_event* 
+clEnqueueCopyImage			2	cl_int	cl_command_queue,cl_mem,cl_mem,const~size_t*,const~size_t*,const~size_t*,cl_uint,const~cl_event*,cl_event* 
+clEnqueueCopyImageToBuffer	2	cl_int	cl_command_queue,cl_mem,cl_mem,const~size_t*,const~size_t*,size_t,cl_uint,const~cl_event*,cl_event* 
+clEnqueueCopyBufferToImage	2	cl_int	cl_command_queue,cl_mem,cl_mem,size_t,const~size_t*,const~size_t*,cl_uint,const~cl_event*,cl_event* 
+clEnqueueMapBuffer			2	void*		cl_command_queue,cl_mem,cl_bool,cl_map_flags,size_t,size_t,cl_uint,const~cl_event*,cl_event*,cl_int*
+clEnqueueMapImage				2	void*		cl_command_queue,cl_mem,cl_bool,cl_map_flags,const~size_t*,const~size_t*,size_t*,size_t*,cl_uint,const~cl_event*,cl_event*,cl_int* 
+clEnqueueUnmapMemObject		2	cl_int	cl_command_queue,cl_mem,void*,cl_uint,const~cl_event*,cl_event* 
+clEnqueueNDRangeKernel		2	cl_int	cl_command_queue,cl_kernel,cl_uint,const~size_t*,const~size_t*,const~size_t*,cl_uint,const~cl_event*,cl_event* 
+clEnqueueTask					2	cl_int	cl_command_queue,cl_kernel,cl_uint,const~cl_event*,cl_event* 
+clEnqueueNativeKernel		2	cl_int	cl_command_queue,cl_user_func_t,void*,size_t,cl_uint,const~cl_mem*,const~void**,cl_uint,const~cl_event*,cl_event* 
+clEnqueueMarker				2	cl_int	cl_command_queue,cl_event* 
 clEnqueueWaitForEvents		0	cl_int	cl_command_queue,cl_uint,const~cl_event* 
 clEnqueueBarrier				0	cl_int	cl_command_queue
-reserved							2	void		void	
-reserved							2	void		void
+reserved							3	void		void	
+reserved							3	void		void
 
