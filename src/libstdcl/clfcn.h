@@ -84,7 +84,7 @@ extern "C" {
 #endif
 
 LIBSTDCL_API void* clload( CONTEXT* cp, void* ptr, size_t sz, int flags );
-LIBSTDCL_API void* clloadb( CONTEXT* cp, int nbin, char** bin, size_t bin_sz, 
+LIBSTDCL_API void* clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, 
 	int flags );
 LIBSTDCL_API void* clbuild( CONTEXT* cp, void* handle, char* options, 
 	int flags );

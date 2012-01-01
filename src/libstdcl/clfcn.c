@@ -109,7 +109,7 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 
 
 LIBSTDCL_API void* 
-clloadb( CONTEXT* cp, int nbin, char** bin, size_t bin_sz, int flags )
+clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 {
 	int n;
 	int err;
@@ -153,7 +153,7 @@ clloadb( CONTEXT* cp, int nbin, char** bin, size_t bin_sz, int flags )
 	cl_int* bin_stat = (cl_int*)calloc(sizeof(cl_int),cp->ndev);
 
 	txt->prg = clCreateProgramWithBinary(cp->ctx,cp->ndev,cp->dev,
-		bin_sz,bin,bin_stat,&err);
+		bin_sz,(const unsigned char**)bin,bin_stat,&err);
 
 	DEBUG2("clloadb: err from clCreateProgramWithBinary %d (%p)",err,txt->prg);
 
@@ -273,6 +273,10 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 		strcat(opts," -D __NVIDIA__");
 	else if (!strcasecmp(cp->platform_vendor,"Brown Deer Technology, LLC.")) 
 		strcat(opts," -D __coprthr__");
+
+#ifdef DEFAULT_STDCL_INCLUDE
+	strcat(opts," -I" DEFAULT_STDCL_INCLUDE " -D __stdcl_kernel__ ");
+#endif
 
 	char cwd[1024];
 	if ( getcwd(cwd,1024) ) {
@@ -502,7 +506,8 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 						/* XXX here we only take first source for now -DAR */
 
-						struct clprgbin_entry* ps = sect->clprgsrc + p->e_prgsrc;
+//						struct clprgbin_entry* ps = sect->clprgsrc + p->e_prgsrc;
+						struct clprgsrc_entry* ps = sect->clprgsrc + p->e_prgsrc;
 						ptr = sect->cltextsrc + ps->e_offset;
 						len = ps->e_size;
 

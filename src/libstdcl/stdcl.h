@@ -23,6 +23,8 @@
 #ifndef _STDCL_H
 #define _STDCL_H
 
+#if !defined(__OPENCL_VERSION__) || !defined(__stdcl_kernel__)
+
 #define __STDCL__
 
 #ifdef _WIN64
@@ -177,6 +179,20 @@ inline void clarg_set_local(cl_kernel krn, unsigned int argnum, size_t arg)
 #endif
 
 #include "clforka.h"
+
+#elif defined(__STDCL__) && defined(__stdcl_kernel__)
+
+
+#define __builtin_vector_int2(x,y)        (int2)(x,y)
+#define __builtin_vector_int4(x,y,z,w)    (int4)(x,y,z,w)
+#define __builtin_vector_uint2(x,y)       (uint2)(x,y)
+#define __builtin_vector_uint4(x,y,z,w)   (uint4)(x,y,z,w)
+#define __builtin_vector_float2(x,y)      (float2)(x,y)
+#define __builtin_vector_float4(x,y,z,w)  (float4)(x,y,z,w)
+#define __builtin_vector_double2(x,y)     (double2)(x,y)
+
+
+#endif
 
 #endif
 
