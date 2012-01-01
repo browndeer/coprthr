@@ -332,6 +332,17 @@ echo "tmp_intel_sdk = " $tmp_intel_sdk
 echo "tmp_intel_include = " $tmp_intel_include
 echo "tmp_intel_lib = " $tmp_intel_lib
 
+
+### XXX consider making bootstrap mode a single test -DAR
+if test -z $DEFAULT_OPENCL_PLATFORM; then
+	if test x$enable_libcoprthr = xyes; then
+		DEFAULT_OPENCL_PLATFORM=coprthr;
+		echo no default OpenCL platform, libcoprthr enabled, using bootstrap;
+	else
+		AC_MSG_ERROR([no default OpenCL platform, try --enable-libcoprthr])
+	fi
+fi
+
 if test -z $OPENCL_INCLUDE; then
 	if test x$enable_libcoprthr = xyes; then
 		OPENCL_INCLUDE=$PWD/include;
