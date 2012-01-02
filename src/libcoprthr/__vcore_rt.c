@@ -41,6 +41,7 @@ typedef unsigned int uint;
  * intrinsics called from kernels
  */
 
+/*
 void barrier( int flags )
 {
 	struct vc_data* data;
@@ -48,6 +49,7 @@ void barrier( int flags )
 	if (!(__vc_setjmp(*(data->this_jbufp)))) 
 		__vc_longjmp(*(data->next_jbufp),flags);
 }
+*/
 
 uint get_work_dim() { return((__getvcdata())->workp->tdim); }
 

@@ -122,16 +122,14 @@ static __inline void barrier( int flags )
 }
 */
 //#define barrier(a)
-void barrier( int flags );
+//void barrier( int flags );
 
-/*
 #define barrier(flags) do { \
    struct vc_data* data;\
    __setvcdata(data);\
    if (!(__vc_setjmp(*(data->this_jbufp))))\
       __vc_longjmp(*(data->next_jbufp),flags);\
 } while(0)
-*/
 
 
 }
