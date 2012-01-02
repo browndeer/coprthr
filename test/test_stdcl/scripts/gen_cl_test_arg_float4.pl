@@ -24,6 +24,7 @@ for($c=0;$c<10;++$c) {
 	for($a=1;$a<$c;++$a) {
 		$b=$c-$a;
 		printf "\n/* $b=$c-$a */\n";
+		printf "\n#include <stdcl.h>\n";
 		printf "__kernel void\n";
 		printf "test_arg_".$a."_".$b."_kern(\n";
 		for($i=0;$i<$a;++$i) {
