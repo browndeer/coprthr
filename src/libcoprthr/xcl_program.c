@@ -246,6 +246,8 @@ clBuildProgram(
 			DEBUG(__FILE__,__LINE__,
 				"compiler avail %d",__do_check_compiler_available(devices[j]));
 
+			if (options) prg->build_options[j] = options;
+
 			err = __do_build_program_from_source(prg,devid,j);
 
 		} else {

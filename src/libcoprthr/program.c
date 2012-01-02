@@ -362,6 +362,8 @@ cl_int __do_build_program_from_source(
 
 	/* XXX should optimize JIT by checking for device equivalence -DAR */
 
+	DEBUG2("build_options[%d] |%s|",devnum,prg->build_options[devnum]);
+
 	struct _elf_data* edata = (struct _elf_data*)comp(
 		devid,
 		prg->src,prg->src_sz,
