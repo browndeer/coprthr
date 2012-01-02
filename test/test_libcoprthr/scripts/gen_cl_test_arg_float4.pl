@@ -20,6 +20,8 @@
 
 # DAR #
 
+printf "\n#include <stdcl.h>\n";
+
 for($c=0;$c<10;++$c) {
 	for($a=1;$a<$c;++$a) {
 		$b=$c-$a;
