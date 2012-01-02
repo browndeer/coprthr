@@ -1,4 +1,4 @@
-/* stdcl.h
+/* stdcl_kernel.h
  *
  * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -21,23 +21,13 @@
 /* DAR */
 
 #ifndef _STDCL_H
-#define _STDCL_H
-
-
-#if defined(__OPENCL_VERSION__) 
-
-#include "stdcl_kernel_openclcompat.h"
-
-#elif defined(__STDCL_KERNEL_VERSION__) && __STDCL_KERNEL_VERSION__ >=  020000
-
-#include "stdcl_kernel.h"
-
-#else
-
-#include "stdcl_host.h"
-
+#error Do not include stdcl_kernel.h directly, include stdcl.h instead.
 #endif
 
+#ifndef _STDCL_KERNEL_H
+#define _STDCL_KERNEL_H
+
+/* reserved for future use */
 
 #endif
 

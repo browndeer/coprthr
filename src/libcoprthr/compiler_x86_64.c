@@ -244,6 +244,11 @@ void* compile_x86_64(
 	FILE* fp;
 	char line[1024];
 
+	char default_opt[] = "";
+	if (!opt) opt = default_opt;
+
+	DEBUG2("opt |%s|",opt);
+
 #ifdef __XCL_TEST
 	char wdtemp[] = "./";
 	char filebase[] 	= "XXXXXX";
@@ -346,8 +351,12 @@ void* compile_x86_64(
 //				__command("cd %s; gcc -O1 -msse -fPIC -c -g %s.cpp 2>&1",
 				__command(
 					"cd %s; "
-					CC_COMPILER CCFLAGS_OCL " -msse -fPIC -c -g %s.cpp 2>&1",
-					wd,filebase); 
+					CC_COMPILER CCFLAGS_OCL 
+					" -I" INSTALL_INCLUDE_DIR 
+					" -D __STDCL_KERNEL_VERSION__=020000"
+					" %s "
+					" -msse -fPIC -c -g %s.cpp 2>&1",
+					wd,opt,filebase); 
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
 

@@ -1,4 +1,4 @@
-/* stdcl.h
+/* stdcl_kernel_openclcompat.h
  *
  * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -21,23 +21,19 @@
 /* DAR */
 
 #ifndef _STDCL_H
-#define _STDCL_H
-
-
-#if defined(__OPENCL_VERSION__) 
-
-#include "stdcl_kernel_openclcompat.h"
-
-#elif defined(__STDCL_KERNEL_VERSION__) && __STDCL_KERNEL_VERSION__ >=  020000
-
-#include "stdcl_kernel.h"
-
-#else
-
-#include "stdcl_host.h"
-
+#error Do not include stdcl_kernel_openclcompat.h directly, include stdcl.h instead.
 #endif
 
+#ifndef _STDCL_KERNEL_OPENCLCOMPAT_H
+#define _STDCL_KERNEL_OPENCLCOMPAT_H
+
+#define __builtin_vector_int2(x,y)        (int2)(x,y)
+#define __builtin_vector_int4(x,y,z,w)    (int4)(x,y,z,w)
+#define __builtin_vector_uint2(x,y)       (uint2)(x,y)
+#define __builtin_vector_uint4(x,y,z,w)   (uint4)(x,y,z,w)
+#define __builtin_vector_float2(x,y)      (float2)(x,y)
+#define __builtin_vector_float4(x,y,z,w)  (float4)(x,y,z,w)
+#define __builtin_vector_double2(x,y)     (double2)(x,y)
 
 #endif
 
