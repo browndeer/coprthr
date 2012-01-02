@@ -259,7 +259,9 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 
 //// begin compile
 
-	char opts[1024] = "-D __STDCL__";
+//	char opts[1024] = "-D __STDCL__";
+	char* opts = (char*)malloc(1024);
+	strcpy(opts,"-D __STDCL__");
 
 	if (cp==stdcpu) {
 		strcat(opts," -D __CPU__");
@@ -274,14 +276,23 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 	else if (!strcasecmp(cp->platform_vendor,"Brown Deer Technology, LLC.")) 
 		strcat(opts," -D __coprthr__");
 
+printf("opts |%s|\n",opts);
 #ifdef DEFAULT_STDCL_INCLUDE
 	strcat(opts," -I" DEFAULT_STDCL_INCLUDE " -D __stdcl_kernel__ ");
 #endif
+	strcat(opts,"\0");
 
-	char cwd[1024];
+printf("opts |%s|\n",opts);
+
+
+//	char cwd[1024];
+	char* cwd = (char*)malloc(1024);
 	if ( getcwd(cwd,1024) ) {
 		n = strnlen(cwd,1024);
-		if (n-strnlen(opts,1024)>1022) {
+		printf("len of cwd %d\n",n);
+		printf("len of opts %d\n",strnlen(opts,1024));
+		if (n+strnlen(opts,1024)>1022) {
+			printf("opts |%s|\n",opts);
 			WARN(__FILE__,__LINE__,
 				"clbuild: cwd too long to include as header search path.");
 		} else {
@@ -290,12 +301,14 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 		}
 	}
 
+	if (cwd) free(cwd);
+
 	if (uopts) {
 
 //		n = strnlen(uopts,64);
 		n = strnlen(uopts,1024);
 		DEBUG(__FILE__,__LINE__,"%d",n);
-		if (n-strnlen(opts,1024)>1022) {
+		if (n+strnlen(opts,1024)>1022) {
 			WARN(__FILE__,__LINE__,
 				"clbuild: options string too long, ignoring it.");
 		} else {
@@ -308,6 +321,8 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 
 	err = clBuildProgram(txt->prg,cp->ndev,cp->dev,opts,0,0);
 	DEBUG(__FILE__,__LINE__,"clbuild: err from clBuildProgram %d",err);
+
+	if (opts) free(opts);
 
 	{
 //	char buf[256];
