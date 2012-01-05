@@ -473,13 +473,15 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 			char** bin = (char**)calloc( sizeof(char*), cp->ndev );
 			size_t* bin_sz = (size_t*)calloc( sizeof(size_t), cp->ndev );
-			int nbin = 0;
+//			int nbin = 0;
 
 			struct clprgtab_entry* p = sect->clprgtab;
 
          for(n=0; n<sect->clprgtab_n; n++,p++) {
 
 				DEBUG2("clopen: checking %d binaries ...",p->e_nprgbin);
+
+				int nbin = 0;
 
 				for(m=0;m<cp->ndev; m++) {
 
