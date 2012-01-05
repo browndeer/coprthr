@@ -288,6 +288,9 @@ int main(int argc, char** argv)
 	int en_src = 1;
 	int en_bin = 1;
 
+	int en_src_only = 0;
+	int en_bin_only = 0;
+
 	int quiet = 1;
 
 //	char default_ofname[] = "out_clld.o";
@@ -336,13 +339,49 @@ printf("compare |%s|\n",argv[n]);
 			en_openmp = 1;
 
 
+		/* -s (source only)*/
+    } else if (!strcmp(argv[n],"-s")) {
+
+			append_str(cc1_opt_str,"-s"," ",0);
+			append_str(linker_opt_str,"-s"," ",0);
+			en_src_only = 1;
+
+
+		/* -b (binary only)*/
+    } else if (!strcmp(argv[n],"-b")) {
+
+			append_str(cc1_opt_str,"-b"," ",0);
+			append_str(linker_opt_str,"-b"," ",0);
+			en_bin_only = 1;
+
+
+		/* -mavail */
+    } else if (!strcmp(argv[n],"-mavail")) {
+
+			append_str(cc1_opt_str,"-mavail"," ",0);
+			append_str(linker_opt_str,"-mavail"," ",0);
+
+
+		/* -mall */
+    } else if (!strcmp(argv[n],"-mall")) {
+
+			append_str(cc1_opt_str,"-mall"," ",0);
+
+			append_str(linker_opt_str,"-mall"," ",0);
+
+
 		/* -mplatform-exclude */
 		} else if (str_match_exact(argv[n],"-mplatform-exclude")) {
+
+			append_str(cc1_opt_str,"-mplatform-exclude"," ",0);
+			append_str(cc1_opt_str,argv[++n]," ",0);
 
 			append_str(linker_opt_str,"-mplatform-exclude"," ",0);
 			append_str(linker_opt_str,argv[++n]," ",0);
 
 		} else if (str_match_seteq(argv[n],"-mplatform-exclude")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
 
 			append_str(linker_opt_str,argv[n]," ",0);
 
@@ -350,10 +389,15 @@ printf("compare |%s|\n",argv[n]);
 		/* -mplatform */
 		} else if (str_match_exact(argv[n],"-mplatform")) {
 
+			append_str(cc1_opt_str,"-mplatform"," ",0);
+			append_str(cc1_opt_str,argv[++n]," ",0);
+
 			append_str(linker_opt_str,"-mplatform"," ",0);
 			append_str(linker_opt_str,argv[++n]," ",0);
 
 		} else if (str_match_seteq(argv[n],"-mplatform")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
 
 			append_str(linker_opt_str,argv[n]," ",0);
 
@@ -361,10 +405,15 @@ printf("compare |%s|\n",argv[n]);
 		/* -mdevice-exclude */
 		} else if (str_match_exact(argv[n],"-mdevice-exclude")) {
 
+			append_str(cc1_opt_str,"-mdevice-exclude"," ",0);
+			append_str(cc1_opt_str,argv[++n]," ",0);
+
 			append_str(linker_opt_str,"-mdevice-exclude"," ",0);
 			append_str(linker_opt_str,argv[++n]," ",0);
 
 		} else if (str_match_seteq(argv[n],"-mdevice-exclude")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
 
 			append_str(linker_opt_str,argv[n]," ",0);
 
@@ -372,10 +421,15 @@ printf("compare |%s|\n",argv[n]);
 		/* -mdevice */
 		} else if (str_match_exact(argv[n],"-mdevice")) {
 
+			append_str(cc1_opt_str,"-mdevice"," ",0);
+			append_str(cc1_opt_str,argv[++n]," ",0);
+
 			append_str(linker_opt_str,"-mdevice"," ",0);
 			append_str(linker_opt_str,argv[++n]," ",0);
 
 		} else if (str_match_seteq(argv[n],"-mdevice")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
 
 			append_str(linker_opt_str,argv[n]," ",0);
 
@@ -399,6 +453,11 @@ printf("compare |%s|\n",argv[n]);
 		} else if (str_match_fused(argv[n],"-I")) {
 
 			append_str(cc1_opt_str,argv[n]," ",0);
+
+		} else if (str_match_exact(argv[n],"-I")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
+			append_str(cc1_opt_str,argv[+n]," ",0);
 
 		} else if (!strcmp(argv[n],"-c")) {
 
@@ -453,6 +512,13 @@ printf("compare |%s|\n",argv[n]);
 		++n;
 
 	}
+
+
+	if (en_src_only && en_bin_only) {
+		ERROR2("cannot specify both options -s and -b");
+		exit(-1);
+	}
+
 
 	if (ofname && flist_n > 1) {
 		ERROR2("cannot specify -o with multiple files");

@@ -291,6 +291,11 @@ int main(int argc, char** argv)
 	int en_src = 1;
 	int en_bin = 1;
 
+  int en_src_only = 0;
+  int en_bin_only = 0;
+
+  int use_offline_devices = 0;
+
 	int quiet = 1;
 
 	char* platform_select = 0;
@@ -306,27 +311,38 @@ int main(int argc, char** argv)
 
 	FILE* fp;
 
-   char wdtemp[] = "/tmp/xclXXXXXX";
-   char* wd = mkdtemp(wdtemp);
-
-
-
 	n = 1;
 	while (n < argc) {
 
+    /* -s (source only)*/
+    if (!strcmp(argv[n],"-s")) {
 
-		if (str_match_exact(argv[n],"-mplatform")) {
+      en_src_only = 1;
+
+
+    /* -b (binary only)*/
+    } else if (!strcmp(argv[n],"-b")) {
+
+      en_bin_only = 1;
+
+
+    /* -mavail */
+    } else if (!strcmp(argv[n],"-mavail")) {
+
+			use_offline_devices = 0;
+
+
+    /* -mall */
+    } else if (!strcmp(argv[n],"-mall")) {
+
+			use_offline_devices = 1;
+
+
+		} else if (str_match_exact(argv[n],"-mplatform")) {
 
 			list_add_str(&platform_select,argv[++n]);
 
 		} else if (str_match_seteq(argv[n],"-mplatform")) {
-
-//			char* p = strchr(argv[n],'=');
-//
-//			if (!p) p = argv[++n];
-//			else p += 1;
-//
-//			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
 
 			list_add_str(&platform_select,str_get_seteq(argv[n],"-mplatform"));
 
@@ -335,13 +351,6 @@ int main(int argc, char** argv)
 			list_add_str(&platform_exclude,argv[++n]);
 
 		} else if (str_match_seteq(argv[n],"-mplatform-exclude")) {
-
-//			char* p = strchr(argv[n],'=');
-//
-//			if (!p) p = argv[++n];
-//			else p += 1;
-//
-//			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
 
 			list_add_str(&platform_exclude,
 				str_get_seteq(argv[n],"-mplatform-exclude"));
@@ -352,13 +361,6 @@ int main(int argc, char** argv)
 
 		} else if (str_match_seteq(argv[n],"-mdevice")) {
 
-//			char* p = strchr(argv[n],'=');
-//
-//			if (!p) p = argv[++n];
-//			else p += 1;
-//
-//			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
-
 			list_add_str(&device_select,str_get_seteq(argv[n],"-mdevice"));
 			
 		} else if (str_match_exact(argv[n],"-mdevice-exclude")) {
@@ -366,13 +368,6 @@ int main(int argc, char** argv)
 			list_add_str(&device_exclude,argv[++n]);
 
 		} else if (str_match_seteq(argv[n],"-mdevice-exclude")) {
-
-//			char* p = strchr(argv[n],'=');
-//
-//			if (!p) p = argv[++n];
-//			else p += 1;
-//
-//			if (strnlen(p,DEFAULT_STR_SIZE) == 0) continue;
 
 			list_add_str(&device_exclude,
 				str_get_seteq(argv[n],"-mdevice-exclude"));
@@ -456,6 +451,11 @@ int main(int argc, char** argv)
 		++n;
 
 	}
+
+
+  if (en_src_only) { en_src=1; en_bin=0; }
+
+  if (en_bin_only) { en_src=0; en_bin=1; }
 
 
 	/***
@@ -599,10 +599,8 @@ int main(int argc, char** argv)
 
       }
 
-DEBUG2("before");
       cl_context context 
 			= clCreateContextFromType(cprops,CL_DEVICE_TYPE_ALL,0,0,&err);
-DEBUG2("after");
 
 		size_t dev_sz;
 		err = clGetContextInfo(context,CL_CONTEXT_DEVICES,0,0,&dev_sz);

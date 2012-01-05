@@ -43,42 +43,50 @@
 #include "../../src/libclelf/clelf.h"
 
 char* platform_name_string[] = {
-      "unknown",
-      "amdapp",
-      "nvidia",
-      "coprthr",
-      "intel"
+		"unknown",
+		"amdapp",
+		"nvidia",
+		"coprthr",
+		"intel"
 };
 
 __inline
 int str_match_exact( char* arg, char* flag )
 {
-   if (!strcmp(arg,flag))
-      return 1;
-   else
-      return 0;
+	if (!strcmp(arg,flag))
+		return 1;
+	else
+		return 0;
 }
 
 __inline
 int str_match_fused( char* arg, char* flag )
 {
-   size_t arglen = strlen(arg);
-   size_t flaglen = strlen(flag);
-   if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
-      return 1;
-   else
-      return 0;
+	size_t arglen = strlen(arg);
+	size_t flaglen = strlen(flag);
+	if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
+		return 1;
+	else
+		return 0;
 }
 __inline
 int str_match_seteq( char* arg, char* flag )
 {
-   size_t arglen = strlen(arg);
-   size_t flaglen = strlen(flag);
-   if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
-      return 1;
-   else
-      return 0;
+	size_t arglen = strlen(arg);
+	size_t flaglen = strlen(flag);
+	if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
+		return 1;
+	else
+		return 0;
 }
+
+__inline
+char* str_get_fused( char* arg, char* flag )
+{ return arg + strlen(flag); }
+
+__inline
+char* str_get_seteq( char* arg, char* flag )
+{ return arg + strlen(flag) + 1; }
 
 
 void usage() 
@@ -86,29 +94,29 @@ void usage()
 	printf("usage: clcc1 [options] file\n");
 	printf("options:\n");
 	printf("\t-c\n");
-   printf("\t-x <language>\n");
-   printf("\t-o <file>\n");
-   printf("\t-I <directory>\n");
-   printf("\t-v\n");
-   printf("\t--help, -h\n");
-   printf("\t--version, -v\n");
-   printf("\t-fopencl\n");
-   printf("\t-fstdcl\n");
-   printf("\t-fcuda\n");
-   printf("\t-fopenmp\n");
-   printf("\t-mplatform=<platform-list>\n");
-   printf("\t-mplatform-exclude=<platform-list>\n");
-   printf("\t-mdevice=<device-list>\n");
-   printf("\t-mdevice-exclude=<device-list>\n");
-   printf("\t-mall\n");
-   printf("\t-mavail\n");
+	printf("\t-x <language>\n");
+	printf("\t-o <file>\n");
+	printf("\t-I <directory>\n");
+	printf("\t-v\n");
+	printf("\t--help, -h\n");
+	printf("\t--version, -v\n");
+	printf("\t-fopencl\n");
+	printf("\t-fstdcl\n");
+	printf("\t-fcuda\n");
+	printf("\t-fopenmp\n");
+	printf("\t-mplatform=<platform-list>\n");
+	printf("\t-mplatform-exclude=<platform-list>\n");
+	printf("\t-mdevice=<device-list>\n");
+	printf("\t-mdevice-exclude=<device-list>\n");
+	printf("\t-mall\n");
+	printf("\t-mavail\n");
 }
 
 void version()
 {
 	printf("COPRTHR clcc1\n"); 
 	printf(
-		"Copyright (c) 2008-2011 Brown Deer Technology, LLC."
+		"Copyright (c) 2008-2012 Brown Deer Technology, LLC."
 		" All Rights Reserved.\n"
 	);
 	printf("This program is free software distributed under GPLv3.\n");
@@ -154,31 +162,83 @@ int resolve_fullpath(
 
 
 #define add_strtab(str,strp,alloc_sz,str2) do { \
-   size_t offset = (intptr_t)(strp-str); \
-   size_t len2 = strnlen(str2,DEFAULT_STR_SIZE); \
-   while ( offset + len2 + 1 > alloc_sz) { \
-      alloc_sz += DEFAULT_STR_SIZE; \
-      str = (char*)realloc(str,alloc_sz); \
-      strp = str + offset; \
-   } \
-   strncpy(strp,str2,len2+1); \
+	size_t offset = (intptr_t)(strp-str); \
+	size_t len2 = strnlen(str2,DEFAULT_STR_SIZE); \
+	while ( offset + len2 + 1 > alloc_sz) { \
+		alloc_sz += DEFAULT_STR_SIZE; \
+		str = (char*)realloc(str,alloc_sz); \
+		strp = str + offset; \
+	} \
+	strncpy(strp,str2,len2+1); \
 	strp += len2 + 1; \
-   } while(0)
+	} while(0)
 
 
 void append_str( char* str1, char* str2, char* sep, size_t n )
 {
-   if (!str1 || !str2) return;
+	if (!str1 || !str2) return;
 
-   size_t len = strlen(str2);
+	size_t len = strlen(str2);
 
-   if (sep) {
-      str1 = (char*)realloc(str1,strlen(str1)+len+2);
-      strcat(str1,sep);
-   } else {
-      str1 = (char*)realloc(str1,strlen(str1)+len+1);
-   }
-   strncat(str1,str2, ((n==0)?len:n) );
+	if (sep) {
+		str1 = (char*)realloc(str1,strlen(str1)+len+2);
+		strcat(str1,sep);
+	} else {
+		str1 = (char*)realloc(str1,strlen(str1)+len+1);
+	}
+	strncat(str1,str2, ((n==0)?len:n) );
+
+}
+
+
+void list_add_str( char** pstr1, char* str2 )
+{
+  if (!str2) return;
+
+  size_t len = strlen(str2);
+
+  if (!(*pstr1)) {
+    *pstr1 = (char*)malloc(len+1);
+    strcpy(*pstr1,str2);
+  } else {
+    *pstr1 = (char*)realloc(*pstr1,strlen(*pstr1)+len+2);
+    strcat(*pstr1,",");
+    strcat(*pstr1,str2);
+  }
+
+}
+
+
+void list_str_to_argv( char* str, int* argc, char*** argv )
+{
+
+  *argc = 0;
+
+  if (str) {
+
+    char* buf = (char*)malloc(strlen(str)+1);
+    char* tmp_ptr;
+
+    strcpy(buf,str);
+
+      char* tok = strtok_r(buf, ",", &tmp_ptr);
+    if (tok) ++(*argc);
+      while (tok && (*argc) < 1024) {
+         tok = strtok_r(0, ",", &tmp_ptr);
+         if (tok) ++(*argc);
+      }
+
+    *argv = (char**)malloc((*argc)*sizeof(char*));
+
+    int n = 0;
+      tok = strtok_r(str, ",", &tmp_ptr);
+      if (tok) (*argv)[n++] = tok;
+      while (tok && n < 1024) {
+         tok = strtok_r(0, ",", &tmp_ptr);
+         if (tok) (*argv)[n++] = tok;
+      }
+
+  }
 
 }
 
@@ -206,47 +266,132 @@ int main(int argc, char** argv)
 
 	char* fullpath = (char*)malloc(DEFAULT_STR_SIZE);
 
-   int lang = LANG_OPENCL;
-   int en_openmp = 0;
-   int en_source = 1;
-   int en_binary = 1;
+	int lang = LANG_OPENCL;
+	int en_openmp = 0;
+	int en_src = 1;
+	int en_bin = 1;
 
-   /* XXX todo - add ability to provide lang specific options -DAR */
+	int en_src_only = 0;
+	int en_bin_only = 0;
 
+	int use_offline_devices = 0;
+
+	int quiet = 1;
+
+	char* platform_select = 0;
+	char* platform_exclude = 0;
+	char* device_select = 0;
+	char* device_exclude = 0;
+
+
+	/* XXX todo - add ability to provide lang specific options -DAR */
 
 	char* fname = 0;
 	char* ofname = 0;
-
-	int quiet = 0;
 
 printf("\nXXX add option to use only devices that are present\n\n");
 
 	n = 1;
 	while (n < argc) {
 
-      if (str_match_exact(argv[n],"-fopencl")) {
+		if (str_match_exact(argv[n],"-fopencl")) {
 
-         lang = LANG_OPENCL;
+			lang = LANG_OPENCL;
 
-      } else if (str_match_exact(argv[n],"-fstdcl")) {
+		} else if (str_match_exact(argv[n],"-fstdcl")) {
 
-         lang = LANG_STDCL;
+			lang = LANG_STDCL;
 
-      } else if (str_match_exact(argv[n],"-fcuda")) {
+		} else if (str_match_exact(argv[n],"-fcuda")) {
 
-         lang = LANG_CUDA;
+			lang = LANG_CUDA;
 
-      } else if (str_match_exact(argv[n],"-fopenmp")) {
+		} else if (str_match_exact(argv[n],"-fopenmp")) {
 
-         en_openmp = 1;
+			en_openmp = 1;
 
-      } else if (str_match_exact(argv[n],"--no-source")) {
 
-         en_source = 0;
+		/* -s (source only)*/
+    } else if (!strcmp(argv[n],"-s")) {
 
-      } else if (str_match_exact(argv[n],"--no-binary")) {
+      en_src_only = 1;
 
-         en_binary = 0;
+
+    /* -b (binary only)*/
+    } else if (!strcmp(argv[n],"-b")) {
+
+      en_bin_only = 1;
+
+
+		/* -mavail (use only available devices) */
+		} else if (!strcmp(argv[n],"-mavail")) {
+
+			use_offline_devices = 0;
+		
+	
+		/* -mall (use all devices including offline) */
+		} else if (!strcmp(argv[n],"-mall")) {
+
+			use_offline_devices = 1;
+			
+
+		} else if (str_match_exact(argv[n],"-mplatform")) {
+
+			list_add_str(&platform_select,argv[++n]);
+
+		} else if (str_match_seteq(argv[n],"-mplatform")) {
+
+			list_add_str(&platform_select,str_get_seteq(argv[n],"-mplatform"));
+
+		} else if (str_match_exact(argv[n],"-mplatform-exclude")) {
+
+			list_add_str(&platform_exclude,argv[++n]);
+
+		} else if (str_match_seteq(argv[n],"-mplatform-exclude")) {
+
+			list_add_str(&platform_exclude,
+				str_get_seteq(argv[n],"-mplatform-exclude"));
+			
+		} else if (str_match_exact(argv[n],"-mdevice")) {
+
+			list_add_str(&device_select,argv[++n]);
+
+		} else if (str_match_seteq(argv[n],"-mdevice")) {
+
+			list_add_str(&device_select,str_get_seteq(argv[n],"-mdevice"));
+			
+		} else if (str_match_exact(argv[n],"-mdevice-exclude")) {
+
+			list_add_str(&device_exclude,argv[++n]);
+
+		} else if (str_match_seteq(argv[n],"-mdevice-exclude")) {
+
+			list_add_str(&device_exclude,
+				str_get_seteq(argv[n],"-mdevice-exclude"));
+
+		} else if (!strcmp(argv[n],"-mcpu")) {
+			
+		} else if (!strcmp(argv[n],"-mgpu")) {
+			
+		} else if (!strcmp(argv[n],"-mrpu")) {
+
+//		} else if (str_match_seteq(argv[n],"-s")
+//
+//			||str_match_seteq(argv[n],"--no-src")) {
+//			
+//			en_src = 0;
+//			
+//		} else if (!strcmp(argv[n],"--no-bin")) {
+//			
+//			en_bin = 0;
+//
+//		} else if (str_match_exact(argv[n],"--no-source")) {
+//
+//			en_src = 0;
+//
+//		} else if (str_match_exact(argv[n],"--no-binary")) {
+//
+//			en_bin = 0;
 
 		} else if (str_match_fused(argv[n],"-D")) {
 
@@ -283,7 +428,7 @@ printf("\nXXX add option to use only devices that are present\n\n");
 				exit(-1);
 			}
 
-         fname = argv[n];
+			fname = argv[n];
 
 		}
 
@@ -297,38 +442,122 @@ printf("\nXXX add option to use only devices that are present\n\n");
 		char* fname_ext = strrchr(fname,'.');
 		ofname = (char*)calloc(1,fname_len+1);
 		if (fname_ext) strncpy(ofname,fname,(size_t)(fname_ext-fname));
-      else strncpy(ofname,fname,fname_len);
+		else strncpy(ofname,fname,fname_len);
 		strncat(ofname,".o",fname_len);
 	}
+
+
+	if (en_src_only) { en_src=1; en_bin=0; }
+
+	if (en_bin_only) { en_src=0; en_bin=1; }
+
+
+  /***
+   *** process platform and device select/exclude lists
+   ***/
+
+  int pselc = 0;
+  char** pselv = 0;
+  int pexclc = 0;
+  char** pexclv = 0;
+
+  int dselc = 0;
+  char** dselv = 0;
+  int dexclc = 0;
+  char** dexclv = 0;
+
+  list_str_to_argv(platform_select,&pselc,&pselv);
+  list_str_to_argv(platform_exclude,&pexclc,&pexclv);
+
+  list_str_to_argv(device_select,&dselc,&dselv);
+  list_str_to_argv(device_exclude,&dexclc,&dexclv);
+
+  for(i=0;i<pselc;i++) DEBUG2("platform select |%s|",pselv[i]);
+  for(i=0;i<pexclc;i++) DEBUG2("platform exclude |%s|",pexclv[i]);
+  for(i=0;i<dselc;i++) DEBUG2("device select |%s|",dselv[i]);
+  for(i=0;i<dexclc;i++) DEBUG2("device exclude |%s|",dexclv[i]);
+
+  int* pselcode = (int*)malloc(pselc*sizeof(int));
+  int* pexclcode = (int*)malloc(pexclc*sizeof(int));
+
+  for(i=0;i<pselc;i++) {
+
+    pselcode[i] = 0;
+
+      if (!strncasecmp(pselv[i],"AMD",3)) {
+
+         pselcode[i] = CLELF_PLATFORM_CODE_AMDAPP;
+
+      } else if (!strncasecmp(pselv[i],"Nvidia",6)) {
+
+         pselcode[i] = CLELF_PLATFORM_CODE_NVIDIA;
+
+      } else if (!strncasecmp(pselv[i],"coprthr",7)) {
+
+         pselcode[i] = CLELF_PLATFORM_CODE_COPRTHR;
+
+//    } else if (!strncasecmp(pselv[i],"Intel",7)) {
+//
+//       pselcode[i] = CLELF_PLATFORM_CODE_INTEL;
+
+      }
+
+  }
+
+  for(i=0;i<pexclc;i++) {
+
+    pexclcode[i] = 0;
+
+      if (!strncasecmp(pexclv[i],"AMD",3)) {
+
+         pexclcode[i] = CLELF_PLATFORM_CODE_AMDAPP;
+
+      } else if (!strncasecmp(pexclv[i],"Nvidia",6)) {
+
+         pexclcode[i] = CLELF_PLATFORM_CODE_NVIDIA;
+
+      } else if (!strncasecmp(pexclv[i],"coprthr",7)) {
+
+         pexclcode[i] = CLELF_PLATFORM_CODE_COPRTHR;
+
+//    } else if (!strncasecmp(pexclv[i],"Intel",7)) {
+//
+//       pexclcode[i] = CLELF_PLATFORM_CODE_INTEL;
+
+      }
+
+  }
 
 
 	/***
 	 *** map source file
 	 ***/
 
-   struct stat st;
-   if ( stat(fname,&st) == -1 || !S_ISREG(st.st_mode)) {
-   fprintf(stderr,"clcc1: '%s' no such file\n",fname);
-      exit(-1);
-   }
+	struct stat st;
+	if ( stat(fname,&st) == -1 || !S_ISREG(st.st_mode)) {
+	fprintf(stderr,"clcc1: '%s' no such file\n",fname);
+		exit(-1);
+	}
 
 	int fd = open(fname,O_RDONLY);
 
 	if (fd < 0) {
-      fprintf(stderr,"clcc1: '%s' open failed\n",fname);
-      exit(-1);
-   }
+		fprintf(stderr,"clcc1: '%s' open failed\n",fname);
+		exit(-1);
+	}
 
-   size_t file_sz = st.st_size;
-   void* file_ptr = mmap(0,file_sz,PROT_READ,MAP_PRIVATE,fd,0);
+	size_t file_sz = st.st_size;
+	void* file_ptr = mmap(0,file_sz,PROT_READ,MAP_PRIVATE,fd,0);
 
-   close(fd);
+	close(fd);
 
 
 
 	/***
 	 *** add clprgsrc entry
 	 ***/
+
+	if (en_src) {
 
 	if (data.clprgsrc_n >= data.clprgsrc_nalloc) {
 		data.clprgsrc_nalloc += DEFAULT_CLPRGSRC_NALLOC;
@@ -361,6 +590,7 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
 	data.cltextsrc_bufp += file_sz;
 
+	}
 
 
 	/***
@@ -368,6 +598,8 @@ printf("\nXXX add option to use only devices that are present\n\n");
 	 ***/
 
 	int err;
+
+	if (en_bin) {
 
 	cl_uint nplatforms;
 	clGetPlatformIDs(0,0,&nplatforms);
@@ -377,19 +609,18 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
 //	printf("number of platforms %d\n",nplatforms);
 
-	cl_context* contexts
-		= (cl_context*)malloc(nplatforms*sizeof(cl_context));
+	cl_context* contexts = (cl_context*)malloc(nplatforms*sizeof(cl_context));
 
-	cl_program* programs
-		= (cl_program*)malloc(nplatforms*sizeof(cl_program));
+	cl_program* programs = (cl_program*)malloc(nplatforms*sizeof(cl_program));
 
 	int nbin_valid = 0;
 
 	for(i=0; i<nplatforms; i++) {
 
 		char info[1024];
-      clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
-//   	printf("|%s|\n",info);
+		clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
+//		printf("|%s|\n",info);
+
 
 		int platform_code = 0;
 
@@ -415,11 +646,33 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
 		}
 
+    int pselect = 1;
+    int pexclude = 0;
+
+    int l;
+
+    if (pselv) {
+       pselect = 0;
+       for(l=0;l<pselc;l++)
+           if (pselcode[l] == platform_code) pselect = 1;
+    }
+
+    if (pexclv) {
+       for(l=0;l<pexclc;l++)
+          if (pexclcode[l] == platform_code) pexclude = 1;
+    }
+
+    DEBUG2("se (%d %d)", pselect,pexclude);
+
+		if (!pselect || pexclude) continue;
+
+
 		cl_context_properties cprops[5];
 		cprops[0] = CL_CONTEXT_PLATFORM;
 		cprops[1] = (cl_context_properties)platforms[i];
+		cprops[2] = (cl_context_properties)0;
 
-		switch (platform_code) {
+		if (use_offline_devices) switch (platform_code) {
 
 			case CLELF_PLATFORM_CODE_AMDAPP:
 				cprops[2] = CL_CONTEXT_OFFLINE_DEVICES_AMD;
@@ -428,19 +681,56 @@ printf("\nXXX add option to use only devices that are present\n\n");
 				break;
 
 			default:
-				cprops[2] = (cl_context_properties)0;
+				break;
 
 		}
 			
-		contexts[i] = clCreateContextFromType(cprops,CL_DEVICE_TYPE_ALL,0,0,&err);	
+//	contexts[i] = clCreateContextFromType(cprops,CL_DEVICE_TYPE_ALL,0,0,&err);
+		cl_uint ndev0;
+		clGetDeviceIDs(platforms[i],CL_DEVICE_TYPE_ALL,0,0,&ndev0);
+		cl_device_id* devices0 = (cl_device_id*)malloc(ndev0*sizeof(cl_device_id));
+		clGetDeviceIDs(platforms[i],CL_DEVICE_TYPE_ALL,ndev0,devices0,0);
+
+		n = 0;
+		for(j=0;j<ndev0;j++) {
+
+			cl_device_type devtype;
+			err = clGetDeviceInfo(devices0[j],CL_DEVICE_TYPE,sizeof(cl_device_type),
+				&devtype,0);
+			char devname[1024];
+			err = clGetDeviceInfo(devices0[j],CL_DEVICE_NAME, 1024,devname,0);
+
+      int dselect = 1;
+      int dexclude = 0;
+
+      int l;
+
+      if (dselv) {
+         dselect = 0;
+         for(l=0;l<dselc;l++)
+            if (!strcasecmp(dselv[l],devname)) dselect = 1;
+      }
+
+      if (dexclv) {
+         for(l=0;l<dexclc;l++)
+            if (!strcasecmp(dexclv[l],devname)) dexclude = 1;
+      }
+
+      DEBUG2("se (%d %d)", dselect,dexclude);
+
+			if (dselect && !dexclude) devices0[n++] = devices0[j];
+				
+		}
+		contexts[i] = clCreateContext(cprops, n, devices0, 0, 0, &err );
+
 		programs[i] = clCreateProgramWithSource(
-   		contexts[i], 1, (const char**)&file_ptr, &file_sz, &err );
+			contexts[i], 1, (const char**)&file_ptr, &file_sz, &err );
 
 		err = clBuildProgram( programs[i], 0, 0, opt_str, 0, 0 );
 
 		cl_uint ndev;
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_NUM_DEVICES,
-   		sizeof(cl_uint), &ndev, 0 );
+			sizeof(cl_uint), &ndev, 0 );
 
 //printf("ndev=%d\n",ndev);
 
@@ -453,22 +743,22 @@ printf("\nXXX add option to use only devices that are present\n\n");
 		size_t* bin_sizes = (size_t*)malloc( sizeof(size_t)*ndev );
 
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_BINARY_SIZES,
-   		sizeof(size_t)*ndev, bin_sizes, 0 );
+			sizeof(size_t)*ndev, bin_sizes, 0 );
 
 //printf("bin size %d\n",bin_sizes[0]);
 
 		char** bins = (char**)malloc( sizeof(char*)*ndev );
 
 		for( j=0; j < ndev; j++ ) {
-		   if( bin_sizes[j] != 0 ) {
-      		bins[j] = (char*)malloc( sizeof(char)*bin_sizes[j] );
-   		} else {
-      		bins[j] = 0;
-   		}	
+			if( bin_sizes[j] != 0 ) {
+				bins[j] = (char*)malloc( sizeof(char)*bin_sizes[j] );
+			} else {
+				bins[j] = 0;
+			}	
 		}
 
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_BINARIES,
-   		sizeof(char*)*ndev, bins, 0 );
+			sizeof(char*)*ndev, bins, 0 );
 
 //printf("bin %p\n",bins[0]);
 
@@ -565,6 +855,19 @@ clelf_device_name_alias(device_name);
 				printf("clcc1: compile '%s' [%s:%s]\n",fname,
 					platform_name_string[platform_code],device_name);
 
+				char* build_log;
+				size_t build_log_sz;
+				err = clGetProgramBuildInfo(programs[i],devices[j],
+					CL_PROGRAM_BUILD_LOG,0,0,&build_log_sz);
+				if (build_log_sz) {
+					build_log = (char*)malloc(build_log_sz);
+					err = clGetProgramBuildInfo(programs[i],devices[j],
+						CL_PROGRAM_BUILD_LOG,build_log_sz,build_log,0);
+					if (build_log_sz > 0) printf("%s",build_log);
+					if (build_log[build_log_sz-1] != '\n') printf("\n");
+					free(build_log);
+				}
+
 			} else if (status == CL_BUILD_NONE) {
 
 				printf("clcc1: compile '%s' [%s:%s] FAILED\n",fname,
@@ -579,13 +882,14 @@ clelf_device_name_alias(device_name);
 				size_t build_log_sz;
 				err = clGetProgramBuildInfo(programs[i],devices[j],
 					CL_PROGRAM_BUILD_LOG,0,0,&build_log_sz);
-				build_log = (char*)malloc(build_log_sz);
-				err = clGetProgramBuildInfo(programs[i],devices[j],
-					CL_PROGRAM_BUILD_LOG,build_log_sz,build_log,0);
-				if (build_log_sz > 0) printf("%s",build_log);
-				if (build_log[build_log_sz-1] != '\n') printf("\n");
-
-				free(build_log);
+				if (build_log_sz) {
+					build_log = (char*)malloc(build_log_sz);
+					err = clGetProgramBuildInfo(programs[i],devices[j],
+						CL_PROGRAM_BUILD_LOG,build_log_sz,build_log,0);
+					if (build_log_sz > 0) printf("%s",build_log);
+					if (build_log[build_log_sz-1] != '\n') printf("\n");
+					free(build_log);
+				}
 
 			}
 			
@@ -618,6 +922,7 @@ clelf_device_name_alias(device_name);
 
 	}
 
+	}
 
 
 	/***
