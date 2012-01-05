@@ -1,6 +1,6 @@
 /* clelf.h
  *
- * Copyright (c) 2008-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -18,12 +18,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* DAR */
+
 #ifndef _CLELF_H
 #define _CLELF_H
 
-#define CLCC_TEST
+#include <elf.h>
 
-/* DAR */
+#if defined(__x86_64__)
+#define ELF_Word 		Elf64_Word
+#define ELF_Half 		Elf64_Half
+#define ELF_Addr 		Elf64_Addr
+#define ELF_Xword 	Elf64_Xword
+#define ELF_Ehdr 		Elf64_Ehdr
+#define ELF_Phdr 		Elf64_Phdr
+#define ELF_Shdr 		Elf64_Shdr
+#define ELF_Sym 		Elf64_Sym
+#define elf_newehdr	elf64_newehdr
+#define elf_getshdr	elf64_getshdr
+#elif defined(__i386__) || defined(__arm__)
+#define ELF_Word 		Elf32_Word
+#define ELF_Half 		Elf32_Half
+#define ELF_Addr 		Elf32_Addr
+#define ELF_Xword 	Elf32_Xword
+#define ELF_Ehdr 		Elf32_Ehdr
+#define ELF_Phdr 		Elf32_Phdr
+#define ELF_Shdr 		Elf32_Shdr
+#define ELF_Sym 		Elf32_Sym
+#define elf_newehdr	elf32_newehdr
+#define elf_getshdr	elf32_getshdr
+#else
+#error unsupported architecture
+#endif
+
+#define CLCC_TEST
 
 #define CL_CONTEXT_OFFLINE_DEVICES_AMD 0x403F
 
@@ -40,77 +68,43 @@
 #define DEFAULT_CLPRGBIN_NALLOC	128
 
 
-#if defined(__x86_64__)
-
 struct clprgtab_entry {
-	Elf64_Word e_name;
-	Elf64_Word e_info;
-	Elf64_Half e_prgsrc;
-	Elf64_Half e_nprgsrc;
-	Elf64_Half e_prgbin;
-	Elf64_Half e_nprgbin;
-	Elf64_Half e_krn;
-	Elf64_Half e_nkrn;
+	ELF_Word e_name;
+	ELF_Word e_info;
+	ELF_Half e_prgsrc;
+	ELF_Half e_nprgsrc;
+	ELF_Half e_prgbin;
+	ELF_Half e_nprgbin;
+	ELF_Half e_krn;
+	ELF_Half e_nkrn;
 };
 
 struct clkrntab_entry {
-	Elf64_Word e_name;
-	Elf64_Word e_info;
-	Elf64_Half e_prg;
+	ELF_Word e_name;
+	ELF_Word e_info;
+	ELF_Half e_prg;
 };
 
 struct clprgsrc_entry {
-	Elf64_Word e_name;
-	Elf64_Word e_info;
-	Elf64_Word e_platform;
-	Elf64_Word e_device;
-	Elf64_Half e_shndx;
-	Elf64_Addr	e_offset;
-	Elf64_Xword e_size;
+	ELF_Word e_name;
+	ELF_Word e_info;
+	ELF_Word e_platform;
+	ELF_Word e_device;
+	ELF_Half e_shndx;
+	ELF_Addr	e_offset;
+	ELF_Xword e_size;
 };
 
 struct clprgbin_entry {
-	Elf64_Word e_name;
-	Elf64_Word e_info;
-	Elf64_Word e_platform;
-	Elf64_Word e_device;
-	Elf64_Half e_shndx;
-	Elf64_Addr	e_offset;
-	Elf64_Xword e_size;
+	ELF_Word e_name;
+	ELF_Word e_info;
+	ELF_Word e_platform;
+	ELF_Word e_device;
+	ELF_Half e_shndx;
+	ELF_Addr	e_offset;
+	ELF_Xword e_size;
 };
 
-#elif defined(__i386__)
-
-struct clprgtab_entry {
-	Elf32_Word e_name;
-	Elf32_Word e_info;
-	Elf32_Half e_prgsrc;
-	Elf32_Half e_nprgsrc;
-	Elf32_Half e_prgbin;
-	Elf32_Half e_nprgbin;
-};
-
-struct clprgsrc_entry {
-	Elf32_Word e_name;
-	Elf32_Word e_info;
-	Elf32_Half e_platform;
-	Elf32_Half e_device;
-	Elf32_Half e_shndx;
-	Elf32_Addr	e_offset;
-	Elf32_Xword e_size;
-};
-
-struct clprgbin_entry {
-	Elf32_Word e_name;
-	Elf32_Word e_info;
-	Elf32_Half e_platform;
-	Elf32_Half e_device;
-	Elf32_Half e_shndx;
-	Elf32_Addr	e_offset;
-	Elf32_Xword e_size;
-};
-
-#endif
 
 #define __clprgtab_entry_sz sizeof(struct clprgtab_entry)
 #define __clkrntab_entry_sz sizeof(struct clkrntab_entry)
@@ -125,17 +119,10 @@ struct clprgbin_entry {
 
 struct clelf_sect_struct {
 
-#if defined(__x86_64__)
-      Elf64_Shdr* p_shdr;
-      Elf64_Sym* symtab;
-      size_t symtab_n;
-      char* strtab;
-#elif defined(__i386__)
-      Elf32_Shdr* p_shdr;
-      Elf32_Sym* symtab;
-      size_t symtab_n;
-      char* strtab;
-#endif
+   ELF_Shdr* p_shdr;
+   ELF_Sym* symtab;
+   size_t symtab_n;
+   char* strtab;
 	
    unsigned int clprgtab_n;
    struct clprgtab_entry* clprgtab;

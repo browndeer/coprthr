@@ -34,7 +34,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <elf.h>
+//#include <elf.h>
 #include <libelf/libelf.h>
 #include <errno.h>
 
@@ -42,22 +42,6 @@
 #include "CL/cl.h"
 #include "util.h"
 #include "clelf.h"
-
-#if(0)
-char shstrtab[] = {
-      "\0"
-      ".clprgtab\0" /* section 1, shstrtab offset 1 */
-      ".clkrntab\0" /* section 2, shstrtab offset 11 */
-      ".clprgsrc\0" /* section 3, shstrtab offset 21 */
-      ".cltextsrc\0" /* section 4, shstrtab offset 29 */
-      ".clprgbin\0" /* section 5, shstrtab offset 38 */
-      ".cltextbin\0" /* section 6, shstrtab offset 46 */
-      ".clstrtab\0" /* section 7, shstrtab offset 55 */
-      ".shstrtab\0" /* section 8, shstrtab offset 65 */
-};
-
-int shstrtab_offset[] = { 0,1,11,21,29,38,46,55,65 };
-#endif
 
 char shstrtab[] = {
       "\0"
@@ -158,49 +142,32 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 		exit(-1);
 	}
 
-#if defined(__x86_64__)
-	Elf64_Ehdr* ehdr = 0;
-	Elf64_Phdr* phdr = 0;
-	Elf64_Shdr* shdr = 0;
-	DEBUG2("__x86_64__");
-#elif defined(__i386__) 
-	Elf32_Ehdr* ehdr = 0;
-	Elf32_Phdr* phdr = 0;
-	Elf32_Shdr* shdr = 0;
-	DEBUG2("__i386__");
-#endif
-
+	ELF_Ehdr* ehdr = 0;
+	ELF_Phdr* phdr = 0;
+	ELF_Shdr* shdr = 0;
 
 	/*
 	 * construct elf header
 	 */
 
-#if defined(__x86_64__)
-
-	if ((ehdr = elf64_newehdr(e)) == 0) {
+	if ((ehdr = elf_newehdr(e)) == 0) {
 		fprintf(stderr,"elf64_newehdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 
 	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
+
+#if defined(__x86_64__)
 	ehdr->e_machine = EM_X86_64; 
+#elif defined(__i386__)
+	ehdr->e_machine = EM_386;
+#elif defined(__arm__)
+	ehdr->e_machine = EM_ARM;
+#endif
+
 	ehdr->e_type = ET_NONE;
 	ehdr->e_version = EV_CURRENT;
 	ehdr->e_shstrndx = 8; /* set section index of .shstrtab */
-
-#elif defined(__i386__) 
-
-	if ((ehdr = elf32_newehdr(e)) == 0) {
-		fprintf(stderr,"elf32_newehdr() failed: %s.", elf_errmsg(-1));
-		exit(-1);
-	}
-
-	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
-	ehdr->e_machine = EM_386; 
-	ehdr->e_type = ET_NONE;
-	ehdr->e_shstrndx = 8; /* set section index of .shstrtab */
-
-#endif
 
 
 	/* 
@@ -224,17 +191,10 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 	edata->d_size = __clprgtab_entry_sz*cldata->clprgtab_n;
 	edata->d_version = EV_CURRENT;
 
-#if defined(__x86_64__)
-	if ((shdr = elf64_getshdr(scn)) == NULL) {
+	if ((shdr = elf_getshdr(scn)) == NULL) {
 		fprintf(stderr, "elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
-	if ((shdr = elf32_getshdr(scn)) == NULL) {
-		fprintf(stderr, "elf32_getshdr() failed: %s.", elf_errmsg(-1));
-		exit(-1);
-	}
-#endif
 
 	shdr->sh_name = shstrtab_offset[1];
 	shdr->sh_type = SHT_PROGBITS;
@@ -263,17 +223,10 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
    edata->d_size = __clkrntab_entry_sz*cldata->clkrntab_n;
    edata->d_version = EV_CURRENT;
 
-#if defined(__x86_64__)
-   if ((shdr = elf64_getshdr(scn)) == NULL) {
+   if ((shdr = elf_getshdr(scn)) == NULL) {
       fprintf(stderr, "elf64_getshdr() failed: %s.", elf_errmsg(-1));
       exit(-1);
    }
-#elif defined(__i386__)
-   if ((shdr = elf32_getshdr(scn)) == NULL) {
-      fprintf(stderr, "elf32_getshdr() failed: %s.", elf_errmsg(-1));
-      exit(-1);
-   }
-#endif
  
    shdr->sh_name = shstrtab_offset[2];
    shdr->sh_type = SHT_PROGBITS;
@@ -302,17 +255,10 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 	edata->d_size = __clprgsrc_entry_sz * cldata->clprgsrc_n;
 	edata->d_version = EV_CURRENT;
 
-#if defined(__x86_64__)
-	if ((shdr = elf64_getshdr(scn)) == NULL) {
+	if ((shdr = elf_getshdr(scn)) == NULL) {
 		fprintf(stderr, "elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
-	if ((shdr = elf32_getshdr(scn)) == NULL) {
-		fprintf(stderr, "elf32_getshdr() failed: %s.", elf_errmsg(-1));
-		exit(-1);
-	}
-#endif
 
 	shdr->sh_name = shstrtab_offset[3];
 	shdr->sh_type = SHT_PROGBITS;
@@ -341,17 +287,10 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 	edata->d_size = (intptr_t)(cldata->cltextsrc_bufp - cldata->cltextsrc_buf);
 	edata->d_version = EV_CURRENT;
 
-#if defined(__x86_64__)
-	if ((shdr = elf64_getshdr(scn)) == NULL) {
+	if ((shdr = elf_getshdr(scn)) == NULL) {
 		fprintf(stderr, "elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
-	if ((shdr = elf32_getshdr(scn)) == NULL) {
-		fprintf(stderr, "elf32_getshdr() failed: %s.", elf_errmsg(-1));
-		exit(-1);
-	}
-#endif
 
 	shdr->sh_name = shstrtab_offset[4];
 	shdr->sh_type = SHT_PROGBITS;
@@ -380,17 +319,10 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 	edata->d_size = __clprgbin_entry_sz * cldata->clprgbin_n;
 	edata->d_version = EV_CURRENT;
 
-#if defined(__x86_64__)
-	if ((shdr = elf64_getshdr(scn)) == NULL) {
+	if ((shdr = elf_getshdr(scn)) == NULL) {
 		fprintf(stderr, "elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
-	if ((shdr = elf32_getshdr(scn)) == NULL) {
-		fprintf(stderr, "elf32_getshdr() failed: %s.", elf_errmsg(-1));
-		exit(-1);
-	}
-#endif
 
 	shdr->sh_name = shstrtab_offset[5];
 	shdr->sh_type = SHT_PROGBITS;
@@ -419,17 +351,10 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 	edata->d_size = (intptr_t)(cldata->cltextbin_bufp - cldata->cltextbin_buf);
 	edata->d_version = EV_CURRENT;
 
-#if defined(__x86_64__)
-	if ((shdr = elf64_getshdr(scn)) == NULL) {
+	if ((shdr = elf_getshdr(scn)) == NULL) {
 		fprintf(stderr, "elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
-	if ((shdr = elf32_getshdr(scn)) == NULL) {
-		fprintf(stderr, "elf32_getshdr() failed: %s.", elf_errmsg(-1));
-		exit(-1);
-	}
-#endif
 
 	shdr->sh_name = shstrtab_offset[6];
 	shdr->sh_type = SHT_PROGBITS;
@@ -458,17 +383,10 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 	edata->d_size = (intptr_t)(cldata->clstrtab_strp - cldata->clstrtab_str);
 	edata->d_version = EV_CURRENT;
 
-#if defined(__x86_64__)
-	if ((shdr = elf64_getshdr(scn)) == NULL) {
+	if ((shdr = elf_getshdr(scn)) == NULL) {
 		fprintf(stderr, "elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
-	if ((shdr = elf32_getshdr(scn)) == NULL) {
-		fprintf(stderr, "elf32_getshdr() failed: %s.", elf_errmsg(-1));
-		exit(-1);
-	}
-#endif
 
 	shdr->sh_name = shstrtab_offset[7];
 	shdr->sh_type = SHT_STRTAB;
@@ -497,17 +415,10 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 	edata->d_type = ELF_T_BYTE;
 	edata->d_version = EV_CURRENT;
 
-#if defined(__x86_64__)
-	if ((shdr = elf64_getshdr(scn)) == NULL) {
+	if ((shdr = elf_getshdr(scn)) == NULL) {
 		fprintf(stderr, "elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
-	if ((shdr = elf32_getshdr(scn)) == NULL) {
-		fprintf(stderr, "elf32_getshdr() failed: %s.", elf_errmsg(-1));
-		exit(-1);
-	}
-#endif
 
 	shdr->sh_name = shstrtab_offset[8];
 	shdr->sh_type = SHT_STRTAB;
@@ -534,19 +445,11 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 int clelf_load_sections( char* elf_ptr, struct clelf_sect_struct* sect )
 {
 
-#if defined(__x86_64__)
-      Elf64_Ehdr* elf = (Elf64_Ehdr*)elf_ptr;
-      Elf64_Shdr* p_shdr = (Elf64_Shdr*)(elf_ptr + elf->e_shoff);
+      ELF_Ehdr* elf = (ELF_Ehdr*)elf_ptr;
+      ELF_Shdr* p_shdr = (ELF_Shdr*)(elf_ptr + elf->e_shoff);
       sect->symtab = 0;
       sect->symtab_n = 0;
       sect->strtab = 0;
-#elif defined(__i386__)
-      Elf32_Ehdr* elf = (Elf32_Ehdr*)elf_ptr;
-      Elf64_Shdr* p_shdr = (Elf32_Shdr*)(elf_ptr + elf->e_shoff);
-      sect->symtab = 0;
-      sect->symtab_n = 0;
-      sect->strtab = 0;
-#endif
 
       DEBUG2("number of section headers %d",elf->e_shnum);
 
@@ -615,13 +518,8 @@ int clelf_load_sections( char* elf_ptr, struct clelf_sect_struct* sect )
 
          } else if (!strncmp(shstr+p_shdr->sh_name,".symtab",7)) {
 
-#if defined(__x86_64__)
-            sect->symtab = (Elf64_Sym*)(elf_ptr+p_shdr->sh_offset);
-            sect->symtab_n = p_shdr->sh_size/sizeof(Elf64_Sym);
-#elif defined(__i386__)
-            sect->symtab = (Elf32_Sym*)(elf_ptr+p_shdr->sh_offset);
-            sect->symtab_n = p_shdr->sh_size/sizeof(Elf32_Sym);
-#endif
+            sect->symtab = (ELF_Sym*)(elf_ptr+p_shdr->sh_offset);
+            sect->symtab_n = p_shdr->sh_size/sizeof(ELF_Sym);
 
          } else if (!strncmp(shstr+p_shdr->sh_name,".strtab",7)) {
 
