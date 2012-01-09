@@ -20,6 +20,7 @@ printf OUT "\n#ifndef _OCLCALL_H\n";
 printf OUT "#define _OCLCALL_H\n\n";
 
 printf OUT "\n#include <CL/cl.h>\n\n";
+printf OUT "\n#include <CL/cl_gl.h>\n\n";
 
 printf OUT "\nstruct oclent_struct {\n";
 printf OUT "\tunsigned int ocl_narg;\n";

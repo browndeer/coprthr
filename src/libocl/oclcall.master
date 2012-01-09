@@ -1,6 +1,6 @@
 # oclcall.master
 #
-# Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+# Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
 #
 # This software was developed by Brown Deer Technology, LLC.
 # For more information contact info@browndeertechnology.com
@@ -94,4 +94,11 @@ clEnqueueWaitForEvents		0	cl_int	cl_command_queue,cl_uint,const~cl_event*
 clEnqueueBarrier				0	cl_int	cl_command_queue
 reserved							3	void		void	
 reserved							3	void		void
-
+clCreateFromGLBuffer			1	cl_mem	cl_context,cl_mem_flags,cl_GLuint,int* 
+clCreateFromGLTexture2D		1	cl_mem	cl_context,cl_mem_flags,cl_GLenum,cl_GLint,cl_GLuint,cl_int* 
+clCreateFromGLTexture3D		1	cl_mem	cl_context,cl_mem_flags,cl_GLenum,cl_GLint,cl_GLuint,cl_int*
+clCreateFromGLRenderbuffer	1	cl_mem	cl_context,cl_mem_flags,cl_GLuint,cl_int* 
+clGetGLObjectInfo				0	cl_int	cl_mem,cl_gl_object_type*,cl_GLuint*
+clGetGLTextureInfo			0	cl_int	cl_mem,cl_gl_texture_info,size_t,void*,size_t*
+clEnqueueAcquireGLObjects	0	cl_int	cl_command_queue,cl_uint,const~cl_mem*,cl_uint,const~cl_event*,cl_event*
+clEnqueueReleaseGLObjects	0	cl_int	cl_command_queue,cl_uint,const~cl_mem*,cl_uint,const~cl_event*,cl_event*
