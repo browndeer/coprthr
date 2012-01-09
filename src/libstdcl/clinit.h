@@ -47,68 +47,6 @@
 #include "clcontext.h"
 
 
-//struct _proc_cl_struct {
-//
-//	unsigned int clprgs_n;
-//   struct clprgs_entry* clprgs;
-//
-//	size_t cltexts_sz;
-//   char* cltexts;
-//
-//	unsigned int clprgb_n;
-//   struct clprgb_entry* clprgb;
-//
-//	size_t cltextb_sz;
-//   char* cltextb;
-//
-//	size_t clstrtab_sz;
-//   char* clstrtab;
-//
-//};
-
-//#if defined(__x86_64__)
-//
-//struct clprgs_entry {
-//   Elf64_Word e_name;
-//   Elf64_Word e_info;
-//   Elf64_Half e_shndx;
-//   Elf64_Addr  e_offset;
-//   Elf64_Xword e_size;
-//};
-//
-//struct clprgb_entry {
-//   Elf64_Word e_name;
-//   Elf64_Word e_info;
-//   Elf64_Half e_shndx;
-//   Elf64_Addr  e_offset;
-//   Elf64_Xword e_size;
-//};
-//
-//#elif defined(__i386__)
-//
-//struct clprgs_entry {
-//   Elf32_Word e_name;
-//   Elf32_Word e_info;
-//   Elf32_Half e_shndx;
-//   Elf32_Addr  e_offset;
-//   Elf32_Xword e_size;
-//};
-//
-//struct clprgb_entry {
-//   Elf32_Word e_name;
-//   Elf32_Word e_info;
-//   Elf32_Half e_shndx;
-//   Elf32_Addr  e_offset;
-//   Elf32_Xword e_size;
-//};
-//
-//#endif
-//
-//#define __clprgs_entry_sz sizeof(struct clprgs_entry)
-//#define __clprgb_entry_sz sizeof(struct clprgb_entry)
-
-
-//extern struct _proc_cl_struct _proc_cl;
 extern struct clelf_sect_struct* _proc_clelf_sect;
 
 
@@ -124,7 +62,6 @@ extern "C" {
 #endif
 
 extern void _assert_proto_stub(void);
-//LIBSTDCL_API void _libstdcl_init();
 #ifdef _WIN64
 LIBSTDCL_API void _libstdcl_init();
 #define stdcl_init() _libstdcl_init()
