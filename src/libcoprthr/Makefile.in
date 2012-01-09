@@ -42,14 +42,14 @@ XCL_OBJS = xcl_platform.o xcl_device.o xcl_context.o xcl_command_queue.o \
 IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	environment.o \
 	program.o kernel.o memobj.o \
-	cmdsched.o cmdcall.o cmdcall_x86_64.o \
-	elf_cl.o compiler_x86_64.o \
+	cmdsched.o cmdcall.o cmdcall_x86_64.o cmdcall_arm.o \
+	elf_cl.o compiler_x86_64.o compiler_arm.o \
 	vcore.o \
 	watermark.o
 
 
 #RT_OBJS = __elfcl_rt.o fast_setjmp.o
-RT_OBJS = fast_setjmp.o __vcore_rt.o
+RT_OBJS = __vcore_rt.o
 #RT_OBJS = fast_setjmp.o 
 
 #RT_BC = __vcore_rt.bc bdt_builtins_x86_64.bc
@@ -112,8 +112,10 @@ DEFS += \
 	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
 
 #CCFLAGS += -O1 -fPIC -fbounds-check -g
-CCFLAGS += -O1 -fPIC 
-CCFLAGS_VCORE_RT = -O1 -fPIC -funroll-loops -fstrict-aliasing
+#CCFLAGS += -O1 -fPIC 
+CCFLAGS += -O0 -fPIC 
+#CCFLAGS_VCORE_RT = -O1 -fPIC -funroll-loops -fstrict-aliasing
+CCFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
 
 
 #YACC = yacc
