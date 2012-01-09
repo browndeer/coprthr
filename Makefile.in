@@ -1,5 +1,9 @@
 
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 MAKE = gmake
+else
+MAKE = make
+endif
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
