@@ -42,7 +42,13 @@
 #include "platform.h"
 #include "device.h"
 #include "cmdcall.h"
+#if defined(__x86_64__)
 #include "cmdcall_x86_64.h"
+#elif defined(__arm__)
+#include "cmdcall_arm.h"
+#else
+#error unsupported architecture
+#endif
 #include "cmdcall_atigpu.h"
 #include "compiler.h"
 
@@ -188,7 +194,8 @@ void __do_discover_devices(
 	dtab[0].imp.name = dstrtab+dstrtab_sz;
 	dstrtab_sz += sz;
 
-#else
+#elif defined(__x86_64__) || defined(__i386__)
+
 	if (stat("/proc/cpuinfo",&fs)) {
 		WARN(__FILE__,__LINE__,"stat failed on /proc/cpuinfo");
 		return;
@@ -259,13 +266,98 @@ void __do_discover_devices(
 
 	fclose(fp);
 
+#elif defined(__arm__) 
+
+	if (stat("/proc/cpuinfo",&fs)) {
+		WARN(__FILE__,__LINE__,"stat failed on /proc/cpuinfo");
+		return;
+	}
+
+	fp = fopen("/proc/cpuinfo","r");
+
+	while (fgets(buf,1024,fp)) {
+
+		char* savptr;
+		char* left = (char*)strtok_r(buf,":",&savptr);
+		char* right = (char*)strtok_r(0,":",&savptr);
+
+		if (!strncmp(left,"processor",9)) {
+
+//			if (atoi(right) > 0) break;
+			dtab[0].imp.max_compute_units = atoi(right) + 1;
+
+//		} else if (!strncasecmp(left,"cpu count",8)) {
+//
+//			dtab[0].imp.max_compute_units = atoi(right);
+//
+//		} else if (!strncasecmp(left,"cpu MHz",7)) {
+//
+//			dtab[0].imp.max_freq = atoi(right);
+//
+//		} else if (!strncasecmp(left,"model name",10)) {
+		} else if (!strncmp(left,"Processor",9)) {
+
+			right = truncate_ws(right);
+			sz = 1+strnlen(right,__CLMAXSTR_LEN);
+			strncpy(dstrtab+dstrtab_sz,right,sz);
+			dtab[0].imp.name = dstrtab+dstrtab_sz;
+			dstrtab_sz += sz;
+
+//		} else if (!strncasecmp(left,"vendor_id",9)) {
+		} else if (!strncasecmp(left,"CPU implementer",15)) {
+
+			right = truncate_ws(right);
+			sz = 1+strnlen(right,__CLMAXSTR_LEN);
+			strncpy(dstrtab+dstrtab_sz,right,sz);
+			dtab[0].imp.vendor = dstrtab+dstrtab_sz;
+			dstrtab_sz += sz;
+
+		}
+
+	}
+
+	fclose(fp);
+
+
+	if (stat("/proc/meminfo",&fs)) {
+		WARN(__FILE__,__LINE__,"stat failed on /proc/meminfo");
+		return;
+	}
+
+	fp = fopen("/proc/meminfo","r");
+
+	while (fgets(buf,1024,fp)) {
+
+		char* savptr;
+		char* left = (char*)strtok_r(buf,":",&savptr);
+		char* right = (char*)strtok_r(0,":",&savptr);
+
+//		if (!strncasecmp(left,"MemFree",7)) {
+//
+//			dtab[0].imp.max_mem_alloc_sz = (1024/4)*atoi(right);
+//		}
+
+	}
+
+	fclose(fp);
+
 #endif
 
-	
+
+#if defined(__x86_64__)	
 	dtab[0].imp.comp = (void*)compile_x86_64;
 	dtab[0].imp.ilcomp = 0;
 	dtab[0].imp.link = 0;
 	dtab[0].imp.v_cmdcall = cmdcall_x86_64;
+#elif defined(__arm__)
+   dtab[0].imp.comp = (void*)compile_arm;
+   dtab[0].imp.ilcomp = 0;
+   dtab[0].imp.link = 0;
+   dtab[0].imp.v_cmdcall = cmdcall_arm;
+#else
+#error unsupported architecture
+#endif
+
 
 //	int i;
 //	CPU_ZERO(&dtab[0].imp.cpumask);

@@ -92,15 +92,11 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 
-DEBUG(__FILE__,__LINE__,"__x86_64__");
-
 	Elf64_Ehdr* ehdr = 0;
 	Elf64_Phdr* phdr = 0;
 	Elf64_Shdr* shdr = 0;
 
-#elif defined(__i386__) 
-
-DEBUG(__FILE__,__LINE__,"__i386__");
+#elif defined(__i386__) || defined(__arm__)
 
 	Elf32_Ehdr* ehdr = 0;
 	Elf32_Phdr* phdr = 0;
@@ -138,7 +134,20 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
 	ehdr->e_machine = EM_386; 
 	ehdr->e_type = ET_NONE;
-	ehdr->e_shstrndx = 6; /* set section index of .shstrtab */
+	ehdr->e_shstrndx = 9; /* set section index of .shstrtab */
+
+#elif defined(__arm__) 
+
+	if ((ehdr = elf32_newehdr(e)) == 0) {
+		ERROR(__FILE__,__LINE__,
+			"write_elf_cl: elf32_newehdr() failed: %s.", elf_errmsg(-1));
+		exit(-1);
+	}
+
+	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
+	ehdr->e_machine = EM_ARM; 
+	ehdr->e_type = ET_NONE;
+	ehdr->e_shstrndx = 9; /* set section index of .shstrtab */
 
 #endif
 
@@ -172,7 +181,7 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
 		ERROR(__FILE__,__LINE__,
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
@@ -217,7 +226,7 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
 		ERROR(__FILE__,__LINE__,
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
@@ -262,7 +271,7 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
 		ERROR(__FILE__,__LINE__,
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
@@ -308,7 +317,7 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
 		ERROR(__FILE__,__LINE__,
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
@@ -354,7 +363,7 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
 		ERROR(__FILE__,__LINE__,
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
@@ -400,7 +409,7 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
 		ERROR(__FILE__,__LINE__,
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
@@ -446,7 +455,7 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
 		ERROR(__FILE__,__LINE__,
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
@@ -492,7 +501,7 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
 		ERROR(__FILE__,__LINE__,
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
@@ -538,7 +547,7 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
-#elif defined(__i386__)
+#elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
 		ERROR(__FILE__,__LINE__,
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
@@ -574,126 +583,4 @@ DEBUG(__FILE__,__LINE__,"__i386__");
 	return(0);
 
 }
-
-
-#if(0)
-
-unsigned int
-elfcl_get_clprgb_n( void* p )
-{
-	int i;
-	char* elfp = (char*)p;
-
-	if (strncmp(elfp+1,"ELF",3)) {
-		WARN(__FILE__,__LINE__,"elfcl_get_clprgb: not an elf object");
-		return(0);
-	}
-
-	Elf64_Ehdr* elfhdr = (Elf64_Ehdr*)elfp;
-
-	printf("%d\n",elfhdr->e_shoff);
-
-	Elf64_Shdr* elfsh = (Elf64_Shdr*)(elfp + elfhdr->e_shoff);
-
-	printf("%d\n",elfhdr->e_shstrndx);
-
-	char* shstrtab = elfp + elfsh[elfhdr->e_shstrndx].sh_offset;
-
-	printf("%d\n",elfsh[elfhdr->e_shstrndx].sh_offset);
-
-	printf("shstrtab ~ %s\n",shstrtab);	
-	printf("shstrtab ~ %s\n",shstrtab+elfsh[elfhdr->e_shstrndx].sh_name);	
-	if (strncmp(shstrtab+elfsh[elfhdr->e_shstrndx].sh_name,".shstrtab",9)) {
-		WARN(__FILE__,__LINE__,"elfcl_get_clprgb: bad shstrtab");
-		return(0);
-	}
-
-	for(i=0;i<elfhdr->e_shnum;i++,elfsh++)
-		if (!strncmp(shstrtab+elfsh->sh_name,".clprgb",7)) 
-			return(elfsh->sh_size/elfsh->sh_entsize);
-
-	WARN(__FILE__,__LINE__,"elfcl_get_clprgb: clprgb section not found");
-
-	return(0);
-}
-
-void* 
-elfcl_get_clprgb( void* p )
-{
-	int i;
-	char* elfp = (char*)p;
-
-	if (strncmp(elfp+1,"ELF",3)) {
-		WARN(__FILE__,__LINE__,"elfcl_get_clprgb: not an elf object");
-		return(0);
-	}
-
-	Elf64_Ehdr* elfhdr = (Elf64_Ehdr*)elfp;
-
-	printf("%d\n",elfhdr->e_shoff);
-
-	Elf64_Shdr* elfsh = (Elf64_Shdr*)(elfp + elfhdr->e_shoff);
-
-	printf("%d\n",elfhdr->e_shstrndx);
-
-	char* shstrtab = elfp + elfsh[elfhdr->e_shstrndx].sh_offset;
-
-	printf("%d\n",elfsh[elfhdr->e_shstrndx].sh_offset);
-
-	printf("shstrtab ~ %s\n",shstrtab);	
-	printf("shstrtab ~ %s\n",shstrtab+elfsh[elfhdr->e_shstrndx].sh_name);	
-	if (strncmp(shstrtab+elfsh[elfhdr->e_shstrndx].sh_name,".shstrtab",9)) {
-		WARN(__FILE__,__LINE__,"elfcl_get_clprgb: bad shstrtab");
-		return(0);
-	}
-
-	for(i=0;i<elfhdr->e_shnum;i++,elfsh++)
-		if (!strncmp(shstrtab+elfsh->sh_name,".clprgb",7)) 
-			return(elfp+elfsh->sh_offset);
-
-	WARN(__FILE__,__LINE__,"elfcl_get_clprgb: clprgb section not found");
-
-	return(0);
-}
-
-void* 
-elfcl_get_cltextb( void* p )
-{
-	int i;
-	char* elfp = (char*)p;
-
-	if (strncmp(elfp+1,"ELF",3)) {
-		WARN(__FILE__,__LINE__,"elfcl_get_cltextb: not an elf object");
-		return(0);
-	}
-
-	Elf64_Ehdr* elfhdr = (Elf64_Ehdr*)elfp;
-
-	printf("%d\n",elfhdr->e_shoff);
-
-	Elf64_Shdr* elfsh = (Elf64_Shdr*)(elfp + elfhdr->e_shoff);
-
-	printf("%d\n",elfhdr->e_shstrndx);
-
-	char* shstrtab = elfp + elfsh[elfhdr->e_shstrndx].sh_offset;
-
-	printf("%d\n",elfsh[elfhdr->e_shstrndx].sh_offset);
-
-	printf("shstrtab ~ %s\n",shstrtab);	
-	printf("shstrtab ~ %s\n",shstrtab+elfsh[elfhdr->e_shstrndx].sh_name);	
-	if (strncmp(shstrtab+elfsh[elfhdr->e_shstrndx].sh_name,".shstrtab",9)) {
-		WARN(__FILE__,__LINE__,"elfcl_get_clprgb: bad shstrtab");
-		return(0);
-	}
-
-	for(i=0;i<elfhdr->e_shnum;i++,elfsh++)
-		if (!strncmp(shstrtab+elfsh->sh_name,".cltextb",8)) 
-			return(elfp+elfsh->sh_offset);
-
-	WARN(__FILE__,__LINE__,"elfcl_get_clprgb: cltextb section not found");
-
-	return(0);
-}
-
-#endif
 

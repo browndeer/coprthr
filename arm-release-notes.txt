@@ -1,0 +1,17 @@
+arm tested on angstrom for omap4430-panda.
+Linux tai 2.6.35.3+ #1 SMP PREEMPT Sat Apr 2 17:53:45 CEST 2011 armv7l GNU/Linux
+
+reqirements:
+
+- Install M4 (m4-1.4.16), GNU bison (bison-2.5), GNU flex (flex-2.5.35) from
+  source.  Versions provided in distro are broken.
+
+- Replace busybox as much as possible.  It provides broken UNIX commands.
+
+- MUST replace /bin/sh -> busybox with /bin/sh /bin/bash to get test scripts
+  to work since busybox shell does not treat environment variables correctly.
+
+- CLETE does not work because I need to add gen_operators compiled for ARM
+
+
+

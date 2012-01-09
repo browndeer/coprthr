@@ -79,8 +79,15 @@ cl_int __do_build_program_from_binary(
 	//Elf* e = (Elf*)edata->map;
 	Elf* e = (Elf*)prg->bin[devnum];
 
+#if defined(__x86_64__)
 	Elf64_Ehdr* ehdr = (Elf64_Ehdr*)e;
 	Elf64_Shdr* shdr = (Elf64_Shdr*)((intptr_t)e + ehdr->e_shoff);
+#elif defined(__i386__) || defined(__arm__)
+   Elf32_Ehdr* ehdr = (Elf32_Ehdr*)e;
+   Elf32_Shdr* shdr = (Elf32_Shdr*)((intptr_t)e + ehdr->e_shoff);
+#else
+#error unsupported architecture
+#endif
 	char* shstrtab = (char*)((intptr_t)e + shdr[ehdr->e_shstrndx].sh_offset);
 
 	size_t clstrtab_sz = 0;
@@ -92,6 +99,7 @@ cl_int __do_build_program_from_binary(
 	char* cltextb = 0;
 
 	for(i=0;i<ehdr->e_shnum;i++,shdr++) {
+		DEBUG2("section name |%s|",shstrtab+shdr->sh_name);
 		if (!strncmp(shstrtab+shdr->sh_name,".clstrtab",9)) {
 			clstrtab_sz =shdr->sh_size;
 			clstrtab =(char*)((intptr_t)e + shdr->sh_offset);

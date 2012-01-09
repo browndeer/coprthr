@@ -79,12 +79,28 @@ char* vc_stack_storage = 0;
 char* ve_local_mem = 0;
 
 
+#if defined(__x86_64__)
 #define __callsp(sp,pf,argp) __asm volatile ( \
 	"movq %0,%%rdi\n\t"	\
 	"movq %1,%%rsp\n\t" 	\
 	"call *%2\n"	\
 	: : "m" (argp), "m" (sp), "m" (pf) 	\
 	);
+#elif defined(__arm__)
+#define __callsp(sp,pf,argp) __asm volatile ( \
+   "mov ip,sp\n\t" \
+   "ldr %%sp,%1\n\t"  \
+   "stmfd sp!,{ip}\n\t" \
+   "ldr %%r0,%0\n\t"  \
+   "mov lr,pc\n\t" \
+   "bx %2\n"   \
+   "ldmfd sp,{sp}\n\t" \
+   : : "m" (argp), "m" (sp), "r" (pf)  \
+   );
+#else
+#error unsupported architecture
+#endif
+
 
 
 static void* 
@@ -287,7 +303,8 @@ vcengine( void* p )
 //					if (!(setjmp(vcengine_jbuf))) {
 					if (!(__vc_setjmp(vcengine_jbuf))) {
 						sp = vc_stack[i];
-						DEBUG(__FILE__,__LINE__,"[%d] sp %p edata %p",i,sp,edata);
+						DEBUG(__FILE__,__LINE__,"[%d] sp %p callp %p edata %p",
+							i,sp,edata->callp,edata);
 						__callsp(sp,edata->callp,edata);
 					}
 				}

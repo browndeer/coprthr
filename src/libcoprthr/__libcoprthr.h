@@ -38,7 +38,10 @@
 #include <stdint.h>
 #include <setjmp.h>
 #include <math.h>
+
+#if defined(__SSE__) 
 #include <xmmintrin.h>
+#endif
 
 
 /***
@@ -57,12 +60,25 @@
 #define __fp() __builtin_frame_address(0)
 #define __getvcdata() (struct vc_data*)(((intptr_t)__fp())&VCORE_STACK_MASK)
 
+#if defined(__x86_64__)
 #define __setvcdata(pdata) __asm__ __volatile__ ( \
    "movq %%rbp,%%r14\n\t" \
    "andq $-16384,%%r14\n\t" \
    "movq %%r14,%0\n" \
    : "=m" (pdata) : : "%r14" \
    )
+#elif defined(__arm__)
+#define __setvcdata(pdata) __asm__ __volatile__ ( \
+   "mov %%r3,%%fp\n\t" \
+   "bic %%r3,%%r3,#16320\n\t" \
+   "bic %%r3,%%r3,#63\n\t" \
+   "str %%r3,%0\n" \
+   : "=m" (pdata) : : "%r3" \
+   )
+#else
+#error unsupported architecture
+#endif
+
 
 struct work_struct {
    unsigned int tdim;
@@ -176,6 +192,14 @@ typedef float __float2 __attribute__((__vector_size__(8)));
 typedef float __float4 __attribute__((__vector_size__(16)));
 typedef double __double2 __attribute__((__vector_size__(16)));
 
+/* if not using sse we will define some equivalents -DAR */
+#if !defined(__SSE__)
+typedef __int2 __m64;
+typedef __int4 __m128i;
+typedef __float4 __m128;
+typedef __double2 __m128d;
+#endif
+
 struct _int2 {
 	_int2() {}
 	~_int2() {}
@@ -184,8 +208,14 @@ struct _int2 {
 	_int2( int a, int b ) : x(a), y(b) {}
 	_int2( int* p ) : x(p[0]), y(p[1]) {}
 	_int2& operator+ () { return *this; }
+#if defined(__SSE__)
 	_int2& operator += ( _int2 b ) 
 		{ vec = _mm_add_pi32( vec, b.vec ); return *this; }
+#else
+	_int2& operator += ( _int2 b ) 
+		{ x += b.x; y += b.y; return *this; }
+#endif
+
 	union {
 		struct { __m64 vec; };
 		struct { int x,y; };
@@ -204,8 +234,13 @@ struct _int4 {
 	_int4( int a, int b, int c, int d ) : x(a), y(b), z(c), w(d) {}
 	_int4( int* p ) : x(p[0]), y(p[1]), z(p[2]), w(p[3]) {}
 	_int4& operator+ () { return *this; }
+#if defined(__SSE__)
 	_int4& operator += ( _int4 b ) 
 		{ vec = _mm_add_epi32( vec, b.vec ); return *this; }
+#else
+	_int4& operator += ( _int4 b ) 
+		{ x+=b.x; y+=b.y; z+=b.z; w+=b.w; return *this; }
+#endif
 	union {
 		struct { __m128i vec; };
 		struct { int x,y,z,w; };
@@ -226,8 +261,13 @@ struct _long2 {
 	_long2( long a, long b ) : x(a), y(b) {}
 	_long2( long* p ) : x(p[0]), y(p[1]) {}
 	_long2& operator+ () { return *this; }
+#if defined(__SSE__)
 	_long2& operator += ( _long2 b ) 
 		{ vec = _mm_add_epi64( vec, b.vec ); return *this; }
+#else
+	_long2& operator += ( _long2 b ) 
+		{  x+=b.x; y+=b.y; return *this; }
+#endif
 	union {
 		struct { __m128i vec; };
 		struct { long x,y; };
@@ -330,8 +370,13 @@ struct _float4 {
 		: x(a), y(b), z(c), w(d) {}
 	_float4( float* p ) : x(p[0]), y(p[1]), z(p[2]), w(p[3]) {}
 	_float4& operator+ () { return *this; }
+#if defined(__SSE__)
 	_float4& operator += ( _float4 b ) 
 		{ vec = _mm_add_ps( vec, b.vec ); return *this; }
+#else
+	_float4& operator += ( _float4 b ) 
+		{ x+=b.x; y+=b.y; z+=b.z; w+=b.w; return *this; }
+#endif
 	union {
 		struct { __m128 vec; };
 		struct { float x,y,z,w; };
@@ -352,8 +397,13 @@ struct _double2 {
 	_double2( double a, double b ) : x(a), y(b) {}
 	_double2( double* p ) : x(p[0]), y(p[1]) {}
 	_double2& operator+ () { return *this; }
+#if defined(__SSE__)
 	_double2& operator += ( _double2 b ) 
 		{ vec = _mm_add_pd( vec, b.vec ); return *this; }
+#else
+	_double2& operator += ( _double2 b ) 
+		{ x+=b.x; y+=b.y; return *this; }
+#endif
 	union {
 		struct { __m128d vec;	};
 		struct { double x,y; };
@@ -381,11 +431,12 @@ static __inline double as_double( float2 f2 ) { return *(double*)(&f2); }
 
 /* operator + */
 
+#if defined(__SSE__)
+
 static __inline _int2 operator+( _int2 a, _int2 b ) 
 { return _mm_add_pi32( a.vec, b.vec ); }
 
 static __inline _int4 operator+( _int4 a, _int4 b ) 
-//{ return __builtin_ia32_paddd128( a.vec, b.vec ); }
 { return _mm_add_epi32( a.vec, b.vec ); }
 
 static __inline _uint2 operator+( _uint2 a, _uint2 b ) 
@@ -408,6 +459,37 @@ static __inline _float4 operator+( _float4 a, _float4 b )
 
 static __inline _double2 operator+( _double2 a, _double2 b ) 
 { return _mm_add_pd( a.vec, b.vec ); }
+
+#else
+
+static __inline _int2 operator+( _int2 a, _int2 b )
+{ return _int2( a.x+b.x, a.y+b.y ); }
+
+static __inline _int4 operator+( _int4 a, _int4 b )
+{ return _int4( a.x+b.x, a.y+b.y, a.z+b.z, a.w+b.w ); }
+
+static __inline _uint2 operator+( _uint2 a, _uint2 b )
+{ return _uint2( a.x + b.x, a.y + b.y ); }
+
+static __inline _uint4 operator+( _uint4 a, _uint4 b )
+{ return _uint4( a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w ); }
+
+static __inline _long2 operator+( _long2 a, _long2 b )
+{ return _long2( a.x+b.x, a.y+b.y ); }
+
+static __inline _ulong2 operator+( _ulong2 a, _ulong2 b )
+{ return _ulong2( a.x + b.x, a.y + b.y ); }
+
+static __inline _float2 operator+( _float2 a, _float2 b )
+{ return _float2( a.x + b.x, a.y + b.y ); }
+
+static __inline _float4 operator+( _float4 a, _float4 b )
+{ return _float4( a.x+b.x, a.y+b.y, a.z+b.z, a.w+b.w ); }
+
+static __inline _double2 operator+( _double2 a, _double2 b )
+{ return _double2( a.x+b.x, a.y+b.y ); }
+
+#endif
 
 
 /* operator - */
@@ -442,6 +524,8 @@ static __inline _double2 operator-( _double2 a, _double2 b )
 
 /* operator * */
 
+#if defined(__SSE__)
+
 static __inline _int2 operator*( _int2 a, _int2 b ) 
 { return _int2( a.x * b.x, a.y * b.y ); }
 
@@ -468,6 +552,37 @@ static __inline _float4 operator*( _float4 a, _float4 b )
 
 static __inline _double2 operator*( _double2 a, _double2 b ) 
 { return _mm_mul_pd( a.vec, b.vec ); }
+
+#else
+
+static __inline _int2 operator*( _int2 a, _int2 b )
+{ return _int2( a.x * b.x, a.y * b.y ); }
+
+static __inline _int4 operator*( _int4 a, _int4 b )
+{ return _int4( a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w ); }
+
+static __inline _uint2 operator*( _uint2 a, _uint2 b )
+{ return _uint2( a.x * b.x, a.y * b.y ); }
+
+static __inline _uint4 operator*( _uint4 a, _uint4 b )
+{ return _uint4( a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w ); }
+
+static __inline _long2 operator*( _long2 a, _long2 b )
+{ return _long2( a.x * b.x, a.y * b.y ); }
+
+static __inline _ulong2 operator*( _ulong2 a, _ulong2 b )
+{ return _ulong2( a.x * b.x, a.y * b.y ); }
+
+static __inline _float2 operator*( _float2 a, _float2 b )
+{ return _float2( a.x * b.x, a.y * b.y ); }
+
+static __inline _float4 operator*( _float4 a, _float4 b )
+{ return _float4( a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w ); }
+
+static __inline _double2 operator*( _double2 a, _double2 b )
+{ return _double2( a.x * b.x, a.y * b.y ); }
+
+#endif
 
 
 /* operator % */

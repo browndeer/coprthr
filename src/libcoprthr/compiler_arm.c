@@ -1,6 +1,6 @@
-/* compiler_x86_64.c 
+/* compiler_arm.c 
  *
- * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -45,7 +45,7 @@
  * XXX the primary issue seems to be -fschedule-insns -fschedule-insns2 .
  * XXX also, do not raise CCFLAGS_KCALL, effect is to break everything. -DAR */
 
-#define CCFLAGS_OCL " -O2 -msse3 " CCFLAGS_OCL_O2
+#define CCFLAGS_OCL " -O2 " CCFLAGS_OCL_O2
 #define CCFLAGS_KCALL " -O0 "
 #define CCFLAGS_LINK 
 
@@ -220,19 +220,25 @@ int shell( char* command, char* options, char* output );
 
 /* XXX note that logbuf is not protected from overfull, fix this -DAR */
 #define __execshell(command,p) do { \
-	char c; \
+	char c; int n=0; \
 	DEBUG(__FILE__,__LINE__,"__execshell: %s",command); \
+	FILE* fp0 = fopen("dummy","w"); \
+	DEBUG2("__execshell: fp0=%d",fp0); \
+	fprintf(fp0,"dummy\n"); \
+	fclose(fp0); \
 	FILE* fp = popen(command,"r"); \
-	while((c=fgetc(fp)) != EOF) *p++ = c; \
+	DEBUG2("__execshell: fp=%d",fp); \
+	while((c=fgetc(fp)) != EOF && n++<32) *p++ = c; \
 	err = pclose(fp); \
 	} while(0);
 
-#if defined(__x86_64__)
+#if defined(__arm__)
 
-void* compile_x86_64(
+void* compile_arm(
 	cl_device_id devid,
 	unsigned char* src, size_t src_sz, 
 	unsigned char** p_bin, size_t* p_bin_sz, 
+//	char** opt, char** log 
 	char* opt, char** log 
 )
 {
@@ -318,10 +324,15 @@ void* compile_x86_64(
 				/* copy rt objects to work dir */
 
 				__command("cp "INSTALL_LIB_DIR"/__vcore_rt.o %s",wd);
+DEBUG2("command |%s|",buf1);
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
+DEBUG2("command |%s|",buf1);
 
 				__command("cp "INSTALL_INCLUDE_DIR"/vcore.h %s",wd);
+
+DEBUG2("command |%s|",buf1);
+
 				__log(logp,"]%s\n",buf1); \
 				__execshell(buf1,logp);
 
@@ -347,23 +358,30 @@ void* compile_x86_64(
 
 				/* assemble to native object */
 
-//				__command("cd %s; gcc -O2 -msse -fPIC -c -g %s.cpp 2>&1",
-//				__command("cd %s; gcc -O1 -msse -fPIC -c -g %s.cpp 2>&1",
+//				__command("cd %s; gcc -O2 -fPIC -c -g %s.cpp 2>&1",
+//				__command("cd %s; gcc -O1 -fPIC -c -g %s.cpp 2>&1",
 				__command(
 					"cd %s; "
 					CC_COMPILER CCFLAGS_OCL 
 					" -I" INSTALL_INCLUDE_DIR 
 					" -D __STDCL_KERNEL_VERSION__=020000"
 					" %s "
-					" -msse -fPIC -c -g %s.cpp 2>&1",
+					" -fPIC -c -g %s.cpp 2>&1",
 					wd,opt,filebase); 
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
 
 
+__command("/bin/bash -c echo $LD_LIBRARY_PATH\n");
+__execshell(buf1,p2);
+__command("echo $PATH\n");
+__execshell(buf1,p2);
+DEBUG2("LD_LIBRARY_PATH %s",getenv("LD_LIBRARY_PATH"));
+DEBUG2("PATH %s",getenv("PATH"));
+
 				/* generate kcall wrappers */
 
-				__command("cd %s; xclnm --kcall -d -c %s -o _kcall_%s.c 2>&1",
+				__command("cd %s; echo $LD_LIBRARY_PATH; xclnm --kcall -d -c %s -o _kcall_%s.c 2>&1",
 					wd,file_cl,filebase); 
 				__log(p2,"]%s\n",buf1); \
 				__execshell(buf1,p2);
@@ -441,7 +459,7 @@ void* compile_x86_64(
 						exit(-2);
 					}
 
-#if defined(__i386__)
+#if defined(__i386__) || defined(__arm__)
 					clsymtab[i] = (struct clsymtab_entry){
 						(Elf32_Half)clstrtab_sz,
 						(Elf32_Half)kind,
@@ -498,7 +516,7 @@ void* compile_x86_64(
 						exit(-2);
 					}
 
-#if defined(__i386__)
+#if defined(__i386__) || defined(__arm__)
 					clargtab[i] = (struct clargtab_entry){
 						(Elf32_Half)0,
 						(Elf32_Half)datatype,
@@ -720,14 +738,14 @@ DEBUG(__FILE__,__LINE__,"XXX filename %s %d",buf1,strlen(buf1));
 
 #else
 
-void* compile_x86_64(
+void* compile_arm(
    cl_device_id devid,
    unsigned char* src, size_t src_sz,
    unsigned char** p_bin, size_t* p_bin_sz,
    char* opt, char** log
 )
 {
-   ERROR2("x86_64 cross-compiler not supported");
+   ERROR2("ARM cross-compiler not supported");
    exit(-1);
 }
 

@@ -27,7 +27,7 @@
 #include <libelf/libelf.h>
 
 
-#if defined(__i386__)
+#if defined(__i386__) || defined(__arm__)
 
 struct cldev_entry {
 	Elf32_Half e_type;
@@ -61,6 +61,7 @@ struct clsymtab_entry {
 	Elf32_Half e_arrn;
 	Elf32_Half e_addrspace;
 	Elf32_Half e_ptrc;
+	Elf32_Half e_narg;
 	Elf32_Half e_arg0;
 };
 

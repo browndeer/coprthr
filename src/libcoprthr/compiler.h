@@ -40,6 +40,13 @@ void* compile_x86_64(
    char* opt, char** p_log
 );
 
+void* compile_arm(
+	cl_device_id devid,
+   unsigned char* src, size_t src_sz,
+   unsigned char** p_bin, size_t* p_bin_sz,
+   char* opt, char** p_log
+);
+
 void* compile_atigpu(
    cl_device_id,
    unsigned char* src, size_t src_sz,
