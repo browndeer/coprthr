@@ -1,6 +1,6 @@
 /* vcore.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -41,25 +41,8 @@
 #include "util.h"
 
 
-//#define NCPU 2 /* XXX this is a hack for testing, fix it -DAR */
 
 extern void* vcore_v[];
-
-
-//static pthread_t engine_td[VCORE_NE];
-//static pthread_mutex_t engine_mtx[VCORE_NE];
-//static pthread_cond_t engine_sig1[VCORE_NE];
-//static pthread_cond_t engine_sig2[VCORE_NE];
-//static int engine_ready[VCORE_NE];
-//static int engine_shutdown[VCORE_NE];
-//static struct cmdcall_arg* engine_cmd_argp[VCORE_NE];
-//static struct vcengine_data engine_data[VCORE_NE];
-//static char* engine_local_mem_base[VCORE_NE];
-//static char* engine_local_mem_free[VCORE_NE];
-//static size_t engine_local_mem_sz[VCORE_NE];
-//
-//char vc_stack_storage[(VCORE_NC+1)*VCORE_STACK_SZ*VCORE_NE];
-//char ve_local_mem[VCORE_LOCAL_MEM_SZ*VCORE_NE];
 
 unsigned int vcore_ne = 0;
 
@@ -110,28 +93,10 @@ vcengine( void* p )
 	struct vcengine_data* edata = (struct vcengine_data*)p;
 	int veid = edata->veid;
 
-//	jmp_buf vcengine_jbuf;
-//	jmp_buf vc_jbuf[VCORE_NC];
 	__vc_jmp_buf vcengine_jbuf;
 	__vc_jmp_buf vc_jbuf[VCORE_NC];
-//	char vc_stack_storage[(VCORE_NC+1)*VCORE_STACK_SZ];
-//	char ve_local_mem[VCORE_LOCAL_MEM_SZ];
 
 	struct work_struct work;
-
-//	cpu_set_t mask;
-//	if (sched_getaffinity(0,sizeof(cpu_set_t),&mask)) {
-//		WARN(__FILE__,__LINE__,"vcengine: sched_getaffinity failed");
-//	} else {
-//		CPU_ZERO(&mask);
-//		CPU_SET(veid%NCPU,&mask);
-//		pid_t td = syscall(SYS_gettid);
-//		if (sched_setaffinity(td,sizeof(cpu_set_t),&mask)) {
-//			WARN(__FILE__,__LINE__,"vcengine: sched_setaffinity failed");
-//		}
-//	}
-
-
 
 	DEBUG(__FILE__,__LINE__,"vcengine-attempt-lock");
 	pthread_mutex_lock(&engine_mtx[veid]);
@@ -141,7 +106,6 @@ vcengine( void* p )
 
 	size_t offset = veid*(VCORE_NC+1)*VCORE_STACK_SZ + VCORE_STACK_SZ;
 	char* vc_stack_base 
-//		= (char*) (((intptr_t)vc_stack_storage+VCORE_STACK_SZ)&VCORE_STACK_MASK);
 		= (char*) (((intptr_t)vc_stack_storage+offset)&VCORE_STACK_MASK);
 
 	char* vc_stack[VCORE_NC];
@@ -300,7 +264,6 @@ vcengine( void* p )
 
 				char* sp;
 				for(i=0;i<nc;i++) {
-//					if (!(setjmp(vcengine_jbuf))) {
 					if (!(__vc_setjmp(vcengine_jbuf))) {
 						sp = vc_stack[i];
 						DEBUG(__FILE__,__LINE__,"[%d] sp %p callp %p edata %p",
@@ -311,7 +274,6 @@ vcengine( void* p )
 
 				for(i=0;i<nc;i++) {
 
-//					if (!(setjmp(vcengine_jbuf))) longjmp(vc_jbuf[i],i+1);
 					if (!(__vc_setjmp(vcengine_jbuf))) __vc_longjmp(vc_jbuf[i],i+1);
 				} 
 
@@ -355,7 +317,6 @@ vcproc_startup( void* p )
 
 	if (getenv("COPRTHR_VCORE_NE")) 
 		vcore_ne = min(vcore_ne,atoi(getenv("COPRTHR_VCORE_NE")));
-//		vcore_ne = max(vcore_ne,atoi(getenv("COPRTHR_VCORE_NE")));
 
 	DEBUG(__FILE__,__LINE__,"vcore_ne = %d",vcore_ne);
 
@@ -387,8 +348,6 @@ vcproc_startup( void* p )
 
 	pthread_attr_init(&td_attr);
 	pthread_attr_setdetachstate(&td_attr,PTHREAD_CREATE_JOINABLE);
-
-//	for(i=0;i<VCORE_NE;i++) {
 
 	cpu_set_t mask;
 
@@ -437,14 +396,10 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 	DEBUG(__FILE__,__LINE__,"veid_base,nve %d,%d",veid_base,nve);
 
-//	struct cmdcall_arg subcmd_argp[VCORE_NE];
 	struct cmdcall_arg* subcmd_argp 
-//		= (struct cmdcall_arg*)malloc(vcore_ne*sizeof(struct cmdcall_arg));
 		= (struct cmdcall_arg*)malloc(nve*sizeof(struct cmdcall_arg));
 
 
-//	for(i=0;i<VCORE_NE;i++) {
-//	for(i=0;i<vcore_ne;i++) {
 	for(e=veid_base;e<veid_end;e++) {
 
 		/* must spin until engine is read to ensure valid local cache is set */
@@ -490,10 +445,8 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 				n = 0;
 
 				/* XXX this is a hack, redesign devnum/devid issue -DAR */
-//				while (n < ndev && devices[n] != devid) ++n;
 
 				*(void**)argp->k.pr_arg_vec[i]
-//					=(*(cl_mem*)argp->k.pr_arg_vec[i])->host_ptr;
 					=(*(cl_mem*)argp->k.pr_arg_vec[i])->imp.res[n];
 
 				break;
@@ -514,8 +467,6 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 	/* make copies of *argp for each engine and allocate local mem */
 
-//	for(i=0;i<VCORE_NE;i++) {
-//	for(i=0;i<vcore_ne;i++) {
 	for(e=veid_base,i=0;e<veid_end;e++,i++) {
 
 		memcpy(subcmd_argp+i,argp,sizeof(struct cmdcall_arg));
@@ -551,11 +502,9 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 	size_t sz;
 
-//	for(e=0;e<VCORE_NE;e++) {
-//	for(e=0;e<vcore_ne;e++) {
 	for(e=veid_base,i=0;e<veid_end;e++,i++) {
 
-DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
+		DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 
 		for(j=0;j<subcmd_argp[i].k.krn->narg;j++) {
 
@@ -611,11 +560,7 @@ DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 	DEBUG(__FILE__,__LINE__,"using nve=%d",nve);
 
 	unsigned int ng = gwsd1/lwsd1;
-//	unsigned int nge = ng/VCORE_NE;
-//	unsigned int nge = ng/vcore_ne;
 	unsigned int nge = ng/nve;
-//	unsigned int nge0 = nge + ng%VCORE_NE;	
-//	unsigned int nge0 = nge + ng%vcore_ne;	
 	unsigned int nge0 = nge + ng%nve;	
 	unsigned int inc0 = nge0*lwsd1;
 	unsigned int inc = nge*lwsd1;
@@ -630,16 +575,11 @@ DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 	subcmd_argp[0].k.global_work_offset[d-1] = gwo;
 	gwo += subcmd_argp[0].k.global_work_size[d-1] = inc0;
 
-//	for(i=1;i<VCORE_NE;i++) {
-//	for(i=1;i<vcore_ne;i++) {
-//	for(e=veid_base+1,i=0;e<veid_end;e++,i++) {
 	for(e=veid_base+1,i=1;e<veid_end;e++,i++) {
 		subcmd_argp[i].k.global_work_offset[d-1] = gwo;
 		gwo += subcmd_argp[i].k.global_work_size[d-1] = inc;
 	}
 
-//	for(i=0;i<VCORE_NE;i++) 
-//	for(i=0;i<vcore_ne;i++) 
 	for(e=veid_base,i=0;e<veid_end;e++,i++) {
 		DEBUG(__FILE__,__LINE__,"%d %d %d\n",
 			subcmd_argp[i].k.global_work_offset[d-1],
@@ -648,8 +588,6 @@ DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 	}
 	
 
-//	for(i=0;i<VCORE_NE;i++) {
-//	for(i=0;i<vcore_ne;i++) {
 	for(e=veid_base,i=0;e<veid_end;e++,i++) {
 
 		DEBUG(__FILE__,__LINE__,"ve[%d] vcproc_cmd-spin-until-ready",e);
@@ -675,8 +613,6 @@ DEBUG(__FILE__,__LINE__,"%p",&subcmd_argp[i].k.krn->narg);
 	pthread_yield(); 
 
 
-//	for(e=0;e<VCORE_NE;e++) {
-//	for(e=0;e<vcore_ne;e++) {
 	for(e=veid_base;e<veid_end;e++) {
 
 		DEBUG(__FILE__,__LINE__,"ve[%d] vcproc_cmd-attempt-lock",e);
@@ -711,10 +647,8 @@ __vcproc_shutdown_dtor( void* p )
 	int i;
 	int retval;
 	int count;
-//	int remaining = VCORE_NE;
 	int remaining = vcore_ne;
 
-//	while (remaining) for(i=0;i<VCORE_NE;i++) {
 	while (remaining) for(i=0;i<vcore_ne;i++) {
 
 		DEBUG(__FILE__,__LINE__,"remaining %d",remaining);
