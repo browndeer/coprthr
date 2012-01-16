@@ -1,6 +1,6 @@
 /* __libcoprthr.h
  *
- * Copyright (c) 2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2011-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -152,6 +152,7 @@ static __inline void barrier( int flags )
 
 #define CLK_LOCAL_MEM_FENCE 1
 
+
 /*** adress space qualifiers [6.5] ***/
 
 #define __global
@@ -211,9 +212,13 @@ struct _int2 {
 #if defined(__SSE__)
 	_int2& operator += ( _int2 b ) 
 		{ vec = _mm_add_pi32( vec, b.vec ); return *this; }
+	_int2& operator -= ( _int2 b ) 
+		{ vec = _mm_sub_pi32( vec, b.vec ); return *this; }
 #else
 	_int2& operator += ( _int2 b ) 
 		{ x += b.x; y += b.y; return *this; }
+	_int2& operator -= ( _int2 b ) 
+		{ x -= b.x; y -= b.y; return *this; }
 #endif
 
 	union {
@@ -237,9 +242,13 @@ struct _int4 {
 #if defined(__SSE__)
 	_int4& operator += ( _int4 b ) 
 		{ vec = _mm_add_epi32( vec, b.vec ); return *this; }
+	_int4& operator -= ( _int4 b ) 
+		{ vec = _mm_sub_epi32( vec, b.vec ); return *this; }
 #else
 	_int4& operator += ( _int4 b ) 
 		{ x+=b.x; y+=b.y; z+=b.z; w+=b.w; return *this; }
+	_int4& operator -= ( _int4 b ) 
+		{ x-=b.x; y-=b.y; z-=b.z; w-=b.w; return *this; }
 #endif
 	union {
 		struct { __m128i vec; };
@@ -264,9 +273,13 @@ struct _long2 {
 #if defined(__SSE__)
 	_long2& operator += ( _long2 b ) 
 		{ vec = _mm_add_epi64( vec, b.vec ); return *this; }
+	_long2& operator -= ( _long2 b ) 
+		{ vec = _mm_sub_epi64( vec, b.vec ); return *this; }
 #else
 	_long2& operator += ( _long2 b ) 
 		{  x+=b.x; y+=b.y; return *this; }
+	_long2& operator -= ( _long2 b ) 
+		{  x-=b.x; y-=b.y; return *this; }
 #endif
 	union {
 		struct { __m128i vec; };
@@ -287,7 +300,9 @@ struct _uint2 {
 	_uint2( unsigned int* p ) : x(p[0]), y(p[1]) {}
 	_uint2& operator+ () { return *this; }
 	_uint2& operator += ( _uint2 b ) 
-		{ x += x + b.x; y += y + b.y; return *this; }
+		{ x += b.x; y += b.y; return *this; }
+	_uint2& operator -= ( _uint2 b ) 
+		{ x -= b.x; y -= b.y; return *this; }
 	union {
 		struct { __m64 vec;};
 		struct { unsigned int x,y; };
@@ -308,7 +323,9 @@ struct _uint4 {
 	_uint4( unsigned int* p ) : x(p[0]), y(p[1]), z(p[2]), w(p[3]) {}
 	_uint4& operator+ () { return *this; }
 	_uint4& operator += ( _uint4 b ) 
-		{ x += x + b.x; y += y + b.y; z += z + b.z; w += w + b.w; return *this; }
+		{ x += b.x; y += b.y; z += b.z; w += b.w; return *this; }
+	_uint4& operator -= ( _uint4 b ) 
+		{ x -= b.x; y -= b.y; z -= b.z; w -= b.w; return *this; }
 	union {
 		struct { __m128i vec; };
 		struct { unsigned int x,y,z,w; };
@@ -330,7 +347,9 @@ struct _ulong2 {
 	_ulong2( unsigned long* p ) : x(p[0]), y(p[1]) {}
 	_ulong2& operator+ () { return *this; }
 	_ulong2& operator += ( _ulong2 b ) 
-		{ x += x + b.x; y += y + b.y; return *this; }
+		{ x += b.x; y += b.y; return *this; }
+	_ulong2& operator -= ( _ulong2 b ) 
+		{ x -= b.x; y -= b.y; return *this; }
 	union {
 		struct { __m128i vec; };
 		struct { unsigned long x,y; };
@@ -350,7 +369,9 @@ struct _float2 {
 	_float2( float* p ) : x(p[0]), y(p[1]) {}
 	_float2& operator+ () { return *this; }
 	_float2& operator += ( _float2 b ) 
-		{ x += x + b.x; y += y + b.y; return *this; }
+		{ x += b.x; y += b.y; return *this; }
+	_float2& operator -= ( _float2 b ) 
+		{ x -= b.x; y -= b.y; return *this; }
 	union {
 		struct { __m64 vec; };
 		struct { float x,y; };
@@ -373,9 +394,11 @@ struct _float4 {
 #if defined(__SSE__)
 	_float4& operator += ( _float4 b ) 
 		{ vec = _mm_add_ps( vec, b.vec ); return *this; }
+	_float4& operator -= ( _float4 b ) 
+		{ vec = _mm_sub_ps( vec, b.vec ); return *this; }
 #else
-	_float4& operator += ( _float4 b ) 
-		{ x+=b.x; y+=b.y; z+=b.z; w+=b.w; return *this; }
+	_float4& operator -= ( _float4 b ) 
+		{ x-=b.x; y-=b.y; z-=b.z; w-=b.w; return *this; }
 #endif
 	union {
 		struct { __m128 vec; };
@@ -400,9 +423,13 @@ struct _double2 {
 #if defined(__SSE__)
 	_double2& operator += ( _double2 b ) 
 		{ vec = _mm_add_pd( vec, b.vec ); return *this; }
+	_double2& operator -= ( _double2 b ) 
+		{ vec = _mm_sub_pd( vec, b.vec ); return *this; }
 #else
 	_double2& operator += ( _double2 b ) 
 		{ x+=b.x; y+=b.y; return *this; }
+	_double2& operator -= ( _double2 b ) 
+		{ x-=b.x; y-=b.y; return *this; }
 #endif
 	union {
 		struct { __m128d vec;	};
