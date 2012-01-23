@@ -425,7 +425,7 @@
 		integer(C_INT), value, intent(in) :: argnum
 		real(C_DOUBLE), target, intent(in) :: arg
 
-		call clSetKernelArg(krn,argnum,4_8,C_LOC(arg))
+		call clSetKernelArg(krn,argnum,8_8,C_LOC(arg))
 
 		clarg_set_double = 0
 
