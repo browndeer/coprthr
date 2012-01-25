@@ -66,7 +66,7 @@ int str_match_fused( char* arg, char* flag )
 {
    size_t arglen = strlen(arg);
    size_t flaglen = strlen(flag);
-   if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
+   if (!strncmp(arg,flag,flaglen) && arglen > flaglen )
       return 1;
    else
       return 0;

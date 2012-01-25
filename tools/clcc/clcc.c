@@ -65,7 +65,7 @@ int str_match_fused( char* arg, char* flag )
 { 
 	size_t arglen = strlen(arg);
 	size_t flaglen = strlen(flag);
-	if (!strncmp(arg,flag,flaglen) && arglen > flaglen && arg[flaglen] == '=' )
+	if (!strncmp(arg,flag,flaglen) && arglen > flaglen )
 		return 1;
 	else
 		return 0;
@@ -491,7 +491,7 @@ printf("compare |%s|\n",argv[n]);
 
 			struct stat st;
 			if ( stat(fname,&st) == -1 || !S_ISREG(st.st_mode)) {
-				fprintf(stderr,"clld: '%s' no such file\n",fname);
+				fprintf(stderr,"clcc: '%s' no such file\n",fname);
 				exit(-1);
 			}
 
