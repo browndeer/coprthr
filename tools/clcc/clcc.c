@@ -456,8 +456,10 @@ printf("compare |%s|\n",argv[n]);
 
 		} else if (str_match_exact(argv[n],"-I")) {
 
+printf("MATCHED\n");
+
 			append_str(cc1_opt_str,argv[n]," ",0);
-			append_str(cc1_opt_str,argv[+n]," ",0);
+			append_str(cc1_opt_str,argv[++n]," ",0);
 
 		} else if (!strcmp(argv[n],"-c")) {
 

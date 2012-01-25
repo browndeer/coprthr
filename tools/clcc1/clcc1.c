@@ -401,6 +401,11 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
 			append_str(opt_str,argv[n]," ",0);
 
+		} else if (str_match_exact(argv[n],"-I")) {
+
+			append_str(opt_str,argv[n]," ",0);
+			append_str(opt_str,argv[++n]," ",0);
+
 		} else if (str_match_exact(argv[n],"-c")) {
 
 		} else if (str_match_exact(argv[n],"-o")) {
