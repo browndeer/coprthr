@@ -3163,9 +3163,9 @@ if test x$enable_fortran != xno; then
 ### XXX add vendor checks to make sure there are no collisions -DAR
 
 # find best known AMDAPP paths
-if test -e /etc/OpenCL/vendors/ati*.icd; then
+if test -n "$(find /etc/OpenCL/vendors -maxdepth 1 -name 'ati*.icd' -print -quit)"; then
   tmp_amdapp_sdk=1;
-elif test -e /etc/OpenCL/vendors/amd*.icd; then
+elif test -n "$(find /etc/OpenCL/vendors -maxdepth 1 -name 'amd*.icd' -print -quit)"; then
   tmp_amdapp_sdk=1;
 else
   tmp_amdapp_sdk=0;
@@ -3184,7 +3184,7 @@ if test $tmp_amdapp_sdk = 1; then
 fi;
 
 # find best known Nvidia paths
-if test -e /etc/OpenCL/vendors/nvidia*.icd; then
+if test -n "$(find /etc/OpenCL/vendors -maxdepth 1 -name 'nvidia*.icd' -print -quit)"; then
   tmp_nvidia_sdk=1;
   for d in /usr/local/cuda
   do
@@ -3220,7 +3220,7 @@ tmp_coprthr_include=$PWD/include
 tmp_coprthr_lib=$PWD/src/libcoprthr
 
 # find best known Intel paths
-if test -e /etc/OpenCL/vendors/intel*.icd; then
+if test -n "$(find /etc/OpenCL/vendors -maxdepth 1 -name 'intel*.icd' -print -quit)"; then
   tmp_intel_sdk=1;
   for d in /usr/local
   do
