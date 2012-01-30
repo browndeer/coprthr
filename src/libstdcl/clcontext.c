@@ -248,7 +248,6 @@ clcontext_create(
 		err = clGetDeviceIDs(platforms[i],devtyp,0,0,&platform_devcount[i]);
 	}
 
-
 	if (nplatforms == 1) {
 
 		if (platform_devcount[0] == 0) {
@@ -267,9 +266,9 @@ clcontext_create(
 
 	} else {
 
-		for(i=0; i< nselect; i++) if (select_id[j]) { 
+		for(i=0; i< nselect; i++) if (select_id[i]) { 
 
-			platformid = select_id[j];
+			platformid = select_id[i];
 			break;
 
 		}
