@@ -269,6 +269,8 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 		strcat(opts," -D __GPU__");
 	}
 
+DEBUG2("clbuild: platform_vendor '%s'",cp->platform_vendor);
+
 	if (!strcasecmp(cp->platform_vendor,"Advanced Micro Devices, Inc.")) 
 		strcat(opts," -D __AMD__");
 	else if (!strcasecmp(cp->platform_vendor,"NVIDIA Corporation")) 
@@ -461,11 +463,22 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 		struct cldev_info* di
 			= (struct cldev_info*)malloc(cp->ndev * sizeof(struct cldev_info));
 		clgetdevinfo(cp,di);
+		char** dev_alias = (char**)malloc(cp->ndev * sizeof(char*));
 		for(m=0; m<cp->ndev; m++) {
-			DEBUG2("clopen: dev[%d] name |%s|",m,di[m].dev_name);
+			dev_alias[m] = (char*)malloc(strlen(di[m].dev_name));
+			strcpy(dev_alias[m],di[m].dev_name);
+			if ( clelf_device_name_alias(dev_alias[m]) ) {
+				DEBUG2("clopen: dev[%d] name |%s| (%s)",
+					m,di[m].dev_name,dev_alias[m]);
+			} else {
+				DEBUG2("clopen: dev[%d] name |%s|",m,di[m].dev_name);
+			}
 		}
 	
 		DEBUG2("clopen: _proc_clelf_sect %p",_proc_clelf_sect);
+
+		int platform_code = clelf_platform_code(cp->platform_name);
+		/* XXX if 0 things are really not going to work out well -DAR */
 
 		if (sect->has_clprgtab) {
 
@@ -489,15 +502,21 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 					struct clprgbin_entry* pb = sect->clprgbin + p->e_prgbin;
 					for(nb=0; nb < p->e_nprgbin; nb++,pb++ ) {
 
-						DEBUG2("clopen: test |%s|%s|",di[m].dev_name,
-							sect->clstrtab + pb->e_device);
+						DEBUG2("clopen: test %d:|%s| ? %d:|%s|",
+							platform_code,dev_alias[m],
+							pb->e_platform,sect->clstrtab + pb->e_device);
 
-						if (!strncmp(di[m].dev_name,
-							sect->clstrtab+pb->e_device,256)) {
+//						if (!strncmp(di[m].dev_name, sect->clstrtab+pb->e_device,256)
+						if (!strncmp(dev_alias[m], sect->clstrtab+pb->e_device,256)
+							&& platform_code == pb->e_platform ) {
+
+//continue;
+
 								bin[m] = sect->cltextbin + pb->e_offset;
 								bin_sz[m] = pb->e_size;
 								++nbin;
 								break;
+
 						}
 
 					}
@@ -553,6 +572,8 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 		}
 
 		free(di);
+		for(m=0; m<cp->ndev; m++) if (dev_alias[m]) free(dev_alias[m]);
+		free(dev_alias);
 
 #endif
 
