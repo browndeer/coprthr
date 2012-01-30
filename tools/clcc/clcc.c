@@ -51,6 +51,9 @@
  *** -c is presently implied for clcc
  ***/ 
 
+#define TFNAME_TEMPLATE "/tmp/clccXXXXXX"
+#define DEFAULT_OFNAME "out_clcc.o"
+
 __inline
 int str_match_exact( char* arg, char* flag ) 
 { 
@@ -279,6 +282,8 @@ int main(int argc, char** argv)
 
 	char** argv1 = (char**)calloc(sizeof(char*),argc);
 	int argc1 = 0;	
+
+	char cmd[1024];
 
 	int lang = 0;
 	int en_opencl = 1;
@@ -522,16 +527,20 @@ printf("MATCHED\n");
 	}
 
 
-	if (ofname && flist_n > 1) {
-		ERROR2("cannot specify -o with multiple files");
-		exit(-1);
-	} 
+//	if (ofname && flist_n > 1) {
+//		ERROR2("cannot specify -o with multiple files");
+//		exit(-1);
+//	} 
 
+	char** tflist = (char**)calloc(flist_n,sizeof(char*));
+
+	char* tfnames_str = (char*)calloc(1,DEFAULT_STR_SIZE);
+	tfnames_str[0] = '\0';
 
 	/***
 	 *** begin loop over files
 	 ***/
-	
+
 	int ifile;
 	for(ifile=0;ifile<flist_n;ifile++) {
 
@@ -540,6 +549,7 @@ printf("MATCHED\n");
 
 		char* fname_ext = strrchr(fname,'.');
 
+/*
 		if (lang == 0 && fname_ext) {
 
 			if (!strcmp(fname_ext,".cl")) lang = LANG_OPENCL;
@@ -551,41 +561,52 @@ printf("MATCHED\n");
 				exit(-1);
 			}
 			
-		} else {
+		} else if (!lang) {
 
 			ERROR2("no language specified");
 			usage();
 			exit(-1);
 
 		}
+*/
 
-		char cmd[1024];
-		char tfname[] = "/tmp/clccXXXXXX";
+//		char cmd[1024];
+//		char tfname[] = "/tmp/clccXXXXXX";
+		char tfname[] = TFNAME_TEMPLATE;
 		int fd = mkstemp(tfname);
 		close(fd);
+
+		tflist[ifile] = (char*)calloc(sizeof(TFNAME_TEMPLATE)+1,1);
+		strcpy(tflist[ifile],tfname);
+		append_str(tfnames_str,tfname," ",0);
 
 		snprintf(cmd,1024,"clcc1 -o %s %s %s",tfname,cc1_opt_str,fname);
 		DEBUG2("%s",cmd);
 		system(cmd);
-	
-		if (!ofname) {
-			ofname = (char*)calloc(1,fname_len+1);
-			if (fname_ext) strncpy(ofname,fname,(size_t)(fname_ext-fname));
-			else strncpy(ofname,fname,fname_len);
-			strncat(ofname,".o",fname_len);
-printf("output filename %s\n",ofname);
-		}
-
-		snprintf(cmd,1024,"clld -o %s %s %s",ofname,linker_opt_str,tfname);
-		DEBUG2("%s",cmd);
-		system(cmd);
-
-		if (flist_n > 1) free(ofname); /* XXX a slight hack -DAR */
-
-		unlink(tfname);
 
 	}
+
+	char default_ofname[] = DEFAULT_OFNAME;
+
+	if (!ofname) ofname = default_ofname;
 	
+//		if (!ofname) {
+//			ofname = (char*)calloc(1,fname_len+1);
+//			if (fname_ext) strncpy(ofname,fname,(size_t)(fname_ext-fname));
+//			else strncpy(ofname,fname,fname_len);
+//			strncat(ofname,".o",fname_len);
+//		}
+
+//	snprintf(cmd,1024,"clld -o %s %s %s",ofname,linker_opt_str,tfname);
+	snprintf(cmd,1024,"clld -o %s %s %s",ofname,linker_opt_str,tfnames_str);
+	DEBUG2("%s",cmd);
+	system(cmd);
+
+//		if (flist_n > 1) { free(ofname); ofname=0; }/* XXX a slight hack -DAR */
+
+	
+	for(ifile=0;ifile<flist_n;ifile++) if (tflist[ifile]) unlink(tflist[ifile]);
+
 	return(0);
 
 }

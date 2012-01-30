@@ -737,7 +737,7 @@ printf("\nXXX add option to use only devices that are present\n\n");
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_NUM_DEVICES,
 			sizeof(cl_uint), &ndev, 0 );
 
-//printf("ndev=%d\n",ndev);
+		DEBUG2("ndev=%d",ndev);
 
 		cl_device_id* devices = (cl_device_id*)malloc(ndev*sizeof(cl_device_id));
 
@@ -750,7 +750,7 @@ printf("\nXXX add option to use only devices that are present\n\n");
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_BINARY_SIZES,
 			sizeof(size_t)*ndev, bin_sizes, 0 );
 
-//printf("bin size %d\n",bin_sizes[0]);
+		DEBUG2("bin size %d",bin_sizes[0]);
 
 		char** bins = (char**)malloc( sizeof(char*)*ndev );
 
@@ -765,7 +765,7 @@ printf("\nXXX add option to use only devices that are present\n\n");
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_BINARIES,
 			sizeof(char*)*ndev, bins, 0 );
 
-//printf("bin %p\n",bins[0]);
+		DEBUG2("bin %p",bins[0]);
 
 		for( j=0; j < ndev; j++ ) {
 
@@ -773,7 +773,9 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
 			Elf32_Ehdr* ehdr32;
 			Elf64_Ehdr* ehdr64;
-//printf("platform code %d\n",platform_code);
+
+			DEBUG2("platform code %d",platform_code);
+
 			switch(platform_code) {
 
 				case CLELF_PLATFORM_CODE_AMDAPP:
@@ -782,12 +784,12 @@ printf("\nXXX add option to use only devices that are present\n\n");
 
 				case CLELF_PLATFORM_CODE_COPRTHR:
 					ehdr64 = (Elf64_Ehdr*)bins[j];
-//printf("ehdr64 %p\n",ehdr64);
+					DEBUG2("ehdr64 %p",ehdr64);
 					break;
 
 				case CLELF_PLATFORM_CODE_NVIDIA:
 				default:
-//					printf("device code %d\n",0);
+					DEBUG2("device code %d",0);
 					break;
 
 			}
@@ -802,20 +804,20 @@ printf("\nXXX add option to use only devices that are present\n\n");
 			char device_name[1024];
 			err = clGetDeviceInfo(devices[j],CL_DEVICE_NAME,1024,device_name,0);
 
-//printf("device name %s\n",device_name);
-clelf_device_name_alias(device_name);
-//printf("device name %s\n",device_name);
+			DEBUG2("device name %s",device_name);
+			clelf_device_name_alias(device_name);
+			DEBUG2("aliased device name %s",device_name);
 
 			cl_build_status status;
 			err = clGetProgramBuildInfo(programs[i],devices[j],
 				CL_PROGRAM_BUILD_STATUS,sizeof(cl_build_status),&status,0);
 
-//printf("status %d\n",status);
+			DEBUG2("status %d",status);
 
 			if (status == CL_BUILD_SUCCESS && bins[j]) {
 
 				++nbin_valid;
-//printf("nbin_valid %d\n",nbin_valid);
+				DEBUG2("nbin_valid %d",nbin_valid);
 
 				/***
 				 *** add clprgbin entry
@@ -906,7 +908,7 @@ clelf_device_name_alias(device_name);
 		cl_kernel* kernels = (cl_kernel*)malloc(nkrn*sizeof(cl_kernel));
 		err = clCreateKernelsInProgram (programs[i],nkrn,kernels,0);
 
-//printf("nkrn %d\n",nkrn);
+		DEBUG2("nkrn %d",nkrn);
 
 		for(j=0;j<nkrn;j++) {
 

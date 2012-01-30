@@ -555,29 +555,30 @@ int main(int argc, char** argv)
       char info[1024];
       clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
 
-      int platform_code = 0;
-
-      if (!strncasecmp(info,"AMD",3)) {
-
-         platform_code = CLELF_PLATFORM_CODE_AMDAPP;
-
-      } else if (!strncasecmp(info,"Nvidia",6)) {
-
-         platform_code = CLELF_PLATFORM_CODE_NVIDIA;
-
-      } else if (!strncasecmp(info,"coprthr",7)) {
-
-         platform_code = CLELF_PLATFORM_CODE_COPRTHR;
-
+//      int platform_code = 0;
+//
+//      if (!strncasecmp(info,"AMD",3)) {
+//
+//         platform_code = CLELF_PLATFORM_CODE_AMDAPP;
+//
+//      } else if (!strncasecmp(info,"Nvidia",6)) {
+//
+//         platform_code = CLELF_PLATFORM_CODE_NVIDIA;
+//
+//      } else if (!strncasecmp(info,"coprthr",7)) {
+//
+//         platform_code = CLELF_PLATFORM_CODE_COPRTHR;
+//
 //    } else if (!strncasecmp(info,"Intel",7)) {
 //
 //       platform_code = CLELF_PLATFORM_CODE_INTEL;
-
-      } else {
-
-         continue;
-
-      }
+//
+//      } else {
+//
+//         continue;
+//
+//      }
+		int platform_code = clelf_platform_code(info);
 
 		DEBUG2("available platform |%s|",platform_name_string[platform_code]);
 
@@ -828,8 +829,9 @@ int main(int argc, char** argv)
 				for(n=data.clprgbin_n - nprgbin; n<data.clprgbin_n; n++) {
 
 					char* name = data.clstrtab_str + data.clprgbin[n].e_device;
+					int code = data.clprgbin[n].e_platform;
 
-					if (!strcasecmp(device_name,name)) {
+					if (!strcasecmp(device_name,name) && platform_code == code) {
 						exclude = 1;
 						DEBUG2("exclude bin for identical device |%s|%s|",
 							device_name,name);
