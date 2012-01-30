@@ -173,273 +173,386 @@ static __inline void barrier( int flags )
 
 /*** builtin vector data types [6.1.2] ***/
 
-typedef int _v2si __attribute__((__vector_size__(8)));
-typedef int _v4si __attribute__((__vector_size__(16)));
-typedef long _v2sl __attribute__((__vector_size__(16)));
-typedef unsigned int _v2i __attribute__((__vector_size__(8)));
-typedef unsigned int _v4i __attribute__((__vector_size__(16)));
-typedef unsigned long _v2l __attribute__((__vector_size__(16)));
-typedef float _v2f __attribute__((__vector_size__(8)));
-typedef float _v4f __attribute__((__vector_size__(16)));
-typedef double _v2d __attribute__((__vector_size__(16)));
-
-typedef int __int2 __attribute__((__vector_size__(8)));
-typedef int __int4 __attribute__((__vector_size__(16)));
-typedef long __long2 __attribute__((__vector_size__(16)));
-typedef unsigned int __uint2 __attribute__((__vector_size__(8)));
-typedef unsigned int __uint4 __attribute__((__vector_size__(16)));
-typedef unsigned long __ulong2 __attribute__((__vector_size__(16)));
-typedef float __float2 __attribute__((__vector_size__(8)));
-typedef float __float4 __attribute__((__vector_size__(16)));
-typedef double __double2 __attribute__((__vector_size__(16)));
+//typedef int _v2si __attribute__((__vector_size__(8)));
+//typedef int _v4si __attribute__((__vector_size__(16)));
+//typedef long _v2sl __attribute__((__vector_size__(16)));
+//typedef unsigned int _v2i __attribute__((__vector_size__(8)));
+//typedef unsigned int _v4i __attribute__((__vector_size__(16)));
+//typedef unsigned long _v2l __attribute__((__vector_size__(16)));
+//typedef float _v2f __attribute__((__vector_size__(8)));
+//typedef float _v4f __attribute__((__vector_size__(16)));
+//typedef double _v2d __attribute__((__vector_size__(16)));
+//
+//typedef int __int2 __attribute__((__vector_size__(8)));
+//typedef int __int4 __attribute__((__vector_size__(16)));
+//typedef long __long2 __attribute__((__vector_size__(16)));
+//typedef unsigned int __uint2 __attribute__((__vector_size__(8)));
+//typedef unsigned int __uint4 __attribute__((__vector_size__(16)));
+//typedef unsigned long __ulong2 __attribute__((__vector_size__(16)));
+//typedef float __float2 __attribute__((__vector_size__(8)));
+//typedef float __float4 __attribute__((__vector_size__(16)));
+//typedef double __double2 __attribute__((__vector_size__(16)));
 
 /* if not using sse we will define some equivalents -DAR */
-#if !defined(__SSE__)
-typedef __int2 __m64;
-typedef __int4 __m128i;
-typedef __float4 __m128;
-typedef __double2 __m128d;
+//#if !defined(__SSE__)
+//typedef __int2 __m64;
+//typedef __int4 __m128i;
+//typedef __float4 __m128;
+//typedef __double2 __m128d;
+//#endif
+
+
+/* let the templating begins ... -DAR */
+
+/* stub class for vector low-level storage classes */
+
+template< typename T, int D >
+struct __vector_type { };
+
+
+/* vec2 low-level storage class */
+
+template <>
+struct __vector_type<int,2>
+   { typedef int type_t __attribute__((__vector_size__(8))); };
+
+template <>
+struct __vector_type<unsigned int,2>
+   { typedef unsigned int type_t __attribute__((__vector_size__(8))); };
+
+template <>
+struct __vector_type<long,2>
+   { typedef long type_t __attribute__((__vector_size__(16))); };
+
+template <>
+struct __vector_type<unsigned long,2>
+   { typedef unsigned long type_t __attribute__((__vector_size__(16))); };
+
+template <>
+struct __vector_type<float,2>
+   { typedef float type_t __attribute__((__vector_size__(8))); };
+
+template <>
+struct __vector_type<double,2>
+   { typedef double type_t __attribute__((__vector_size__(16))); };
+
+
+/* vec4 low-level storage class */
+
+template <>
+struct __vector_type<int,4>
+   { typedef int type_t __attribute__((__vector_size__(16))); };
+
+template <>
+struct __vector_type<unsigned int,4>
+   { typedef unsigned int type_t __attribute__((__vector_size__(16))); };
+
+template <>
+struct __vector_type<float,4>
+   { typedef float type_t __attribute__((__vector_size__(16))); };
+
+
+/* typedefs for low-level vector storage classes */
+
+typedef __vector_type<int,2> __int2;
+typedef __vector_type<unsigned int,2> __uint2;
+typedef __vector_type<long,2> __long2;
+typedef __vector_type<unsigned long,2> __ulong2;
+typedef __vector_type<float,2> __float2;
+typedef __vector_type<double,2> __double2;
+
+typedef __vector_type<int,4> __int4;
+typedef __vector_type<unsigned int,4> __uint4;
+typedef __vector_type<float,4> __float4;
+
+
+/* stub class for vector high-level implementation */
+
+template < typename T, int D >
+struct _vector_type { };
+
+/***
+ *** vec2 high-level implementation
+ ***/
+
+template < typename T >
+struct _vector_type<T,2> {
+
+	typedef T type_t;
+
+	_vector_type() {}
+	~_vector_type() {}
+
+	_vector_type( const typename __vector_type<type_t,2>::type_t& v ) : vec(v) {}
+//	_vector_type( typename __vector_type<type_t,2>::type_t v ) : vec(v) {}
+	_vector_type( type_t a ) : s0(a), s1(a) {}
+	_vector_type( type_t a0, type_t a1 ) : s0(a0), s1(a1) {}
+	_vector_type( type_t* p ) : s0(p[0]), s1(p[1]) {}
+
+	_vector_type& operator+();
+	_vector_type& operator-();
+	_vector_type& operator~();
+
+	_vector_type& operator+=( _vector_type vec );
+	_vector_type& operator-=( _vector_type vec );
+	_vector_type& operator*=( _vector_type vec );
+	_vector_type& operator%=( _vector_type vec );
+	_vector_type& operator/=( _vector_type vec );
+	_vector_type& operator&=( _vector_type vec );
+	_vector_type& operator|=( _vector_type vec );
+	_vector_type& operator^=( _vector_type vec );
+
+	union {
+		struct { typename __vector_type<type_t,2>::type_t vec; };
+		struct { type_t x,y; };
+		struct { type_t s0,s1; };
+		struct { typename __vector_type<type_t,2>::type_t xy; };
+		struct { typename __vector_type<type_t,2>::type_t s01; };
+	};
+
+};
+
+/* unary plus */
+template < typename T >
+_vector_type<T,2>& _vector_type<T,2>::operator+() 
+	{ return *this; }
+
+/* unary minus */
+template < typename T >
+_vector_type<T,2>& 
+	_vector_type<T,2>::operator-() 
+	{ vec = -vec; return *this; }
+
+/* unary bitwise not */
+template < typename T >
+_vector_type<T,2>& 
+	_vector_type<T,2>::operator~() 
+	{ vec = ~vec; return *this; }
+
+/* add assign */
+template < typename T >
+_vector_type<T,2>& 
+	_vector_type<T,2>::operator+=( _vector_type<T,2> rhs ) 
+	{ vec += rhs.vec; return *this; }
+#if defined (__SSE__)
+template <>
+_vector_type<int,2>& 
+	_vector_type<int,2>::operator+=(_vector_type<int,2> rhs)
+	{ vec = _mm_add_pi32(vec,rhs.vec); return *this; }
 #endif
 
-struct _int2 {
-	_int2() {}
-	~_int2() {}
-	_int2( __m64 v ) : vec(v) {}
-	_int2( int a ) : x(a), y(a) {}
-	_int2( int a, int b ) : x(a), y(b) {}
-	_int2( int* p ) : x(p[0]), y(p[1]) {}
-	_int2& operator+ () { return *this; }
-#if defined(__SSE__)
-	_int2& operator += ( _int2 b ) 
-		{ vec = _mm_add_pi32( vec, b.vec ); return *this; }
-	_int2& operator -= ( _int2 b ) 
-		{ vec = _mm_sub_pi32( vec, b.vec ); return *this; }
-#else
-	_int2& operator += ( _int2 b ) 
-		{ x += b.x; y += b.y; return *this; }
-	_int2& operator -= ( _int2 b ) 
-		{ x -= b.x; y -= b.y; return *this; }
+/* subtract assign */
+template < typename T >
+_vector_type<T,2>& _vector_type<T,2>::operator-=( _vector_type<T,2> rhs ) 
+	{ vec -= rhs.vec; return *this; }
+#if defined (__SSE__)
+template <>
+_vector_type<int,2>& 
+	_vector_type<int,2>::operator-=(_vector_type<int,2> rhs)
+	{ vec = _mm_sub_pi32(vec,rhs.vec); return *this; }
 #endif
 
-	union {
-		struct { __m64 vec; };
-		struct { int x,y; };
-		struct { __m64 xy; };
-		struct { int s0,s1; };
-		struct { __m64 s01; };
-	};
-};
-typedef struct _int2 int2;
+/* multiply assign */
+template < typename T >
+_vector_type<T,2>& _vector_type<T,2>::operator*=( _vector_type<T,2> rhs ) 
+	{ vec *= rhs.vec; return *this; }
 
-struct _int4 {
-	_int4() {}
-	~_int4() {}
-	_int4( __m128i v ) : vec(v) {}
-	_int4( int a ) : x(a), y(a), z(a), w(a) {}
-	_int4( int a, int b, int c, int d ) : x(a), y(b), z(c), w(d) {}
-	_int4( int* p ) : x(p[0]), y(p[1]), z(p[2]), w(p[3]) {}
-	_int4& operator+ () { return *this; }
-#if defined(__SSE__)
-	_int4& operator += ( _int4 b ) 
-		{ vec = _mm_add_epi32( vec, b.vec ); return *this; }
-	_int4& operator -= ( _int4 b ) 
-		{ vec = _mm_sub_epi32( vec, b.vec ); return *this; }
-#else
-	_int4& operator += ( _int4 b ) 
-		{ x+=b.x; y+=b.y; z+=b.z; w+=b.w; return *this; }
-	_int4& operator -= ( _int4 b ) 
-		{ x-=b.x; y-=b.y; z-=b.z; w-=b.w; return *this; }
+/* modulo assign */
+template < typename T >
+_vector_type<T,2>& _vector_type<T,2>::operator%=( _vector_type<T,2> rhs ) 
+	{ vec %= rhs.vec; return *this; }
+
+/* divide assign */
+template < typename T >
+_vector_type<T,2>& _vector_type<T,2>::operator/=( _vector_type<T,2> rhs ) 
+	{ vec /= rhs.vec; return *this; }
+
+/* bitwise and assign */
+template < typename T >
+_vector_type<T,2>& _vector_type<T,2>::operator&=( _vector_type<T,2> rhs ) 
+	{ vec &= rhs.vec; return *this; }
+
+/* bitwise or assign */
+template < typename T >
+_vector_type<T,2>& _vector_type<T,2>::operator|=( _vector_type<T,2> rhs ) 
+	{ vec |= rhs.vec; return *this; }
+
+/* bitwise xor assign */
+template < typename T >
+_vector_type<T,2>& _vector_type<T,2>::operator^=( _vector_type<T,2> rhs ) 
+	{ vec ^= rhs.vec; return *this; }
+
+
+/***
+ *** vec4 high-level implementation
+ ***/
+
+template < typename T >
+struct _vector_type<T,4> {
+
+	typedef T type_t;
+
+	_vector_type() {}
+	~_vector_type() {}
+
+	_vector_type( const typename __vector_type<type_t,4>::type_t& v ) : vec(v) {}
+//	_vector_type( typename __vector_type<type_t,4>::type_t v ) : vec(v) {}
+	_vector_type( type_t a ) : s0(a), s1(a), s2(a), s3(a) {}
+	_vector_type( type_t a0, type_t a1, type_t a2, type_t a3 ) 
+		: s0(a0), s1(a1), s2(a2), s3(a3) {}
+	_vector_type( type_t* p ) : s0(p[0]), s1(p[1]), s2(p[2]), s3(p[3]) {}
+
+	_vector_type& operator+();
+	_vector_type& operator-();
+	_vector_type& operator~();
+
+	_vector_type& operator+=( _vector_type vec );
+	_vector_type& operator-=( _vector_type vec );
+	_vector_type& operator*=( _vector_type vec );
+	_vector_type& operator%=( _vector_type vec );
+	_vector_type& operator/=( _vector_type vec );
+	_vector_type& operator&=( _vector_type vec );
+	_vector_type& operator|=( _vector_type vec );
+	_vector_type& operator^=( _vector_type vec );
+
+	union {
+		struct { typename __vector_type<type_t,4>::type_t vec; };
+		struct { type_t x,y,z,w; };
+		struct { type_t s0,s1,s2,s3; };
+		struct { typename __vector_type<type_t,4>::type_t xyzw; };
+		struct { typename __vector_type<type_t,4>::type_t s0123; };
+		struct { typename __vector_type<type_t,2>::type_t xy,zw; };
+		struct { typename __vector_type<type_t,2>::type_t s01,s23; };
+	};
+
+};
+
+/* unary plus */
+template < typename T >
+_vector_type<T,4>& 
+_vector_type<T,4>::operator+() 
+	{ return *this; }
+
+/* unary minus */
+template < typename T >
+_vector_type<T,4>& 
+_vector_type<T,4>::operator-() 
+	{ vec = -vec; return *this; }
+
+/* unary not */
+template < typename T >
+_vector_type<T,4>& 
+_vector_type<T,4>::operator~() 
+	{ vec = ~vec; return *this; }
+
+/* add assign */
+template < typename T >
+_vector_type<T,4>& 
+_vector_type<T,4>::operator+=( _vector_type<T,4> rhs ) 
+	{ vec += rhs.vec; return *this; }
+#if defined (__SSE__)
+template <>
+_vector_type<long,2>& 
+_vector_type<long,2>::operator+=( _vector_type<long,2> rhs ) 
+	{ vec = _mm_add_epi64( vec, rhs.vec ); return *this; }
+
+template <>
+_vector_type<double,2>& 
+_vector_type<double,2>::operator+=( _vector_type<double,2> rhs ) 
+	{ vec = _mm_add_pd( vec, rhs.vec ); return *this; }
+
+template <>
+_vector_type<int,4>& 
+_vector_type<int,4>::operator+=( _vector_type<int,4> rhs ) 
+	{ vec = _mm_add_epi32( vec, rhs.vec ); return *this; }
+
+template <>
+_vector_type<float,4>& 
+_vector_type<float,4>::operator+=( _vector_type<float,4> rhs ) 
+	{ vec = _mm_add_ps( vec, rhs.vec ); return *this; }
 #endif
-	union {
-		struct { __m128i vec; };
-		struct { int x,y,z,w; };
-		struct { __m64 xy,zw; };
-		struct { __m128i xyzw; };
-		struct { int s0,s1,s2,s3; };
-		struct { __m64 s12,s34; };
-		struct { __m128i s1234; };
-	};
-};
-typedef struct _int4 int4;
 
-struct _long2 {
-	_long2() {}
-	~_long2() {}
-	_long2( __m128i v ) : vec(v) {}
-	_long2( long a ) : x(a), y(a) {}
-	_long2( long a, long b ) : x(a), y(b) {}
-	_long2( long* p ) : x(p[0]), y(p[1]) {}
-	_long2& operator+ () { return *this; }
-#if defined(__SSE__)
-	_long2& operator += ( _long2 b ) 
-		{ vec = _mm_add_epi64( vec, b.vec ); return *this; }
-	_long2& operator -= ( _long2 b ) 
-		{ vec = _mm_sub_epi64( vec, b.vec ); return *this; }
-#else
-	_long2& operator += ( _long2 b ) 
-		{  x+=b.x; y+=b.y; return *this; }
-	_long2& operator -= ( _long2 b ) 
-		{  x-=b.x; y-=b.y; return *this; }
+/* subtract assign */
+template < typename T >
+_vector_type<T,4>& _vector_type<T,4>::operator-=( _vector_type<T,4> rhs ) 
+	{ vec -= rhs.vec; return *this; }
+#if defined (__SSE__)
+template <>
+_vector_type<long,2>& 
+_vector_type<long,2>::operator-=( _vector_type<long,2> rhs ) 
+	{ vec = _mm_sub_epi64( vec, rhs.vec ); return *this; }
+
+template <>
+_vector_type<double,2>& 
+_vector_type<double,2>::operator-=( _vector_type<double,2> rhs ) 
+	{ vec = _mm_sub_pd( vec, rhs.vec ); return *this; }
+
+template <>
+_vector_type<int,4>& 
+_vector_type<int,4>::operator-=( _vector_type<int,4> rhs ) 
+	{ vec = _mm_sub_epi32( vec, rhs.vec ); return *this; }
+
+template <>
+_vector_type<float,4>& 
+_vector_type<float,4>::operator-=( _vector_type<float,4> rhs ) 
+	{ vec = _mm_sub_ps( vec, rhs.vec ); return *this; }
 #endif
-	union {
-		struct { __m128i vec; };
-		struct { long x,y; };
-		struct { __m128i xy; };
-		struct { long s0,s1; };
-		struct { __m128i s01; };
-	};
-};
-typedef struct _long2 long2;
 
-struct _uint2 {
-	_uint2() {}
-	~_uint2() {}
-	_uint2( __m64 v ) : vec(v) {}
-	_uint2( unsigned int a ) : x(a), y(a) {}
-	_uint2( unsigned int a, unsigned int b ) : x(a), y(b) {}
-	_uint2( unsigned int* p ) : x(p[0]), y(p[1]) {}
-	_uint2& operator+ () { return *this; }
-	_uint2& operator += ( _uint2 b ) 
-		{ x += b.x; y += b.y; return *this; }
-	_uint2& operator -= ( _uint2 b ) 
-		{ x -= b.x; y -= b.y; return *this; }
-	union {
-		struct { __m64 vec;};
-		struct { unsigned int x,y; };
-		struct { __m64 xy; };
-		struct { unsigned int s0,s1; };
-		struct { __m64 s01; };
-	};
-};
-typedef struct _uint2 uint2;
+/* multiply assign */
+template < typename T >
+_vector_type<T,4>& _vector_type<T,4>::operator*=( _vector_type<T,4> rhs ) 
+	{ vec *= rhs.vec; return *this; }
 
-struct _uint4 {
-	_uint4() {}
-	~_uint4() {}
-	_uint4( __m128i v ) : vec(v) {}
-	_uint4( unsigned int a ) : x(a), y(a), z(a), w(a) {}
-	_uint4( unsigned int a, unsigned int b, unsigned int c, unsigned int d )
-		: x(a), y(b), z(c), w(d) {}
-	_uint4( unsigned int* p ) : x(p[0]), y(p[1]), z(p[2]), w(p[3]) {}
-	_uint4& operator+ () { return *this; }
-	_uint4& operator += ( _uint4 b ) 
-		{ x += b.x; y += b.y; z += b.z; w += b.w; return *this; }
-	_uint4& operator -= ( _uint4 b ) 
-		{ x -= b.x; y -= b.y; z -= b.z; w -= b.w; return *this; }
-	union {
-		struct { __m128i vec; };
-		struct { unsigned int x,y,z,w; };
-		struct { __m64 xy,zw; };
-		struct { __m128i xyzw; };
-		struct { unsigned int s0,s1,s2,s3; };
-		struct { __m64 s12,s34; };
-		struct { __m128i s1234; };
-	};
-};
-typedef struct _uint4 uint4;
+/* modulo assign */
+template < typename T >
+_vector_type<T,4>& _vector_type<T,4>::operator%=( _vector_type<T,4> rhs ) 
+	{ vec %= rhs.vec; return *this; }
 
-struct _ulong2 {
-	_ulong2() {}
-	~_ulong2() {}
-	_ulong2( __m128i v ) : vec(v) {}
-	_ulong2( unsigned long a ) : x(a), y(a) {}
-	_ulong2( unsigned long a, unsigned long b ) : x(a), y(b) {}
-	_ulong2( unsigned long* p ) : x(p[0]), y(p[1]) {}
-	_ulong2& operator+ () { return *this; }
-	_ulong2& operator += ( _ulong2 b ) 
-		{ x += b.x; y += b.y; return *this; }
-	_ulong2& operator -= ( _ulong2 b ) 
-		{ x -= b.x; y -= b.y; return *this; }
-	union {
-		struct { __m128i vec; };
-		struct { unsigned long x,y; };
-		struct { __m128i xy; };
-		struct { unsigned long s0,s1; };
-		struct { __m128i s01; };
-	};
-};
-typedef struct _ulong2 ulong2;
+/* divide assign */
+template < typename T >
+_vector_type<T,4>& _vector_type<T,4>::operator/=( _vector_type<T,4> rhs ) 
+	{ vec /= rhs.vec; return *this; }
 
-struct _float2 {
-	_float2() {}
-	~_float2() {}
-	_float2( __m64 v ) : vec(v) {}
-	_float2( float a ) : x(a), y(a) {}
-	_float2( float a, float b ) : x(a), y(b) {}
-	_float2( float* p ) : x(p[0]), y(p[1]) {}
-	_float2& operator+ () { return *this; }
-	_float2& operator += ( _float2 b ) 
-		{ x += b.x; y += b.y; return *this; }
-	_float2& operator -= ( _float2 b ) 
-		{ x -= b.x; y -= b.y; return *this; }
-	union {
-		struct { __m64 vec; };
-		struct { float x,y; };
-		struct { __m64 xy; };
-		struct { float s0,s1; };
-		struct { __m64 s01; };
-	};
-};
-typedef struct _float2 float2;
+/* bitwise and assign */
+template < typename T >
+_vector_type<T,4>& _vector_type<T,4>::operator&=( _vector_type<T,4> rhs ) 
+	{ vec &= rhs.vec; return *this; }
 
-struct _float4 {
-	_float4() {}
-	~_float4() {}
-	_float4( __m128 v ) : vec(v) {}
-	_float4( float a ) : x(a), y(a), z(a), w(a) {}
-	_float4( float a, float b, float c, float d )
-		: x(a), y(b), z(c), w(d) {}
-	_float4( float* p ) : x(p[0]), y(p[1]), z(p[2]), w(p[3]) {}
-	_float4& operator+ () { return *this; }
-#if defined(__SSE__)
-	_float4& operator += ( _float4 b ) 
-		{ vec = _mm_add_ps( vec, b.vec ); return *this; }
-	_float4& operator -= ( _float4 b ) 
-		{ vec = _mm_sub_ps( vec, b.vec ); return *this; }
-#else
-	_float4& operator -= ( _float4 b ) 
-		{ x-=b.x; y-=b.y; z-=b.z; w-=b.w; return *this; }
-#endif
-	union {
-		struct { __m128 vec; };
-		struct { float x,y,z,w; };
-		struct { __m64 xy,zw; };
-		struct { __m128 xyzw; };
-		struct { float s0,s1,s2,s3; };
-		struct { __m64 s12,s34; };
-		struct { __m128 s12s34; };
-	};
-};
-typedef struct _float4 float4;
+/* bitwise or assign */
+template < typename T >
+_vector_type<T,4>& _vector_type<T,4>::operator|=( _vector_type<T,4> rhs ) 
+	{ vec |= rhs.vec; return *this; }
 
-struct _double2 {
-	_double2() {}
-	~_double2() {}
-	_double2( __m128d v ) : vec(v) {}
-	_double2( double a ) : x(a), y(a) {}
-	_double2( double a, double b ) : x(a), y(b) {}
-	_double2( double* p ) : x(p[0]), y(p[1]) {}
-	_double2& operator+ () { return *this; }
-#if defined(__SSE__)
-	_double2& operator += ( _double2 b ) 
-		{ vec = _mm_add_pd( vec, b.vec ); return *this; }
-	_double2& operator -= ( _double2 b ) 
-		{ vec = _mm_sub_pd( vec, b.vec ); return *this; }
-#else
-	_double2& operator += ( _double2 b ) 
-		{ x+=b.x; y+=b.y; return *this; }
-	_double2& operator -= ( _double2 b ) 
-		{ x-=b.x; y-=b.y; return *this; }
-#endif
-	union {
-		struct { __m128d vec;	};
-		struct { double x,y; };
-		struct { __m128d xy; };
-		struct { double s0,s1; };
-		struct { __m128d s01; };
-	};
-};
-typedef struct _double2 double2;
+/* bitwise xor assign */
+template < typename T >
+_vector_type<T,4>& _vector_type<T,4>::operator^=( _vector_type<T,4> rhs ) 
+	{ vec ^= rhs.vec; return *this; }
+
+
+/* typedefs for high-level vector implementations  */
+
+typedef _vector_type<int,2> _int2;
+typedef _vector_type<unsigned int,2> _uint2;
+typedef _vector_type<long,2> _long2;
+typedef _vector_type<unsigned long,2> _ulong2;
+typedef _vector_type<float,2> _float2;
+typedef _vector_type<double,2> _double2;
+
+typedef _vector_type<int,4> _int4;
+typedef _vector_type<unsigned int,4> _uint4;
+typedef _vector_type<float,4> _float4;
+
+typedef _int2 int2;
+typedef _uint2 uint2;
+typedef _long2 long2;
+typedef _ulong2 ulong2;
+typedef _float2 float2;
+typedef _double2 double2;
+
+typedef _int4 int4;
+typedef _uint4 uint4;
+typedef _float4 float4;
+
 
 
 /*** other builtin data types [6.1.3] ***/
@@ -454,213 +567,103 @@ typedef struct _double2 double2;
 static __inline double as_double( float2 f2 ) { return *(double*)(&f2); }
 
 
-/*** operators for vector data types [6.3] ***/
+/*** 
+ *** operators for vector data types [6.3] 
+ ***/
 
-/* operator + */
+#define __GENERIC_BINOP(op) \
+template < typename T, int D > \
+static __inline _vector_type<T,D>  \
+operator op( _vector_type<T,D> a, _vector_type<T,D> b ) \
+	{ return _vector_type<T,D>( a.vec op b.vec ); } \
+template < typename T, int D > \
+static __inline _vector_type<T,D> \
+operator op( typename _vector_type<T,D>::type_t a, _vector_type<T,D> b ) \
+	{ return _vector_type<T,D>(a) op b; } \
+template < typename T, int D > \
+static __inline _vector_type<T,D> \
+operator op( _vector_type<T,D> a, typename _vector_type<T,D>::type_t b ) \
+	{ return a op _vector_type<T,D>(b); }
 
-#if defined(__SSE__)
+/* binary operator + */
 
-static __inline _int2 operator+( _int2 a, _int2 b ) 
-{ return _mm_add_pi32( a.vec, b.vec ); }
-
-static __inline _int4 operator+( _int4 a, _int4 b ) 
-{ return _mm_add_epi32( a.vec, b.vec ); }
-
-static __inline _uint2 operator+( _uint2 a, _uint2 b ) 
-{ return _uint2( a.x + b.x, a.y + b.y ); }
-
-static __inline _uint4 operator+( _uint4 a, _uint4 b ) 
-{ return _uint4( a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w ); }
-
-static __inline _long2 operator+( _long2 a, _long2 b ) 
-{ return _mm_add_epi64( a.vec, b.vec ); }
-
-static __inline _ulong2 operator+( _ulong2 a, _ulong2 b ) 
-{ return _ulong2( a.x + b.x, a.y + b.y ); }
-
-static __inline _float2 operator+( _float2 a, _float2 b ) 
-{ return _float2( a.x + b.x, a.y + b.y ); }
-
-static __inline _float4 operator+( _float4 a, _float4 b ) 
-{ return _mm_add_ps( a.vec, b.vec ); }
-
-static __inline _double2 operator+( _double2 a, _double2 b ) 
-{ return _mm_add_pd( a.vec, b.vec ); }
-
-#else
-
-static __inline _int2 operator+( _int2 a, _int2 b )
-{ return _int2( a.x+b.x, a.y+b.y ); }
-
-static __inline _int4 operator+( _int4 a, _int4 b )
-{ return _int4( a.x+b.x, a.y+b.y, a.z+b.z, a.w+b.w ); }
-
-static __inline _uint2 operator+( _uint2 a, _uint2 b )
-{ return _uint2( a.x + b.x, a.y + b.y ); }
-
-static __inline _uint4 operator+( _uint4 a, _uint4 b )
-{ return _uint4( a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w ); }
-
-static __inline _long2 operator+( _long2 a, _long2 b )
-{ return _long2( a.x+b.x, a.y+b.y ); }
-
-static __inline _ulong2 operator+( _ulong2 a, _ulong2 b )
-{ return _ulong2( a.x + b.x, a.y + b.y ); }
-
-static __inline _float2 operator+( _float2 a, _float2 b )
-{ return _float2( a.x + b.x, a.y + b.y ); }
-
-static __inline _float4 operator+( _float4 a, _float4 b )
-{ return _float4( a.x+b.x, a.y+b.y, a.z+b.z, a.w+b.w ); }
-
-static __inline _double2 operator+( _double2 a, _double2 b )
-{ return _double2( a.x+b.x, a.y+b.y ); }
-
-#endif
-
-
-/* operator - */
-
-static __inline _int2 operator-( _int2 a, _int2 b ) 
-{ return _int2( a.x - b.x, a.y - b.y ); }
-
-static __inline _int4 operator-( _int4 a, _int4 b ) 
-{ return _int4(  a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w ); }
-
-static __inline _uint2 operator-( _uint2 a, _uint2 b ) 
-{ return _uint2( a.x - b.x, a.y - b.y ); }
-
-static __inline _uint4 operator-( _uint4 a, _uint4 b ) 
-{ return _uint4( a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w ); }
-
-static __inline _long2 operator-( _long2 a, _long2 b ) 
-{ return _long2( a.x - b.x, a.y - b.y ); }
-
-static __inline _ulong2 operator-( _ulong2 a, _ulong2 b ) 
-{ return _ulong2( a.x - b.x, a.y - b.y ); }
-
-static __inline _float2 operator-( _float2 a, _float2 b ) 
-{ return _float2( a.x - b.x, a.y - b.y ); }
-
-static __inline _float4 operator-( _float4 a, _float4 b ) 
-{ return _float4( a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w ); }
-
-static __inline _double2 operator-( _double2 a, _double2 b ) 
-{ return _double2( a.x - b.x, a.y - b.y ); }
-
-
-/* operator * */
+__GENERIC_BINOP(+)
+__GENERIC_BINOP(-)
+__GENERIC_BINOP(*)
+__GENERIC_BINOP(%)
+__GENERIC_BINOP(/)
+__GENERIC_BINOP(&)
+__GENERIC_BINOP(|)
+__GENERIC_BINOP(^)
 
 #if defined(__SSE__)
 
-static __inline _int2 operator*( _int2 a, _int2 b ) 
-{ return _int2( a.x * b.x, a.y * b.y ); }
+/* binary operator + */
 
-static __inline _int4 operator*( _int4 a, _int4 b ) 
-{ return _int4( a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w ); }
+static __inline _int2
+operator+( _int2 a, _int2 b ) 
+	{ return _int2(_mm_add_pi32( a.vec, b.vec ) ); }
 
-static __inline _uint2 operator*( _uint2 a, _uint2 b ) 
-{ return _uint2( a.x * b.x, a.y * b.y ); }
+template <>
+static __inline _long2
+operator+( _long2 a, _long2 b ) 
+	{ return _long2( _mm_add_epi64( a.vec, b.vec ) ); }
 
-static __inline _uint4 operator*( _uint4 a, _uint4 b ) 
-{ return _uint4( a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w ); }
+template <>
+static __inline _double2
+operator+( _double2 a, _double2 b ) 
+	{ return _double2( _mm_add_pd( a.vec, b.vec ) ); }
 
-static __inline _long2 operator*( _long2 a, _long2 b ) 
-{ return _long2( a.x * b.x, a.y * b.y ); }
+template <>
+static __inline _int4
+operator+( _int4 a, _int4 b ) 
+	{ return _int4( _mm_add_epi32( a.vec, b.vec ) ); }
 
-static __inline _ulong2 operator*( _ulong2 a, _ulong2 b ) 
-{ return _ulong2( a.x * b.x, a.y * b.y ); }
+template <>
+static __inline _float4
+operator+( _float4 a, _float4 b ) 
+	{ return _float4( _mm_add_ps( a.vec, b.vec ) ); }
 
-static __inline _float2 operator*( _float2 a, _float2 b ) 
-{ return _float2( a.x * b.x, a.y * b.y ); }
+/* binary operator - */
 
-static __inline _float4 operator*( _float4 a, _float4 b ) 
-{ return _mm_mul_ps( a.vec, b.vec ); }
+static __inline _int2
+operator-( _int2 a, _int2 b ) 
+	{ return _int2(_mm_sub_pi32( a.vec, b.vec ) ); }
 
-static __inline _double2 operator*( _double2 a, _double2 b ) 
-{ return _mm_mul_pd( a.vec, b.vec ); }
+template <>
+static __inline _long2
+operator-( _long2 a, _long2 b ) 
+	{ return _long2( _mm_sub_epi64( a.vec, b.vec ) ); }
 
-#else
+template <>
+static __inline _double2
+operator-( _double2 a, _double2 b ) 
+	{ return _double2( _mm_sub_pd( a.vec, b.vec ) ); }
 
-static __inline _int2 operator*( _int2 a, _int2 b )
-{ return _int2( a.x * b.x, a.y * b.y ); }
+template <>
+static __inline _int4
+operator-( _int4 a, _int4 b ) 
+	{ return _int4( _mm_sub_epi32( a.vec, b.vec ) ); }
 
-static __inline _int4 operator*( _int4 a, _int4 b )
-{ return _int4( a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w ); }
+template <>
+static __inline _float4
+operator-( _float4 a, _float4 b ) 
+	{ return _float4( _mm_sub_ps( a.vec, b.vec ) ); }
 
-static __inline _uint2 operator*( _uint2 a, _uint2 b )
-{ return _uint2( a.x * b.x, a.y * b.y ); }
+/* binary operator * */
 
-static __inline _uint4 operator*( _uint4 a, _uint4 b )
-{ return _uint4( a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w ); }
+template <>
+static __inline _double2
+operator*( _double2 a, _double2 b )
+	{ return _double2( _mm_mul_pd( a.vec, b.vec ) ); }
 
-static __inline _long2 operator*( _long2 a, _long2 b )
-{ return _long2( a.x * b.x, a.y * b.y ); }
-
-static __inline _ulong2 operator*( _ulong2 a, _ulong2 b )
-{ return _ulong2( a.x * b.x, a.y * b.y ); }
-
-static __inline _float2 operator*( _float2 a, _float2 b )
-{ return _float2( a.x * b.x, a.y * b.y ); }
-
-static __inline _float4 operator*( _float4 a, _float4 b )
-{ return _float4( a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w ); }
-
-static __inline _double2 operator*( _double2 a, _double2 b )
-{ return _double2( a.x * b.x, a.y * b.y ); }
+template <>
+static __inline _float4 
+operator*( _float4 a, _float4 b )
+	{ return _float4( _mm_mul_ps( a.vec, b.vec ) ); }
 
 #endif
 
-
-/* operator % */
-
-static __inline _int2 operator%( _int2 a, _int2 b ) 
-{ return _int2( a.x % b.x, a.y % b.y ); }
-
-static __inline _int4 operator%( _int4 a, _int4 b ) 
-{ return _int4(  a.x % b.x, a.y % b.y, a.z % b.z, a.w % b.w ); }
-
-static __inline _uint2 operator%( _uint2 a, _uint2 b ) 
-{ return _uint2( a.x % b.x, a.y % b.y ); }
-
-static __inline _uint4 operator%( _uint4 a, _uint4 b ) 
-{ return _uint4( a.x % b.x, a.y % b.y, a.z % b.z, a.w % b.w ); }
-
-static __inline _long2 operator%( _long2 a, _long2 b ) 
-{ return _long2( a.x % b.x, a.y % b.y ); }
-
-static __inline _ulong2 operator%( _ulong2 a, _ulong2 b ) 
-{ return _ulong2( a.x % b.x, a.y % b.y ); }
-
-
-/* operator / */
-
-static __inline _int2 operator/( _int2 a, _int2 b ) 
-{ return _int2( a.x / b.x, a.y / b.y ); }
-
-static __inline _int4 operator/( _int4 a, _int4 b ) 
-{ return _int4(  a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w ); }
-
-static __inline _uint2 operator/( _uint2 a, _uint2 b ) 
-{ return _uint2( a.x / b.x, a.y / b.y ); }
-
-static __inline _uint4 operator/( _uint4 a, _uint4 b ) 
-{ return _uint4( a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w ); }
-
-static __inline _long2 operator/( _long2 a, _long2 b ) 
-{ return _long2( a.x / b.x, a.y / b.y ); }
-
-static __inline _ulong2 operator/( _ulong2 a, _ulong2 b ) 
-{ return _ulong2( a.x / b.x, a.y / b.y ); }
-
-static __inline _float2 operator/( _float2 a, _float2 b ) 
-{ return _float2( a.x / b.x, a.y / b.y ); }
-
-static __inline _float4 operator/( _float4 a, _float4 b ) 
-{ return _float4( a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w ); }
-
-static __inline _double2 operator/( _double2 a, _double2 b ) 
-{ return _double2( a.x / b.x, a.y / b.y ); }
 
 
 /*** these are generic min and max definitions - they should be corrected ***/
