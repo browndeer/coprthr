@@ -252,7 +252,9 @@ clBuildProgram(
 
 		} else {
 
-			if (!prg->bin[j] || prg->bin_sz[j]) return(CL_INVALID_BINARY);
+			DEBUG2("bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
+
+			if (!prg->bin[j] || prg->bin_sz[j] == 0) return(CL_INVALID_BINARY);
 
 			err = __do_build_program_from_binary(prg,devid,j);
 
