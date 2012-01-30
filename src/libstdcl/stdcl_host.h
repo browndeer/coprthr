@@ -120,7 +120,8 @@ typedef struct clndrange_struct clndrange_t;
 #ifdef __cplusplus
 
 template < typename T >
-void clarg_set( CONTEXT* cp, cl_kernel krn, unsigned int argnum, T arg)
+void clarg_set( CONTEXT* cp __attribute__((__unused__)), cl_kernel krn, 
+	unsigned int argnum, T arg)
 //{ clSetKernelArg(krn,argnum,sizeof(typeof(T)),(void*)&arg); }
 { clSetKernelArg(krn,argnum,sizeof(T),(void*)&arg); }
 
