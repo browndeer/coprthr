@@ -87,6 +87,15 @@ int clelf_device_name_alias( char* dname )
 	return(0);
 }
 
+int clelf_platform_code( char* name )
+{
+	if (!strncasecmp(name,"AMD",3)) return(CLELF_PLATFORM_CODE_AMDAPP);
+	else if (!strncasecmp(name,"Nvidia",6)) return(CLELF_PLATFORM_CODE_NVIDIA);
+	else if (!strncasecmp(name,"coprthr",7)) return(CLELF_PLATFORM_CODE_COPRTHR);
+	else if (!strncasecmp(name,"Intel",7)) return(CLELF_PLATFORM_CODE_INTEL);
+	return(0);
+}
+
 int clelf_init_data( struct clelf_data_struct* data) 
 {
 

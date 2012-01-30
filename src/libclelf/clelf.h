@@ -194,6 +194,7 @@ int clelf_load_sections( char* elf_ptr, struct clelf_sect_struct* );
 int clelf_check_hash( char* elf_ptr, struct clelf_sect_struct* );
 
 int clelf_device_name_alias( char* dname );
+int clelf_platform_code( char* pname );
 
 #endif
 
