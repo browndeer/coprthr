@@ -229,6 +229,14 @@ AC_ARG_WITH(opencl-platform,
       fi;
     fi;
 
+    if test $tmp_coprthr_sdk -eq 1; then
+      if ! test -z $DEFAULT_OPENCL_PLATFORM; then
+        DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,coprthr;
+      else
+        DEFAULT_OPENCL_PLATFORM=coprthr;
+      fi;
+    fi;
+
     if test $tmp_intel_sdk -eq 1; then
       if ! test -z $DEFAULT_OPENCL_PLATFORM; then
         DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,intel;
