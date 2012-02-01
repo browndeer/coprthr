@@ -2987,7 +2987,7 @@ else
     fi;
 
     if test $tmp_nvidia_sdk -eq 1; then
-      if test -n $DEFAULT_OPENCL_PLATFORM; then
+      if ! test -z $DEFAULT_OPENCL_PLATFORM; then
         DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,nvidia;
       else
         DEFAULT_OPENCL_PLATFORM=nvidia;
@@ -2995,7 +2995,7 @@ else
     fi;
 
     if test $tmp_intel_sdk -eq 1; then
-      if test -n $DEFAULT_OPENCL_PLATFORM; then
+      if ! test -z $DEFAULT_OPENCL_PLATFORM; then
         DEFAULT_OPENCL_PLATFORM=$DEFAULT_OPENCL_PLATFORM,intel;
       else
         DEFAULT_OPENCL_PLATFORM=intel;
