@@ -35,7 +35,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <elf.h>
-#include <libelf.h>
 #include <errno.h>
 
 //#include "_version.h"
@@ -314,7 +313,7 @@ int main(int argc, char** argv)
 	n = 1;
 	while (n < argc) {
 
-printf("compare |%s|\n",argv[n]);
+//printf("compare |%s|\n",argv[n]);
 
 		/* -fopencl */
 		if (str_match_exact(argv[n],"-fopencl")) {

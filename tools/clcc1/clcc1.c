@@ -32,7 +32,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <elf.h>
-#include <libelf.h>
 #include <errno.h>
 #include <openssl/md5.h>
 
@@ -289,7 +288,7 @@ int main(int argc, char** argv)
 	char* fname = 0;
 	char* ofname = 0;
 
-printf("\nXXX add option to use only devices that are present\n\n");
+//printf("\nXXX add option to use only devices that are present\n\n");
 
 	n = 1;
 	while (n < argc) {
@@ -870,8 +869,10 @@ printf("\nXXX add option to use only devices that are present\n\n");
 					build_log = (char*)malloc(build_log_sz);
 					err = clGetProgramBuildInfo(programs[i],devices[j],
 						CL_PROGRAM_BUILD_LOG,build_log_sz,build_log,0);
-					if (build_log_sz > 0) printf("%s",build_log);
-					if (build_log[build_log_sz-1] != '\n') printf("\n");
+					if (build_log_sz > 1) {
+						printf("%s\n",build_log);
+						if (build_log[build_log_sz-2] != '\n') printf("\n");
+					}
 					free(build_log);
 				}
 
@@ -893,8 +894,10 @@ printf("\nXXX add option to use only devices that are present\n\n");
 					build_log = (char*)malloc(build_log_sz);
 					err = clGetProgramBuildInfo(programs[i],devices[j],
 						CL_PROGRAM_BUILD_LOG,build_log_sz,build_log,0);
-					if (build_log_sz > 0) printf("%s",build_log);
-					if (build_log[build_log_sz-1] != '\n') printf("\n");
+					if (build_log_sz > 1) {
+						printf("%s",build_log);
+						if (build_log[build_log_sz-2] != '\n') printf("\n");
+					}
 					free(build_log);
 				}
 
