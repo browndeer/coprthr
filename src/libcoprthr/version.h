@@ -37,7 +37,7 @@
 #endif
 
 #ifndef COPRTHR_REVISION
-#define COPRTHR_REVISION 3 /* @REVISION */
+#define COPRTHR_REVISION 4 /* @REVISION */
 #endif
 
 #ifndef COPRTHR_RELEASE
@@ -45,7 +45,7 @@
 #endif
 
 #ifndef COPRTHR_NAME
-#define COPRTHR_NAME "lakeside"
+#define COPRTHR_NAME "echo"
 #endif
 
 
