@@ -700,6 +700,11 @@ clsym( CONTEXT* cp, void* handle, const char* sname, int flags )
 //		return(0);
 //	}
 
+	if ( !handle && !_clopen_zero ) {
+		DEBUG2("need to force call to clopen");
+		clopen(cp,0,flags);
+	}
+
 	prgs = (struct _prgs_struct*)handle;
 
 	cl_kernel krn;
