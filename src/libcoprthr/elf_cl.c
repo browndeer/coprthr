@@ -23,8 +23,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-//#include <elf.h>
-//#include <libelf.h>
 #include <libelf/libelf.h>
 
 #include "version.h"
