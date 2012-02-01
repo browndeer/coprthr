@@ -17,7 +17,7 @@ using namespace std;
 //////////////////////////////////////////////////////////////////////////////
 
 #include <stdcl.h>
-#define __CLMULTI_ARRAY_FULLAUTO
+//#define __CLMULTI_ARRAY_FULLAUTO
 #include <clmulti_array.h>
 
 int main()

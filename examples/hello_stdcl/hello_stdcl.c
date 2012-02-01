@@ -14,8 +14,6 @@ int main()
 
 	clopen(cp,0,CLLD_NOW);
 
-//   void* clh = clopen(cp,"matvecmult.cl",CLLD_NOW);
-//   cl_kernel krn = clsym(cp,clh,"matvecmult_kern",0);
    cl_kernel krn = clsym(cp,0,"matvecmult_kern",0);
 
    /* allocate OpenCL device-sharable memory */
@@ -54,5 +52,4 @@ int main()
    clfree(b);
    clfree(c);
 
-//   clclose(cp,clh);
 }

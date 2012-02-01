@@ -15,8 +15,11 @@ OBJS =
 
 all: $(NAME).x
 
-$(NAME).x: $(NAME).o $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) $(LIBS)
+$(NAME).x: $(NAME).o $(OBJS) ocl.o
+	$(CXX) $(CXXFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) ocl.o $(LIBS)
+
+ocl.o: matvecmult.cl
+	clcc -o ocl.o matvecmult.cl
 
 .SUFFIXES:
 .SUFFIXES: .cpp .o

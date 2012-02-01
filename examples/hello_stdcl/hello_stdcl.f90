@@ -30,8 +30,7 @@
 
 
 	!!!! build CL program, get kernel
-   clh = clopen(cp,"matvecmult.cl"//C_NULL_CHAR,CLLD_NOW);
-   krn = clsym(cp,clh,"matvecmult_kern"//C_NULL_CHAR,0);
+   krn = clsym(cp,C_NULL_PTR,"matvecmult_kern"//C_NULL_CHAR,0);
 
 
    !!!! allocate OpenCL device-sharable memory, associate with fortran pointers
@@ -98,8 +97,6 @@
    rc = clfree(p_aa)
    rc = clfree(p_b)
    rc = clfree(p_c)
-
-	rc = clclose(cp,clh)
 
 	end
 

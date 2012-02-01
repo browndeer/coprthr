@@ -1,5 +1,4 @@
-
-PROG = mpi_lock_example.x 
+NAME = mpi_lock_example
 
 OPENCL_INC_PATH = /usr/local/atistream/include
 OPENCL_LIB_PATH = /usr/local/atistream/lib/x86_64
@@ -13,10 +12,13 @@ LIBS = -L$(OPENCL_LIB_PATH) -lOpenCL -L$(STDCL_LIB_PATH) -lstdcl
 CC = mpicc
 CCFLAGS += -O3
 
-all: $(PROG)
+all: $(NAME).x
 
-mpi_lock_example.x: mpi_lock_example.o 
-	$(CC) $(CCFLAGS) $(INCS) -o mpi_lock_example.x mpi_lock_example.o $(LIBS)
+$(NAME).x: $(NAME).o ocl.o
+	$(CC) $(CCFLAGS) $(INCS) -o $(NAME).x $(NAME).o ocl.o $(LIBS)
+
+ocl.o: outerprod.cl
+	clcc -o ocl.o outerprod.cl
 
 .SUFFIXES:
 .SUFFIXES: .c .o

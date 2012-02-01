@@ -12,8 +12,7 @@ int main()
    CLCONTEXT* cp = (stdgpu)? stdgpu : stdcpu;
    unsigned int devnum = 0;
 
-   void* clh = clopen(cp,"matvecmult.cl",CLLD_NOW);
-   cl_kernel krn = clsym(cp,clh,"matvecmult_kern",0);
+   cl_kernel krn = clsym(cp,0,"matvecmult_kern",0);
 
    // allocate matrix and vectors using clmulti_array 
 	typedef clmulti_array<cl_float,1> array1_t;
@@ -110,5 +109,4 @@ int main()
 
    for(int i=0;i<n;i++) printf("%f %f\n",b[i],c[i]);
  
-   clclose(cp,clh);
 }

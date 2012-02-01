@@ -10,7 +10,8 @@ STDCL_LIB_PATH = /usr/local/browndeer/lib
 
 INCS = -I$(OPENCL_INC_PATH) -I$(STDCL_INC_PATH)
 LIBS = -L$(OPENCL_LIB_PATH) -lOpenCL -L$(STDCL_LIB_PATH) 
-LIBS += -lstdcl_d -lelf -lclelf -lssl
+#LIBS += -lstdcl -lclelf 
+LIBS += -lstdcl 
 
 F90 = gfortran44
 
@@ -21,11 +22,14 @@ OBJS =
 
 all: $(NAME).x
 
-$(NAME).x: $(NAME).o $(OBJS) 
-	$(CC) $(CCFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) $(LIBS) out_clcc.o
+$(NAME).x: $(NAME).o $(OBJS) ocl.o
+	$(CC) $(CCFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) $(LIBS) ocl.o
 
-fortran: 
-	$(F90) $(F90FLAGS) $(INCS) -o $(NAME)_f90.x $(NAME).f90 $(OBJS) $(LIBS)
+ocl.o: matvecmult.cl
+	clcc -o ocl.o matvecmult.cl
+
+fortran: $(OBJS) ocl.o
+	$(F90) $(F90FLAGS) $(INCS) -o $(NAME)_f90.x $(NAME).f90 $(OBJS) ocl.o $(LIBS)
 
 .SUFFIXES:
 .SUFFIXES: .c .o

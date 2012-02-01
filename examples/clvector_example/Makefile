@@ -11,12 +11,15 @@ LIBS = -L$(OPENCL_LIB_PATH) -lOpenCL -L$(STDCL_LIB_PATH) -lstdcl
 
 CXXFLAGS += -O3
 
-OBJS = 
+OBJS = ocl.o
 
 all: $(NAME).x
 
 $(NAME).x: $(NAME).o $(OBJS)
 	$(CXX) $(CXXFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) $(LIBS)
+
+ocl.o: outerprod.cl
+	clcc -o ocl.o outerprod.cl 
 
 .SUFFIXES:
 .SUFFIXES: .cpp .o

@@ -1,5 +1,6 @@
-
 NAME = bdt_nbody
+
+#DEFS += -DDISABLE_DISPLAY
 
 OBJS = Timer.o nbody_init.o nbody_display.o 
 
@@ -8,7 +9,6 @@ OBJS = Timer.o nbody_init.o nbody_display.o
 CL_ROOT = /usr/local/atistream
 LIBSTDCL_ROOT = /usr/local/browndeer/
 CLSRC = nbody_kern.cl
-#OBJS += out_clld.o
 DEFS += -DENABLE_CL
 INCS += -I$(CL_ROOT)/include -I$(LIBSTDCL_ROOT)/include
 LIBS += -L$(CL_ROOT)/lib/x86_64 -lOpenCL -lpthread -ldl \
@@ -26,16 +26,14 @@ LIBS += -L/usr/lib64 -lglut -lGLEW
 
 CXXFLAGS += -O3
 
-CLLD = $(LIBSTDCL_ROOT)/bin/clld
-
 all: $(NAME).x
 	-echo -e $(ANNOUNCEMENT)
 
-$(NAME).x: $(NAME).o $(OBJS) out_clld.o bdt_bmp.o
-	$(CXX) $(CXXFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) out_clld.o bdt_bmp.o $(LIBS)
+$(NAME).x: $(NAME).o $(OBJS) ocl.o bdt_bmp.o
+	$(CXX) $(CXXFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) ocl.o bdt_bmp.o $(LIBS)
 
-out_clld.o: $(CLSRC)
-	$(CLLD) --cl-source $(CLSRC)
+ocl.o: $(CLSRC)
+	clcc -o ocl.o $(CLSRC)
 
 bdt_bmp.o:
 	objcopy -I binary -O elf64-x86-64 -B i386 bdt.bmp bdt_bmp.o
