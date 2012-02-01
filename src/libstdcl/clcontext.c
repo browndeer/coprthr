@@ -267,9 +267,9 @@ clcontext_create(
 
 	} else {
 
-		for(i=0; i< nselect; i++) if (select_id[j]) { 
+		for(i=0; i< nselect; i++) if (select_id[i]) { 
 
-			platformid = select_id[j];
+			platformid = select_id[i];
 			break;
 
 		}
