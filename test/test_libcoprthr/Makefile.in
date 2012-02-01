@@ -14,8 +14,7 @@ USE_OPENCL_LIBS=-L$(OPENCL_LIB_DIR) -l$(OPENCL_LIBNAME)
 
 TESTS = test_arg_int test_block_int test_arg_int4 \
 	test_arg_float test_block_float test_arg_float4 \
-	test_special \
-	test_block2_int
+	test_special 
 
 #TESTS = test_faf
 
