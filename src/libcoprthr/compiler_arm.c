@@ -38,7 +38,7 @@
 	" -fstrict-aliasing -fdelete-null-pointer-checks " \
 	" -freorder-blocks -freorder-functions " \
 	" -falign-functions -falign-jumps -falign-loops  -falign-labels " \
-	" -ftree-vrp -ftree-pre" 
+	" -ftree-vrp -ftree-pre -ftree-vectorize -mfloat-abi=softfp -mfpu=neon" 
 
 /* XXX note that most flags suposedly enabled by -O2 are added explicitly
  * XXX for CCFLAGS_OCL because this inexplicably improves performance by 2%.
