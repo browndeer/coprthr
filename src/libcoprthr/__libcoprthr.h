@@ -725,6 +725,15 @@ __MATH_BUILTIN_1(tanh)
 __MATH_BUILTIN_1(tgamma)
 __MATH_BUILTIN_1(trunc)
 
+static __inline float rsqrt_T( float a ) { return 1.0f/sqrtf(a); } \
+static __inline float2 rsqrt_T( float2 a ) \
+	{ return float2(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y)); } \
+static __inline float4 rsqrt_T( float4 a ) \
+	{ return float4(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y),1.0f/sqrtf(a.z),1.0f/sqrtf(a.w)); } \
+static __inline double rsqrt_T( double a ) { return 1.0f/sqrt(a); } \
+static __inline double2 rsqrt_T( double2 a ) \
+	{ return double2(1.0f/sqrt(a.x),1.0f/sqrt(a.y)); }
+
 #define sqrt(a) sqrt_T(a)
 #define acos(a) acos_T(a)
 #define acosh(a) acosh_T(a)
