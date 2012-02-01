@@ -31,7 +31,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <elf.h>
-#include <libelf.h>
+#include <libelf/libelf.h>
 #include <errno.h>
 
 //#include "_version.h"
@@ -366,8 +366,8 @@ int main(int argc, char** argv)
 		exit(-1);
 	}
 
-//	if ((e = elf_begin(fd, ELF_C_WRITE, 0)) == 0) {
-	if ((e = elf_begin(fd, ELF_C_WRITE, NULL)) == 0) {
+	if ((e = elf_begin(fd, ELF_C_WRITE, 0)) == 0) {
+//	if ((e = elf_begin(fd, ELF_C_WRITE, NULL)) == 0) {
 		fprintf(stderr,"elf_begin() failed: %d: %s", elf_errno(),elf_errmsg(-1));
 		exit(-1);
 	}
