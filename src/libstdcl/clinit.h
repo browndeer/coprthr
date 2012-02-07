@@ -41,8 +41,10 @@
 
 #include <CL/cl.h>
 
+#ifndef _WIN64
 //#include "../libclelf/clelf.h"
 #include "clelf.h"
+#endif
 
 #include "clcontext.h"
 
