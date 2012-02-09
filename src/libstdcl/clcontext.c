@@ -235,17 +235,20 @@ clcontext_create(
       char name[64];
       clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,64,name,0);
 
+		err = clGetDeviceIDs(platforms[i],devtyp,0,0,&platform_devcount[i]);
+
 		for(j=0; j< nselect; j++) {
 
 			if (!strncasecmp(select_name[j],name,strnlen(select_name[j],64))) {
 
-				select_id[j] = platforms[i];
+				if (platform_devcount[i] > 0) select_id[j] = platforms[i];
 
 			}
 			
 		}
 
-		err = clGetDeviceIDs(platforms[i],devtyp,0,0,&platform_devcount[i]);
+//		err = clGetDeviceIDs(platforms[i],devtyp,0,0,&platform_devcount[i]);
+
 	}
 
 	if (nplatforms == 1) {
@@ -289,8 +292,8 @@ clcontext_create(
 
 	if (!platformid) {
 
-     	WARN(__FILE__,__LINE__, 
-			"clcontext_create: no platforms supporting device type!");
+//     	WARN(__FILE__,__LINE__, 
+//			"clcontext_create: no platforms supporting device type!");
 
 		return((CONTEXT*)0);
 
