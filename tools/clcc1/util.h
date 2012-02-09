@@ -20,7 +20,7 @@
 #endif
 
 
-#ifdef CLCC_DEBUG
+#ifdef CLCC1_DEBUG
 
 #define DEBUG(f,l,msg,...)  do { \
 	fprintf(stderr,"[%d]clcc1: debug: %s(%d): " msg "\n", \
@@ -43,7 +43,7 @@
 #endif
 
 
-#if defined(CLCC_WARN) || defined(CLCC_DEBUG)
+#if defined(CLCC1_WARN) || defined(CLCC1_DEBUG)
 
 //#define WARN(f,l,msg)  \
 //	fprintf(stderr,"clcc1: warning: %s(%d): " msg "\n",f,l); 

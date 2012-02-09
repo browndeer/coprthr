@@ -6,8 +6,8 @@ exec_prefix=@exec_prefix@
 ### this useless define is needed to silence useless autoconf warning
 datarootdir=@datarootdir@
 
-#DEF = -DSTDCL_WARN -DSTDCL_DEBUG
-#DEF = -DSTDCL_WARN
+#DEFS = -DCLCC1_WARN -DCLCC1_DEBUG
+#DEFS = -DCLCC1_WARN
 
 ######################################################################
 
