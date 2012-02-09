@@ -586,8 +586,35 @@ printf("MATCHED\n");
 	}
 
 	char default_ofname[] = DEFAULT_OFNAME;
+	char* single_ofname = 0;
 
-	if (!ofname) ofname = default_ofname;
+	if (!ofname) {
+
+		if (flist_n == 1) {
+		
+			char* fname = flist[0];
+			size_t fname_len = strlen(fname);
+
+			single_ofname = (char*)malloc(fname_len+3);
+			strncpy(single_ofname,fname,fname_len+1);
+			
+			char* ext = strrchr(single_ofname,'.');
+			if (!ext) {
+				ext = single_ofname + fname_len;
+				*ext = '.';
+			}
+			*(ext+1) = 'o';
+			*(ext+2) = '\0';
+
+			ofname = single_ofname;
+
+		} else {
+
+			ofname = default_ofname;
+	
+		}
+
+	}
 	
 //		if (!ofname) {
 //			ofname = (char*)calloc(1,fname_len+1);
@@ -605,6 +632,8 @@ printf("MATCHED\n");
 
 	
 	for(ifile=0;ifile<flist_n;ifile++) if (tflist[ifile]) unlink(tflist[ifile]);
+
+	if (single_ofname) free(single_ofname);
 
 	return(0);
 
