@@ -1,4 +1,6 @@
 
+#include <stdcl.h>
+
 __kernel void
 copy_kern(
 	int n,
@@ -12,7 +14,6 @@ copy_kern(
 
 }
 
-
 __kernel void
 nbody_kern(
 	int n,
@@ -23,9 +24,9 @@ nbody_kern(
 	__global float4* ppo
 )
 {
-	const float4 zero4 = (float4){0.0f,0.0f,0.0f,0.0f};
-	const float4 invtwo4 = (float4){0.5f,0.5f,0.5f,0.5f};
-	const float4 dt4 = (float4){dt,dt,dt,0.0f};
+	const float4 zero4 = __builtin_vector_float4(0.0f,0.0f,0.0f,0.0f);
+	const float4 invtwo4 = __builtin_vector_float4(0.5f,0.5f,0.5f,0.5f);
+	const float4 dt4 = __builtin_vector_float4(dt,dt,dt,0.0f);
 
 	int gti = 2*get_global_id(0);
 
