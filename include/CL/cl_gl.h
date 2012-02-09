@@ -37,7 +37,7 @@
 #include <OpenGL/CGLDevice.h>
 #else
 #include <CL/cl.h>
-#endif  
+#endif	
 
 #ifdef __cplusplus
 extern "C" {
