@@ -1,19 +1,18 @@
+PROG = clopen_example1.x clopen_example2.x clopen_example3.x
 
-PROG = clopen_example1.x clopen_example2.x
+prefix=@prefix@
+exec_prefix=@exec_prefix@
 
-### add this example if clld is available
-PROG += clopen_example3.x
+OPENCL_INCS = -I@OPENCL_INCLUDE@
+OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
 
-OPENCL_INC_PATH = /usr/local/atistream/include
-OPENCL_LIB_PATH = /usr/local/atistream/lib/x86_64
+STDCL_INCS = -I@includedir@
+STDCL_LIBS = -L@libdir@ -lstdcl
 
-STDCL_INC_PATH = /usr/local/browndeer/include
-STDCL_LIB_PATH = /usr/local/browndeer/lib
+INCS = $(OPENCL_INCS) $(STDCL_INCS)
+LIBS = $(OPENCL_LIBS) $(STDCL_LIBS)
 
-INCS = -I$(OPENCL_INC_PATH) -I$(STDCL_INC_PATH)
-LIBS = -L$(OPENCL_LIB_PATH) -lOpenCL -L$(STDCL_LIB_PATH) -lstdcl
-
-LIBS += -lssl -L/usr/local/lib -lelf
+#LIBS += -lssl -L/usr/local/lib 
 
 CCFLAGS += -O3
 
@@ -30,7 +29,7 @@ clopen_example3.x: clopen_example3.o outerprod_three.o
 		outerprod_three.o
 
 outerprod_three.o: outerprod_three.cl
-	clcc outerprod_three.cl 
+	clcc -c outerprod_three.cl 
 
 .SUFFIXES:
 .SUFFIXES: .c .o
@@ -39,5 +38,8 @@ outerprod_three.o: outerprod_three.cl
 	$(CC) $(CCFLAGS) $(INCS) -c $<
 
 clean:
-	rm -f *.o *.x
+	rm -f *.o
+
+distclean: clean
+	rm -f *.x
 
