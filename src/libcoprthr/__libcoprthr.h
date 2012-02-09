@@ -760,6 +760,7 @@ static __inline double2 rsqrt_T( double2 a ) \
 #define logb(a) logb_T(a)
 #define rint(a) rint_T(a)
 #define round(a) round_T(a)
+#define rsqrt(a) rsqrt_T(a)
 #define sin(a) sin_T(a)
 #define sinh(a) sinh_T(a)
 #define sqrt(a) sqrt_T(a)
