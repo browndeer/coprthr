@@ -695,7 +695,7 @@ void __do_get_devices(
 	int devnum;
 	int n = 0;
 
-printf("devtype %d\n",devtype);
+//printf("devtype %d\n",devtype);
 
 	for(devnum=0;devnum<ndevices;devnum++) 
 //		if (n<ndev && dtab[devnum].imp.devtype == devtype) 

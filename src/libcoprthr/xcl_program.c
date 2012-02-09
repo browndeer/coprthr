@@ -371,7 +371,7 @@ clGetProgramBuildInfo(
 		case CL_PROGRAM_BUILD_STATUS:
 
 			__case_get_param(sizeof(cl_build_status),&prg->build_stat[j]);
-printf("%d\n",(int)prg->build_stat[j]);
+//printf("%d\n",(int)prg->build_stat[j]);
 			break;
 
 		case CL_PROGRAM_BUILD_OPTIONS:

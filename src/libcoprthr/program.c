@@ -119,7 +119,7 @@ cl_int __do_build_program_from_binary(
 
 
 	char* ppp = (char*)cltextb;
-	printf("is image an ELF? %s\n",ppp);
+//	printf("is image an ELF? %s\n",ppp);
 
 	#if defined(XCL_DEBUG)
 	fprintf(stdout,"%p\n",shstrtab);

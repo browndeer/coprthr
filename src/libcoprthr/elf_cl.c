@@ -561,7 +561,7 @@ int elfcl_write(
 
 
 
-	printf("EV_CURRENT %d\n",EV_CURRENT);
+//	printf("EV_CURRENT %d\n",EV_CURRENT);
 
 	if (elf_update(e, ELF_C_NULL) < 0)  {
 		ERROR(__FILE__,__LINE__,
