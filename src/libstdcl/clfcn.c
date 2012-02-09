@@ -278,23 +278,23 @@ DEBUG2("clbuild: platform_vendor '%s'",cp->platform_vendor);
 	else if (!strcasecmp(cp->platform_vendor,"Brown Deer Technology, LLC.")) 
 		strcat(opts," -D __coprthr__");
 
-printf("opts |%s|\n",opts);
+//printf("opts |%s|\n",opts);
 #ifdef DEFAULT_STDCL_INCLUDE
 	strcat(opts," -I" DEFAULT_STDCL_INCLUDE " -D __stdcl_kernel__ ");
 #endif
 	strcat(opts,"\0");
 
-printf("opts |%s|\n",opts);
+//printf("opts |%s|\n",opts);
 
 
 //	char cwd[1024];
 	char* cwd = (char*)malloc(1024);
 	if ( getcwd(cwd,1024) ) {
 		n = strnlen(cwd,1024);
-		printf("len of cwd %d\n",n);
-		printf("len of opts %d\n",strnlen(opts,1024));
+//		printf("len of cwd %d\n",n);
+//		printf("len of opts %d\n",strnlen(opts,1024));
 		if (n+strnlen(opts,1024)>1022) {
-			printf("opts |%s|\n",opts);
+//			printf("opts |%s|\n",opts);
 			WARN(__FILE__,__LINE__,
 				"clbuild: cwd too long to include as header search path.");
 		} else {
