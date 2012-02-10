@@ -356,10 +356,12 @@ int main(int argc, char** argv)
 		} else if (str_match_exact(argv[n],"-mdevice")) {
 
 			list_add_str(&device_select,argv[++n]);
+			use_offline_devices = 1;
 
 		} else if (str_match_seteq(argv[n],"-mdevice")) {
 
 			list_add_str(&device_select,str_get_seteq(argv[n],"-mdevice"));
+			use_offline_devices = 1;
 			
 		} else if (str_match_exact(argv[n],"-mdevice-exclude")) {
 
@@ -684,6 +686,7 @@ int main(int argc, char** argv)
 				cprops[2] = CL_CONTEXT_OFFLINE_DEVICES_AMD;
 				cprops[3] = (cl_context_properties)1;
 				cprops[4] = (cl_context_properties)0;
+				DEBUG2("use amdapp offline");
 				break;
 
 			default:
@@ -692,10 +695,18 @@ int main(int argc, char** argv)
 		}
 			
 //	contexts[i] = clCreateContextFromType(cprops,CL_DEVICE_TYPE_ALL,0,0,&err);
+		cl_context tmpctx 
+			= clCreateContextFromType(cprops,CL_DEVICE_TYPE_ALL,0,0,&err);
 		cl_uint ndev0;
-		clGetDeviceIDs(platforms[i],CL_DEVICE_TYPE_ALL,0,0,&ndev0);
-		cl_device_id* devices0 = (cl_device_id*)malloc(ndev0*sizeof(cl_device_id));
-		clGetDeviceIDs(platforms[i],CL_DEVICE_TYPE_ALL,ndev0,devices0,0);
+//		clGetDeviceIDs(platforms[i],CL_DEVICE_TYPE_ALL,0,0,&ndev0);
+		clGetContextInfo(tmpctx,CL_CONTEXT_NUM_DEVICES,sizeof(cl_uint),&ndev0,0);
+		cl_device_id* devices0 =(cl_device_id*)malloc(ndev0*sizeof(cl_device_id));
+//		clGetDeviceIDs(platforms[i],CL_DEVICE_TYPE_ALL,ndev0,devices0,0);
+		clGetContextInfo(tmpctx,CL_CONTEXT_DEVICES,
+			ndev0*sizeof(cl_device_id),devices0,0);
+//		clReleaseContext(tmpctx);
+
+		DEBUG2("number of supported devices %d",ndev0);
 
 		n = 0;
 		for(j=0;j<ndev0;j++) {
@@ -722,11 +733,14 @@ int main(int argc, char** argv)
             if (!strcasecmp(dexclv[l],devname)) dexclude = 1;
       }
 
-      DEBUG2("se (%d %d)", dselect,dexclude);
+      DEBUG2("device |%s| se (%d %d)", devname,dselect,dexclude);
 
 			if (dselect && !dexclude) devices0[n++] = devices0[j];
 				
 		}
+
+		if (n==0) continue;
+
 		contexts[i] = clCreateContext(cprops, n, devices0, 0, 0, &err );
 
 		programs[i] = clCreateProgramWithSource(
