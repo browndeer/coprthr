@@ -173,19 +173,21 @@ int resolve_fullpath(
 	} while(0)
 
 
-void append_str( char* str1, char* str2, char* sep, size_t n )
+#define append_str(str1,str2,sep,n) __append_str(&str1,str2,sep,n)
+
+void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 {
-	if (!str1 || !str2) return;
+	if (!*pstr1 || !str2) return;
 
 	size_t len = strlen(str2);
 
 	if (sep) {
-		str1 = (char*)realloc(str1,strlen(str1)+len+2);
-		strcat(str1,sep);
+		*pstr1 = (char*)realloc(*pstr1,strlen(*pstr1)+len+2);
+		strcat(*pstr1,sep);
 	} else {
-		str1 = (char*)realloc(str1,strlen(str1)+len+1);
+		*pstr1 = (char*)realloc(*pstr1,strlen(*pstr1)+len+1);
 	}
-	strncat(str1,str2, ((n==0)?len:n) );
+	strncat(*pstr1,str2, ((n==0)?len:n) );
 
 }
 
@@ -989,6 +991,12 @@ int main(int argc, char** argv)
 	clelf_write_file(fd,&data);
 
 	close(fd);
+
+	{
+		struct stat fs;
+		stat(tfname,&fs);
+//		printf("clelf file size %d\n",fs.st_size);
+	}
 
 	char cmd[1024];
 

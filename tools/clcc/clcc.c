@@ -162,21 +162,25 @@ int resolve_fullpath(
 	return(-1);
 }
 
+#define append_str(str1,str2,sep,n) __append_str(&str1,str2,sep,n)
 
-void append_str( char* str1, char* str2, char* sep, size_t n )
+void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 {
-	if (!str1 || !str2) return;
+	DEBUG2("append_str: before: '%s' '%s'",*pstr1,str2);
+
+	if (!*pstr1 || !str2) return;
 
 	size_t len = strlen(str2);
 
 	if (sep) {
-		str1 = (char*)realloc(str1,strlen(str1)+len+2);
-		strcat(str1,sep);
+		*pstr1 = (char*)realloc(*pstr1,strlen(*pstr1)+len+2);
+		strcat(*pstr1,sep);
 	} else {
-		str1 = (char*)realloc(str1,strlen(str1)+len+1);
+		*pstr1 = (char*)realloc(*pstr1,strlen(*pstr1)+len+1);
 	}
-	strncat(str1,str2, ((n==0)?len:n) );
+	strncat(*pstr1,str2, ((n==0)?len:n) );
 
+	DEBUG2("append_str: after: '%s' '%s'",*pstr1,str2);
 }
 
 
@@ -579,6 +583,9 @@ printf("MATCHED\n");
 		strcpy(tflist[ifile],tfname);
 		append_str(tfnames_str,tfname," ",0);
 
+DEBUG2("add tfame '%s'",tfname);
+DEBUG2("tfames_str '%s'",tfnames_str);
+
 		snprintf(cmd,1024,"clcc1 -o %s %s %s",tfname,cc1_opt_str,fname);
 		DEBUG2("%s",cmd);
 		system(cmd);
@@ -631,7 +638,7 @@ printf("MATCHED\n");
 //		if (flist_n > 1) { free(ofname); ofname=0; }/* XXX a slight hack -DAR */
 
 	
-	for(ifile=0;ifile<flist_n;ifile++) if (tflist[ifile]) unlink(tflist[ifile]);
+//	for(ifile=0;ifile<flist_n;ifile++) if (tflist[ifile]) unlink(tflist[ifile]);
 
 	if (single_ofname) free(single_ofname);
 
