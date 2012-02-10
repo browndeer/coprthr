@@ -247,6 +247,12 @@ clGetContextInfo(
 
 			break;
 
+		case CL_CONTEXT_NUM_DEVICES:
+
+			__case_get_param(sizeof(cl_uint),&ctx->ndev);
+
+			break;
+
 		case CL_CONTEXT_DEVICES:
 
 			__case_get_param((ctx->ndev)*sizeof(cl_device_id),ctx->devices);
