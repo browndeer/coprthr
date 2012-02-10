@@ -14,7 +14,12 @@ int main()
 
 	clopen(cp,0,CLLD_NOW);
 
+#ifdef __FreeBSD__
+   void* clh = clopen(cp,"matvecmult.cl",CLLD_NOW);
+   cl_kernel krn = clsym(cp,clh,"matvecmult_kern",0);
+#else
    cl_kernel krn = clsym(cp,0,"matvecmult_kern",0);
+#endif
 
    /* allocate OpenCL device-sharable memory */
    cl_float* aa = (float*)clmalloc(cp,n*n*sizeof(cl_float),0);
@@ -51,5 +56,9 @@ int main()
    clfree(aa);
    clfree(b);
    clfree(c);
+
+#ifdef __FreeBSD__
+	clclose(cp,clh);
+#endif
 
 }

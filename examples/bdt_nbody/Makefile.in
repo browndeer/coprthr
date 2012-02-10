@@ -18,7 +18,13 @@ CLSRC = nbody_kern.cl
 
 DEFS += -DENABLE_CL
 
-OBJS = Timer.o nbody_init.o nbody_display.o ocl_kernels.o bdt_bmp.o
+OBJS = Timer.o nbody_init.o nbody_display.o bdt_bmp.o
+
+BUILD_OS = `uname -s`
+
+ifeq ($(BUILD_OS),Linux)
+OBJS += ocl_kernels.o
+endif
 
 ANNOUNCEMENT = "\a\n\n*****PLEASE NOTE *****\n\nMake sure "$(LIBSTDCL_ROOT)"/lib \nis added to LD_LIBRARY_PATH\n\n"
 

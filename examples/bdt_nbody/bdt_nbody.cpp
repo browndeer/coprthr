@@ -184,9 +184,15 @@ int main(int argc, char** argv)
 		snprintf(cldevstr,64,"CPU/OpenCL %s",dev_info->dev_name);
 	} else strncpy(cldevstr,"???",3);
 
-//	void* hcl = clopen(cp,0,0);
+#ifdef __FreeBSD__
+	void* hcl = clopen(cp,"nbody_kern.cl",CLLD_NOW);
+	k_nbody = clsym(cp,hcl,"nbody_kern",0);
+	krn2 = clsym(cp,hcl,"copy_kern",0);
+#else
 	k_nbody = clsym(cp,0,"nbody_kern",0);
 	krn2 = clsym(cp,0,"copy_kern",0);
+#endif
+
 #endif
 
 #ifdef DISABLE_DISPLAY
@@ -266,7 +272,11 @@ int main(int argc, char** argv)
 cleanup:
 
 #ifdef ENABLE_CL
-//	clclose(cp,hcl);
+
+#ifdef __FreeBSD__
+	clclose(cp,hcl);
+#endif
+
 	if (pp) clfree(pp);
 	if (vv) clfree(vv);
 #else

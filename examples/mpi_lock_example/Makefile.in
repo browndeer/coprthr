@@ -15,7 +15,11 @@ LIBS = $(OPENCL_LIBS) $(STDCL_LIBS)
 CC = mpicc
 CCFLAGS += -O3
 
-OBJS = ocl_kernels.o
+BUILD_OS = `uname -s`
+
+ifeq ($(BUILD_OS),Linux)
+OBJS += ocl_kernels.o
+endif
 
 all: $(NAME).x
 

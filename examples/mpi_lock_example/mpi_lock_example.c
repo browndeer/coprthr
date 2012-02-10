@@ -24,8 +24,12 @@ int main( int argc, char** argv )
 
    unsigned int devnum = 0; /* every MPI proc thinks its using devnum=0 */
 
+#ifdef __FreeBSD__
    void* clh = clopen(cp,"outerprod.cl",CLLD_NOW);
    cl_kernel krn = clsym(cp,clh,"outerprod_kern",0);
+#else
+   cl_kernel krn = clsym(cp,0,"outerprod_kern",0);
+#endif
 
 	if (!krn) { fprintf(stderr,"error: no OpenCL kernel\n"); exit(-1); }
 
@@ -79,7 +83,9 @@ int main( int argc, char** argv )
    clfree(b);
    clfree(c);
 
+#ifdef __FreeBSD__
    clclose(cp,clh);
+#endif
 
 	MPI_Finalize();
 

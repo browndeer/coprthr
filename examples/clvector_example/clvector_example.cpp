@@ -12,7 +12,12 @@ int main()
    CLCONTEXT* cp = (stdgpu)? stdgpu : stdcpu;
    unsigned int devnum = 0;
 
+#ifdef __FreeBSD__
+	void* clh = clopen(cp,"outerprod.cl",CLLD_NOW);
+   cl_kernel krn = clsym(cp,clh,"outerprod_kern",0);
+#else
    cl_kernel krn = clsym(cp,0,"outerprod_kern",0);
+#endif
 
    // allocate vectors using clvector 
    clvector<float> a,b,c;
@@ -95,4 +100,8 @@ int main()
 
    for(int i=0;i<n*10;i++) printf("%f %f %f\n",a[i],b[i],c[i]);
  
+#ifdef __FreeBSD__
+	clclose(cp,clh);
+#endif
+
 }
