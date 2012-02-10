@@ -14,7 +14,7 @@ LIBS = $(OPENCL_LIBS) $(STDCL_LIBS)
 
 CCFLAGS += -O3
 
-BUILD_OS = `uname -s`
+BUILD_OS = $(shell uname -s)
 
 ifeq ($(BUILD_OS),Linux)
 OBJS += ocl_kernels.o

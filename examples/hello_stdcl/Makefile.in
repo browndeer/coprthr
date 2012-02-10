@@ -17,7 +17,7 @@ F90 = gfortran44
 CCFLAGS += -O3
 F90FLAGS = 
 
-BUILD_OS = `uname -s`
+BUILD_OS = $(shell uname -s)
 
 ifeq ($(BUILD_OS),Linux)
 OBJS += ocl_kernels.o

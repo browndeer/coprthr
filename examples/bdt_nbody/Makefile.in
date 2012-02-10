@@ -20,7 +20,7 @@ DEFS += -DENABLE_CL
 
 OBJS = Timer.o nbody_init.o nbody_display.o bdt_bmp.o
 
-BUILD_OS = `uname -s`
+BUILD_OS = $(shell uname -s)
 
 ifeq ($(BUILD_OS),Linux)
 OBJS += ocl_kernels.o
