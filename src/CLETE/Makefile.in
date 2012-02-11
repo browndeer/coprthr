@@ -12,6 +12,8 @@ INSTALL_INCS = $(HDRS)
 
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 GEN_OPERATORS = ./tools/gen_operators-fbsd
+else ifeq (arm,$(patsubst arm%,arm,@build_cpu@))
+GEN_OPERATORS = ./tools/gen_operators-arm32
 else
 GEN_OPERATORS = ./tools/gen_operators-linux
 endif
