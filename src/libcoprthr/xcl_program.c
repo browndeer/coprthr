@@ -195,7 +195,7 @@ clReleaseProgram( cl_program prg )
 
 	if (__invalid_program(prg)) return(CL_INVALID_VALUE);
 
-	__retain_program(prg);
+	__release_program(prg);
 
 	return(CL_SUCCESS);
 }

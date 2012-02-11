@@ -321,7 +321,8 @@ struct _imp_program {
 	size_t** karg_sz;
 
 	void** v_kbin;
-	void*** v_ksym; /* v_kbin, v_ksym might not be useful, not sure */ 
+	char** v_kbin_tmpfile;
+	void*** v_ksym;
 	void*** v_kcall; 
 
 };
@@ -337,7 +338,9 @@ struct _imp_program {
 	imp.karg_buf_sz = 0; \
 	imp.karg_sz = 0; \
 	imp.v_kbin = 0; \
+	imp.v_kbin_tmpfile = 0; \
 	imp.v_ksym = 0; \
+	imp.v_kcall = 0; \
 	} while(0)
 
 /* XXX does not yet deal with actual kbin and ksym -DAR */

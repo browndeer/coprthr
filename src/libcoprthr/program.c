@@ -32,17 +32,34 @@
 #include "vcore.h"	/* XXX this is only used for backdoor -DAR */
 #include "ocl_types.h"
 
+#define _GNU_SOURCE
+#include <dlfcn.h>
+
 
 void __do_create_program(cl_program prg) 
 {
 	DEBUG(__FILE__,__LINE__,"__do_create_program with ndev = %d",prg->ndev);
 
 	prg->imp.v_kbin = (void**)calloc(prg->ndev,sizeof(void*));
+	prg->imp.v_kbin_tmpfile = (char**)calloc(prg->ndev,sizeof(char*));
+
 	prg->imp.v_ksym = (void***)calloc(prg->ndev,sizeof(void**));
 	prg->imp.v_kcall = (void***)calloc(prg->ndev,sizeof(void**));
 }
 
-void __do_release_program(cl_program prg) {}
+
+void __do_release_program(cl_program prg) 
+{
+	int i;
+	for(i=0;i<prg->ndev;i++) {
+		if (prg->imp.v_kbin[i]) dlclose(prg->imp.v_kbin[i]);
+		if (prg->imp.v_kbin_tmpfile[i]) {
+			unlink(prg->imp.v_kbin_tmpfile[i]);
+			free(prg->imp.v_kbin_tmpfile[i]);
+		}
+	}
+}
+
 
 cl_int __do_build_program_from_binary(
 	cl_program prg,cl_device_id devid, cl_uint devnum
@@ -52,19 +69,6 @@ cl_int __do_build_program_from_binary(
 
 	int i,j;
 
-/*
-	compiler_t comp = (compiler_t)__resolve_devid(devid,comp);
-	
-	DEBUG(__FILE__,__LINE__,
-		"__do_build_program_from_source: compiler=%p",comp);	
-
-	struct _elf_data* edata = (struct _elf_data*)comp(
-		devid,
-		prg->src,prg->src_sz,
-		&prg->bin[devnum],&prg->bin_sz[devnum],
-		prg->build_options[devnum],&prg->build_log[devnum]
-	);
-*/
 
 	DEBUG2("program: bin bin_sz %p %d",prg->bin[devnum],prg->bin_sz[devnum]);
 
@@ -73,10 +77,8 @@ cl_int __do_build_program_from_binary(
 	write(fd,prg->bin[devnum],prg->bin_sz[devnum]);
 	close(fd);
 
-	//void* h = edata->dlh;
 	void* h = dlopen(tmpfile,RTLD_LAZY);
 
-	//Elf* e = (Elf*)edata->map;
 	Elf* e = (Elf*)prg->bin[devnum];
 
 #if defined(__x86_64__)
@@ -119,7 +121,6 @@ cl_int __do_build_program_from_binary(
 
 
 	char* ppp = (char*)cltextb;
-//	printf("is image an ELF? %s\n",ppp);
 
 	#if defined(XCL_DEBUG)
 	fprintf(stdout,"%p\n",shstrtab);
@@ -302,13 +303,20 @@ cl_int __do_build_program_from_binary(
 	}
 #endif
 
-	if (devtype == CL_DEVICE_TYPE_CPU) prg->imp.v_kbin[devnum] = h;
+	if (devtype == CL_DEVICE_TYPE_CPU) {
+
+		prg->imp.v_kbin[devnum] = h;
+		prg->imp.v_kbin_tmpfile[devnum] = (char*)malloc(32); /* XXX */
+		strncpy(prg->imp.v_kbin_tmpfile[devnum],tmpfile,32);
+
 #ifdef ENABLE_ATIGPU
-	else if (devtype == CL_DEVICE_TYPE_GPU) {
+	} else if (devtype == CL_DEVICE_TYPE_GPU) {
 		DEBUG(__FILE__,__LINE__,"is CALmodule a ptr? %d",sizeof(CALmodule));
 		prg->imp.v_kbin[devnum] = (void*)(unsigned long long)calmod;
-	}
 #endif
+
+	}
+
 	else prg->imp.v_kbin[devnum] = 0;
 
 	DEBUG(__FILE__,__LINE__,"kbin[%d] = %p",devnum,prg->imp.v_kbin[devnum]);
@@ -352,6 +360,10 @@ cl_int __do_build_program_from_binary(
 
 	}
 
+/* XXX testing, could create problems -DAR */
+//	dlclose(h);
+//	DEBUG2("removing temp file '%s'",tmpfile);
+//	unlink(tmpfile);
 
 	return(CL_SUCCESS); 
 }
