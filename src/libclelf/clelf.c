@@ -583,14 +583,14 @@ int clelf_check_hash(
 
    if (sect->cltextsrc && sect->cltextsrc_sz > 0) {
 
-      unsigned long hash[2];
+      unsigned int hash[4];
 
       const unsigned char* ptr = (const unsigned char*)sect->cltextsrc;
       size_t len = sect->cltextsrc_sz;
 
       MD5(ptr, len, (unsigned char*)hash);
 
-      unsigned long hash0 = 0, hash1 = 0;
+      unsigned hash0 = 0, hash1 = 0, hash2 = 0, hash3 = 0;
 
       if (sect->symtab && sect->symtab_n > 0 && sect->strtab) {
 
@@ -602,6 +602,12 @@ int clelf_check_hash(
             if (!strcmp(sect->strtab + sect->symtab[j].st_name,"_CLTEXTSHASH1"))
                hash1 = sect->symtab[j].st_value;
 
+            if (!strcmp(sect->strtab + sect->symtab[j].st_name,"_CLTEXTSHASH2"))
+               hash2 = sect->symtab[j].st_value;
+
+            if (!strcmp(sect->strtab + sect->symtab[j].st_name,"_CLTEXTSHASH3"))
+               hash3 = sect->symtab[j].st_value;
+
          }
 
       } else {
@@ -610,10 +616,11 @@ int clelf_check_hash(
 
       }
 
-      if (hash0==0 || hash1==0 || hash0!=hash[0] || hash1!=hash[1]) {
+      if (hash0==0 || hash1==0 || hash2==0 || hash3 == 0 || hash0!=hash[0] 
+			|| hash1!=hash[1] || hash2!=hash[2] || hash3!=hash[3]) {
 
-			ERROR2("CLELF HASH MISMATCH %lx|%lx %lx|%lx\n",
-				hash0,hash[0],hash1,hash[1]);
+			ERROR2("CLELF HASH MISMATCH %x|%x %x|%x %x|%x %x|%x\n",
+				hash0,hash[0],hash1,hash[1],hash2,hash[2],hash3,hash[3]);
 
          bad_hash = 2;
 
@@ -623,14 +630,14 @@ int clelf_check_hash(
 
    if (sect->cltextbin && sect->cltextbin_sz > 0) {
 
-      unsigned long hash[2];
+      unsigned int hash[4];
 
       const unsigned char* ptr = (const unsigned char*)sect->cltextbin;
       size_t len = sect->cltextbin_sz;
 
       MD5(ptr, len, (unsigned char*)hash);
 
-      unsigned long hash0 = 0, hash1 = 0;
+      unsigned int hash0 = 0, hash1 = 0, hash2 = 0, hash3 = 0;
 
       if (sect->symtab && sect->symtab_n > 0 && sect->strtab) {
 
@@ -642,6 +649,12 @@ int clelf_check_hash(
            	if (!strcmp(sect->strtab + sect->symtab[j].st_name,"_CLTEXTBHASH1"))
               	hash1 = sect->symtab[j].st_value;
 
+           	if (!strcmp(sect->strtab + sect->symtab[j].st_name,"_CLTEXTBHASH2"))
+              	hash2 = sect->symtab[j].st_value;
+
+           	if (!strcmp(sect->strtab + sect->symtab[j].st_name,"_CLTEXTBHASH3"))
+              	hash3 = sect->symtab[j].st_value;
+
         	}
 
       } else {
@@ -650,10 +663,11 @@ int clelf_check_hash(
 
       }
 
-      if (hash0==0 || hash1==0 || hash0!=hash[0] || hash1!=hash[1]) {
+      if (hash0==0 || hash1==0 || hash2==0 || hash3==0 || hash0!=hash[0] 
+			|| hash1!=hash[1] || hash2!=hash[2] || hash3!=hash[3]) {
 
-			ERROR2("CLELF HASH MISMATCH %lx|%lx %lx|%lx\n",
-				hash0,hash[0],hash1,hash[1]);
+			ERROR2("CLELF HASH MISMATCH %x|%x %x|%x %x|%x %x|%x\n",
+				hash0,hash[0],hash1,hash[1],hash2,hash[2],hash3,hash[3]);
 
          bad_hash = 2;
 
