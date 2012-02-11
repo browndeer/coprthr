@@ -637,8 +637,10 @@ DEBUG2("tfames_str '%s'",tfnames_str);
 
 //		if (flist_n > 1) { free(ofname); ofname=0; }/* XXX a slight hack -DAR */
 
-	
-//	for(ifile=0;ifile<flist_n;ifile++) if (tflist[ifile]) unlink(tflist[ifile]);
+	for(ifile=0;ifile<flist_n;ifile++) if (tflist[ifile]) {
+		DEBUG2("removing temp file '%s'",tflist[ifile]);
+		unlink(tflist[ifile]);
+	}
 
 	if (single_ofname) free(single_ofname);
 

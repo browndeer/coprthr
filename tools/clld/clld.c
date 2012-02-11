@@ -22,8 +22,6 @@
 /* DAR */
 
 
-//#define CLCC_TEST
-
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -974,22 +972,24 @@ int main(int argc, char** argv)
 	 *** calculate md5 has for cltextsrc and cltextbin
 	 ***/
 
-	unsigned long cltextsrchash[2];
-	unsigned long cltextbinhash[2];
+	unsigned int cltextsrchash[4];
+	unsigned int cltextbinhash[4];
 
 
 	size_t len = (intptr_t)data.cltextsrc_bufp-(intptr_t)data.cltextsrc_buf;
 	if (len>0) {
 		MD5((const unsigned char*)data.cltextsrc_buf, len, 
 			(unsigned char*)cltextsrchash);
-		DEBUG2("%lx %lx",cltextsrchash[0],cltextsrchash[1]);
+		DEBUG2("%x %x %x %x",cltextsrchash[0],cltextsrchash[1],cltextsrchash[2],
+			cltextsrchash[3]);
 	}
 
 	len = (intptr_t)data.cltextbin_bufp-(intptr_t)data.cltextbin_buf;
 	if (len>0) { 
 		MD5((const unsigned char*)data.cltextbin_buf, len, 
 			(unsigned char*)cltextbinhash);
-		DEBUG2("%lx %lx",cltextbinhash[0],cltextbinhash[1]);
+		DEBUG2("%x %x %x %x",cltextbinhash[0],cltextbinhash[1],cltextbinhash[2],
+			cltextbinhash[3]);
 	}
 
 
@@ -1017,26 +1017,35 @@ int main(int argc, char** argv)
 	if (en_src && en_bin) {
 		snprintf( cmd, 1024, "ld -r -o %s"
 			" %s"
-			" --defsym _CLTEXTSHASH0=0x%lx"
-			" --defsym _CLTEXTSHASH1=0x%lx"
-			" --defsym _CLTEXTBHASH0=0x%lx"
-			" --defsym _CLTEXTBHASH1=0x%lx",
+			" --defsym _CLTEXTSHASH0=0x%x"
+			" --defsym _CLTEXTSHASH1=0x%x"
+			" --defsym _CLTEXTSHASH2=0x%x"
+			" --defsym _CLTEXTSHASH3=0x%x"
+			" --defsym _CLTEXTBHASH0=0x%x"
+			" --defsym _CLTEXTBHASH1=0x%x"
+			" --defsym _CLTEXTBHASH2=0x%x"
+			" --defsym _CLTEXTBHASH3=0x%x",
 			ofname, tfname,
-			cltextsrchash[0], cltextsrchash[1], cltextbinhash[0], cltextbinhash[1] );
+			cltextsrchash[0],cltextsrchash[1],cltextsrchash[2],cltextsrchash[3], 
+			cltextbinhash[0],cltextbinhash[1],cltextbinhash[2],cltextbinhash[3]);
 	} else if (en_src) {
 		snprintf( cmd, 1024, "ld -r -o %s"
 			" %s"
-			" --defsym _CLTEXTSHASH0=0x%lx"
-			" --defsym _CLTEXTSHASH1=0x%lx",
+			" --defsym _CLTEXTSHASH0=0x%x"
+			" --defsym _CLTEXTSHASH1=0x%x"
+			" --defsym _CLTEXTSHASH2=0x%x"
+			" --defsym _CLTEXTSHASH3=0x%x",
 			ofname, tfname,
-			cltextsrchash[0], cltextsrchash[1] );
+			cltextsrchash[0],cltextsrchash[1],cltextsrchash[2],cltextsrchash[3]);
 	} else if (en_bin) {
 		snprintf( cmd, 1024, "ld -r -o %s"
 			" %s"
-			" --defsym _CLTEXTBHASH0=0x%lx"
-			" --defsym _CLTEXTBHASH1=0x%lx",
+			" --defsym _CLTEXTBHASH0=0x%x"
+			" --defsym _CLTEXTBHASH1=0x%x"
+			" --defsym _CLTEXTBHASH2=0x%x"
+			" --defsym _CLTEXTBHASH3=0x%x",
 			ofname, tfname,
-			cltextbinhash[0], cltextbinhash[1] );
+			cltextbinhash[0],cltextbinhash[1],cltextbinhash[2],cltextbinhash[3]);
 	} else {
 		snprintf( cmd, 1024, "ld -r -o %s"
 			" %s",
@@ -1046,9 +1055,8 @@ int main(int argc, char** argv)
 	DEBUG2("%s",cmd);
 	system(cmd);
 
-#ifndef CLCC_TEST
+	DEBUG2("remove temp file '%s'",tfname);
 	unlink(tfname);
-#endif
 	
 	return(0);
 

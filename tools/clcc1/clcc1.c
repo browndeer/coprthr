@@ -976,8 +976,8 @@ int main(int argc, char** argv)
 	data.clprgtab[data.clprgtab_n].e_nkrn = data.clkrntab_n;
 	++data.clprgtab_n;
 
-	unsigned long cltextsrchash[2];
-	unsigned long cltextbinhash[2];
+	unsigned int cltextsrchash[4];
+	unsigned int cltextbinhash[4];
 
 	size_t len = (intptr_t)(data.cltextsrc_bufp-data.cltextsrc_buf);
 	MD5((const unsigned char*)data.cltextsrc_buf,len,
@@ -1014,22 +1014,37 @@ int main(int argc, char** argv)
 
 	char cmd[1024];
 
-//	snprintf( cmd, 1024, "ld -r -o out_clcc.o"
+//#ifdef __LP64__
+//	snprintf( cmd, 1024, "ld -r -o %s"
+//		" %s"
+//		" --defsym _CLTEXTSHASH0=0x%lx"
+//		" --defsym _CLTEXTSHASH1=0x%lx"
+//
+//		" --defsym _CLTEXTBHASH0=0x%lx"
+//		" --defsym _CLTEXTBHASH1=0x%lx",
+//		ofname,
+//		tfname,cltextsrchash[0], cltextsrchash[1], 
+//		cltextbinhash[0], cltextbinhash[1] );
+//#else
 	snprintf( cmd, 1024, "ld -r -o %s"
 		" %s"
-		" --defsym _CLTEXTSHASH0=0x%lx"
-		" --defsym _CLTEXTSHASH1=0x%lx"
-		" --defsym _CLTEXTBHASH0=0x%lx"
-		" --defsym _CLTEXTBHASH1=0x%lx",
-		ofname,
-		tfname,cltextsrchash[0], cltextsrchash[1], 
-		cltextbinhash[0], cltextbinhash[1] );
-//	printf("|%s|\n",cmd);
+		" --defsym _CLTEXTSHASH0=0x%x"
+		" --defsym _CLTEXTSHASH1=0x%x"
+		" --defsym _CLTEXTSHASH2=0x%x"
+		" --defsym _CLTEXTSHASH3=0x%x"
+		" --defsym _CLTEXTBHASH0=0x%x"
+		" --defsym _CLTEXTBHASH1=0x%x"
+		" --defsym _CLTEXTBHASH2=0x%x"
+		" --defsym _CLTEXTBHASH3=0x%x",
+		ofname, tfname,
+		cltextsrchash[0], cltextsrchash[1], cltextsrchash[2], cltextsrchash[3], 
+		cltextbinhash[0], cltextbinhash[1], cltextbinhash[2], cltextbinhash[3] );
+//#endif
+
 	system(cmd);
 
-#ifndef CLCC_TEST
+	DEBUG2("removing temp file '%s'",tfname);
 	unlink(tfname);
-#endif
 	
 	return(0);
 
