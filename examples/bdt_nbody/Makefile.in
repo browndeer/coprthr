@@ -1,5 +1,8 @@
 NAME = bdt_nbody
 
+### uncomment to disable GL display and use --no-display to run program
+#DISABLE_DISPLAY = 1
+
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
@@ -12,13 +15,11 @@ STDCL_LIBS = -L@libdir@ -lstdcl
 INCS = $(OPENCL_INCS) $(STDCL_INCS)
 LIBS = $(OPENCL_LIBS) $(STDCL_LIBS)
 
-#DEFS += -DDISABLE_DISPLAY
-
 CLSRC = nbody_kern.cl
 
 DEFS += -DENABLE_CL
 
-OBJS = Timer.o nbody_init.o nbody_display.o bdt_bmp.o
+OBJS = Timer.o nbody_init.o
 
 BUILD_OS = $(shell uname -s)
 
@@ -28,12 +29,13 @@ endif
 
 ANNOUNCEMENT = "\a\n\n*****PLEASE NOTE *****\n\nMake sure "$(LIBSTDCL_ROOT)"/lib \nis added to LD_LIBRARY_PATH\n\n"
 
-
-### It should NOT be necessary to modify lines below
-
-### comment out if GL support does not work correctly on your platform
+ifeq ($(DISABLE_DISPLAY),1)
+DEFS += -DDISABLE_DISPLAY
+else
+OBJS += nbody_display.o bdt_bmp.o
 LIBS += -L/usr/lib64 -lglut -lGLEW
 #LIBS += -L/usr/local/atistream/lib/x86_64  -lglut -lGLEW
+endif
 
 CXXFLAGS += -O3
 
