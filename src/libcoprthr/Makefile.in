@@ -39,6 +39,9 @@ RT_OBJS = __vcore_rt.o
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
 
+DEFS += -DLIBCOPRTHR_CC=\"@LIBCOPRTHR_CC@\"
+DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
+
 ######################################################################
 
 TOPDIR ?= ../../
@@ -54,6 +57,14 @@ ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
 else
 LIBS += -ldl 
+endif
+
+ifeq (@LIBCOPRTHR_MODEL@,template)
+LIBCOPRTHR_HDR = __libcoprthr.h-template
+else ifeq (@LIBCOPRTHR_MODEL@,no-template)
+LIBCOPRTHR_HDR = __libcoprthr.h-no-template
+else
+LIBCOPRTHR_HDR = __libcoprthr.h
 endif
 
 
@@ -132,7 +143,7 @@ install:
 	install -m 755 libcoprthr_d.so $(INSTALL_LIB_DIR)
 	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
 	install -m 755 vcore.h $(INSTALL_INCLUDE_DIR)
-	install -m 755 __libcoprthr.h $(INSTALL_INCLUDE_DIR)
+	install -m 755 $(LIBCOPRTHR_HDR) $(INSTALL_INCLUDE_DIR)/__libcoprthr.h
 	test -d /etc/OpenCL/vendors || install -m 755 -d /etc/OpenCL/vendors
 	echo $(INSTALL_LIB_DIR)/libcoprthr.so > /etc/OpenCL/vendors/coprthr.icd
 

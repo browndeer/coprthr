@@ -23,10 +23,28 @@
 
 /* select compiler preferernces */
 
-//#define CCEXE " gcc44 "
-//#define CXXEXE " g++44 "
+//#define CC_COMPILER " gcc44 "
+//#define CXX_COMPILER " g++44 "
+//#define CC_COMPILER " gcc "
+//#define CXX_COMPILER " g++ "
+#ifdef LIBCOPRTHR_CC
+#define CC_COMPILER LIBCOPRTHR_CC
+#else
 #define CC_COMPILER " gcc "
+#endif
+
+#ifdef LIBCOPRTHR_CXX
+#define CXX_COMPILER LIBCOPRTHR_CXX
+#else
 #define CXX_COMPILER " g++ "
+#endif
+
+//#ifndef CC_COMPILER
+//#define CC_COMPILER " gcc "
+//#endif
+//#ifndef CXX_COMPILER
+//#define CXX_COMPILER " g++ "
+//#endif
 
 #define CCFLAGS_OCL_O2 \
 	" -fthread-jumps -fcrossjumping -foptimize-sibling-calls " \
@@ -45,7 +63,8 @@
  * XXX the primary issue seems to be -fschedule-insns -fschedule-insns2 .
  * XXX also, do not raise CCFLAGS_KCALL, effect is to break everything. -DAR */
 
-#define CCFLAGS_OCL " -O2 -msse3 " CCFLAGS_OCL_O2
+//#define CCFLAGS_OCL " -O2 -msse3 " CCFLAGS_OCL_O2
+#define CCFLAGS_OCL " -O3 -msse3 -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations "
 #define CCFLAGS_KCALL " -O0 "
 #define CCFLAGS_LINK 
 
@@ -217,6 +236,7 @@ static void __remove_work_dir(char* wd)
 	char fullpath[256];
 	DIR* dirp = opendir(wd);
 	struct dirent* dp;
+#ifndef XCL_DEBUG
 	while ( (dp=readdir(dirp)) ) {
 		if (strncmp(dp->d_name,".",2) || strncmp(dp->d_name,"..",3)) {
 			strncpy(fullpath,wd,256);
@@ -228,6 +248,7 @@ static void __remove_work_dir(char* wd)
 	}
 	DEBUG2("removing '%s'",wd);
 	rmdir(wd);
+#endif
 }
 
 
@@ -356,7 +377,7 @@ void* compile_x86_64(
 			" -I" INSTALL_INCLUDE_DIR 
 			" -D __STDCL_KERNEL_VERSION__=020000"
 			" %s "
-			" -msse -fPIC -c -g %s.cpp 2>&1",
+			" -msse -fPIC -c %s.cpp 2>&1",
 			wd,opt,filebase); 
 		__log(p2,"]%s\n",buf1); \
 		__execshell(buf1,p2);
