@@ -200,13 +200,11 @@ clcontext_create(
    }
 
 
-//	platformid 
-//		= __get_platformid(nplatforms, platforms, platform_select);
-
 
 	/* XXX assume no more than 8 platforms availabile, this is reality -DAR */
  
 	char* select_name[8] = { 0,0,0,0,0,0,0,0 };
+	char* select_code[8] = { 0,0,0,0,0,0,0,0 };
 	cl_platform_id select_id[8] = { 0,0,0,0,0,0,0,0 };
 	char buf[512];
 	char* tmp_ptr;
@@ -227,27 +225,35 @@ clcontext_create(
 		}
 	}
 
-//	int platform_devcount[8] = { 0,0,0,0,0,0,0,0 };
+	for(i=0; i< nselect; i++) 
+		select_code[i] = clelf_platform_code(select_name[i]);
+
 	cl_uint platform_devcount[8] = { 0,0,0,0,0,0,0,0 };
 
    for(i=0;i<nplatforms;i++) {
 
       char name[64];
       clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,64,name,0);
+		int code = clelf_platform_code(name);
 
 		err = clGetDeviceIDs(platforms[i],devtyp,0,0,&platform_devcount[i]);
 
 		for(j=0; j< nselect; j++) {
 
-			if (!strncasecmp(select_name[j],name,strnlen(select_name[j],64))) {
 
-				if (platform_devcount[i] > 0) select_id[j] = platforms[i];
+//			if (!strncasecmp(select_name[j],name,strnlen(select_name[j],64))) {
+			if (select_code[j]==code) {
+
+				DEBUG2("platform %d supports %d devices",i,platform_devcount[i]);
+
+				if (platform_devcount[i] > 0) {
+					select_id[j] = platforms[i];
+					break;
+				}
 
 			}
-			
-		}
 
-//		err = clGetDeviceIDs(platforms[i],devtyp,0,0,&platform_devcount[i]);
+		}
 
 	}
 
@@ -272,6 +278,7 @@ clcontext_create(
 		for(i=0; i< nselect; i++) if (select_id[i]) { 
 
 			platformid = select_id[i];
+			DEBUG2("selecting platform %d",i);
 			break;
 
 		}
