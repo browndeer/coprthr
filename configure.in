@@ -404,7 +404,6 @@ AC_ARG_WITH(fortran,
     else
     	F90=$withval
     fi;
-    echo $F90
   ],
   []) 
 
@@ -455,6 +454,59 @@ libelf_lib="-L$LIBELF_PATH/lib -lelf"
 ### XXX clean up this syntax - above - for setting paths and such -DAR
 
 
+### select C/C++ compilers for libcoprthr
+
+AC_ARG_WITH(libcoprthr-cc,
+  AC_HELP_STRING([--with-libcoprthr-cc=PROG], 
+  [use PROG for libcoprthr C compiler]),
+  [
+    if test x$withval = xno; then
+         AC_MSG_ERROR([no C compiler specified])
+    else
+    	LIBCOPRTHR_CC=$withval
+    fi;
+  ],
+  [ LIBCOPRTHR_CC=gcc ]) 
+
+AC_ARG_WITH(libcoprthr-cxx,
+  AC_HELP_STRING([--with-libcoprthr-cxx=PROG], 
+  [use PROG for libcoprthr C++ compiler]),
+  [
+    if test x$withval = xno; then
+         AC_MSG_ERROR([no C++ compiler specified])
+    else
+    	LIBCOPRTHR_CXX=$withval
+    fi;
+  ],
+  [ LIBCOPRTHR_CXX=g++ ]) 
+
+AC_ARG_WITH(libcoprthr-model,
+  AC_HELP_STRING([--with-libcoprthr-model=default|template|no-template], 
+  [select model for libcoprthr OCL compilation]),
+  [
+    if test x$withval = xtemplate; then
+    	LIBCOPRTHR_MODEL=$withval
+    elif test x$withval = xno-template; then
+    	LIBCOPRTHR_MODEL=$withval
+    elif test x$withval = xdefault; then
+    	LIBCOPRTHR_MODEL=$withval
+    else
+      AC_MSG_ERROR([invalid libcoprthr model selected])
+    fi;
+  ],
+  [ LIBCOPRTHR_MODEL=default ]) 
+
+if test x$enable_libcoprthr = xyes; then
+  echo LIBCOPRTHR_CC = $LIBCOPRTHR_CC
+  echo LIBCOPRTHR_CXX = $LIBCOPRTHR_CXX
+  echo LIBCOPRTHR_MODEL = $LIBCOPRTHR_MODEL
+fi;
+
+
+
+
+
+
 BASH=`which bash`
 
 AC_SUBST(BASH)
@@ -478,6 +530,10 @@ AC_SUBST(DEFAULT_OPENCL_PLATFORM)
 
 AC_SUBST(libelf_inc)
 AC_SUBST(libelf_lib)
+
+AC_SUBST(LIBCOPRTHR_CC)
+AC_SUBST(LIBCOPRTHR_CXX)
+AC_SUBST(LIBCOPRTHR_MODEL)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install-message.txt])
