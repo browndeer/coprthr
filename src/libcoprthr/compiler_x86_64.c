@@ -58,13 +58,15 @@
 	" -falign-functions -falign-jumps -falign-loops  -falign-labels " \
 	" -ftree-vrp -ftree-pre" 
 
+#define XXX_GCC_HACK_FLAG " -fschedule-insns -fschedule-insns2"
+
 /* XXX note that most flags suposedly enabled by -O2 are added explicitly
  * XXX for CCFLAGS_OCL because this inexplicably improves performance by 2%.
  * XXX the primary issue seems to be -fschedule-insns -fschedule-insns2 .
  * XXX also, do not raise CCFLAGS_KCALL, effect is to break everything. -DAR */
 
 //#define CCFLAGS_OCL " -O2 -msse3 " CCFLAGS_OCL_O2
-#define CCFLAGS_OCL " -O3 -msse3 -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations "
+#define CCFLAGS_OCL " -O3 -msse3 -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations " XXX_GCC_HACK_FLAG
 #define CCFLAGS_KCALL " -O0 "
 #define CCFLAGS_LINK 
 
