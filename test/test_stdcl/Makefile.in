@@ -21,14 +21,13 @@ CLSRC = test_arg_int.cl test_arg_int4.cl \
 
 TOPDIR ?= ../
 
+LIBS += -lm -lssl $(LIBELF_LIB) -lclelf
+
 #INCS = -I/usr/local/browndeer/include
 #LIBS = -lm -L/usr/local/browndeer/lib -lstdcl
 #LIBS = -lm -L/usr/local/browndeer/lib -lstdcl_d -locl
 INCS += $(USE_OPENCL_INCS) $(USE_STDCL_INCS)
 LIBS += $(USE_OPENCL_LIBS) $(USE_STDCL_LIBS)
-
-#LIBS += -lm -lssl -lelf -lclelf
-LIBS += -lm -lssl $(LIBELF_LIB) -lclelf
 
 SRC_TESTS = $(addprefix test_stdcl_,$(addsuffix .c,$(TESTS)))
 #CLSRC = $(addprefix test_,$(addsuffix .cl,$(TESTS)))
