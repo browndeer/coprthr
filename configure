@@ -2878,7 +2878,7 @@ elif test -n "$(find /etc/OpenCL/vendors -maxdepth 1 -name 'amd*.icd' -print -qu
 else
   tmp_amdapp_sdk=0;
 fi;
-if test $tmp_amdapp_sdk = 1; then
+#if test $tmp_amdapp_sdk = 1; then
   for d in /opt/AMDAPP /usr/local/atistream
   do
     if test -e $d/include/CL/cl.h; then
@@ -2889,11 +2889,14 @@ if test $tmp_amdapp_sdk = 1; then
       fi;
     fi;
   done;
-fi;
+#fi;
 
 # find best known Nvidia paths
 if test -n "$(find /etc/OpenCL/vendors -maxdepth 1 -name 'nvidia*.icd' -print -quit)"; then
   tmp_nvidia_sdk=1;
+else
+  tmp_nvidia_sdk=0;
+fi;
   for d in /usr/local/cuda
   do
     if test -e $d/OpenCL/common/inc/CL/cl.h; then
@@ -2918,9 +2921,9 @@ if test -n "$(find /etc/OpenCL/vendors -maxdepth 1 -name 'nvidia*.icd' -print -q
       fi;
     fi;
   done;
-else
-  tmp_nvidia_sdk=0;
-fi;
+#else
+#  tmp_nvidia_sdk=0;
+#fi;
 
 # set COPRTHR paths for bootstrap
 if test x$enable_libocl = xyes; then
@@ -2936,6 +2939,9 @@ fi;
 # find best known Intel paths
 if test -n "$(find /etc/OpenCL/vendors -maxdepth 1 -name 'intel*.icd' -print -quit)"; then
   tmp_intel_sdk=1;
+else
+  tmp_intel_sdk=0;
+fi;
   for d in /usr/local
   do
     if test -e $d/include/CL/cl.h; then
@@ -2950,9 +2956,9 @@ if test -n "$(find /etc/OpenCL/vendors -maxdepth 1 -name 'intel*.icd' -print -qu
       fi;
     fi;
   done;
-else
-  tmp_intel_sdk=0;
-fi;
+#else
+#  tmp_intel_sdk=0;
+#fi;
 
 
 ### step 2)
