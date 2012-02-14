@@ -700,15 +700,15 @@ typedef int sampler_t;
 
 /*** builtin extensions for initializing vector data types [non-standard] ***/
 
-#define __builtin_vector_int2(x,y) 			_int2(x,y)
-#define __builtin_vector_int4(x,y,z,w) 	_int4(x,y,z,w)
-#define __builtin_vector_long2(x,y) 		_long2(x,y)
-#define __builtin_vector_uint2(x,y) 		_uint2(x,y)
-#define __builtin_vector_uint4(x,y,z,w) 	_uint4(x,y,z,w)
-#define __builtin_vector_ulong2(x,y) 		_ulong2(x,y)
-#define __builtin_vector_float2(x,y) 		_float2(x,y)
-#define __builtin_vector_float4(x,y,z,w) 	(_float4){x,y,z,w}
-#define __builtin_vector_double2(x,y) 		_double2(x,y)
+#define __builtin_vector_int2(x,y) 			vector_int2(x,y)
+#define __builtin_vector_int4(x,y,z,w) 	vector_int4(x,y,z,w)
+#define __builtin_vector_long2(x,y) 		vector_long2(x,y)
+#define __builtin_vector_uint2(x,y) 		vector_uint2(x,y)
+#define __builtin_vector_uint4(x,y,z,w) 	vector_uint4(x,y,z,w)
+#define __builtin_vector_ulong2(x,y) 		vector_ulong2(x,y)
+#define __builtin_vector_float2(x,y) 		vector_float2(x,y)
+#define __builtin_vector_float4(x,y,z,w) 	vector_float4(x,y,z,w)
+#define __builtin_vector_double2(x,y) 		vector_double2(x,y)
 
 #else
 
