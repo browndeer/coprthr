@@ -173,6 +173,10 @@ static __inline void barrier( int flags )
 #define __kernel
 
 
+/*** fix restrict qualifier for GCC ***/
+#define restrict __restrict
+
+
 /*** builtin vector data types [6.1.2] ***/
 
 typedef int __int2 __attribute__((vector_size(8)));
