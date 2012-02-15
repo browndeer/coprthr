@@ -66,6 +66,8 @@ FILE* __xclnm_yyin;
 "__local" 			{ __plb(); ival_return(ADDRSPACE_LOCAL); }
 "__read_only" 		{ __plb(); }
 "__write_only" 	{ __plb(); }
+"const" 				{ __plb(); }
+"restrict" 			{ __plb(); }
 
 "void" 							{ __plb(); ival_return(TYPE_VOID); }
 "char" 							{ __plb(); ival_return(TYPE_INT8); }
