@@ -79,6 +79,8 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <sys/wait.h>
 #include <dirent.h>
 
@@ -153,6 +155,7 @@ information necessary to build out the prg info.  this makes
 
 #define DEFAULT_BUF1_SZ 16384
 #define DEFAULT_BUF2_SZ 16384
+#define DEFAULT_BUILD_LOG_SZ 256
 
 //static char shstrtab[] = { 
 //	"\0" 
@@ -254,6 +257,36 @@ static void __remove_work_dir(char* wd)
 }
 
 
+//#define append_str(str1,str2,sep,n) __append_str(&str1,str2,sep,n)
+
+void __append_str( char** pstr1, char* str2, char* sep, size_t n )
+{
+   if (!*pstr1 || !str2) return;
+
+   size_t len = strlen(str2);
+
+   if (sep) {
+      *pstr1 = (char*)realloc(*pstr1,strlen(*pstr1)+len+2);
+      strcat(*pstr1,sep);
+   } else {
+      *pstr1 = (char*)realloc(*pstr1,strlen(*pstr1)+len+1);
+   }
+   strncat(*pstr1,str2, ((n==0)?len:n) );
+
+}
+
+#define __check_err( err, msg ) do { if (err) { \
+	__append_str(log,msg,0,0); \
+	__remove_work_dir(wd); \
+	return((void*)-1); \
+} }while(0)
+
+static int __test_file( char* file ) 
+{
+	struct stat s;
+	return (stat(file,&s));
+}
+
 #if defined(__x86_64__)
 
 void* compile_x86_64(
@@ -287,11 +320,10 @@ void* compile_x86_64(
 	mktemp(filebase);
 #endif
 
-// XXX dir /tmp/xclXXXXXX
-
 	char file_cl[256];
 	char file_cpp[256];
 	char file_ll[256];
+	char fullpath[256];
 
 	snprintf(file_cl,256,"%s/%s.cl",wd,filebase);
 	snprintf(file_cpp,256,"%s/%s.cpp",wd,filebase);
@@ -319,6 +351,9 @@ void* compile_x86_64(
 	bzero(buf2,DEFAULT_BUF2_SZ);
 	bzero(logbuf,DEFAULT_BUF2_SZ);
 
+	*log = (char*)malloc(DEFAULT_BUF2_SZ);
+   (*log)[0] = '\0';
+
 	unsigned int nsym;
 	unsigned int narg;
 	struct clsymtab_entry* clsymtab = 0;
@@ -330,6 +365,7 @@ void* compile_x86_64(
 
 	char* p2 = buf2;
 	char* logp = logbuf;
+	char* p2_prev;
 
 	DEBUG(__FILE__,__LINE__,"compile: %p",src);
 
@@ -340,20 +376,28 @@ void* compile_x86_64(
 
 		DEBUG(__FILE__,__LINE__,"compile: build from source");
 
-
 		/* copy rt objects to work dir */
 
-		__command("cp "INSTALL_LIB_DIR"/__vcore_rt.o %s",wd);
-		__log(logp,"]%s\n",buf1); \
+		__command("cp "INSTALL_LIB_DIR"/__vcore_rt.o %s >& /dev/null",wd);
+		__log(logp,"]%s\n",buf1);
 		__execshell(buf1,logp);
+		snprintf(fullpath,256,"%s/%s",wd,"__vcore_rt.o");
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: internal error: copy __vcore_rt.o failed.");
 
-		__command("cp "INSTALL_INCLUDE_DIR"/vcore.h %s",wd);
-		__log(logp,"]%s\n",buf1); \
+		__command("cp "INSTALL_INCLUDE_DIR"/vcore.h %s >& /dev/null",wd);
+		__log(logp,"]%s\n",buf1);
 		__execshell(buf1,logp);
+		snprintf(fullpath,256,"%s/%s",wd,"vcore.h");
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: internal error: copy vcore.h failed.");
 
-		__command("cp "INSTALL_INCLUDE_DIR"/__libcoprthr.h %s",wd);
-		__log(logp,"]%s\n",buf1); \
+		__command("cp "INSTALL_INCLUDE_DIR"/__libcoprthr.h %s >& /dev/null",wd);
+		__log(logp,"]%s\n",buf1);
 		__execshell(buf1,logp);
+		snprintf(fullpath,256,"%s/%s",wd,"__libcoprthr.h");
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: internal error: copy __libcoprthr.h failed.");
 
 
 		/* write cl file */
@@ -364,11 +408,15 @@ void* compile_x86_64(
 			file_cl,filesz_cl,pfile_cl);
 		__writefile(file_cl,filesz_cl,pfile_cl);
 		DEBUG(__FILE__,__LINE__,"%s written\n",buf1);
+		__check_err(__test_file(file_cl),
+			"compiler_x86_64: internal error: write file cl failed.");
 
 		DEBUG(__FILE__,__LINE__,"compile: writefile_cpp %s %d %p",
 			file_cpp,filesz_cl,pfile_cl);
 		__writefile_cpp(file_cpp,filesz_cl,pfile_cl);
 		DEBUG(__FILE__,__LINE__,"%s written\n",buf1);
+		__check_err(__test_file(file_cpp),
+			"compiler_x86_64: internal error: write file cpp failed.");
 
 
 		/* assemble to native object */
@@ -381,16 +429,24 @@ void* compile_x86_64(
 			" %s "
 			" -msse -fPIC -c %s.cpp 2>&1",
 			wd,opt,filebase); 
-		__log(p2,"]%s\n",buf1); \
+		__log(p2,"]%s\n",buf1);
+		p2_prev = p2;
 		__execshell(buf1,p2);
+		if (p2 != p2_prev) __append_str(log,p2_prev,0,0);
+		snprintf(fullpath,256,"%s/%s.o",wd,filebase);
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: error: kernel compilation failed.");
 
 
 		/* generate kcall wrappers */
 
 		__command("cd %s; xclnm --kcall -d -c %s -o _kcall_%s.c 2>&1",
 			wd,file_cl,filebase); 
-		__log(p2,"]%s\n",buf1); \
+		__log(p2,"]%s\n",buf1);
 		__execshell(buf1,p2);
+		snprintf(fullpath,256,"%s/_kcall_%s.c",wd,filebase);
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: internal error: kcall wrapper generation failed.");
 
 
 		/* gcc compile kcall wrappers */
@@ -404,8 +460,11 @@ void* compile_x86_64(
 			CC_COMPILER CCFLAGS_KCALL " -fPIC -I%s -c _kcall_%s.c 2>&1",
 			wd,INSTALL_INCLUDE_DIR,filebase); 
 #endif
-		__log(logp,"]%s\n",buf1); \
+		__log(logp,"]%s\n",buf1);
 		__execshell(buf1,logp);
+		snprintf(fullpath,256,"%s/_kcall_%s.o",wd,filebase);
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: internal error: kcall wrapper compilation failed.");
 
 
 		DEBUG(__FILE__,__LINE__,
@@ -456,6 +515,9 @@ void* compile_x86_64(
 				&n,&arg0)==EOF) break;
 			if (ii!=i) {
 				ERROR(__FILE__,__LINE__,"cannot parse output of xclnm");
+				__append_str(log,
+					"compiler_x86_64: internal error: cannot parse output of xclnm",
+					0,0);
 				__remove_work_dir(wd);
 				exit(-2);
 			}
@@ -514,6 +576,9 @@ void* compile_x86_64(
 
 			if (ii!=i) {
 				ERROR(__FILE__,__LINE__,"cannot parse output of xclnm");
+				__append_str(log,
+					"compiler_x86_64: internal error: cannot parse output of xclnm",
+					0,0);
 				__remove_work_dir(wd);
 				exit(-2);
 			}
@@ -551,6 +616,9 @@ void* compile_x86_64(
 
 		if (i!=narg) {
 			ERROR(__FILE__,__LINE__,"cannot parse output of xclnm");
+			__append_str(log,
+				"compiler_x86_64: internal error: cannot parse output of xclnm",
+				0,0); \
 			__remove_work_dir(wd);
 			exit(-1);
 		}
@@ -569,6 +637,7 @@ void* compile_x86_64(
 			clstrtab,clstrtab_sz
 		);
 		close(fd);
+		__check_err(err, "compiler_x86_64: internal error: elfcl_write failed.");
 
 
 		/* now build .so that will be used for link */
@@ -579,8 +648,13 @@ void* compile_x86_64(
 			" %s.o _kcall_%s.o __vcore_rt.o "
 			" %s.elfcl 2>&1",
 			wd,filebase,filebase,filebase,filebase,filebase);
-		__log(p2,"]%s\n",buf1); \
+		__log(p2,"]%s\n",buf1); 
+		p2_prev = p2;
 		__execshell(buf1,p2);
+		if (p2 != p2_prev) __append_str(log,p2_prev,0,0);
+		snprintf(fullpath,256,"%s/%s.so",wd,filebase);
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: error: kernel link failed.");
 
 
 	} else {
@@ -589,7 +663,7 @@ void* compile_x86_64(
 
 		WARN(__FILE__,__LINE__,"compile: no source");
 		__remove_work_dir(wd);
-		return(-1);
+		return((void*)-1);
 
 	}
 
@@ -599,7 +673,7 @@ void* compile_x86_64(
 	snprintf(ofname,256,"%s/%s.so",wd,filebase);
 
 	int ofd = open(ofname,O_RDONLY,0);
-	if (ofd < 0) return(-1);
+	if (ofd < 0) return((void*)-1);
 
 
 	struct stat ofst; 
@@ -615,7 +689,7 @@ void* compile_x86_64(
 	} else {
 		close(ofd);
 		__remove_work_dir(wd);
-		return(-1);
+		return((void*)-1);
 	}
 
 	close(ofd);
@@ -634,7 +708,7 @@ void* compile_x86_64(
 )
 {
    ERROR2("x86_64 cross-compiler not supported");
-   exit(-1);
+   exit((void*)-1);
 }
 
 #endif

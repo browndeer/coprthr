@@ -250,6 +250,9 @@ clBuildProgram(
 
 			err = __do_build_program_from_source(prg,devid,j);
 
+//fprintf(stderr,"INTERNAL |%s|\n",prg->build_log[j]); 
+
+
 		} else {
 
 			DEBUG2("bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
@@ -376,17 +379,18 @@ clGetProgramBuildInfo(
 
 		case CL_PROGRAM_BUILD_OPTIONS:
 
-			sz = strnlen(prg->build_options,__CLMAXSTR_LEN);
+			sz = strnlen(prg->build_options[j],__CLMAXSTR_LEN);
 //			__case_get_param(prg->build_options_sz,prg->build_options);
-			__case_get_param(sz,prg->build_options);
+			__case_get_param(sz,prg->build_options+j);
 
 			break;
 
 		case CL_PROGRAM_BUILD_LOG:
 
-			sz = strnlen(prg->build_log,__CLMAXSTR_LEN);
+			sz = strnlen(prg->build_log[j],__CLMAXSTR_LEN);
 //			__case_get_param(prg->build_log_sz,prg->build_log);
-			__case_get_param(sz,prg->build_log);
+//fprintf(stderr,"    INTERNAL |%s|\n",*(prg->build_log+j));
+			__case_get_param(sz,prg->build_log[j]);
 
 			break;
 

@@ -888,6 +888,7 @@ int main(int argc, char** argv)
 					if (build_log_sz > 1) {
 						printf("%s\n",build_log);
 						if (build_log[build_log_sz-2] != '\n') printf("\n");
+						printf("\n");
 					}
 					free(build_log);
 				}
@@ -913,6 +914,7 @@ int main(int argc, char** argv)
 					if (build_log_sz > 1) {
 						printf("%s",build_log);
 						if (build_log[build_log_sz-2] != '\n') printf("\n");
+						printf("\n");
 					}
 					free(build_log);
 				}

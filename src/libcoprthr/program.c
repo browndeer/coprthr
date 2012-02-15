@@ -391,6 +391,10 @@ cl_int __do_build_program_from_source(
 		prg->build_options[devnum],&prg->build_log[devnum]
 	);
 
+	if ((void*)edata == (void*)-1) {
+		return((cl_int)-1);
+	}
+
 	return __do_build_program_from_binary(prg,devid,devnum);
 
 }
