@@ -11,8 +11,8 @@ datarootdir=@datarootdir@
 LIBELF_INC=@libelf_inc@
 LIBELF_LIB=@libelf_lib@
 
-#DEFS += -DXCL_DEBUG 
-#DEFS += -DXCL_WARN
+#DEFS += -DOCL_DEBUG 
+#DEFS += -DOCL_WARN
 
 #DEFS += -DUSE_FAST_SETJMP	# ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING
 
@@ -29,6 +29,10 @@ INSTALL_MAN_DIR=@mandir@
 OBJS = libocl.o oclcall.o 
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
+
+ifneq (@OPENCL_ICD_PATH@,)
+DEFS += -DOPENCL_ICD_PATH=\"@OPENCL_ICD_PATH@\"
+endif
 
 #ifeq (@ENABLE_DEBUG_LIBS@,1)
 #DEFS += -DOCL_DEBUG 

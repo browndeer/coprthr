@@ -615,7 +615,7 @@ int main(int argc, char** argv)
 		= (cl_platform_id*)malloc(nplatforms*sizeof(cl_platform_id));
 	clGetPlatformIDs(nplatforms,platforms,0);
 
-//	printf("number of platforms %d\n",nplatforms);
+	printf("number of platforms %d\n",nplatforms);
 
 	cl_context* contexts = (cl_context*)malloc(nplatforms*sizeof(cl_context));
 

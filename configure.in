@@ -510,6 +510,19 @@ fi;
 
 
 
+### allow custom path for ICD files
+AC_ARG_WITH(opencl-icd-path,
+  AC_HELP_STRING([--with-opencl-icd-path=DIR],
+  [set custom path for ICD files]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([no ICD path specified])
+    else
+      OPENCL_ICD_PATH=$withval
+    fi;
+  ],
+  [ OPENCL_ICD_PATH=/etc/OpenCL/vendors ])
+
 
 
 
@@ -540,6 +553,8 @@ AC_SUBST(libelf_lib)
 AC_SUBST(LIBCOPRTHR_CC)
 AC_SUBST(LIBCOPRTHR_CXX)
 AC_SUBST(LIBCOPRTHR_MODEL)
+
+AC_SUBST(OPENCL_ICD_PATH)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install-message.txt])

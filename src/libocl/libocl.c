@@ -35,6 +35,9 @@
 #include "libocl.h"
 #include "oclcall.h"
 
+#ifndef OPENCL_ICD_PATH
+#define OPENCL_ICD_PATH "/etc/OpenCL/vendors"
+#endif
 
 #define min(a,b) ((a<b)?a:b)
 
@@ -76,11 +79,14 @@ clGetPlatformIDs(
 {
 	int n;
 	char fullpath[256];
-   DIR* dirp = opendir("/etc/OpenCL/vendors/");
+	DEBUG2("OPENCL_ICD_PATH '%s'",OPENCL_ICD_PATH);
+//   DIR* dirp = opendir("/etc/OpenCL/vendors/");
+   DIR* dirp = opendir( OPENCL_ICD_PATH );
    struct dirent* dp;
 	_nplatforms = 0;
    while ( (dp=readdir(dirp)) ) {
-		strncpy(fullpath,"/etc/OpenCL/vendors/",256);
+//		strncpy(fullpath,"/etc/OpenCL/vendors/",256);
+		strncpy(fullpath, OPENCL_ICD_PATH "/" ,256);
 		strncat(fullpath,dp->d_name,256);
       DEBUG2("is this an icd file |%s|",fullpath);
       char* p;

@@ -17,6 +17,13 @@ INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
+### set custom path for ICD files
+ifneq (@OPENCL_ICD_PATH@,)
+OPENCL_ICD_PATH=@OPENCL_ICD_PATH@
+else
+OPENCL_ICD_PATH=/etc/OpenCL/vendors/
+endif
+
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
@@ -144,13 +151,16 @@ install:
 	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
 	install -m 755 vcore.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 $(LIBCOPRTHR_HDR) $(INSTALL_INCLUDE_DIR)/__libcoprthr.h
-	test -d /etc/OpenCL/vendors || install -m 755 -d /etc/OpenCL/vendors
-	echo $(INSTALL_LIB_DIR)/libcoprthr.so > /etc/OpenCL/vendors/coprthr.icd
+#	test -d /etc/OpenCL/vendors || install -m 755 -d /etc/OpenCL/vendors
+#	echo $(INSTALL_LIB_DIR)/libcoprthr.so > /etc/OpenCL/vendors/coprthr.icd
+	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
+	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(OPENCL_ICD_PATH)/coprthr.icd
 
 uninstall: 
 	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr_d.so
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,vcore.h)
+	rm -f $(OPENCL_ICD_PATH)/coprthr.icd
 
 clean:
 	rm -f *.o *.so

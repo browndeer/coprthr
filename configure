@@ -274,7 +274,7 @@ PACKAGE_STRING='coprthr 1.1'
 PACKAGE_BUGREPORT='support@browndeertechnology.com'
 
 ac_default_prefix=/usr/local/browndeer
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH F90 ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_CLLD ENABLE_LIBCOPRTHR ENABLE_LIBOCL ENABLE_NCPU OPENCL_INCLUDE OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM libelf_inc libelf_lib LIBCOPRTHR_CC LIBCOPRTHR_CXX LIBCOPRTHR_MODEL LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA BASH F90 ENABLE_CLGL ENABLE_CLETE ENABLE_DEBUG_LIBS ENABLE_CLTRACE ENABLE_CLLD ENABLE_LIBCOPRTHR ENABLE_LIBOCL ENABLE_NCPU OPENCL_INCLUDE OPENCL_LIB OPENCL_LIBNAME DEFAULT_OPENCL_PLATFORM libelf_inc libelf_lib LIBCOPRTHR_CC LIBCOPRTHR_CXX LIBCOPRTHR_MODEL OPENCL_ICD_PATH LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -836,6 +836,8 @@ Optional Packages:
                           use PROG for libcoprthr C++ compiler
   --with-libcoprthr-model=default|template|no-template
                           select model for libcoprthr OCL compilation
+  --with-opencl-icd-path=DIR
+                          set custom path for ICD files
 
 Some influential environment variables:
   CC          C compiler command
@@ -3357,6 +3359,24 @@ fi;
 
 
 
+### allow custom path for ICD files
+
+# Check whether --with-opencl-icd-path or --without-opencl-icd-path was given.
+if test "${with_opencl_icd_path+set}" = set; then
+  withval="$with_opencl_icd_path"
+
+    if test x$withval = xno; then
+		{ { echo "$as_me:$LINENO: error: no ICD path specified" >&5
+echo "$as_me: error: no ICD path specified" >&2;}
+   { (exit 1); exit 1; }; }
+    else
+      OPENCL_ICD_PATH=$withval
+    fi;
+
+else
+   OPENCL_ICD_PATH=/etc/OpenCL/vendors
+fi;
+
 
 
 
@@ -3375,6 +3395,8 @@ BASH=`which bash`
 
 #AC_SUBST(ENABLE_ATIGPU)
 #AC_SUBST(ENABLE_BDT_BUILTINS)
+
+
 
 
 
@@ -4159,6 +4181,7 @@ s,@libelf_lib@,$libelf_lib,;t t
 s,@LIBCOPRTHR_CC@,$LIBCOPRTHR_CC,;t t
 s,@LIBCOPRTHR_CXX@,$LIBCOPRTHR_CXX,;t t
 s,@LIBCOPRTHR_MODEL@,$LIBCOPRTHR_MODEL,;t t
+s,@OPENCL_ICD_PATH@,$OPENCL_ICD_PATH,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
