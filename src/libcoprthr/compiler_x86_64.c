@@ -23,10 +23,6 @@
 
 /* select compiler preferernces */
 
-//#define CC_COMPILER " gcc44 "
-//#define CXX_COMPILER " g++44 "
-//#define CC_COMPILER " gcc "
-//#define CXX_COMPILER " g++ "
 #ifdef LIBCOPRTHR_CC
 #define CC_COMPILER LIBCOPRTHR_CC
 #else
@@ -38,13 +34,6 @@
 #else
 #define CXX_COMPILER " g++ "
 #endif
-
-//#ifndef CC_COMPILER
-//#define CC_COMPILER " gcc "
-//#endif
-//#ifndef CXX_COMPILER
-//#define CXX_COMPILER " g++ "
-//#endif
 
 #define CCFLAGS_OCL_O2 \
 	" -fthread-jumps -fcrossjumping -foptimize-sibling-calls " \
@@ -156,21 +145,6 @@ information necessary to build out the prg info.  this makes
 #define DEFAULT_BUF1_SZ 16384
 #define DEFAULT_BUF2_SZ 16384
 #define DEFAULT_BUILD_LOG_SZ 256
-
-//static char shstrtab[] = { 
-//	"\0" 
-//	".cldev\0"		/* section 1, shstrtab offset 1 */ 
-//	".clprgs\0"		/* section 2, shstrtab offset 8 */ 
-//	".cltexts\0"	/* section 3, shstrtab offset 16 */ 
-//	".clprgb\0"		/* section 4, shstrtab offset 25 */ 
-//	".cltextb\0"	/* section 5, shstrtab offset 33 */ 
-//	".clsymtab\0"	/* section 6, shstrtab offset 42 */ 
-//	".clstrtab\0"	/* section 7, shstrtab offset 52 */ 
-//	".shstrtab\0"	/* section 8, shstrtab offset 62 */ 
-//};
-//
-//static int shstrtab_offset[] = { 0,1,8,16,25,33,42,52,62 };
-
 
 
 static char* buf1 = 0;
@@ -618,7 +592,7 @@ void* compile_x86_64(
 			ERROR(__FILE__,__LINE__,"cannot parse output of xclnm");
 			__append_str(log,
 				"compiler_x86_64: internal error: cannot parse output of xclnm",
-				0,0); \
+				0,0);
 			__remove_work_dir(wd);
 			exit(-1);
 		}
