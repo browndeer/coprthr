@@ -250,7 +250,7 @@ static void __remove_work_dir(char* wd)
 }
 
 
-void __append_str( char** pstr1, char* str2, char* sep, size_t n )
+static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 {  
    if (!*pstr1 || !str2) return;
    
@@ -371,21 +371,22 @@ void* compile_arm(
 
 		/* copy rt objects to work dir */
 
-		__command("cp "INSTALL_LIB_DIR"/__vcore_rt.o %s",wd);
+		__command("\\cp "INSTALL_LIB_DIR"/__vcore_rt.o %s > /dev/null 2>&1",wd);
 		__log(logp,"]%s\n",buf1);
 		__execshell(buf1,logp);
 		snprintf(fullpath,256,"%s/%s",wd,"__vcore_rt.o");
       __check_err(__test_file(fullpath),
          "compiler_arm: internal error: copy __vcore_rt.o failed.");
 
-		__command("cp "INSTALL_INCLUDE_DIR"/vcore.h %s",wd);
+		__command("cp "INSTALL_INCLUDE_DIR"/vcore.h %s > /dev/null 2>&1",wd);
 		__log(logp,"]%s\n",buf1);
 		__execshell(buf1,logp);
 		snprintf(fullpath,256,"%s/%s",wd,"vcore.h");
 		__check_err(__test_file(fullpath),
          "compiler_arm: internal error: copy vcore.h failed.");
 
-		__command("cp "INSTALL_INCLUDE_DIR"/__libcoprthr.h %s",wd);
+		__command(
+			"cp "INSTALL_INCLUDE_DIR"/__libcoprthr.h %s > /dev/null 2>&1",wd);
 		__log(logp,"]%s\n",buf1);
 		__execshell(buf1,logp);
 		snprintf(fullpath,256,"%s/%s",wd,"__libcoprthr.h");
