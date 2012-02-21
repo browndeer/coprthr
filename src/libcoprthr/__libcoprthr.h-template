@@ -393,7 +393,7 @@ _vector_type<T,2>& _vector_type<T,2>::operator^=( _vector_type<T,2> rhs )
  *** vec4 high-level implementation
  ***/
 
-#include <xmmintrin.h>
+//#include <xmmintrin.h>
 
 template < typename T >
 struct _vector_type<T,4> {
