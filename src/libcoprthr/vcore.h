@@ -33,8 +33,16 @@
 #else
 /* XXX this brings in the vec types.  temporary soln. improve it. -DAR */
 #include <CL/cl.h>
+typedef unsigned int uint;
+typedef cl_int2 int2;
 typedef cl_int4 int4;
+typedef cl_uint2 uint2;
+typedef cl_uint4 uint4;
+typedef cl_long2 long2;
+typedef cl_ulong2 ulong2;
+typedef cl_float2 float2;
 typedef cl_float4 float4;
+typedef cl_double2 double2;
 #endif
 
 #if defined(USE_FAST_SETJMP)
