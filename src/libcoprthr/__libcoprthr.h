@@ -734,14 +734,39 @@ __MATH_BUILTIN_1(tanh)
 __MATH_BUILTIN_1(tgamma)
 __MATH_BUILTIN_1(trunc)
 
-static __inline float rsqrt_T( float a ) { return 1.0f/sqrtf(a); } \
-static __inline float2 rsqrt_T( float2 a ) \
-	{ return float2(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y)); } \
-static __inline float4 rsqrt_T( float4 a ) \
-	{ return float4(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y),1.0f/sqrtf(a.z),1.0f/sqrtf(a.w)); } \
-static __inline double rsqrt_T( double a ) { return 1.0f/sqrt(a); } \
-static __inline double2 rsqrt_T( double2 a ) \
+static __inline float rsqrt_T( float a ) { return 1.0f/sqrtf(a); }
+static __inline float2 rsqrt_T( float2 a )
+	{ return float2(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y)); }
+static __inline float4 rsqrt_T( float4 a )
+	{ return float4(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y),1.0f/sqrtf(a.z),1.0f/sqrtf(a.w)); }
+static __inline double rsqrt_T( double a ) { return 1.0f/sqrt(a); }
+static __inline double2 rsqrt_T( double2 a )
 	{ return double2(1.0f/sqrt(a.x),1.0f/sqrt(a.y)); }
+
+template < typename T >
+static __inline T clamp_T( T a, T b0, T b1 ) 
+	{ return min(max(a,b0),b1); }
+
+static __inline float2 clamp_T( float2 a, float b0, float b1)
+	{ return float2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
+
+static __inline float4 clamp_T( float4 a, float b0, float b1)
+	{ return float4( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1), clamp_T(a.z,b0,b1), clamp_T(a.w,b0,b1) ); }
+
+static __inline double2 clamp_T( double2 a, double b0, double b1)
+	{ return double2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
+
+static __inline float dot_T( float2 a, float2 b)
+	{ float2 tmp = a*b; return tmp.x+tmp.y; }
+static __inline float dot_T( float4 a, float4 b)
+	{ float4 tmp = a*b; return tmp.x+tmp.y+tmp.z+tmp.w; }
+static __inline double dot_T( double2 a, double2 b)
+	{ double2 tmp = a*b; return tmp.x+tmp.y; }
+
+template < typename T >
+static __inline T normalize_T( T a )
+	{ return rsqrt_T(dot_T(a,a))*a; }
+
 
 #define sqrt(a) sqrt_T(a)
 #define acos(a) acos_T(a)
@@ -777,6 +802,10 @@ static __inline double2 rsqrt_T( double2 a ) \
 #define tanh(a) tanh_T(a)
 #define tgamma(a) tgamma_T(a)
 #define tfunc(a) tfunc_T(a)
+
+#define clamp(a,b0,b1) clamp_T(a,b0,b1)
+#define dot(a,b) dot_T(a,b)
+#define normalize(a) normalize_T(a)
 
 
 /*** sampler declarations [6.11.8.1] ***/
