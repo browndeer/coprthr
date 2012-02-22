@@ -103,6 +103,7 @@ void fprintf_sym(FILE*, char*, int ll_style, int c_style);
 //void fprintf_arg( FILE*, node_t* arg ); 
 void fprintf_type( FILE*, node_t* arg ); 
 void fprintf_c_type( FILE*, node_t* arg ); 
+void fprintf_cl_type( FILE*, node_t* arg ); 
 
 
 
@@ -482,7 +483,7 @@ int main( int argc, char** argv)
 
 					for(i=0,nptr2=nptr1->n_func.args;i<n;i++,nptr2=nptr2->next) {
 						if (i>0) fprintf(fp,", ");	
-						fprintf_c_type(fp,nptr2->n_arg.argtype);
+						fprintf_cl_type(fp,nptr2->n_arg.argtype);
 					}
 
 					fprintf(fp,");\n");
@@ -550,7 +551,7 @@ int main( int argc, char** argv)
 						fprintf(fp,"\t\t");
 						if (i>0) fprintf(fp,",");	
 						fprintf(fp,"*(");
-						fprintf_c_type(fp,nptr2->n_arg.argtype);
+						fprintf_cl_type(fp,nptr2->n_arg.argtype);
 						fprintf(fp,"*)edata->pr_arg_vec[%d]\n",i);
 
 					}
@@ -794,6 +795,14 @@ void fprintf_c_type( FILE* fp, node_t* t )
 {
 	int j;
 	fprintf(fp,"%s",type_table[type_ival2index(t->n_type.datatype)].c_type);
+	if (t->n_type.vecn>1) fprintf(fp,"%d ",t->n_type.vecn);
+	for(j=0;j<t->n_type.ptrc;j++) fprintf(fp,"*");
+}
+
+void fprintf_cl_type( FILE* fp, node_t* t )
+{
+	int j;
+	fprintf(fp,"%s",type_table[type_ival2index(t->n_type.datatype)].cl_type);
 	if (t->n_type.vecn>1) fprintf(fp,"%d ",t->n_type.vecn);
 	for(j=0;j<t->n_type.ptrc;j++) fprintf(fp,"*");
 }
