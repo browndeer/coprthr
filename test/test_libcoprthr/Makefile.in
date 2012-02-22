@@ -12,9 +12,11 @@ OPENCL_LIBNAME = coprthr
 USE_OPENCL_INCS=-I$(OPENCL_INC_DIR)
 USE_OPENCL_LIBS=-L$(OPENCL_LIB_DIR) -l$(OPENCL_LIBNAME)
 
-TESTS = test_arg_int test_block_int test_arg_int4 \
-	test_arg_float test_block_float test_arg_float4 \
-	test_special 
+TESTS = test_arg_int test_arg_int2 test_arg_int4 \
+	test_arg_uint test_arg_uint2 test_arg_uint4 \
+	test_arg_float test_arg_float2 test_arg_float4 \
+	test_arg_double test_arg_double2 \
+	test_block_int test_block_float test_special 
 
 #TESTS = test_faf
 

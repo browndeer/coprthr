@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # 
-# Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+# Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
 #
 # This software was developed by Brown Deer Technology, LLC.
 # For more information contact info@browndeertechnology.com
@@ -22,7 +22,7 @@
 
 $size = 128;
 $bsize = 4;
-$clfile = 'test_arg_float.cl';
+$clfile = 'test_arg_double.cl';
 $testprefix = 'test_arg_';
 
 printf "\n";
@@ -116,9 +116,9 @@ printf "if (err) exit(__LINE__);\n";
 
 
 for($c=0;$c<10-2;++$c) {
-printf "float* aa$c = (float*)malloc(size*sizeof(float));\n";
+printf "double* aa$c = (double*)malloc(size*sizeof(double));\n";
 printf "if (!aa$c) exit(__LINE__);\n";
-printf "float* bb$c = (float*)malloc(size*sizeof(float));\n";
+printf "double* bb$c = (double*)malloc(size*sizeof(double));\n";
 printf "if (!bb$c) exit(__LINE__);\n";
 }
 
@@ -131,9 +131,9 @@ printf "}\n";
 
 
 for($c=0;$c<10-2;++$c) {
-printf "cl_mem bufa$c = clCreateBuffer(ctx,CL_MEM_USE_HOST_PTR,size*sizeof(float),aa$c,&err);\n";
+printf "cl_mem bufa$c = clCreateBuffer(ctx,CL_MEM_USE_HOST_PTR,size*sizeof(double),aa$c,&err);\n";
 printf "if (err) exit(__LINE__);\n";
-printf "cl_mem bufb$c = clCreateBuffer(ctx,CL_MEM_USE_HOST_PTR,size*sizeof(float),bb$c,&err);\n";
+printf "cl_mem bufb$c = clCreateBuffer(ctx,CL_MEM_USE_HOST_PTR,size*sizeof(double),bb$c,&err);\n";
 printf "if (err) exit(__LINE__);\n";
 }
 
@@ -151,9 +151,9 @@ printf "size_t gws1[] = { size };\n";
 printf "size_t lws1[] = { blocksize };\n";
 printf "cl_event ev[10];\n";
 printf "cl_kernel krn;\n";
-printf "float sum,sum_correct;\n";
-#printf "float tol = pow(log10((float)size),4)*1.0e-(6-);\n";
-printf "float tol = pow(10.0,-8+log10((float)size));\n";
+printf "double sum,sum_correct;\n";
+#printf "double tol = pow(log10((double)size),4)*1.0e-(6-);\n";
+printf "double tol = pow(10.0,-8+log10((double)size));\n";
 
 for($c=0;$c<10;++$c) {
    for($a=1;$a<$c;++$a) {
@@ -175,7 +175,7 @@ printf "if (clEnqueueNDRangeKernel(cmdq,krn,1,0,gws1,lws1,0,0,&ev[0])) \n";
 printf "exit(__LINE__);\n";
 
 for($j=0;$j<$b;++$j) {
-printf "if (clEnqueueReadBuffer(cmdq,bufb$j,CL_TRUE,0,size*sizeof(float),bb$j,0,0,&ev[1+$j])) \n";
+printf "if (clEnqueueReadBuffer(cmdq,bufb$j,CL_TRUE,0,size*sizeof(double),bb$j,0,0,&ev[1+$j])) \n";
 printf "exit(__LINE__);\n";
 }
 

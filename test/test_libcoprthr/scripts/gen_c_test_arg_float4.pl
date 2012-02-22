@@ -118,9 +118,9 @@ printf "if (err) exit(__LINE__);\n";
 
 
 for($c=0;$c<10-2;++$c) {
-printf "float* aa$c = (float*)malloc(size*sizeof(int));\n";
+printf "float* aa$c = (float*)malloc(size*sizeof(float));\n";
 printf "if (!aa$c) exit(__LINE__);\n";
-printf "float* bb$c = (float*)malloc(size*sizeof(int));\n";
+printf "float* bb$c = (float*)malloc(size*sizeof(float));\n";
 printf "if (!bb$c) exit(__LINE__);\n";
 }
 

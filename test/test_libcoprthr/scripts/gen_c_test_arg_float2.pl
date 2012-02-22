@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # 
-# Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+# Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
 #
 # This software was developed by Brown Deer Technology, LLC.
 # For more information contact info@browndeertechnology.com
@@ -22,7 +22,7 @@
 
 $size = 128;
 $bsize = 4;
-$clfile = 'test_arg_float.cl';
+$clfile = 'test_arg_float2.cl';
 $testprefix = 'test_arg_';
 
 printf "\n";
@@ -37,6 +37,7 @@ printf "#include \"CL/cl.h\"\n";
 printf "\n";
 printf "#define SIZE $size\n";
 printf "#define BLOCKSIZE $bsize\n";
+#printf "#define size2 $size/2\n";
 printf "\n";
 printf "#define __mapfile(file,filesz,pfile) do { \\\n";
 printf "int fd = open(file,O_RDONLY); \\\n";
@@ -75,6 +76,7 @@ printf "exit(-1);\n";
 printf "}\n";
 printf "}\n";
 printf "\n";
+printf "size_t size2 = size/2;\n";
 
 printf "cl_uint nplatforms;\n";
 printf "cl_platform_id* platforms;\n";
@@ -147,12 +149,12 @@ printf "if (err) exit(__LINE__);\n";
 
 printf "if (clBuildProgram(prg,ndev,devices,0,0,0)) exit(__LINE__);\n";
 
-printf "size_t gws1[] = { size };\n";
+printf "size_t gws1[] = { size2 };\n";
 printf "size_t lws1[] = { blocksize };\n";
 printf "cl_event ev[10];\n";
 printf "cl_kernel krn;\n";
 printf "float sum,sum_correct;\n";
-#printf "float tol = pow(log10((float)size),4)*1.0e-(6-);\n";
+#printf "float tol = log10((float)size)*1.5e-6;\n";
 printf "float tol = pow(10.0,-8+log10((float)size));\n";
 
 for($c=0;$c<10;++$c) {
@@ -184,14 +186,15 @@ printf "if (clWaitForEvents(1+$b,ev)) exit(__LINE__);\n";
 #$sum_correct = 0;
 #for($i=0;$i<$a;++$i) {
 #for($j=0;$j<$b;++$j) {
-#$sum_correct += ($j+1.1)*( ($size*($size-1)*1.1)/2 + (1+13.1)*$i*$size + 0.1*$size);
+#$sum_correct += ($j+1.1)*( ($size*($size-1)*1.1)/2 + (1+13.1)*$i*$size + 0.1*$size + $size*0.4575);
 #}}
 #printf "sum_correct = ".$sum_correct.";\n";
 
 printf "sum_correct = 0;\n";
 printf "for(i=0;i<$a;++i)\n";
 printf "for(j=0;j<$b;++j)\n";
-printf "sum_correct += (j+1.1)*( (size*(size-1)*1.1)/2 + (1+13.1)*i*size + 0.1*size);\n";
+#printf "sum_correct += (j+1.1)*( (size*(size-1)*1.1)/2 + (1+13.1)*i*size + 0.1*size + size*0.4575);\n";
+printf "sum_correct += (j+1.1)*( (size*(size-1)*1.1)/2 + (1+13.1)*i*size + 0.1*size + size*0.54);\n";
 
 printf "sum = 0;\n";
 for($j=0;$j<$b;++$j) {
