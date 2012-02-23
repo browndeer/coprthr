@@ -767,6 +767,9 @@ template < typename T >
 static __inline T normalize_T( T a )
 	{ return rsqrt_T(dot_T(a,a))*a; }
 
+static __inline float4 cross_T( float4 a, float4 b)
+{ return float4(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x,0.0f); }
+
 
 #define sqrt(a) sqrt_T(a)
 #define acos(a) acos_T(a)
@@ -806,6 +809,7 @@ static __inline T normalize_T( T a )
 #define clamp(a,b0,b1) clamp_T(a,b0,b1)
 #define dot(a,b) dot_T(a,b)
 #define normalize(a) normalize_T(a)
+#define cross(a,b) cross_T(a,b)
 
 
 /*** sampler declarations [6.11.8.1] ***/
