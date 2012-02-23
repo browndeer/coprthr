@@ -62,10 +62,15 @@ FILE* __xclnm_yyin;
 %% /* rules */
 
 "__kernel" 			{ __plb(); ival_return(KERNEL); }
+"kernel" 			{ __plb(); ival_return(KERNEL); }
 "__global" 			{ __plb(); ival_return(ADDRSPACE_GLOBAL); }
+"global" 			{ __plb(); ival_return(ADDRSPACE_GLOBAL); }
 "__local" 			{ __plb(); ival_return(ADDRSPACE_LOCAL); }
+"local" 				{ __plb(); ival_return(ADDRSPACE_LOCAL); }
 "__read_only" 		{ __plb(); }
+"read_only" 		{ __plb(); }
 "__write_only" 	{ __plb(); }
+"write_only" 		{ __plb(); }
 "const" 				{ __plb(); }
 "restrict" 			{ __plb(); }
 
@@ -144,6 +149,17 @@ FILE* __xclnm_yyin;
 			}
 			ival_return(BODY); 
 		};
+
+"__attribute__(("		{
+								__plb();
+								int level = 2;
+								char c;
+								while(level > 0) {
+									c = input();
+									if (c=='(') ++level;
+									else if (c==')') --level;
+								}
+							};
 
 "//".+"\n"	{ __plb(); };
 
