@@ -447,7 +447,6 @@ int main(int argc, char** argv)
 
 	}
 
-printf("|%s|\n",opt_str);
 
 	if (!ofname) {
 		size_t fname_len = strlen(fname);
