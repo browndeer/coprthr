@@ -402,12 +402,15 @@ int main(int argc, char** argv)
 
 		} else if (str_match_fused(argv[n],"-I")) {
 
-			append_str(opt_str,argv[n]," ",0);
+//			append_str(opt_str,argv[n]," ",0);
+			append_str(opt_str,"-I"," ",0);
+			append_str(opt_str,realpath(argv[n]+2,0),0,0);
 
 		} else if (str_match_exact(argv[n],"-I")) {
 
 			append_str(opt_str,argv[n]," ",0);
-			append_str(opt_str,argv[++n]," ",0);
+//			append_str(opt_str,argv[++n]," ",0);
+			append_str(opt_str,realpath(argv[++n],0)," ",0);
 
 		} else if (str_match_exact(argv[n],"-c")) {
 
@@ -444,6 +447,7 @@ int main(int argc, char** argv)
 
 	}
 
+printf("|%s|\n",opt_str);
 
 	if (!ofname) {
 		size_t fname_len = strlen(fname);
