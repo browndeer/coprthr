@@ -292,8 +292,16 @@ static void* copy_buffer_safe(cl_device_id devid, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-	void* src = ((cl_mem)argp->m.src)->host_ptr;
+	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
+	unsigned int ndev = ctx->ndev;
+	cl_device_id* devices = ctx->devices;
+	unsigned int n = 0;
+	while (n < ndev && devices[n] != devid) ++n;
+
+//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
+//	void* src = ((cl_mem)argp->m.src)->host_ptr;
+	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
+	void* src = ((cl_mem)argp->m.src)->imp.res[n];
 	size_t dst_offset = argp->m.dst_offset;
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
@@ -315,8 +323,16 @@ static void* copy_buffer(cl_device_id devid, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-	void* src = ((cl_mem)argp->m.src)->host_ptr;
+	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
+	unsigned int ndev = ctx->ndev;
+	cl_device_id* devices = ctx->devices;
+	unsigned int n = 0;
+	while (n < ndev && devices[n] != devid) ++n;
+
+//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
+//	void* src = ((cl_mem)argp->m.src)->host_ptr;
+	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
+	void* src = ((cl_mem)argp->m.src)->imp.res[n];
 	size_t dst_offset = argp->m.dst_offset;
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
