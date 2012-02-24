@@ -507,9 +507,9 @@ int main(int argc, char** argv)
 
          pselcode[i] = CLELF_PLATFORM_CODE_COPRTHR;
 
-//    } else if (!strncasecmp(pselv[i],"Intel",7)) {
-//
-//       pselcode[i] = CLELF_PLATFORM_CODE_INTEL;
+    } else if (!strncasecmp(pselv[i],"Intel",5)) {
+
+       pselcode[i] = CLELF_PLATFORM_CODE_INTEL;
 
       }
 
@@ -531,9 +531,9 @@ int main(int argc, char** argv)
 
          pexclcode[i] = CLELF_PLATFORM_CODE_COPRTHR;
 
-//    } else if (!strncasecmp(pexclv[i],"Intel",7)) {
-//
-//       pexclcode[i] = CLELF_PLATFORM_CODE_INTEL;
+    } else if (!strncasecmp(pexclv[i],"Intel",5)) {
+
+       pexclcode[i] = CLELF_PLATFORM_CODE_INTEL;
 
       }
 
@@ -647,9 +647,9 @@ int main(int argc, char** argv)
 
 			platform_code = CLELF_PLATFORM_CODE_COPRTHR;
 
-//		} else if (!strncasecmp(info,"Intel",7)) {
-//
-//			platform_code = CLELF_PLATFORM_CODE_INTEL;
+		} else if (!strncasecmp(info,"Intel",5)) {
+
+			platform_code = CLELF_PLATFORM_CODE_INTEL;
 
 		} else {
 
