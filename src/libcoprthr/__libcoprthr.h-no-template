@@ -596,9 +596,21 @@ GENERIC_BINOP_VEC4(unsigned int,uint4,^)
 /*** math builtin functions [6.11.2] ***/
 
 #define __MATH_BUILTIN_1(func) \
-	static __inline float4 func##_T( float4 a ) \
+static __inline float func##_T( float a ) \
+	{ return func##f(a); } \
+static __inline float2 func##_T( float2 a ) \
+	{ return vector_float2( \
+		func##f(a.x),func##f(a.y) \
+	); } \
+static __inline float4 func##_T( float4 a ) \
 	{ return vector_float4( \
 		func##f(a.x),func##f(a.y),func##f(a.z),func##f(a.w) \
+	); } \
+static __inline double func##_T( double a ) \
+	{ return func(a); } \
+static __inline double2 func##_T( double2 a ) \
+	{ return vector_double2( \
+		func(a.x),func(a.y) \
 	); } 
 
 
