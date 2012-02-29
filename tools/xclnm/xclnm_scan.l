@@ -73,6 +73,10 @@ FILE* __xclnm_yyin;
 "write_only" 		{ __plb(); }
 "const" 				{ __plb(); }
 "restrict" 			{ __plb(); }
+"__private" 		{ __plb(); }
+"private" 			{ __plb(); }
+"__constant" 		{ __plb(); }
+"constant" 			{ __plb(); }
 
 "void" 							{ __plb(); ival_return(TYPE_VOID); }
 "char" 							{ __plb(); ival_return(TYPE_INT8); }
