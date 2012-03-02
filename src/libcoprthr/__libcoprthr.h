@@ -219,6 +219,14 @@ struct __vector_type { };
 /* vec2 low-level storage class */
 
 template <>
+struct __vector_type<char,2>
+   { typedef char type_t __attribute__((__vector_size__(2))); };
+
+template <>
+struct __vector_type<unsigned char,2>
+   { typedef unsigned char type_t __attribute__((__vector_size__(2))); };
+
+template <>
 struct __vector_type<int,2>
    { typedef int type_t __attribute__((__vector_size__(8))); };
 
@@ -246,6 +254,14 @@ struct __vector_type<double,2>
 /* vec4 low-level storage class */
 
 template <>
+struct __vector_type<char,4>
+   { typedef char type_t __attribute__((__vector_size__(4))); };
+
+template <>
+struct __vector_type<unsigned char,4>
+   { typedef unsigned char type_t __attribute__((__vector_size__(4))); };
+
+template <>
 struct __vector_type<int,4>
    { typedef int type_t __attribute__((__vector_size__(16))); };
 
@@ -260,6 +276,8 @@ struct __vector_type<float,4>
 
 /* typedefs for low-level vector storage classes */
 
+typedef __vector_type<char,2> __char2;
+typedef __vector_type<unsigned char,2> __uchar2;
 typedef __vector_type<int,2> __int2;
 typedef __vector_type<unsigned int,2> __uint2;
 typedef __vector_type<long,2> __long2;
@@ -267,6 +285,8 @@ typedef __vector_type<unsigned long,2> __ulong2;
 typedef __vector_type<float,2> __float2;
 typedef __vector_type<double,2> __double2;
 
+typedef __vector_type<char,4> __char4;
+typedef __vector_type<unsigned char,4> __uchar4;
 typedef __vector_type<int,4> __int4;
 typedef __vector_type<unsigned int,4> __uint4;
 typedef __vector_type<float,4> __float4;
@@ -540,6 +560,8 @@ _vector_type<T,4>& _vector_type<T,4>::operator^=( _vector_type<T,4> rhs )
 
 /* typedefs for high-level vector implementations  */
 
+typedef _vector_type<char,2> _char2;
+typedef _vector_type<unsigned char,2> _uchar2;
 typedef _vector_type<int,2> _int2;
 typedef _vector_type<unsigned int,2> _uint2;
 typedef _vector_type<long,2> _long2;
@@ -547,10 +569,14 @@ typedef _vector_type<unsigned long,2> _ulong2;
 typedef _vector_type<float,2> _float2;
 typedef _vector_type<double,2> _double2;
 
+typedef _vector_type<char,4> _char4;
+typedef _vector_type<unsigned char,4> _uchar4;
 typedef _vector_type<int,4> _int4;
 typedef _vector_type<unsigned int,4> _uint4;
 typedef _vector_type<float,4> _float4;
 
+typedef _char2 char2;
+typedef _uchar2 uchar2;
 typedef _int2 int2;
 typedef _uint2 uint2;
 typedef _long2 long2;
@@ -558,6 +584,8 @@ typedef _ulong2 ulong2;
 typedef _float2 float2;
 typedef _double2 double2;
 
+typedef _char4 char4;
+typedef _uchar4 uchar4;
 typedef _int4 int4;
 typedef _uint4 uint4;
 typedef _float4 float4;
@@ -831,6 +859,10 @@ typedef int sampler_t;
 
 /*** builtin extensions for initializing vector data types [non-standard] ***/
 
+#define __builtin_vector_char2(x,y) 		_char2(x,y)
+#define __builtin_vector_char4(x,y,z,w) 	_char4(x,y,z,w)
+#define __builtin_vector_uchar2(x,y) 		_uchar2(x,y)
+#define __builtin_vector_uchar4(x,y,z,w) 	_uchar4(x,y,z,w)
 #define __builtin_vector_int2(x,y) 			_int2(x,y)
 #define __builtin_vector_int4(x,y,z,w) 	_int4(x,y,z,w)
 #define __builtin_vector_long2(x,y) 		_long2(x,y)
@@ -849,6 +881,10 @@ typedef int sampler_t;
 
 /*** builtin extensions for initializing vector data types [non-standard] ***/
 
+#define __builtin_vector_char2(x,y) 		(char2)(x,y)
+#define __builtin_vector_char4(x,y,z,w) 	(char4)(x,y,z,w)
+#define __builtin_vector_uchar2(x,y) 		(uchar2)(x,y)
+#define __builtin_vector_uchar4(x,y,z,w) 	(uchar4)(x,y,z,w)
 #define __builtin_vector_int2(x,y) 			(int2)(x,y)
 #define __builtin_vector_int4(x,y,z,w) 	(int4)(x,y,z,w)
 #define __builtin_vector_uint2(x,y) 		(uint2)(x,y)

@@ -179,6 +179,30 @@ static __inline void barrier( int flags )
 
 /*** builtin vector data types [6.1.2] ***/
 
+typedef char __char2 __attribute__((vector_size(2)));
+typedef union {
+   __char2 vec;
+   struct { char x,y; };
+   struct { char s0,s1; };
+   char s[2];
+} _char2;
+typedef _char2 char2;
+#define __vector_char2(a,b) (__char2){a,b}
+#define _vector_char2(a,b) (_char2){a,b}
+#define vector_char2(a,b) _vector_char2(a,b)
+
+typedef unsigned char __uchar2 __attribute__((vector_size(2)));
+typedef union {
+   __uchar2 vec;
+   struct { unsigned char x,y; };
+   struct { unsigned char s0,s1; };
+   unsigned char s[2];
+} _uchar2;
+typedef _uchar2 uchar2;
+#define __vector_uchar2(a,b) (__uchar2){a,b}
+#define _vector_uchar2(a,b) (_uchar2){a,b}
+#define vector_uchar2(a,b) _vector_uchar2(a,b)
+
 typedef int __int2 __attribute__((vector_size(8)));
 typedef union {
    __int2 vec;
@@ -250,6 +274,34 @@ typedef _double2 double2;
 #define __vector_double2(a,b) (__double2){a,b}
 #define _vector_double2(a,b) (_double2){a,b}
 #define vector_double2(a,b) _vector_double2(a,b)
+
+typedef char __char4 __attribute__((vector_size(4)));
+typedef union {
+   __char4 vec;
+   struct { char x,y,z,w; };
+   struct { char s0,s1,s2,s3; };
+   struct { char2 xy,zw; };
+   struct { char2 s01,s23; };
+   char s[4];
+} _char4;
+typedef _char4 char4;
+#define __vector_char4(a,b,c,d) (__char4){a,b,c,d}
+#define _vector_char4(a,b,c,d) (_char4){a,b,c,d}
+#define vector_char4(a,b,c,d) _vector_char4(a,b,c,d)
+
+typedef unsigned char __uchar4 __attribute__((vector_size(4)));
+typedef union {
+   __uchar4 vec;
+   struct { unsigned char x,y,z,w; };
+   struct { unsigned char s0,s1,s2,s3; };
+   struct { uchar2 xy,zw; };
+   struct { uchar2 s01,s23; };
+   char s[4];
+} _uchar4;
+typedef _uchar4 uchar4;
+#define __vector_uchar4(a,b,c,d) (__uchar4){a,b,c,d}
+#define _vector_uchar4(a,b,c,d) (_uchar4){a,b,c,d}
+#define vector_uchar4(a,b,c,d) _vector_uchar4(a,b,c,d)
 
 typedef int __int4 __attribute__((vector_size(16)));
 typedef union {
@@ -347,12 +399,16 @@ typedef _float4 float4;
 
 /* unary plus */
 //static __inline _float4 operator + ( _float4& a ) { return a; }
+GENERIC_UNARY_PLUS(char2)
+GENERIC_UNARY_PLUS(uchar2)
 GENERIC_UNARY_PLUS(int2)
 GENERIC_UNARY_PLUS(uint2)
 GENERIC_UNARY_PLUS(long2)
 GENERIC_UNARY_PLUS(ulong2)
 GENERIC_UNARY_PLUS(float2)
 GENERIC_UNARY_PLUS(double2)
+GENERIC_UNARY_PLUS(char4)
+GENERIC_UNARY_PLUS(uchar4)
 GENERIC_UNARY_PLUS(int4)
 GENERIC_UNARY_PLUS(uint4)
 GENERIC_UNARY_PLUS(float4)
@@ -361,21 +417,29 @@ GENERIC_UNARY_PLUS(float4)
 /* unary minus */
 //static __inline _float4 operator - ( _float4& a ) 
 //	{ _float4 tmp; tmp.vec = -a.vec; return tmp; }
+GENERIC_UNARY_OP(char2,-)
+GENERIC_UNARY_OP(uchar2,-)
 GENERIC_UNARY_OP(int2,-)
 GENERIC_UNARY_OP(uint2,-)
 GENERIC_UNARY_OP(long2,-)
 GENERIC_UNARY_OP(ulong2,-)
 GENERIC_UNARY_OP(float2,-)
 GENERIC_UNARY_OP(double2,-)
+GENERIC_UNARY_OP(char4,-)
+GENERIC_UNARY_OP(uchar4,-)
 GENERIC_UNARY_OP(int4,-)
 GENERIC_UNARY_OP(uint4,-)
 GENERIC_UNARY_OP(float4,-)
 
 /* unary bitwise not */
+EXPLICIT_UNARY_OP_VEC2(char2,~)
+EXPLICIT_UNARY_OP_VEC2(uchar2,~)
 EXPLICIT_UNARY_OP_VEC2(int2,~)
 EXPLICIT_UNARY_OP_VEC2(uint2,~)
 EXPLICIT_UNARY_OP_VEC2(long2,~)
 EXPLICIT_UNARY_OP_VEC2(ulong2,~)
+EXPLICIT_UNARY_OP_VEC4(char4,~)
+EXPLICIT_UNARY_OP_VEC4(uchar4,~)
 EXPLICIT_UNARY_OP_VEC4(int4,~)
 EXPLICIT_UNARY_OP_VEC4(uint4,~)
 
@@ -384,12 +448,16 @@ EXPLICIT_UNARY_OP_VEC4(uint4,~)
 //static __inline _float4 
 //operator += ( _float4& lhs, const _float4 rhs )
 //{ lhs.vec += rhs.vec; return lhs; }
+GENERIC_OP_ASSIGN(char2,+)
+GENERIC_OP_ASSIGN(uchar2,+)
 GENERIC_OP_ASSIGN(int2,+)
 GENERIC_OP_ASSIGN(uint2,+)
 GENERIC_OP_ASSIGN(long2,+)
 GENERIC_OP_ASSIGN(ulong2,+)
 GENERIC_OP_ASSIGN(float2,+)
 GENERIC_OP_ASSIGN(double2,+)
+GENERIC_OP_ASSIGN(char4,+)
+GENERIC_OP_ASSIGN(uchar4,+)
 GENERIC_OP_ASSIGN(int4,+)
 GENERIC_OP_ASSIGN(uint4,+)
 GENERIC_OP_ASSIGN(float4,+)
@@ -399,69 +467,97 @@ GENERIC_OP_ASSIGN(float4,+)
 //static __inline _float4 
 //operator -= ( _float4& lhs, const _float4 rhs )
 //{ lhs.vec -= rhs.vec; return lhs; }
+GENERIC_OP_ASSIGN(char2,-)
+GENERIC_OP_ASSIGN(uchar2,-)
 GENERIC_OP_ASSIGN(int2,-)
 GENERIC_OP_ASSIGN(uint2,-)
 GENERIC_OP_ASSIGN(long2,-)
 GENERIC_OP_ASSIGN(ulong2,-)
 GENERIC_OP_ASSIGN(float2,-)
 GENERIC_OP_ASSIGN(double2,-)
+GENERIC_OP_ASSIGN(char4,-)
+GENERIC_OP_ASSIGN(uchar4,-)
 GENERIC_OP_ASSIGN(int4,-)
 GENERIC_OP_ASSIGN(uint4,-)
 GENERIC_OP_ASSIGN(float4,-)
 
 /* multiply assign */
+GENERIC_OP_ASSIGN(char2,*)
+GENERIC_OP_ASSIGN(uchar2,*)
 GENERIC_OP_ASSIGN(int2,*)
 GENERIC_OP_ASSIGN(uint2,*)
 GENERIC_OP_ASSIGN(long2,*)
 GENERIC_OP_ASSIGN(ulong2,*)
 GENERIC_OP_ASSIGN(float2,*)
 GENERIC_OP_ASSIGN(double2,*)
+GENERIC_OP_ASSIGN(char4,*)
+GENERIC_OP_ASSIGN(uchar4,*)
 GENERIC_OP_ASSIGN(int4,*)
 GENERIC_OP_ASSIGN(uint4,*)
 GENERIC_OP_ASSIGN(float4,*)
 
 /* modulo assign */
+EXPLICIT_OP_ASSIGN_VEC2(char2,%)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,%)
 EXPLICIT_OP_ASSIGN_VEC2(int2,%)
 EXPLICIT_OP_ASSIGN_VEC2(uint2,%)
 EXPLICIT_OP_ASSIGN_VEC2(long2,%)
 EXPLICIT_OP_ASSIGN_VEC2(ulong2,%)
+EXPLICIT_OP_ASSIGN_VEC4(char4,%)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,%)
 EXPLICIT_OP_ASSIGN_VEC4(int4,%)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,%)
 
 /* divide assign */
 //// XXX
+GENERIC_OP_ASSIGN(char2,/)
+GENERIC_OP_ASSIGN(uchar2,/)
 GENERIC_OP_ASSIGN(int2,/)
 GENERIC_OP_ASSIGN(uint2,/)
 GENERIC_OP_ASSIGN(long2,/)
 GENERIC_OP_ASSIGN(ulong2,/)
 GENERIC_OP_ASSIGN(float2,/)
 GENERIC_OP_ASSIGN(double2,/)
+GENERIC_OP_ASSIGN(char4,/)
+GENERIC_OP_ASSIGN(uchar4,/)
 GENERIC_OP_ASSIGN(int4,/)
 GENERIC_OP_ASSIGN(uint4,/)
 GENERIC_OP_ASSIGN(float4,/)
 
 /* bitwise and assign */
+EXPLICIT_OP_ASSIGN_VEC2(char2,&)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,&)
 EXPLICIT_OP_ASSIGN_VEC2(int2,&)
 EXPLICIT_OP_ASSIGN_VEC2(uint2,&)
 EXPLICIT_OP_ASSIGN_VEC2(long2,&)
 EXPLICIT_OP_ASSIGN_VEC2(ulong2,&)
+EXPLICIT_OP_ASSIGN_VEC4(char4,&)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,&)
 EXPLICIT_OP_ASSIGN_VEC4(int4,&)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,&)
 
 /* bitwise or assign */
 //// XXX
+EXPLICIT_OP_ASSIGN_VEC2(char2,|)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,|)
 EXPLICIT_OP_ASSIGN_VEC2(int2,|)
 EXPLICIT_OP_ASSIGN_VEC2(uint2,|)
 EXPLICIT_OP_ASSIGN_VEC2(long2,|)
 EXPLICIT_OP_ASSIGN_VEC2(ulong2,|)
+EXPLICIT_OP_ASSIGN_VEC4(char4,|)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,|)
 EXPLICIT_OP_ASSIGN_VEC4(int4,|)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,|)
 
 /* bitwise xor assign */
+EXPLICIT_OP_ASSIGN_VEC2(char2,^)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,^)
 EXPLICIT_OP_ASSIGN_VEC2(int2,^)
 EXPLICIT_OP_ASSIGN_VEC2(uint2,^)
 EXPLICIT_OP_ASSIGN_VEC2(long2,^)
 EXPLICIT_OP_ASSIGN_VEC2(ulong2,^)
+EXPLICIT_OP_ASSIGN_VEC4(char4,^)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,^)
 EXPLICIT_OP_ASSIGN_VEC4(int4,^)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,^)
 
@@ -510,78 +606,110 @@ static __inline double as_double( float2 f2 ) { return *(double*)(&f2); }
 
 
 /* binary add */
+GENERIC_BINOP_VEC2(char,char2,+)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,+)
 GENERIC_BINOP_VEC2(int,int2,+)
 GENERIC_BINOP_VEC2(unsigned int,uint2,+)
 GENERIC_BINOP_VEC2(long long,long2,+)
 GENERIC_BINOP_VEC2(unsigned long long,ulong2,+)
 GENERIC_BINOP_VEC2(float,float2,+)
 GENERIC_BINOP_VEC2(double,double2,+)
+GENERIC_BINOP_VEC4(char,char4,+)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,+)
 GENERIC_BINOP_VEC4(int,int4,+)
 GENERIC_BINOP_VEC4(unsigned int,uint4,+)
 GENERIC_BINOP_VEC4(float,float4,+)
 
 /* binary sub */
+GENERIC_BINOP_VEC2(char,char2,-)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,-)
 GENERIC_BINOP_VEC2(int,int2,-)
 GENERIC_BINOP_VEC2(unsigned int,uint2,-)
 GENERIC_BINOP_VEC2(long long,long2,-)
 GENERIC_BINOP_VEC2(unsigned long long,ulong2,-)
 GENERIC_BINOP_VEC2(float,float2,-)
 GENERIC_BINOP_VEC2(double,double2,-)
+GENERIC_BINOP_VEC4(char,char4,-)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,-)
 GENERIC_BINOP_VEC4(int,int4,-)
 GENERIC_BINOP_VEC4(unsigned int,uint4,-)
 GENERIC_BINOP_VEC4(float,float4,-)
 
 /* binary mult */
+GENERIC_BINOP_VEC2(char,char2,*)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,*)
 GENERIC_BINOP_VEC2(int,int2,*)
 GENERIC_BINOP_VEC2(unsigned int,uint2,*)
 GENERIC_BINOP_VEC2(long long,long2,*)
 GENERIC_BINOP_VEC2(unsigned long long,ulong2,*)
 GENERIC_BINOP_VEC2(float,float2,*)
 GENERIC_BINOP_VEC2(double,double2,*)
+GENERIC_BINOP_VEC4(char,char4,*)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,*)
 GENERIC_BINOP_VEC4(int,int4,*)
 GENERIC_BINOP_VEC4(unsigned int,uint4,*)
 GENERIC_BINOP_VEC4(float,float4,*)
 
 /* binary mod */
+GENERIC_BINOP_VEC2(char,char2,%)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,%)
 GENERIC_BINOP_VEC2(int,int2,%)
 GENERIC_BINOP_VEC2(unsigned int,uint2,%)
 GENERIC_BINOP_VEC2(long long,long2,%)
 GENERIC_BINOP_VEC2(unsigned long long,ulong2,%)
+GENERIC_BINOP_VEC4(char,char4,%)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,%)
 GENERIC_BINOP_VEC4(int,int4,%)
 GENERIC_BINOP_VEC4(unsigned int,uint4,%)
 
 /* binary div */
+GENERIC_BINOP_VEC2(char,char2,/)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,/)
 GENERIC_BINOP_VEC2(int,int2,/)
 GENERIC_BINOP_VEC2(unsigned int,uint2,/)
 GENERIC_BINOP_VEC2(long long,long2,/)
 GENERIC_BINOP_VEC2(unsigned long long,ulong2,/)
 GENERIC_BINOP_VEC2(float,float2,/)
 GENERIC_BINOP_VEC2(double,double2,/)
+GENERIC_BINOP_VEC4(char,char4,/)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,/)
 GENERIC_BINOP_VEC4(int,int4,/)
 GENERIC_BINOP_VEC4(unsigned int,uint4,/)
 GENERIC_BINOP_VEC4(float,float4,/)
 
 /* binary and */
+GENERIC_BINOP_VEC2(char,char2,&)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,&)
 GENERIC_BINOP_VEC2(int,int2,&)
 GENERIC_BINOP_VEC2(unsigned int,uint2,&)
 GENERIC_BINOP_VEC2(long long,long2,&)
 GENERIC_BINOP_VEC2(unsigned long long,ulong2,&)
+GENERIC_BINOP_VEC4(char,char4,&)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,&)
 GENERIC_BINOP_VEC4(int,int4,&)
 GENERIC_BINOP_VEC4(unsigned int,uint4,&)
 
 /* binary or */
+GENERIC_BINOP_VEC2(char,char2,|)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,|)
 GENERIC_BINOP_VEC2(int,int2,|)
 GENERIC_BINOP_VEC2(unsigned int,uint2,|)
 GENERIC_BINOP_VEC2(long long,long2,|)
 GENERIC_BINOP_VEC2(unsigned long long,ulong2,|)
+GENERIC_BINOP_VEC4(char,char4,|)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,|)
 GENERIC_BINOP_VEC4(int,int4,|)
 GENERIC_BINOP_VEC4(unsigned int,uint4,|)
 
 /* binary xor */
+GENERIC_BINOP_VEC2(char,char2,^)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,^)
 GENERIC_BINOP_VEC2(int,int2,^)
 GENERIC_BINOP_VEC2(unsigned int,uint2,^)
 GENERIC_BINOP_VEC2(long long,long2,^)
 GENERIC_BINOP_VEC2(unsigned long long,ulong2,^)
+GENERIC_BINOP_VEC4(char,char4,^)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,^)
 GENERIC_BINOP_VEC4(int,int4,^)
 GENERIC_BINOP_VEC4(unsigned int,uint4,^)
 
@@ -716,6 +844,10 @@ typedef int sampler_t;
 
 /*** builtin extensions for initializing vector data types [non-standard] ***/
 
+#define __builtin_vector_char2(x,y) 		vector_char2(x,y)
+#define __builtin_vector_char4(x,y,z,w) 	vector_char4(x,y,z,w)
+#define __builtin_vector_uchar2(x,y) 		vector_uchar2(x,y)
+#define __builtin_vector_uchar4(x,y,z,w)	vector_uchar4(x,y,z,w)
 #define __builtin_vector_int2(x,y) 			vector_int2(x,y)
 #define __builtin_vector_int4(x,y,z,w) 	vector_int4(x,y,z,w)
 #define __builtin_vector_long2(x,y) 		vector_long2(x,y)
@@ -734,6 +866,10 @@ typedef int sampler_t;
 
 /*** builtin extensions for initializing vector data types [non-standard] ***/
 
+#define __builtin_vector_char2(x,y) 		(char2)(x,y)
+#define __builtin_vector_char4(x,y,z,w) 	(char4)(x,y,z,w)
+#define __builtin_vector_uchar2(x,y) 		(uchar2)(x,y)
+#define __builtin_vector_uchar4(x,y,z,w) 	(uchar4)(x,y,z,w)
 #define __builtin_vector_int2(x,y) 			(int2)(x,y)
 #define __builtin_vector_int4(x,y,z,w) 	(int4)(x,y,z,w)
 #define __builtin_vector_uint2(x,y) 		(uint2)(x,y)
