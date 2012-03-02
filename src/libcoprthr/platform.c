@@ -25,6 +25,7 @@
 #include "xcl_structs.h"
 #include "platform.h"
 #include "device.h"
+#include "version.h"
 
 
 static struct _cl_platform_id* __ptab = 0;
@@ -49,7 +50,7 @@ void __do_discover_platforms()
 	
 	__ptab[0].imp = (struct _imp_platform){
 		"<profile>",
-		"1.2.0",
+		COPRTHR_VERSION_STRING,
 		"coprthr",
 		"Brown Deer Technology, LLC.",
 		"<extensions>",
