@@ -27,6 +27,10 @@
 #ifndef _STDCL_KERNEL_OPENCLCOMPAT_H
 #define _STDCL_KERNEL_OPENCLCOMPAT_H
 
+#define __builtin_vector_char2(x,y)       (char2)(x,y)
+#define __builtin_vector_char4(x,y,z,w)   (char4)(x,y,z,w)
+#define __builtin_vector_uchar2(x,y)      (uchar2)(x,y)
+#define __builtin_vector_uchar4(x,y,z,w)  (uchar4)(x,y,z,w)
 #define __builtin_vector_int2(x,y)        (int2)(x,y)
 #define __builtin_vector_int4(x,y,z,w)    (int4)(x,y,z,w)
 #define __builtin_vector_uint2(x,y)       (uint2)(x,y)
