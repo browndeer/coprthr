@@ -33,7 +33,12 @@
 #else
 /* XXX this brings in the vec types.  temporary soln. improve it. -DAR */
 #include <CL/cl.h>
+typedef unsigned char uchar;
 typedef unsigned int uint;
+typedef cl_char2 char2;
+typedef cl_char4 char4;
+typedef cl_uchar2 uchar2;
+typedef cl_uchar4 uchar4;
 typedef cl_int2 int2;
 typedef cl_int4 int4;
 typedef cl_uint2 uint2;
