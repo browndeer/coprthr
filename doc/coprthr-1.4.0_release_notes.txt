@@ -23,44 +23,44 @@ technology and hybrid CPU/GPU/APU computing architectures.
 
 1 New In Version 1.4 (echo release)
 
- -Offline OpenCL compiler supporting a real compilation model (clcc,clld,clnm)
+ * Offline OpenCL compiler supporting a real compilation model (clcc,clld,clnm)
 
-   -Supports cross-platform multi-device compilation using an open
-    ELF-based specification (CL-ELF)
+   - Supports cross-platform multi-device compilation using an open
+     ELF-based specification (CL-ELF)
 
-   -Compile multiple OpenCL kernel files for multiple devices into a
-    single linkable ELF object file
+   - Compile multiple OpenCL kernel files for multiple devices into a
+     single linkable ELF object file
 
-   -Redesigned STDCL dynamic loader makes embedded kernels available
-    with a single call
+   - Redesigned STDCL dynamic loader makes embedded kernels available
+     with a single call
 
- -Redesigned OpenCL implementation for x86_64 (libcoprthr)
+ * Redesigned OpenCL implementation for x86_64 (libcoprthr)
 
-   -Eliminates complex dependencies, requires only GCC for compilation
+   - Eliminates complex dependencies, requires only GCC for compilation
 
-   -Light-weight, high-performance design faster than vendor SDKs on
-    some HPC benchmarksa
+   - Light-weight, high-performance design faster than vendor SDKs on
+     some HPC benchmarksa
 
- -OpenCL implementation for multicore ARM processors (libcoprthr)
+ * OpenCL implementation for multicore ARM processors (libcoprthr)
 
-   -Includes NEON SIMD instructions with GCC vectorization
+   - Includes NEON SIMD instructions with GCC vectorization
 
-   -Includes full COPRTHR port to Linux Angstrom for embedded processorsx
+   - Includes full COPRTHR port to Linux Angstrom for embedded processors
 
- -Preview of replacement for Khronos ICD loader (libocl)
+ * Preview of replacement for Khronos ICD loader (libocl)
 
-   -Open specification with flexible system configuration options
+   - Open specification with flexible system configuration options
 
-   -Backward compatibility with libOpenCL.so
+   - Backward compatibility with libOpenCL.so
 
- -Improved build system
+ * Improved build system
 
- -Updated examples and documentation
+ * Updated examples and documentation
 
- -Supports Linux, FreeBSD and Windows 7 with MSVS 2010
+ * Supports Linux, FreeBSD and Windows 7 with MSVS 2010
 
- -STDCL is tested against AMD SDK v2.4/v2.5, Nvidia CUDA 4.0, 
-  Intel OCL SDK v1.5
+ * STDCL is tested against AMD SDK v2.4/v2.5, Nvidia CUDA 4.0, and
+   Intel OCL SDK v1.5
 
 ------------------------------------------------------------------------
 
@@ -95,43 +95,38 @@ Nvidia Tesla S1070, C2050, and C2070. AMD A-series APUs are also
 supported. Support has been extended to include multicore ARM processors
 running Linux Angstrom.
 
-The table below provides a comprehensive matrix of required packages
-matched to a specific platform and feature set. Please take note that
-libelf 1.x branch found on most Linux distributions is not a valid
-substitute for libelf-0.8.13 since they lack the required features and
-exhibit undocumented broken behavior.
+The table below provides a comprehensive matrix of optional and required 
+packages matched to a specific platform and feature set. 
 
-*COPRTHR Feature* 	*Package* 	*Download*
-libstdcl clcc libocl libcoprthr
+Please take note that libelf 1.x branch found on most Linux distributions 
+is not a valid substitute for libelf-0.8.13 since they lack the required 
+features and exhibit undocumented broken behavior.
 
-                        *Linux CentOS 5/6, OpenSuSE 11.3*
+*Linux CentOS 5/6, OpenSuSE 11.3*
 
-    O       O 			           AMD APP v2.4/2.5 
-                                developer.amd.com/sdks/AMDAPPSDK/downloads
+(O) AMD APP v2.4/2.5 (developer.amd.com/sdks/AMDAPPSDK/downloads)
 
-    O       O 			           Nvidia CUDA 4 
-                                developer.nvidia.com/cuda-toolkit-40
+(O) Nvidia CUDA 4 (developer.nvidia.com/cuda-toolkit-40)
 
-    O       O                   Intel OCL SDK 1.5
-                       software.intel.com/en-us/articles/vcsource-tools-opencl-sdk
-<http://software.intel.com/en-us/articles/vcsource-tools-opencl-sdk>
-R 	R 			libelf 0.8.13 	www.mr511.de/software/libelf-0.8.13.tar.gz
-<http://software.intel.com/en-us/articles/download-intel-opencl-sdk>
-R 	R 			libssl 	www.openssl.org/ <http://www.openssl.org>
+(O) Intel OCL 1.5 (software.intel.com/en-us/articles/vcsource-tools-opencl-sdk)
 
-                            *FreeBSD-8*
-R 	R 			libelf 0.8.13 	www.mr511.de/software/libelf-0.8.13.tar.gz
-<http://www.mr511.de/software/libelf-0.8.13.tar.gz>
-R 	R 			libssl 	www.openssl.org/ <http://www.openssl.org>
+(R) libelf 0.8.13 (www.mr511.de/software/libelf-0.8.13.tar.gz)
 
-                            *Windows 7*
-O 	O 			AMD APP v2.4/2.5 	developer.amd.com/sdks/AMDAPPSDK/downloads
-<http://developer.amd.com/sdks/AMDAPPSDK/downloads>
-O 	O 			Nvidia CUDA 4 	developer.nvidia.com/cuda-toolkit-40
-<http://developer.nvidia.com/cuda-toolkit-40>
-O 	O 			Intel OCL SDK 1.5
-software.intel.com/en-us/articles/vcsource-tools-opencl-sdk
-<http://software.intel.com/en-us/articles/vcsource-tools-opencl-sdk>
+(R) libssl (www.openssl.org)
+
+*FreeBSD-8*
+
+(R) libelf 0.8.13 (www.mr511.de/software/libelf-0.8.13.tar.gz)
+
+(R) libssl (www.openssl.org)
+
+*Windows 7*
+
+(O) AMD APP v2.4/2.5 (developer.amd.com/sdks/AMDAPPSDK/downloads)
+
+(O) Nvidia CUDA 4 (developer.nvidia.com/cuda-toolkit-40)
+
+(O) Intel OCL 1.5 (software.intel.com/en-us/articles/vcsource-tools-opencl-sdk)
 
 O=Optional, R=Required
 
@@ -237,4 +232,4 @@ may be found in The COPRTHR Primer revision 1.4 along with more
 detailed documentation and examples.
 
 ------------------------------------------------------------------------
-revised 7 February 2012 by DAR
+revised 3 March 2012 by DAR
