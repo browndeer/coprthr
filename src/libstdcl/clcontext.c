@@ -80,6 +80,21 @@ __get_platformid(
  cl_uint nplatform, cl_platform_id* platforms, const char* platform_name
 );
 
+#ifdef _WIN64
+#define CLELF_PLATFORM_CODE_AMDAPP	1
+#define CLELF_PLATFORM_CODE_NVIDIA	2
+#define CLELF_PLATFORM_CODE_COPRTHR	3
+#define CLELF_PLATFORM_CODE_INTEL	4
+static int clelf_platform_code( char* name )
+{
+	if (!strncasecmp(name,"AMD",3)) return(CLELF_PLATFORM_CODE_AMDAPP);
+	else if (!strncasecmp(name,"Nvidia",6)) return(CLELF_PLATFORM_CODE_NVIDIA);
+	else if (!strncasecmp(name,"coprthr",7)) return(CLELF_PLATFORM_CODE_COPRTHR);
+	else if (!strncasecmp(name,"Intel",5)) return(CLELF_PLATFORM_CODE_INTEL);
+	return(0);
+}
+#endif
+
 
 /* XXX note that presently ndevmax is ignored -DAR */
 
@@ -204,7 +219,7 @@ clcontext_create(
 	/* XXX assume no more than 8 platforms availabile, this is reality -DAR */
  
 	char* select_name[8] = { 0,0,0,0,0,0,0,0 };
-	char* select_code[8] = { 0,0,0,0,0,0,0,0 };
+	int select_code[8] = { 0,0,0,0,0,0,0,0 };
 	cl_platform_id select_id[8] = { 0,0,0,0,0,0,0,0 };
 	char buf[512];
 	char* tmp_ptr;
