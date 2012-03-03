@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
-  <title>The COPRTHR Primer revision 1.2</title>
+  <title>The COPRTHR Primer revision 1.3.1</title>
   <meta name="generator" content="Amaya, see http://www.w3.org/Amaya/" />
   <style type="text/css" title="Amaya theme">
 /* Modern style for Amaya Editor Lite */
@@ -173,10 +173,10 @@ style="font-family: Arial,Helvetica,sans-serif">The COPRTHR
 Primer</span></span></h2>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;">revision
-1.3</p>
+1.4</p>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;">Copyright ©
-2011 Brown Deer Technology, LLC</p>
+2011-2012 Brown Deer Technology, LLC</p>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;"><span
 style="font-size: 10pt"><span
@@ -188,25 +188,15 @@ style="font-size: 10pt"><span
 style="font-family: Times New Roman,Times,serif"><em>in any medium, provided
 this notice is preserved.</em></span></span></p>
 <hr />
-The CO-PRocessing THReads (COPRTHR) SDK provides OpenCL&trade; related
-libraries and tools for developers targeting many-core compute technology and
-hybrid CPU/GPU/APU computing architectures. 
+The CO-PRocessing THReads (COPRTHR) SDK provides OpenCL&trade; based libraries
+and tools for developers targeting many-core compute technology and hybrid
+CPU/GPU/APU computing architectures. 
 <hr />
 
 <h2>Contents</h2>
 <ul style="list-style: none;">
-  <li style="line-height:1em;">1 <a href="#Release">Release Notes</a> 
-    <ul style="list-style: none;">
-      <li style="line-height:1em;">1.1 <a href="#New">New in version 1.3
-        (lakeside) release</a></li>
-      <li style="line-height:1em;">1.2 <a href="#Support">Support and
-        Requirements</a></li>
-      <li style="line-height:1em;">1.3 <a href="#Important">Important
-      Notes</a></li>
-      <li style="line-height:1em;">1.4 <a href="#Frequently">Frequently Asked
-        Questions</a></li>
-    </ul>
-  </li>
+  <li style="line-height:1em;">1 <a href="#Release">Overview of Libraries and
+    Tools</a> </li>
   <li style="line-height:1em;">2 <a href="#Installation">Installation</a> 
     <ul style="list-style: none;">
       <li>2.1 <a href="#Installati">Installation Overview</a></li>
@@ -214,394 +204,125 @@ hybrid CPU/GPU/APU computing architectures.
       <li>2.3 <a href="#Linux">Linux and FreeBSD Installation</a></li>
       <li>2.4 <a href="#Windows">Windows 7 Installation</a></li>
       <li>2.5 <a href="#Configure">Configure Options</a></li>
+      <li>2.6 <a href="#Suggested">Suggested System-Specific
+      Configurations</a></li>
     </ul>
   </li>
   <li>3 <a href="#Test">Test Scripts</a></li>
   <li>4 <a href="#Hello">Hello STDCL (C/C++ and Fortran)</a></li>
   <li>5 <a href="#More">More STDCL Examples</a> 
     <ul style="list-style: none;">
-      <li>5.1 <a href="#clopen_exa">clopen_example - managing OpenCL kernel
-        code</a></li>
-      <li>5.2 <a href="#image2d_ex">image2d_example - using texture memory for
-        fast lookup tables</a></li>
-      <li>5.3 <a href="#mpi_lock_e">mpi_lock_example - transparent multi-GPU
-        device management</a></li>
-      <li>5.4 <a href="#clvector">clvector - a C++ container using OpenCL
-        device-sharable memory</a></li>
-      <li>5.5 <a href="#clmulti_ar">clmulti_array - another C++ container using
-        OpenCL device-sharable memory</a></li>
-      <li>5.6 <a href="#clvector1">clvector and CLETE - GPU acceleration with
-        little or no effort</a></li>
-      <li>5.7 <a href="#clmulti_ar1">clmulti_array and CLETE - another example
-        of automatic GPU acceleration</a></li>
+      <li>5.1 <a href="#clopen_exa">clopen_example - Managing OpenCL Kernel
+        Code</a></li>
+      <li>5.2 <a href="#image2d_ex">image2d_example - Using Texture Memory for
+        Fast Lookup Tables</a></li>
+      <li>5.3 <a href="#mpi_lock_e">mpi_lock_example - Transparent Multi-GPU
+        Device Management</a></li>
+      <li>5.4 <a href="#clvector">clvector - A C++ Container Using OpenCL
+        Device-Sharable Memory</a></li>
+      <li>5.5 <a href="#clmulti_ar">clmulti_array - Another C++ Container Using
+        Device-Sharable Memory</a></li>
+      <li>5.6 <a href="#clvector1">clvector and CLETE - GPU Acceleration with
+        Little or No Effort</a></li>
+      <li>5.7 <a href="#clmulti_ar1">clmulti_array and CLETE - Another Example
+        of Automatic GPU Acceleration</a></li>
       <li>5.8 <a href="#clcontext_">clcontext_info_example</a></li>
       <li>5.9 <a href="#bdt_nbody">bdt_nbody and bdt_em3d</a></li>
     </ul>
   </li>
   <li>6 <a href="#Tools">Tools</a> 
     <ul style="list-style: none;">
-      <li>6.1 <a href="#clld">clld: how to create single executables with
-        embedded OpenCL kernel code</a></li>
-      <li>6.2 <a href="#cltrace">cltrace: tracing OpenCL calls</a> </li>
+      <li>6.1 <a href="#clelf">CL-ELF: A Real Compilation Model for OpenCL,
+        Finally</a></li>
+      <li>6.2 <a href="#clcc">clcc: An Offline Compiler for OpenCL</a></li>
+      <li>6.3 <a href="#clld">clld: An Offline Linker for OpenCL</a></li>
+      <li>6.4 <a href="#clnm">clnm: Show the Contents of CL-ELF
+      Sections</a></li>
+      <li>6.5 <a href="#cltrace">cltrace: A Tracing Tool for OpenCL Host
+        Calls</a> </li>
     </ul>
   </li>
   <li>7 <a href="#Known">Known Issues</a></li>
 </ul>
 <hr />
 
-<h2>1 <a name="Release" id="Release">Release Notes</a></h2>
+<h2>1 <a name="Release" id="Release">Overview of Libraries and Tools</a></h2>
 
-<h3><a name="New" id="New">1.1 New In Version 1.3 (lakeside release) </a></h3>
-<ul>
-  <li>Fortran binding for STDCL 
-    <ul>
-      <li>Provides Fortran programmers with a powerful interface to OpenCL</li>
-      <li>Full support for (almost) all STDCL features</li>
-    </ul>
-  </li>
-  <li>Windows 7 support for C++ containers using OpenCL device-shareable memory 
-    <ul>
-      <li>Supports OpenCL extensions to STL vector and boost multi_array</li>
-      <li>Enables conventional memory management with synchronization for
-        OpenCL devices</li>
-    </ul>
-  </li>
-  <li>Improvements to the SDTCL interface 
-    <ul>
-      <li>Introduction of clmcopy() for copying memory on OpenCL devices</li>
-      <li>Introduction of clforka() - execute kernels with a single call,
-        eliminating tedious set-argument calls</li>
-      <li>Expanded support for CL/GL interoperability</li>
-    </ul>
-  </li>
-  <li>Updated examples and documentation</li>
-  <li>Supports Linux, FreeBSD and Windows 7 with MSVS 2010</li>
-  <li>STDCL is tested against AMD SDK v2.4/v2.5, Nvidia CUDA 4.0, Intel OpenCL
-    SDK v1.5</li>
-</ul>
-<hr />
+<p>The CO-PRocessing THReads (COPRTHR) SDK provides libraries and tools for
+developing applications that exploit the multi-threaded parallelism of modern
+multi-core and many-core processors. This includes heterogeneous CPU/GPU hybrid
+systems and other emerging processor architectures. The COPRTHR SDK is built
+upon OpenCL and may be used to develop OpenCL enabled applications. The range
+of hardware supported by the SDK is limited only by the availability of a
+suitable OpenCL implementation, and includes support for processors from AMD,
+Intel, and Nvidia. For architectures and operating systems for which a vendor
+implementation of OpenCL is not available, COPRTHR provides an open-source
+OpenCL implementation for multi-core x86 and ARM processors. The primary
+operating system supported by the SDK is Linux. However, limited support is
+provided for Windows 7 and FreeBSD-8. The software stack for COPRTHR is shown
+in the figure below along with additional 3rd-party software that the SDK
+supports. </p>
 
-<h3><a name="Support" id="Support">1.2 Support and Requirements</a></h3>
+<p style="text-align:left;margin-left:0;margin-right:auto;"><img alt=""
+src="coprthr-sdk.jpg" width="764" /></p>
 
-<p>With this release, Windows 7 support for the basic functionality provided by
-the STDCL interface is now stable. Support continues for most modern Linux
-distributions including RHEL 5.4/5.5, CentOS 5.4/5.5, and OpenSuSE 11.3. Full
-support for FreeBSD-8 also continues. Specific feature support by operating
-system is shown in the table below.</p>
+<p><strong>STDCL.</strong> The STandarD Compte Layer (STDCL) is a powerful API
+built on top of OpenCL that is much easier to use than OpenCL itself. STDCL
+(STandarD Compute Layer) has been developed as an API for OpenCL applications
+in order to simplify application development and introduce more intuitive
+programming semantics. STDCL is designed in a style inspired by conventional
+UNIX APIs for C programming, and may be used directly in C/C++ applications,
+with additional support for Fortran through direct API bindings.</p>
 
-<table border="1">
-  <col />
-  <col />
-  <col />
-  <col />
-  <col />
-  <tbody>
-    <tr>
-      <td><strong>COPRTHR Feature</strong></td>
-      <td
-        style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Description</strong></td>
-      <td><strong>Linux</strong></td>
-      <td><strong>FreeBSD</strong></td>
-      <td><strong>Windows</strong></td>
-    </tr>
-    <tr>
-      <td>libstdcl</td>
-      <td>STDCL interface</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
-    </tr>
-    <tr>
-      <td>cltrace</td>
-      <td>tracing tool</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>clld</td>
-      <td>link tool</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
-      <td></td>
-    </tr>
-    <tr>
-      <td>libocl</td>
-      <td>OpenCL x86_64 runtime</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">x</td>
-      <td></td>
-    </tr>
-  </tbody>
-</table>
+<p>The STDCL API provides support for default compute contexts, an integrated
+dynamic CL program loader, memory management, kernel management, and scheduling
+for asynchronous operations. Environment variables provide run-time control
+over certain aspects of the API including the prioritized selection of
+platforms and the management of co-processing resources across multiple
+processes. This support is especially useful in providing transparent support
+for MPI-based parallelism on multi-GPU systems.</p>
 
-<p>This release is compatible with OpenCL implementations provided by AMD APP
-v2.4/2.5, Nvidia CUDA-4 and Intel OpenCL SDK v1.5. In addition, an open-source
-OpenCL run-time implementation for x86_64 multi-core processors is provided as
-part of the COPRTHR SDK, which may be used on platforms for which no vendor
-support is available. The COPRTHR OpenCL implementation may also be of interest
-since it exhibits better performance than vendor implementations on some
-real-world benchmarks.</p>
+<p>STDCL replaces tedious low-level OpenCL host calls with semantics that
+better address the real programming requirements for application developers. At
+the same time, the API does not inhibit direct access to OpenCL host calls and
+data structures for the infrequent cases where they are actually needed.</p>
 
-<p>This release supports x86_64 CPUs from AMD and Intel as well as GPUs from
-AMD and Nvidia, and has been tested successfully on the following graphics
-cards: AMD Radeon HD 5870, 5970, 6970, AMD FirePro V8800, Nvidia Tesla S1070,
-C2050, and C2070. AMD A-series APUs are also supported.<br />
-</p>
+<p><strong>clcc/clld.</strong> The SDK provides an offline compiler and linker
+for multi-vendor multi-device cross-compilation that employs a real compilation
+model. This is achieved by defining extensions to the standard ELF sections of
+an ordinary object file or executable capable of representing OpenCL kernel
+programs in source and binary form. These sections are capable of supporting
+the full range of cross-compilation that a programmer will encounter when
+developing applications designed to utilize co-processing devices. The offline
+compiler and linker are designed to behave the way a programmer would expect
+them to behave and fit seamlessly into the normal GCC-type workflow employed by
+serious programmers devleoping serious applications.</p>
 
-<p>If you are only interested in the basic functionality of the STDCL interface
-for OpenCL, no additional packages are required beyond the standard vendor
-implementation of OpenCL for your platform. (If none is available, try the
-open-source implementation provided by with COPRTHR SDK.)</p>
+<p><strong>libclelf.</strong> The ELF extensions for OpenCL (CL-ELF) are
+formally implemented withing the library libclelf which is use by the offline
+compiler and linker to create cross-compiled linkable object files. The dynamic
+loader that is provided as part of the STDCL implementation uses this same
+library to load the correct source or binary kernel for use within an
+application. </p>
 
-<p>If you wish to use the <code>clld</code> tool for embedding OpenCL kernel
-code into ELF objects to create single executables, you will need to install
-libelf-0.8.13. Note that versions of libelf typically found on Linux
-distributions (designated 1.x) are <em>not compatible</em> and not very useful
-since they often contain many undocumented behaviors, and should not be used.
-</p>
+<p><strong>libocl.</strong> The SDK includes an open specified multi-vendor OCL
+loader that is backward compatible with the conventional libOpenCL ICD loader.
+The purpose of libocl.so, which may be aliased to libOpenCL.so, is to provide a
+much greater set of capabilities than what is provided with the standard
+loader. Among these capabilities are more sensible system configuraton and
+resource management options, as well as the creation of custom contexts based
+on the hardware that is actually installed on a given system. OpenCL platform
+configuration issues are more reliably addressed by the user or system
+administrator, and not the application developer.</p>
 
-<p>If you wish to use the open-source OpenCL run-time implementation provided
-by COPRTHR SDK you will need to install libelf-0.8.13 along with a few
-additional packages. Specifically, you will need LLVM and CLANG v2.6 and the
-ATI Stream SDK v2.1 . (Newer versions of the AMD SDK are <em>not</em> valid
-substitutes. Note that this dependency on AMD SDK v2.1 and LLVM v2.6 is being
-eliminated in future releases with the introduction of a new OpenCL
-compiler.)</p>
+<p><strong>libcoprthr.</strong> The SDK includes an OCL implementation for x86
+and ARM multi-core processors. This implementation can be useful on
+architectures and operating systems for which no vendor provided OpenCL
+implementation is available. Additionally, this implementation has proven to
+yield faster benchmarks than vendor provided x86 implementions on certain
+real-world HPC benchmarks.</p>
 
-<p>The table below provides a comprehensive matrix of required packages matched
-to a specific platform and feature set.</p>
-
-<table border="1">
-  <col />
-  <col />
-  <col />
-  <col />
-  <col />
-  <col />
-  <tbody>
-    <tr>
-      <td colspan="4"
-      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>COPRTHR
-        Feature</strong></td>
-      <td rowspan="2"
-      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Package</strong></td>
-      <td rowspan="2"
-      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Download</strong></td>
-    </tr>
-    <tr>
-      <td>libstdcl</td>
-      <td>cltrace</td>
-      <td>clld</td>
-      <td>libocl</td>
-    </tr>
-    <tr>
-      <td colspan="6"
-      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Linux
-        Red Hat 5.4/5.5, CentOS 5.4/5.5, OpenSuSE 11.3</strong></td>
-    </tr>
-    <tr>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>AMD APP v2.4/2.5</td>
-      <td><a
-        href="http://developer.amd.com/sdks/AMDAPPSDK/downloads">http://developer.amd.com/sdks/AMDAPPSDK/downloads</a></td>
-    </tr>
-    <tr>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>Nvidia CUDA 4</td>
-      <td><a
-        href="http://developer.nvidia.com/cuda-toolkit-40">http://developer.nvidia.com/cuda-toolkit-40</a></td>
-    </tr>
-    <tr>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>Intel OpenCL SDK-1.5</td>
-      <td><a
-        href="http://software.intel.com/en-us/articles/download-intel-opencl-sdk">http://software.intel.com/en-us/articles/download-intel-opencl-sdk</a></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td>libelf 0.8.13</td>
-      <td><a
-        href="http://www.mr511.de/software/libelf-0.8.13.tar.gz">http://www.mr511.de/software/libelf-0.8.13.tar.gz</a></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td>LLVM-2.6</td>
-      <td><a
-        href="http://llvm.org/releases/2.6/llvm-2.6.tar.gz">http://llvm.org/releases/2.6/llvm-2.6.tar.gz</a></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td>CLANG-2.6</td>
-      <td><a
-        href="http://llvm.org/releases/2.6/clang-2.6.tar.gz">http://llvm.org/releases/2.6/clang-2.6.tar.gz</a></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td>ATI Stream SDK-v2.1</td>
-      <td><a
-        href="http://developer.amd.com/Downloads/ati-stream-sdk-v2.1-lnx64.tgz">http://developer.amd.com/Downloads/ati-stream-sdk-v2.1-lnx64.tgz</a></td>
-    </tr>
-    <tr>
-      <td colspan="6"
-      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>FreeBSD-8</strong></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td>libelf 0.8.13</td>
-      <td><a
-        href="http://www.mr511.de/software/libelf-0.8.13.tar.gz">http://www.mr511.de/software/libelf-0.8.13.tar.gz</a></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td>LLVM-2.6</td>
-      <td><a
-        href="http://llvm.org/releases/2.6/llvm-2.6.tar.gz">http://llvm.org/releases/2.6/llvm-2.6.tar.gz</a></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td>CLANG-2.6</td>
-      <td><a
-        href="http://llvm.org/releases/2.6/clang-2.6.tar.gz">http://llvm.org/releases/2.6/clang-2.6.tar.gz</a></td>
-    </tr>
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">R</td>
-      <td>ATI Stream SDK-v2.1</td>
-      <td><a
-        href="http://developer.amd.com/Downloads/ati-stream-sdk-v2.1-lnx32.tgz">http://developer.amd.com/Downloads/ati-stream-sdk-v2.1-lnx32.tgz</a></td>
-    </tr>
-    <tr>
-      <td colspan="6"
-      style="text-align:center;margin-left:auto;margin-right:auto;"><strong>Windows
-        7</strong></td>
-    </tr>
-    <tr>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>AMD APP v2.4/2.5</td>
-      <td><a
-        href="http://developer.amd.com/sdks/AMDAPPSDK/downloads">http://developer.amd.com/sdks/AMDAPPSDK/downloads</a>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>Nvidia CUDA 4</td>
-      <td><a
-        href="http://developer.nvidia.com/cuda-toolkit-40">http://developer.nvidia.com/cuda-toolkit-40</a>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:center;margin-left:auto;margin-right:auto;">O</td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td>Intel OpenCL SDK-1.5</td>
-      <td><a
-        href="http://software.intel.com/en-us/articles/download-intel-opencl-sdk">http://software.intel.com/en-us/articles/download-intel-opencl-sdk</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<p>O=Optional, R=Required</p>
-<hr />
-
-<h3><a name="Important" id="Important">1.3 Important Notes</a></h3>
-<ul>
-  <li><em>On Windows 7 platforms the function </em><span
-    style="font-family: Courier New,Courier,monospace">init_stdcl()</span><em>must
-    be called to initialize the STDCL API. This call is unnecessary for Linux
-    and FreeBSD, but there is no harm in including it since it will default to
-    an empty function.<span
-    style="font-family: Courier New,Courier,monospace"></span></em> </li>
-  <li>The libraries <code>libstdcl</code> and <code>libocl</code> are provided
-    with debug versions <code>libstdcl_d</code> and <code>libocl_d</code>,
-    respectively. Linking against these libraries can be very useful for
-    debugging as well as understanding how each library operates.</li>
-  <li>If you install a binary release, it may not have been compiled with your
-    preferred OpenCL implementation as a default. The most reliable way to
-    ensure that the correct implementation is used is to set the appropriate
-    environment variable. The following are examples: 
-    <dl>
-      <dt>export STDGPU_PLATFORM_NAME=nvidia</dt>
-        <dd>Use the Nvidia OpenCL implementation for the stdgpu context</dd>
-      <dt>export STDCPU_PLATFORM_NAME=intel</dt>
-        <dd>Use the Intel OpenCL implementation for the stdcpu context</dd>
-    </dl>
-  </li>
-  <li>The flag CL_EVENT_RELEASE has been removed and the flag
-    CL_EVENT_NORELEASE has been added; the default behavior of event management
-    calls has been changed so as to always release events unless the latter
-    flag is used.</li>
-  <li>The platform that you select may not support certain types of devices,
-    e.g., the Nvidia SDK does not suport CPUs. This may cause problems with
-    some configurations. The easiest solution is to disable the context for
-    which no devices are supported, e.g., setting the environment variable
-    SDTCPU=0 will cause the runtime to ignore the CPU context.</li>
-  <li>The version of the boost library (1.47.0) used here for development
-    unfortunately has a very minor bug that prevents it from working with MSVS
-    2010. A fix to the boost package is provided in this release. Just follow
-    the instructions under the msvs2010/boost_1_47_0-multi_array-iterator-fix/
-    directory. (All you need to do is copy over a replacement for
-  iterator.hpp.)</li>
-</ul>
-<hr />
-
-<h3>1.4 <a name="Frequently" id="Frequently">Frequently Asked Questions</a></h3>
-
-<p>Below are answers to frequently asked questions regarding COPRTHR SDK and
-STDCL.</p>
-<dl>
-  <dt>Does STDCL require the BDT OpenCL run-time?</dt>
-    <dd>No. The basic installation of libstdcl.so will work with any compliant
-      OpenCL installation including the latest implementations from AMD, Nvidia
-      and Intel.</dd>
-  <dt>Will using STDCL reduce performance or limit access to OpenCL
-  functionality?</dt>
-    <dd>No. STDCL is implemented as a very light-weight interface and does not
-      restrict access to direct OpenCL and fully supports asynchronous
-      operations across multiple devices.</dd>
-  <dt>Are STDCL calls simply wrappers for OpenCL calls?</dt>
-    <dd>No. There is a bit more to the interface than wrapping OpenCL calls.
-      For the curious, take a look at the source code.</dd>
-</dl>
+<p></p>
 <hr />
 
 <h2><a name="Installation" id="Installation">2 Installation</a></h2>
@@ -625,6 +346,10 @@ href="http://www.github.com/browndeer/coprthr">http://www.github.com/browndeer/c
 
 <h3>2.3 <a name="Linux" id="Linux">Linux and FreeBSD Installation</a></h3>
 
+<p>The following generic steps can be used to install the COPRTHR SDK on Linux
+and FreeBSD systems. For a full description of configure options and suggested
+system-specific configurations, see section 2.5 and 2.6.</p>
+
 <p>1) From the root coprthr directory, type,</p>
 
 <p style="margin-left:2em;"><code>./configure [options]</code></p>
@@ -637,16 +362,12 @@ href="http://www.github.com/browndeer/coprthr">http://www.github.com/browndeer/c
 
 <p style="margin-left:2em;"><code>gmake install</code></p>
 
-<p>4) (Optional) In order to use the open-source OpenCL run-time the tool
-llvm-ex must be installed. Follow the instructions in the directory
-tools/llvm-ex/</p>
-
-<p>5) Set the appropriate paths to use the headers and libraries when building
-your own application.</p>
+<p>4) Set the appropriate paths to use the headers and libraries when building
+your own applications.</p>
 
 <h3>2.4 <a name="Windows" id="Windows">Windows 7 Installation</a></h3>
 
-<p>Run the Windows installer (libstdcl-1.3-win7-install.msi) and set the
+<p>Run the Windows installer (libstdcl-1.4.0-win7-install.msi) and set the
 appropriate paths to use the headers and library from your application.</p>
 
 <h3>2.5 <a name="Configure" id="Configure">Configure Options</a></h3>
@@ -656,32 +377,78 @@ options:</p>
 <dl>
   <dt><code>--prefix=/path/to/target-install-dir</code></dt>
     <dd>set the root directory for installation</dd>
-  <dt><code>--with-amd-sdk=/path/to/amd-sdk</code></dt>
-    <dd>set the root directory for the AMD APP SDK. The default location
-      searched is /usr/local/atistream .</dd>
-  <dt><code>--with-ati-sdk-21=/path/to/ati-sdk-21</code></dt>
-    <dd>set the root directory for the ATI Stream SDK v2.1. The default
-      location searched is /usr/local/atistream/ati-stream-sdk-v2.1-lnx64 .</dd>
-  <dt><code>--with-nvidia-sdk=/path/to/nvidia-sdk</code></dt>
-    <dd>set the root directory for the Nvidia SDK</dd>
-  <dt><code>--with-intel-sdk=/path/to/intel-sdk</code></dt>
-    <dd>set the root directory for the Intel SDK</dd>
-  <dt><code>--with-fortran=fortran-compiler</code></dt>
-    <dd>set the fortran compiler, the default is gfortran44</dd>
+  <dt><code>--with-opencl-platform=NAMELIST</code></dt>
+    <dd>specify default platform selection as a priority-ordered comma
+      seperated list</dd>
+  <dt><code>--with-opencl-include=DIR</code></dt>
+    <dd>specify OpenCL include path</dd>
+  <dt><code>--with-opencl-lib=DIR</code></dt>
+    <dd>specify OpenCL lib path</dd>
+  <dt><code>--with-fortran=PROG</code></dt>
+    <dd>specify Fortran compiler PROG</dd>
+  <dt><code>--with-libelf=DIR</code></dt>
+    <dd>specify path to libelf</dd>
+  <dt><code>--with-libcoprthr-cc=PROG</code></dt>
+    <dd>specify the C compiler PROG to be used for the libcoprthr OCL
+      implementation</dd>
+  <dt><span
+  style="font-family: Courier New,Courier,monospace">--with-libcoprthr-cxx=PROG</span></dt>
+    <dd>specify the C++ compiler to be used for the libcoprthr OCL
+      implementation</dd>
+  <dt><span
+  style="font-family: Courier New,Courier,monospace">--with-libcoprthrmodel=default|template|no-template</span></dt>
+    <dd>specify the model to use for the libcoprthr OCL implementation. The
+      no-template model requires GCC 4.6 to be used for the compilers</dd>
   <dt><code>--enable-debug-libs</code></dt>
     <dd>enable building debug version of libstdcl and libocl (enabled by
       default)</dd>
+  <dt><span
+  style="font-family: Courier New,Courier,monospace">--enable-clgl</span></dt>
+    <dd>enable clgl support (enabled by default)</dd>
   <dt><code>--enable-cltrace</code></dt>
     <dd>enable building cltrace tool (enabled by default)</dd>
-  <dt><code>--enable-clld</code></dt>
-    <dd>enable building clld tool (enabled by default)</dd>
   <dt><code>--enable-clete</code></dt>
     <dd>enable CLETE support (enabled by default)</dd>
   <dt><code>--enable-libocl</code></dt>
-    <dd>enable building experimental libocl (disabled by default)</dd>
-  <dt><code>--enable-libocl-ngpu</code></dt>
+    <dd>enable building the experimental libocl loader (enabled by default)</dd>
+  <dt><span
+  style="font-family: Courier New,Courier,monospace">--enable-libcoprthr</span></dt>
+    <dd>enable building the libcoprthr OCL implementation for multi-core CPUs
+      (disabled by default)</dd>
+  <dt><code>--enable-libcoprthr-ngpu</code></dt>
     <dd>enable multiple CPU device support in libocl (disabled by default)</dd>
-    <dd></dd>
+  <dt><code>--enable-fortran</code></dt>
+    <dd>enable fortran binding (disabled by default)</dd>
+    <dd><p></p>
+    </dd>
+</dl>
+<hr />
+
+<h3>2.6 <a name="Suggested" id="Suggested">Suggested System-Specific
+Configurations</a></h3>
+
+<p>The following are just a few examples of common system-specific
+configurations to be used as a guide for installing COPRTHR SDK on your
+specific platform. In very many cases, simply using ./configure will work if
+you have installed 3rd-party software in standard locations.</p>
+<dl>
+  <dt>Linux using only AMD APP SDK for CPU/GPU </dt>
+    <dd>./configure --with-opencl-platform=amdapp</dd>
+  <dt>Linux using AMD APP SDK for CPU/GPU and COPRTHR OCL for CPU also</dt>
+    <dd>./configure --enable-libcoprthr
+    --with-opencl-platform=amdapp,coprthr</dd>
+  <dt>Linux using only Nvidia OCL for GPU</dt>
+    <dd>./configure --enable-libcoprthr --with-opencl-platform=nvidia
+      --disable-libocl</dd>
+    <dd>(Note that libocl must be disabled to use the Nvidia OCL implementation
+      at this time.)</dd>
+  <dt>Linux using only Intel OCL for CPU/GPU</dt>
+    <dd>./configure --with-opencl-platform=intel</dd>
+  <dt>Linux or FreeBSD standalone installation with COPRTHR OCL for CPU
+  (x86)</dt>
+    <dd>./configure --enable-libcoprthr</dd>
+  <dt>Linux standalone installation with COPRTHR OCL for CPU (ARM)</dt>
+    <dd>./configure --enable-libcoprthr --disable-cltrace</dd>
 </dl>
 <hr />
 
@@ -978,7 +745,8 @@ support for the C++ containers clvector and clmulti_array now work, and those
 examples are now provided under the msvs2010/examples/ directory.</span></em>
 </p>
 
-<h3>5.1 <a name="clopen_exa" id="clopen_exa">clopen_example</a></h3>
+<h3>5.1 <a name="clopen_exa" id="clopen_exa">clopen_example - Managing OpenCL
+Kernel Code</a></h3>
 
 <p>STDCL provides different ways to manage OpenCL kernel code. The examples in
 clopen_example/ demonstrate the functionality. First we need some kernel code
@@ -1171,7 +939,8 @@ find and build the programs.</p>
 <p></p>
 <hr />
 
-<h3>5.2 <a name="image2d_ex" id="image2d_ex">image2d_example</a></h3>
+<h3>5.2 <a name="image2d_ex" id="image2d_ex">image2d_example - Using Texture
+Memory for Fast Lookup Tables</a></h3>
 
 <p>The following example demonstrates a non-trivial situation where one wishes
 to use texture memory to create fast lookup tables used by an OpenCL kernel.
@@ -1314,8 +1083,8 @@ int main()
 <p></p>
 <hr />
 
-<h3>5.3 <a name="mpi_lock_e" id="mpi_lock_e">mpi_lock_example - transparent
-multi-GPU device management</a></h3>
+<h3>5.3 <a name="mpi_lock_e" id="mpi_lock_e">mpi_lock_example - Transparent
+Multi-GPU Device Management</a></h3>
 
 <p>The STDCL interface now provides run-time inter-process device management,
 whereby environment variables can be used to create platform behaviors for
@@ -1459,8 +1228,8 @@ shared memory). If your application crashes it may be necessary to remove the
 <p></p>
 <hr />
 
-<h3>5.4 <a name="clvector" id="clvector">clvector</a> - a C++ container using
-OpenCL device-sharable memory</h3>
+<h3>5.4 <a name="clvector" id="clvector">clvector</a> - A C++ Container Using
+OpenCL Device-Sharable Memory</h3>
 
 <p><em><span style="color:#ff0000">(This example now works for Windows
 7.)</span></em></p>
@@ -1613,8 +1382,8 @@ int main()
 <p></p>
 <hr />
 
-<h3>5.5 <a name="clmulti_ar" id="clmulti_ar">clmulti_array</a> - another C++
-container using OpenCL device-sharable memory</h3>
+<h3>5.5 <a name="clmulti_ar" id="clmulti_ar">clmulti_array</a> - Another C++
+Container Using Device-Sharable Memory</h3>
 
 <p><em style="color:#ff0000">(This example now works for Windows 7.)</em></p>
 
@@ -1773,7 +1542,7 @@ int main()
 <hr />
 
 <h3>5.6 <a name="clvector1" id="clvector1">clvector and CLETE</a> - GPU
-acceleration with little or no effort</h3>
+Acceleration with Little or No Effort</h3>
 
 <p>Notwithstanding vendor promotional material, GPU acceleration has remained
 difficult for average programmers and required learning alternative programming
@@ -1871,7 +1640,7 @@ int main()
 <hr />
 
 <h3>5.7 <a name="clmulti_ar1" id="clmulti_ar1">clmulti_array and CLETE</a> -
-another example of automatic GPU acceleration</h3>
+Another Example of Automatic GPU Acceleration</h3>
 
 <p>The example below is identical to the previous section, but in this case
 demonstrates that the same C++ magic trick can be peformed using clmulti_array.
@@ -2041,105 +1810,274 @@ utility libraries.</p>
 <p></p>
 <hr />
 
-<h2>8. <a name="Tools" id="Tools">Tools</a></h2>
+<h2>6. <a name="Tools" id="Tools">Tools</a></h2>
 
-<h3>8.1 <a name="clld" id="clld"><span
-style="font-family: Courier New,Courier,monospace">clld</span></a>: how to
-create single executables with embedded OpenCL kernel code</h3>
+<h3>6.1 CL-ELF: A Real Compilation Model for OpenCL, Finally <a name="clelf"
+id="clelf"><span
+style="font-family: Courier New,Courier,monospace"></span></a></h3>
 
-<p>When developing and debugging OpenCL kernel code, the use of OpenCL
-just-in-time (JIT) compilation can be quite convenient. Making a small change
-to kernel code does not require that the application be recompiled, but rather
-simply re-run. However, when distributing software to others, requiring users
-to drag .cl files around with the executable is cumbersome and prone to errors.
-The solution for most programmers will be to incorporate the kernel code as
-strings into the application, and after doing this several times, they will
-eventually come up with their own scheme for wrapping and simplifying things to
-shield themselves from this most annoying aspect of OpenCL. STDCL provides an
-elegant solution to this problem with the addition of the tool <span
-style="font-family: Courier New,Courier,monospace">clld</span>. </p>
+<p>By default OpenCL provides great flexibility, but offers no guidance or
+support for a real compilation model of the kind most programmers would expect.
+Instead this is left as an exercise. COPRTHR provides a set of tools and
+libraries that support a robust compilation model for OpenCL with sensible
+fallback behaviors. At the core of the compilation model is an extension to the
+standard ELF object format (CL-ELF) that provides sections for logically
+supporting all that is possible with OpenCL in terms of cross-compilation. </p>
 
-<p><span style="font-family: Courier New,Courier,monospace">clld</span> allows
-OpenCL kernels to be embedded into an ELF object and linked into the executable
-using a standard linker such as <span
-style="font-family: Courier New,Courier,monospace">ld</span>. The kernel source
-or binary code is stored in separate sections within the ELF file in manner
-completely transparent to those sections used for representing the program
-itself. The operation of <span
-style="font-family: Courier New,Courier,monospace">clld</span> is integrated
-with the run-time loader provided by STDCL in such a way that the OpenCL
-kernels can be built and compiled transparently with almost no effort by the
-programmer. The simplicity is best illustrated by example. Consider a simple
-program that doubles the values of a vector using a GPU. The kernel code might
-look like this, stored in the file foo.cl:</p>
+<p>The tools include an offline compiler (clcc) capable of generating linkable
+object files containing source and binaries for any number of platforms and
+devices. Multiple object files can be combined using a linker (clld) to create
+a static object or shared library. A full range of options are provided to
+allow the programmer complete control over the content of each object file.
+Additional utilities are provided to extract information and further manipulate
+this extended ELF format. The STDCL dynamic loader provides integrated support
+for the CL-ELF format, enabling a programmer to simply link their OpenCL
+kernels and access them by symbol name.</p>
 
-<div style="background-color:#e8e8e8;">
-<pre>/* foo.cl */
+<p>The following simple examples demonstrate the use of the offline compiler to
+produce a single linkable ELF object file that may used to produce
+self-contained executables without the need for JIT compilation of auxiliary
+.cl files.</p>
 
-__kernel void 
-foo_kern( __global float* a ) 
-{ 
-   int gtid = get_global_id(0); 
-   a[gtid] *= a[gtid]; 
-}</pre>
-</div>
-
-<p>The host program might look like this, stored in the file foo.c:</p>
+<p><strong>Example 1:</strong> Compile three kernels stored in three files to
+create a linkable object file and link this into an application:</p>
 
 <div style="background-color:#e8e8e8;">
-<pre>/* foo.c */
-#include &lt;stdio.h&gt;
-#include &lt;stdcl.h&gt;
-in main()
-{
-	void* clh = <span style="color:#ff0000">clopen(stdgpu,0,CLLD_NOW);</span>
-	cl_kernel krn = clsym(stdgpu,clh,"foo_kern",0);
-	float* aa = (float*)clmalloc(stdgpu,1000*sizeof(float));
-	int i; 
-	for(i=0;i&lt;1000;i++) aa[i] = 1.1f*i;
-	clndrange_t ndr = clndrange_init1d( 0, 1000, 64);
-	clmsync(stdgpu,0,aa,CL_MEM_DEVICE|CL_EVENT_WAIT);
-	clfork(stdgpu,0,krn,&amp;ndr,Cl_EVENT_WAIT);
-	clmsync(stdgpu,0,aa,CL_MEM_HOST|CL_EVENT_WAIT);
-	clfree(aa);
-}</pre>
+<pre>] clcc alpha.cl beta.cl gamma.cl -o all_kernels.o
+] gcc -o my_app.x my_app.c all_kernels.o </pre>
 </div>
 
-<p>Note that the second argument to <span
-style="font-family: Courier New,Courier,monospace">clopen()</span> is <span
-style="font-family: Courier New,Courier,monospace">null</span> - this is where
-one normally specifies the <span
-style="font-family: Courier New,Courier,monospace">.cl</span> file that
-contains the kernel source. Setting this argument to <span
-style="font-family: Courier New,Courier,monospace">null</span> instead of a
-filename tells the dynamic loader to return a handle to the kernel source
-embedded within the executable. In order for this to work, the necessary kernel
-source would need to have been linked into the executable, which can be done
-with the following steps:</p>
+<p><strong>Example 2:</strong> Compile the three kernels separately, link them
+to create a single object file, and link this into an application:</p>
 
 <div style="background-color:#e8e8e8;">
-<pre>clld --cl-source foo.cl
-gcc -o foo.x foo.c out_clld.o</pre>
+<pre>] clcc alpha.cl
+] clcc beta.cl
+] clcc gamma.cl
+] clld alpha.o beta.o gamma.o -o all_kernels.o
+] gcc -o my_app.x my_app.c all_kernels.o</pre>
 </div>
 
-<p>Note that <span
-style="font-family: Courier New,Courier,monospace">clld</span> is not limited
-to embedding a single <span
-style="font-family: Courier New,Courier,monospace">.cl</span> but rather can be
-used to embed the kernel source from multiple files listed on the cammand line.
-The default output of clld is the ELF object file <span
-style="font-family: Courier New,Courier,monospace">out_clld.o</span>. The way
-in which clld embeds the kernel source into the ELF object can be seen by
-inspecting the final executable using readelf command which will show that
-there are 5 additional sections not normally found within a tyical ELF object
-or executable. Specifically, the sections, <code>.clprgs, .cltexts, .clprgb,
-.cltextb,</code> and <code>.clstrtab</code> are used to embed the kernel
-code.</p>
+<p><strong>Example 3:</strong> Compile the three kernels separately, link them
+to produce a single object file, strip out the source code and only include
+binaries for an AMD Cayman and all Nvidia devices:</p>
+
+<div style="background-color:#e8e8e8;">
+<pre>] clcc alpha.cl
+] clcc beta.cl
+] clcc gamma.cl
+] clld -o all_kernels.o -mdevice=amdapp:cayman,nvidia: -b alpha.o beta.o gamma.o
+] gcc -o my_app.x my_app.c all_kernels.o</pre>
+</div>
+
+<p><strong>So where is my kernel?</strong> That is the best part about the
+compilation model. From inside the application using the STDCL dynamic loader,
+kernels are accessed with a single call, for example:</p>
+
+<div style="background-color:#e8e8e8;">
+<pre>   cl_kernel krn_alpha = clsym(stdgpu,"alpha_kernel",CLLD_NOW);</pre>
+</div>
+
+<p>That's it. Simple, efficient, portable and reliable. For programmers who
+actually enjoy the tedious and error prone steps involved with directly
+managing OpenCL kernel code from within their application, this compilation
+model is not for you. </p>
+
+<p><strong>NOTE:</strong> Object files generated by clcc and/or clld can only
+be combined using clld. Attempts to use the standard linker ld for this purpose
+will, by design, cause a link time error due to multiple hash symbol
+definitions. This feature was deliberately introduced since a standard linker
+cannot properly combine sections in the CL-ELF format yet. The standard linker
+ld is used once to link a single CL-ELF file with conventional ELF object
+files.</p>
 
 <p></p>
 <hr />
 
-<h3>6.2 <a name="cltrace" id="cltrace">cltrace</a>: tracing OpenCL calls</h3>
+<h3>6.2 <a name="clcc" id="clcc">clcc</a>: An Offline Compiler for OpenCL</h3>
+
+<p>clcc is an offline compiler for OpenCL kernel source files used to generate
+a linkable ELF object containing multiple binaries targeting multiple platforms
+and devices. The original source code can also be included for subsequent JIT
+compilation on targets for which no binary is included. The ouptut of clcc uses
+an open extension of the standard ELF format (CL-ELF) that enables the
+representation of the full range of cross-compilations avaialable with multiple
+OpenCL platform implementations. The output can be linked as many times as
+necessary using clld, but can only be linked once to produce an ELF object or
+executable file using the conventional linker ld. In order to protect against
+multiple links using ld, hash values are included in CL-ELF object files such
+that multiple values can only be resolved with clld. The following is a
+synopsis of the usage for clcc.</p>
+
+<p><strong>clcc </strong>[options] file1.cl file2.cl ...
+<strong></strong>[<strong>-o </strong>output.o]<strong></strong></p>
+
+<p>Options:</p>
+<dl>
+  <dt>-b</dt>
+    <dd>Include only binaries in the CL-ELF object, i.e., do not embed the
+      original source code. This prevents the kernels from being JIT compiled
+      on target platforms and devices not included in the offline
+    compilation.</dd>
+  <dt>-c</dt>
+    <dd>Generate an object file that is linkable with clld. This is the default
+      behavior and the flag is provided only to maintain conventional compiler
+      semantics.</dd>
+  <dt>-fopencl</dt>
+    <dd>Specify the language dialect for compilation to be strict OpenCL,
+      overriding that which is inferred from the file extensions.</dd>
+  <dt>-fcuda</dt>
+    <dd>(Reserved)</dd>
+  <dt>-fopenmp</dt>
+    <dd>(Reserved)</dd>
+  <dt>-fstdcl</dt>
+    <dd>(Reserved)</dd>
+  <dt>-h</dt>
+  <dt>--help</dt>
+    <dd>Print a brief help message.</dd>
+  <dt>-I &lt;path&gt;</dt>
+    <dd>Add &lt;path&gt; to the include path for compilation.</dd>
+  <dt>-mall</dt>
+    <dd>Include binaries for all devices supported by all available
+    platforms.</dd>
+  <dt>-mavail</dt>
+    <dd>Include binaries for only those devices available on the host
+    system.</dd>
+  <dt>-mdevice=&lt;devices&gt;</dt>
+    <dd>Select exclusive list of devices to include where &lt;devices&gt; is a
+      comma separated list with no spaces. Device names are vendor specific.
+      Note that the naming convention will in some cases employ device aliases,
+      e.g., all x86_64 processors are identified with that simple tag
+      regardless of the exact processor name.</dd>
+  <dt>-mdevice-exclude=&lt;devices&gt;</dt>
+    <dd>Select list of devices to exclude where &lt;devices&gt; is a comma
+      separated list with no spaces. Device names are vendor specific. Note
+      that the naming convention will in some cases employ device aliases,
+      e.g., all x86_64 processors are identified with that simple tag
+      regardless of the exact processor name.</dd>
+  <dt>-mplatform=&lt;platforms&gt;</dt>
+    <dd>Select exclusive list of platforms to include where &lt;platforms&gt;
+      is a comma separated list with no spaces. </dd>
+  <dt>-mplatform-exclude=&lt;platforms&gt;</dt>
+    <dd>Select list of platforms to exclude where &lt;platforms&gt; is a comma
+      separated list with no spaces.</dd>
+  <dt>-o &lt;output file&gt;</dt>
+    <dd>Specifiy the output filename for the final ELF object file. The default
+      naming convention for compiling a single OpenCL kernel file is the
+      filename base with the .o extension. The default naming convention for
+      compiling multiple OpenCL kernel files is out_clcc.o .</dd>
+  <dt>-s</dt>
+    <dd>Include only source the original source code in the CL-ELF object,
+      i.e., do not embed any device specific binaries. This will require the
+      kernels to be JIT compiled on all target platforms and devices. </dd>
+  <dt>-v</dt>
+    <dd>Generate verbose diagnostic information.</dd>
+  <dt>--version</dt>
+    <dd>Print version information.</dd>
+</dl>
+<hr />
+
+<h3>6.3 <a name="clld" id="clld">clld</a>: An Offline Linker for OpenCL</h3>
+
+<p>clld is an offline linker used to combine CL-ELF object files generated by
+the offline compilation of OpenCL kernel files using clcc. The output of clld
+can be re-linked using clld as many times as necessary, but can only be linked
+once to produce an ELF object or executable file using the conventional linker
+ld. In order to protect against multiple links using ld, hash values are
+included in CL-ELF object files such that multiple values can only be resolved
+with clld. The following is a synopsis of the usage for clld.</p>
+
+<p><strong>clld </strong>[options] file1.o file2.o ...
+<strong></strong>[<strong>-o </strong>output.o]<strong></strong></p>
+
+<p>Options:</p>
+<dl>
+  <dt>-b</dt>
+    <dd>Include only binaries in the CL-ELF object, i.e., do not embed the
+      original source code. This prevents the kernels from being JIT compiled
+      on target platforms and devices not included in the offline
+    compilation.</dd>
+  <dt>-h</dt>
+  <dt>--help</dt>
+    <dd>Print a brief help message.</dd>
+  <dt>-mall</dt>
+    <dd>Include binaries for all devices supported by all available
+    platforms.</dd>
+  <dt>-mavail</dt>
+    <dd>Include binaries for only those devices available on the host
+    system.</dd>
+  <dt>-mdevice=&lt;devices&gt;</dt>
+    <dd>Select exclusive list of devices to include where &lt;devices&gt; is a
+      comma separated list with no spaces. Device names are vendor specific.
+      Note that the naming convention will in some cases employ device aliases,
+      e.g., all x86_64 processors are identified with that simple tag
+      regardless of the exact processor name.</dd>
+  <dt>-mdevice-exclude=&lt;devices&gt;</dt>
+    <dd>Select list of devices to exclude where &lt;devices&gt; is a comma
+      separated list with no spaces. Device names are vendor specific. Note
+      that the naming convention will in some cases employ device aliases,
+      e.g., all x86_64 processors are identified with that simple tag
+      regardless of the exact processor name.</dd>
+  <dt>-mplatform=&lt;platforms&gt;</dt>
+    <dd>Select exclusive list of platforms to include where &lt;platforms&gt;
+      is a comma separated list with no spaces. </dd>
+  <dt>-mplatform-exclude=&lt;platforms&gt;</dt>
+    <dd>Select list of platforms to exclude where &lt;platforms&gt; is a comma
+      separated list with no spaces.</dd>
+  <dt>-o &lt;output file&gt;</dt>
+    <dd>Specifiy the output filename for the final ELF object file. The default
+      naming convention for compiling a single OpenCL kernel file is the
+      filename base with the .o extension. The default naming convention for
+      compiling multiple OpenCL kernel files is out_clcc.o .</dd>
+  <dt>-s</dt>
+    <dd>Include only source the original source code in the CL-ELF object,
+      i.e., do not embed any device specific binaries. This will require the
+      kernels to be JIT compiled on all target platforms and devices. </dd>
+  <dt>-v</dt>
+    <dd>Generate verbose diagnostic information.</dd>
+  <dt>--version</dt>
+    <dd>Print version information.</dd>
+</dl>
+<hr />
+
+<h3>6.4 <a name="clnm" id="clnm">clnm</a>: Show the Contents of CL-ELF
+Sections</h3>
+
+<p>clnm is a tool analogous to the conventional nm program and allows the
+programer to examine the contents of the CL-ELF sections in an ELF object or
+executable. The following example shows the output from clnm used to examine an
+executable linked with OpenCL kernels compiled using clcc:</p>
+
+<div style="background-color:#e8e8e8;">
+<pre>]clnm bdt_nbody.x
+clnm: 'nbody_kern.cl' bin [amdapp:Cypress]
+clnm: 'nbody_kern.cl' bin [amdapp:Cayman]
+clnm: 'nbody_kern.cl' bin [amdapp:ATI RV770]
+clnm: 'nbody_kern.cl' bin [amdapp:ATI RV710]
+clnm: 'nbody_kern.cl' bin [amdapp:ATI RV730]
+clnm: 'nbody_kern.cl' bin [amdapp:Juniper]
+clnm: 'nbody_kern.cl' bin [amdapp:Redwood]
+clnm: 'nbody_kern.cl' bin [amdapp:Cedar]
+clnm: 'nbody_kern.cl' bin [amdapp:WinterPark]
+clnm: 'nbody_kern.cl' bin [amdapp:BeaverCreek]
+clnm: 'nbody_kern.cl' bin [amdapp:Loveland]
+clnm: 'nbody_kern.cl' bin [amdapp:Barts]
+clnm: 'nbody_kern.cl' bin [amdapp:Turks]
+clnm: 'nbody_kern.cl' bin [amdapp:Caicos]
+clnm: 'nbody_kern.cl' bin [amdapp:x86_64]
+clnm: 'nbody_kern.cl' bin [coprthr:x86_64]
+clnm: 'nbody_kern.cl' ksym copy_kern
+clnm: 'nbody_kern.cl' ksym nbody_kern
+clnm: 'nbody_kern.cl' ksym copy_kern
+clnm: 'nbody_kern.cl' ksym nbody_kern
+clnm: 'nbody_kern.cl' src [&lt;generic&gt;]</pre>
+</div>
+
+<p></p>
+<hr />
+
+<h3>6.5 <a name="cltrace" id="cltrace">cltrace</a>: A Tracing Tool for OpenCL
+Host Calls</h3>
 
 <p>The tool cltrace can be used to trace OpenCL calls on the host and is
 modeled after the UNIX command strace. No instrumentation of the application is
@@ -2293,5 +2231,5 @@ cltrace1: clReleaseProgram(0x162ac180) = 0
     prevents concurency and not a flaw in the implementation of STDCL.</li>
 </ul>
 <hr />
-<span style="font-size: 9pt">revised 22 June 2011 by DAR</span> </body>
+<span style="font-size: 9pt">revised 1 March 2012 by DAR</span> </body>
 </html>

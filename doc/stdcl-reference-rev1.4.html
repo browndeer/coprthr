@@ -165,7 +165,7 @@ a[href] {
 </head>
 
 <body>
-<p><img alt="" src="img/bdt.jpg" width="201" height="70" /></p>
+<p><img alt="" src="bdt_logo.jpg" width="201" height="70" /></p>
 
 <h1 style="text-align:center;margin-left:auto;margin-right:auto;"><span
 style="font-family: Times New Roman,Times,serif"><span
@@ -177,10 +177,10 @@ style="font-family: Arial,Helvetica,sans-serif">A Simplified C Interface for
 OpenCL</span></span></h2>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;">revision
-1.3</p>
+1.4</p>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;">Copyright ©
-2009-2011 Brown Deer Technology, LLC</p>
+2009-2012 Brown Deer Technology, LLC</p>
 
 <p style="text-align:center;margin-left:auto;margin-right:auto;"><span
 style="font-size: 10pt"><span
@@ -221,7 +221,7 @@ style="font-family: Arial,Helvetica,sans-serif">STDCL - Standard Compute Layer
 Interface</span></span></p>
 
 <p></p>
-<hr />
+<!-- <hr />
 
 <h2><a name="Version" id="Version">Version</a></h2>
 
@@ -231,7 +231,7 @@ style="font-family: Courier New,Courier,monospace">STDCL_VERSION_STR</span></p>
 <p><span
 style="font-family: Courier New,Courier,monospace">STDCL_VERSION_HEX</span></p>
 
-<p></p>
+<p></p> -->
 <hr />
 
 <h2><a name="Synopsis" id="Synopsis">Synopsis</a></h2>
@@ -420,21 +420,6 @@ style="font-family: Courier New,Courier,monospace"><strong>cp<span
 style="font-family: Times New Roman,Times,serif"></span></strong></span>. </p>
 
 <p style="text-align:justify;margin-left:2em;"><span
-style="font-family: Times New Roman,Times,serif">If </span><span
-style="font-family: Courier New,Courier,monospace"><strong>filename</strong></span>
-<span style="font-family: Times New Roman,Times,serif">is a </span><span
-style="font-family: Courier New,Courier,monospace"><span
-style="font-family: Times New Roman,Times,serif">NULL</span><span
-style="font-family: Times New Roman,Times,serif"></span></span> pointer <span
-style="font-family: Times New Roman,Times,serif">then a handle to the OpenCL
-program(s) embedded in the host program executable is returned. (See the tool
-</span><span style="font-family: Courier New,Courier,monospace">clld<span
-style="font-family: Times New Roman,Times,serif"></span></span> <span
-style="font-family: Times New Roman,Times,serif">for a description of how to
-embed OpenCL source and binary programs into a host program
-executable.)</span></p>
-
-<p style="text-align:justify;margin-left:2em;"><span
 style="font-family: Times New Roman,Times,serif">The </span><strong><span
 style="font-family: Courier New,Courier,monospace">flags<span
 style="font-family: Times New Roman,Times,serif"></span></span></strong><span
@@ -494,6 +479,10 @@ style="font-family: Courier New,Courier,monospace">symbol</span></strong>. The
 OpenCL kernel is created within the <span
 style="font-family: Courier New,Courier,monospace">CLCONTEXT</span> specified
 by <strong>cp</strong>. </p>
+
+<p style="margin-left:2em;">A null <strong>handle</strong> will cause the
+dynamic loader to search for the kernel within the CL-ELF sections of the
+executable itself.</p>
 
 <p style="margin-left:2em;text-align:justify;"><span
 style="font-family: Times New Roman,Times,serif">The argument <strong><span
@@ -663,6 +652,28 @@ operations for the op argument are presently valid:</p>
         <dt>cl_image_format* fmt</dt>
           <dd>(Optional) pointer to image format struct, ignored if set to
           NULL</dd>
+      </dl>
+    </dd>
+</dl>
+<dl>
+  <dt style="margin-left:2em;">CL_MCTL_SET_USRFLAGS</dt>
+    <dd style="margin-left:4em">Set the cl_mem_flags bits for the allocation
+      based on the user mem flags value passed in. This operation is only valid
+      on a detached memory allocation. 
+      <dl>
+        <dt>cl_mem_flags usrflags</dt>
+          <dd>User mem flags</dd>
+      </dl>
+    </dd>
+</dl>
+<dl>
+  <dt style="margin-left:2em;">CL_MCTL_CLR_USRFLAGS</dt>
+    <dd style="margin-left:4em">Clear the cl_mem_flags bits for the allocation
+      based on the user mem flags value passed in. This operation is only valid
+      on a detached memory allocation. 
+      <dl>
+        <dt>cl_mem_flags usrflags</dt>
+          <dd>User mem flags</dd>
       </dl>
     </dd>
 </dl>
