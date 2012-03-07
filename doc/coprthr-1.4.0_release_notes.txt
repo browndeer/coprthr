@@ -7,7 +7,7 @@ Verbatim copying and distribution of this entire document is
 permitted in any medium, provided this notice is preserved.
 
 ------------------------------------------------------------------------
-The CO-PRocessing THReads (COPRTHR) SDK provides several OpenCL? related
+The CO-PRocessing THReads (COPRTHR) SDK provides several OpenCL related
 libraries and tools for developers targeting many-core compute
 technology and hybrid CPU/GPU/APU computing architectures.
 ------------------------------------------------------------------------
@@ -39,7 +39,7 @@ technology and hybrid CPU/GPU/APU computing architectures.
    - Eliminates complex dependencies, requires only GCC for compilation
 
    - Light-weight, high-performance design faster than vendor SDKs on
-     some HPC benchmarksa
+     some HPC benchmarks
 
  * OpenCL implementation for multicore ARM processors (libcoprthr)
 
@@ -74,11 +74,11 @@ provided for Windows 7 using MSVS 2010. Specific feature support by
 operating system is shown in the table below.
 
 COPRTHR Feature 	Description 	         Linux 	FreeBSD 	Windows
-libstdcl 	      STDCL interface         x        x        x
-libcoprthr        OpenCL implementation   x 	      x 	
-libocl 	         OpenCL platform loader  x 	      x 	
-clcc,clld,clnm 	Offline OpenCL compiler	x 		
-cltrace 	         Tracing tool 	         x        x 	
+libstdcl 	      STDCL interface             x          x         x
+libcoprthr      OpenCL implementation       x          x 	
+libocl 	      OpenCL platform loader      x          x 	
+clcc,clld,clnm  Offline OpenCL compiler     x 		
+cltrace         Tracing tool                x          x 	
 
 This release is compatible with OpenCL implementations provided by AMD
 APP v2.4/2.5, Nvidia CUDA-4 and Intel OCL SDK v1.5. In addition, an
