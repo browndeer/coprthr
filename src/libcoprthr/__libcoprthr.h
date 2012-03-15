@@ -23,6 +23,10 @@
 #ifndef __libcoprthr_h
 #define __libcoprthr_h
 
+#define GCC_VERSION \
+	( __GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ )
+
+
 //#define USE_SSE __SSE__
 
 #if defined(__GNUC__) 
@@ -179,417 +183,466 @@ static __inline void barrier( int flags )
 
 /*** builtin vector data types [6.1.2] ***/
 
-//typedef int _v2si __attribute__((__vector_size__(8)));
-//typedef int _v4si __attribute__((__vector_size__(16)));
-//typedef long _v2sl __attribute__((__vector_size__(16)));
-//typedef unsigned int _v2i __attribute__((__vector_size__(8)));
-//typedef unsigned int _v4i __attribute__((__vector_size__(16)));
-//typedef unsigned long _v2l __attribute__((__vector_size__(16)));
-//typedef float _v2f __attribute__((__vector_size__(8)));
-//typedef float _v4f __attribute__((__vector_size__(16)));
-//typedef double _v2d __attribute__((__vector_size__(16)));
-//
-//typedef int __int2 __attribute__((__vector_size__(8)));
-//typedef int __int4 __attribute__((__vector_size__(16)));
-//typedef long __long2 __attribute__((__vector_size__(16)));
-//typedef unsigned int __uint2 __attribute__((__vector_size__(8)));
-//typedef unsigned int __uint4 __attribute__((__vector_size__(16)));
-//typedef unsigned long __ulong2 __attribute__((__vector_size__(16)));
-//typedef float __float2 __attribute__((__vector_size__(8)));
-//typedef float __float4 __attribute__((__vector_size__(16)));
-//typedef double __double2 __attribute__((__vector_size__(16)));
+typedef char __char2 __attribute__((vector_size(2)));
+typedef union {
+   __char2 vec;
+   struct { char x,y; };
+   struct { char s0,s1; };
+   char s[2];
+} _char2;
+typedef _char2 char2;
+#define __vector_char2(a,b) (__char2){a,b}
+#define _vector_char2(a,b) (_char2){a,b}
+#define vector_char2(a,b) _vector_char2(a,b)
 
-/* if not using sse we will define some equivalents -DAR */
-//#if !defined(USE_SSE)
-//typedef __int2 __m64;
-//typedef __int4 __m128i;
-//typedef __float4 __m128;
-//typedef __double2 __m128d;
-//#endif
+typedef unsigned char __uchar2 __attribute__((vector_size(2)));
+typedef union {
+   __uchar2 vec;
+   struct { unsigned char x,y; };
+   struct { unsigned char s0,s1; };
+   unsigned char s[2];
+} _uchar2;
+typedef _uchar2 uchar2;
+#define __vector_uchar2(a,b) (__uchar2){a,b}
+#define _vector_uchar2(a,b) (_uchar2){a,b}
+#define vector_uchar2(a,b) _vector_uchar2(a,b)
+
+typedef int __int2 __attribute__((vector_size(8)));
+typedef union {
+   __int2 vec;
+   struct { int x,y; };
+   struct { int s0,s1; };
+   int s[2];
+} _int2;
+typedef _int2 int2;
+#define __vector_int2(a,b) (__int2){a,b}
+#define _vector_int2(a,b) (_int2){a,b}
+#define vector_int2(a,b) _vector_int2(a,b)
+
+typedef unsigned int __uint2 __attribute__((vector_size(8)));
+typedef union {
+   __uint2 vec;
+   struct { unsigned int x,y; };
+   struct { unsigned int s0,s1; };
+   unsigned int s[2];
+} _uint2;
+typedef _uint2 uint2;
+#define __vector_uint2(a,b) (__uint2){a,b}
+#define _vector_uint2(a,b) (_uint2){a,b}
+#define vector_uint2(a,b) _vector_uint2(a,b)
+
+typedef long long __long2 __attribute__((vector_size(16)));
+typedef union {
+   __long2 vec;
+   struct { long long x,y; };
+   struct { long long s0,s1; };
+   long long s[2];
+} _long2;
+typedef _long2 long2;
+#define __vector_long2(a,b) (__long2){a,b}
+#define _vector_long2(a,b) (_long2){a,b}
+#define vector_long2(a,b) _vector_long2(a,b)
+
+typedef unsigned long long __ulong2 __attribute__((vector_size(16)));
+typedef union {
+   __ulong2 vec;
+   struct { unsigned long long x,y; };
+   struct { unsigned long long s0,s1; };
+   unsigned long long s[2];
+} _ulong2;
+typedef _ulong2 ulong2;
+#define __vector_ulong2(a,b) (__ulong2){a,b}
+#define _vector_ulong2(a,b) (_ulong2){a,b}
+#define vector_ulong2(a,b) _vector_ulong2(a,b)
+
+typedef float __float2 __attribute__((vector_size(8)));
+typedef union {
+   __float2 vec;
+   struct { float x,y; };
+   struct { float s0,s1; };
+   float s[2];
+} _float2;
+typedef _float2 float2;
+#define __vector_float2(a,b) (__float2){a,b}
+#define _vector_float2(a,b) (_float2){a,b}
+#define vector_float2(a,b) _vector_float2(a,b)
+
+typedef double __double2 __attribute__((vector_size(16)));
+typedef union {
+   __double2 vec;
+   struct { double x,y; };
+   struct { double s0,s1; };
+   double s[2];
+} _double2;
+typedef _double2 double2;
+#define __vector_double2(a,b) (__double2){a,b}
+#define _vector_double2(a,b) (_double2){a,b}
+#define vector_double2(a,b) _vector_double2(a,b)
+
+typedef char __char4 __attribute__((vector_size(4)));
+typedef union {
+   __char4 vec;
+   struct { char x,y,z,w; };
+   struct { char s0,s1,s2,s3; };
+   struct { char2 xy,zw; };
+   struct { char2 s01,s23; };
+   char s[4];
+} _char4;
+typedef _char4 char4;
+#define __vector_char4(a,b,c,d) (__char4){a,b,c,d}
+#define _vector_char4(a,b,c,d) (_char4){a,b,c,d}
+#define vector_char4(a,b,c,d) _vector_char4(a,b,c,d)
+
+typedef unsigned char __uchar4 __attribute__((vector_size(4)));
+typedef union {
+   __uchar4 vec;
+   struct { unsigned char x,y,z,w; };
+   struct { unsigned char s0,s1,s2,s3; };
+   struct { uchar2 xy,zw; };
+   struct { uchar2 s01,s23; };
+   char s[4];
+} _uchar4;
+typedef _uchar4 uchar4;
+#define __vector_uchar4(a,b,c,d) (__uchar4){a,b,c,d}
+#define _vector_uchar4(a,b,c,d) (_uchar4){a,b,c,d}
+#define vector_uchar4(a,b,c,d) _vector_uchar4(a,b,c,d)
+
+typedef int __int4 __attribute__((vector_size(16)));
+typedef union {
+   __int4 vec;
+   struct { int x,y,z,w; };
+   struct { int s0,s1,s2,s3; };
+   struct { int2 xy,zw; };
+   struct { int2 s01,s23; };
+   int s[4];
+} _int4;
+typedef _int4 int4;
+#define __vector_int4(a,b,c,d) (__int4){a,b,c,d}
+#define _vector_int4(a,b,c,d) (_int4){a,b,c,d}
+#define vector_int4(a,b,c,d) _vector_int4(a,b,c,d)
+
+typedef unsigned int __uint4 __attribute__((vector_size(16)));
+typedef union {
+   __uint4 vec;
+   struct { unsigned int x,y,z,w; };
+   struct { unsigned int s0,s1,s2,s3; };
+   struct { uint2 xy,zw; };
+   struct { uint2 s01,s23; };
+   unsigned int s[4];
+} _uint4;
+typedef _uint4 uint4;
+#define __vector_uint4(a,b,c,d) (__uint4){a,b,c,d}
+#define _vector_uint4(a,b,c,d) (_uint4){a,b,c,d}
+#define vector_uint4(a,b,c,d) _vector_uint4(a,b,c,d)
+
+typedef float __float4 __attribute__((vector_size(16)));
+typedef union {
+   __float4 vec;
+   struct { float x,y,z,w; };
+   struct { float s0,s1,s2,s3; };
+   struct { float2 xy,zw; };
+   struct { float2 s01,s23; };
+   float s[4];
+} _float4;
+typedef _float4 float4;
+#define __vector_float4(a,b,c,d) (__float4){a,b,c,d}
+#define _vector_float4(a,b,c,d) (_float4){a,b,c,d}
+#define vector_float4(a,b,c,d) _vector_float4(a,b,c,d)
 
 
-/* let the templating begins ... -DAR */
+#define GENERIC_UNARY_PLUS(type) \
+	static __inline _##type operator + ( _##type& a ) { return a; }
 
-/* stub class for vector low-level storage classes */
+#define GENERIC_UNARY_OP(type,op) \
+	static __inline _##type operator - ( _##type& a ) \
+	{ return (_##type){ -a.vec }; }
 
-template< typename T, int D >
-struct __vector_type { };
+#define EXPLICIT_UNARY_OP_VEC2(type,op) \
+	static __inline _##type operator op ( _##type& a ) \
+	{ \
+		_##type tmp = _vector_##type( op a.s0, op a.s1 ); \
+		return tmp; \
+	}
 
+#define EXPLICIT_UNARY_OP_VEC4(type,op) \
+	static __inline _##type operator op ( _##type& a ) \
+	{ \
+		_##type tmp = _vector_##type( op a.s0, op a.s1, op a.s2, op a.s3);\
+		return tmp; \
+	}
 
-/* vec2 low-level storage class */
+#define GENERIC_OP_ASSIGN(type,op) \
+	static __inline _##type \
+	operator op##= ( _##type& lhs, const _##type rhs ) \
+	{ lhs.vec op##= rhs.vec; return lhs; } 
 
-template <>
-struct __vector_type<char,2>
-   { typedef char type_t __attribute__((__vector_size__(2))); };
+#define EXPLICIT_OP_ASSIGN_VEC2(type,op) \
+	static __inline _##type \
+	operator op##= ( _##type& lhs, const _##type rhs ) \
+	{  \
+		lhs.vec = __vector_##type( \
+			lhs.s0 op rhs.s0,  \
+			lhs.s1 op rhs.s1  \
+		);  \
+		return lhs;  \
+	}
 
-template <>
-struct __vector_type<unsigned char,2>
-   { typedef unsigned char type_t __attribute__((__vector_size__(2))); };
+#define EXPLICIT_OP_ASSIGN_VEC4(type,op) \
+	static __inline _##type \
+	operator op##= ( _##type& lhs, const _##type rhs ) \
+	{  \
+		lhs.vec = __vector_##type( \
+			lhs.s0 op rhs.s0,  \
+			lhs.s1 op rhs.s1,  \
+			lhs.s2 op rhs.s2,  \
+			lhs.s3 op rhs.s3  \
+		);  \
+		return lhs;  \
+	}
 
-template <>
-struct __vector_type<int,2>
-   { typedef int type_t __attribute__((__vector_size__(8))); };
-
-template <>
-struct __vector_type<unsigned int,2>
-   { typedef unsigned int type_t __attribute__((__vector_size__(8))); };
-
-template <>
-struct __vector_type<long,2>
-   { typedef long type_t __attribute__((__vector_size__(16))); };
-
-template <>
-struct __vector_type<unsigned long,2>
-   { typedef unsigned long type_t __attribute__((__vector_size__(16))); };
-
-template <>
-struct __vector_type<float,2>
-   { typedef float type_t __attribute__((__vector_size__(8))); };
-
-template <>
-struct __vector_type<double,2>
-   { typedef double type_t __attribute__((__vector_size__(16))); };
-
-
-/* vec4 low-level storage class */
-
-template <>
-struct __vector_type<char,4>
-   { typedef char type_t __attribute__((__vector_size__(4))); };
-
-template <>
-struct __vector_type<unsigned char,4>
-   { typedef unsigned char type_t __attribute__((__vector_size__(4))); };
-
-template <>
-struct __vector_type<int,4>
-   { typedef int type_t __attribute__((__vector_size__(16))); };
-
-template <>
-struct __vector_type<unsigned int,4>
-   { typedef unsigned int type_t __attribute__((__vector_size__(16))); };
-
-template <>
-struct __vector_type<float,4>
-   { typedef float type_t __attribute__((__vector_size__(16))); };
-
-
-/* typedefs for low-level vector storage classes */
-
-typedef __vector_type<char,2> __char2;
-typedef __vector_type<unsigned char,2> __uchar2;
-typedef __vector_type<int,2> __int2;
-typedef __vector_type<unsigned int,2> __uint2;
-typedef __vector_type<long,2> __long2;
-typedef __vector_type<unsigned long,2> __ulong2;
-typedef __vector_type<float,2> __float2;
-typedef __vector_type<double,2> __double2;
-
-typedef __vector_type<char,4> __char4;
-typedef __vector_type<unsigned char,4> __uchar4;
-typedef __vector_type<int,4> __int4;
-typedef __vector_type<unsigned int,4> __uint4;
-typedef __vector_type<float,4> __float4;
-
-
-/* stub class for vector high-level implementation */
-
-template < typename T, int D >
-struct _vector_type { };
-
-/***
- *** vec2 high-level implementation
- ***/
-
-template < typename T >
-struct _vector_type<T,2> {
-
-	typedef T type_t;
-
-	_vector_type() {}
-	~_vector_type() {}
-
-	_vector_type( const typename __vector_type<type_t,2>::type_t& v ) : vec(v) {}
-//	_vector_type( typename __vector_type<type_t,2>::type_t v ) : vec(v) {}
-	_vector_type( type_t a ) : s0(a), s1(a) {}
-	_vector_type( type_t a0, type_t a1 ) : s0(a0), s1(a1) {}
-	_vector_type( type_t* p ) : s0(p[0]), s1(p[1]) {}
-
-	_vector_type& operator+();
-	_vector_type& operator-();
-	_vector_type& operator~();
-
-	_vector_type& operator+=( _vector_type vec );
-	_vector_type& operator-=( _vector_type vec );
-	_vector_type& operator*=( _vector_type vec );
-	_vector_type& operator%=( _vector_type vec );
-	_vector_type& operator/=( _vector_type vec );
-	_vector_type& operator&=( _vector_type vec );
-	_vector_type& operator|=( _vector_type vec );
-	_vector_type& operator^=( _vector_type vec );
-
-	union {
-		struct { typename __vector_type<type_t,2>::type_t vec; };
-		struct { type_t x,y; };
-		struct { type_t s0,s1; };
-		struct { typename __vector_type<type_t,2>::type_t xy; };
-		struct { typename __vector_type<type_t,2>::type_t s01; };
-	};
-
-};
 
 /* unary plus */
-template < typename T >
-_vector_type<T,2>& _vector_type<T,2>::operator+() 
-	{ return *this; }
+//static __inline _float4 operator + ( _float4& a ) { return a; }
+GENERIC_UNARY_PLUS(char2)
+GENERIC_UNARY_PLUS(uchar2)
+GENERIC_UNARY_PLUS(int2)
+GENERIC_UNARY_PLUS(uint2)
+GENERIC_UNARY_PLUS(long2)
+GENERIC_UNARY_PLUS(ulong2)
+GENERIC_UNARY_PLUS(float2)
+GENERIC_UNARY_PLUS(double2)
+GENERIC_UNARY_PLUS(char4)
+GENERIC_UNARY_PLUS(uchar4)
+GENERIC_UNARY_PLUS(int4)
+GENERIC_UNARY_PLUS(uint4)
+GENERIC_UNARY_PLUS(float4)
+
 
 /* unary minus */
-template < typename T >
-_vector_type<T,2>& 
-	_vector_type<T,2>::operator-() 
-	{ vec = -vec; return *this; }
+//static __inline _float4 operator - ( _float4& a ) 
+//	{ _float4 tmp; tmp.vec = -a.vec; return tmp; }
+#if GCC_VERSION < 40600
+EXPLICIT_UNARY_OP_VEC2(char2,-)
+EXPLICIT_UNARY_OP_VEC2(uchar2,-)
+EXPLICIT_UNARY_OP_VEC2(int2,-)
+EXPLICIT_UNARY_OP_VEC2(uint2,-)
+EXPLICIT_UNARY_OP_VEC2(long2,-)
+EXPLICIT_UNARY_OP_VEC2(ulong2,-)
+EXPLICIT_UNARY_OP_VEC2(float2,-)
+EXPLICIT_UNARY_OP_VEC2(double2,-)
+EXPLICIT_UNARY_OP_VEC4(char4,-)
+EXPLICIT_UNARY_OP_VEC4(uchar4,-)
+EXPLICIT_UNARY_OP_VEC4(int4,-)
+EXPLICIT_UNARY_OP_VEC4(uint4,-)
+EXPLICIT_UNARY_OP_VEC4(float4,-)
+#else
+GENERIC_UNARY_OP(char2,-)
+GENERIC_UNARY_OP(uchar2,-)
+GENERIC_UNARY_OP(int2,-)
+GENERIC_UNARY_OP(uint2,-)
+GENERIC_UNARY_OP(long2,-)
+GENERIC_UNARY_OP(ulong2,-)
+GENERIC_UNARY_OP(float2,-)
+GENERIC_UNARY_OP(double2,-)
+GENERIC_UNARY_OP(char4,-)
+GENERIC_UNARY_OP(uchar4,-)
+GENERIC_UNARY_OP(int4,-)
+GENERIC_UNARY_OP(uint4,-)
+GENERIC_UNARY_OP(float4,-)
+#endif
 
 /* unary bitwise not */
-template < typename T >
-_vector_type<T,2>& 
-	_vector_type<T,2>::operator~() 
-	{ vec = ~vec; return *this; }
+EXPLICIT_UNARY_OP_VEC2(char2,~)
+EXPLICIT_UNARY_OP_VEC2(uchar2,~)
+EXPLICIT_UNARY_OP_VEC2(int2,~)
+EXPLICIT_UNARY_OP_VEC2(uint2,~)
+EXPLICIT_UNARY_OP_VEC2(long2,~)
+EXPLICIT_UNARY_OP_VEC2(ulong2,~)
+EXPLICIT_UNARY_OP_VEC4(char4,~)
+EXPLICIT_UNARY_OP_VEC4(uchar4,~)
+EXPLICIT_UNARY_OP_VEC4(int4,~)
+EXPLICIT_UNARY_OP_VEC4(uint4,~)
+
 
 /* add assign */
-template < typename T >
-_vector_type<T,2>& 
-	_vector_type<T,2>::operator+=( _vector_type<T,2> rhs ) 
-	{ vec += rhs.vec; return *this; }
-#if defined (USE_SSE)
-template <>
-_vector_type<int,2>& 
-	_vector_type<int,2>::operator+=(_vector_type<int,2> rhs)
-	{ vec = _mm_add_pi32(vec,rhs.vec); return *this; }
+//static __inline _float4 
+//operator += ( _float4& lhs, const _float4 rhs )
+//{ lhs.vec += rhs.vec; return lhs; }
+#if GCC_VERSION < 40600
+EXPLICIT_OP_ASSIGN_VEC2(char2,+)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,+)
+EXPLICIT_OP_ASSIGN_VEC2(int2,+)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,+)
+EXPLICIT_OP_ASSIGN_VEC2(long2,+)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,+)
+EXPLICIT_OP_ASSIGN_VEC2(float2,+)
+EXPLICIT_OP_ASSIGN_VEC2(double2,+)
+EXPLICIT_OP_ASSIGN_VEC4(char4,+)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,+)
+EXPLICIT_OP_ASSIGN_VEC4(int4,+)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,+)
+EXPLICIT_OP_ASSIGN_VEC4(float4,+)
+#else
+GENERIC_OP_ASSIGN(char2,+)
+GENERIC_OP_ASSIGN(uchar2,+)
+GENERIC_OP_ASSIGN(int2,+)
+GENERIC_OP_ASSIGN(uint2,+)
+GENERIC_OP_ASSIGN(long2,+)
+GENERIC_OP_ASSIGN(ulong2,+)
+GENERIC_OP_ASSIGN(float2,+)
+GENERIC_OP_ASSIGN(double2,+)
+GENERIC_OP_ASSIGN(char4,+)
+GENERIC_OP_ASSIGN(uchar4,+)
+GENERIC_OP_ASSIGN(int4,+)
+GENERIC_OP_ASSIGN(uint4,+)
+GENERIC_OP_ASSIGN(float4,+)
 #endif
 
 /* subtract assign */
-template < typename T >
-_vector_type<T,2>& _vector_type<T,2>::operator-=( _vector_type<T,2> rhs ) 
-	{ vec -= rhs.vec; return *this; }
-#if defined (USE_SSE)
-template <>
-_vector_type<int,2>& 
-	_vector_type<int,2>::operator-=(_vector_type<int,2> rhs)
-	{ vec = _mm_sub_pi32(vec,rhs.vec); return *this; }
+//static __inline _float4 
+//operator -= ( _float4& lhs, const _float4 rhs )
+//{ lhs.vec -= rhs.vec; return lhs; }
+#if GCC_VERSION < 40600
+EXPLICIT_OP_ASSIGN_VEC2(char2,-)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,-)
+EXPLICIT_OP_ASSIGN_VEC2(int2,-)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,-)
+EXPLICIT_OP_ASSIGN_VEC2(long2,-)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,-)
+EXPLICIT_OP_ASSIGN_VEC2(float2,-)
+EXPLICIT_OP_ASSIGN_VEC2(double2,-)
+EXPLICIT_OP_ASSIGN_VEC4(char4,-)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,-)
+EXPLICIT_OP_ASSIGN_VEC4(int4,-)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,-)
+EXPLICIT_OP_ASSIGN_VEC4(float4,-)
+#else
+GENERIC_OP_ASSIGN(char2,-)
+GENERIC_OP_ASSIGN(uchar2,-)
+GENERIC_OP_ASSIGN(int2,-)
+GENERIC_OP_ASSIGN(uint2,-)
+GENERIC_OP_ASSIGN(long2,-)
+GENERIC_OP_ASSIGN(ulong2,-)
+GENERIC_OP_ASSIGN(float2,-)
+GENERIC_OP_ASSIGN(double2,-)
+GENERIC_OP_ASSIGN(char4,-)
+GENERIC_OP_ASSIGN(uchar4,-)
+GENERIC_OP_ASSIGN(int4,-)
+GENERIC_OP_ASSIGN(uint4,-)
+GENERIC_OP_ASSIGN(float4,-)
 #endif
 
 /* multiply assign */
-template < typename T >
-_vector_type<T,2>& _vector_type<T,2>::operator*=( _vector_type<T,2> rhs ) 
-	{ vec *= rhs.vec; return *this; }
-
-/* modulo assign */
-template < typename T >
-_vector_type<T,2>& _vector_type<T,2>::operator%=( _vector_type<T,2> rhs ) 
-	{ vec %= rhs.vec; return *this; }
-
-/* divide assign */
-template < typename T >
-_vector_type<T,2>& _vector_type<T,2>::operator/=( _vector_type<T,2> rhs ) 
-	{ vec /= rhs.vec; return *this; }
-
-/* bitwise and assign */
-template < typename T >
-_vector_type<T,2>& _vector_type<T,2>::operator&=( _vector_type<T,2> rhs ) 
-	{ vec &= rhs.vec; return *this; }
-
-/* bitwise or assign */
-template < typename T >
-_vector_type<T,2>& _vector_type<T,2>::operator|=( _vector_type<T,2> rhs ) 
-	{ vec |= rhs.vec; return *this; }
-
-/* bitwise xor assign */
-template < typename T >
-_vector_type<T,2>& _vector_type<T,2>::operator^=( _vector_type<T,2> rhs ) 
-	{ vec ^= rhs.vec; return *this; }
-
-
-/***
- *** vec4 high-level implementation
- ***/
-
-//#include <xmmintrin.h>
-
-template < typename T >
-struct _vector_type<T,4> {
-
-	typedef T type_t;
-
-	_vector_type() {}
-	~_vector_type() {}
-
-	_vector_type( const typename __vector_type<type_t,4>::type_t& v ) : vec(v) {}
-//	_vector_type( typename __vector_type<type_t,4>::type_t v ) : vec(v) {}
-	_vector_type( type_t a ) : s0(a), s1(a), s2(a), s3(a) {}
-//	_vector_type( type_t a ) : vec(_mm_set1_ps(a)) {}
-	_vector_type( type_t a0, type_t a1, type_t a2, type_t a3 ) 
-		: s0(a0), s1(a1), s2(a2), s3(a3) {}
-	_vector_type( type_t* p ) : s0(p[0]), s1(p[1]), s2(p[2]), s3(p[3]) {}
-
-	_vector_type& operator+();
-	_vector_type& operator-();
-	_vector_type& operator~();
-
-	_vector_type& operator+=( _vector_type vec );
-	_vector_type& operator-=( _vector_type vec );
-	_vector_type& operator*=( _vector_type vec );
-	_vector_type& operator%=( _vector_type vec );
-	_vector_type& operator/=( _vector_type vec );
-	_vector_type& operator&=( _vector_type vec );
-	_vector_type& operator|=( _vector_type vec );
-	_vector_type& operator^=( _vector_type vec );
-
-	union {
-		struct { typename __vector_type<type_t,4>::type_t vec; };
-		struct { type_t x,y,z,w; };
-		struct { type_t s0,s1,s2,s3; };
-		struct { typename __vector_type<type_t,4>::type_t xyzw; };
-		struct { typename __vector_type<type_t,4>::type_t s0123; };
-		struct { typename __vector_type<type_t,2>::type_t xy,zw; };
-		struct { typename __vector_type<type_t,2>::type_t s01,s23; };
-	};
-
-};
-
-/* unary plus */
-template < typename T >
-_vector_type<T,4>& 
-_vector_type<T,4>::operator+() 
-	{ return *this; }
-
-/* unary minus */
-template < typename T >
-_vector_type<T,4>& 
-_vector_type<T,4>::operator-() 
-	{ vec = -vec; return *this; }
-
-/* unary not */
-template < typename T >
-_vector_type<T,4>& 
-_vector_type<T,4>::operator~() 
-	{ vec = ~vec; return *this; }
-
-/* add assign */
-template < typename T >
-_vector_type<T,4>& 
-_vector_type<T,4>::operator+=( _vector_type<T,4> rhs ) 
-	{ vec += rhs.vec; return *this; }
-#if defined (USE_SSE)
-template <>
-_vector_type<long,2>& 
-_vector_type<long,2>::operator+=( _vector_type<long,2> rhs ) 
-	{ vec = _mm_add_epi64( vec, rhs.vec ); return *this; }
-
-template <>
-_vector_type<double,2>& 
-_vector_type<double,2>::operator+=( _vector_type<double,2> rhs ) 
-	{ vec = _mm_add_pd( vec, rhs.vec ); return *this; }
-
-template <>
-_vector_type<int,4>& 
-_vector_type<int,4>::operator+=( _vector_type<int,4> rhs ) 
-	{ vec = _mm_add_epi32( vec, rhs.vec ); return *this; }
-
-template <>
-_vector_type<float,4>& 
-_vector_type<float,4>::operator+=( _vector_type<float,4> rhs ) 
-	{ vec = _mm_add_ps( vec, rhs.vec ); return *this; }
+#if GCC_VERSION < 40600
+EXPLICIT_OP_ASSIGN_VEC2(char2,*)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,*)
+EXPLICIT_OP_ASSIGN_VEC2(int2,*)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,*)
+EXPLICIT_OP_ASSIGN_VEC2(long2,*)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,*)
+EXPLICIT_OP_ASSIGN_VEC2(float2,*)
+EXPLICIT_OP_ASSIGN_VEC2(double2,*)
+EXPLICIT_OP_ASSIGN_VEC4(char4,*)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,*)
+EXPLICIT_OP_ASSIGN_VEC4(int4,*)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,*)
+EXPLICIT_OP_ASSIGN_VEC4(float4,*)
+#else
+GENERIC_OP_ASSIGN(char2,*)
+GENERIC_OP_ASSIGN(uchar2,*)
+GENERIC_OP_ASSIGN(int2,*)
+GENERIC_OP_ASSIGN(uint2,*)
+GENERIC_OP_ASSIGN(long2,*)
+GENERIC_OP_ASSIGN(ulong2,*)
+GENERIC_OP_ASSIGN(float2,*)
+GENERIC_OP_ASSIGN(double2,*)
+GENERIC_OP_ASSIGN(char4,*)
+GENERIC_OP_ASSIGN(uchar4,*)
+GENERIC_OP_ASSIGN(int4,*)
+GENERIC_OP_ASSIGN(uint4,*)
+GENERIC_OP_ASSIGN(float4,*)
 #endif
 
-/* subtract assign */
-template < typename T >
-_vector_type<T,4>& _vector_type<T,4>::operator-=( _vector_type<T,4> rhs ) 
-	{ vec -= rhs.vec; return *this; }
-#if defined (USE_SSE)
-template <>
-_vector_type<long,2>& 
-_vector_type<long,2>::operator-=( _vector_type<long,2> rhs ) 
-	{ vec = _mm_sub_epi64( vec, rhs.vec ); return *this; }
-
-template <>
-_vector_type<double,2>& 
-_vector_type<double,2>::operator-=( _vector_type<double,2> rhs ) 
-	{ vec = _mm_sub_pd( vec, rhs.vec ); return *this; }
-
-template <>
-_vector_type<int,4>& 
-_vector_type<int,4>::operator-=( _vector_type<int,4> rhs ) 
-	{ vec = _mm_sub_epi32( vec, rhs.vec ); return *this; }
-
-template <>
-_vector_type<float,4>& 
-_vector_type<float,4>::operator-=( _vector_type<float,4> rhs ) 
-	{ vec = _mm_sub_ps( vec, rhs.vec ); return *this; }
-#endif
-
-/* multiply assign */
-template < typename T >
-_vector_type<T,4>& _vector_type<T,4>::operator*=( _vector_type<T,4> rhs ) 
-	{ vec *= rhs.vec; return *this; }
-
 /* modulo assign */
-template < typename T >
-_vector_type<T,4>& _vector_type<T,4>::operator%=( _vector_type<T,4> rhs ) 
-	{ vec %= rhs.vec; return *this; }
+EXPLICIT_OP_ASSIGN_VEC2(char2,%)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,%)
+EXPLICIT_OP_ASSIGN_VEC2(int2,%)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,%)
+EXPLICIT_OP_ASSIGN_VEC2(long2,%)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,%)
+EXPLICIT_OP_ASSIGN_VEC4(char4,%)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,%)
+EXPLICIT_OP_ASSIGN_VEC4(int4,%)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,%)
 
 /* divide assign */
-template < typename T >
-_vector_type<T,4>& _vector_type<T,4>::operator/=( _vector_type<T,4> rhs ) 
-	{ vec /= rhs.vec; return *this; }
+//// XXX
+#if GCC_VERSION < 40600
+EXPLICIT_OP_ASSIGN_VEC2(char2,/)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,/)
+EXPLICIT_OP_ASSIGN_VEC2(int2,/)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,/)
+EXPLICIT_OP_ASSIGN_VEC2(long2,/)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,/)
+EXPLICIT_OP_ASSIGN_VEC2(float2,/)
+EXPLICIT_OP_ASSIGN_VEC2(double2,/)
+EXPLICIT_OP_ASSIGN_VEC4(char4,/)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,/)
+EXPLICIT_OP_ASSIGN_VEC4(int4,/)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,/)
+EXPLICIT_OP_ASSIGN_VEC4(float4,/)
+#else
+GENERIC_OP_ASSIGN(char2,/)
+GENERIC_OP_ASSIGN(uchar2,/)
+GENERIC_OP_ASSIGN(int2,/)
+GENERIC_OP_ASSIGN(uint2,/)
+GENERIC_OP_ASSIGN(long2,/)
+GENERIC_OP_ASSIGN(ulong2,/)
+GENERIC_OP_ASSIGN(float2,/)
+GENERIC_OP_ASSIGN(double2,/)
+GENERIC_OP_ASSIGN(char4,/)
+GENERIC_OP_ASSIGN(uchar4,/)
+GENERIC_OP_ASSIGN(int4,/)
+GENERIC_OP_ASSIGN(uint4,/)
+GENERIC_OP_ASSIGN(float4,/)
+#endif
 
 /* bitwise and assign */
-template < typename T >
-_vector_type<T,4>& _vector_type<T,4>::operator&=( _vector_type<T,4> rhs ) 
-	{ vec &= rhs.vec; return *this; }
+EXPLICIT_OP_ASSIGN_VEC2(char2,&)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,&)
+EXPLICIT_OP_ASSIGN_VEC2(int2,&)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,&)
+EXPLICIT_OP_ASSIGN_VEC2(long2,&)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,&)
+EXPLICIT_OP_ASSIGN_VEC4(char4,&)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,&)
+EXPLICIT_OP_ASSIGN_VEC4(int4,&)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,&)
 
 /* bitwise or assign */
-template < typename T >
-_vector_type<T,4>& _vector_type<T,4>::operator|=( _vector_type<T,4> rhs ) 
-	{ vec |= rhs.vec; return *this; }
+//// XXX
+EXPLICIT_OP_ASSIGN_VEC2(char2,|)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,|)
+EXPLICIT_OP_ASSIGN_VEC2(int2,|)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,|)
+EXPLICIT_OP_ASSIGN_VEC2(long2,|)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,|)
+EXPLICIT_OP_ASSIGN_VEC4(char4,|)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,|)
+EXPLICIT_OP_ASSIGN_VEC4(int4,|)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,|)
 
 /* bitwise xor assign */
-template < typename T >
-_vector_type<T,4>& _vector_type<T,4>::operator^=( _vector_type<T,4> rhs ) 
-	{ vec ^= rhs.vec; return *this; }
-
-
-/* typedefs for high-level vector implementations  */
-
-typedef _vector_type<char,2> _char2;
-typedef _vector_type<unsigned char,2> _uchar2;
-typedef _vector_type<int,2> _int2;
-typedef _vector_type<unsigned int,2> _uint2;
-typedef _vector_type<long,2> _long2;
-typedef _vector_type<unsigned long,2> _ulong2;
-typedef _vector_type<float,2> _float2;
-typedef _vector_type<double,2> _double2;
-
-typedef _vector_type<char,4> _char4;
-typedef _vector_type<unsigned char,4> _uchar4;
-typedef _vector_type<int,4> _int4;
-typedef _vector_type<unsigned int,4> _uint4;
-typedef _vector_type<float,4> _float4;
-
-typedef _char2 char2;
-typedef _uchar2 uchar2;
-typedef _int2 int2;
-typedef _uint2 uint2;
-typedef _long2 long2;
-typedef _ulong2 ulong2;
-typedef _float2 float2;
-typedef _double2 double2;
-
-typedef _char4 char4;
-typedef _uchar4 uchar4;
-typedef _int4 int4;
-typedef _uint4 uint4;
-typedef _float4 float4;
-
+EXPLICIT_OP_ASSIGN_VEC2(char2,^)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,^)
+EXPLICIT_OP_ASSIGN_VEC2(int2,^)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,^)
+EXPLICIT_OP_ASSIGN_VEC2(long2,^)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,^)
+EXPLICIT_OP_ASSIGN_VEC4(char4,^)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,^)
+EXPLICIT_OP_ASSIGN_VEC4(int4,^)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,^)
 
 
 /*** other builtin data types [6.1.3] ***/
@@ -608,99 +661,298 @@ static __inline double as_double( float2 f2 ) { return *(double*)(&f2); }
  *** operators for vector data types [6.3] 
  ***/
 
-#define __GENERIC_BINOP(op) \
-template < typename T, int D > \
-static __inline _vector_type<T,D>  \
-operator op( _vector_type<T,D> a, _vector_type<T,D> b ) \
-	{ return _vector_type<T,D>( a.vec op b.vec ); } \
-template < typename T, int D > \
-static __inline _vector_type<T,D> \
-operator op( typename _vector_type<T,D>::type_t a, _vector_type<T,D> b ) \
-	{ return _vector_type<T,D>(a) op b; } \
-template < typename T, int D > \
-static __inline _vector_type<T,D> \
-operator op( _vector_type<T,D> a, typename _vector_type<T,D>::type_t b ) \
-	{ return a op _vector_type<T,D>(b); }
+#define GENERIC_BINOP_VEC2(type,vectype,op) \
+	static __inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ) \
+	{ return (_##vectype){ a.vec op b.vec }; } \
+	\
+	static __inline _##vectype \
+	operator op ( type a, const _##vectype b ) \
+	{ return (_##vectype){ __vector_##vectype(a,a) op b.vec }; } \
+	\
+	static __inline _##vectype \
+	operator op ( const _##vectype a, type b ) \
+	{ return (_##vectype){ a.vec op __vector_##vectype(b,b) }; } 
 
-/* binary operator + */
+#define GENERIC_BINOP_VEC4(type,vectype,op) \
+	static __inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ) \
+	{ return (_##vectype){ a.vec op b.vec }; } \
+	\
+	static __inline _##vectype \
+	operator op ( type a, const _##vectype b ) \
+	{ return (_##vectype){ __vector_##vectype(a,a,a,a) op b.vec }; } \
+	\
+	static __inline _##vectype \
+	operator op ( const _##vectype a, type b ) \
+	{ return (_##vectype){ a.vec op __vector_##vectype(b,b,b,b) }; } 
 
-__GENERIC_BINOP(+)
-__GENERIC_BINOP(-)
-__GENERIC_BINOP(*)
-__GENERIC_BINOP(%)
-__GENERIC_BINOP(/)
-__GENERIC_BINOP(&)
-__GENERIC_BINOP(|)
-__GENERIC_BINOP(^)
+#define EXPLICIT_BINOP_VEC2(type,vectype,op) \
+	static __inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ) \
+	{ \
+		_##vectype tmp = { a.s0 op b.s0, a.s1 op b.s1 }; \
+		return tmp; \
+	} \
+	\
+	static __inline _##vectype \
+	operator op ( type a, const _##vectype b ) \
+	{ \
+		_##vectype tmp = { a op b.s0, a op b.s1 }; \
+		return tmp; \
+	} \
+	\
+	static __inline _##vectype \
+	operator op ( const _##vectype a, type b ) \
+	{ \
+		_##vectype tmp = { a.s0 op b, a.s1 op b }; \
+		return tmp; \
+	} \
 
-#if defined(USE_SSE)
+#define EXPLICIT_BINOP_VEC4(type,vectype,op) \
+	static __inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ) \
+	{ \
+		_##vectype tmp={a.s0 op b.s0,a.s1 op b.s1,a.s2 op b.s2,a.s3 op b.s3}; \
+		return tmp; \
+	} \
+	\
+	static __inline _##vectype \
+	operator op ( type a, const _##vectype b ) \
+	{ \
+		_##vectype tmp={a op b.s0,a op b.s1,a op b.s2,a op b.s3}; \
+		return tmp; \
+	} \
+	\
+	static __inline _##vectype \
+	operator op ( const _##vectype a, type b ) \
+	{ \
+		_##vectype tmp={a.s0 op b,a.s1 op b,a.s2 op b,a.s3 op b}; \
+		return tmp; \
+	} \
 
-/* binary operator + */
 
-static __inline _int2
-operator+( _int2 a, _int2 b ) 
-	{ return _int2(_mm_add_pi32( a.vec, b.vec ) ); }
+#if GCC_VERSION < 40600
 
-template <>
-static __inline _long2
-operator+( _long2 a, _long2 b ) 
-	{ return _long2( _mm_add_epi64( a.vec, b.vec ) ); }
+/* binary add */
+EXPLICIT_BINOP_VEC2(char,char2,+)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,+)
+EXPLICIT_BINOP_VEC2(int,int2,+)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,+)
+EXPLICIT_BINOP_VEC2(long long,long2,+)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,+)
+EXPLICIT_BINOP_VEC2(float,float2,+)
+EXPLICIT_BINOP_VEC2(double,double2,+)
+EXPLICIT_BINOP_VEC4(char,char4,+)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,+)
+EXPLICIT_BINOP_VEC4(int,int4,+)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,+)
+EXPLICIT_BINOP_VEC4(float,float4,+)
 
-template <>
-static __inline _double2
-operator+( _double2 a, _double2 b ) 
-	{ return _double2( _mm_add_pd( a.vec, b.vec ) ); }
+/* binary sub */
+EXPLICIT_BINOP_VEC2(char,char2,-)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,-)
+EXPLICIT_BINOP_VEC2(int,int2,-)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,-)
+EXPLICIT_BINOP_VEC2(long long,long2,-)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,-)
+EXPLICIT_BINOP_VEC2(float,float2,-)
+EXPLICIT_BINOP_VEC2(double,double2,-)
+EXPLICIT_BINOP_VEC4(char,char4,-)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,-)
+EXPLICIT_BINOP_VEC4(int,int4,-)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,-)
+EXPLICIT_BINOP_VEC4(float,float4,-)
 
-template <>
-static __inline _int4
-operator+( _int4 a, _int4 b ) 
-	{ return _int4( _mm_add_epi32( a.vec, b.vec ) ); }
+/* binary mult */
+EXPLICIT_BINOP_VEC2(char,char2,*)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,*)
+EXPLICIT_BINOP_VEC2(int,int2,*)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,*)
+EXPLICIT_BINOP_VEC2(long long,long2,*)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,*)
+EXPLICIT_BINOP_VEC2(float,float2,*)
+EXPLICIT_BINOP_VEC2(double,double2,*)
+EXPLICIT_BINOP_VEC4(char,char4,*)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,*)
+EXPLICIT_BINOP_VEC4(int,int4,*)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,*)
+EXPLICIT_BINOP_VEC4(float,float4,*)
 
-template <>
-static __inline _float4
-operator+( _float4 a, _float4 b ) 
-	{ return _float4( _mm_add_ps( a.vec, b.vec ) ); }
+/* binary mod */
+EXPLICIT_BINOP_VEC2(char,char2,%)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,%)
+EXPLICIT_BINOP_VEC2(int,int2,%)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,%)
+EXPLICIT_BINOP_VEC2(long long,long2,%)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,%)
+EXPLICIT_BINOP_VEC4(char,char4,%)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,%)
+EXPLICIT_BINOP_VEC4(int,int4,%)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,%)
 
-/* binary operator - */
+/* binary div */
+EXPLICIT_BINOP_VEC2(char,char2,/)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,/)
+EXPLICIT_BINOP_VEC2(int,int2,/)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,/)
+EXPLICIT_BINOP_VEC2(long long,long2,/)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,/)
+EXPLICIT_BINOP_VEC2(float,float2,/)
+EXPLICIT_BINOP_VEC2(double,double2,/)
+EXPLICIT_BINOP_VEC4(char,char4,/)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,/)
+EXPLICIT_BINOP_VEC4(int,int4,/)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,/)
+EXPLICIT_BINOP_VEC4(float,float4,/)
 
-static __inline _int2
-operator-( _int2 a, _int2 b ) 
-	{ return _int2(_mm_sub_pi32( a.vec, b.vec ) ); }
+/* binary and */
+EXPLICIT_BINOP_VEC2(char,char2,&)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,&)
+EXPLICIT_BINOP_VEC2(int,int2,&)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,&)
+EXPLICIT_BINOP_VEC2(long long,long2,&)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,&)
+EXPLICIT_BINOP_VEC4(char,char4,&)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,&)
+EXPLICIT_BINOP_VEC4(int,int4,&)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,&)
 
-template <>
-static __inline _long2
-operator-( _long2 a, _long2 b ) 
-	{ return _long2( _mm_sub_epi64( a.vec, b.vec ) ); }
+/* binary or */
+EXPLICIT_BINOP_VEC2(char,char2,|)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,|)
+EXPLICIT_BINOP_VEC2(int,int2,|)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,|)
+EXPLICIT_BINOP_VEC2(long long,long2,|)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,|)
+EXPLICIT_BINOP_VEC4(char,char4,|)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,|)
+EXPLICIT_BINOP_VEC4(int,int4,|)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,|)
 
-template <>
-static __inline _double2
-operator-( _double2 a, _double2 b ) 
-	{ return _double2( _mm_sub_pd( a.vec, b.vec ) ); }
+/* binary xor */
+EXPLICIT_BINOP_VEC2(char,char2,^)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,^)
+EXPLICIT_BINOP_VEC2(int,int2,^)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,^)
+EXPLICIT_BINOP_VEC2(long long,long2,^)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,^)
+EXPLICIT_BINOP_VEC4(char,char4,^)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,^)
+EXPLICIT_BINOP_VEC4(int,int4,^)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,^)
 
-template <>
-static __inline _int4
-operator-( _int4 a, _int4 b ) 
-	{ return _int4( _mm_sub_epi32( a.vec, b.vec ) ); }
+#else
 
-template <>
-static __inline _float4
-operator-( _float4 a, _float4 b ) 
-	{ return _float4( _mm_sub_ps( a.vec, b.vec ) ); }
+/* binary add */
+GENERIC_BINOP_VEC2(char,char2,+)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,+)
+GENERIC_BINOP_VEC2(int,int2,+)
+GENERIC_BINOP_VEC2(unsigned int,uint2,+)
+GENERIC_BINOP_VEC2(long long,long2,+)
+GENERIC_BINOP_VEC2(unsigned long long,ulong2,+)
+GENERIC_BINOP_VEC2(float,float2,+)
+GENERIC_BINOP_VEC2(double,double2,+)
+GENERIC_BINOP_VEC4(char,char4,+)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,+)
+GENERIC_BINOP_VEC4(int,int4,+)
+GENERIC_BINOP_VEC4(unsigned int,uint4,+)
+GENERIC_BINOP_VEC4(float,float4,+)
 
-/* binary operator * */
+/* binary sub */
+GENERIC_BINOP_VEC2(char,char2,-)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,-)
+GENERIC_BINOP_VEC2(int,int2,-)
+GENERIC_BINOP_VEC2(unsigned int,uint2,-)
+GENERIC_BINOP_VEC2(long long,long2,-)
+GENERIC_BINOP_VEC2(unsigned long long,ulong2,-)
+GENERIC_BINOP_VEC2(float,float2,-)
+GENERIC_BINOP_VEC2(double,double2,-)
+GENERIC_BINOP_VEC4(char,char4,-)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,-)
+GENERIC_BINOP_VEC4(int,int4,-)
+GENERIC_BINOP_VEC4(unsigned int,uint4,-)
+GENERIC_BINOP_VEC4(float,float4,-)
 
-template <>
-static __inline _double2
-operator*( _double2 a, _double2 b )
-	{ return _double2( _mm_mul_pd( a.vec, b.vec ) ); }
+/* binary mult */
+GENERIC_BINOP_VEC2(char,char2,*)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,*)
+GENERIC_BINOP_VEC2(int,int2,*)
+GENERIC_BINOP_VEC2(unsigned int,uint2,*)
+GENERIC_BINOP_VEC2(long long,long2,*)
+GENERIC_BINOP_VEC2(unsigned long long,ulong2,*)
+GENERIC_BINOP_VEC2(float,float2,*)
+GENERIC_BINOP_VEC2(double,double2,*)
+GENERIC_BINOP_VEC4(char,char4,*)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,*)
+GENERIC_BINOP_VEC4(int,int4,*)
+GENERIC_BINOP_VEC4(unsigned int,uint4,*)
+GENERIC_BINOP_VEC4(float,float4,*)
 
-template <>
-static __inline _float4 
-operator*( _float4 a, _float4 b )
-	{ return _float4( _mm_mul_ps( a.vec, b.vec ) ); }
+/* binary mod */
+GENERIC_BINOP_VEC2(char,char2,%)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,%)
+GENERIC_BINOP_VEC2(int,int2,%)
+GENERIC_BINOP_VEC2(unsigned int,uint2,%)
+GENERIC_BINOP_VEC2(long long,long2,%)
+GENERIC_BINOP_VEC2(unsigned long long,ulong2,%)
+GENERIC_BINOP_VEC4(char,char4,%)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,%)
+GENERIC_BINOP_VEC4(int,int4,%)
+GENERIC_BINOP_VEC4(unsigned int,uint4,%)
+
+/* binary div */
+GENERIC_BINOP_VEC2(char,char2,/)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,/)
+GENERIC_BINOP_VEC2(int,int2,/)
+GENERIC_BINOP_VEC2(unsigned int,uint2,/)
+GENERIC_BINOP_VEC2(long long,long2,/)
+GENERIC_BINOP_VEC2(unsigned long long,ulong2,/)
+GENERIC_BINOP_VEC2(float,float2,/)
+GENERIC_BINOP_VEC2(double,double2,/)
+GENERIC_BINOP_VEC4(char,char4,/)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,/)
+GENERIC_BINOP_VEC4(int,int4,/)
+GENERIC_BINOP_VEC4(unsigned int,uint4,/)
+GENERIC_BINOP_VEC4(float,float4,/)
+
+/* binary and */
+GENERIC_BINOP_VEC2(char,char2,&)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,&)
+GENERIC_BINOP_VEC2(int,int2,&)
+GENERIC_BINOP_VEC2(unsigned int,uint2,&)
+GENERIC_BINOP_VEC2(long long,long2,&)
+GENERIC_BINOP_VEC2(unsigned long long,ulong2,&)
+GENERIC_BINOP_VEC4(char,char4,&)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,&)
+GENERIC_BINOP_VEC4(int,int4,&)
+GENERIC_BINOP_VEC4(unsigned int,uint4,&)
+
+/* binary or */
+GENERIC_BINOP_VEC2(char,char2,|)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,|)
+GENERIC_BINOP_VEC2(int,int2,|)
+GENERIC_BINOP_VEC2(unsigned int,uint2,|)
+GENERIC_BINOP_VEC2(long long,long2,|)
+GENERIC_BINOP_VEC2(unsigned long long,ulong2,|)
+GENERIC_BINOP_VEC4(char,char4,|)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,|)
+GENERIC_BINOP_VEC4(int,int4,|)
+GENERIC_BINOP_VEC4(unsigned int,uint4,|)
+
+/* binary xor */
+GENERIC_BINOP_VEC2(char,char2,^)
+GENERIC_BINOP_VEC2(unsigned char,uchar2,^)
+GENERIC_BINOP_VEC2(int,int2,^)
+GENERIC_BINOP_VEC2(unsigned int,uint2,^)
+GENERIC_BINOP_VEC2(long long,long2,^)
+GENERIC_BINOP_VEC2(unsigned long long,ulong2,^)
+GENERIC_BINOP_VEC4(char,char4,^)
+GENERIC_BINOP_VEC4(unsigned char,uchar4,^)
+GENERIC_BINOP_VEC4(int,int4,^)
+GENERIC_BINOP_VEC4(unsigned int,uint4,^)
 
 #endif
-
 
 
 /*** these are generic min and max definitions - they should be corrected ***/
@@ -712,14 +964,23 @@ operator*( _float4 a, _float4 b )
 /*** math builtin functions [6.11.2] ***/
 
 #define __MATH_BUILTIN_1(func) \
-static __inline float func##_T( float a ) { return func##f(a); } \
+static __inline float func##_T( float a ) \
+	{ return func##f(a); } \
 static __inline float2 func##_T( float2 a ) \
-	{ return float2(func##f(a.x),func##f(a.y)); } \
+	{ return vector_float2( \
+		func##f(a.x),func##f(a.y) \
+	); } \
 static __inline float4 func##_T( float4 a ) \
-	{ return float4(func##f(a.x),func##f(a.y),func##f(a.z),func##f(a.w)); } \
-static __inline double func##_T( double a ) { return func(a); } \
+	{ return vector_float4( \
+		func##f(a.x),func##f(a.y),func##f(a.z),func##f(a.w) \
+	); } \
+static __inline double func##_T( double a ) \
+	{ return func(a); } \
 static __inline double2 func##_T( double2 a ) \
-	{ return double2(func(a.x),func(a.y)); }
+	{ return vector_double2( \
+		func(a.x),func(a.y) \
+	); } 
+
 
 __MATH_BUILTIN_1(acos)
 __MATH_BUILTIN_1(acosh)
@@ -762,41 +1023,49 @@ __MATH_BUILTIN_1(tanh)
 __MATH_BUILTIN_1(tgamma)
 __MATH_BUILTIN_1(trunc)
 
+/*
+static __inline float rsqrt_T( float a ) { return 1.0f/sqrtf(a); } \
+static __inline _float4 rsqrt_T( _float4 a ) \
+	{ return _vector_float4( \
+		1.0f/sqrtf(a.x),1.0f/sqrtf(a.y),1.0f/sqrtf(a.z),1.0f/sqrtf(a.w) \
+	); } 
+*/
+
 static __inline float rsqrt_T( float a ) { return 1.0f/sqrtf(a); }
-static __inline float2 rsqrt_T( float2 a )
-	{ return float2(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y)); }
-static __inline float4 rsqrt_T( float4 a )
-	{ return float4(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y),1.0f/sqrtf(a.z),1.0f/sqrtf(a.w)); }
+static __inline _float2 rsqrt_T( _float2 a )
+   { return _vector_float2(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y)); }
+static __inline float4 rsqrt_T( _float4 a )
+   { return _vector_float4( 1.0f/sqrtf(a.x),1.0f/sqrtf(a.y), 1.0f/sqrtf(a.z),1.0f/sqrtf(a.w)); }
 static __inline double rsqrt_T( double a ) { return 1.0f/sqrt(a); }
-static __inline double2 rsqrt_T( double2 a )
-	{ return double2(1.0f/sqrt(a.x),1.0f/sqrt(a.y)); }
+static __inline _double2 rsqrt_T( _double2 a )
+   { return _vector_double2(1.0f/sqrt(a.x),1.0f/sqrt(a.y)); }
 
 template < typename T >
-static __inline T clamp_T( T a, T b0, T b1 ) 
-	{ return min(max(a,b0),b1); }
+static __inline T clamp_T( T a, T b0, T b1 )
+   { return min(max(a,b0),b1); }
 
-static __inline float2 clamp_T( float2 a, float b0, float b1)
-	{ return float2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
+static __inline _float2 clamp_T( _float2 a, float b0, float b1)
+   { return _vector_float2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
 
-static __inline float4 clamp_T( float4 a, float b0, float b1)
-	{ return float4( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1), clamp_T(a.z,b0,b1), clamp_T(a.w,b0,b1) ); }
+static __inline _float4 clamp_T( _float4 a, float b0, float b1)
+   { return _vector_float4( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1), clamp_T(a.z,b0,b1), clamp_T(a.w,b0,b1) ); }
 
-static __inline double2 clamp_T( double2 a, double b0, double b1)
-	{ return double2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
+static __inline _double2 clamp_T( _double2 a, double b0, double b1)
+   { return _vector_double2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
 
-static __inline float dot_T( float2 a, float2 b)
-	{ float2 tmp = a*b; return tmp.x+tmp.y; }
-static __inline float dot_T( float4 a, float4 b)
-	{ float4 tmp = a*b; return tmp.x+tmp.y+tmp.z+tmp.w; }
-static __inline double dot_T( double2 a, double2 b)
-	{ double2 tmp = a*b; return tmp.x+tmp.y; }
+static __inline float dot_T( _float2 a, _float2 b)
+   { float2 tmp = a*b; return tmp.x+tmp.y; }
+static __inline float dot_T( _float4 a, _float4 b)
+   { float4 tmp = a*b; return tmp.x+tmp.y+tmp.z+tmp.w; }
+static __inline double dot_T( _double2 a, _double2 b)
+   { double2 tmp = a*b; return tmp.x+tmp.y; }
 
 template < typename T >
 static __inline T normalize_T( T a )
-	{ return rsqrt_T(dot_T(a,a))*a; }
+   { return rsqrt_T(dot_T(a,a))*a; }
 
-static __inline float4 cross_T( float4 a, float4 b)
-{ return float4(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x,0.0f); }
+static __inline _float4 cross_T( _float4 a, _float4 b)
+{return _vector_float4(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x,0.0f);}
 
 
 #define sqrt(a) sqrt_T(a)
@@ -834,11 +1103,6 @@ static __inline float4 cross_T( float4 a, float4 b)
 #define tgamma(a) tgamma_T(a)
 #define tfunc(a) tfunc_T(a)
 
-#define clamp(a,b0,b1) clamp_T(a,b0,b1)
-#define dot(a,b) dot_T(a,b)
-#define normalize(a) normalize_T(a)
-#define cross(a,b) cross_T(a,b)
-
 
 /*** sampler declarations [6.11.8.1] ***/
 
@@ -859,19 +1123,19 @@ typedef int sampler_t;
 
 /*** builtin extensions for initializing vector data types [non-standard] ***/
 
-#define __builtin_vector_char2(x,y) 		_char2(x,y)
-#define __builtin_vector_char4(x,y,z,w) 	_char4(x,y,z,w)
-#define __builtin_vector_uchar2(x,y) 		_uchar2(x,y)
-#define __builtin_vector_uchar4(x,y,z,w) 	_uchar4(x,y,z,w)
-#define __builtin_vector_int2(x,y) 			_int2(x,y)
-#define __builtin_vector_int4(x,y,z,w) 	_int4(x,y,z,w)
-#define __builtin_vector_long2(x,y) 		_long2(x,y)
-#define __builtin_vector_uint2(x,y) 		_uint2(x,y)
-#define __builtin_vector_uint4(x,y,z,w) 	_uint4(x,y,z,w)
-#define __builtin_vector_ulong2(x,y) 		_ulong2(x,y)
-#define __builtin_vector_float2(x,y) 		_float2(x,y)
-#define __builtin_vector_float4(x,y,z,w) 	_float4(x,y,z,w)
-#define __builtin_vector_double2(x,y) 		_double2(x,y)
+#define __builtin_vector_char2(x,y) 		vector_char2(x,y)
+#define __builtin_vector_char4(x,y,z,w) 	vector_char4(x,y,z,w)
+#define __builtin_vector_uchar2(x,y) 		vector_uchar2(x,y)
+#define __builtin_vector_uchar4(x,y,z,w)	vector_uchar4(x,y,z,w)
+#define __builtin_vector_int2(x,y) 			vector_int2(x,y)
+#define __builtin_vector_int4(x,y,z,w) 	vector_int4(x,y,z,w)
+#define __builtin_vector_long2(x,y) 		vector_long2(x,y)
+#define __builtin_vector_uint2(x,y) 		vector_uint2(x,y)
+#define __builtin_vector_uint4(x,y,z,w) 	vector_uint4(x,y,z,w)
+#define __builtin_vector_ulong2(x,y) 		vector_ulong2(x,y)
+#define __builtin_vector_float2(x,y) 		vector_float2(x,y)
+#define __builtin_vector_float4(x,y,z,w) 	vector_float4(x,y,z,w)
+#define __builtin_vector_double2(x,y) 		vector_double2(x,y)
 
 #else
 

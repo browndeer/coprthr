@@ -23,6 +23,10 @@
 #ifndef __libcoprthr_h
 #define __libcoprthr_h
 
+#define GCC_VERSION \
+	( __GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ )
+
+
 //#define USE_SSE __SSE__
 
 #if defined(__GNUC__) 
@@ -417,6 +421,21 @@ GENERIC_UNARY_PLUS(float4)
 /* unary minus */
 //static __inline _float4 operator - ( _float4& a ) 
 //	{ _float4 tmp; tmp.vec = -a.vec; return tmp; }
+#if GCC_VERSION < 40600
+EXPLICIT_UNARY_OP_VEC2(char2,-)
+EXPLICIT_UNARY_OP_VEC2(uchar2,-)
+EXPLICIT_UNARY_OP_VEC2(int2,-)
+EXPLICIT_UNARY_OP_VEC2(uint2,-)
+EXPLICIT_UNARY_OP_VEC2(long2,-)
+EXPLICIT_UNARY_OP_VEC2(ulong2,-)
+EXPLICIT_UNARY_OP_VEC2(float2,-)
+EXPLICIT_UNARY_OP_VEC2(double2,-)
+EXPLICIT_UNARY_OP_VEC4(char4,-)
+EXPLICIT_UNARY_OP_VEC4(uchar4,-)
+EXPLICIT_UNARY_OP_VEC4(int4,-)
+EXPLICIT_UNARY_OP_VEC4(uint4,-)
+EXPLICIT_UNARY_OP_VEC4(float4,-)
+#else
 GENERIC_UNARY_OP(char2,-)
 GENERIC_UNARY_OP(uchar2,-)
 GENERIC_UNARY_OP(int2,-)
@@ -430,6 +449,7 @@ GENERIC_UNARY_OP(uchar4,-)
 GENERIC_UNARY_OP(int4,-)
 GENERIC_UNARY_OP(uint4,-)
 GENERIC_UNARY_OP(float4,-)
+#endif
 
 /* unary bitwise not */
 EXPLICIT_UNARY_OP_VEC2(char2,~)
@@ -448,6 +468,21 @@ EXPLICIT_UNARY_OP_VEC4(uint4,~)
 //static __inline _float4 
 //operator += ( _float4& lhs, const _float4 rhs )
 //{ lhs.vec += rhs.vec; return lhs; }
+#if GCC_VERSION < 40600
+EXPLICIT_OP_ASSIGN_VEC2(char2,+)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,+)
+EXPLICIT_OP_ASSIGN_VEC2(int2,+)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,+)
+EXPLICIT_OP_ASSIGN_VEC2(long2,+)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,+)
+EXPLICIT_OP_ASSIGN_VEC2(float2,+)
+EXPLICIT_OP_ASSIGN_VEC2(double2,+)
+EXPLICIT_OP_ASSIGN_VEC4(char4,+)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,+)
+EXPLICIT_OP_ASSIGN_VEC4(int4,+)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,+)
+EXPLICIT_OP_ASSIGN_VEC4(float4,+)
+#else
 GENERIC_OP_ASSIGN(char2,+)
 GENERIC_OP_ASSIGN(uchar2,+)
 GENERIC_OP_ASSIGN(int2,+)
@@ -461,12 +496,27 @@ GENERIC_OP_ASSIGN(uchar4,+)
 GENERIC_OP_ASSIGN(int4,+)
 GENERIC_OP_ASSIGN(uint4,+)
 GENERIC_OP_ASSIGN(float4,+)
-
+#endif
 
 /* subtract assign */
 //static __inline _float4 
 //operator -= ( _float4& lhs, const _float4 rhs )
 //{ lhs.vec -= rhs.vec; return lhs; }
+#if GCC_VERSION < 40600
+EXPLICIT_OP_ASSIGN_VEC2(char2,-)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,-)
+EXPLICIT_OP_ASSIGN_VEC2(int2,-)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,-)
+EXPLICIT_OP_ASSIGN_VEC2(long2,-)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,-)
+EXPLICIT_OP_ASSIGN_VEC2(float2,-)
+EXPLICIT_OP_ASSIGN_VEC2(double2,-)
+EXPLICIT_OP_ASSIGN_VEC4(char4,-)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,-)
+EXPLICIT_OP_ASSIGN_VEC4(int4,-)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,-)
+EXPLICIT_OP_ASSIGN_VEC4(float4,-)
+#else
 GENERIC_OP_ASSIGN(char2,-)
 GENERIC_OP_ASSIGN(uchar2,-)
 GENERIC_OP_ASSIGN(int2,-)
@@ -480,8 +530,24 @@ GENERIC_OP_ASSIGN(uchar4,-)
 GENERIC_OP_ASSIGN(int4,-)
 GENERIC_OP_ASSIGN(uint4,-)
 GENERIC_OP_ASSIGN(float4,-)
+#endif
 
 /* multiply assign */
+#if GCC_VERSION < 40600
+EXPLICIT_OP_ASSIGN_VEC2(char2,*)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,*)
+EXPLICIT_OP_ASSIGN_VEC2(int2,*)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,*)
+EXPLICIT_OP_ASSIGN_VEC2(long2,*)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,*)
+EXPLICIT_OP_ASSIGN_VEC2(float2,*)
+EXPLICIT_OP_ASSIGN_VEC2(double2,*)
+EXPLICIT_OP_ASSIGN_VEC4(char4,*)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,*)
+EXPLICIT_OP_ASSIGN_VEC4(int4,*)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,*)
+EXPLICIT_OP_ASSIGN_VEC4(float4,*)
+#else
 GENERIC_OP_ASSIGN(char2,*)
 GENERIC_OP_ASSIGN(uchar2,*)
 GENERIC_OP_ASSIGN(int2,*)
@@ -495,6 +561,7 @@ GENERIC_OP_ASSIGN(uchar4,*)
 GENERIC_OP_ASSIGN(int4,*)
 GENERIC_OP_ASSIGN(uint4,*)
 GENERIC_OP_ASSIGN(float4,*)
+#endif
 
 /* modulo assign */
 EXPLICIT_OP_ASSIGN_VEC2(char2,%)
@@ -510,6 +577,21 @@ EXPLICIT_OP_ASSIGN_VEC4(uint4,%)
 
 /* divide assign */
 //// XXX
+#if GCC_VERSION < 40600
+EXPLICIT_OP_ASSIGN_VEC2(char2,/)
+EXPLICIT_OP_ASSIGN_VEC2(uchar2,/)
+EXPLICIT_OP_ASSIGN_VEC2(int2,/)
+EXPLICIT_OP_ASSIGN_VEC2(uint2,/)
+EXPLICIT_OP_ASSIGN_VEC2(long2,/)
+EXPLICIT_OP_ASSIGN_VEC2(ulong2,/)
+EXPLICIT_OP_ASSIGN_VEC2(float2,/)
+EXPLICIT_OP_ASSIGN_VEC2(double2,/)
+EXPLICIT_OP_ASSIGN_VEC4(char4,/)
+EXPLICIT_OP_ASSIGN_VEC4(uchar4,/)
+EXPLICIT_OP_ASSIGN_VEC4(int4,/)
+EXPLICIT_OP_ASSIGN_VEC4(uint4,/)
+EXPLICIT_OP_ASSIGN_VEC4(float4,/)
+#else
 GENERIC_OP_ASSIGN(char2,/)
 GENERIC_OP_ASSIGN(uchar2,/)
 GENERIC_OP_ASSIGN(int2,/)
@@ -523,6 +605,7 @@ GENERIC_OP_ASSIGN(uchar4,/)
 GENERIC_OP_ASSIGN(int4,/)
 GENERIC_OP_ASSIGN(uint4,/)
 GENERIC_OP_ASSIGN(float4,/)
+#endif
 
 /* bitwise and assign */
 EXPLICIT_OP_ASSIGN_VEC2(char2,&)
@@ -604,6 +687,162 @@ static __inline double as_double( float2 f2 ) { return *(double*)(&f2); }
 	operator op ( const _##vectype a, type b ) \
 	{ return (_##vectype){ a.vec op __vector_##vectype(b,b,b,b) }; } 
 
+#define EXPLICIT_BINOP_VEC2(type,vectype,op) \
+	static __inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ) \
+	{ \
+		_##vectype tmp = { a.s0 op b.s0, a.s1 op b.s1 }; \
+		return tmp; \
+	} \
+	\
+	static __inline _##vectype \
+	operator op ( type a, const _##vectype b ) \
+	{ \
+		_##vectype tmp = { a op b.s0, a op b.s1 }; \
+		return tmp; \
+	} \
+	\
+	static __inline _##vectype \
+	operator op ( const _##vectype a, type b ) \
+	{ \
+		_##vectype tmp = { a.s0 op b, a.s1 op b }; \
+		return tmp; \
+	} \
+
+#define EXPLICIT_BINOP_VEC4(type,vectype,op) \
+	static __inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ) \
+	{ \
+		_##vectype tmp={a.s0 op b.s0,a.s1 op b.s1,a.s2 op b.s2,a.s3 op b.s3}; \
+		return tmp; \
+	} \
+	\
+	static __inline _##vectype \
+	operator op ( type a, const _##vectype b ) \
+	{ \
+		_##vectype tmp={a op b.s0,a op b.s1,a op b.s2,a op b.s3}; \
+		return tmp; \
+	} \
+	\
+	static __inline _##vectype \
+	operator op ( const _##vectype a, type b ) \
+	{ \
+		_##vectype tmp={a.s0 op b,a.s1 op b,a.s2 op b,a.s3 op b}; \
+		return tmp; \
+	} \
+
+
+#if GCC_VERSION < 40600
+
+/* binary add */
+EXPLICIT_BINOP_VEC2(char,char2,+)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,+)
+EXPLICIT_BINOP_VEC2(int,int2,+)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,+)
+EXPLICIT_BINOP_VEC2(long long,long2,+)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,+)
+EXPLICIT_BINOP_VEC2(float,float2,+)
+EXPLICIT_BINOP_VEC2(double,double2,+)
+EXPLICIT_BINOP_VEC4(char,char4,+)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,+)
+EXPLICIT_BINOP_VEC4(int,int4,+)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,+)
+EXPLICIT_BINOP_VEC4(float,float4,+)
+
+/* binary sub */
+EXPLICIT_BINOP_VEC2(char,char2,-)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,-)
+EXPLICIT_BINOP_VEC2(int,int2,-)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,-)
+EXPLICIT_BINOP_VEC2(long long,long2,-)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,-)
+EXPLICIT_BINOP_VEC2(float,float2,-)
+EXPLICIT_BINOP_VEC2(double,double2,-)
+EXPLICIT_BINOP_VEC4(char,char4,-)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,-)
+EXPLICIT_BINOP_VEC4(int,int4,-)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,-)
+EXPLICIT_BINOP_VEC4(float,float4,-)
+
+/* binary mult */
+EXPLICIT_BINOP_VEC2(char,char2,*)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,*)
+EXPLICIT_BINOP_VEC2(int,int2,*)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,*)
+EXPLICIT_BINOP_VEC2(long long,long2,*)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,*)
+EXPLICIT_BINOP_VEC2(float,float2,*)
+EXPLICIT_BINOP_VEC2(double,double2,*)
+EXPLICIT_BINOP_VEC4(char,char4,*)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,*)
+EXPLICIT_BINOP_VEC4(int,int4,*)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,*)
+EXPLICIT_BINOP_VEC4(float,float4,*)
+
+/* binary mod */
+EXPLICIT_BINOP_VEC2(char,char2,%)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,%)
+EXPLICIT_BINOP_VEC2(int,int2,%)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,%)
+EXPLICIT_BINOP_VEC2(long long,long2,%)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,%)
+EXPLICIT_BINOP_VEC4(char,char4,%)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,%)
+EXPLICIT_BINOP_VEC4(int,int4,%)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,%)
+
+/* binary div */
+EXPLICIT_BINOP_VEC2(char,char2,/)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,/)
+EXPLICIT_BINOP_VEC2(int,int2,/)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,/)
+EXPLICIT_BINOP_VEC2(long long,long2,/)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,/)
+EXPLICIT_BINOP_VEC2(float,float2,/)
+EXPLICIT_BINOP_VEC2(double,double2,/)
+EXPLICIT_BINOP_VEC4(char,char4,/)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,/)
+EXPLICIT_BINOP_VEC4(int,int4,/)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,/)
+EXPLICIT_BINOP_VEC4(float,float4,/)
+
+/* binary and */
+EXPLICIT_BINOP_VEC2(char,char2,&)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,&)
+EXPLICIT_BINOP_VEC2(int,int2,&)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,&)
+EXPLICIT_BINOP_VEC2(long long,long2,&)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,&)
+EXPLICIT_BINOP_VEC4(char,char4,&)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,&)
+EXPLICIT_BINOP_VEC4(int,int4,&)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,&)
+
+/* binary or */
+EXPLICIT_BINOP_VEC2(char,char2,|)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,|)
+EXPLICIT_BINOP_VEC2(int,int2,|)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,|)
+EXPLICIT_BINOP_VEC2(long long,long2,|)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,|)
+EXPLICIT_BINOP_VEC4(char,char4,|)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,|)
+EXPLICIT_BINOP_VEC4(int,int4,|)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,|)
+
+/* binary xor */
+EXPLICIT_BINOP_VEC2(char,char2,^)
+EXPLICIT_BINOP_VEC2(unsigned char,uchar2,^)
+EXPLICIT_BINOP_VEC2(int,int2,^)
+EXPLICIT_BINOP_VEC2(unsigned int,uint2,^)
+EXPLICIT_BINOP_VEC2(long long,long2,^)
+EXPLICIT_BINOP_VEC2(unsigned long long,ulong2,^)
+EXPLICIT_BINOP_VEC4(char,char4,^)
+EXPLICIT_BINOP_VEC4(unsigned char,uchar4,^)
+EXPLICIT_BINOP_VEC4(int,int4,^)
+EXPLICIT_BINOP_VEC4(unsigned int,uint4,^)
+
+#else
 
 /* binary add */
 GENERIC_BINOP_VEC2(char,char2,+)
@@ -713,6 +952,7 @@ GENERIC_BINOP_VEC4(unsigned char,uchar4,^)
 GENERIC_BINOP_VEC4(int,int4,^)
 GENERIC_BINOP_VEC4(unsigned int,uint4,^)
 
+#endif
 
 
 /*** these are generic min and max definitions - they should be corrected ***/
@@ -783,11 +1023,50 @@ __MATH_BUILTIN_1(tanh)
 __MATH_BUILTIN_1(tgamma)
 __MATH_BUILTIN_1(trunc)
 
+/*
 static __inline float rsqrt_T( float a ) { return 1.0f/sqrtf(a); } \
 static __inline _float4 rsqrt_T( _float4 a ) \
 	{ return _vector_float4( \
 		1.0f/sqrtf(a.x),1.0f/sqrtf(a.y),1.0f/sqrtf(a.z),1.0f/sqrtf(a.w) \
 	); } 
+*/
+
+static __inline float rsqrt_T( float a ) { return 1.0f/sqrtf(a); }
+static __inline _float2 rsqrt_T( _float2 a )
+   { return _vector_float2(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y)); }
+static __inline float4 rsqrt_T( _float4 a )
+   { return _vector_float4( 1.0f/sqrtf(a.x),1.0f/sqrtf(a.y), 1.0f/sqrtf(a.z),1.0f/sqrtf(a.w)); }
+static __inline double rsqrt_T( double a ) { return 1.0f/sqrt(a); }
+static __inline _double2 rsqrt_T( _double2 a )
+   { return _vector_double2(1.0f/sqrt(a.x),1.0f/sqrt(a.y)); }
+
+template < typename T >
+static __inline T clamp_T( T a, T b0, T b1 )
+   { return min(max(a,b0),b1); }
+
+static __inline _float2 clamp_T( _float2 a, float b0, float b1)
+   { return _vector_float2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
+
+static __inline _float4 clamp_T( _float4 a, float b0, float b1)
+   { return _vector_float4( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1), clamp_T(a.z,b0,b1), clamp_T(a.w,b0,b1) ); }
+
+static __inline _double2 clamp_T( _double2 a, double b0, double b1)
+   { return _vector_double2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
+
+static __inline float dot_T( _float2 a, _float2 b)
+   { float2 tmp = a*b; return tmp.x+tmp.y; }
+static __inline float dot_T( _float4 a, _float4 b)
+   { float4 tmp = a*b; return tmp.x+tmp.y+tmp.z+tmp.w; }
+static __inline double dot_T( _double2 a, _double2 b)
+   { double2 tmp = a*b; return tmp.x+tmp.y; }
+
+template < typename T >
+static __inline T normalize_T( T a )
+   { return rsqrt_T(dot_T(a,a))*a; }
+
+static __inline _float4 cross_T( _float4 a, _float4 b)
+{return _vector_float4(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x,0.0f);}
+
 
 #define sqrt(a) sqrt_T(a)
 #define acos(a) acos_T(a)
