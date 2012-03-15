@@ -1103,6 +1103,11 @@ static __inline _float4 cross_T( _float4 a, _float4 b)
 #define tgamma(a) tgamma_T(a)
 #define tfunc(a) tfunc_T(a)
 
+#define clamp(a,b0,b1) clamp_T(a,b0,b1)
+#define dot(a,b) dot_T(a,b)
+#define normalize(a) normalize_T(a)
+#define cross(a,b) cross_T(a,b)
+
 
 /*** sampler declarations [6.11.8.1] ***/
 
