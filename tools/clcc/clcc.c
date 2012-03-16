@@ -464,10 +464,19 @@ int main(int argc, char** argv)
 
 		} else if (str_match_exact(argv[n],"-I")) {
 
-printf("MATCHED\n");
+			append_str(cc1_opt_str,argv[n]," ",0);
+			append_str(cc1_opt_str,argv[++n]," ",0);
+
+
+		} else if (str_match_fused(argv[n],"-D")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
+
+		} else if (str_match_exact(argv[n],"-D")) {
 
 			append_str(cc1_opt_str,argv[n]," ",0);
 			append_str(cc1_opt_str,argv[++n]," ",0);
+
 
 		} else if (!strcmp(argv[n],"-c")) {
 

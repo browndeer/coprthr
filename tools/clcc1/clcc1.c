@@ -400,17 +400,23 @@ int main(int argc, char** argv)
 
 			append_str(opt_str,argv[n]," ",0);
 
+		} else if (str_match_exact(argv[n],"-D")) {
+
+			append_str(opt_str,argv[n]," ",0);
+			append_str(opt_str,argv[++n]," ",0);
+
+
 		} else if (str_match_fused(argv[n],"-I")) {
 
-//			append_str(opt_str,argv[n]," ",0);
 			append_str(opt_str,"-I"," ",0);
 			append_str(opt_str,realpath(argv[n]+2,0),0,0);
 
 		} else if (str_match_exact(argv[n],"-I")) {
 
 			append_str(opt_str,argv[n]," ",0);
-//			append_str(opt_str,argv[++n]," ",0);
 			append_str(opt_str,realpath(argv[++n],0)," ",0);
+
+
 
 		} else if (str_match_exact(argv[n],"-c")) {
 
