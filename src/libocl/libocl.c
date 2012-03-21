@@ -84,7 +84,7 @@ clGetPlatformIDs(
    DIR* dirp = opendir( OPENCL_ICD_PATH );
    struct dirent* dp;
 	_nplatforms = 0;
-   while ( (dp=readdir(dirp)) ) {
+   if (dirp) while ( (dp=readdir(dirp)) ) {
 //		strncpy(fullpath,"/etc/OpenCL/vendors/",256);
 		strncpy(fullpath, OPENCL_ICD_PATH "/" ,256);
 		strncat(fullpath,dp->d_name,256);
