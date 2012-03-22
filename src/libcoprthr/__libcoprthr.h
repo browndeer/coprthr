@@ -164,6 +164,13 @@ static __inline void barrier( int flags )
 #define __global
 #define __local
 #define __constant
+#define __private
+
+#define global __global
+#define local __local
+#define constant __constant
+#define private __private
+
 
 
 /*** image access qualifiers [6.6] ***/

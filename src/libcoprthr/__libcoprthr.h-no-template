@@ -164,6 +164,12 @@ static __inline void barrier( int flags )
 #define __global
 #define __local
 #define __constant
+#define __private
+
+#define global __global
+#define local __local
+#define constant __constant
+#define private __private
 
 
 /*** image access qualifiers [6.6] ***/
@@ -175,6 +181,7 @@ static __inline void barrier( int flags )
 /*** function qualifiers [6.7] ***/
 
 #define __kernel
+#define kernel
 
 
 /*** fix restrict qualifier for GCC ***/
