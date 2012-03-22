@@ -53,6 +53,9 @@ struct cmdcall_arg {
 			size_t global_work_offset[3];
 			size_t global_work_size[3];
 			size_t local_work_size[3];
+
+			size_t global_work_size0[3];
+
 		} k;
 
 		struct {

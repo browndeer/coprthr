@@ -260,6 +260,13 @@ vcengine( void* p )
 					default: break;
 				} 
 
+
+				/* XXX temporary soln to the global size bookkeeping issue -DAR */
+				for(d=0;d<work.tdim;d++) {
+					work.gtsz[d] = cmd_argp->k.global_work_size0[d];
+					work.gsz[d] = work.gtsz[d]/work.ltsz[d];
+				}
+
 				DEBUG(__FILE__,__LINE__,"launching vcores (%d)",nc);
 
 				char* sp;
@@ -548,36 +555,51 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 	}
 
-
 	/* now modify them to partition the work across engines */
 	/* XXX this is the simplest distribution possible, elaborate later -DAR */	
 	unsigned int d = argp->k.work_dim;
 	unsigned int gwsd1 = argp->k.global_work_size[d-1];
 	unsigned int lwsd1 = argp->k.local_work_size[d-1];
 
+	/* XXX temporary soln to the global size bookkeeping issue -DAR */
+	for(e=veid_base,i=0;e<veid_end;e++,i++) for(j=0;j<d;j++) 
+		subcmd_argp[i].k.global_work_size0[j] = argp->k.global_work_size[j];
+
 	DEBUG(__FILE__,__LINE__,"partitioning d=%d gwsz=%d lwsz=%d",d,gwsd1,lwsd1);
 
 	DEBUG(__FILE__,__LINE__,"using nve=%d",nve);
 
+//	unsigned int ng = gwsd1/lwsd1;
+//	unsigned int nge = ng/nve;
+//	unsigned int nge0 = nge + ng%nve;	
+//	unsigned int inc0 = nge0*lwsd1;
+//	unsigned int inc = nge*lwsd1;
 	unsigned int ng = gwsd1/lwsd1;
 	unsigned int nge = ng/nve;
-	unsigned int nge0 = nge + ng%nve;	
-	unsigned int inc0 = nge0*lwsd1;
+	unsigned int ng_rem = ng%nve;	
+//	unsigned int inc0 = nge0*lwsd1;
 	unsigned int inc = nge*lwsd1;
 
 	DEBUG(__FILE__,__LINE__,"d gwsd1 lwsd1 ng: %d %d %d %d\n",d,gwsd1,lwsd1,ng);
-	DEBUG(__FILE__,__LINE__,"partitioning: %d %d -> %d %d \n",nge,nge0,inc,inc0);
+//	DEBUG(__FILE__,__LINE__,"partitioning: %d %d -> %d %d \n",nge,nge0,inc,inc0);
+	for(e=veid_base,i=0;e<veid_end;e++,i++) {
+		DEBUG(__FILE__,__LINE__,"partitioning[%d]: %d -> %d \n",
+			i,nge+((i<ng_rem)? 1:0),inc+((i<ng_rem)? lwsd1:0) );
+	}
 
 	unsigned int gwo = argp->k.global_work_offset[d-1];
 
 	DEBUG(__FILE__,__LINE__,"initial gwo %d\n",gwo);
 
-	subcmd_argp[0].k.global_work_offset[d-1] = gwo;
-	gwo += subcmd_argp[0].k.global_work_size[d-1] = inc0;
+//	subcmd_argp[0].k.global_work_offset[d-1] = gwo;
+//	gwo += subcmd_argp[0].k.global_work_size[d-1] = inc0;
 
-	for(e=veid_base+1,i=1;e<veid_end;e++,i++) {
+//	for(e=veid_base+1,i=1;e<veid_end;e++,i++) {
+	for(e=veid_base,i=0;e<veid_end;e++,i++) {
 		subcmd_argp[i].k.global_work_offset[d-1] = gwo;
-		gwo += subcmd_argp[i].k.global_work_size[d-1] = inc;
+//		gwo += subcmd_argp[i].k.global_work_size[d-1] = inc;
+		gwo += subcmd_argp[i].k.global_work_size[d-1] 
+			= inc + ((i<ng_rem)? lwsd1:0);
 	}
 
 	for(e=veid_base,i=0;e<veid_end;e++,i++) {
