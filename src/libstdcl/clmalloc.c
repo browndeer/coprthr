@@ -895,6 +895,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 #ifndef DISABLE_CLGL
 
+LIBSTDCL_API
 void* clglmalloc(
 	CONTEXT* cp, cl_GLuint glbuf, cl_GLenum target, cl_GLint miplevel, int flags
 )
@@ -1021,7 +1022,7 @@ void* clglmalloc(
 
 }
 
-
+LIBSTDCL_API
 cl_event 
 clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 {
