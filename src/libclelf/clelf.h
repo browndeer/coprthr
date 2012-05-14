@@ -196,5 +196,8 @@ int clelf_check_hash( char* elf_ptr, struct clelf_sect_struct* );
 int clelf_device_name_alias( char* dname );
 int clelf_platform_code( char* pname );
 
+unsigned char* clelf_md5( const unsigned char* buf, size_t n, 
+	unsigned char* hash );
+
 #endif
 

@@ -22,7 +22,7 @@ INSTALL_MAN_DIR=@mandir@
 LIBELF_INC = @libelf_inc@
 LIBELF_LIB = @libelf_lib@
 
-LIBS = $(LIBELF_LIB) -lssl 
+LIBS = $(LIBELF_LIB) 
 LIBS += -L../../src/libclelf -lclelf
 
 OBJS = clnm.o 

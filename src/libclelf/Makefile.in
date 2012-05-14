@@ -56,7 +56,7 @@ LIBS += $(LIBELF_LIB)
 #endif
 
 
-OBJS = clelf.o
+OBJS = clelf.o clelf_md5.o 
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
 

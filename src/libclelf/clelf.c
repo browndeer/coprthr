@@ -588,7 +588,7 @@ int clelf_check_hash(
       const unsigned char* ptr = (const unsigned char*)sect->cltextsrc;
       size_t len = sect->cltextsrc_sz;
 
-      MD5(ptr, len, (unsigned char*)hash);
+      clelf_md5(ptr, len, (unsigned char*)hash);
 
       unsigned hash0 = 0, hash1 = 0, hash2 = 0, hash3 = 0;
 
@@ -635,7 +635,7 @@ int clelf_check_hash(
       const unsigned char* ptr = (const unsigned char*)sect->cltextbin;
       size_t len = sect->cltextbin_sz;
 
-      MD5(ptr, len, (unsigned char*)hash);
+      clelf_md5(ptr, len, (unsigned char*)hash);
 
       unsigned int hash0 = 0, hash1 = 0, hash2 = 0, hash3 = 0;
 

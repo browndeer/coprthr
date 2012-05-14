@@ -978,7 +978,7 @@ int main(int argc, char** argv)
 
 	size_t len = (intptr_t)data.cltextsrc_bufp-(intptr_t)data.cltextsrc_buf;
 	if (len>0) {
-		MD5((const unsigned char*)data.cltextsrc_buf, len, 
+		clelf_md5((const unsigned char*)data.cltextsrc_buf, len, 
 			(unsigned char*)cltextsrchash);
 		DEBUG2("%x %x %x %x",cltextsrchash[0],cltextsrchash[1],cltextsrchash[2],
 			cltextsrchash[3]);
@@ -986,7 +986,7 @@ int main(int argc, char** argv)
 
 	len = (intptr_t)data.cltextbin_bufp-(intptr_t)data.cltextbin_buf;
 	if (len>0) { 
-		MD5((const unsigned char*)data.cltextbin_buf, len, 
+		clelf_md5((const unsigned char*)data.cltextbin_buf, len, 
 			(unsigned char*)cltextbinhash);
 		DEBUG2("%x %x %x %x",cltextbinhash[0],cltextbinhash[1],cltextbinhash[2],
 			cltextbinhash[3]);
