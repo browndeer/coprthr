@@ -453,21 +453,21 @@ int __do_find_kernel_in_program( cl_program prg, const char* kname )
 	return(k);
 }
 
-static size_t get_global_size(uint d) 
-{ return((__getvcdata())->workp->gtsz[d]); }
-
-static void barrier( int flags )
-{
-   struct vc_data* data = __getvcdata();
-   int vcid = data->vcid;
-
-	if (!(setjmp(*(data->this_jbufp))))
-		longjmp(*(data->next_jbufp),(vcid+1)%4+1);
-}
-
-static size_t get_global_id(uint d) {
-   struct vc_data* data = __getvcdata();
-   return(data->ltid[d] + data->workp->gtid[d]);
-}
-
+// XXX code below should not be used anymore -DAR
+//static size_t get_global_size(uint d) 
+//{ return((__getvcdata())->workp->gtsz[d]); }
+//
+//static void barrier( int flags )
+//{
+//   struct vc_data* data = __getvcdata();
+//   int vcid = data->vcid;
+//
+//	if (!(setjmp(*(data->this_jbufp))))
+//		longjmp(*(data->next_jbufp),(vcid+1)%4+1);
+//}
+//
+//static size_t get_global_id(uint d) {
+//   struct vc_data* data = __getvcdata();
+//   return(data->ltid[d] + data->workp->gtid[d]);
+//}
 
