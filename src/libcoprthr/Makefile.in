@@ -38,7 +38,7 @@ IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	cmdsched.o cmdcall.o cmdcall_x86_64.o cmdcall_arm.o \
 	elf_cl.o compiler_x86_64.o compiler_arm.o \
 	vcore.o \
-	watermark.o
+	watermark.o util.o
 
 
 RT_OBJS = __vcore_rt.o
@@ -119,7 +119,7 @@ all: $(TARGET)
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
 %_d.o:
-	$(CC) $(CCFLAGS) $(DEFS) -DXCL_DEBUG $(INCS) -c $*.c -o $*_d.o
+	$(CC) $(CCFLAGS) $(DEFS) -DXCL_REPORT $(INCS) -c $*.c -o $*_d.o
 
 
 libcoprthr.so: $(OBJS) $(RT_OBJS)
