@@ -33,7 +33,6 @@
 #include <unistd.h>
 #include <elf.h>
 #include <errno.h>
-#include <openssl/md5.h>
 
 #include <CL/cl.h>
 #define CL_CONTEXT_OFFLINE_DEVICES_AMD 0x403F
