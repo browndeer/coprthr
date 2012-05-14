@@ -64,9 +64,9 @@ INCS += $(LIBELF_INC)
 LIBS += $(LIBELF_LIB)
 
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
-LIBS += -lpthread -lc -lrt -lssl
+LIBS += -lpthread -lc -lrt 
 else
-LIBS += -lpthread -ldl -lrt -lssl
+LIBS += -lpthread -ldl -lrt 
 endif
 
 ### choosing to static link libclelf into libstdcl to simplify use -DAR

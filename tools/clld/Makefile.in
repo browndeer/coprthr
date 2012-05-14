@@ -31,7 +31,7 @@ INCS += -I$(OPENCL_INC_DIR)
 
 INCS += $(LIBELF_INC)
 
-LIBS = $(LIBELF_LIB)  -lssl 
+LIBS = $(LIBELF_LIB)  
 LIBS += -L../../src/libclelf -lclelf
 LIBS += -L$(OPENCL_LIB_DIR) -l$(OPENCL_LIBNAME)
 

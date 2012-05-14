@@ -991,13 +991,12 @@ int main(int argc, char** argv)
 	unsigned int cltextbinhash[4];
 
 	size_t len = (intptr_t)(data.cltextsrc_bufp-data.cltextsrc_buf);
-	MD5((const unsigned char*)data.cltextsrc_buf,len,
+	clelf_md5((const unsigned char*)data.cltextsrc_buf,len,
 		(unsigned char*)cltextsrchash);
 
 	len = (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
-	MD5((const unsigned char*)data.cltextbin_buf,len,
+	clelf_md5((const unsigned char*)data.cltextbin_buf,len,
 		(unsigned char*)cltextbinhash);
-
 
 
 	/***
