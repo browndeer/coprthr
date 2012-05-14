@@ -20,6 +20,8 @@
 
 /* DAR */
 
+#undef _FORTIFY_SOURCE
+
 #define _GNU_SOURCE
 #include <unistd.h>
 #include <sched.h>

@@ -39,6 +39,8 @@
 #error must be compiled as c++
 #endif
 
+#undef _FORTIFY_SOURCE
+
 #include <sys/types.h>
 #include <stdlib.h>
 #include <stdint.h>
