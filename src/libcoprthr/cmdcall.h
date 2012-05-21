@@ -31,6 +31,8 @@
 //typedef void*(*cmdcall_t)( void* );
 typedef void*(*cmdcall_t)(cl_device_id devid, void* cmd_argp);
 
+struct _imp_ksyms_struct;
+
 struct cmdcall_arg { 
 	
 	unsigned int flags;
@@ -42,11 +44,12 @@ struct cmdcall_arg {
 
 			void* ksym;
 			void* kcall;
+			struct _imp_ksyms_struct* ksyms;
 			unsigned int narg;
 			size_t arg_buf_sz;
 			unsigned int* arg_kind;
    		size_t* arg_sz;
-			void** pr_arg_vec;
+			uint32_t* pr_arg_off;
 			void* pr_arg_buf;
 
 			cl_uint work_dim;
@@ -83,7 +86,7 @@ struct cmdcall_arg {
 
 #define __free_cmdcall_arg(p) do { \
 	if ((p->flags)&CMDCALL_ARG_K) { \
-   __free(p->pr_arg_vec); \
+   __free(p->pr_arg_off); \
 	__free(p->pr_arg_buf); \
 	} else if ((p->flags)&CMDCALL_ARG_M) { \
 	__free(p->row_pitch); \

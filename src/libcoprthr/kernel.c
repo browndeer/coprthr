@@ -29,7 +29,7 @@
 void __do_create_kernel(cl_kernel krn, cl_uint k) 
 {
 	int i;
-	void* p;
+//	void* p;
 
 	cl_program prg = krn->prg;
 
@@ -42,8 +42,9 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 /* XXX this is odd way of assigning kernel, fix it by contracting v_* -DAR */
 
 	krn->imp.v_kbin = prg->imp.v_kbin;
-	krn->imp.v_ksym = prg->imp.v_ksym;
-	krn->imp.v_kcall = prg->imp.v_kcall;
+//	krn->imp.v_ksym = prg->imp.v_ksym;
+//	krn->imp.v_kcall = prg->imp.v_kcall;
+	krn->imp.v_ksyms = prg->imp.v_ksyms;
 	krn->imp.knum = k;
 
 	cl_uint narg = krn->narg = prg->imp.knarg[k];
@@ -60,24 +61,20 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 		__clone(krn->imp.arg_sz,prg->imp.karg_sz[k],narg,size_t);
 	else krn->imp.arg_sz = (size_t*)malloc(narg*sizeof(size_t));
 
-	krn->imp.arg_vec = malloc(narg*sizeof(void*));
+	krn->imp.arg_off = malloc(narg*sizeof(uint32_t));
 		
 	size_t arg_buf_sz = krn->imp.arg_buf_sz = prg->imp.karg_buf_sz[k];
 
-	if (arg_buf_sz > 0) krn->imp.arg_buf = p = malloc(arg_buf_sz);
+	if (arg_buf_sz > 0) krn->imp.arg_buf = malloc(arg_buf_sz);
+
+	size_t sz = 0;
 
 	for(i=0;i<narg;i++) {
-		krn->imp.arg_vec[i] = p;
-		p += krn->imp.arg_sz[i];
+		krn->imp.arg_off[i] = sz;
+		sz += krn->imp.arg_sz[i];
 		DEBUG(__FILE__,__LINE__,"CHECKING arg_sz[%d] %d",i,krn->imp.arg_sz[i]);
 	}
 
-	/* XXX paranoid check, remove after testing -DAR */	
-	if ((intptr_t)p-(intptr_t)krn->imp.arg_buf != krn->imp.arg_buf_sz) {
-		ERROR(__FILE__,__LINE__,"internal error");
-		exit(-1);
-	}
-		
 }
 
 void __do_release_kernel(cl_kernel krn) {}
@@ -90,7 +87,7 @@ int __do_set_kernel_arg(
 
 //	if (arg_sz != krn->imp.arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
 
-	void* p = krn->imp.arg_vec[argn];
+	void* p = krn->imp.arg_buf + krn->imp.arg_off[argn];
 
 	cl_uint arg_kind = krn->imp.arg_kind[argn];
 

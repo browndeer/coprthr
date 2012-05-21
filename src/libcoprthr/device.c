@@ -44,14 +44,15 @@
 #include "cmdcall.h"
 #if defined(__x86_64__)
 #include "cmdcall_x86_64.h"
+#include "cmdcall_x86_64_k.h"
 #elif defined(__arm__)
 #include "cmdcall_arm.h"
 #else
 #error unsupported architecture
 #endif
-#include "cmdcall_atigpu.h"
+//#include "cmdcall_atigpu.h"
 #include "compiler.h"
-
+#include "program.h"
 
 #ifdef ENABLE_ATIGPU
 #include "cal.h"
@@ -80,11 +81,11 @@ static char* truncate_ws(char* buf)
 	return(p);
 }
 
-void __do_discover_devices_atigpu(
-	unsigned int* p_ndevices, 
-	struct _cl_device_id** p_dtab, 
-	struct _strtab_entry* p_dstrtab 
-);
+//void __do_discover_devices_atigpu(
+//	unsigned int* p_ndevices, 
+//	struct _cl_device_id** p_dtab, 
+//	struct _strtab_entry* p_dstrtab 
+//);
 
 void __do_discover_devices(
 	unsigned int* p_ndevices, 
@@ -348,11 +349,13 @@ void __do_discover_devices(
 	dtab[0].imp.comp = (void*)compile_x86_64;
 	dtab[0].imp.ilcomp = 0;
 	dtab[0].imp.link = 0;
+	dtab[0].imp.bind_ksyms = bind_ksyms_default;
 	dtab[0].imp.v_cmdcall = cmdcall_x86_64;
 #elif defined(__arm__)
    dtab[0].imp.comp = (void*)compile_arm;
    dtab[0].imp.ilcomp = 0;
    dtab[0].imp.link = 0;
+	dtab[0].imp.bind_ksyms = bind_ksyms_default;
    dtab[0].imp.v_cmdcall = cmdcall_arm;
 #else
 #error unsupported architecture
@@ -433,14 +436,14 @@ void __do_discover_devices(
 	vcproc_startup(0);
 
 
-#ifdef ENABLE_ATIGPU
-	__do_discover_devices_atigpu( p_ndevices, p_dtab, p_dstrtab );
-#endif
+//#ifdef ENABLE_ATIGPU
+//	__do_discover_devices_atigpu( p_ndevices, p_dtab, p_dstrtab );
+//#endif
 		
 }
 
 
-#ifdef ENABLE_ATIGPU
+#if(0)
 
 static int __cal_init = 0;
 

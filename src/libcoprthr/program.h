@@ -41,6 +41,8 @@ cl_int __do_build_program_from_binary(
 
 int __do_find_kernel_in_program( cl_program, const char* );
 
+int bind_ksyms_default( struct _imp_ksyms_struct* ksyms, void* h, char* kname );
+
 #endif
 
 

@@ -301,8 +301,10 @@ void __do_set_cmd_ndrange_kernel(
 
 	DEBUG(__FILE__,__LINE__,"devnum = %d",devnum);
 
-	argp->k.ksym = ((void***)krn->imp.v_ksym)[devnum][krn->imp.knum];
-	argp->k.kcall = ((void***)krn->imp.v_kcall)[devnum][krn->imp.knum];
+//	argp->k.ksym = ((void***)krn->imp.v_ksym)[devnum][krn->imp.knum];
+//	argp->k.kcall = ((void***)krn->imp.v_kcall)[devnum][krn->imp.knum];
+	argp->k.ksym = krn->imp.v_ksyms[devnum][krn->imp.knum].kthr;
+	argp->k.kcall = krn->imp.v_ksyms[devnum][krn->imp.knum].kcall;
 	argp->k.narg = krn->narg;
 	argp->k.arg_buf_sz = krn->imp.arg_buf_sz;
 
@@ -315,23 +317,12 @@ DEBUG(__FILE__,__LINE__,"setting argp->k.arg_kind %p",krn->imp.arg_kind);
 		
 	/* XXX simplest to copy args, later test copy-on-set -DAR */
 
-	__clone(argp->k.pr_arg_vec,krn->imp.arg_vec,krn->narg,void*);
+	__clone(argp->k.pr_arg_off,krn->imp.arg_off,krn->narg,uint32_t);
 	__clone(argp->k.pr_arg_buf,krn->imp.arg_buf,krn->imp.arg_buf_sz,void);
 
 	DEBUG(__FILE__,__LINE__,"arg_buf %p,%p",krn->imp.arg_buf,argp->k.pr_arg_buf);	
-//	intptr_t vec_offset 
-//		= (intptr_t)argp->k.pr_arg_vec - (intptr_t)krn->imp.arg_vec;
 	intptr_t offset 
 		= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->imp.arg_buf;
-
-	for(i=0;i<krn->narg;i++) {
-		DEBUG(__FILE__,__LINE__,"arg_vec[%d] %p + %p",i,argp->k.pr_arg_vec[i],offset);
-		argp->k.pr_arg_vec[i] += offset;
-	}
-
-//DEBUG(__FILE__,__LINE__,"should be cl_mem %p",*(cl_mem*)krn->imp.arg_vec[0]);
-//DEBUG(__FILE__,__LINE__,"should be cl_mem %p",*(cl_mem*)argp->k.pr_arg_vec[0]);
-
 
 	ev->imp.cmd_argp->k.work_dim = work_dim;
 
@@ -367,8 +358,10 @@ void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 		exit(-1);
 	}
 
-	argp->k.ksym = ((void***)krn->imp.v_ksym)[devnum][krn->imp.knum];
-	argp->k.kcall = ((void***)krn->imp.v_kcall)[devnum][krn->imp.knum];
+//	argp->k.ksym = ((void***)krn->imp.v_ksym)[devnum][krn->imp.knum];
+//	argp->k.kcall = ((void***)krn->imp.v_kcall)[devnum][krn->imp.knum];
+	argp->k.ksym = krn->imp.v_ksyms[devnum][krn->imp.knum].kthr;
+	argp->k.kcall = krn->imp.v_ksyms[devnum][krn->imp.knum].kcall;
 	argp->k.narg = krn->narg;
 
 DEBUG(__FILE__,__LINE__,"setting argp->k.arg_kind %p",krn->imp.arg_kind);
@@ -378,15 +371,8 @@ DEBUG(__FILE__,__LINE__,"setting argp->k.arg_kind %p",krn->imp.arg_kind);
 
 	/* XXX simplest to copy args, later test copy-on-set -DAR */
 
-	__clone(argp->k.pr_arg_vec,krn->imp.arg_vec,krn->narg,void*);
+	__clone(argp->k.pr_arg_off,krn->imp.arg_off,krn->narg,uint32_t);
 	__clone(argp->k.pr_arg_buf,krn->imp.arg_buf,krn->imp.arg_buf_sz,void);
-
-
-	intptr_t offset 
-		= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->imp.arg_buf;
-
-	for(i=0;i<krn->narg;i++) 
-		argp->k.pr_arg_vec[i] += offset;
 
 	ev->imp.cmd_argp->k.work_dim = 0;
 

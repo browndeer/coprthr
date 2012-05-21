@@ -38,13 +38,17 @@
 
 void __do_create_program(cl_program prg) 
 {
-	DEBUG(__FILE__,__LINE__,"__do_create_program with ndev = %d",prg->ndev);
+	xclreport( XCL_DEBUG "__do_create_program with ndev = %d",prg->ndev);
 
 	prg->imp.v_kbin = (void**)calloc(prg->ndev,sizeof(void*));
 	prg->imp.v_kbin_tmpfile = (char**)calloc(prg->ndev,sizeof(char*));
 
-	prg->imp.v_ksym = (void***)calloc(prg->ndev,sizeof(void**));
-	prg->imp.v_kcall = (void***)calloc(prg->ndev,sizeof(void**));
+//	prg->imp.v_ksym = (void***)calloc(prg->ndev,sizeof(void**));
+//	prg->imp.v_kcall = (void***)calloc(prg->ndev,sizeof(void**));
+
+	prg->imp.v_ksyms = (struct _imp_ksyms_struct**)
+		calloc(prg->ndev,sizeof(struct _imp_ksyms_struct*));
+
 }
 
 
@@ -60,12 +64,11 @@ void __do_release_program(cl_program prg)
 	}
 }
 
-
 cl_int __do_build_program_from_binary(
 	cl_program prg,cl_device_id devid, cl_uint devnum
 ){ 
 
-	DEBUG(__FILE__,__LINE__,"__do_build_program_from_binary");
+	xclreport( XCL_DEBUG "__do_build_program_from_binary");
 
 	int i,j;
 
@@ -117,7 +120,7 @@ cl_int __do_build_program_from_binary(
 	}
 	
 
-	DEBUG(__FILE__,__LINE__,"clstrtab_sz %d\n",clstrtab_sz);
+	xclreport( XCL_DEBUG "clstrtab_sz %d\n",clstrtab_sz);
 
 
 	char* ppp = (char*)cltextb;
@@ -130,12 +133,12 @@ cl_int __do_build_program_from_binary(
 	#endif
 
 	for(i=0;i<clsymtab_n;i++) {
-		DEBUG(__FILE__,__LINE__,
+		xclreport( XCL_DEBUG 
 			"[%d] clsym |%s|",i,clstrtab+clsymtab[i].e_name);
 	}
 
 	for(i=0;i<clargtab_n;i++) {
-		DEBUG(__FILE__,__LINE__,
+		xclreport( XCL_DEBUG 
 			"[%d] clarg |%s| (+%d)",i,clstrtab+clargtab[i].e_name,
 			clargtab[i].e_name);
 	}
@@ -164,7 +167,7 @@ cl_int __do_build_program_from_binary(
 			int narg = 0; 
 			int arg;
 			for(arg=arg0;arg;arg=prg->imp.clargtab[arg].e_nxt,narg++);
-			DEBUG(__FILE__,__LINE__,"%s has %d args\n",prg->imp.kname[i],narg);
+			xclreport( XCL_DEBUG "%s has %d args\n",prg->imp.kname[i],narg);
 			prg->imp.knarg[i] = narg;
 			prg->imp.karg_kind[i] = (cl_uint*)malloc(narg*sizeof(cl_uint));
 			prg->imp.karg_sz[i] = (size_t*)malloc(narg*sizeof(size_t));
@@ -181,49 +184,49 @@ cl_int __do_build_program_from_binary(
 					case TYPEID_CHAR:
 					case TYPEID_UCHAR: 
 						sz=1; 
-						DEBUG(__FILE__,__LINE__,"arg type [%d] ~char",arg);
+						xclreport( XCL_DEBUG "arg type [%d] ~char",arg);
 						break;
 						
 					case TYPEID_SHORT:
 					case TYPEID_USHORT: 
 						sz=2; 
-						DEBUG(__FILE__,__LINE__,"arg type [%d] ~short",arg);
+						xclreport( XCL_DEBUG "arg type [%d] ~short",arg);
 						break;
 
 					case TYPEID_INT:
 					case TYPEID_UINT: 
 					case TYPEID_FLOAT:
 						sz=4; 
-						DEBUG(__FILE__,__LINE__,"arg type [%d] ~int",arg);
+						xclreport( XCL_DEBUG "arg type [%d] ~int",arg);
 						break;
 
 					case TYPEID_LONG: 
 					case TYPEID_ULONG: 
 					case TYPEID_DOUBLE:
 						sz=8; 
-						DEBUG(__FILE__,__LINE__,"arg type [%d] ~long",arg);
+						xclreport( XCL_DEBUG "arg type [%d] ~long",arg);
 						break;
 
 					case TYPEID_OPAQUE:
 						sz=0; 
-						DEBUG(__FILE__,__LINE__,"arg type [%d] ~opaque",arg);
+						xclreport( XCL_DEBUG "arg type [%d] ~opaque",arg);
 						break;
 
 					case TYPEID_VOID:
 					default: sz=0; 
-					DEBUG(__FILE__,__LINE__,"arg type [%d] ~void",arg);
+					xclreport( XCL_DEBUG "arg type [%d] ~void",arg);
 					break;
 
 				}
 
-				DEBUG(__FILE__,__LINE__,"base arg_sz[%d] %d",arg,sz);
+				xclreport( XCL_DEBUG "base arg_sz[%d] %d",arg,sz);
 
 				sz *= prg->imp.clargtab[arg].e_vecn;
 				sz *= prg->imp.clargtab[arg].e_arrn;
 				
-				DEBUG(__FILE__,__LINE__,"w/multiplicity arg_sz[%d] %d",arg,sz);
+				xclreport( XCL_DEBUG "w/multiplicity arg_sz[%d] %d",arg,sz);
 
-				DEBUG(__FILE__,__LINE__,"e_ptrc=%d e_addrspace=%d",
+				xclreport( XCL_DEBUG "e_ptrc=%d e_addrspace=%d",
 					prg->imp.clargtab[arg].e_ptrc,
 					prg->imp.clargtab[arg].e_addrspace);
 
@@ -268,7 +271,7 @@ cl_int __do_build_program_from_binary(
 
 				}
 
-				DEBUG(__FILE__,__LINE__,"after kind check arg_sz[%d] %d",arg,sz);
+				xclreport( XCL_DEBUG "after kind check arg_sz[%d] %d",arg,sz);
 
 				prg->imp.karg_sz[i][j] = sz;
 				bufsz += sz;
@@ -283,25 +286,16 @@ cl_int __do_build_program_from_binary(
 	}
 
 
-	prg->imp.v_ksym[devnum] = (void**)malloc(prg->imp.nkrn*sizeof(void*));
-	prg->imp.v_kcall[devnum] = (void**)malloc(prg->imp.nkrn*sizeof(void*));
+//	prg->imp.v_ksym[devnum] = (void**)malloc(prg->imp.nkrn*sizeof(void*));
+//	prg->imp.v_kcall[devnum] = (void**)malloc(prg->imp.nkrn*sizeof(void*));
 
+	prg->imp.v_ksyms[devnum] = (struct _imp_ksyms_struct*)
+		malloc(prg->imp.nkrn*sizeof(struct _imp_ksyms_struct));
 
 	char name[1024];
 	int err;
 
 	cl_device_type devtype = __resolve_devid(devid,devtype);
-
-#ifdef ENABLE_ATIGPU
-	CALimage calimg = 0;
-	CALmodule calmod = 0;
-	if (devtype == CL_DEVICE_TYPE_GPU) {
-		calimg = (CALimage)cltextb;
-		err = calModuleLoad(&calmod,prg->ctx->imp.calctx[devnum],calimg);
-		DEBUG(__FILE__,__LINE__,"calModuleLoad returned %d",err);
-		DEBUG(__FILE__,__LINE__,"calmod %p",calmod);
-	}
-#endif
 
 	if (devtype == CL_DEVICE_TYPE_CPU) {
 
@@ -309,54 +303,52 @@ cl_int __do_build_program_from_binary(
 		prg->imp.v_kbin_tmpfile[devnum] = (char*)malloc(32); /* XXX */
 		strncpy(prg->imp.v_kbin_tmpfile[devnum],tmpfile,32);
 
-#ifdef ENABLE_ATIGPU
-	} else if (devtype == CL_DEVICE_TYPE_GPU) {
-		DEBUG(__FILE__,__LINE__,"is CALmodule a ptr? %d",sizeof(CALmodule));
-		prg->imp.v_kbin[devnum] = (void*)(unsigned long long)calmod;
-#endif
-
 	}
 
 	else prg->imp.v_kbin[devnum] = 0;
 
-	DEBUG(__FILE__,__LINE__,"kbin[%d] = %p",devnum,prg->imp.v_kbin[devnum]);
+	xclreport( XCL_DEBUG "kbin[%d] = %p",devnum,prg->imp.v_kbin[devnum]);
 
 	for(i=0;i<prg->imp.nclsym;i++) {
 
 		strncpy(name,prg->imp.kname[i],1024);
 
-		DEBUG(__FILE__,__LINE__,"devnum knum %d %d",devnum,i);
+		xclreport( XCL_DEBUG "devnum knum %d %d",devnum,i);
 
+/*
 		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) {
-		   prg->imp.v_ksym[devnum][i] = 0;
-			prg->imp.v_ksym[devnum][i] = dlsym(h,name);
+//		   prg->imp.v_ksym[devnum][i] = 0;
+//			prg->imp.v_ksym[devnum][i] = dlsym(h,name);
+			prg->imp.v_ksyms[devnum][i].kthr = dlsym(h,name);
+		} else { 
+//			prg->imp.v_ksym[devnum][i] = 0;
+			prg->imp.v_ksyms[devnum][i].kthr = 0;
 		}
-#ifdef ENABLE_ATIGPU
-		else if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_GPU) {
 
-			CALfunc calfunc = 0;
-			err = calModuleGetEntry(&calfunc,prg->ctx->imp.calctx[devnum],calmod,"name");
-			DEBUG(__FILE__,__LINE__,"calModuleGetEntry returned %d",err);
-			DEBUG(__FILE__,__LINE__,"calModuleGetEntry returned %s",calGetErrorString());
-			err = calModuleGetEntry(&calfunc,prg->ctx->imp.calctx[devnum],calmod,name);
-			DEBUG(__FILE__,__LINE__,"calModuleGetEntry returned %d",err);
-			prg->imp.v_ksym[devnum][i] = (void*)(cl_long)calfunc;
-
-		}
-#endif
-		else prg->imp.v_ksym[devnum][i] = 0;
-
-		DEBUG(__FILE__,__LINE__,"ksym %s -> %p",name,prg->imp.v_ksym[devnum][i]);
+//		xclreport( XCL_DEBUG "ksym %s -> %p",name,prg->imp.v_ksym[devnum][i]);
+		xclreport( XCL_DEBUG "kthr %s -> %p",
+			name,prg->imp.v_ksyms[devnum][i].kthr);
 
 		strncpy(name,"__XCL_call_",1024);
 		strncat(name,prg->imp.kname[i],1024);
 
-		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) 
-			prg->imp.v_kcall[devnum][i] = dlsym(h,name);
-		else prg->imp.v_kcall[devnum][i] = 0;
+		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) {
+//			prg->imp.v_kcall[devnum][i] = dlsym(h,name);
+			prg->imp.v_ksyms[devnum][i].kcall = dlsym(h,name);
+		} else {
+			prg->imp.v_ksyms[devnum][i].kcall = 0;
+		}
 
-		DEBUG(__FILE__,__LINE__,"kcall %s -> %p",
-			name,prg->imp.v_kcall[devnum][i]);
+		xclreport( XCL_DEBUG "kcall %s -> %p",
+//			name,prg->imp.v_kcall[devnum][i]);
+			name,prg->imp.v_ksyms[devnum][i].kcall);
+*/
+
+		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) 
+			__resolve_devid(devid,bind_ksyms)(
+				&(prg->imp.v_ksyms[devnum][i]), h, prg->imp.kname[i]);
+		else
+			bzero(&prg->imp.v_ksyms[devnum][i],sizeof(struct _imp_ksyms_struct));
 
 	}
 
@@ -373,11 +365,11 @@ cl_int __do_build_program_from_source(
 	cl_program prg,cl_device_id devid, cl_uint devnum
 ){ 
 
-	DEBUG(__FILE__,__LINE__,"__do_build_program_from_source");
+	xclreport( XCL_DEBUG "__do_build_program_from_source");
 
 	compiler_t comp = (compiler_t)__resolve_devid(devid,comp);
 	
-	DEBUG(__FILE__,__LINE__,
+	xclreport( XCL_DEBUG 
 		"__do_build_program_from_source: compiler=%p",comp);	
 
 	/* XXX should optimize JIT by checking for device equivalence -DAR */
@@ -411,6 +403,7 @@ int __do_check_compiler_available( cl_device_id devid )
 
 
 /* XXX is this even used? -DAR */
+/*
 void __do_compile_and_link( cl_program prg, cl_device_id devid, int devnum )
 {
 
@@ -436,7 +429,7 @@ void __do_compile_and_link( cl_program prg, cl_device_id devid, int devnum )
 //	prg->bin[devnum] = bin;
 	
 }
-
+*/
 
 
 int __do_find_kernel_in_program( cl_program prg, const char* kname )
@@ -444,7 +437,7 @@ int __do_find_kernel_in_program( cl_program prg, const char* kname )
 	int k;
 
 	for(k=0;k<prg->imp.nkrn;k++) {
-		DEBUG(__FILE__,__LINE__,"compare |%s|%s\n",prg->imp.kname[k],kname);
+		xclreport( XCL_DEBUG "compare |%s|%s\n",prg->imp.kname[k],kname);
 		if (!strncmp(prg->imp.kname[k],kname,__CLMAXSTR_LEN)) break;
 	}
 
@@ -453,21 +446,23 @@ int __do_find_kernel_in_program( cl_program prg, const char* kname )
 	return(k);
 }
 
-// XXX code below should not be used anymore -DAR
-//static size_t get_global_size(uint d) 
-//{ return((__getvcdata())->workp->gtsz[d]); }
-//
-//static void barrier( int flags )
-//{
-//   struct vc_data* data = __getvcdata();
-//   int vcid = data->vcid;
-//
-//	if (!(setjmp(*(data->this_jbufp))))
-//		longjmp(*(data->next_jbufp),(vcid+1)%4+1);
-//}
-//
-//static size_t get_global_id(uint d) {
-//   struct vc_data* data = __getvcdata();
-//   return(data->ltid[d] + data->workp->gtid[d]);
-//}
+int bind_ksyms_default( struct _imp_ksyms_struct* ksyms, void* h, char* kname )
+{
+
+	char name[1024];
+
+	strncpy(name,kname,1024);
+
+	ksyms->kthr = dlsym(h,name);
+
+	xclreport( XCL_DEBUG "kthr %s -> %p", name,ksyms->kthr);
+
+	strncpy(name,"__XCL_call_",1024);
+	strncat(name,kname,1024);
+
+	ksyms->kcall = dlsym(h,name);
+
+	xclreport( XCL_DEBUG "kcall %s -> %p", name,ksyms->kcall);
+
+}
 

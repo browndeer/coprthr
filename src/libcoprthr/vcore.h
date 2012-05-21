@@ -107,13 +107,11 @@ typedef unsigned long long fast_jmp_buf[8];
    )
 */
 
-
-
 struct vcengine_data {
 	int veid;
 	void* funcp;
 	void* callp;
-	void** pr_arg_vec;
+	uint32_t* pr_arg_off;
 	void* pr_arg_buf;
 	int vc_runc;
 };

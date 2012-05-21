@@ -68,6 +68,8 @@ struct _clsymtab_entry {
 
 /* device */
 
+struct _imp_ksyms_struct;
+
 struct _imp_device {
 
 	cl_device_type devtype;
@@ -128,6 +130,8 @@ struct _imp_device {
 	void* (*ilcomp)(void*);
 	void* (*link)(void*);
 
+	int (*bind_ksyms)(struct _imp_ksyms_struct*,void*,char*);
+
 	cmdcall_t* v_cmdcall;
 
 	cpu_set_t cpumask;
@@ -139,12 +143,12 @@ struct _imp_device {
 			unsigned int nve;
 		} cpu;
 
-#ifdef ENABLE_ATIGPU
-		struct {
-			CALdevice caldev;
-			CALdeviceinfo calinfo;
-		} atigpu;
-#endif
+//#ifdef ENABLE_ATIGPU
+//		struct {
+//			CALdevice caldev;
+//			CALdeviceinfo calinfo;
+//		} atigpu;
+//#endif
 		
 	};
 
@@ -157,7 +161,6 @@ struct _imp_device {
 #define __imp_free_device(imp) do {} while(0)
 
 #define __resolve_devid(d,m) ((d)->imp.m)
-
 
 
 /* platform */
@@ -185,28 +188,35 @@ struct _imp_platform {
 
 /* kernel */
 
+struct _imp_ksyms_struct {
+	int flags;
+	void* kthr;
+	void* kcall;
+};
+
 struct _imp_kernel {
 	void* v_kbin;
-	void* v_ksym;
-	void* v_kcall;
+	struct _imp_ksyms_struct** v_ksyms;
+//	void* v_ksym;
+//	void* v_kcall;
 	cl_uint knum;
 
 	cl_uint* arg_kind;
 	size_t* arg_sz;
-	void** arg_vec;
+	uint32_t* arg_off;
 
 	size_t arg_buf_sz;
 	void* arg_buf;
 };
 
+/* XXX does not yet deal with actual kbin and ksym -DAR */
 #define __imp_init_kernel(imp) do { \
 	imp.v_kbin = 0; \
-	imp.v_ksym = 0; \
-	imp.v_kcall = 0; \
+	imp.v_ksyms = 0; \
 	imp.knum = -1; \
 	imp.arg_kind = 0; \
 	imp.arg_sz = 0; \
-	imp.arg_vec = 0; \
+	imp.arg_off = 0; \
 	imp.arg_buf_sz = 0; \
 	imp.arg_buf = 0; \
 	} while(0)
@@ -214,7 +224,7 @@ struct _imp_kernel {
 #define __imp_free_kernel(imp) do { \
 	__free(imp.arg_kind); \
 	__free(imp.arg_sz); \
-	__free(imp.arg_vec); \
+	__free(imp.arg_off); \
 	__free(imp.arg_buf); \
 	} while(0)
 
@@ -322,8 +332,9 @@ struct _imp_program {
 
 	void** v_kbin;
 	char** v_kbin_tmpfile;
-	void*** v_ksym;
-	void*** v_kcall; 
+//	void*** v_ksym;
+//	void*** v_kcall; 
+	struct _imp_ksyms_struct** v_ksyms;
 
 };
 
@@ -339,8 +350,7 @@ struct _imp_program {
 	imp.karg_sz = 0; \
 	imp.v_kbin = 0; \
 	imp.v_kbin_tmpfile = 0; \
-	imp.v_ksym = 0; \
-	imp.v_kcall = 0; \
+	imp.v_ksyms = 0; \
 	} while(0)
 
 /* XXX does not yet deal with actual kbin and ksym -DAR */
@@ -363,29 +373,29 @@ struct _imp_program {
 
 struct _imp_context {
 
-#ifdef ENABLE_ATIGPU
-	CALcontext* calctx;
-#else
+//#ifdef ENABLE_ATIGPU
+//	CALcontext* calctx;
+//#else
 	int dummy;
-#endif
+//#endif
 
 };
 
-#ifdef ENABLE_ATIGPU
-#define __imp_init_context(imp) do { \
-	imp.calctx = 0; \
-	} while(0)
-#else
+//#ifdef ENABLE_ATIGPU
+//#define __imp_init_context(imp) do { \
+//	imp.calctx = 0; \
+//	} while(0)
+//#else
 #define __imp_init_context(imp) do { } while(0)
-#endif
+//#endif
 
-#ifdef ENABLE_ATIGPU
-#define __imp_free_context(imp) do { \
-	__free(imp.calctx); \
-	} while(0)
-#else
+//#ifdef ENABLE_ATIGPU
+//#define __imp_free_context(imp) do { \
+//	__free(imp.calctx); \
+//	} while(0)
+//#else
 #define __imp_free_context(imp) do { } while(0)
-#endif
+//#endif
 
 struct _elf_data {
 	char filename[256];

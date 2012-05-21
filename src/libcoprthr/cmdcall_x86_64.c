@@ -59,108 +59,12 @@ static void* ndrange_kernel(cl_device_id devid, void* p)
 		argp->k.local_work_size[1],
 		argp->k.local_work_size[2]);
 
-/* XXX TESTING ONLY! */
-//cl_mem* pbufa = argp->k.pr_arg_vec[0];
-//int* aa = (*pbufa)->host_ptr;
-//	DEBUG(__FILE__,__LINE__,"pbufa bufa %p %p %p %d\n",pbufa,*pbufa,aa,aa[10]);
-
 	/* fix pointers */
 
-/*
-DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:ndrange_kernel: fix pointers %p",argp->k.arg_kind);
-	for(i=0;i<argp->k.krn->narg;i++) {
 
-DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:ndrange_kernel: fix pointers %d",i);
-
-DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:ndrange_kernel: arg_kind=%d",argp->k.arg_kind[i]);
-
-		switch(argp->k.arg_kind[i]) {
-
-			case CLARG_KIND_GLOBAL:
-
-DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:ndrange_kernel: argp->k.pr_arg_vec[i]=%p",argp->k.pr_arg_vec[i]);
-
-DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:ndrange_kernel: *cl_mem=%p",(*(cl_mem*)argp->k.pr_arg_vec[i]));
-
-//				argp->k.pr_arg_vec[i]=(*(cl_mem*)argp->k.pr_arg_vec[i])->host_ptr;
-				*(void**)argp->k.pr_arg_vec[i]=(*(cl_mem*)argp->k.pr_arg_vec[i])->host_ptr;
-
-				break;
-
-			case CLARG_KIND_LOCAL:
-
-DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:ndrange_kernel: __local argp->k.pr_arg_vec[i]=%p",argp->k.pr_arg_vec[i]);
-DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:ndrange_kernel: *(size_t*)__local argp->k.pr_arg_vec[i]=%p",*(size_t*)argp->k.pr_arg_vec[i]);
-
-				break;
-
-			case CLARG_KIND_UNDEFINED:
-			case CLARG_KIND_VOID:
-			case CLARG_KIND_DATA:
-			case CLARG_KIND_CONSTANT:
-			case CLARG_KIND_SAMPLER:
-			case CLARG_KIND_IMAGE2D:
-			case CLARG_KIND_IMAGE3D:
-
-			default: break;
-		}
-	}
-*/
-
-//	vcproc_cmd(argp);
 	int base = __resolve_devid(devid,cpu.veid_base);
 	int nve = __resolve_devid(devid,cpu.nve);
 	vcproc_cmd(base,nve,argp);
-
-
-
-/*
-pseudocode for kernel execution.
-
-	k.flags
-	k.krn
-	k.work_dim
-	k.global_work_offset
-	k.global_work_size
-	k.local_work_size
-
-	perform device specific mapping to finnalize the arg_buf
-
-	int i,j,k
-
-	swith (work_dim) {
-
-		case 0:
-
-			break; 
-
-		case 1:
-	
-			wg_size = 
-			fork wg_size threads
-
-			break; 
-
-		case 2:
-
-			wg_size = 
-			fork wg_size threads
-
-			break; 
-
-		case 3:
-
-			wg_size = 
-			fork wg_size threads
-
-			break;
-
-		default:
-
-			break; 
-	}
-
-*/
 
 	return(0); 
 }

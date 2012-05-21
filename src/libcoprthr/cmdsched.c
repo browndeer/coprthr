@@ -49,9 +49,9 @@ void* cmdqx0( void* argp )
 		&__resolve_devid(devid,cpumask));
 
 
-//	DEBUG(__FILE__,__LINE__,"cmdqx0: cmdq=%p devid=%p cpumask_count=%d",
+//	xclreport( XCL_DEBUG "cmdqx0: cmdq=%p devid=%p cpumask_count=%d",
 //		cmdq,devid,CPU_COUNT(&__resolve_devid(devid,cpumask)));
-	DEBUG(__FILE__,__LINE__,"cmdqx0: cmdq=%p devid=%p cpumask_count=?",
+	xclreport( XCL_DEBUG "cmdqx0: cmdq=%p devid=%p cpumask_count=?",
 		cmdq,devid);
 /* XXX most of the useful cpu_set macros are missing from rhel/centos 
  * maybe they will get to that after they upgrade to a modern GCC version -DAR
@@ -67,12 +67,12 @@ void* cmdqx0( void* argp )
 
 	__lock_cmdq(cmdq);
 
-	DEBUG(__FILE__,__LINE__,"cmdqx0: idle");
+	xclreport( XCL_DEBUG "cmdqx0: idle");
 
 	while (cmdq->imp.qstat == 0) {
-		DEBUG(__FILE__,__LINE__,"idle-sleep\n");
+		xclreport( XCL_DEBUG "idle-sleep\n");
 		__wait_cmdq(cmdq);
-		DEBUG(__FILE__,__LINE__,"idle-wake\n");
+		xclreport( XCL_DEBUG "idle-wake\n");
 	}
 
 	__unlock_cmdq(cmdq);
@@ -80,27 +80,27 @@ void* cmdqx0( void* argp )
 
 	__lock_cmdq(cmdq);
 
-	DEBUG(__FILE__,__LINE__,"cmdqx0: run");
+	xclreport( XCL_INFO "cmdqx0: run");
 
 	while (cmdq->imp.qstat == 1) {
 
-		DEBUG(__FILE__,__LINE__,"cmdqx0:"
+		xclreport( XCL_DEBUG "cmdqx0:"
 			" queued %p",cmdq->imp.cmds_queued.tqh_first);
 
 		while (ev = cmdq->imp.cmds_queued.tqh_first) {
 
 
-			DEBUG(__FILE__,__LINE__,"cmdqx0:"
+			xclreport( XCL_DEBUG "cmdqx0:"
 				" submit cmd ev %p",ev);
 
 			/* 
 			 * submit cmd 
 			 */
 
-			DEBUG(__FILE__,__LINE__,"cmdqx0: attempt __lock_event");
+			xclreport( XCL_DEBUG "cmdqx0: attempt __lock_event");
 			__lock_event(ev);
 
-			DEBUG(__FILE__,__LINE__,"cmdqx0: attempt __retain_event");
+			xclreport( XCL_DEBUG "cmdqx0: attempt __retain_event");
 			__retain_event(ev);
 
 			TAILQ_REMOVE(&cmdq->imp.cmds_queued,ev,imp.cmds);
@@ -108,7 +108,7 @@ void* cmdqx0( void* argp )
 			ev->cmd_stat = CL_SUBMITTED;
 
 			__unlock_cmdq(cmdq);
-			DEBUG(__FILE__,__LINE__,"%p: submitted %d\n",ev,ev->cmd);
+			xclreport( XCL_DEBUG "%p: submitted %d\n",ev,ev->cmd);
 //			cmdcall[ev->cmd-CLCMD_OFFSET](ev->imp.cmd_argp);
 			cmdcall[ev->cmd-CLCMD_OFFSET](devid,ev->imp.cmd_argp);
 			__lock_cmdq(cmdq);
@@ -136,7 +136,7 @@ void* cmdqx0( void* argp )
 			ev->cmd_stat = CL_RUNNING;
 
 			__unlock_cmdq(cmdq);
-			DEBUG(__FILE__,__LINE__,"%p: running %d\n",ev,ev->cmd);
+			xclreport( XCL_DEBUG "%p: running %d\n",ev,ev->cmd);
 			__lock_cmdq(cmdq);
 
 			__sig_event(ev);
@@ -162,19 +162,19 @@ void* cmdqx0( void* argp )
 			__release_event(ev);
 			/* unlock implicit in release -DAR */
 
-			DEBUG(__FILE__,__LINE__,"%p: complete %d\n",ev,ev->cmd);
+			xclreport( XCL_DEBUG "%p: complete %d\n",ev,ev->cmd);
 			
 		}
 
-		DEBUG(__FILE__,__LINE__,"run-cmdqx0 sleep\n");
+		xclreport( XCL_DEBUG "run-cmdqx0 sleep\n");
 		__wait_cmdq(cmdq);
-		DEBUG(__FILE__,__LINE__,"run-cmdqx0 wake\n");
+		xclreport( XCL_DEBUG "run-cmdqx0 wake\n");
 
 	}
 
 	__unlock_cmdq(cmdq);
 	
-	DEBUG(__FILE__,__LINE__,"cmdqx0: shutdown");
+	xclreport( XCL_INFO "cmdqx0: shutdown");
 	
 	pthread_exit((void*)0);
 }
