@@ -123,6 +123,7 @@ int main( int argc, char** argv)
 	int opt_n = 0;
 	int opt_nm = 1;
 	int opt_kcall = 0;
+	int opt_kcall2 = 0;
 	int opt_clsymtab = 0;
 	int opt_clargtab = 0;
 	int opt_func_def = 1;
@@ -136,6 +137,14 @@ int main( int argc, char** argv)
 	int opt_version = 0;
 	int opt_help = 0;
 
+#define clear_opt() do { \
+			opt_n = 0; \
+			opt_nm = 0; \
+			opt_kcall = 0; \
+			opt_kcall2 = 0; \
+			opt_clsymtab = 0; \
+			opt_clargtab = 0; \
+	} while (0);
 
 	int n = 1;
 	while(n<argc) {
@@ -143,46 +152,66 @@ int main( int argc, char** argv)
 		char* arg = argv[n++];
 
 		if (!strncmp(arg,"-n",4)) {
+			clear_opt();
 			opt_n = 1;
-			opt_nm = 0;
-			opt_kcall = 0;
-			opt_clsymtab = 0;
-			opt_clargtab = 0;
+//			opt_nm = 0;
+//			opt_kcall = 0;
+//			opt_kcall2 = 0;
+//			opt_clsymtab = 0;
+//			opt_clargtab = 0;
 		}
 
 		else if (!strncmp(arg,"--nm",4)) {
-			opt_n = 0;
+			clear_opt();
+//			opt_n = 0;
 			opt_nm = 1;
-			opt_kcall = 0;
-			opt_clsymtab = 0;
-			opt_clargtab = 0;
+//			opt_kcall = 0;
+//			opt_kcall2 = 0;
+//			opt_clsymtab = 0;
+//			opt_clargtab = 0;
 		}
 
 		else if (!strncmp(arg,"--kcall-debug",13)) {
 			opt_debug = 1;
 		}
 
-		else if (!strncmp(arg,"--kcall",7) || !strncmp(arg,"-k",2)) {
-			opt_n = 0;
-			opt_nm = 0;
+		else if (!strncmp(arg,"--kcall",8) || !strncmp(arg,"-k",2)) {
+			clear_opt();
+//			opt_n = 0;
+//			opt_nm = 0;
 			opt_kcall = 1;
-			opt_clsymtab = 0;
-			opt_clargtab = 0;
+//			opt_kcall2 = 0;
+//			opt_clsymtab = 0;
+//			opt_clargtab = 0;
+		}
+
+		else if (!strncmp(arg,"--kcall2",9) || !strncmp(arg,"-k",2)) {
+			clear_opt();
+//			opt_n = 0;
+//			opt_nm = 0;
+//			opt_kcall = 0;
+			opt_kcall2 = 1;
+//			opt_clsymtab = 0;
+//			opt_clargtab = 0;
 		}
 
 		else if (!strncmp(arg,"--clsymtab",10) || !strncmp(arg,"-s",2)) {
-			opt_n = 0;
-			opt_nm = 0;
-			opt_kcall = 0;
+			clear_opt();
+//			opt_n = 0;
+//			opt_nm = 0;
+//			opt_kcall = 0;
+//			opt_kcall2 = 0;
 			opt_clsymtab = 1;
-			opt_clargtab = 0;
+//			opt_clargtab = 0;
 		}
 
 		else if (!strncmp(arg,"--clargtab",10) || !strncmp(arg,"-a",2)) {
-			opt_n = 0;
-			opt_nm = 0;
-			opt_kcall = 0;
-			opt_clsymtab = 0;
+			clear_opt();
+//			opt_n = 0;
+//			opt_nm = 0;
+//			opt_kcall = 0;
+//			opt_kcall2 = 0;
+//			opt_clsymtab = 0;
 			opt_clargtab = 1;
 		}
 
@@ -536,6 +565,7 @@ int main( int argc, char** argv)
 //         			"longjmp(*(data->vcengine_jbufp),0);\n");
          			"__vc_longjmp(*(data->vcengine_jbufp),0);\n");
 
+					fprintf(fp,"\tvoid* arg_buf = edata->pr_arg_buf;\n");
 
 					fprintf(fp,"\t((__XCL_func_");
 
@@ -552,7 +582,7 @@ int main( int argc, char** argv)
 						if (i>0) fprintf(fp,",");	
 						fprintf(fp,"*(");
 						fprintf_cl_type(fp,nptr2->n_arg.argtype);
-						fprintf(fp,"*)edata->pr_arg_vec[%d]\n",i);
+						fprintf(fp,"*)(arg_buf + edata->pr_arg_off[%d])\n",i);
 
 					}
 
@@ -563,6 +593,152 @@ int main( int argc, char** argv)
 //					fprintf(fp,"\tlongjmp(*(data->vcengine_jbufp),vcid+1);\n");
 //					fprintf(fp,"\tlongjmp(*(data->vcengine_jbufp),0);\n");
 					fprintf(fp,"\t__vc_longjmp(*(data->vcengine_jbufp),0);\n");
+
+					if (opt_kcall_debug) {
+						fprintf(fp,"\tprintf(\"__XCL_call_");
+						fprintf_sym(fp,
+							symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+						fprintf(fp,": vcore[%%d] halt\\n\",vcid);\n");
+					}
+
+					fprintf(fp,"}\n");
+
+				}
+
+				break;
+
+			default: break;
+
+		}
+
+		exit(0);
+
+	} else if (opt_kcall2) {
+
+//		fprintf(fp,"#include <stdio.h>\n");
+		fprintf(fp,"#define __xcl_kcall2__\n");
+//		fprintf(fp,"#include \"vcore.h\"\n");
+
+		for(nptr1=root;nptr1;nptr1=nptr1->next) switch(nptr1->ntyp) {
+
+			case NTYP_EMPTY: break;
+
+			case NTYP_FUNC:
+
+				if (nptr1->n_func.flags & F_FUNC_DEF) {
+
+					n = node_count(nptr1->n_func.args);
+
+			
+					nptr2=nptr1->n_func.args;
+
+					fprintf(fp,"\n/* F ");
+
+					fprintf_sym(fp,
+						symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+
+					fprintf(fp," %d",calc_args_sz(nptr2));
+
+					fprintf(fp,"\t%d",n);
+
+					for(i=0;i<n;i++,nptr2=nptr2->next) 
+						fprintf(fp," %d",calc_arg_sz(nptr2));
+
+					fprintf(fp," */\n");
+
+
+					/* print typedef */
+
+					fprintf(fp,"typedef %s",type_table[type_ival2index(
+						nptr1->n_func.rettype->n_type.datatype)].c_type);
+
+					fprintf(fp,"(*__XCL_func_");
+
+					fprintf_sym(fp,
+						symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+
+					fprintf(fp,"_t)(");
+
+					for(i=0,nptr2=nptr1->n_func.args;i<n;i++,nptr2=nptr2->next) {
+						if (i>0) fprintf(fp,", ");	
+						fprintf_cl_type(fp,nptr2->n_arg.argtype);
+					}
+
+					fprintf(fp,");\n");
+
+
+					/* print call wrapper */
+
+					fprintf(fp,"%s ",type_table[type_ival2index(
+						nptr1->n_func.rettype->n_type.datatype)].c_type);
+
+//					fprintf(fp," __attribute__((noreturn))\n");
+
+					fprintf(fp,"__XCL_call2_");
+
+					fprintf_sym(fp,
+						symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+
+					fprintf(fp,"(void* p)");
+
+					fprintf(fp,"{\n");
+
+					if (opt_kcall_debug) {
+						fprintf(fp,"\tprintf(\"__XCL_call_");
+						fprintf_sym(fp,
+							symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+						fprintf(fp,":\\n\");\n");
+					}
+
+					fprintf(fp,"\tstruct vcengine_data* edata"
+						" = (struct vcengine_data*)p;\n");
+
+//					fprintf(fp,"\tstruct vc_data* data = __getvcdata();\n");
+
+
+//					fprintf(fp,"\tint vcid = data->vcid;\n");
+
+					if (opt_kcall_debug) {
+						fprintf(fp,"\tprintf(\"__XCL_call_");
+						fprintf_sym(fp,
+							symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+						fprintf(fp,": vcore[%%d] running\\n\",vcid);\n");
+					}
+
+//					fprintf(fp,"\t++(edata->vc_runc);\n");
+
+//					fprintf(fp,
+//						"\tif (!(__vc_setjmp(*(data->this_jbufp))))"
+//         			"__vc_longjmp(*(data->vcengine_jbufp),0);\n");
+
+					fprintf(fp,"\tvoid* arg_buf = edata->pr_arg_buf;\n");
+
+					fprintf(fp,"\t((__XCL_func_");
+
+					fprintf_sym(fp,
+						symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+
+					fprintf(fp,"_t)(edata->funcp))(\n");
+
+					nptr2 = nptr1->n_func.args;
+
+					for(i=0,nptr2=nptr1->n_func.args;i<n;i++,nptr2=nptr2->next) {
+
+						fprintf(fp,"\t\t");
+						if (i>0) fprintf(fp,",");	
+						fprintf(fp,"*(");
+						fprintf_cl_type(fp,nptr2->n_arg.argtype);
+						fprintf(fp,"*)(arg_buf + edata->pr_arg_off[%d])\n",i);
+
+					}
+
+					fprintf(fp,"\t);\n");
+
+//					fprintf(fp,"\t--(edata->vc_runc);\n");
+
+//					fprintf(fp,"\tlongjmp(*(data->vcengine_jbufp),vcid+1);\n");
+//					fprintf(fp,"\tlongjmp(*(data->vcengine_jbufp),0);\n");
+//					fprintf(fp,"\t__vc_longjmp(*(data->vcengine_jbufp),0);\n");
 
 					if (opt_kcall_debug) {
 						fprintf(fp,"\tprintf(\"__XCL_call_");
