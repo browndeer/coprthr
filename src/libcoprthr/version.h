@@ -37,7 +37,7 @@
 #endif
 
 #ifndef COPRTHR_REVISION
-#define COPRTHR_REVISION 4 /* @REVISION */
+#define COPRTHR_REVISION 5 /* @REVISION */
 #endif
 
 #ifndef COPRTHR_RELEASE
@@ -45,7 +45,7 @@
 #endif
 
 #ifndef COPRTHR_NAME
-#define COPRTHR_NAME "echo"
+#define COPRTHR_NAME "marathon"
 #endif
 
 
