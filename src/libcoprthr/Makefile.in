@@ -151,6 +151,7 @@ install:
 	install -m 755 libcoprthr_d.so $(INSTALL_LIB_DIR)
 	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
 	install -m 755 vcore.h $(INSTALL_INCLUDE_DIR)
+	install -m 755 vcore2.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 $(LIBCOPRTHR_HDR) $(INSTALL_INCLUDE_DIR)/__libcoprthr.h
 #	test -d /etc/OpenCL/vendors || install -m 755 -d /etc/OpenCL/vendors
 #	echo $(INSTALL_LIB_DIR)/libcoprthr.so > /etc/OpenCL/vendors/coprthr.icd

@@ -350,7 +350,7 @@ void __do_discover_devices(
 	dtab[0].imp.ilcomp = 0;
 	dtab[0].imp.link = 0;
 	dtab[0].imp.bind_ksyms = bind_ksyms_default;
-	dtab[0].imp.v_cmdcall = cmdcall_x86_64;
+	dtab[0].imp.v_cmdcall = cmdcall_x86_64_k;
 #elif defined(__arm__)
    dtab[0].imp.comp = (void*)compile_arm;
    dtab[0].imp.ilcomp = 0;

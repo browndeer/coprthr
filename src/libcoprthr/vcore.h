@@ -133,6 +133,8 @@ struct vc_data {
 	struct work_struct* workp;
 	size_t ltid[3];
 };
+
+
 #define VC_DATA_JB_THIS	12
 #define VC_DATA_JB_NEXT	20
 

@@ -366,6 +366,13 @@ void* compile_x86_64(
 		__check_err(__test_file(fullpath),
 			"compiler_x86_64: internal error: copy vcore.h failed.");
 
+		__command("\\cp "INSTALL_INCLUDE_DIR"/vcore2.h %s > /dev/null 2>&1",wd);
+		__log(logp,"]%s\n",buf1);
+		__execshell(buf1,logp);
+		snprintf(fullpath,256,"%s/%s",wd,"vcore2.h");
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: internal error: copy vcore2.h failed.");
+
 		__command(
 			"\\cp "INSTALL_INCLUDE_DIR"/__libcoprthr.h %s > /dev/null 2>&1",wd);
 		__log(logp,"]%s\n",buf1);

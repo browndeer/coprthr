@@ -468,7 +468,7 @@ int main( int argc, char** argv)
 
 		fprintf(fp,"#include <stdio.h>\n");
 		fprintf(fp,"#define __xcl_kcall__\n");
-		fprintf(fp,"#include \"vcore.h\"\n");
+		fprintf(fp,"#include \"vcore2.h\"\n");
 
 		for(nptr1=root;nptr1;nptr1=nptr1->next) switch(nptr1->ntyp) {
 
@@ -553,7 +553,7 @@ int main( int argc, char** argv)
 						fprintf(fp,"\tprintf(\"__XCL_call_");
 						fprintf_sym(fp,
 							symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
-						fprintf(fp,": vcore[%%d] running\\n\",vcid);\n");
+						fprintf(fp,": vcore[] running\\n\");\n");
 					}
 
 					fprintf(fp,"\t++(edata->vc_runc);\n");
@@ -566,6 +566,19 @@ int main( int argc, char** argv)
          			"__vc_longjmp(*(data->vcengine_jbufp),0);\n");
 
 					fprintf(fp,"\tvoid* arg_buf = edata->pr_arg_buf;\n");
+
+					if (opt_kcall_debug) {
+						fprintf(fp,"\tprintf(\"__XCL_call_");
+						fprintf_sym(fp,
+							symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+						fprintf(fp,": edata = %%p & %%p\\n\",edata,&edata);\n");
+
+						fprintf(fp,"\tprintf(\"__XCL_call_");
+						fprintf_sym(fp,
+							symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+						fprintf(fp,": vcore[] arg_buf = %%p\\n\",arg_buf);\n");
+
+					}
 
 					fprintf(fp,"\t((__XCL_func_");
 
@@ -588,6 +601,13 @@ int main( int argc, char** argv)
 
 					fprintf(fp,"\t);\n");
 
+					if (opt_kcall_debug) {
+						fprintf(fp,"\tprintf(\"__XCL_call_");
+						fprintf_sym(fp,
+							symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
+						fprintf(fp,": vcore[] edata = %%p\\n\",edata);\n");
+					}
+
 					fprintf(fp,"\t--(edata->vc_runc);\n");
 
 //					fprintf(fp,"\tlongjmp(*(data->vcengine_jbufp),vcid+1);\n");
@@ -598,7 +618,7 @@ int main( int argc, char** argv)
 						fprintf(fp,"\tprintf(\"__XCL_call_");
 						fprintf_sym(fp,
 							symbuf+nptr1->n_func.sym,opt_ll_style,opt_c_style);
-						fprintf(fp,": vcore[%%d] halt\\n\",vcid);\n");
+						fprintf(fp,": vcore[] halt\\n\");\n");
 					}
 
 					fprintf(fp,"}\n");

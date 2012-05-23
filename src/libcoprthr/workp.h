@@ -106,7 +106,7 @@ unsigned int workp_genpart(
 	unsigned int alpha = delta/n;
 	unsigned int beta = delta%n;
 
-	fprintf(stderr,"delta alpha beta %d %d %d\n",delta,alpha,beta);
+	xclreport( XCL_DEBUG "delta alpha beta %d %d %d\n",delta,alpha,beta);
 
 	struct workp_entry* e = workp_get_entry(wp,0);
 

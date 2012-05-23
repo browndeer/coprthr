@@ -23,6 +23,8 @@
 #ifndef __libcoprthr_h
 #define __libcoprthr_h
 
+#include <stdio.h>
+
 #define GCC_VERSION \
 	( __GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ )
 
@@ -87,7 +89,7 @@
 #error unsupported architecture
 #endif
 
-
+/*
 struct work_struct {
    unsigned int tdim;
    size_t ltsz[3];
@@ -105,6 +107,29 @@ struct vc_data {
    struct work_struct* workp;
    size_t ltid[3];
 };
+*/
+
+struct workp_entry {
+   unsigned int ndr_dim;
+   unsigned int ndr_gtdoff[3];
+   unsigned int ndr_gtdsz[3];
+   unsigned int ndr_ltdsz[3];
+   unsigned int ndp_blk_first[3];
+   unsigned int ndp_blk_end[3];
+   unsigned int ndp_ltd0[3];
+};
+
+struct vc_data {
+   int vcid;
+   __vc_jmp_buf* vcengine_jbufp;
+   __vc_jmp_buf* this_jbufp;
+   __vc_jmp_buf* next_jbufp;
+   struct workp_entry* we;
+   size_t blkidx[3];
+   size_t gtdidx[3];
+   size_t ltdidx[3];
+};
+
 
 #if defined(__FreeBSD__)
 typedef unsigned int uint;
@@ -112,6 +137,7 @@ typedef unsigned int uint;
 
 extern "C" {
 
+/*
 static __inline unsigned int get_global_id(unsigned int d) 
 {
    struct vc_data* data = __getvcdata();
@@ -136,21 +162,48 @@ static __inline size_t get_global_size(uint d)
 static __inline size_t get_group_id(uint d) 
 { return((__getvcdata())->workp->gid[d]); }
 
-/*
-static __inline void barrier( int flags )
-{
-   struct vc_data* data;
-   __setvcdata(data);
-   if (!(__vc_setjmp(*(data->this_jbufp))))
-      __vc_longjmp(*(data->next_jbufp),flags);
-}
 */
+
+
+static __inline uint get_work_dim()
+{ return((__getvcdata())->we->ndr_dim); }
+
+static __inline size_t get_num_groups(uint d)
+{ 
+	size_t g = (__getvcdata())->we->ndr_gtdsz[d];
+	size_t l = (__getvcdata())->we->ndr_ltdsz[d];
+	return(g/l);
+}
+
+static __inline size_t get_group_id(uint d)
+{ return((__getvcdata())->blkidx[d]); }
+
+static __inline size_t get_global_size(uint d)
+{ return((__getvcdata())->we->ndr_gtdsz[d]); }
+
+static __inline unsigned int get_global_id(unsigned int d)
+{ return((unsigned int)(__getvcdata())->gtdidx[d]); }
+
+static __inline size_t get_local_size(uint d)
+{ return((__getvcdata())->we->ndr_ltdsz[d]); }
+
+static __inline size_t get_local_id(uint d)
+{ return((__getvcdata())->ltdidx[d]); }
+
+
+
+//static __inline void barrier( int flags )
+//{
+//   struct vc_data* data;
+//   __setvcdata(data);
+//   if (!(__vc_setjmp(*(data->this_jbufp))))
+//      __vc_longjmp(*(data->next_jbufp),flags);
+//}
 //#define barrier(a)
 //void barrier( int flags );
 
 #define barrier(flags) do { \
-   struct vc_data* data;\
-   __setvcdata(data);\
+   struct vc_data* data = __getvcdata();\
    if (!(__vc_setjmp(*(data->this_jbufp))))\
       __vc_longjmp(*(data->next_jbufp),flags);\
 } while(0)

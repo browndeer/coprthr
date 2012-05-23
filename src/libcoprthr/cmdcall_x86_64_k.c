@@ -223,22 +223,15 @@ static void* engine_startup( void* p )
 	return(0);
 }
 
-struct work_struct {
-   unsigned int tdim;
-   size_t ltsz[3];
-   size_t gsz[3];
-   size_t gtsz[3];
-   size_t gid[3];
-   size_t gtid[3];
-};
-
 struct vc_data {
    int vcid;
    __vc_jmp_buf* vcengine_jbufp;
    __vc_jmp_buf* this_jbufp;
-   __vc_jmp_buf* next_jbufp; 
-   struct work_struct* workp;
-   size_t ltid[3];
+   __vc_jmp_buf* next_jbufp;
+   struct workp_entry* we;
+   size_t blkidx[3];
+   size_t gtdidx[3];
+   size_t ltdidx[3];
 };
 
 static void* engine( void* p )
@@ -250,8 +243,6 @@ static void* engine( void* p )
 
 	__vc_jmp_buf vcengine_jbuf;
 	__vc_jmp_buf vc_jbuf[VCORE_NC];
-
-	struct work_struct work;
 
 	xclreport( XCL_DEBUG "engine-attempt-lock");
 	pthread_mutex_lock(&engine_mtx[veid]);
@@ -276,7 +267,7 @@ static void* engine( void* p )
 
 		struct vc_data* data = (struct vc_data*)(vc_stack[i]-VCORE_STACK_SZ);
 
-		*data = (struct vc_data){vcid,&vcengine_jbuf,vc_jbuf+i,0,&work};
+		*data = (struct vc_data){vcid,&vcengine_jbuf,vc_jbuf+i,0,0};
 
 		xclreport( XCL_DEBUG "sp %p data %p\n",vc_stack[i],data);
 	}
@@ -326,110 +317,74 @@ static void* engine( void* p )
 			edata->pr_arg_buf = cmd_argp->k.pr_arg_buf;
 			edata->pr_arg_off = cmd_argp->k.pr_arg_off;
 
+		xclreport( XCL_DEBUG "workp_get_entry %p %d",common_engine_workp, veid);
 			struct workp_entry* e = workp_get_entry( common_engine_workp, veid );
 
 			report_workp_entry( XCL_DEBUG, e );
 
-			work.tdim = e->ndr_dim;
-			nc = ng = 1;
-			size_t gid_offset[3];
-			size_t gtid_offset[3];
-			for(d = 0; d<work.tdim; d++) {
+         nc = 1;
+         for(d = 0; d < e->ndr_dim; d++) nc *= e->ndr_ltdsz[d];
 
-				work.gsz[d] = e->ndp_blk_end[d] - e->ndp_blk_first[d];
-				gid_offset[d] =  e->ndp_blk_first[d];
-				work.ltsz[d] = e->ndr_ltdsz[d];
-				work.gtsz[d] = work.gsz[d] * work.ltsz[d];
-				gtid_offset[d] = gid_offset[d] * work.ltsz[d];
+         xclreport( XCL_DEBUG "vcengine[%d]: nc=%d",veid,nc);
 
-				xclreport( XCL_DEBUG "vcengine[%d]: %d %d %d %d\n",
-					veid,d,gtid_offset[d],work.gtsz[d],work.ltsz[d]);
+         for(i=0;i<nc;i++) {
 
-				nc *= work.ltsz[d];
-				ng *= work.gsz[d];
-			} 
+         	struct vc_data* data =(struct vc_data*)(vc_stack[i]-VCORE_STACK_SZ);
 
-			xclreport( XCL_DEBUG "vcengine[%d]: nc=%d  ng=%d",veid,nc,ng);
+            data->next_jbufp = vc_jbuf + (i+1)%nc; /*****/
 
-			for(i=0;i<nc;i++) {
+				data->we  = e;
 
-				struct vc_data* data =(struct vc_data*)(vc_stack[i]-VCORE_STACK_SZ);
-				data->next_jbufp = vc_jbuf + (i+1)%nc;	/*****/
+            int ii = i;
+            switch(e->ndr_dim) {
+               case 3:
+                  qr = div(ii,(e->ndr_ltdsz[1]*e->ndr_ltdsz[0]));
+                  data->ltdidx[2] = qr.quot;
+                  ii = qr.rem;
+               case 2:
+                  qr = div(ii,e->ndr_ltdsz[0]);
+                  data->ltdidx[1] = qr.quot;
+                  ii = qr.rem;
+               case 1:
+                  data->ltdidx[0] = ii;
+               default: break;
+            }
 
+         }
 
-				int ii = i;
-				switch(work.tdim) {
-					case 3:
-						qr = div(ii,(work.ltsz[1]*work.ltsz[0]));
-						data->ltid[2] = qr.quot;
-						ii = qr.rem;
-					case 2:
-						qr = div(ii,work.ltsz[0]);
-						data->ltid[1] = qr.quot;
-						ii = qr.rem;
-					case 1:
-						data->ltid[0] = ii;
-					default: break;
+         edata->vc_runc = 0;
+
+			switch (e->ndr_dim) {
+
+			case 3:
+			{
+			int blk0,blk1,blk2;
+
+			xclreport( XCL_DEBUG "blk loop %d %d | %d %d | %d %d",
+				e->ndp_blk_first[2],e->ndp_blk_end[2],
+				e->ndp_blk_first[1],e->ndp_blk_end[1],
+				e->ndp_blk_first[0],e->ndp_blk_end[0]);
+
+			for(blk2=e->ndp_blk_first[2]; blk2 < e->ndp_blk_end[2]; blk2++) {
+			for(blk1=e->ndp_blk_first[1]; blk1 < e->ndp_blk_end[1]; blk1++) {
+			for(blk0=e->ndp_blk_first[0]; blk0 < e->ndp_blk_end[0]; blk0++) {
+
+				for(i=0;i<nc;i++) {
+
+					struct vc_data* data 
+						=(struct vc_data*)(vc_stack[i]-VCORE_STACK_SZ);
+
+					data->blkidx[2] = blk2;
+					data->gtdidx[2] = blk2*e->ndr_ltdsz[2] + data->ltdidx[2];
+
+					data->blkidx[1] = blk1;
+					data->gtdidx[1] = blk1*e->ndr_ltdsz[1] + data->ltdidx[1];
+
+					data->blkidx[0] = blk0;
+					data->gtdidx[0] = blk0*e->ndr_ltdsz[0] + data->ltdidx[0];
+
 				}
 
-			} 
-
-			edata->vc_runc = 0;
-
-			xclreport( XCL_DEBUG "vcengine[%d]: num_of_groups %d",veid,ng);
-
-			for(g=0;g<ng;g++) { /* loop over thread groups */
-
-				/* set gid[], gtid[] */
-
-				gg = g;
-				switch(work.tdim) {
-					case 3:
-						qr = div(gg,(work.gsz[1]*work.gsz[0]));
-						work.gid[2] = qr.quot + gid_offset[2];
-						work.gtid[2] = qr.quot*work.ltsz[2] + gtid_offset[2];
-						gg = qr.rem;
-					case 2:
-						qr = div(gg,work.gsz[0]);
-						work.gid[1] = qr.quot + gid_offset[1];
-						work.gtid[1] = qr.quot*work.ltsz[1] + gtid_offset[1];
-						gg = qr.rem;
-					case 1:
-						work.gid[0] = gg + gid_offset[0];
-						work.gtid[0] = gg*work.ltsz[0] + gtid_offset[0];
-					default: break;
-				} 
-
-	
-				switch(work.tdim) {
-					case 3:
-						xclreport( XCL_DEBUG 
-							"vcengine[%d]: gid[]={%d,%d,%d} gtid[]={%d,%d,%d}",veid,
-							work.gid[0],work.gid[1],work.gid[2],
-							work.gtid[0],work.gtid[1],work.gtid[2]);
-						break;
-					case 2:
-						xclreport( XCL_DEBUG 
-							"vcengine[%d]: gid[]={%d,%d} gtid[]={%d,%d}",veid,
-							work.gid[0],work.gid[1],
-							work.gtid[0],work.gtid[1]);
-						break;
-					case 1:
-						xclreport( XCL_DEBUG 
-							"vcengine[%d]: gid[]={%d} gtid[]={%d}",veid,
-							work.gid[0],
-							work.gtid[0]);
-						break;
-					default: break;
-				} 
-
-
-				/* XXX temporary soln to the global size bookkeeping issue -DAR */
-				for(d=0;d<work.tdim;d++) {
-//					work.gtsz[d] = cmd_argp->k.global_work_size0[d];
-					work.gtsz[d] = e->ndr_gtdsz[d];
-					work.gsz[d] = work.gtsz[d]/work.ltsz[d];
-				}
 
 				xclreport( XCL_DEBUG "launching vcores (%d)",nc);
 
@@ -456,7 +411,121 @@ static void* engine( void* p )
 						"vcengine[%d]: all vcores completed",veid);
 				} 
 
-			} 
+			} } }
+
+			}
+			break;
+
+			case 2:
+			{
+			int blk0,blk1;
+
+			xclreport( XCL_DEBUG "blk loop %d %d | %d %d",
+				e->ndp_blk_first[1],e->ndp_blk_end[1],
+				e->ndp_blk_first[0],e->ndp_blk_end[0]);
+
+			for(blk1=e->ndp_blk_first[1]; blk1 < e->ndp_blk_end[1]; blk1++) {
+			for(blk0=e->ndp_blk_first[0]; blk0 < e->ndp_blk_end[0]; blk0++) {
+
+				for(i=0;i<nc;i++) {
+
+					struct vc_data* data 
+						=(struct vc_data*)(vc_stack[i]-VCORE_STACK_SZ);
+
+					data->blkidx[1] = blk1;
+					data->gtdidx[1] = blk1*e->ndr_ltdsz[1] + data->ltdidx[1];
+
+					data->blkidx[0] = blk0;
+					data->gtdidx[0] = blk0*e->ndr_ltdsz[0] + data->ltdidx[0];
+
+				}
+
+
+				xclreport( XCL_DEBUG "launching vcores (%d)",nc);
+
+				char* sp;
+				for(i=0;i<nc;i++) {
+					if (!(__vc_setjmp(vcengine_jbuf))) {
+						sp = vc_stack[i];
+						xclreport( XCL_DEBUG "[%d] sp %p callp %p edata %p",
+							i,sp,edata->callp,edata);
+						__callsp(sp,edata->callp,edata);
+					}
+				}
+
+				for(i=0;i<nc;i++) {
+
+					if (!(__vc_setjmp(vcengine_jbuf))) __vc_longjmp(vc_jbuf[i],i+1);
+				} 
+
+				if (edata->vc_runc) {
+					xclreport( XCL_DEBUG "vcengine[%d]: unterminated vcore",veid);
+					exit(-1);
+				} else {
+					xclreport( XCL_DEBUG 
+						"vcengine[%d]: all vcores completed",veid);
+				} 
+
+			} }
+
+			}
+			break;
+
+			case 1:
+
+			{
+			int blk0;
+
+			xclreport( XCL_DEBUG "blk loop %d %d",
+				e->ndp_blk_first[0],e->ndp_blk_end[0]);
+
+			for(blk0=e->ndp_blk_first[0]; blk0 < e->ndp_blk_end[0]; blk0++) {
+
+				for(i=0;i<nc;i++) {
+
+					struct vc_data* data 
+						=(struct vc_data*)(vc_stack[i]-VCORE_STACK_SZ);
+
+					data->blkidx[0] = blk0;
+					data->gtdidx[0] = blk0*e->ndr_ltdsz[0] + data->ltdidx[0];
+
+					xclreport( XCL_DEBUG "core data %p this jbufp %p",
+						data,data->this_jbufp+i);
+				}
+
+
+				xclreport( XCL_DEBUG "launching vcores (%d)",nc);
+
+				char* sp;
+				for(i=0;i<nc;i++) {
+					if (!(__vc_setjmp(vcengine_jbuf))) {
+						sp = vc_stack[i];
+						xclreport( XCL_DEBUG "[%d] sp %p callp %p edata %p",
+							i,sp,edata->callp,edata);
+						__callsp(sp,edata->callp,edata);
+					}
+				}
+
+				for(i=0;i<nc;i++) {
+
+					xclreport( XCL_DEBUG "second loop %d",i);
+					if (!(__vc_setjmp(vcengine_jbuf))) __vc_longjmp(vc_jbuf[i],i+1);
+				} 
+
+				if (edata->vc_runc) {
+					xclreport( XCL_DEBUG "vcengine[%d]: unterminated vcore",veid);
+					exit(-1);
+				} else {
+					xclreport( XCL_DEBUG 
+						"vcengine[%d]: all vcores completed",veid);
+				} 
+
+			}
+
+			}
+			break;
+
+			}
 
 			engine_cmd_argp[veid] = 0;
 			
@@ -716,7 +785,10 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 	int base = __resolve_devid(devid,cpu.veid_base);
 	int nve = __resolve_devid(devid,cpu.nve);
 
+	xclreport( XCL_DEBUG "cpu.nve = %d", nve );
+
 #define safe_div(a,b) ((b==0)? 0 : a/b)
+
 	struct workp_entry e0 = { 
 		argp->k.work_dim,
 		{ 
@@ -744,9 +816,9 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 
 	};
 
-	ne = 6;
-
-	struct workp* wp = workp_alloc( ne );
+	if (!engine_td) engine_startup(0);
+	
+	struct workp* wp = workp_alloc( nve );
 
 	workp_init( wp );
 
@@ -760,14 +832,6 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 	while (e = workp_nxt_entry(wp)) 
 		report_workp_entry(XCL_DEBUG,e);
 
-	if (!engine_td) {
-
-		engine_startup(0);
-
-	}
-
-//	engine_klaunch();
-
 	common_engine_workp = wp;
 
 	engine_proc_cmd(base,nve,argp);
@@ -776,9 +840,8 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 
 	common_engine_workp = 0;
 
-//exit(-999);
-
 	return(0); 
+
 }
 
 
