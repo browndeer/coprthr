@@ -191,14 +191,14 @@ struct _imp_platform {
 struct _imp_ksyms_struct {
 	int flags;
 	void* kthr;
+	void* kthr2;
 	void* kcall;
+	void* kcall2;
 };
 
 struct _imp_kernel {
 	void* v_kbin;
 	struct _imp_ksyms_struct** v_ksyms;
-//	void* v_ksym;
-//	void* v_kcall;
 	cl_uint knum;
 
 	cl_uint* arg_kind;

@@ -303,8 +303,9 @@ void __do_set_cmd_ndrange_kernel(
 
 //	argp->k.ksym = ((void***)krn->imp.v_ksym)[devnum][krn->imp.knum];
 //	argp->k.kcall = ((void***)krn->imp.v_kcall)[devnum][krn->imp.knum];
-	argp->k.ksym = krn->imp.v_ksyms[devnum][krn->imp.knum].kthr;
-	argp->k.kcall = krn->imp.v_ksyms[devnum][krn->imp.knum].kcall;
+//	argp->k.ksym = krn->imp.v_ksyms[devnum][krn->imp.knum].kthr;
+//	argp->k.kcall = krn->imp.v_ksyms[devnum][krn->imp.knum].kcall;
+	argp->k.ksyms = &krn->imp.v_ksyms[devnum][krn->imp.knum];
 	argp->k.narg = krn->narg;
 	argp->k.arg_buf_sz = krn->imp.arg_buf_sz;
 

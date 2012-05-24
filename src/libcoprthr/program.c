@@ -452,17 +452,23 @@ int bind_ksyms_default( struct _imp_ksyms_struct* ksyms, void* h, char* kname )
 	char name[1024];
 
 	strncpy(name,kname,1024);
-
 	ksyms->kthr = dlsym(h,name);
-
 	xclreport( XCL_DEBUG "kthr %s -> %p", name,ksyms->kthr);
+
+	strncpy(name,"__XCL_ser_",1024);
+	strncat(name,kname,1024);
+	ksyms->kthr2 = dlsym(h,name);
+	xclreport( XCL_DEBUG "kthr2 %s -> %p", name,ksyms->kthr2);
 
 	strncpy(name,"__XCL_call_",1024);
 	strncat(name,kname,1024);
-
 	ksyms->kcall = dlsym(h,name);
-
 	xclreport( XCL_DEBUG "kcall %s -> %p", name,ksyms->kcall);
+
+	strncpy(name,"__XCL_call2_",1024);
+	strncat(name,kname,1024);
+	ksyms->kcall2 = dlsym(h,name);
+	xclreport( XCL_DEBUG "kcall2 %s -> %p", name,ksyms->kcall2);
 
 }
 

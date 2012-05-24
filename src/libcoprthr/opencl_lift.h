@@ -1,4 +1,4 @@
-/* __libcoprthr.h
+/* opencl_lift.h
  *
  * Copyright (c) 2011-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -20,8 +20,8 @@
 
 /* DAR */
 
-#ifndef __libcoprthr_h
-#define __libcoprthr_h
+#ifndef _opencl_lift_h
+#define _opencl_lift_h
 
 #include <stdio.h>
 

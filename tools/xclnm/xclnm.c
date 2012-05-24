@@ -467,8 +467,8 @@ int main( int argc, char** argv)
 	if (opt_kcall) {
 
 		fprintf(fp,"#include <stdio.h>\n");
-		fprintf(fp,"#define __xcl_kcall__\n");
-		fprintf(fp,"#include \"vcore2.h\"\n");
+//		fprintf(fp,"#define __xcl_kcall__\n");
+//		fprintf(fp,"#include \"vcore2.h\"\n");
 
 		for(nptr1=root;nptr1;nptr1=nptr1->next) switch(nptr1->ntyp) {
 
@@ -541,10 +541,10 @@ int main( int argc, char** argv)
 						fprintf(fp,":\\n\");\n");
 					}
 
-					fprintf(fp,"\tstruct vcengine_data* edata"
-						" = (struct vcengine_data*)p;\n");
+					fprintf(fp,"\tstruct engine_data* edata"
+						" = (struct engine_data*)p;\n");
 
-					fprintf(fp,"\tstruct vc_data* data = __getvcdata();\n");
+					fprintf(fp,"\tstruct thr_data* data = __get_thr_data();\n");
 
 
 //					fprintf(fp,"\tint vcid = data->vcid;\n");
@@ -556,14 +556,14 @@ int main( int argc, char** argv)
 						fprintf(fp,": vcore[] running\\n\");\n");
 					}
 
-					fprintf(fp,"\t++(edata->vc_runc);\n");
+					fprintf(fp,"\t++(edata->thr_runc);\n");
 
 					fprintf(fp,
 //						"\tif (!(setjmp(*(data->this_jbufp))))"
-						"\tif (!(__vc_setjmp(*(data->this_jbufp))))"
+						"\tif (!(setjmp(*(data->this_jbufp))))"
 //         			"longjmp(*(data->vcengine_jbufp),vcid+1);\n");
 //         			"longjmp(*(data->vcengine_jbufp),0);\n");
-         			"__vc_longjmp(*(data->vcengine_jbufp),0);\n");
+         			"longjmp(*(data->engine_jbufp),0);\n");
 
 					fprintf(fp,"\tvoid* arg_buf = edata->pr_arg_buf;\n");
 
@@ -608,11 +608,11 @@ int main( int argc, char** argv)
 						fprintf(fp,": vcore[] edata = %%p\\n\",edata);\n");
 					}
 
-					fprintf(fp,"\t--(edata->vc_runc);\n");
+					fprintf(fp,"\t--(edata->thr_runc);\n");
 
 //					fprintf(fp,"\tlongjmp(*(data->vcengine_jbufp),vcid+1);\n");
 //					fprintf(fp,"\tlongjmp(*(data->vcengine_jbufp),0);\n");
-					fprintf(fp,"\t__vc_longjmp(*(data->vcengine_jbufp),0);\n");
+					fprintf(fp,"\tlongjmp(*(data->engine_jbufp),0);\n");
 
 					if (opt_kcall_debug) {
 						fprintf(fp,"\tprintf(\"__XCL_call_");
@@ -636,7 +636,7 @@ int main( int argc, char** argv)
 	} else if (opt_kcall2) {
 
 //		fprintf(fp,"#include <stdio.h>\n");
-		fprintf(fp,"#define __xcl_kcall2__\n");
+//		fprintf(fp,"#define __xcl_kcall2__\n");
 //		fprintf(fp,"#include \"vcore.h\"\n");
 
 		for(nptr1=root;nptr1;nptr1=nptr1->next) switch(nptr1->ntyp) {
@@ -710,8 +710,8 @@ int main( int argc, char** argv)
 						fprintf(fp,":\\n\");\n");
 					}
 
-					fprintf(fp,"\tstruct vcengine_data* edata"
-						" = (struct vcengine_data*)p;\n");
+					fprintf(fp,"\tstruct engine_data* edata"
+						" = (struct engine_data*)p;\n");
 
 //					fprintf(fp,"\tstruct vc_data* data = __getvcdata();\n");
 

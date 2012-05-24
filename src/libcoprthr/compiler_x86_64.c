@@ -157,7 +157,7 @@ static char* logbuf = 0;
 
 #define __writefile(file,filesz,pfile) do { \
 	FILE* fp = fopen(file,"w"); \
-	fprintf(fp,"#include \"__libcoprthr.h\"\n"); \
+	fprintf(fp,"#include \"opencl_lift.h\"\n"); \
 	DEBUG(__FILE__,__LINE__,"trying to write %d bytes",filesz); \
 	if (fwrite(pfile,1,filesz,fp) != filesz) { \
 		ERROR(__FILE__,__LINE__,"error: write '%s' failed",file); \
@@ -168,7 +168,7 @@ static char* logbuf = 0;
 
 #define __writefile_cpp(file,filesz,pfile) do { \
 	FILE* fp = fopen(file,"w"); \
-	fprintf(fp,"#include \"__libcoprthr.h\"\nextern \"C\" {\n"); \
+	fprintf(fp,"#include \"opencl_lift.h\"\nextern \"C\" {\n"); \
 	DEBUG(__FILE__,__LINE__,"trying to write %d bytes",filesz); \
 	if (fwrite(pfile,1,filesz,fp) != filesz) { \
 		ERROR(__FILE__,__LINE__,"error: write '%s' failed",file); \
@@ -258,6 +258,8 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 static int __test_file( char* file ) 
 {
 	struct stat s;
+	int err = stat(file,&s);
+	xclreport( XCL_DEBUG "__test_file %d", err);
 	return (stat(file,&s));
 }
 
@@ -352,35 +354,26 @@ void* compile_x86_64(
 
 		/* copy rt objects to work dir */
 
-		__command("\\cp "INSTALL_LIB_DIR"/__vcore_rt.o %s > /dev/null 2>&1",wd);
-		__log(logp,"]%s\n",buf1);
-		__execshell(buf1,logp);
-		snprintf(fullpath,256,"%s/%s",wd,"__vcore_rt.o");
-		__check_err(__test_file(fullpath),
-			"compiler_x86_64: internal error: copy __vcore_rt.o failed.");
+//		__command("\\cp "INSTALL_LIB_DIR"/__vcore_rt.o %s > /dev/null 2>&1",wd);
+//		__log(logp,"]%s\n",buf1);
+//		__execshell(buf1,logp);
+//		snprintf(fullpath,256,"%s/%s",wd,"__vcore_rt.o");
+//		__check_err(__test_file(fullpath),
+//			"compiler_x86_64: internal error: copy __vcore_rt.o failed.");
 
-		__command("\\cp "INSTALL_INCLUDE_DIR"/vcore.h %s > /dev/null 2>&1",wd);
-		__log(logp,"]%s\n",buf1);
-		__execshell(buf1,logp);
-		snprintf(fullpath,256,"%s/%s",wd,"vcore.h");
-		__check_err(__test_file(fullpath),
-			"compiler_x86_64: internal error: copy vcore.h failed.");
+/*
+		char* hdrs[] = { "ser_engine.h", "workp.h", "opencl_lift.h" };
 
-		__command("\\cp "INSTALL_INCLUDE_DIR"/vcore2.h %s > /dev/null 2>&1",wd);
-		__log(logp,"]%s\n",buf1);
-		__execshell(buf1,logp);
-		snprintf(fullpath,256,"%s/%s",wd,"vcore2.h");
-		__check_err(__test_file(fullpath),
-			"compiler_x86_64: internal error: copy vcore2.h failed.");
-
-		__command(
-			"\\cp "INSTALL_INCLUDE_DIR"/__libcoprthr.h %s > /dev/null 2>&1",wd);
-		__log(logp,"]%s\n",buf1);
-		__execshell(buf1,logp);
-		snprintf(fullpath,256,"%s/%s",wd,"__libcoprthr.h");
-		__check_err(__test_file(fullpath),
-			"compiler_x86_64: internal error: copy __libcoprthr.h failed.");
-
+		for(i=0;i<sizeof(hdrs)/sizeof(char*);i++) {
+			__command(
+				"\\cp "INSTALL_INCLUDE_DIR"/%s %s > /dev/null 2>&1",hdrs[i],wd);
+			__log(logp,"]%s\n",buf1);
+			__execshell(buf1,logp);
+			snprintf(fullpath,256,"%s/%s",wd,hdrs[i]);
+			__check_err(__test_file(fullpath),
+				"compiler_x86_64: internal error: hdr copy failed.");
+		}
+*/
 
 		/* write cl file */
 
@@ -407,10 +400,29 @@ void* compile_x86_64(
 			"cd %s; "
 			CC_COMPILER CCFLAGS_OCL 
 			" -I" INSTALL_INCLUDE_DIR 
+			" -D __xcl_kthr__ --include=sl_engine.h "
 			" -D __STDCL_KERNEL_VERSION__=020000"
 			" %s "
 			" -msse -fPIC -c %s.cpp 2>&1",
 			wd,opt,filebase); 
+		__log(p2,"]%s\n",buf1);
+		p2_prev = p2;
+		__execshell(buf1,p2);
+		if (p2 != p2_prev) __append_str(log,p2_prev,0,0);
+		snprintf(fullpath,256,"%s/%s.o",wd,filebase);
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: error: kernel compilation failed.");
+
+		__command(
+			"cd %s; "
+			CC_COMPILER CCFLAGS_OCL 
+			" -I" INSTALL_INCLUDE_DIR 
+			" -D __xcl_kthr__ --include=ser_engine.h "
+			" -D __STDCL_KERNEL_VERSION__=020000"
+			" %s "
+			" -msse -fPIC -c %s.cpp -o ser_%s.o 2>&1;"
+			" objcopy --prefix-symbols=__XCL_ser_ ser_%s.o ",
+			wd,opt,filebase,filebase,filebase); 
 		__log(p2,"]%s\n",buf1);
 		p2_prev = p2;
 		__execshell(buf1,p2);
@@ -430,16 +442,26 @@ void* compile_x86_64(
 		__check_err(__test_file(fullpath),
 			"compiler_x86_64: internal error: kcall wrapper generation failed.");
 
+		__command("cd %s; xclnm --kcall2 -d -c %s -o _kcall2_%s.c 2>&1",
+			wd,file_cl,filebase); 
+		__log(p2,"]%s\n",buf1);
+		__execshell(buf1,p2);
+		snprintf(fullpath,256,"%s/_kcall2_%s.c",wd,filebase);
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: internal error: kcall2 wrapper generation failed.");
+
 
 		/* gcc compile kcall wrappers */
 
 #if defined(__FreeBSD__)
-		__command("cd %s; gcc -O0 -fPIC -I%s -c _kcall_%s.c 2>&1",
+		__command("cd %s; gcc -O0 -fPIC"
+			" -D__xcl_kcall__ -I%s --include=sl_engine.h -c _kcall_%s.c 2>&1",
 			wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
 		__command(
 			"cd %s; "
-			CC_COMPILER CCFLAGS_KCALL " -fPIC -I%s -c _kcall_%s.c 2>&1",
+			CC_COMPILER CCFLAGS_KCALL " -fPIC"
+			" -D__xcl_kcall__ -I%s --include=sl_engine.h -c _kcall_%s.c 2>&1",
 			wd,INSTALL_INCLUDE_DIR,filebase); 
 #endif
 		__log(logp,"]%s\n",buf1);
@@ -447,6 +469,23 @@ void* compile_x86_64(
 		snprintf(fullpath,256,"%s/_kcall_%s.o",wd,filebase);
 		__check_err(__test_file(fullpath),
 			"compiler_x86_64: internal error: kcall wrapper compilation failed.");
+
+#if defined(__FreeBSD__)
+		__command("cd %s; gcc -O0 -fPIC"
+			" -D__xcl_kcall__ -I%s --include=ser_engine.h -c _kcall2_%s.c 2>&1",
+			wd,INSTALL_INCLUDE_DIR,filebase); 
+#else
+		__command(
+			"cd %s; "
+			CC_COMPILER CCFLAGS_KCALL " -fPIC"
+			" -D__xcl_kcall__ -I%s --include=ser_engine.h -c _kcall2_%s.c 2>&1",
+			wd,INSTALL_INCLUDE_DIR,filebase); 
+#endif
+		__log(logp,"]%s\n",buf1);
+		__execshell(buf1,logp);
+		snprintf(fullpath,256,"%s/_kcall2_%s.o",wd,filebase);
+		__check_err(__test_file(fullpath),
+			"compiler_x86_64: internal error: kcall2 wrapper compilation failed.");
 
 
 		DEBUG(__FILE__,__LINE__,
@@ -627,9 +666,11 @@ void* compile_x86_64(
 		__command(
 			"cd %s; "
 			CXX_COMPILER CCFLAGS_LINK " -shared -Wl,-soname,%s.so -o %s.so"
-			" %s.o _kcall_%s.o __vcore_rt.o "
+//			" %s.o _kcall_%s.o __vcore_rt.o "
+//			" %s.o _kcall_%s.o "
+			" %s.o _kcall_%s.o _kcall2_%s.o ser_%s.o"
 			" %s.elfcl 2>&1",
-			wd,filebase,filebase,filebase,filebase,filebase);
+			wd,filebase,filebase,filebase,filebase,filebase,filebase,filebase);
 		__log(p2,"]%s\n",buf1); 
 		p2_prev = p2;
 		__execshell(buf1,p2);

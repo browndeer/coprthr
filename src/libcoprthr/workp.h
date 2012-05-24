@@ -23,15 +23,7 @@
 #ifndef _workp_h
 #define _workp_h
 
-#include <pthread.h>
-
-#include "util.h"
-
-#define mutex_t pthread_mutex_t
-#define mutex_init pthread_mutex_init
-#define mutex_lock pthread_mutex_lock
-#define mutex_unlock pthread_mutex_unlock
-#define mutex_destroy pthread_mutex_destroy
+#include <stdint.h>
 
 struct workp_entry {
 	unsigned int ndr_dim;
@@ -43,6 +35,19 @@ struct workp_entry {
 	unsigned int ndp_ltd0[3];
 };
 
+
+#if !defined(__xcl_kcall__) && !defined(__xcl_kthr__)
+
+#include <pthread.h>
+#include "util.h"
+
+#define mutex_t pthread_mutex_t
+#define mutex_init pthread_mutex_init
+#define mutex_lock pthread_mutex_lock
+#define mutex_unlock pthread_mutex_unlock
+#define mutex_destroy pthread_mutex_destroy
+
+
 struct workp {
 	int flags;
 	mutex_t mtx;
@@ -50,7 +55,7 @@ struct workp {
 	unsigned int nxt;
 };
 
-__inline
+__inline static
 struct workp* workp_alloc( unsigned int n ) 
 {
 	struct workp* wp = (struct workp*)
@@ -59,10 +64,10 @@ struct workp* workp_alloc( unsigned int n )
 	return(wp);
 }
 
-__inline
+__inline static
 void workp_free( struct workp* wp ) { free(wp); }
 
-__inline
+__inline static 
 struct workp* workp_init( struct workp* wp ) 
 {
 	wp->flags = 0;
@@ -70,15 +75,15 @@ struct workp* workp_init( struct workp* wp )
 	wp->nxt = 0;
 }
 
-__inline 
-static struct workp_entry* __workp_part( struct workp* wp) 
+__inline static 
+struct workp_entry* __workp_part( struct workp* wp) 
 { return( (struct workp_entry*)((char*)wp + sizeof(struct workp)) ); }
 
-__inline
+__inline static
 struct workp_entry* workp_get_entry( struct workp* wp, unsigned int idx )
 { return((idx<wp->n)? __workp_part(wp) + idx : 0 ); }
 
-__inline
+__inline static 
 int workp_set_entry( 
 	struct workp* wp, unsigned int idx, struct workp_entry* e ) 
 {
@@ -88,15 +93,15 @@ int workp_set_entry(
 	} else return(-1);
 }
 
-__inline
+__inline static 
 void workp_reset( struct workp* wp )
 { wp->nxt = 0; }
 
-__inline
+__inline static 
 struct workp_entry* workp_nxt_entry( struct workp* wp )
 { return( (wp->nxt<wp->n)? __workp_part(wp) + wp->nxt++ : 0 ); }
 
-__inline
+__inline static 
 unsigned int workp_genpart( 
 	struct workp* wp, struct workp_entry* e0 )
 {
@@ -191,6 +196,8 @@ unsigned int workp_genpart(
          (e)->ndp_ltd0[0] ); \
    } \
 	} while(0)
+
+#endif
 
 #endif
 

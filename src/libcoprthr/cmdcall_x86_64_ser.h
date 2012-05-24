@@ -1,4 +1,4 @@
-/* cmdcall_x86_64_k.h
+/* cmdcall_x86_64_ser.h
  *
  * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -20,14 +20,14 @@
 
 /* DAR */
 
-#ifndef _cmdcall_x86_64_k_h
-#define _cmdcall_x86_64_k_h
+#ifndef _cmdcall_x86_64_ser_h
+#define _cmdcall_x86_64_ser_h
 
 #include <CL/cl.h>
 
 #include "cmdcall.h"
 
-extern cmdcall_t cmdcall_x86_64_k[];
+extern cmdcall_t cmdcall_x86_64_ser[];
 
 #endif
 
