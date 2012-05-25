@@ -56,7 +56,7 @@
  * XXX also, do not raise CCFLAGS_KCALL, effect is to break everything. -DAR */
 
 //#define CCFLAGS_OCL " -O2 " CCFLAGS_OCL_O2
-#define CCFLAGS_OCL " -O3 -mfloat-abi=softfp -mfpu=neon -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations " XXX_GCC_HACK_FLAG
+#define CCFLAGS_OCL " -fno-exceptions -O3 -mfloat-abi=softfp -mfpu=neon -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations " XXX_GCC_HACK_FLAG
 #define CCFLAGS_KCALL " -O0 "
 #define CCFLAGS_LINK 
 
