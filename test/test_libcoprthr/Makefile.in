@@ -53,6 +53,9 @@ all: $(PRG_TESTS)
 
 #CFLAGS += -g
 
+clinfo.x: clinfo.o
+	$(CC) $(CFLAGS) $(INCS) -o clinfo.x clinfo.c $(OBJS) $(LIBS)
+
 test.x: test.o
 	$(CC) $(CFLAGS) $(INCS) -o test.x test.c $(OBJS) $(LIBS)
 
@@ -64,10 +67,12 @@ test_%.x: ./scripts/gen_c_test_%.pl ./scripts/gen_cl_test_%.pl
 .c.o:
 	$(CC) $(CFLAGS) $(DEF) $(INCS) -c $<
 
-test: clean $(addsuffix .x,$(TESTS))
+test: clean clinfo.x $(addsuffix .x,$(TESTS))
+	./clinfo.x
 	/usr/bin/time ./scripts/run_tests.sh $(PRG_TESTS)
 
-quicktest: clean $(addsuffix .x,$(TESTS))
+quicktest: clean clinfo.x $(addsuffix .x,$(TESTS))
+	./clinfo.x
 	/usr/bin/time ./scripts/run_quick_tests.sh $(PRG_TESTS)
 
 
