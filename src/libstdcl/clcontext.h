@@ -176,6 +176,7 @@ extern LIBSTDCL_API CONTEXT* stddev;
 extern LIBSTDCL_API CONTEXT* stdcpu;
 extern LIBSTDCL_API CONTEXT* stdgpu;
 extern LIBSTDCL_API CONTEXT* stdrpu;
+extern LIBSTDCL_API CONTEXT* stdacc;
 
 #ifdef __cplusplus
 extern "C" {

@@ -64,6 +64,7 @@ LIBSTDCL_API CONTEXT* stddev = 0;
 LIBSTDCL_API CONTEXT* stdcpu = 0;
 LIBSTDCL_API CONTEXT* stdgpu = 0;
 LIBSTDCL_API CONTEXT* stdrpu = 0;
+LIBSTDCL_API CONTEXT* stdacc = 0;
 
 int procelf_fd = -1;
 void* procelf = 0;
@@ -298,6 +299,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	enable = 1;
 	lock_key = 0;
 
+/*
 	if (getenv("STDRPU")) enable = atoi(getenv("STDRPU"));
 
 	if (enable) {
@@ -314,6 +316,47 @@ void __attribute__((__constructor__)) _libstdcl_init()
 			lock_key = atoi(getenv("STDRPU_LOCK"));
 
 		stdrpu = clcontext_create(name,CL_DEVICE_TYPE_RPU,ndev,0,lock_key);
+
+	}
+
+	printcl( CL_DEBUG "back from clcontext_create\n");
+*/
+
+
+	/*
+	 * initialize stdacc (all ACCELERATOR CL devices)
+	 */
+
+	printcl( CL_DEBUG "clinit: initialize stdacc");
+
+
+	stdacc = 0;
+	ndev = 0; /* this is a special case that implies all available -DAR */
+	enable = 1;
+	lock_key = 0;
+
+	if (getenv("STDACC")) enable = atoi(getenv("STDACC"));
+
+	if (enable) {
+
+		char name[256];
+		if (getenv("STDACC_PLATFORM_NAME"))
+			strncpy(name,getenv("STDACC_PLATFORM_NAME"),256);
+#ifdef DEFAULT_OPENCL_PLATFORM
+//		else name[0]='\0';
+		else strncpy(name,DEFAULT_OPENCL_PLATFORM,256);
+#else
+		else name[0]='\0';
+#endif
+
+		if (getenv("STDACC_MAX_NDEV"))
+			ndev = atoi(getenv("STDACC_MAX_NDEV"));
+
+		if (getenv("STDACC_LOCK"))
+			lock_key = atoi(getenv("STDACC_LOCK"));
+
+		stdacc = clcontext_create(name,CL_DEVICE_TYPE_ACCELERATOR,ndev,
+			0,lock_key);
 
 	}
 
