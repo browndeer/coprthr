@@ -1,7 +1,7 @@
 NAME = bdt_nbody
 
 ### uncomment to disable GL display and use --no-display to run program
-#DISABLE_DISPLAY = 1
+DISABLE_DISPLAY = 1
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
