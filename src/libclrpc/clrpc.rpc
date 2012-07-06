@@ -1,0 +1,118 @@
+
+/***
+ *** clrpc common definitions
+ ***/
+
+struct dual_ptr {
+   int64 local = 1;
+   int64 remote = 2;
+}
+
+
+/*** 
+ *** cl_int clGetPlatformIDs (cl_uint,cl_platform_id*,cl_uint* ) 
+ ***/
+
+struct _clrpc_clGetPlatformIDs_request {
+   int64 nplatforms = 1;
+   array struct[dual_ptr] platforms = 2;
+}
+
+struct _clrpc_clGetPlatformIDs_reply {
+	int64 retval = 1;
+   array struct[dual_ptr] platforms = 2;
+   int64 nplatforms_ret = 3;
+}
+
+
+/***
+ *** cl_int clGetPlatformInfo (cl_platform_id platform,
+ *** 	cl_platform_info param_name,
+ *** 	size_t param_value_size,
+ *** 	void *param_value,
+ *** 	size_t *param_value_size_ret)
+ ***/
+
+struct _clrpc_clGetPlatformInfo_request {
+	struct[dual_ptr] platform = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetPlatformInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int
+ *** clGetDeviceIDs(
+ ***   cl_platform_id platform,
+ ***   cl_device_type devtype,
+ ***   cl_uint ndevices,
+ ***   cl_device_id* devices,
+ ***   cl_uint* ndevices_ret)
+ ***/
+
+struct _clrpc_clGetDeviceIDs_request {
+	struct[dual_ptr] platform = 1;
+	int64 devtype = 2;
+   int64 ndevices = 3;
+   array struct[dual_ptr] devices = 4;
+}
+
+struct _clrpc_clGetDeviceIDs_reply {
+	int64 retval = 1;
+   array struct[dual_ptr] devices = 2;
+   int64 ndevices_ret = 3;
+}
+
+
+/*** cl_int
+ *** clGetDeviceInfo(
+ ***   cl_device_id devid,
+ ***   cl_device_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetDeviceInfo_request {
+	struct[dual_ptr] device = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetDeviceInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_context
+ *** clCreateContext(
+ ***  const cl_context_properties* prop,
+ ***  cl_uint ndev,
+ ***  const cl_device_id* devices,
+ ***  void (*pfn_notify) (const char*, const void*, size_t, void*),
+ ***  void* user_data,
+ ***  cl_int* err_ret )
+ ***/
+
+struct _clrpc_clCreateContext_request {
+	array int64 xprop = 1;
+	int64 ndev = 2;
+	array struct[dual_ptr] devices = 3;
+	struct[dual_ptr] retval = 4;
+}
+
+struct _clrpc_clCreateContext_reply {
+	struct[dual_ptr] retval = 1;
+	int64 err_ret = 2;
+}
+
+

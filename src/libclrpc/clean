@@ -1,0 +1,2 @@
+rm -f  *.o *.gen.c *.gen.h *.so clrpcd clrpc_test_cli
+
