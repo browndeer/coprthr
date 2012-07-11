@@ -116,3 +116,199 @@ struct _clrpc_clCreateContext_reply {
 }
 
 
+/*** cl_int
+ *** clGetContextInfo(
+ ***   cl_context context,
+ ***   cl_context_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetContextInfo_request {
+	struct[dual_ptr] context = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetContextInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int clReleaseContext( cl_context context )
+ ***/
+
+struct _clrpc_clReleaseContext_request {
+	struct[dual_ptr] context = 1;
+}
+
+struct _clrpc_clReleaseContext_reply {
+	int64 retval = 1;
+}
+
+
+/***
+ *** cl_command_queue clCreateCommandQueue (
+ ***	cl_context context,
+ *** 	cl_device_id device,
+ *** 	cl_command_queue_properties properties,
+ *** 	cl_int *errcode_ret)
+ ***/
+
+struct _clrpc_clCreateCommandQueue_request {
+	struct[dual_ptr] context = 1;
+	struct[dual_ptr] device = 2;
+	int64 properties = 3;
+	struct[dual_ptr] retval = 4;
+}
+
+struct _clrpc_clCreateCommandQueue_reply {
+	struct[dual_ptr] retval = 1;
+	int64 err_ret = 2;
+}
+
+
+/***
+ *** cl_int clReleaseCommandQueue( cl_command_queue command_queue )
+ ***/
+
+struct _clrpc_clReleaseCommandQueue_request {
+	struct[dual_ptr] command_queue = 1;
+}
+
+struct _clrpc_clReleaseCommandQueue_reply {
+	int64 retval = 1;
+}
+
+
+/*** 
+ *** cl_mem clCreateBuffer (
+ ***	cl_context context,
+ ***	cl_mem_flags flags,
+ ***	size_t size,
+ ***	void *host_ptr,
+ ***	cl_int *errcode_ret)
+ ***/
+
+struct _clrpc_clCreateBuffer_request {
+	struct[dual_ptr] context = 1;
+	int64 flags = 2;
+	int64 size = 3;
+//	struct[dual_ptr] host_ptr = 4;
+	struct[dual_ptr] retval = 4;
+}
+
+struct _clrpc_clCreateBuffer_reply {
+	struct[dual_ptr] retval = 1;
+	int64 err_ret = 2;
+}
+
+
+/***
+ *** cl_int clReleaseMemObject( cl_mem memobj )
+ ***/
+
+struct _clrpc_clReleaseMemObject_request {
+	struct[dual_ptr] memobj = 1;
+}
+
+struct _clrpc_clReleaseMemObject_reply {
+	int64 retval = 1;
+}
+
+
+/***
+ *** cl_int clEnqueueWriteBuffer (
+ ***	cl_command_queue command_queue,
+ ***	cl_mem buffer,
+ ***	cl_bool blocking_write,
+ ***	size_t offset,
+ ***	size_t cb,
+ ***	const void *ptr,
+ ***	cl_uint num_events_in_wait_list,
+ ***	const cl_event *event_wait_list,
+ ***	cl_event *event)
+ ***/
+
+struct _clrpc_clEnqueueWriteBuffer_request {
+	struct[dual_ptr] command_queue = 1;
+	struct[dual_ptr] buffer = 2;
+	int64 blocking_write = 3;
+	int64 offset = 4;
+	int64 cb = 5;
+	bytes _bytes = 6;
+	int64 num_events_in_wait_list = 7;
+	array struct[dual_ptr] event_wait_list = 8;
+	struct[dual_ptr] event = 9;
+}
+
+struct _clrpc_clEnqueueWriteBuffer_reply {
+	struct[dual_ptr] event = 1;
+	int64 retval = 2;
+}
+
+
+/*** cl_int
+ *** clGetEventInfo(
+ ***   cl_event event,
+ ***   cl_event_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetEventInfo_request {
+	struct[dual_ptr] event = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetEventInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int clReleaseEvent( cl_event event )
+ ***/
+
+struct _clrpc_clReleaseEvent_request {
+	struct[dual_ptr] event = 1;
+}
+
+struct _clrpc_clReleaseEvent_reply {
+	int64 retval = 1;
+}
+
+
+/***
+ *** cl_program clCreateProgramWithSource(
+ ***	cl_context context,
+ ***	cl_uint count,
+ ***	const char **strings,
+ ***	const size_t *lengths,
+ ***	cl_int *errcode_ret)
+ ***/
+
+struct _clrpc_clCreateProgramWithSource_request {
+	struct[dual_ptr] context = 1;
+	int64 count = 2;
+	bytes _bytes = 3;
+	array int64 lengths = 4;
+	struct[dual_ptr] retval = 5;
+	int64 err_ret = 6;
+}
+
+struct _clrpc_clCreateProgramWithSource_reply {
+	struct[dual_ptr] retval = 1;
+	int64 err_ret = 2;
+}
+
+
+

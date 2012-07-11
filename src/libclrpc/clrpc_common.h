@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "event2/event-config.h"
 #include "event2/buffer.h"
 #include "event2/event.h"
 #include "event2/event_compat.h"
@@ -35,6 +36,8 @@ typedef int64_t clrpc_int;
 typedef int64_t clrpc_int64;
 typedef uint64_t clrpc_uint;
 typedef uint64_t clrpc_uint64;
+typedef uint64_t clrpc_bool;
+
 typedef uint64_t clrpc_ptr;
 typedef struct { clrpc_ptr local, remote; } clrpc_dptr;
 
@@ -43,12 +46,20 @@ typedef _clrpc_platform_id* clrpc_platform_id;
 
 typedef int64_t clrpc_platform_info;
 typedef int64_t clrpc_device_info;
+typedef int64_t clrpc_context_info;
+typedef int64_t clrpc_event_info;
 
 typedef clrpc_dptr _clrpc_device_id;
 typedef _clrpc_device_id* clrpc_device_id;
 
 typedef clrpc_dptr _clrpc_context;
 typedef _clrpc_context* clrpc_context;
+
+typedef int64_t clrpc_command_queue_properties;
+typedef int64_t clrpc_mem_flags;
+
+typedef clrpc_ptr _clrpc_event;
+typedef _clrpc_event* clrpc_event;
 
 
 extern evutil_socket_t pair[2];
