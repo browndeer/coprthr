@@ -99,6 +99,14 @@ CLRPC_HEADER(clEnqueueWriteBuffer)
 CLRPC_HEADER(clGetEventInfo)
 CLRPC_HEADER(clReleaseEvent)
 CLRPC_HEADER(clCreateProgramWithSource)
+CLRPC_HEADER(clBuildProgram)
+CLRPC_HEADER(clGetProgramInfo)
+CLRPC_HEADER(clReleaseProgram)
+CLRPC_HEADER(clCreateKernel)
+CLRPC_HEADER(clGetKernelInfo)
+CLRPC_HEADER(clReleaseKernel)
+CLRPC_HEADER(clSetKernelArg)
+CLRPC_HEADER(clFlush)
 
 CLRPC_GENERATE(clGetPlatformIDs)
 CLRPC_GENERATE(clGetPlatformInfo)
@@ -115,6 +123,14 @@ CLRPC_GENERATE(clEnqueueWriteBuffer)
 CLRPC_GENERATE(clGetEventInfo)
 CLRPC_GENERATE(clReleaseEvent)
 CLRPC_GENERATE(clCreateProgramWithSource)
+CLRPC_GENERATE(clBuildProgram)
+CLRPC_GENERATE(clGetProgramInfo)
+CLRPC_GENERATE(clReleaseProgram)
+CLRPC_GENERATE(clCreateKernel)
+CLRPC_GENERATE(clGetKernelInfo)
+CLRPC_GENERATE(clReleaseKernel)
+CLRPC_GENERATE(clSetKernelArg)
+CLRPC_GENERATE(clFlush)
 
 static void 
 _clrpc_conn_close_cb( 
@@ -124,6 +140,20 @@ _clrpc_conn_close_cb(
 	xclreport( XCL_DEBUG "_clrpc_conn_close_cb");
 }
 
+
+struct _dptr_struct {
+   union {
+      struct {
+         LIST_ENTRY(_dptr_struct) dptr_list;
+			clrpc_ptr local;
+			clrpc_ptr remote;
+      };
+      char __pad[32];
+   };
+};
+
+
+LIST_HEAD(_dptr_listhead_struct, _dptr_struct) dptr_listhead;
 
 static void
 _clrpc_clGetPlatformIDs_svrcb(
@@ -136,10 +166,14 @@ _clrpc_clGetPlatformIDs_svrcb(
 	int i;
 
 // XXX this code makes more sense on context create -DAR
+	/* initialization for THIS connection */
    struct evhttp_request* http_req = EVRPC_REQUEST_HTTP(rpc);
    struct evhttp_connection* http_conn
       = evhttp_request_get_connection(http_req);
    evhttp_connection_set_closecb(http_conn,_clrpc_conn_close_cb,0);
+
+	LIST_INIT(&dptr_listhead);
+
    xclreport( XCL_DEBUG "_clrpc_clGetPlatformIDs_svrcb %p",http_conn);
 
 	cl_uint nplatforms = 0;
@@ -403,6 +437,12 @@ _clrpc_clCreateBuffer_svrcb(
 
 	CLRPC_ASSIGN(reply, int64, err_ret, err_ret );
 
+	struct _dptr_struct* dptr 
+		= (struct _dptr_struct*)malloc(sizeof(struct _dptr_struct));
+	dptr->local = retval.local;
+	dptr->remote = retval.remote;
+	LIST_INSERT_HEAD(&dptr_listhead, dptr, dptr_list);
+
    EVRPC_REQUEST_DONE(rpc);
 }
 
@@ -566,6 +606,182 @@ _clrpc_clCreateProgramWithSource_svrcb(
    EVRPC_REQUEST_DONE(rpc);
 }
 
+static void
+_clrpc_clBuildProgram_svrcb(
+	EVRPC_STRUCT(_clrpc_clBuildProgram)* rpc, void* parg)
+{
+	xclreport( XCL_DEBUG "_clrpc_clBuildProgram_svrcb");
+	
+	CLRPC_SVRCB_INIT(clBuildProgram);
+
+	int i;
+
+	cl_program program;
+	cl_uint ndevices;
+	cl_device_id* devices;
+	char* options;
+	void* pfn_notify = 0;
+	void* user_data = 0;
+	
+	struct dual_ptr* d;
+
+   EVTAG_GET(request,program,&d);
+   EVTAG_GET(d,remote,(void*)&program);
+
+	CLRPC_GET(request,uint,ndevices,&ndevices);
+
+	size_t devices_len = EVTAG_ARRAY_LEN(request,devices);
+	if (devices_len != ndevices) 
+		xclreport( XCL_ERR "devices_len not equal to ndevices");
+	devices = (cl_device_id*)calloc(ndevices,sizeof(cl_device_id));
+	for(i=0;i<ndevices;i++) {
+		struct dual_ptr* d;
+		clrpc_ptr local,remote;
+		EVTAG_ARRAY_GET(request, devices, i, &d);
+		EVTAG_GET(d,local,&local);
+		EVTAG_GET(d,remote,&remote);
+		devices[i] = (cl_device_id)remote;
+		xclreport( XCL_DEBUG "devices[] %p",devices[i]);
+	}
+
+   unsigned int options_sz = 0;
+   EVTAG_GET_WITH_LEN(request,options,(unsigned char**)&options,&options_sz);
+	if (options_sz == 0) options = 0;
+	xclreport( XCL_DEBUG "%d:|%s|",options_sz,options);
+
+	cl_int retval = clBuildProgram(program,ndevices,devices,options,
+		pfn_notify,user_data);
+
+	CLRPC_ASSIGN(reply, int64, retval, retval );
+
+   EVRPC_REQUEST_DONE(rpc);
+}
+
+CLRPC_GENERIC_GETINFO_SVRCB(clGetProgramInfo,program,program,program_info)
+
+CLRPC_GENERIC_RELEASE_SVRCB(clReleaseProgram,cl_program,program)
+
+
+
+static void
+_clrpc_clCreateKernel_svrcb(
+	EVRPC_STRUCT(_clrpc_clCreateKernel)* rpc, void* parg)
+{
+	xclreport( XCL_DEBUG "_clrpc_clCreateKernel_svrcb");
+	
+	CLRPC_SVRCB_INIT(clCreateKernel);
+
+	cl_program program;
+	char* kernel_name;
+	cl_int err_ret;
+
+	struct dual_ptr* d;
+
+   EVTAG_GET(request,program,&d);
+   EVTAG_GET(d,remote,(void*)&program);
+
+	EVTAG_GET(request,kernel_name,&kernel_name);
+
+	cl_kernel kernel = clCreateKernel(program,kernel_name,&err_ret);
+
+	xclreport( XCL_DEBUG "remote kernel = %p",kernel);
+
+	clrpc_dptr retval;
+	EVTAG_GET(request,retval,&d);
+	EVTAG_GET(d,local,&retval.local);
+	retval.remote = (clrpc_ptr)kernel;
+	EVTAG_GET(reply,retval,&d);
+	EVTAG_ASSIGN(d,local,retval.local);
+	EVTAG_ASSIGN(d,remote,retval.remote);
+
+	CLRPC_ASSIGN(reply, int64, err_ret, err_ret );
+
+   EVRPC_REQUEST_DONE(rpc);
+}
+
+CLRPC_GENERIC_GETINFO_SVRCB(clGetKernelInfo,kernel,kernel,kernel_info)
+
+CLRPC_GENERIC_RELEASE_SVRCB(clReleaseKernel,cl_kernel,kernel)
+
+static void
+_clrpc_clSetKernelArg_svrcb(
+	EVRPC_STRUCT(_clrpc_clSetKernelArg)* rpc, void* parg)
+{
+	xclreport( XCL_DEBUG "_clrpc_clSetKernelArg_svrcb");
+	
+	CLRPC_SVRCB_INIT(clSetKernelArg);
+
+	cl_kernel kernel;
+	cl_uint arg_index;
+	size_t arg_size;
+	void* arg_value = 0;
+
+	struct dual_ptr* d;
+
+   EVTAG_GET(request,kernel,&d);
+   EVTAG_GET(d,remote,(void*)&kernel);
+
+	CLRPC_GET(request,uint,arg_index,&arg_index);
+	EVTAG_GET(request,arg_size,&arg_size);
+
+	xclreport( XCL_DEBUG "index size %d %ld", arg_index, arg_size);
+
+	if (arg_size > 0) {
+   	unsigned int tmp_sz = 0;
+   	EVTAG_GET_WITH_LEN(request,arg_value,(unsigned char**)&arg_value,&tmp_sz);
+		if (tmp_sz != arg_size) 
+			xclreport( XCL_ERR "array len not equal to arg_size");
+	}
+
+	void* local_ptr = *(void**)arg_value;
+	xclreport( XCL_DEBUG "local_ptr %p",local_ptr);
+
+	struct _dptr_struct* dptr;
+	for (
+      dptr = dptr_listhead.lh_first; dptr != 0;
+      dptr = dptr->dptr_list.le_next
+   ) {
+		if (dptr->local == (clrpc_ptr)local_ptr) {
+			xclreport( XCL_DEBUG "found local, remap remote %p -> %p",
+				(void*)dptr->local,(void*)dptr->remote);
+			*(void**)arg_value = (void*)dptr->remote;
+		}
+	}
+
+	cl_int retval = clSetKernelArg(kernel,arg_index,arg_size,arg_value);
+
+	CLRPC_ASSIGN(reply, int64, retval, retval );
+
+   EVRPC_REQUEST_DONE(rpc);
+}
+
+
+static void
+_clrpc_clFlush_svrcb(
+	EVRPC_STRUCT(_clrpc_clFlush)* rpc, void* parg)
+{
+	xclreport( XCL_DEBUG "_clrpc_clFlush_svrcb");
+	
+	CLRPC_SVRCB_INIT(clFlush);
+
+	cl_command_queue command_queue;
+
+	struct dual_ptr* d;
+
+   EVTAG_GET(request,command_queue,&d);
+   EVTAG_GET(d,remote,(void*)&command_queue);
+
+	cl_int retval = clFlush(command_queue);
+
+	CLRPC_ASSIGN(reply, int64, retval, retval );
+
+   EVRPC_REQUEST_DONE(rpc);
+}
+
+
+/**********
+ **********
+ **********/
 
 void _clrpc_buf_eventcb(struct bufferevent *bev, short events, void *ptr)
 {
@@ -602,6 +818,14 @@ clrpc_server(void)
 	CLRPC_REGISTER(clGetEventInfo);
 	CLRPC_REGISTER(clReleaseEvent);
 	CLRPC_REGISTER(clCreateProgramWithSource);
+	CLRPC_REGISTER(clBuildProgram);
+	CLRPC_REGISTER(clGetProgramInfo);
+	CLRPC_REGISTER(clReleaseProgram);
+	CLRPC_REGISTER(clCreateKernel);
+	CLRPC_REGISTER(clGetKernelInfo);
+	CLRPC_REGISTER(clReleaseKernel);
+	CLRPC_REGISTER(clSetKernelArg);
+	CLRPC_REGISTER(clFlush);
 
 	struct bufferevent *bev;
    bev = bufferevent_socket_new(global_base, -1, BEV_OPT_CLOSE_ON_FREE);

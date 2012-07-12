@@ -48,6 +48,8 @@ typedef int64_t clrpc_platform_info;
 typedef int64_t clrpc_device_info;
 typedef int64_t clrpc_context_info;
 typedef int64_t clrpc_event_info;
+typedef int64_t clrpc_program_info;
+typedef int64_t clrpc_kernel_info;
 
 typedef clrpc_dptr _clrpc_device_id;
 typedef _clrpc_device_id* clrpc_device_id;
@@ -60,6 +62,12 @@ typedef int64_t clrpc_mem_flags;
 
 typedef clrpc_ptr _clrpc_event;
 typedef _clrpc_event* clrpc_event;
+
+typedef clrpc_ptr _clrpc_program;
+typedef _clrpc_program* clrpc_program;
+
+typedef clrpc_ptr _clrpc_kernel;
+typedef _clrpc_kernel* clrpc_kernel;
 
 
 extern evutil_socket_t pair[2];

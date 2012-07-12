@@ -11,6 +11,7 @@
 #include <netdb.h>
 #endif
 
+#define _GNU_SOURCE
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -95,6 +96,14 @@ CLRPC_HEADER(clEnqueueWriteBuffer)
 CLRPC_HEADER(clGetEventInfo)
 CLRPC_HEADER(clReleaseEvent)
 CLRPC_HEADER(clCreateProgramWithSource)
+CLRPC_HEADER(clBuildProgram)
+CLRPC_HEADER(clGetProgramInfo)
+CLRPC_HEADER(clReleaseProgram)
+CLRPC_HEADER(clCreateKernel)
+CLRPC_HEADER(clGetKernelInfo)
+CLRPC_HEADER(clReleaseKernel)
+CLRPC_HEADER(clSetKernelArg)
+CLRPC_HEADER(clFlush)
 
 CLRPC_GENERATE(clGetPlatformIDs)
 CLRPC_GENERATE(clGetPlatformInfo)
@@ -111,6 +120,14 @@ CLRPC_GENERATE(clEnqueueWriteBuffer)
 CLRPC_GENERATE(clGetEventInfo)
 CLRPC_GENERATE(clReleaseEvent)
 CLRPC_GENERATE(clCreateProgramWithSource)
+CLRPC_GENERATE(clBuildProgram)
+CLRPC_GENERATE(clGetProgramInfo)
+CLRPC_GENERATE(clReleaseProgram)
+CLRPC_GENERATE(clCreateKernel)
+CLRPC_GENERATE(clGetKernelInfo)
+CLRPC_GENERATE(clReleaseKernel)
+CLRPC_GENERATE(clSetKernelArg)
+CLRPC_GENERATE(clFlush)
 
 struct cb_struct {
 	pthread_mutex_t mtx;
@@ -425,9 +442,6 @@ clrpc_clCreateBuffer(
 
 	CLRPC_INIT(clCreateBuffer);
 
-	xclreport( XCL_DEBUG "membuf local remote %p %p",
-		((clrpc_dptr*)buffer)->local,((clrpc_dptr*)buffer)->remote);
-
 	CLRPC_ASSIGN_DPTR(request,context,dummy);
 	CLRPC_ASSIGN(request,mem_flags,flags,flags);
 	EVTAG_ASSIGN(request,size,size);
@@ -568,6 +582,155 @@ clrpc_clCreateProgramWithSource(
 	if (buf) free(buf);
 
 	return((cl_program)program);
+}
+
+
+/*
+ * clBuildProgram
+ */
+CLRPC_UNBLOCK_CLICB(clBuildProgram)
+cl_int
+clrpc_clBuildProgram(
+	cl_program program, 
+	cl_uint ndevices,
+	const cl_device_id* devices,
+	const char* options,
+	void (CL_CALLBACK *pfn_notify)(cl_program program, void *user_data),
+	void *user_data
+)
+{
+	CLRPC_INIT(clBuildProgram);
+
+	CLRPC_ASSIGN_DPTR(request,program,dummy);
+	CLRPC_ASSIGN(request,uint,ndevices,ndevices);
+	CLRPC_ASSIGN_DPTR_ARRAY(request,ndevices,devices);
+	size_t options_sz = (options)? strnlen(options,4096) : 0;
+	EVTAG_ASSIGN_WITH_LEN(request,options,(unsigned char*)options,options_sz);
+	
+	CLRPC_MAKE_REQUEST_WAIT(clBuildProgram);
+
+	cl_int retval;
+	CLRPC_GET(reply,int,retval,&retval);
+
+	xclreport( XCL_DEBUG "clrpc_clBuildProgram: retval = %d", retval);
+
+	return(retval);
+}
+
+
+/*
+ * clGetProgramInfo
+ */
+CLRPC_GENERIC_GETINFO(clGetProgramInfo,program,program,program_info)
+
+
+/*
+ * clReleaseProgram
+ */
+CLRPC_GENERIC_RELEASE(clReleaseProgram,cl_program,program)
+
+
+/*
+ * clCreateKernel
+ */
+CLRPC_UNBLOCK_CLICB(clCreateKernel)
+cl_kernel
+clrpc_clCreateKernel(
+	cl_program program, 
+	const char* kernel_name,
+   cl_int* err_ret
+)
+{
+	clrpc_dptr* kernel = (clrpc_dptr*)malloc(sizeof(clrpc_dptr));
+	kernel->local = (clrpc_ptr)kernel;
+
+	CLRPC_INIT(clCreateKernel);
+
+	CLRPC_ASSIGN_DPTR(request,program,dummy);
+	EVTAG_ASSIGN(request,kernel_name,kernel_name);
+
+	clrpc_dptr* retval = kernel;
+	CLRPC_ASSIGN_DPTR(request,retval,dummy);
+
+	CLRPC_MAKE_REQUEST_WAIT(clCreateKernel);
+
+	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&kernel->remote);
+	xclreport( XCL_DEBUG "kernel local remote %p %p",
+		kernel->local,kernel->remote);
+
+	CLRPC_GET(reply,int,err_ret,err_ret);
+
+	xclreport( XCL_DEBUG "clrpc_clCreateKernel: *err_ret = %d\n", *err_ret);
+
+	return((cl_kernel)kernel);
+}
+
+
+/*
+ * clGetKernelInfo
+ */
+CLRPC_GENERIC_GETINFO(clGetKernelInfo,kernel,kernel,kernel_info)
+
+
+/*
+ * clReleaseKernel
+ */
+CLRPC_GENERIC_RELEASE(clReleaseKernel,cl_kernel,kernel)
+
+
+/*
+ * clSetKernelArg
+ */
+CLRPC_UNBLOCK_CLICB(clSetKernelArg)
+cl_int
+clrpc_clSetKernelArg(
+	cl_kernel kernel, 
+	cl_uint arg_index,
+	size_t arg_size,
+   const void* arg_value
+)
+{
+	CLRPC_INIT(clSetKernelArg);
+
+	CLRPC_ASSIGN_DPTR(request,kernel,dummy);
+	EVTAG_ASSIGN(request,arg_index,arg_index);
+	EVTAG_ASSIGN(request,arg_size,arg_size);
+	if (arg_value)
+		 EVTAG_ASSIGN_WITH_LEN(request,arg_value,(unsigned char*)arg_value,
+			arg_size);
+
+	CLRPC_MAKE_REQUEST_WAIT(clSetKernelArg);
+
+	cl_int retval;
+	CLRPC_GET(reply,int,retval,&retval);
+
+	xclreport( XCL_DEBUG "clrpc_clSetKernelArg: retval = %d\n", retval);
+
+	return(retval);
+}
+
+
+/*
+ * clFlush
+ */
+CLRPC_UNBLOCK_CLICB(clFlush)
+cl_int
+clrpc_clFlush(
+	cl_command_queue command_queue
+)
+{
+	CLRPC_INIT(clFlush);
+
+	CLRPC_ASSIGN_DPTR(request,command_queue,dummy);
+
+	CLRPC_MAKE_REQUEST_WAIT(clFlush);
+
+	cl_int retval;
+	CLRPC_GET(reply,int,retval,&retval);
+
+	xclreport( XCL_DEBUG "clrpc_clFlush: retval = %d\n", retval);
+
+	return(retval);
 }
 
 

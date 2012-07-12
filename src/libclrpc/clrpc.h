@@ -67,5 +67,36 @@ cl_program
 clrpc_clCreateProgramWithSource( cl_context context, cl_uint count,
 	const char **strings, const size_t *lengths, cl_int *errcode_ret);
 
+cl_int
+clrpc_clGetProgramInfo(cl_program program, cl_program_info param_name,
+	size_t param_sz, void *param_val, size_t *param_sz_ret);
+
+cl_int
+clrpc_clBuildProgram( cl_program program, cl_uint num_devices,
+	const cl_device_id *device_list, const char *options,
+	void (CL_CALLBACK *pfn_notify)(cl_program program, void *user_data),
+	void *user_data);
+
+cl_int
+clrpc_clReleaseProgram( cl_program program );
+
+cl_kernel 
+clrpc_clCreateKernel(cl_program program, const char *kernel_name, 
+	cl_int *err_ret);
+
+cl_int
+clrpc_clGetKernelInfo(cl_kernel kernel, cl_kernel_info param_name,
+	size_t param_sz, void *param_val, size_t *param_sz_ret);
+
+cl_int
+clrpc_clReleaseKernel( cl_kernel kernel );
+
+cl_int
+clrpc_clSetKernelArg( cl_kernel kernel, cl_uint arg_index, size_t arg_size,
+	const void *arg_value);
+
+cl_int
+clrpc_clFlush( cl_command_queue command_queue );
+
 #endif
 

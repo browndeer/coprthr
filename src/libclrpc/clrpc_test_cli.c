@@ -119,6 +119,19 @@ clrpc_client_test(void)
 	cl_program prg = clrpc_clCreateProgramWithSource(ctx,1,
 		(const char**)prgsrc,&prgsrc_sz,&err);
 
+	clrpc_clBuildProgram(prg,ndevices,devices,0,0,0);
+
+	cl_kernel krn = clrpc_clCreateKernel(prg,"my_kern",&err);
+
+	clrpc_clSetKernelArg(krn,0,sizeof(cl_mem),a_buf);
+	clrpc_clSetKernelArg(krn,1,sizeof(cl_mem),b_buf);
+
+	clrpc_clFlush(cmdq[0]);
+
+	clrpc_clReleaseKernel(krn);
+
+	clrpc_clReleaseProgram(prg);
+
 	clrpc_clReleaseMemObject(a_buf);
 	clrpc_clReleaseMemObject(b_buf);
 

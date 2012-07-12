@@ -311,4 +311,147 @@ struct _clrpc_clCreateProgramWithSource_reply {
 }
 
 
+/*** cl_int
+ *** clGetProgramInfo(
+ ***   cl_program program,
+ ***   cl_program_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetProgramInfo_request {
+	struct[dual_ptr] program = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetProgramInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int clBuildProgram(
+ ***	cl_program program,
+ ***	cl_uint num_devices,
+ ***	const cl_device_id *device_list,
+ ***	const char *options,
+ ***	void (CL_CALLBACK *pfn_notify)(cl_program program, void *user_data),
+ ***	void *user_data)
+ ***/
+
+struct _clrpc_clBuildProgram_request {
+	struct[dual_ptr] program = 1;
+	int64 ndevices = 2;
+	array struct[dual_ptr] devices = 3;
+	bytes options = 4;
+}
+
+struct _clrpc_clBuildProgram_reply {
+	int64 retval = 1;
+}
+
+
+/***
+ *** cl_int clReleaseProgram( cl_program program )
+ ***/
+
+struct _clrpc_clReleaseProgram_request {
+	struct[dual_ptr] program = 1;
+}
+
+struct _clrpc_clReleaseProgram_reply {
+	int64 retval = 1;
+}
+
+
+/***
+ *** cl_kernel clCreateKernel (
+ ***	cl_program program,
+ ***	const char *kernel_name,
+ ***	cl_int *errcode_ret)
+ ***/
+
+struct _clrpc_clCreateKernel_request {
+	struct[dual_ptr] program = 1;
+	string kernel_name = 2;
+	struct[dual_ptr] retval = 3;
+}
+
+struct _clrpc_clCreateKernel_reply {
+	struct[dual_ptr] retval = 1;
+	int64 err_ret = 2;
+}
+
+
+/*** cl_int
+ *** clGetKernelInfo(
+ ***   cl_kernel kernel,
+ ***   cl_kernel_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetKernelInfo_request {
+	struct[dual_ptr] kernel = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetKernelInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int clReleaseKernel( cl_kernel kernel )
+ ***/
+
+struct _clrpc_clReleaseKernel_request {
+	struct[dual_ptr] kernel = 1;
+}
+
+struct _clrpc_clReleaseKernel_reply {
+	int64 retval = 1;
+}
+
+
+/***
+ *** cl_int clSetKernelArg(
+ ***	cl_kernel kernel,
+ ***	cl_uint arg_index,
+ ***	size_t arg_size,
+ ***	const void *arg_value)
+ ***/
+
+struct _clrpc_clSetKernelArg_request {
+	struct[dual_ptr] kernel = 1;
+	int64 arg_index = 2;
+	int64 arg_size = 3;
+	bytes arg_value = 4;
+}
+
+struct _clrpc_clSetKernelArg_reply {
+	int64 retval = 1;
+}
+
+/***
+ *** cl_int clFlush (cl_command_queue command_queue)
+ ***/
+
+struct _clrpc_clFlush_request {
+	struct[dual_ptr] command_queue = 1;
+}
+
+struct _clrpc_clFlush_reply {
+	int64 retval = 1;
+}
+
+
 
