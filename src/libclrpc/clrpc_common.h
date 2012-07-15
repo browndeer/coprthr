@@ -40,6 +40,11 @@ typedef uint64_t clrpc_bool;
 
 typedef uint64_t clrpc_ptr;
 typedef struct { clrpc_ptr local, remote; } clrpc_dptr;
+typedef struct { 
+	clrpc_ptr local, remote;
+	uint64_t buf_sz; 
+	clrpc_ptr buf_local, buf_remote;
+} clrpc_evdata;
 
 typedef clrpc_dptr _clrpc_platform_id;
 typedef _clrpc_platform_id* clrpc_platform_id;
@@ -57,18 +62,25 @@ typedef _clrpc_device_id* clrpc_device_id;
 typedef clrpc_dptr _clrpc_context;
 typedef _clrpc_context* clrpc_context;
 
+typedef clrpc_dptr _clrpc_command_queue;
+typedef _clrpc_command_queue* clrpc_command_queue;
+
 typedef int64_t clrpc_command_queue_properties;
 typedef int64_t clrpc_mem_flags;
 
-typedef clrpc_ptr _clrpc_event;
+typedef clrpc_dptr _clrpc_event;
+//typedef struct {
+//	struct { clrpc_ptr local, remote; };
+//	clrpc_ptr buf_ptr;
+//	size_t buf_sz;
+//} _clrpc_event;
 typedef _clrpc_event* clrpc_event;
 
-typedef clrpc_ptr _clrpc_program;
+typedef clrpc_dptr _clrpc_program;
 typedef _clrpc_program* clrpc_program;
 
-typedef clrpc_ptr _clrpc_kernel;
+typedef clrpc_dptr _clrpc_kernel;
 typedef _clrpc_kernel* clrpc_kernel;
-
 
 extern evutil_socket_t pair[2];
 extern struct event_base *global_base;

@@ -8,6 +8,15 @@ struct dual_ptr {
    int64 remote = 2;
 }
 
+/*
+struct event_data {
+   int64 local = 1;
+   int64 remote = 2;
+	optional int64 buf_sz = 3;
+   optional int64 buf_local = 4;
+   optional int64 buf_remote = 5;
+}
+*/
 
 /*** 
  *** cl_int clGetPlatformIDs (cl_uint,cl_platform_id*,cl_uint* ) 
@@ -222,6 +231,39 @@ struct _clrpc_clReleaseMemObject_reply {
 
 
 /***
+ *** cl_int clEnqueueReadBuffer(
+ ***	cl_command_queue command_queue,
+ ***	cl_mem buffer,
+ ***	cl_bool blocking_read,
+ ***	size_t offset,
+ ***	size_t cb,
+ ***	void *ptr,
+ ***	cl_uint num_events_in_wait_list,
+ ***	const cl_event *event_wait_list,
+ ***	cl_event *event)
+ ***/
+
+struct _clrpc_clEnqueueReadBuffer_request {
+	struct[dual_ptr] command_queue = 1;
+	struct[dual_ptr] buffer = 2;
+	int64 blocking_read = 3;
+	int64 offset = 4;
+	int64 cb = 5;
+	int64 num_events_in_wait_list = 6;
+	array struct[dual_ptr] event_wait_list = 7;
+	struct[dual_ptr] event = 8;
+//	struct[event_data] event = 9;
+}
+
+struct _clrpc_clEnqueueReadBuffer_reply {
+	struct[dual_ptr] event = 1;
+//	struct[event_data] event = 1;
+	int64 retval = 2;
+	optional bytes _bytes = 3;
+}
+
+
+/***
  *** cl_int clEnqueueWriteBuffer (
  ***	cl_command_queue command_queue,
  ***	cl_mem buffer,
@@ -244,46 +286,13 @@ struct _clrpc_clEnqueueWriteBuffer_request {
 	int64 num_events_in_wait_list = 7;
 	array struct[dual_ptr] event_wait_list = 8;
 	struct[dual_ptr] event = 9;
+//	struct[event_data] event = 9;
 }
 
 struct _clrpc_clEnqueueWriteBuffer_reply {
 	struct[dual_ptr] event = 1;
+//	struct[event_data] event = 1;
 	int64 retval = 2;
-}
-
-
-/*** cl_int
- *** clGetEventInfo(
- ***   cl_event event,
- ***   cl_event_info param_name,
- ***   size_t param_sz,
- ***   void* param_val,
- ***   size_t* param_sz_ret)
- ***/
-
-struct _clrpc_clGetEventInfo_request {
-	struct[dual_ptr] event = 1;
-	int64 param_name = 2;
-   int64 param_sz = 3;
-}
-
-struct _clrpc_clGetEventInfo_reply {
-	int64 retval = 1;
-   optional bytes param_val = 2;
-	optional int64 param_sz_ret = 3;
-}
-
-
-/***
- *** cl_int clReleaseEvent( cl_event event )
- ***/
-
-struct _clrpc_clReleaseEvent_request {
-	struct[dual_ptr] event = 1;
-}
-
-struct _clrpc_clReleaseEvent_reply {
-	int64 retval = 1;
 }
 
 
@@ -441,6 +450,40 @@ struct _clrpc_clSetKernelArg_reply {
 	int64 retval = 1;
 }
 
+
+/***
+ *** cl_int clEnqueueNDRangeKernel (
+ ***	cl_command_queue command_queue,
+ ***	cl_kernel kernel,
+ ***	cl_uint work_dim,
+ ***	const size_t *global_work_offset,
+ ***	const size_t *global_work_size,
+ ***	const size_t *local_work_size,
+ ***	cl_uint num_events_in_wait_list,
+ ***	const cl_event *event_wait_list,
+ ***	cl_event *event)
+ ***/
+
+struct _clrpc_clEnqueueNDRangeKernel_request {
+	struct[dual_ptr] command_queue = 1;
+	struct[dual_ptr] kernel = 2;
+	int64 work_dim = 3;
+	array int64 global_work_offset = 4;
+	array int64 global_work_size = 5;
+	array int64 local_work_size = 6;
+	int64 num_events_in_wait_list = 7;
+	array struct[dual_ptr] event_wait_list = 8;
+	struct[dual_ptr] event = 9;
+//	struct[event_data] event = 9;
+}
+
+struct _clrpc_clEnqueueNDRangeKernel_reply {
+	struct[dual_ptr] event = 1;
+//	struct[event_data] event = 1;
+	int64 retval = 2;
+}
+
+
 /***
  *** cl_int clFlush (cl_command_queue command_queue)
  ***/
@@ -453,5 +496,56 @@ struct _clrpc_clFlush_reply {
 	int64 retval = 1;
 }
 
+/***
+ *** cl_int clWaitForEvents (cl_uint num_events, const cl_event *event_list)
+ ***/
+
+struct _clrpc_clWaitForEvents_request {
+	int64 nevents = 1;
+	array struct[dual_ptr] events = 2;
+//	array struct[event_data] events = 2;
+}
+
+struct _clrpc_clWaitForEvents_reply {
+	int64 retval = 1;
+	optional bytes _bytes = 2;
+}
+
+
+/*** cl_int
+ *** clGetEventInfo(
+ ***   cl_event event,
+ ***   cl_event_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetEventInfo_request {
+	struct[dual_ptr] event = 1;
+//	struct[event_data] event = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetEventInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int clReleaseEvent( cl_event event )
+ ***/
+
+struct _clrpc_clReleaseEvent_request {
+	struct[dual_ptr] event = 1;
+//	struct[event_data] event = 1;
+}
+
+struct _clrpc_clReleaseEvent_reply {
+	int64 retval = 1;
+}
 
 

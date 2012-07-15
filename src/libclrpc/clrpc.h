@@ -54,6 +54,12 @@ clrpc_clCreateBuffer(cl_context context, cl_mem_flags flags, size_t size,
 cl_int
 clrpc_clReleaseMemObject( cl_mem memobj );
 
+cl_int
+clrpc_clEnqueueReadBuffer(cl_command_queue command_queue, cl_mem buffer,
+	cl_bool blocking_read, size_t offset, size_t cb, void *ptr,
+	cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
+	cl_event *event);
+
 cl_int 
 clrpc_clEnqueueWriteBuffer( cl_command_queue command_queue, cl_mem buffer,
 	cl_bool blocking_write, size_t offset, size_t cb, const void *ptr,
@@ -96,7 +102,20 @@ clrpc_clSetKernelArg( cl_kernel kernel, cl_uint arg_index, size_t arg_size,
 	const void *arg_value);
 
 cl_int
+clrpc_clEnqueueNDRangeKernel ( cl_command_queue command_queue, cl_kernel kernel,
+   cl_uint work_dim, const size_t* global_work_offset, 
+	const size_t* global_work_size, const size_t* local_work_size,
+   cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
+   cl_event* event);
+
+cl_int
 clrpc_clFlush( cl_command_queue command_queue );
+
+cl_int 
+clrpc_clWaitForEvents(cl_uint num_events, const cl_event* event_list);
+
+cl_int
+clrpc_Delay( int arg );
 
 #endif
 
