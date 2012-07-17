@@ -69,11 +69,9 @@ struct event_base *global_base;
 evutil_socket_t global_spair[2] = { -1, -1 };
 
 static struct evhttp *
-//http_setup(ev_uint16_t *pport)
 http_setup(const char* address, ev_uint16_t port)
 {
 	struct evhttp *myhttp;
-//	ev_uint16_t port;
 	struct evhttp_bound_socket *sock;
 
 	myhttp = evhttp_new(NULL);
@@ -82,16 +80,11 @@ http_setup(const char* address, ev_uint16_t port)
 		exit(-1);
 	}
 
-//	sock = evhttp_bind_socket_with_handle(myhttp, "127.0.0.1", 8080);
 	sock = evhttp_bind_socket_with_handle(myhttp, address, port);
 	if (!sock) {
 		xclreport( XCL_ERR "Couldn't open web port");
 		exit(-1);
 	}
-
-//	port = get_socket_port(evhttp_bound_socket_get_fd(sock));
-
-//	*pport = port;
 
 	xclreport( XCL_INFO "http_setup: address=%s port=%d",address,port);
 
@@ -344,9 +337,6 @@ _clrpc_clCreateContext_svrcb(
 		xclreport( XCL_DEBUG "devices[] %p",devices[i]);
 	}
 
-//	xclreport( XCL_DEBUG "prop: %d %p",prop[0],prop[1]);
-//	xclreport( XCL_DEBUG "ndevices devices %d %p",ndev,devices[0]);
-
 	cl_context context = clCreateContext(prop,ndev,devices,pfn_notify,
 		user_Data,&err_ret);
 
@@ -509,12 +499,6 @@ _clrpc_clEnqueueReadBuffer_svrcb(
 	EVTAG_GET(request,offset,&offset);
 	EVTAG_GET(request,cb,&cb);
 
-//	void* tmp_ptr = 0;
-//   unsigned int tmp_cb = 0;
-//   EVTAG_GET_WITH_LEN(request,_bytes,(unsigned char**)&tmp_ptr,&tmp_cb);
-//	xclreport( XCL_DEBUG "COMPARE cb %ld %d",cb,tmp_cb);
-//	ptr = tmp_ptr; /* XXX simplify later -DAR */
-
 	CLRPC_GET(request,uint,num_events_in_wait_list,&num_events_in_wait_list);
 
 	size_t len = EVTAG_ARRAY_LEN(request,event_wait_list);
@@ -528,7 +512,6 @@ _clrpc_clEnqueueReadBuffer_svrcb(
 		EVTAG_ARRAY_GET(request, event_wait_list, i, &d);
 		EVTAG_GET(d,local,&local);
 		EVTAG_GET(d,remote,&remote);
-//		event_wait_list[i] = (cl_event)remote;
 		event_wait_list[i] = (cl_event)((struct xevent_struct*)remote)->event;
 		xclreport( XCL_DEBUG "event_wait_list[] %p",event_wait_list[i]);
 	}
@@ -536,9 +519,6 @@ _clrpc_clEnqueueReadBuffer_svrcb(
 	xclreport( XCL_DEBUG "clEnqueueReadBuffer %p %p %d %ld %ld %p %d %p %p",
 		command_queue,buffer,blocking_read,offset,cb,
 		ptr,num_events_in_wait_list,event_wait_list,&event);
-
-//	int* iptr = (int*)ptr;
-//	for(i=0;i<32;i++) printf("%d/",iptr[i]); printf("\n");
 
 	ptr = malloc(cb);
 
@@ -549,17 +529,11 @@ _clrpc_clEnqueueReadBuffer_svrcb(
 
 	xclreport( XCL_DEBUG "retval %d", retval);
 
-//	struct xevent_struct* xevent 
-//		= (struct xevent_struct*)malloc(sizeof(struct xevent_struct));
-//	xevent->event = (clrpc_ptr)event;
-//	xevent->buf_ptr = ptr;
-//	xevent->buf_sz = cb;
 	CLRPC_XEVENT_CREATE(xevent,event,ptr,cb);
 
 	clrpc_dptr retevent;
 	EVTAG_GET(request,event,&d);
 	EVTAG_GET(d,local,&retevent.local);
-//	retevent.remote = (clrpc_ptr)event;
 	retevent.remote = (clrpc_ptr)xevent;
 	EVTAG_GET(reply,event,&d);
 	EVTAG_ASSIGN(d,local,retevent.local);
@@ -571,8 +545,6 @@ _clrpc_clEnqueueReadBuffer_svrcb(
 		EVTAG_ASSIGN_WITH_LEN(reply,_bytes,ptr,cb);
 	} else {
 	}
-
-//	if (ptr) free(ptr);
 
    EVRPC_REQUEST_DONE(rpc);
 }
@@ -628,7 +600,6 @@ _clrpc_clEnqueueWriteBuffer_svrcb(
 		EVTAG_ARRAY_GET(request, event_wait_list, i, &d);
 		EVTAG_GET(d,local,&local);
 		EVTAG_GET(d,remote,&remote);
-//		event_wait_list[i] = (cl_event)remote;
 		event_wait_list[i] = (cl_event)((struct xevent_struct*)remote)->event;
 		xclreport( XCL_DEBUG "event_wait_list[] %p",event_wait_list[i]);
 	}
@@ -652,7 +623,6 @@ _clrpc_clEnqueueWriteBuffer_svrcb(
 	clrpc_dptr retevent;
 	EVTAG_GET(request,event,&d);
 	EVTAG_GET(d,local,&retevent.local);
-//	retevent.remote = (clrpc_ptr)event;
 	retevent.remote = (clrpc_ptr)xevent;
 	EVTAG_GET(reply,event,&d);
 	EVTAG_ASSIGN(d,local,retevent.local);
@@ -663,20 +633,17 @@ _clrpc_clEnqueueWriteBuffer_svrcb(
    EVRPC_REQUEST_DONE(rpc);
 }
 
-//CLRPC_GENERIC_GETINFO_SVRCB(clGetEventInfo,event,event,event_info)
 static void _clrpc_clGetEventInfo_svrcb( 
 	EVRPC_STRUCT(_clrpc_clGetEventInfo)* rpc, void* parg) 
 { 
 	xclreport( XCL_DEBUG "_clrpc_" "clGetEventInfo" "_svrcb"); 
 	CLRPC_SVRCB_INIT(clGetEventInfo);
-//	cl_event event; 
 	struct xevent_struct* xevent;
 	cl_event_info param_name; 
 	size_t param_sz; 
 	void* param_val = 0; 
 	size_t param_sz_ret; 
 
-//	CLRPC_GET_DPTR_REMOTE(request,event,event,&event);
 	struct dual_ptr* d;
 	EVTAG_GET(request,event,&d);
 	clrpc_ptr tmp;
@@ -697,7 +664,6 @@ static void _clrpc_clGetEventInfo_svrcb(
    EVRPC_REQUEST_DONE(rpc); 
 }
 
-//CLRPC_GENERIC_RELEASE_SVRCB(clReleaseEvent,cl_event,event)
 static void _clrpc_clReleaseEvent_svrcb( 
 	EVRPC_STRUCT(_clrpc_clReleaseEvent)* rpc, void* parg) 
 { 
@@ -707,7 +673,6 @@ static void _clrpc_clReleaseEvent_svrcb(
 	struct dual_ptr* d; 
    EVTAG_GET(request,event,&d); 
    EVTAG_GET(d,remote,(void*)&xevent); 
-//	cl_int retval = clReleaseEvent(event); 
 	cl_int retval = clReleaseEvent(xevent->event);
 	free(xevent);
 	CLRPC_ASSIGN(reply, int, retval, retval ); 
@@ -1000,7 +965,6 @@ _clrpc_clEnqueueNDRangeKernel_svrcb(
 		EVTAG_ARRAY_GET(request, event_wait_list, i, &d);
 		EVTAG_GET(d,local,&local);
 		EVTAG_GET(d,remote,&remote);
-//		event_wait_list[i] = (cl_event)remote;
 		event_wait_list[i] = (cl_event)((struct xevent_struct*)remote)->event;
 		xclreport( XCL_DEBUG "event_wait_list[] %p",event_wait_list[i]);
 	}
@@ -1018,7 +982,6 @@ _clrpc_clEnqueueNDRangeKernel_svrcb(
 	clrpc_dptr retevent;
 	EVTAG_GET(request,event,&d);
 	EVTAG_GET(d,local,&retevent.local);
-//	retevent.remote = (clrpc_ptr)event;
 	retevent.remote = (clrpc_ptr)xevent;
 	EVTAG_GET(reply,event,&d);
 	EVTAG_ASSIGN(d,local,retevent.local);
@@ -1083,8 +1046,6 @@ _clrpc_clWaitForEvents_svrcb(
 		EVTAG_ARRAY_GET(request, events, i, &d);
 		EVTAG_GET(d,local,&local);
 		EVTAG_GET(d,remote,&remote);
-//		events[i] = (cl_event)remote;
-//		struct xevent_struct* xevent = (struct xevent_struct*)remote;
 		xevents[i] = (struct xevent_struct*)remote;
 		events[i] = xevents[i]->event;
 		sz += xevents[i]->buf_sz;
@@ -1131,9 +1092,6 @@ void _clrpc_buf_eventcb(struct bufferevent *bev, short events, void *ptr)
 static void
 clrpc_server( const char* address, ev_uint16_t port )
 {
-//	ev_uint16_t port = 8080;
-//	struct evhttp* http = http_setup(&port);
-//	struct evhttp* http = http_setup("127.0.0.1",port);
 	struct evhttp* http = http_setup(address,port);
 	struct evrpc_base* base = evrpc_init(http);
 	struct evrpc_pool* pool = 0;
@@ -1170,11 +1128,7 @@ clrpc_server( const char* address, ev_uint16_t port )
    bufferevent_setcb(bev, NULL, NULL, _clrpc_buf_eventcb, NULL);
 	bufferevent_enable(bev, EV_READ|EV_WRITE);
 
-//	pool = rpc_pool_with_connection("127.0.0.1",port);
 	pool = rpc_pool_with_connection(address,port);
-
-//	ev_uint16_t port2 = 8081;	
-//	clrpc_pool = rpc_pool_with_connection(port2);
 
 	event_dispatch();
 
@@ -1185,7 +1139,6 @@ int
 main(int argc, const char **argv)
 {
 	cl_uint n;
-//	int rc = clGetPlatformIDs(0,0,&n);
 
 	char default_address[] = "127.0.0.1";
 	const char* address = default_address;
@@ -1206,8 +1159,6 @@ main(int argc, const char **argv)
 		}
 
 	}
-
-//	printf("hello world %d %d\n",rc,n);
 
 	evthread_use_pthreads();
 

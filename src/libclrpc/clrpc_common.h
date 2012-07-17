@@ -40,11 +40,6 @@ typedef uint64_t clrpc_bool;
 
 typedef uint64_t clrpc_ptr;
 typedef struct { clrpc_ptr local, remote; } clrpc_dptr;
-//typedef struct { 
-//	clrpc_ptr local, remote;
-//	uint64_t buf_sz; 
-//	clrpc_ptr buf_local, buf_remote;
-//} clrpc_evdata;
 
 typedef clrpc_dptr _clrpc_platform_id;
 typedef _clrpc_platform_id* clrpc_platform_id;
