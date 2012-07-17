@@ -8,15 +8,6 @@ struct dual_ptr {
    int64 remote = 2;
 }
 
-/*
-struct event_data {
-   int64 local = 1;
-   int64 remote = 2;
-	optional int64 buf_sz = 3;
-   optional int64 buf_local = 4;
-   optional int64 buf_remote = 5;
-}
-*/
 
 /*** 
  *** cl_int clGetPlatformIDs (cl_uint,cl_platform_id*,cl_uint* ) 
@@ -207,7 +198,6 @@ struct _clrpc_clCreateBuffer_request {
 	struct[dual_ptr] context = 1;
 	int64 flags = 2;
 	int64 size = 3;
-//	struct[dual_ptr] host_ptr = 4;
 	struct[dual_ptr] retval = 4;
 }
 
@@ -252,12 +242,10 @@ struct _clrpc_clEnqueueReadBuffer_request {
 	int64 num_events_in_wait_list = 6;
 	array struct[dual_ptr] event_wait_list = 7;
 	struct[dual_ptr] event = 8;
-//	struct[event_data] event = 9;
 }
 
 struct _clrpc_clEnqueueReadBuffer_reply {
 	struct[dual_ptr] event = 1;
-//	struct[event_data] event = 1;
 	int64 retval = 2;
 	optional bytes _bytes = 3;
 }
@@ -286,12 +274,10 @@ struct _clrpc_clEnqueueWriteBuffer_request {
 	int64 num_events_in_wait_list = 7;
 	array struct[dual_ptr] event_wait_list = 8;
 	struct[dual_ptr] event = 9;
-//	struct[event_data] event = 9;
 }
 
 struct _clrpc_clEnqueueWriteBuffer_reply {
 	struct[dual_ptr] event = 1;
-//	struct[event_data] event = 1;
 	int64 retval = 2;
 }
 
@@ -474,12 +460,10 @@ struct _clrpc_clEnqueueNDRangeKernel_request {
 	int64 num_events_in_wait_list = 7;
 	array struct[dual_ptr] event_wait_list = 8;
 	struct[dual_ptr] event = 9;
-//	struct[event_data] event = 9;
 }
 
 struct _clrpc_clEnqueueNDRangeKernel_reply {
 	struct[dual_ptr] event = 1;
-//	struct[event_data] event = 1;
 	int64 retval = 2;
 }
 
@@ -503,7 +487,6 @@ struct _clrpc_clFlush_reply {
 struct _clrpc_clWaitForEvents_request {
 	int64 nevents = 1;
 	array struct[dual_ptr] events = 2;
-//	array struct[event_data] events = 2;
 }
 
 struct _clrpc_clWaitForEvents_reply {
@@ -523,7 +506,6 @@ struct _clrpc_clWaitForEvents_reply {
 
 struct _clrpc_clGetEventInfo_request {
 	struct[dual_ptr] event = 1;
-//	struct[event_data] event = 1;
 	int64 param_name = 2;
    int64 param_sz = 3;
 }
@@ -541,7 +523,6 @@ struct _clrpc_clGetEventInfo_reply {
 
 struct _clrpc_clReleaseEvent_request {
 	struct[dual_ptr] event = 1;
-//	struct[event_data] event = 1;
 }
 
 struct _clrpc_clReleaseEvent_reply {

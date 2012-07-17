@@ -8,7 +8,7 @@
 #include "util.h"
 #include "clrpc_common.h"
 
-int clrpc_init( void );
+int clrpc_init( unsigned int nserver, clrpc_server_info* );
 int clrpc_final( void );
 
 cl_int 
@@ -113,9 +113,6 @@ clrpc_clFlush( cl_command_queue command_queue );
 
 cl_int 
 clrpc_clWaitForEvents(cl_uint num_events, const cl_event* event_list);
-
-cl_int
-clrpc_Delay( int arg );
 
 #endif
 

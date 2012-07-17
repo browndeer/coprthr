@@ -69,10 +69,11 @@ struct event_base *global_base;
 evutil_socket_t global_spair[2] = { -1, -1 };
 
 static struct evhttp *
-http_setup(ev_uint16_t *pport)
+//http_setup(ev_uint16_t *pport)
+http_setup(const char* address, ev_uint16_t port)
 {
 	struct evhttp *myhttp;
-	ev_uint16_t port;
+//	ev_uint16_t port;
 	struct evhttp_bound_socket *sock;
 
 	myhttp = evhttp_new(NULL);
@@ -81,18 +82,18 @@ http_setup(ev_uint16_t *pport)
 		exit(-1);
 	}
 
-	/* Try a few different ports */
-	sock = evhttp_bind_socket_with_handle(myhttp, "127.0.0.1", 8080);
+//	sock = evhttp_bind_socket_with_handle(myhttp, "127.0.0.1", 8080);
+	sock = evhttp_bind_socket_with_handle(myhttp, address, port);
 	if (!sock) {
 		xclreport( XCL_ERR "Couldn't open web port");
 		exit(-1);
 	}
 
-	port = regress_get_socket_port(evhttp_bound_socket_get_fd(sock));
+//	port = get_socket_port(evhttp_bound_socket_get_fd(sock));
 
-	*pport = port;
+//	*pport = port;
 
-	xclreport( XCL_INFO "http_setup: port=%d",port);
+	xclreport( XCL_INFO "http_setup: address=%s port=%d",address,port);
 
 	return (myhttp);
 }
@@ -213,6 +214,9 @@ _clrpc_clGetPlatformIDs_svrcb(
 	CLRPC_ASSIGN(reply, uint, nplatforms_ret, nplatforms_ret );
 
 	cl_uint n = min(nplatforms,nplatforms_ret);
+
+	xclreport( XCL_DEBUG "n nplatforms nplatforms_ret %d %d %d",
+		n,nplatforms,nplatforms_ret);
 
 	for(i=0;i<n;i++)
 		xclreport( XCL_DEBUG "real platforms[%d] = %p",i,platforms[i]);
@@ -339,6 +343,9 @@ _clrpc_clCreateContext_svrcb(
 		devices[i] = (cl_device_id)remote;
 		xclreport( XCL_DEBUG "devices[] %p",devices[i]);
 	}
+
+//	xclreport( XCL_DEBUG "prop: %d %p",prop[0],prop[1]);
+//	xclreport( XCL_DEBUG "ndevices devices %d %p",ndev,devices[0]);
 
 	cl_context context = clCreateContext(prop,ndev,devices,pfn_notify,
 		user_Data,&err_ret);
@@ -1122,12 +1129,14 @@ void _clrpc_buf_eventcb(struct bufferevent *bev, short events, void *ptr)
 }
 
 static void
-clrpc_server(void)
+clrpc_server( const char* address, ev_uint16_t port )
 {
-	ev_uint16_t port;
-	struct evhttp *http = http_setup(&port);
-	struct evrpc_base *base = evrpc_init(http);
-	struct evrpc_pool *pool = 0;
+//	ev_uint16_t port = 8080;
+//	struct evhttp* http = http_setup(&port);
+//	struct evhttp* http = http_setup("127.0.0.1",port);
+	struct evhttp* http = http_setup(address,port);
+	struct evrpc_base* base = evrpc_init(http);
+	struct evrpc_pool* pool = 0;
 
 	CLRPC_REGISTER(clGetPlatformIDs);
 	CLRPC_REGISTER(clGetPlatformInfo);
@@ -1161,7 +1170,8 @@ clrpc_server(void)
    bufferevent_setcb(bev, NULL, NULL, _clrpc_buf_eventcb, NULL);
 	bufferevent_enable(bev, EV_READ|EV_WRITE);
 
-	pool = rpc_pool_with_connection(port);
+//	pool = rpc_pool_with_connection("127.0.0.1",port);
+	pool = rpc_pool_with_connection(address,port);
 
 //	ev_uint16_t port2 = 8081;	
 //	clrpc_pool = rpc_pool_with_connection(port2);
@@ -1175,9 +1185,29 @@ int
 main(int argc, const char **argv)
 {
 	cl_uint n;
-	int rc = clGetPlatformIDs(0,0,&n);
+//	int rc = clGetPlatformIDs(0,0,&n);
 
-	printf("hello world %d %d\n",rc,n);
+	char default_address[] = "127.0.0.1";
+	const char* address = default_address;
+	ev_uint16_t port = 8080;
+
+	n = 1;
+   while (n < argc) {
+
+		const char* arg = argv[n++];
+		
+		if (!strcmp(arg,"-a")) {
+			address = argv[n++];
+		} else if (!strcmp(arg,"-p")) {
+			port = atoi(argv[n++]);
+		} else {
+			xclreport( XCL_ERR "unrecognized option '%s'\n",arg);
+			exit(1);
+		}
+
+	}
+
+//	printf("hello world %d %d\n",rc,n);
 
 	evthread_use_pthreads();
 
@@ -1198,7 +1228,7 @@ main(int argc, const char **argv)
 
    global_base = event_init();
 
-	clrpc_server();
+	clrpc_server( address, port);
 
       if (global_base)
          event_base_free(global_base);

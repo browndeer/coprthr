@@ -40,11 +40,11 @@ typedef uint64_t clrpc_bool;
 
 typedef uint64_t clrpc_ptr;
 typedef struct { clrpc_ptr local, remote; } clrpc_dptr;
-typedef struct { 
-	clrpc_ptr local, remote;
-	uint64_t buf_sz; 
-	clrpc_ptr buf_local, buf_remote;
-} clrpc_evdata;
+//typedef struct { 
+//	clrpc_ptr local, remote;
+//	uint64_t buf_sz; 
+//	clrpc_ptr buf_local, buf_remote;
+//} clrpc_evdata;
 
 typedef clrpc_dptr _clrpc_platform_id;
 typedef _clrpc_platform_id* clrpc_platform_id;
@@ -69,11 +69,6 @@ typedef int64_t clrpc_command_queue_properties;
 typedef int64_t clrpc_mem_flags;
 
 typedef clrpc_dptr _clrpc_event;
-//typedef struct {
-//	struct { clrpc_ptr local, remote; };
-//	clrpc_ptr buf_ptr;
-//	size_t buf_sz;
-//} _clrpc_event;
 typedef _clrpc_event* clrpc_event;
 
 typedef clrpc_dptr _clrpc_program;
@@ -82,18 +77,25 @@ typedef _clrpc_program* clrpc_program;
 typedef clrpc_dptr _clrpc_kernel;
 typedef _clrpc_kernel* clrpc_kernel;
 
+
+typedef struct {
+   const char* address;
+   ev_uint16_t port;
+} clrpc_server_info;
+
+
 extern evutil_socket_t pair[2];
 extern struct event_base *global_base;
 
-int regress_get_socket_port(evutil_socket_t fd);
+int get_socket_port(evutil_socket_t fd);
 
 struct evconnlistener;
 struct sockaddr;
-int regress_get_listener_addr(struct evconnlistener *lev,
+int get_listener_addr(struct evconnlistener *lev,
     struct sockaddr *sa, ev_socklen_t *socklen);
 
 struct evrpc_pool*
-rpc_pool_with_connection(ev_uint16_t port);
+rpc_pool_with_connection(const char* address, ev_uint16_t port);
 
 
 #define CLRPC_HEADER(fname) EVRPC_HEADER(_clrpc_##fname, \
@@ -123,9 +125,27 @@ rpc_pool_with_connection(ev_uint16_t port);
 	pthread_cond_destroy(&cbarg.sig); \
 	} while(0);
 
+#define CLRPC_MAKE_REQUEST_WAIT2(pool,fname)  do { \
+	struct cb_struct cbarg; \
+	pthread_mutex_init(&cbarg.mtx,0); \
+	pthread_cond_init(&cbarg.sig,0); \
+	EVRPC_MAKE_REQUEST(_clrpc_##fname, \
+		pool, request, reply, _clrpc_##fname##_clicb, &cbarg ); \
+	xclreport( XCL_DEBUG "CLRPC_MAKE_REQUEST: waiting ..."); \
+	pthread_cond_wait(&cbarg.sig,&cbarg.mtx); \
+	xclreport( XCL_DEBUG "CLRPC_MAKE_REQUEST: ... done waiting"); \
+	pthread_mutex_destroy(&cbarg.mtx); \
+	pthread_cond_destroy(&cbarg.sig); \
+	} while(0);
+
 #define CLRPC_INIT(fname) \
 	struct _clrpc_##fname##_request* request = _clrpc_##fname##_request_new();\
 	struct _clrpc_##fname##_reply* reply = _clrpc_##fname##_reply_new(); \
+	do {} while(0)
+
+#define CLRPC_FINAL(fname) \
+	_clrpc_##fname##_request_free(request); \
+	_clrpc_##fname##_reply_free(reply); \
 	do {} while(0)
 
 #define CLRPC_SVRCB_INIT(fname) \
@@ -156,14 +176,14 @@ rpc_pool_with_connection(ev_uint16_t port);
 #define CLRPC_ASSIGN_DPTR(msg,mbr,val) do { \
    struct dual_ptr* d; \
    EVTAG_GET(msg,mbr,&d); \
-   EVTAG_ASSIGN(d,local,((clrpc_dptr*)mbr)->local); \
-   EVTAG_ASSIGN(d,remote,((clrpc_dptr*)mbr)->remote); \
+   EVTAG_ASSIGN(d,local,((clrpc_dptr*)val)->local); \
+   EVTAG_ASSIGN(d,remote,((clrpc_dptr*)val)->remote); \
    } while(0)
 
 #define CLRPC_ALLOC_DPTR_ARRAY(size,array) do { \
    int i; \
    for(i=0;i<size;i++) { \
-      array[i] = (void*)calloc(1,sizeof(clrpc_ptr)); \
+      array[i] = (void*)calloc(1,sizeof(clrpc_dptr)); \
       ((clrpc_dptr*)array[i])->local = (clrpc_ptr)array[i]; \
       ((clrpc_dptr*)array[i])->remote = 0; \
       xclreport( XCL_DEBUG "dptr local [%d] = %p",i,array[i]); \
@@ -176,6 +196,15 @@ rpc_pool_with_connection(ev_uint16_t port);
       d = EVTAG_ARRAY_ADD(msg, array); \
       EVTAG_ASSIGN(d,local,((clrpc_dptr*)array[i])->local); \
       EVTAG_ASSIGN(d,remote,((clrpc_dptr*)array[i])->remote); \
+   } } while(0)
+
+#define CLRPC_ASSIGN_DPTR_ARRAY2(msg,size,array) do { \
+   int i; \
+   struct dual_ptr* d; \
+   for(i=0;i<size;i++) { \
+      d = EVTAG_ARRAY_ADD(msg, array); \
+      EVTAG_ASSIGN(d,local,(*(clrpc_dptr**)array[i])->local); \
+      EVTAG_ASSIGN(d,remote,(*(clrpc_dptr**)array[i])->remote); \
    } } while(0)
 
 #define CLRPC_GET_DPTR_ARRAY(msg,size,array) do { \

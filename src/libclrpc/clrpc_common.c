@@ -38,15 +38,13 @@
 #include "event2/util.h"
 #include "event2/listener.h"
 #include "event2/bufferevent.h"
-//#include "log-internal.h"
 #include "clrpc_common.h"
 
-//#include "util-internal.h"
 
 
 /* Helper: return the port that a socket is bound on, in host order. */
 int
-regress_get_socket_port(evutil_socket_t fd)
+get_socket_port(evutil_socket_t fd)
 {
 	struct sockaddr_storage ss;
 	ev_socklen_t socklen = sizeof(ss);
@@ -61,7 +59,7 @@ regress_get_socket_port(evutil_socket_t fd)
 }
 
 int
-regress_get_listener_addr(struct evconnlistener *lev,
+get_listener_addr(struct evconnlistener *lev,
     struct sockaddr *sa, ev_socklen_t *socklen)
 {
 	evutil_socket_t s = evconnlistener_get_fd(lev);
@@ -71,7 +69,7 @@ regress_get_listener_addr(struct evconnlistener *lev,
 }
 
 struct evrpc_pool*
-rpc_pool_with_connection(ev_uint16_t port)
+rpc_pool_with_connection( const char* address, ev_uint16_t port)
 {
    struct evhttp_connection *evcon;
    struct evrpc_pool *pool;
@@ -79,7 +77,7 @@ rpc_pool_with_connection(ev_uint16_t port)
    pool = evrpc_pool_new(NULL);
    assert(pool != NULL);
 
-   evcon = evhttp_connection_new("127.0.0.1", port);
+   evcon = evhttp_connection_new(address, port);
    assert(evcon != NULL);
 
    evrpc_pool_add_connection(pool, evcon);

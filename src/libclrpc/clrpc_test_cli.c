@@ -5,23 +5,17 @@
 
 #include "clrpc.h"
 
-
-/* why the hell do i have to define this? -DAR */
-#define min(a,b) ((a<b)?a:b)
-
-ev_uint16_t clrpc_port = 0;
-struct evhttp* clrpc_http = 0;
-struct evrpc_pool* clrpc_pool = 0;
-pthread_t clrpc_td;
-pthread_attr_t clrpc_td_attr;
-
-
 static void
 clrpc_client_test(void)
 {
 	int err;
 
-	clrpc_init();
+	clrpc_server_info server[] = {
+		{ "127.0.0.1", 8091 }
+		,{ "127.0.0.1", 8092 }
+	};
+
+	clrpc_init(2,server);
 
 	cl_uint nplatforms = 0;
 	cl_platform_id* platforms = 0;
@@ -31,6 +25,8 @@ clrpc_client_test(void)
 
 	xclreport( XCL_DEBUG "after call one i get nplatforms_ret = %d",
 		nplatforms_ret);
+
+	if (nplatforms_ret == 0) exit(1);
 
 	nplatforms = nplatforms_ret;
 	platforms = (cl_platform_id*)calloc(nplatforms,sizeof(cl_platform_id));
@@ -46,24 +42,29 @@ clrpc_client_test(void)
 
 	char buffer[1024];
 	size_t sz;
-	clrpc_clGetPlatformInfo(platforms[0],CL_PLATFORM_NAME,1023,buffer,&sz);
-
-	printf("CL_PLATFORM_NAME|%ld:%s|\n",sz,buffer);
+	for(i=0;i<nplatforms;i++) {
+		clrpc_clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1023,buffer,&sz);
+		xclreport( XCL_DEBUG "CL_PLATFORM_NAME|%ld:%s|\n",sz,buffer);
+	}
 
 	cl_uint ndevices = 0;
 	cl_device_id* devices = 0;
 	cl_uint ndevices_ret;
 
-	clrpc_clGetDeviceIDs(platforms[0],CL_DEVICE_TYPE_GPU,
+	xclreport( XCL_DEBUG "here");
+
+	clrpc_clGetDeviceIDs(platforms[1],CL_DEVICE_TYPE_GPU,
 		ndevices,devices,&ndevices_ret);
 
 	xclreport( XCL_DEBUG "after call one i get ndevices_ret = %d",
       ndevices_ret);
 
+	if (ndevices_ret > 10) exit(-1);
+
 	ndevices = ndevices_ret;
 	devices = (cl_device_id*)calloc(ndevices,sizeof(cl_device_id));
 
-	clrpc_clGetDeviceIDs(platforms[0],CL_DEVICE_TYPE_GPU,
+	clrpc_clGetDeviceIDs(platforms[1],CL_DEVICE_TYPE_GPU,
 		ndevices,devices,&ndevices_ret);
 
 	for(i=0;i<ndevices;i++) {
@@ -74,8 +75,16 @@ clrpc_client_test(void)
 		xclreport( XCL_DEBUG "CL_DEVICE_NAME |%s|",buffer);
 	}
 
+	for(i=0;i<nplatforms;i++) {
+		xclreport( XCL_DEBUG "platforms[%d] local=%p remote=%p\n",
+			i,(void*)((clrpc_dptr*)platforms[i])->local,
+			(void*)((clrpc_dptr*)platforms[i])->remote);
+	}
+
 	cl_context_properties ctxprop[] = { 
-		CL_CONTEXT_PLATFORM, (cl_context_properties)platforms[0], 0 };
+		CL_CONTEXT_PLATFORM, (cl_context_properties)platforms[1], 0 };
+
+	xclreport("i am setting this: prop[1] %p",platforms[0]);
 
 	cl_context ctx = clrpc_clCreateContext(ctxprop,ndevices,devices, 0,0,&err);
 
