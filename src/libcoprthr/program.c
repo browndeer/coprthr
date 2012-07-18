@@ -1,6 +1,6 @@
 /* program.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -368,27 +368,29 @@ cl_int __do_build_program_from_source(
 	xclreport( XCL_DEBUG "__do_build_program_from_source");
 
 	compiler_t comp = (compiler_t)__resolve_devid(devid,comp);
+
+	if (!comp) return(CL_COMPILER_NOT_AVAILABLE);
 	
 	xclreport( XCL_DEBUG 
 		"__do_build_program_from_source: compiler=%p",comp);	
 
 	/* XXX should optimize JIT by checking for device equivalence -DAR */
 
-	DEBUG2("build_options[%d] |%s|",devnum,prg->build_options[devnum]);
+	xclreport( XCL_DEBUG "build_options[%d] |%s|",
+		devnum,prg->build_options[devnum]);
 
-	struct _elf_data* edata = (struct _elf_data*)comp(
-		devid,
-		prg->src,prg->src_sz,
-		&prg->bin[devnum],&prg->bin_sz[devnum],
-		prg->build_options[devnum],&prg->build_log[devnum]
-	);
+//	struct _elf_data* edata = (struct _elf_data*)comp(
+	int err = comp( devid, prg->src,prg->src_sz, &prg->bin[devnum],
+		&prg->bin_sz[devnum], prg->build_options[devnum],
+		&prg->build_log[devnum]);
 
-	if ((void*)edata == (void*)-1) {
-		return((cl_int)-1);
-	}
+//	if ((void*)edata == (void*)-1) {
+//		return((cl_int)-1);
+//	}
 
-	return __do_build_program_from_binary(prg,devid,devnum);
+	if (!err) err = __do_build_program_from_binary(prg,devid,devnum);
 
+	return((cl_int)err);
 }
 
 

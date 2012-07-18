@@ -1,6 +1,6 @@
 /* compiler_x86_64.c 
  *
- * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -252,7 +252,7 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 #define __check_err( err, msg ) do { if (err) { \
 	__append_str(log,msg,0,0); \
 	__remove_work_dir(wd); \
-	return((void*)-1); \
+	return(CL_BUILD_PROGRAM_FAILURE); \
 } }while(0)
 
 static int __test_file( char* file ) 
