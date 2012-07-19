@@ -28,6 +28,10 @@
 #define GCC_VERSION \
 	( __GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ )
 
+/* XXX tell compiler, yes, I really meant inline when I said inline -DAR */
+#ifndef __always_inline
+#define __always_inline __inline __attribute__((always_inline))
+#endif
 
 //#define USE_SSE __SSE__
 
@@ -253,6 +257,7 @@ static __inline size_t get_local_id(uint d)
 
 typedef char __char2 __attribute__((vector_size(2)));
 typedef union {
+	typedef char type_t;
    __char2 vec;
    struct { char x,y; };
    struct { char s0,s1; };
@@ -260,11 +265,12 @@ typedef union {
 } _char2;
 typedef _char2 char2;
 #define __vector_char2(a,b) (__char2){a,b}
-#define _vector_char2(a,b) (_char2){a,b}
+#define _vector_char2(a,b) (_char2){(__char2){a,b}}
 #define vector_char2(a,b) _vector_char2(a,b)
 
 typedef unsigned char __uchar2 __attribute__((vector_size(2)));
 typedef union {
+	typedef unsigned char type_t;
    __uchar2 vec;
    struct { unsigned char x,y; };
    struct { unsigned char s0,s1; };
@@ -272,11 +278,16 @@ typedef union {
 } _uchar2;
 typedef _uchar2 uchar2;
 #define __vector_uchar2(a,b) (__uchar2){a,b}
-#define _vector_uchar2(a,b) (_uchar2){a,b}
+#define _vector_uchar2(a,b) (_uchar2){(__uchar2){a,b}}
 #define vector_uchar2(a,b) _vector_uchar2(a,b)
+
+#if __cplusplus
+extern "C" {
+#endif
 
 typedef int __int2 __attribute__((vector_size(8)));
 typedef union {
+	typedef int type_t;
    __int2 vec;
    struct { int x,y; };
    struct { int s0,s1; };
@@ -284,11 +295,16 @@ typedef union {
 } _int2;
 typedef _int2 int2;
 #define __vector_int2(a,b) (__int2){a,b}
-#define _vector_int2(a,b) (_int2){a,b}
+#define _vector_int2(a,b) (_int2){(__int2){a,b}}
 #define vector_int2(a,b) _vector_int2(a,b)
+
+#if __cplusplus
+}
+#endif
 
 typedef unsigned int __uint2 __attribute__((vector_size(8)));
 typedef union {
+	typedef unsigned int type_t;
    __uint2 vec;
    struct { unsigned int x,y; };
    struct { unsigned int s0,s1; };
@@ -296,11 +312,12 @@ typedef union {
 } _uint2;
 typedef _uint2 uint2;
 #define __vector_uint2(a,b) (__uint2){a,b}
-#define _vector_uint2(a,b) (_uint2){a,b}
+#define _vector_uint2(a,b) (_uint2){(__uint2){a,b}}
 #define vector_uint2(a,b) _vector_uint2(a,b)
 
 typedef long long __long2 __attribute__((vector_size(16)));
 typedef union {
+	typedef long long type_t;
    __long2 vec;
    struct { long long x,y; };
    struct { long long s0,s1; };
@@ -308,11 +325,12 @@ typedef union {
 } _long2;
 typedef _long2 long2;
 #define __vector_long2(a,b) (__long2){a,b}
-#define _vector_long2(a,b) (_long2){a,b}
+#define _vector_long2(a,b) (_long2){(__long2){a,b}}
 #define vector_long2(a,b) _vector_long2(a,b)
 
 typedef unsigned long long __ulong2 __attribute__((vector_size(16)));
 typedef union {
+	typedef unsigned long long type_t;
    __ulong2 vec;
    struct { unsigned long long x,y; };
    struct { unsigned long long s0,s1; };
@@ -320,11 +338,12 @@ typedef union {
 } _ulong2;
 typedef _ulong2 ulong2;
 #define __vector_ulong2(a,b) (__ulong2){a,b}
-#define _vector_ulong2(a,b) (_ulong2){a,b}
+#define _vector_ulong2(a,b) (_ulong2){(__ulong2){a,b}}
 #define vector_ulong2(a,b) _vector_ulong2(a,b)
 
 typedef float __float2 __attribute__((vector_size(8)));
 typedef union {
+	typedef float type_t;
    __float2 vec;
    struct { float x,y; };
    struct { float s0,s1; };
@@ -332,11 +351,12 @@ typedef union {
 } _float2;
 typedef _float2 float2;
 #define __vector_float2(a,b) (__float2){a,b}
-#define _vector_float2(a,b) (_float2){a,b}
+#define _vector_float2(a,b) (_float2){(__float2){a,b}}
 #define vector_float2(a,b) _vector_float2(a,b)
 
 typedef double __double2 __attribute__((vector_size(16)));
 typedef union {
+	typedef double type_t;
    __double2 vec;
    struct { double x,y; };
    struct { double s0,s1; };
@@ -344,11 +364,12 @@ typedef union {
 } _double2;
 typedef _double2 double2;
 #define __vector_double2(a,b) (__double2){a,b}
-#define _vector_double2(a,b) (_double2){a,b}
+#define _vector_double2(a,b) (_double2){(__double2){a,b}}
 #define vector_double2(a,b) _vector_double2(a,b)
 
 typedef char __char4 __attribute__((vector_size(4)));
 typedef union {
+	typedef char type_t;
    __char4 vec;
    struct { char x,y,z,w; };
    struct { char s0,s1,s2,s3; };
@@ -358,11 +379,12 @@ typedef union {
 } _char4;
 typedef _char4 char4;
 #define __vector_char4(a,b,c,d) (__char4){a,b,c,d}
-#define _vector_char4(a,b,c,d) (_char4){a,b,c,d}
+#define _vector_char4(a,b,c,d) (_char4){(__char4){a,b,c,d}}
 #define vector_char4(a,b,c,d) _vector_char4(a,b,c,d)
 
 typedef unsigned char __uchar4 __attribute__((vector_size(4)));
 typedef union {
+	typedef unsigned char type_t;
    __uchar4 vec;
    struct { unsigned char x,y,z,w; };
    struct { unsigned char s0,s1,s2,s3; };
@@ -372,11 +394,12 @@ typedef union {
 } _uchar4;
 typedef _uchar4 uchar4;
 #define __vector_uchar4(a,b,c,d) (__uchar4){a,b,c,d}
-#define _vector_uchar4(a,b,c,d) (_uchar4){a,b,c,d}
+#define _vector_uchar4(a,b,c,d) (_uchar4){(__uchar4){a,b,c,d}}
 #define vector_uchar4(a,b,c,d) _vector_uchar4(a,b,c,d)
 
 typedef int __int4 __attribute__((vector_size(16)));
 typedef union {
+	typedef int type_t;
    __int4 vec;
    struct { int x,y,z,w; };
    struct { int s0,s1,s2,s3; };
@@ -386,11 +409,12 @@ typedef union {
 } _int4;
 typedef _int4 int4;
 #define __vector_int4(a,b,c,d) (__int4){a,b,c,d}
-#define _vector_int4(a,b,c,d) (_int4){a,b,c,d}
+#define _vector_int4(a,b,c,d) (_int4){(__int4){a,b,c,d}}
 #define vector_int4(a,b,c,d) _vector_int4(a,b,c,d)
 
 typedef unsigned int __uint4 __attribute__((vector_size(16)));
 typedef union {
+	typedef unsigned int type_t;
    __uint4 vec;
    struct { unsigned int x,y,z,w; };
    struct { unsigned int s0,s1,s2,s3; };
@@ -400,11 +424,12 @@ typedef union {
 } _uint4;
 typedef _uint4 uint4;
 #define __vector_uint4(a,b,c,d) (__uint4){a,b,c,d}
-#define _vector_uint4(a,b,c,d) (_uint4){a,b,c,d}
+#define _vector_uint4(a,b,c,d) (_uint4){(__uint4){a,b,c,d}}
 #define vector_uint4(a,b,c,d) _vector_uint4(a,b,c,d)
 
 typedef float __float4 __attribute__((vector_size(16)));
 typedef union {
+	typedef float type_t;
    __float4 vec;
    struct { float x,y,z,w; };
    struct { float s0,s1,s2,s3; };
@@ -414,63 +439,66 @@ typedef union {
 } _float4;
 typedef _float4 float4;
 #define __vector_float4(a,b,c,d) (__float4){a,b,c,d}
-#define _vector_float4(a,b,c,d) (_float4){a,b,c,d}
+#define _vector_float4(a,b,c,d) (_float4){(__float4){a,b,c,d}}
 #define vector_float4(a,b,c,d) _vector_float4(a,b,c,d)
 
-
 #define GENERIC_UNARY_PLUS(type) \
-	static __inline _##type operator + ( _##type& a ) { return a; }
+static __always_inline _##type operator + ( _##type& a ); \
+static __always_inline _##type operator + ( _##type& a ) { return a; }
 
 #define GENERIC_UNARY_OP(type,op) \
-	static __inline _##type operator - ( _##type& a ) \
+static __always_inline ##type operator - ( _##type& a ); \
+static __always_inline _##type operator - ( _##type& a ) \
 	{ return (_##type){ -a.vec }; }
 
 #define EXPLICIT_UNARY_OP_VEC2(type,op) \
-	static __inline _##type operator op ( _##type& a ) \
+static __always_inline _##type operator op ( _##type& a ); \
+static __always_inline _##type operator op ( _##type& a ) \
 	{ \
-		_##type tmp = _vector_##type( op a.s0, op a.s1 ); \
+		_##type tmp \
+			= _vector_##type( (type::type_t)op a.s0,(type::type_t)op a.s1 ); \
 		return tmp; \
 	}
 
 #define EXPLICIT_UNARY_OP_VEC4(type,op) \
-	static __inline _##type operator op ( _##type& a ) \
+static __always_inline _##type operator op ( _##type& a ); \
+static __always_inline _##type operator op ( _##type& a ) \
 	{ \
-		_##type tmp = _vector_##type( op a.s0, op a.s1, op a.s2, op a.s3);\
+		_##type tmp = _vector_##type( (type::type_t)op a.s0, \
+			(type::type_t)op a.s1,(type::type_t)op a.s2,(type::type_t)op a.s3); \
 		return tmp; \
 	}
 
 #define GENERIC_OP_ASSIGN(type,op) \
-	static __inline _##type \
+static __always_inline _##type \
+	operator op##= ( _##type& lhs, const _##type rhs ); \
+static __always_inline _##type \
 	operator op##= ( _##type& lhs, const _##type rhs ) \
 	{ lhs.vec op##= rhs.vec; return lhs; } 
 
 #define EXPLICIT_OP_ASSIGN_VEC2(type,op) \
-	static __inline _##type \
+static __always_inline _##type \
+	operator op##= ( _##type& lhs, const _##type rhs ); \
+static __always_inline _##type \
 	operator op##= ( _##type& lhs, const _##type rhs ) \
 	{  \
-		lhs.vec = __vector_##type( \
-			lhs.s0 op rhs.s0,  \
-			lhs.s1 op rhs.s1  \
-		);  \
+		lhs.vec = __vector_##type( lhs.s0 op rhs.s0, lhs.s1 op rhs.s1 );  \
 		return lhs;  \
 	}
 
 #define EXPLICIT_OP_ASSIGN_VEC4(type,op) \
-	static __inline _##type \
+static __always_inline _##type \
+	operator op##= ( _##type& lhs, const _##type rhs ); \
+static __always_inline _##type \
 	operator op##= ( _##type& lhs, const _##type rhs ) \
 	{  \
-		lhs.vec = __vector_##type( \
-			lhs.s0 op rhs.s0,  \
-			lhs.s1 op rhs.s1,  \
-			lhs.s2 op rhs.s2,  \
-			lhs.s3 op rhs.s3  \
-		);  \
+		lhs.vec = __vector_##type( lhs.s0 op rhs.s0, lhs.s1 op rhs.s1,  \
+			lhs.s2 op rhs.s2, lhs.s3 op rhs.s3 );  \
 		return lhs;  \
 	}
 
 
 /* unary plus */
-//static __inline _float4 operator + ( _float4& a ) { return a; }
 GENERIC_UNARY_PLUS(char2)
 GENERIC_UNARY_PLUS(uchar2)
 GENERIC_UNARY_PLUS(int2)
@@ -487,8 +515,6 @@ GENERIC_UNARY_PLUS(float4)
 
 
 /* unary minus */
-//static __inline _float4 operator - ( _float4& a ) 
-//	{ _float4 tmp; tmp.vec = -a.vec; return tmp; }
 #if GCC_VERSION < 40600
 EXPLICIT_UNARY_OP_VEC2(char2,-)
 EXPLICIT_UNARY_OP_VEC2(uchar2,-)
@@ -533,9 +559,6 @@ EXPLICIT_UNARY_OP_VEC4(uint4,~)
 
 
 /* add assign */
-//static __inline _float4 
-//operator += ( _float4& lhs, const _float4 rhs )
-//{ lhs.vec += rhs.vec; return lhs; }
 #if GCC_VERSION < 40600
 EXPLICIT_OP_ASSIGN_VEC2(char2,+)
 EXPLICIT_OP_ASSIGN_VEC2(uchar2,+)
@@ -567,9 +590,6 @@ GENERIC_OP_ASSIGN(float4,+)
 #endif
 
 /* subtract assign */
-//static __inline _float4 
-//operator -= ( _float4& lhs, const _float4 rhs )
-//{ lhs.vec -= rhs.vec; return lhs; }
 #if GCC_VERSION < 40600
 EXPLICIT_OP_ASSIGN_VEC2(char2,-)
 EXPLICIT_OP_ASSIGN_VEC2(uchar2,-)
@@ -644,7 +664,6 @@ EXPLICIT_OP_ASSIGN_VEC4(int4,%)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,%)
 
 /* divide assign */
-//// XXX
 #if GCC_VERSION < 40600
 EXPLICIT_OP_ASSIGN_VEC2(char2,/)
 EXPLICIT_OP_ASSIGN_VEC2(uchar2,/)
@@ -688,7 +707,6 @@ EXPLICIT_OP_ASSIGN_VEC4(int4,&)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,&)
 
 /* bitwise or assign */
-//// XXX
 EXPLICIT_OP_ASSIGN_VEC2(char2,|)
 EXPLICIT_OP_ASSIGN_VEC2(uchar2,|)
 EXPLICIT_OP_ASSIGN_VEC2(int2,|)
@@ -722,7 +740,9 @@ EXPLICIT_OP_ASSIGN_VEC4(uint4,^)
 
 #define convert_int(x) static_cast<int>(x) 
 #define convert_float(x) static_cast<float>(x) 
-static __inline double as_double( float2 f2 ) { return *(double*)(&f2); }
+static __always_inline double as_double( float2 f2 );
+static __always_inline double as_double( float2 f2 ) 
+	{ return *(double*)(&f2); }
 
 
 /*** 
@@ -730,47 +750,59 @@ static __inline double as_double( float2 f2 ) { return *(double*)(&f2); }
  ***/
 
 #define GENERIC_BINOP_VEC2(type,vectype,op) \
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ); \
+static __always_inline _##vectype \
 	operator op ( const _##vectype a, const _##vectype b ) \
 	{ return (_##vectype){ a.vec op b.vec }; } \
-	\
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( type a, const _##vectype b ); \
+static __always_inline _##vectype \
 	operator op ( type a, const _##vectype b ) \
 	{ return (_##vectype){ __vector_##vectype(a,a) op b.vec }; } \
-	\
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( const _##vectype a, type b ); \
+static __always_inline _##vectype \
 	operator op ( const _##vectype a, type b ) \
 	{ return (_##vectype){ a.vec op __vector_##vectype(b,b) }; } 
 
 #define GENERIC_BINOP_VEC4(type,vectype,op) \
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ); \
+static __always_inline _##vectype \
 	operator op ( const _##vectype a, const _##vectype b ) \
 	{ return (_##vectype){ a.vec op b.vec }; } \
-	\
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( type a, const _##vectype b ); \
+static __always_inline _##vectype \
 	operator op ( type a, const _##vectype b ) \
 	{ return (_##vectype){ __vector_##vectype(a,a,a,a) op b.vec }; } \
-	\
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( const _##vectype a, type b ); \
+static __always_inline _##vectype \
 	operator op ( const _##vectype a, type b ) \
 	{ return (_##vectype){ a.vec op __vector_##vectype(b,b,b,b) }; } 
 
 #define EXPLICIT_BINOP_VEC2(type,vectype,op) \
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ); \
+static __always_inline _##vectype \
 	operator op ( const _##vectype a, const _##vectype b ) \
 	{ \
 		_##vectype tmp = { a.s0 op b.s0, a.s1 op b.s1 }; \
 		return tmp; \
 	} \
-	\
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( type a, const _##vectype b ); \
+static __always_inline _##vectype \
 	operator op ( type a, const _##vectype b ) \
 	{ \
 		_##vectype tmp = { a op b.s0, a op b.s1 }; \
 		return tmp; \
 	} \
-	\
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( const _##vectype a, type b ); \
+static __always_inline _##vectype \
 	operator op ( const _##vectype a, type b ) \
 	{ \
 		_##vectype tmp = { a.s0 op b, a.s1 op b }; \
@@ -778,26 +810,28 @@ static __inline double as_double( float2 f2 ) { return *(double*)(&f2); }
 	} \
 
 #define EXPLICIT_BINOP_VEC4(type,vectype,op) \
-	static __inline _##vectype \
+static __always_inline _##vectype \
+	operator op ( const _##vectype a, const _##vectype b ); \
+static __always_inline _##vectype \
 	operator op ( const _##vectype a, const _##vectype b ) \
 	{ \
 		_##vectype tmp={a.s0 op b.s0,a.s1 op b.s1,a.s2 op b.s2,a.s3 op b.s3}; \
 		return tmp; \
 	} \
-	\
-	static __inline _##vectype \
+static __always_inline _##vectype operator op ( type a, const _##vectype b );\
+static __always_inline _##vectype \
 	operator op ( type a, const _##vectype b ) \
 	{ \
 		_##vectype tmp={a op b.s0,a op b.s1,a op b.s2,a op b.s3}; \
 		return tmp; \
-	} \
-	\
-	static __inline _##vectype \
+	}\
+static __always_inline _##vectype operator op ( const _##vectype a, type b );\
+static __always_inline _##vectype \
 	operator op ( const _##vectype a, type b ) \
 	{ \
 		_##vectype tmp={a.s0 op b,a.s1 op b,a.s2 op b,a.s3 op b}; \
 		return tmp; \
-	} \
+	} 
 
 
 #if GCC_VERSION < 40600
@@ -1032,22 +1066,23 @@ GENERIC_BINOP_VEC4(unsigned int,uint4,^)
 /*** math builtin functions [6.11.2] ***/
 
 #define __MATH_BUILTIN_1(func) \
-static __inline float func##_T( float a ) \
+static __always_inline float func##_T( float a ); \
+static __always_inline float func##_T( float a ) \
 	{ return func##f(a); } \
-static __inline float2 func##_T( float2 a ) \
-	{ return vector_float2( \
-		func##f(a.x),func##f(a.y) \
-	); } \
-static __inline float4 func##_T( float4 a ) \
-	{ return vector_float4( \
-		func##f(a.x),func##f(a.y),func##f(a.z),func##f(a.w) \
-	); } \
-static __inline double func##_T( double a ) \
-	{ return func(a); } \
-static __inline double2 func##_T( double2 a ) \
-	{ return vector_double2( \
-		func(a.x),func(a.y) \
-	); } 
+static __always_inline float2 func##_T( float2 a ); \
+static __always_inline float2 func##_T( float2 a ) \
+	{ return vector_float2( func##f(a.x),func##f(a.y) ); } \
+static __always_inline float4 func##_T( float4 a ); \
+static __always_inline float4 func##_T( float4 a ) \
+	{ \
+		return vector_float4( \
+			func##f(a.x),func##f(a.y),func##f(a.z),func##f(a.w)); \
+	} \
+static __always_inline double func##_T( double a ); \
+static __always_inline double func##_T( double a ) { return func(a); } \
+static __always_inline double2 func##_T( double2 a ); \
+static __always_inline double2 func##_T( double2 a ) \
+	{ return vector_double2( func(a.x),func(a.y) ); } 
 
 
 __MATH_BUILTIN_1(acos)
@@ -1099,41 +1134,73 @@ static __inline _float4 rsqrt_T( _float4 a ) \
 	); } 
 */
 
-static __inline float rsqrt_T( float a ) { return 1.0f/sqrtf(a); }
-static __inline _float2 rsqrt_T( _float2 a )
+static __always_inline float rsqrt_T( float a );
+static __always_inline float rsqrt_T( float a ) { return 1.0f/sqrtf(a); }
+
+static __always_inline _float2 rsqrt_T( _float2 a );
+static __always_inline _float2 rsqrt_T( _float2 a )
    { return _vector_float2(1.0f/sqrtf(a.x),1.0f/sqrtf(a.y)); }
-static __inline float4 rsqrt_T( _float4 a )
-   { return _vector_float4( 1.0f/sqrtf(a.x),1.0f/sqrtf(a.y), 1.0f/sqrtf(a.z),1.0f/sqrtf(a.w)); }
-static __inline double rsqrt_T( double a ) { return 1.0f/sqrt(a); }
-static __inline _double2 rsqrt_T( _double2 a )
+
+static __always_inline float4 rsqrt_T( _float4 a );
+static __always_inline float4 rsqrt_T( _float4 a )
+   { 
+		return _vector_float4( 1.0f/sqrtf(a.x),1.0f/sqrtf(a.y), 
+			1.0f/sqrtf(a.z),1.0f/sqrtf(a.w)); 
+	}
+
+static __always_inline double rsqrt_T( double a );
+static __always_inline double rsqrt_T( double a ) { return 1.0f/sqrt(a); }
+
+static __always_inline _double2 rsqrt_T( _double2 a );
+static __always_inline _double2 rsqrt_T( _double2 a )
    { return _vector_double2(1.0f/sqrt(a.x),1.0f/sqrt(a.y)); }
 
 template < typename T >
-static __inline T clamp_T( T a, T b0, T b1 )
+	 static __always_inline T clamp_T( T a, T b0, T b1 );
+template < typename T >
+	static __always_inline T clamp_T( T a, T b0, T b1 )
    { return min(max(a,b0),b1); }
 
-static __inline _float2 clamp_T( _float2 a, float b0, float b1)
+static __always_inline _float2 clamp_T( _float2 a, float b0, float b1);
+static __always_inline _float2 clamp_T( _float2 a, float b0, float b1)
    { return _vector_float2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
 
-static __inline _float4 clamp_T( _float4 a, float b0, float b1)
-   { return _vector_float4( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1), clamp_T(a.z,b0,b1), clamp_T(a.w,b0,b1) ); }
+static __always_inline _float4 
+	clamp_T( _float4 a, float b0, float b1);
+static __always_inline _float4 clamp_T( _float4 a, float b0, float b1)
+   { 
+		return _vector_float4( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1), 
+			clamp_T(a.z,b0,b1), clamp_T(a.w,b0,b1) ); 
+	}
 
-static __inline _double2 clamp_T( _double2 a, double b0, double b1)
+static __always_inline _double2 
+	clamp_T( _double2 a, double b0, double b1);
+static __always_inline _double2 clamp_T( _double2 a, double b0, double b1)
    { return _vector_double2( clamp_T(a.x,b0,b1), clamp_T(a.y,b0,b1) ); }
 
-static __inline float dot_T( _float2 a, _float2 b)
+static __always_inline float dot_T( _float2 a, _float2 b);
+static __always_inline float dot_T( _float2 a, _float2 b)
    { float2 tmp = a*b; return tmp.x+tmp.y; }
-static __inline float dot_T( _float4 a, _float4 b)
+
+static __always_inline float dot_T( _float4 a, _float4 b);
+static __always_inline float dot_T( _float4 a, _float4 b)
    { float4 tmp = a*b; return tmp.x+tmp.y+tmp.z+tmp.w; }
-static __inline double dot_T( _double2 a, _double2 b)
+
+static __always_inline double dot_T( _double2 a, _double2 b);
+static __always_inline double dot_T( _double2 a, _double2 b)
    { double2 tmp = a*b; return tmp.x+tmp.y; }
 
 template < typename T >
-static __inline T normalize_T( T a )
-   { return rsqrt_T(dot_T(a,a))*a; }
+	static __always_inline T normalize_T( T a );
+template < typename T >
+	static __always_inline T normalize_T( T a ) { return rsqrt_T(dot_T(a,a))*a; }
 
-static __inline _float4 cross_T( _float4 a, _float4 b)
-{return _vector_float4(a.y*b.z-a.z*b.y,a.z*b.x-a.x*b.z,a.x*b.y-a.y*b.x,0.0f);}
+static __always_inline _float4 cross_T( _float4 a, _float4 b);
+static __always_inline _float4 cross_T( _float4 a, _float4 b)
+	{
+		return _vector_float4(a.y*b.z-a.z*b.y, a.z*b.x-a.x*b.z,
+			a.x*b.y-a.y*b.x, 0.0f);
+	}
 
 
 #define sqrt(a) sqrt_T(a)
