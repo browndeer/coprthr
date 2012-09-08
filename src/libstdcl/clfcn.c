@@ -38,7 +38,8 @@
 #define __STDCL__
 #include "clfcn.h"
 #include "util.h"
-
+#include "printcl.h"
+#include "clerrno.h"
 
 /*
  * NOTES:
@@ -56,11 +57,11 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 	int n;
 	int err;
 
-	DEBUG(__FILE__,__LINE__," checking cp ");
+	printcl( CL_DEBUG " checking cp ");
 
 	if (!cp) return(0);
 
-	DEBUG(__FILE__,__LINE__," cp ok ");
+	printcl( CL_DEBUG " cp ok ");
 
 
 	struct _prgs_struct* prgs
@@ -88,14 +89,14 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 	txt->prg = clCreateProgramWithSource(
 		cp->ctx,1,(const char**)&ptr,&len,&err
 	);
-	DEBUG(__FILE__,__LINE__,"clload: err from clCreateProgramWithSource %d",err);
+	printcl( CL_DEBUG "clload: err from clCreateProgramWithSource %d",err);
 
 	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
 
 
 
 	if (!(flags&CLLD_NOBUILD)) {
-		DEBUG(__FILE__,__LINE__,"clload: calling clbuild");
+		printcl( CL_DEBUG "clload: calling clbuild");
 		clbuild(cp,prgs,0,flags);
 	}
 
@@ -114,11 +115,11 @@ clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 	int n;
 	int err;
 
-	DEBUG(__FILE__,__LINE__,"clloadb: checking cp ");
+	printcl( CL_DEBUG "clloadb: checking cp ");
 
 	if (!cp) return(0);
 
-	DEBUG(__FILE__,__LINE__,"clloadb: cp ok ");
+	printcl( CL_DEBUG "clloadb: cp ok ");
 
 
 	struct _prgs_struct* prgs
@@ -154,25 +155,27 @@ clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 
 	txt->prg = clCreateProgramWithBinary(cp->ctx,cp->ndev,cp->dev,
 		bin_sz,(const unsigned char**)bin,bin_stat,&err);
-
-	DEBUG2("clloadb: err from clCreateProgramWithBinary %d (%p)",err,txt->prg);
+	__set_oclerrno(err);
+	printcl( CL_DEBUG "clloadb: err from clCreateProgramWithBinary %d (%p)",
+		err,txt->prg);
 
 	for(n=0;n<cp->ndev;n++) {
-		DEBUG2("clloadb: bin stat [%d] %d",n,bin_stat[n]);
+		printcl( CL_DEBUG "clloadb: bin stat [%d] %d",n,bin_stat[n]);
 	}
-	DEBUG2("clloadb: err from clCreateProgramWithBinary %d",err);
+	printcl( CL_DEBUG "clloadb: err from clCreateProgramWithBinary %d",err);
 
 	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
 
 
 
 //	if (!(flags&CLLD_NOBUILD)) {
-//		DEBUG(__FILE__,__LINE__,"clload: calling clbuild");
+//		printcl( CL_DEBUG "clload: calling clbuild");
 //		clbuild(cp,prgs,0,flags);
 //	}
 
 	err = clBuildProgram(txt->prg,cp->ndev,cp->dev,0,0,0);
-	DEBUG2("clloadb: err from clBuildProgram %d",err);
+	__set_oclerrno(err);
+	printcl( CL_DEBUG "clloadb: err from clBuildProgram %d",err);
 
 
 //	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
@@ -181,36 +184,42 @@ clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 	/* extract the kernels */
 
 	err = clCreateKernelsInProgram(txt->prg,0,0,&txt->nkrn);
-	DEBUG2("clloadb: err from clCreateKernelsInProgram %d",err);
-	DEBUG2("clloadb: NUMBER OF KERNELS %d",txt->nkrn);
+	__set_oclerrno(err);
+	printcl( CL_DEBUG "clloadb: err from clCreateKernelsInProgram %d",err);
+	printcl( CL_DEBUG "clloadb: NUMBER OF KERNELS %d",txt->nkrn);
 
 	txt->krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
 
 	err = clCreateKernelsInProgram(txt->prg,txt->nkrn,txt->krn,0);
+	__set_oclerrno(err);
 
 
 	txt->krntab = (struct _krntab_struct*)malloc(
-		sizeof(struct _krntab_struct)*txt->nkrn
-	);
+		sizeof(struct _krntab_struct)*txt->nkrn);
 
 	for(n=0;n<txt->nkrn;n++) {
 
-		clGetKernelInfo( txt->krn[n],CL_KERNEL_FUNCTION_NAME,256,
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_FUNCTION_NAME,256,
 			txt->krntab[n].kname,0);
+		__set_oclerrno(err);
 
-		clGetKernelInfo( txt->krn[n],CL_KERNEL_NUM_ARGS,sizeof(cl_uint),
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_NUM_ARGS,sizeof(cl_uint),
 			&txt->krntab[n].nargs,0);
+		__set_oclerrno(err);
 
-		clGetKernelInfo( txt->krn[n],CL_KERNEL_REFERENCE_COUNT,
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_REFERENCE_COUNT,
 			sizeof(cl_uint), &txt->krntab[n].refc,0);
+		__set_oclerrno(err);
 
-		clGetKernelInfo( txt->krn[n],CL_KERNEL_CONTEXT,sizeof(cl_context),
-				&txt->krntab[n].kctx,0);
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_CONTEXT,sizeof(cl_context),
+			&txt->krntab[n].kctx,0);
+		__set_oclerrno(err);
 
-		clGetKernelInfo(txt->krn[n],CL_KERNEL_PROGRAM,sizeof(cl_program),
-				&txt->krntab[n].kprg,0);
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_PROGRAM,sizeof(cl_program),
+			&txt->krntab[n].kprg,0);
+		__set_oclerrno(err);
 
-		DEBUG(__FILE__,__LINE__,"clloadb: %s %d %p %p\n",
+		printcl( CL_DEBUG "clloadb: %s %d %p %p\n",
 			txt->krntab[n].kname,txt->krntab[n].nargs,
 			txt->krntab[n].kctx,txt->krntab[n].kprg);
 
@@ -230,17 +239,17 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 	int err;
 	struct _prgs_struct* prgs;
 
-	DEBUG(__FILE__,__LINE__," checking cp ");
+	printcl( CL_DEBUG " checking cp ");
 
 	if (!cp) return(0);
 
 	if (_clbuild_zero) return(0);
 
-	DEBUG(__FILE__,__LINE__," cp ok ");
+	printcl( CL_DEBUG " cp ok ");
 
 	prgs = (struct _prgs_struct*)handle;
 
-	DEBUG(__FILE__,__LINE__,"prgs %p",prgs);
+	printcl( CL_DEBUG "prgs %p",prgs);
 
 	struct _txt_struct* txt;
    for (
@@ -251,7 +260,7 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 //   }
 
 //	if (!txt) {
-//		DEBUG(__FILE__,__LINE__,"clbuild: bad handle");
+//		printcl( CL_DEBUG "clbuild: bad handle");
 //		return((void*)-1);
 //	}
 
@@ -269,7 +278,7 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 		strcat(opts," -D __GPU__");
 	}
 
-DEBUG2("clbuild: platform_vendor '%s'",cp->platform_vendor);
+	printcl( CL_DEBUG "clbuild: platform_vendor '%s'",cp->platform_vendor);
 
 	if (!strcasecmp(cp->platform_vendor,"Advanced Micro Devices, Inc.")) 
 		strcat(opts," -D __AMD__");
@@ -295,7 +304,7 @@ DEBUG2("clbuild: platform_vendor '%s'",cp->platform_vendor);
 //		printf("len of opts %d\n",strnlen(opts,1024));
 		if (n+strnlen(opts,1024)>1022) {
 //			printf("opts |%s|\n",opts);
-			WARN(__FILE__,__LINE__,
+			printcl( CL_WARNING 
 				"clbuild: cwd too long to include as header search path.");
 		} else {
 			strcat(opts," -I");
@@ -309,69 +318,84 @@ DEBUG2("clbuild: platform_vendor '%s'",cp->platform_vendor);
 
 //		n = strnlen(uopts,64);
 		n = strnlen(uopts,1024);
-		DEBUG(__FILE__,__LINE__,"%d",n);
+		printcl( CL_DEBUG "%d",n);
 		if (n+strnlen(opts,1024)>1022) {
-			WARN(__FILE__,__LINE__,
-				"clbuild: options string too long, ignoring it.");
+			printcl( CL_WARNING "clbuild: options string too long, ignoring it.");
 		} else {
 			strcat(opts," ");
 			strncat(opts,uopts,n);
 		}
 
 	}
-	DEBUG(__FILE__,__LINE__,"%s",opts);
+	printcl( CL_DEBUG "%s",opts);
 
 	err = clBuildProgram(txt->prg,cp->ndev,cp->dev,opts,0,0);
-	DEBUG(__FILE__,__LINE__,"clbuild: err from clBuildProgram %d",err);
+	__set_oclerrno(err);
+	printcl( CL_DEBUG "clbuild: err from clBuildProgram %d",err);
 
 	if (opts) free(opts);
 
 	{
 //	char buf[256];
 //	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,256,&buf,0);
-//	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
+//	printcl( CL_DEBUG "clld: log from clBuildProgram %s",buf);
 //	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_OPTIONS,256,&buf,0);
-//	DEBUG(__FILE__,__LINE__,"clbuild: log from clBuildProgram %s",buf);
+//	printcl( CL_DEBUG "clbuild: log from clBuildProgram %s",buf);
 
 	size_t sz;
-	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,0,0,&sz);
-	char* buf = (char*)malloc(sz*sizeof(char));
-	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,sz,buf,0);
+	err = clGetProgramBuildInfo(
+		txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,0,0,&sz);
+	__set_oclerrno(err);
 
-	DEBUG(__FILE__,__LINE__,"clld: log from clBuildProgram %s",buf);
+	char* buf = (char*)malloc(sz*sizeof(char));
+	err = clGetProgramBuildInfo(
+		txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,sz,buf,0);
+	__set_oclerrno(err);
+
+	printcl( CL_DEBUG "clld: log from clBuildProgram %s",buf);
 
 	if (buf) free(buf);
 
 	}
 
 	err = clCreateKernelsInProgram(txt->prg,0,0,&txt->nkrn);
-	DEBUG(__FILE__,__LINE__,"clbuild: NUMBER OF KERNELS %d",txt->nkrn);
+	__set_oclerrno(err);
+	printcl( CL_DEBUG "clbuild: NUMBER OF KERNELS %d",txt->nkrn);
+
 	txt->krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
+
 	err = clCreateKernelsInProgram(txt->prg,txt->nkrn,txt->krn,0);
+	__set_oclerrno(err);
+
 	txt->krntab = (struct _krntab_struct*)malloc(
-		sizeof(struct _krntab_struct)*txt->nkrn
-	);
+		sizeof(struct _krntab_struct)*txt->nkrn );
 
 	for(n=0;n<txt->nkrn;n++) {
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_FUNCTION_NAME,256,txt->krntab[n].kname,0
-		);
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_NUM_ARGS,sizeof(cl_uint),&txt->krntab[n].nargs,0
-		);
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_REFERENCE_COUNT,sizeof(cl_uint),
-			&txt->krntab[n].refc,0
-		);
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_CONTEXT,sizeof(cl_context),&txt->krntab[n].kctx,0
-		);
-		clGetKernelInfo(
-			txt->krn[n],CL_KERNEL_PROGRAM,sizeof(cl_program),&txt->krntab[n].kprg,0
-		);
-		DEBUG(__FILE__,__LINE__,"clbuild: %s %d %p %p\n",
+
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_FUNCTION_NAME,256,
+			txt->krntab[n].kname,0);
+		__set_oclerrno(err);
+
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_NUM_ARGS,sizeof(cl_uint),
+			&txt->krntab[n].nargs,0);
+		__set_oclerrno(err);
+
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_REFERENCE_COUNT,
+			sizeof(cl_uint), &txt->krntab[n].refc,0);
+		__set_oclerrno(err);
+
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_CONTEXT,sizeof(cl_context),
+			&txt->krntab[n].kctx,0);
+		__set_oclerrno(err);
+
+		err = clGetKernelInfo( txt->krn[n],CL_KERNEL_PROGRAM,sizeof(cl_program),
+			&txt->krntab[n].kprg,0);
+		__set_oclerrno(err);
+
+		printcl( CL_DEBUG "clbuild: %s %d %p %p\n",
 			txt->krntab[n].kname,txt->krntab[n].nargs,
 			txt->krntab[n].kctx,txt->krntab[n].kprg);
+
 	}
 
 	}
@@ -402,36 +426,36 @@ clopen( CONTEXT* cp, const char* fname, int flags )
 	void* ptr;
 	struct _prgs_struct* prgs;
 
-DEBUG(__FILE__,__LINE__," checking cp ");
+printcl( CL_DEBUG " checking cp ");
 
 	if (!cp) return(0);
 
-DEBUG(__FILE__,__LINE__," cp ok ");
+printcl( CL_DEBUG " cp ok ");
 
 	if (!fname) {
 
 		if (_clopen_zero) {
-			DEBUG(__FILE__,__LINE__,"already here");
+			printcl( CL_DEBUG "already here");
 			return(0);
 		}
 
 #ifdef _WIN64
 
-		WARN(__FILE__,__LINE__,"embedded kernels not supported for Windows");
+		printcl( CL_WARNING "embedded kernels not supported for Windows");
 
 #else
 
-		DEBUG(__FILE__,__LINE__," fname null, search _proc_clelf_sect");
+		printcl( CL_DEBUG " fname null, search _proc_clelf_sect");
 
 		if (!_proc_clelf_sect) {
-			DEBUG2("clopen: _proc_clelf_sect is null");
+			printcl( CL_DEBUG "clopen: _proc_clelf_sect is null");
 			return(0);
 		}
 
 		struct clelf_sect_struct* sect = _proc_clelf_sect;
 
 		if (!sect->has_any_clelf_section) {
-			DEBUG2("clopen: no CLELF sections found");
+			printcl( CL_DEBUG "clopen: no CLELF sections found");
 			return(0);
 		}
 
@@ -439,16 +463,16 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 		ptr = 0;
 		len = 0;
 
-//		DEBUG(__FILE__,__LINE__,"clopen: %p searching _proc_cl for prgs...",
+//		printcl( CL_DEBUG "clopen: %p searching _proc_cl for prgs...",
 //			_proc_cl.clstrtab);
 //
-// 		DEBUG(__FILE__,__LINE__,"clopen: %s",&_proc_cl.clstrtab[1]);
+// 		printcl( CL_DEBUG "clopen: %s",&_proc_cl.clstrtab[1]);
 //
-//		DEBUG(__FILE__,__LINE__,"clopen: _proc_cl.clprgs_n=%d",_proc_cl.clprgs_n);
+//		printcl( CL_DEBUG "clopen: _proc_cl.clprgs_n=%d",_proc_cl.clprgs_n);
 //
 //		struct clprgs_entry* sp;
 //		for(n=0,sp=_proc_cl.clprgs;n<_proc_cl.clprgs_n;n++,sp++) {
-//			DEBUG(__FILE__,__LINE__,"found %s (%d bytes)\n",
+//			printcl( CL_DEBUG "found %s (%d bytes)\n",
 //				&_proc_cl.clstrtab[sp->e_name],sp->e_size);
 //			ptr = _proc_cl.cltexts+sp->e_offset;
 //			len = sp->e_size;
@@ -458,7 +482,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 //			prgs->fd = fd;
 //		}
 
-		DEBUG2("clopen: need %d devices for binary kernels",cp->ndev);
+		printcl( CL_DEBUG "clopen: need %d devices for binary kernels",cp->ndev);
 		int m;
 		struct cldev_info* di
 			= (struct cldev_info*)malloc(cp->ndev * sizeof(struct cldev_info));
@@ -468,21 +492,22 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 			dev_alias[m] = (char*)malloc(strlen(di[m].dev_name));
 			strcpy(dev_alias[m],di[m].dev_name);
 			if ( clelf_device_name_alias(dev_alias[m]) ) {
-				DEBUG2("clopen: dev[%d] name |%s| (%s)",
+				printcl( CL_DEBUG "clopen: dev[%d] name |%s| (%s)",
 					m,di[m].dev_name,dev_alias[m]);
 			} else {
-				DEBUG2("clopen: dev[%d] name |%s|",m,di[m].dev_name);
+				printcl( CL_DEBUG "clopen: dev[%d] name |%s|",m,di[m].dev_name);
 			}
 		}
 	
-		DEBUG2("clopen: _proc_clelf_sect %p",_proc_clelf_sect);
+		printcl( CL_DEBUG "clopen: _proc_clelf_sect %p",_proc_clelf_sect);
 
 		int platform_code = clelf_platform_code(cp->platform_name);
 		/* XXX if 0 things are really not going to work out well -DAR */
 
 		if (sect->has_clprgtab) {
 
-			DEBUG2("clopen: searching clprgtab (%d entries) ...",sect->clprgtab_n);
+			printcl( CL_DEBUG "clopen: searching clprgtab (%d entries) ...",
+				sect->clprgtab_n);
 
 			char** bin = (char**)calloc( sizeof(char*), cp->ndev );
 			size_t* bin_sz = (size_t*)calloc( sizeof(size_t), cp->ndev );
@@ -492,7 +517,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
          for(n=0; n<sect->clprgtab_n; n++,p++) {
 
-				DEBUG2("clopen: checking %d binaries ...",p->e_nprgbin);
+				printcl( CL_DEBUG "clopen: checking %d binaries ...",p->e_nprgbin);
 
 				int nbin = 0;
 
@@ -502,7 +527,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 					struct clprgbin_entry* pb = sect->clprgbin + p->e_prgbin;
 					for(nb=0; nb < p->e_nprgbin; nb++,pb++ ) {
 
-						DEBUG2("clopen: test %d:|%s| ? %d:|%s|",
+						printcl( CL_DEBUG "clopen: test %d:|%s| ? %d:|%s|",
 							platform_code,dev_alias[m],
 							pb->e_platform,sect->clstrtab + pb->e_device);
 
@@ -523,11 +548,11 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 				}
 
-				DEBUG2("clopen: nbin=%d ndev=%d",nbin,cp->ndev);
+				printcl( CL_DEBUG "clopen: nbin=%d ndev=%d",nbin,cp->ndev);
 
 				if (nbin == cp->ndev) {
 
-					DEBUG2("clopen: found all binaries");
+					printcl( CL_DEBUG "clopen: found all binaries");
 
 					prgs = clloadb(cp,nbin,bin,bin_sz,flags);
 					prgs->fname = fname;
@@ -536,7 +561,8 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 				} else { 
 
-					DEBUG2("clopen: binary load failed, check for source");
+					printcl( CL_DEBUG 
+						"clopen: binary load failed, check for source");
 
 					if (p->e_nprgsrc) {
 
@@ -547,7 +573,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 						ptr = sect->cltextsrc + ps->e_offset;
 						len = ps->e_size;
 
-						DEBUG2("clopen: source %p (%d bytes)",ptr,len);
+						printcl( CL_DEBUG "clopen: source %p (%d bytes)",ptr,len);
 
 						prgs = clload(cp,ptr,len,flags);
 						prgs->fname = fname;
@@ -555,7 +581,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 					} else {
 
-						DEBUG2("clopen: no source found");
+						printcl( CL_DEBUG "clopen: no source found");
 
 					}
 
@@ -567,7 +593,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 		} else {
 
-			DEBUG2("clopen: proc contains no CLELF sections");
+			printcl( CL_DEBUG "clopen: proc contains no CLELF sections");
 
 		}
 
@@ -585,8 +611,8 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 		if (stat(fname,&fs)) return(0);
 
-		DEBUG(__FILE__,__LINE__," stat ok ");
-		DEBUG(__FILE__,__LINE__," file size = %d ",fs.st_size);
+		printcl( CL_DEBUG " stat ok ");
+		printcl( CL_DEBUG " file size = %d ",fs.st_size);
 
 		if (fs.st_size==0 || !S_ISREG(fs.st_mode)) return(0);
 
@@ -616,7 +642,7 @@ DEBUG(__FILE__,__LINE__," cp ok ");
 
 		if ((fd = open(fname,O_RDONLY)) == -1) return(0); 
 
-		DEBUG(__FILE__,__LINE__," file open ");
+		printcl( CL_DEBUG " file open ");
 
 		if (!(ptr = mmap(0,len,PROT_READ,MAP_SHARED,fd,0))) {
 			close(fd);
@@ -656,14 +682,16 @@ clclose(CONTEXT* cp, void* handle)
 	while(txt) {
 		txt_next;
 		if (txt->prgs == prgs) {
-			DEBUG(__FILE__,__LINE__," removing txt from list\n");
+			printcl( CL_DEBUG " removing txt from list\n");
 			LIST_REMOVE(txt, txt_list);
 			for(n=0;n<txt->nkrn;n++) {
 				err = clReleaseKernel(txt->krn[n]);
+				__set_oclerrno(err);
 			}
 			free(txt->krn);
 			free(txt->krntab);
 			err = clReleaseProgram(txt->prg);
+			__set_oclerrno(err);
 			free(txt);
 			txt = 0;
 		}
@@ -672,7 +700,7 @@ clclose(CONTEXT* cp, void* handle)
 
 
 
-	DEBUG(__FILE__,__LINE__," removing prgs from list\n");
+	printcl( CL_DEBUG " removing prgs from list\n");
 	LIST_REMOVE(prgs, prgs_list);
 
 #ifndef _WIN64
@@ -701,7 +729,7 @@ clsym( CONTEXT* cp, void* handle, const char* sname, int flags )
 //	}
 
 	if ( !handle && !_clopen_zero ) {
-		DEBUG2("need to force call to clopen");
+		printcl( CL_DEBUG "need to force call to clopen");
 		clopen(cp,0,flags);
 	}
 
@@ -717,11 +745,11 @@ clsym( CONTEXT* cp, void* handle, const char* sname, int flags )
       txt = txt->txt_list.le_next
    ) {
 		if (prgs==0 || txt->prgs == prgs) {
-			DEBUG(__FILE__,__LINE__,"clsym: txt->krn %p",txt->krn);
-			DEBUG(__FILE__,__LINE__,"clsym: searching kernels ...");
+			printcl( CL_DEBUG "clsym: txt->krn %p",txt->krn);
+			printcl( CL_DEBUG "clsym: searching kernels ...");
 			for(n=0;n<txt->nkrn;n++) {
 
-				DEBUG(__FILE__,__LINE__,"checking |%s|%s|",
+				printcl( CL_DEBUG "checking |%s|%s|",
 					txt->krntab[n].kname,sname);
 
 				if (!strncmp(sname,txt->krntab[n].kname,256)) return(txt->krn[n]);
@@ -730,14 +758,15 @@ clsym( CONTEXT* cp, void* handle, const char* sname, int flags )
 		}
    }
 
-	DEBUG(__FILE__,__LINE__,"clsym: symbol not found");
+	printcl( CL_DEBUG "clsym: symbol not found");
 
 	return((cl_kernel)0);
 
 }
 
 
-LIBSTDCL_API char*  clerror(void)
+LIBSTDCL_API char*  
+clerror(void)
 {
 	return(0);
 }
@@ -753,11 +782,11 @@ clsopen( CONTEXT* cp, const char* srcstr, int flags )
 	void* ptr;
 	struct _prgs_struct* prgs;
 
-DEBUG(__FILE__,__LINE__," checking cp ");
+printcl( CL_DEBUG " checking cp ");
 
 	if (!cp) return(0);
 
-DEBUG(__FILE__,__LINE__," cp ok ");
+printcl( CL_DEBUG " cp ok ");
 
 	if (srcstr) {
 

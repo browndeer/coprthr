@@ -30,6 +30,8 @@
 
 #define __STDCL__
 #include "clmalloc.h"
+#include "printcl.h"
+#include "clerrno.h"
 
 
 #ifdef __cplusplus
@@ -39,6 +41,7 @@ extern "C" {
 LIBSTDCL_API size_t 
 clarg_set_global(CONTEXT* cp, cl_kernel krn, unsigned int argnum, void* ptr) 
 {
+	int err;
 	struct _memd_struct* memd = 0;
 	size_t offset = -1;
 
@@ -70,7 +73,10 @@ clarg_set_global(CONTEXT* cp, cl_kernel krn, unsigned int argnum, void* ptr)
 		}
 	}
 
-	if (memd) clSetKernelArg(krn,argnum,sizeof(cl_mem),(void*)&memd->clbuf); 
+	if (memd) {
+		err = clSetKernelArg(krn,argnum,sizeof(cl_mem),(void*)&memd->clbuf); 
+		__set_oclerrno(err);
+	}
 
 	return(offset);	
 }
