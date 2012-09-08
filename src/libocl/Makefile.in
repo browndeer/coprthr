@@ -14,6 +14,8 @@ LIBELF_LIB=@libelf_lib@
 #DEFS += -DOCL_DEBUG 
 #DEFS += -DOCL_WARN
 
+DEFS += -DENABLE_PRINTCL
+
 #DEFS += -DUSE_FAST_SETJMP	# ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING
 
 ### select default install paths 
@@ -49,12 +51,14 @@ INCS += $(LIBELF_INC)
 LIBS += $(LIBELF_LIB)
 
 LIBS += -lfl  -lpthread -lrt
+
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
 else
 LIBS += -ldl 
 endif
 
+LIBS += -lconfig
 
 OBJS_D = $(subst .o,_d.o,$(OBJS))
 
