@@ -1,6 +1,6 @@
-/* xcl_profile.c 
+/* ocl_profile.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -21,14 +21,15 @@
 /* DAR */
 
 
-#include <XCL/cl.h>
+#include <CL/cl.h>
 
 #include "xcl_structs.h"
 
 
-// Profiling APIs
+// Profiling API Calls
 
-cl_int clGetEventProfilingInfo(
+cl_int 
+_clGetEventProfilingInfo(
 	cl_event event,
 	cl_profiling_info param_name,
 	size_t param_sz,
@@ -55,13 +56,13 @@ cl_int clGetEventProfilingInfo(
 
 			break;
 			
-		case CL_PROFILING_COMMAND_START;
+		case CL_PROFILING_COMMAND_START:
 
 			__case_get_param(sizeof(cl_ulong),&event->tm_start);
 
 			break;
 			
-		case CL_PROFILING_COMMAND_END;
+		case CL_PROFILING_COMMAND_END:
 
 			__case_get_param(sizeof(cl_ulong),&event->tm_end);
 
@@ -75,3 +76,12 @@ cl_int clGetEventProfilingInfo(
 
 	return(CL_SUCCESS);
 }
+
+
+// Aliased Profiling API Calls
+
+cl_int 
+clGetEventProfilingInfo( cl_event event, cl_profiling_info param_name,
+   size_t param_sz, void* param_val, size_t* param_sz_ret)
+	__attribute__((alias("_clGetEventProfilingInfo")));
+

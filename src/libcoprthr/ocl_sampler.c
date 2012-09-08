@@ -1,6 +1,6 @@
-/* xcl_sampler.c 
+/* ocl_sampler.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,16 +20,16 @@
 
 /* DAR */
 
-#include <XCL/cl.h>
+#include <CL/cl.h>
 
 #include "xcl_structs.h"
 
 
-// Sampler APIs
+// Sampler API Calls
 
 
 cl_sampler 
-clCreateSampler(
+_clCreateSampler(
 	 cl_context ctx,
 	 cl_bool norm_coords,
 	 cl_addressing_mode amode,
@@ -39,7 +39,8 @@ clCreateSampler(
 {
 	WARN(__FILE__,__LINE__,"clCreateSampler: warning: unsupported");
 
-	if (__invalid_context(ctx)) return(CL_INVALID_CONTEXT);
+//	if (__invalid_context(ctx)) return(CL_INVALID_CONTEXT);
+	if (__invalid_context(ctx)) __error_return(CL_INVALID_CONTEXT,cl_sampler);
 
 
 	struct _cl_sampler* sampler 
@@ -66,7 +67,7 @@ clCreateSampler(
 
 
 cl_int 
-clRetainSampler( cl_sampler sampler )
+_clRetainSampler( cl_sampler sampler )
 {
 	WARN(__FILE__,__LINE__,"clRetainSampler: warning: unsupported");
 
@@ -78,7 +79,8 @@ clRetainSampler( cl_sampler sampler )
 }
 
 
-cl_int clReleaseSampler( cl_sampler sampler )
+cl_int 
+_clReleaseSampler( cl_sampler sampler )
 {
 	WARN(__FILE__,__LINE__,"clReleaseSampler: warning: unsupported");
 
@@ -86,7 +88,7 @@ cl_int clReleaseSampler( cl_sampler sampler )
 
 	if (--sampler->refc == 0) {
 
-		__do_release_sampler(sampler);
+//		__do_release_sampler(sampler);
 
 		__free_sampler(sampler);
 
@@ -97,7 +99,7 @@ cl_int clReleaseSampler( cl_sampler sampler )
 
 
 cl_int 
-clGetSamplerInfo(
+_clGetSamplerInfo(
 	 cl_sampler sampler,
 	 cl_sampler_info param_name,
 	 size_t param_sz,
@@ -125,7 +127,7 @@ clGetSamplerInfo(
 
 			break;
 
-		case CL_SAMPLER_ADDRESSING_MODE;
+		case CL_SAMPLER_ADDRESSING_MODE:
 
 			__case_get_param(sizeof(cl_addressing_mode),&sampler->amode);
 
@@ -151,4 +153,26 @@ clGetSamplerInfo(
 	
 	return(CL_SUCCESS);
 }
+
+
+// Aliased Sampler API Calls
+
+cl_sampler
+clCreateSampler( cl_context ctx, cl_bool norm_coords, cl_addressing_mode amode,
+    cl_filter_mode fmode, cl_int* err_ret)
+	__attribute__((alias("_clCreateSampler")));
+
+cl_int
+clRetainSampler( cl_sampler sampler )
+	__attribute__((alias("_clRetainSampler")));
+
+cl_int 
+clReleaseSampler( cl_sampler sampler )
+	__attribute__((alias("_clReleaseSampler")));
+
+cl_int
+clGetSamplerInfo( cl_sampler sampler, cl_sampler_info param_name, 
+	size_t param_sz, void* param_val, size_t* param_sz_ret)
+	__attribute__((alias("_clGetSamplerInfo")));
+
 

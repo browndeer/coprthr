@@ -1,6 +1,6 @@
-/* xcl_extension.c
+/* icd.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,17 +20,32 @@
 
 /* DAR */
 
-#include <XCL/cl.h>
+#include <CL/cl.h>
 
-// Extensions
+//#include "xcl_structs.h"
 
-void*
-clGetExtensionFunctionAddress( const char* fname ) 
-{
-	WARN(__FILE__,__LINE__,
-		"clGetExtensionFunctionAddress: warning: unsupported");
+#include "oclcall.h"
 
-	return((void*)0);
-}
+/*
+cl_int
+clSetCommandQueueProperty(
+   cl_command_queue cmdq,
+   cl_command_queue_properties prop,
+   cl_bool enable,
+   cl_command_queue_properties* prop_old
+);
 
+extern cl_int
+_clGetPlatformInfo(
+   cl_platform_id platformid,
+   cl_platform_info param_name,
+   size_t param_sz,
+   void* param_val,
+   size_t* param_sz_ret
+);
+*/
+
+__DECL_API_CALLS(_,)
+
+void* __icd_call_vector[] = __set_icd_call_vector(_,);
 

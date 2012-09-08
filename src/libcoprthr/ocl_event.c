@@ -1,6 +1,6 @@
-/* xcl_event.c
+/* ocl_event.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -27,11 +27,11 @@
 #include "event.h"
 
 
-// Event Object APIs
+// Event Object API Calls
 
 
 cl_int 
-clWaitForEvents(
+_clWaitForEvents(
 	 cl_uint nev,
 	 const cl_event* evlist
 )
@@ -54,7 +54,7 @@ clWaitForEvents(
 
 
 cl_int 
-clGetEventInfo(
+_clGetEventInfo(
 	 cl_event ev,
 	 cl_event_info param_name,
 	 size_t param_sz,
@@ -104,7 +104,7 @@ clGetEventInfo(
 
 
 cl_int
-clRetainEvent( cl_event ev )
+_clRetainEvent( cl_event ev )
 {
 	DEBUG(__FILE__,__LINE__,"clRetainEvent");
 
@@ -119,7 +119,7 @@ clRetainEvent( cl_event ev )
 
 
 cl_int
-clReleaseEvent( cl_event ev )
+_clReleaseEvent( cl_event ev )
 {
 	DEBUG(__FILE__,__LINE__,"clReleaseEvent");
 
@@ -133,5 +133,23 @@ clReleaseEvent( cl_event ev )
 }
 
 
+// Aliased Event object API Calls
+
+cl_int
+clWaitForEvents( cl_uint nev, const cl_event* evlist)
+	__attribute__((alias("_clWaitForEvents")));
+
+cl_int
+clGetEventInfo( cl_event ev, cl_event_info param_name, size_t param_sz,
+    void* param_val, size_t* param_sz_ret)
+	__attribute__((alias("_clGetEventInfo")));
+
+cl_int
+clRetainEvent( cl_event ev )
+	__attribute__((alias("_clRetainEvent")));
+
+cl_int
+clReleaseEvent( cl_event ev )
+	__attribute__((alias("_clReleaseEvent")));
 
 

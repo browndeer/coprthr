@@ -1,6 +1,6 @@
-/* xcl_platform.c 
+/* xcl_icd.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,21 +20,20 @@
 
 /* DAR */
 
+
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
-#include "platform.h"
 
-#define min(a,b) ((a<b)?a:b)
 
-// Platform API
+// ICD stuff 
 
 
 cl_int 
-clGetPlatformIDs(
-	cl_uint nplatforms,
-	cl_platform_id* platforms,
-	cl_uint* nplatforms_ret
+clIcdGetPlatformIDsKHR( 
+	cl_uint nplatforms, 
+	cl_platform_id *platforms, 
+	cl_uint *nplatforms_ret
 )
 {
 	if (nplatforms == 0 && platforms) return(CL_INVALID_VALUE);
@@ -60,68 +59,15 @@ clGetPlatformIDs(
 }
 
 
-cl_int 
-clGetPlatformInfo(
-	cl_platform_id platformid, 
-	cl_platform_info param_name,
-	size_t param_sz, 
-	void* param_val,
-	size_t* param_sz_ret
-) 
+void*
+clGetExtensionFunctionAddress( const char* funcname )
 {
-	if (__invalid_platform_id(platformid)) return(CL_INVALID_PLATFORM);
+	if (!funcname) return 0;
 
-	char* p;
-	size_t sz;
+	if (!strcmp("clIcdGetPlatformIDsKHR",funcname) )
+		return &clIcdGetPlatformIDsKHR;
 
-	switch (param_name) {
-
-		case CL_PLATFORM_PROFILE:
-
-			__do_get_platform_profile(platformid,&p);
-
-			if (p) __case_get_param( strnlen(p,__CLMAXSTR_BUFSZ)+1,p);
-
-			break;
-
-		case CL_PLATFORM_VERSION:
-
-			__do_get_platform_version(platformid,&p);
-
-			if (p) __case_get_param( strnlen(p,__CLMAXSTR_BUFSZ)+1,p);
-
-			break;
-
-		case CL_PLATFORM_NAME:
-
-			__do_get_platform_name(platformid,&p);
-
-			if (p) __case_get_param( strnlen(p,__CLMAXSTR_BUFSZ)+1,p);
-
-			break;
-
-		case CL_PLATFORM_VENDOR:
-
-			__do_get_platform_vendor(platformid,&p);
-
-			if (p) __case_get_param( strnlen(p,__CLMAXSTR_BUFSZ)+1,p);
-
-			break;
-
-		case CL_PLATFORM_EXTENSIONS:
-
-			__do_get_platform_extensions(platformid,&p);
-
-			if (p) __case_get_param( strnlen(p,__CLMAXSTR_BUFSZ)+1,p);
-
-			break;
-
-		default:
-
-			return(CL_INVALID_VALUE);
-	}
-
-	return(CL_SUCCESS);
+	return 0;
 }
 
 

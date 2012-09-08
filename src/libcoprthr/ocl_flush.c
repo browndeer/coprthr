@@ -1,6 +1,6 @@
-/* xcl_flush.c 
+/* ocl_flush.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -26,11 +26,11 @@
 #include "xcl_structs.h"
 
 
-// Flush and Finish APIs
+// Flush and Finish API calls
 
 
 cl_int 
-clFlush(cl_command_queue cmdq)
+_clFlush(cl_command_queue cmdq)
 {
 	WARN(__FILE__,__LINE__,"clFlush: warning: unsupported");
 
@@ -43,7 +43,7 @@ clFlush(cl_command_queue cmdq)
 
 
 cl_int 
-clFinish(cl_command_queue cmdq )
+_clFinish(cl_command_queue cmdq )
 {
 	WARN(__FILE__,__LINE__,"clFinish: warning: unsupported");
 
@@ -54,5 +54,15 @@ clFinish(cl_command_queue cmdq )
 	return(CL_SUCCESS);
 }
 
+
+// Aliased Flush and Finish API Calls
+
+cl_int
+clFlush(cl_command_queue cmdq)
+	__attribute__((alias("_clFlush")));
+
+cl_int
+clFinish(cl_command_queue cmdq )
+	__attribute__((alias("_clFinish")));
 
 

@@ -112,6 +112,8 @@ void __do_discover_devices(
 	struct _cl_device_id* dtab = *p_dtab = (struct _cl_device_id*)
 		malloc(*p_ndevices*sizeof(struct _cl_device_id));
 
+	__init_device_id(dtab);
+
 	dtab[0].imp = (struct _imp_device){
 		CL_DEVICE_TYPE_CPU,
 		0,				/* vendorid */
@@ -152,7 +154,7 @@ void __do_discover_devices(
 		0, 	/* drv_version */
 		0, 	/* profile */
 		0, 	/* version */
-		0,		/* extensions */
+		"cl_khr_icd",		/* extensions */
 		0,0 	/* dstrtab, dstrtab_sz */
 	};
 

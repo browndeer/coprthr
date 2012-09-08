@@ -1,4 +1,4 @@
-/* xcl_command_queue.c 
+/* ocl_command_queue.c 
  *
  * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -31,11 +31,11 @@
 #include "xcl_structs.h"
 
 
-// Command Queue APIs
+// Command Queue API Calls
 
 	 
 cl_command_queue 
-clCreateCommandQueue(
+_clCreateCommandQueue(
 	cl_context ctx, cl_device_id devid,	
 	cl_command_queue_properties prop, 
 	cl_int* err_ret
@@ -64,9 +64,14 @@ clCreateCommandQueue(
 		= (struct _cl_command_queue*)malloc(sizeof(struct _cl_command_queue));
 
 	
+	fprintf(stderr,"here"); fflush(stderr);
+
 	if (cmdq) {
 
 		__init_command_queue(cmdq);
+
+		void* tmp = *(void**)cmdq;
+		fprintf(stderr,"deref cmdq %p",tmp); fflush(stderr);
 
 		cmdq->refc = 1;
 		cmdq->ctx = ctx;
@@ -82,10 +87,8 @@ clCreateCommandQueue(
 	return(cmdq);
 }
 
-
-	 
 cl_int 
-clRetainCommandQueue( cl_command_queue cmdq )
+_clRetainCommandQueue( cl_command_queue cmdq )
 {
 	DEBUG(__FILE__,__LINE__,"clRetainCommandQueue");
 
@@ -99,7 +102,7 @@ clRetainCommandQueue( cl_command_queue cmdq )
 
 	 
 cl_int 
-clReleaseCommandQueue( cl_command_queue cmdq )
+_clReleaseCommandQueue( cl_command_queue cmdq )
 {
 	DEBUG(__FILE__,__LINE__,"clReleaseCommandQueue");
 
@@ -119,7 +122,7 @@ clReleaseCommandQueue( cl_command_queue cmdq )
 
 	 
 cl_int 
-clGetCommandQueueInfo(
+_clGetCommandQueueInfo(
 	cl_command_queue cmdq,
 	cl_command_queue_info param_name,
 	size_t param_sz, 
@@ -171,7 +174,7 @@ clGetCommandQueueInfo(
 
 	 
 cl_int 
-clSetCommandQueueProperty(
+_clSetCommandQueueProperty(
 	cl_command_queue cmdq, 
 	cl_command_queue_properties prop, 		
 	cl_bool enable, 
@@ -195,5 +198,32 @@ clSetCommandQueueProperty(
 
 	return(CL_SUCCESS);
 }
+
+
+
+// Aliased Command Queue API Calls
+
+cl_command_queue
+clCreateCommandQueue( cl_context, cl_device_id, cl_command_queue_properties,
+   cl_int* )
+   __attribute__((alias("_clCreateCommandQueue")));
+
+cl_int
+clRetainCommandQueue( cl_command_queue )
+   __attribute__((alias("_clRetainCommandQueue")));
+
+cl_int
+clReleaseCommandQueue( cl_command_queue )
+   __attribute__((alias("_clReleaseCommandQueue")));
+
+cl_int
+clGetCommandQueueInfo( cl_command_queue, cl_command_queue_info, size_t, void*,
+   size_t*)
+   __attribute__((alias("_clGetCommandQueueInfo")));
+
+cl_int
+clSetCommandQueueProperty( cl_command_queue, cl_command_queue_properties,
+   cl_bool, cl_command_queue_properties*)
+   __attribute__((alias("_clSetCommandQueueProperty")));
 
 

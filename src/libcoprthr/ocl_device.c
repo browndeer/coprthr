@@ -1,6 +1,6 @@
-/* xcl_device.c 
+/* ocl_device.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -28,10 +28,10 @@
 
 #define min(a,b) ((a<b)?a:b)
 
-// Device APIs
+// Device API Calls
 
 cl_int 
-clGetDeviceIDs(
+_clGetDeviceIDs(
 	cl_platform_id platformid,
 	cl_device_type devtype,
 	cl_uint ndev,  
@@ -63,7 +63,7 @@ clGetDeviceIDs(
 
 
 cl_int 
-clGetDeviceInfo(
+_clGetDeviceInfo(
 	cl_device_id devid,
 	cl_device_info param_name,
 	size_t param_sz, 
@@ -430,5 +430,20 @@ clGetDeviceInfo(
 
 	return(CL_SUCCESS);
 }
+
+
+// Aliased Device APi Calls
+
+cl_int
+clGetDeviceIDs( cl_platform_id platformid, cl_device_type devtype, 
+	cl_uint ndev, cl_device_id* devices, cl_uint* ndev_ret)
+	__attribute__((alias("_clGetDeviceIDs")));
+
+
+cl_int
+clGetDeviceInfo( cl_device_id devid, cl_device_info param_name,
+   size_t param_sz, void* param_val, size_t* param_sz_ret)
+	__attribute__((alias("_clGetDeviceInfo")));
+
 
 

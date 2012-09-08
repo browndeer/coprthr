@@ -30,6 +30,8 @@
 
 #include "imp_structs.h"
 
+/* XXX temporarily put this here */
+void* __icd_call_vector[];
 
 /* XXX this is a workaround to correct missing tags in cl.h -dar */
 #ifndef CL_COMMAND_BARRIER
@@ -67,6 +69,7 @@ struct _cl_platform_id {
 };
 
 #define __init_platform_id(platformid) do { \
+	platformid->_reserved = (void*)__icd_call_vector; \
 	__imp_init_platform((platformid)->imp); \
 	} while(0)
 
@@ -89,6 +92,7 @@ struct _cl_device_id {
 };
 
 #define __init_device_id(devid) do { \
+	devid->_reserved = (void*)__icd_call_vector; \
 	__imp_init_device((devid)->imp); \
 	} while(0)
 
@@ -117,6 +121,7 @@ struct _cl_context {
 };
 
 #define __init_context(ctx) do { \
+	ctx->_reserved = (void*)__icd_call_vector; \
 	ctx->refc = 0; \
 	ctx->prop = 0; \
 	ctx->ndev = 0; \
@@ -152,6 +157,7 @@ struct _cl_command_queue {
 };
 
 #define __init_command_queue(cmdq) do { \
+	cmdq->_reserved = (void*)__icd_call_vector; \
 	cmdq->refc = 0; \
 	cmdq->ctx = (cl_context)0; \
 	cmdq->devid = (cl_device_id)0; \
@@ -191,6 +197,7 @@ struct _cl_mapped_ptr_info {
 };
 
 #define __init_memobj(memobj) do { \
+	memobj->_reserved = (void*)__icd_call_vector; \
 	memobj->ctx = (cl_context)0; \
 	memobj->sz = 0; \
 	memobj->width = 0; \
@@ -255,6 +262,7 @@ struct _cl_program {
 };
 
 #define __init_program(prg) do { \
+	prg->_reserved = (void*)__icd_call_vector; \
 	prg->refc = 0; \
 	prg->ctx = (cl_context)0; \
 	prg->ndev = 0; \
@@ -315,6 +323,7 @@ struct _cl_kernel {
 };
 
 #define __init_kernel(krn) do { \
+	krn->_reserved = (void*)__icd_call_vector; \
 	krn->refc = 0; \
 	krn->ctx = (cl_context)0; \
 	krn->prg = (cl_program)0; \
@@ -357,10 +366,15 @@ struct _cl_event {
 	cl_command_queue cmdq;
 	cl_command_type cmd;
 	cl_int cmd_stat;
+	cl_ulong tm_queued;
+	cl_ulong tm_submit;
+	cl_ulong tm_start;
+	cl_ulong tm_end;
 	struct _imp_event imp;
 };
 
 #define __init_event(ev) do { \
+	ev->_reserved = (void*)__icd_call_vector; \
 	ev->refc = 0; \
 	ev->ctx = (cl_context)0; \
 	ev->cmdq = (cl_command_queue)0; \
@@ -400,9 +414,24 @@ struct _cl_event {
 
 struct _cl_sampler {
 	void* _reserved;
-	int dummy;
+	cl_uint refc;
+	cl_context ctx;
+	cl_bool norm_coords;
+	cl_addressing_mode amode;
+	cl_filter_mode fmode;
 };
 
+#define __init_sampler(smp) do { \
+	smp->_reserved = (void*)__icd_call_vector; \
+	smp->refc = 0; \
+	smp->ctx = (cl_context)0; \
+	} while(0)
+
+#define __free_sampler(smp) do { \
+	__free(smp); \
+	} while(0)
+
+#define __invalid_sampler(smp) (!smp)
 
 
 /* 

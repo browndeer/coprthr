@@ -1,6 +1,6 @@
-/* xcl_context.c 
+/* ocl_context.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -33,12 +33,11 @@ static int __find_context_property(cl_context_properties*,
 	cl_context_properties, void*);
 
 
-// Context APIs  
+// Context API Calls
 
 
 cl_context 
-clCreateContext(
-//	cl_context_properties* prop,
+_clCreateContext(
 	const cl_context_properties* prop,
 	cl_uint ndev, 
 	const cl_device_id* devices, 
@@ -100,7 +99,7 @@ clCreateContext(
 
 	 
 cl_context 
-clCreateContextFromType(
+_clCreateContextFromType(
 	const cl_context_properties* prop, 
   	cl_device_type devtype, 
 	void (*pfn_notify) (const char*, const void*, size_t, void*),
@@ -197,7 +196,7 @@ clCreateContextFromType(
 
 
 cl_int 
-clRetainContext(cl_context	ctx )
+_clRetainContext(cl_context	ctx )
 {
 	DEBUG(__FILE__,__LINE__,"clRetainContext");
 
@@ -210,7 +209,7 @@ clRetainContext(cl_context	ctx )
 
 
 cl_int 
-clReleaseContext(cl_context ctx )
+_clReleaseContext(cl_context ctx )
 {
 	DEBUG(__FILE__,__LINE__,"clReleaseContext");
 
@@ -229,7 +228,7 @@ clReleaseContext(cl_context ctx )
 
 	 
 cl_int 
-clGetContextInfo(
+_clGetContextInfo(
 	cl_context ctx, cl_context_info param_name, 
 	size_t param_sz, void* param_val, size_t* param_sz_ret
 )
@@ -303,5 +302,31 @@ DEBUG(__FILE__,__LINE__,"__find_context_property: match"); return(1);
 
 	return(0);
 }
+
+
+// Aliased Context API Calls
+
+cl_context
+clCreateContext( const cl_context_properties*, cl_uint, const cl_device_id*,
+   void (*) (const char*, const void*, size_t, void*), void*, cl_int*)
+	__attribute__((alias("_clCreateContext")));
+
+cl_context
+clCreateContextFromType( const cl_context_properties*, cl_device_type,
+   void (*) (const char*, const void*, size_t, void*), void*, cl_int*)
+	__attribute__((alias("_clCreateContextFromType")));
+
+cl_int
+clRetainContext(cl_context)
+	__attribute__((alias("_clRetainContext")));
+
+cl_int
+clReleaseContext(cl_context)
+	__attribute__((alias("_clReleaseContext")));
+
+cl_int
+clGetContextInfo( cl_context, cl_context_info, size_t, void*, size_t*)
+	__attribute__((alias("_clGetContextInfo")));
+
 
 

@@ -47,7 +47,9 @@ void __do_discover_platforms()
 
 	__nplatforms = 1;
 	__ptab = (struct _cl_platform_id*)malloc(sizeof(struct _cl_platform_id));
-	
+
+	__init_platform_id(__ptab);
+
 	__ptab[0].imp = (struct _imp_platform){
 		"<profile>",
 		COPRTHR_VERSION_STRING,
@@ -115,6 +117,15 @@ void __do_get_platform_extensions(cl_platform_id platformid, char** p_str)
 {
 	*p_str = __resolve_platformid(platformid,extensions);
 }
+
+static char __vendor_icd_ext_suffix[] = "\0";
+
+void __do_get_platform_icd_suffix_khr(cl_platform_id platformid, char** p_str)
+{
+	*p_str = __vendor_icd_ext_suffix;
+}
+
+
 
 
 
