@@ -25,6 +25,7 @@
 #include <CL/cl_gl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 
 // CL-GL Interoperability API calls
 
@@ -34,7 +35,7 @@ _clCreateFromGLBuffer(
 	cl_context ctx, cl_mem_flags flags, cl_GLuint dummy1, int* err_ret
 )
 {
-	WARN( __FILE__,__LINE__,"unsupported");
+	printcl( CL_WARNGING "unsupported");
 
 	return((cl_mem)0);
 }
@@ -45,7 +46,7 @@ _clCreateFromGLTexture2D(
 	cl_GLenum dummy1, cl_GLint dummy2, cl_GLuint dummy3, cl_int* err_ret
 )
 {
-	WARN(__FILE__,__LINE__,"unsupported");
+	printcl( CL_WARNING "unsupported");
 
 	return((cl_mem)0);
 }
@@ -56,7 +57,7 @@ _clCreateFromGLTexture3D(
 	cl_GLenum dummy1, cl_GLint dummy2, cl_GLuint dummy3, cl_int* err_ret
 )
 {
-	WARN(__FILE__,__LINE__,"unsupported");
+	printcl( CL_WARNING "unsupported");
 
 	return((cl_mem)0);
 }
@@ -66,7 +67,7 @@ _clCreateFromGLRenderbuffer(
 	cl_context ctx, cl_mem_flags flags, cl_GLuint dummy, cl_int* err_ret
 ) 
 {
-	WARN(__FILE__,__LINE__,"unsupported");
+	printcl( CL_WARNING "unsupported");
 
 	return((cl_mem)0);
 }
@@ -76,7 +77,7 @@ _clGetGLObjectInfo(
 	cl_mem membuf, cl_gl_object_type* dummy1, cl_GLuint* dummy2
 )
 {
-   WARN(__FILE__,__LINE__,"unsupported");
+   printcl( CL_WARNING "unsupported");
 
    return(CL_SUCCESS);
 }
@@ -88,7 +89,7 @@ _clGetGLTextureInfo(
 	void* dummy3, size_t* dummy4
 )
 {
-	WARN(__FILE__,__LINE__,"unsupported");
+	printcl( CL_WARNING "unsupported");
 
 	return(CL_SUCCESS);
 }
@@ -100,7 +101,7 @@ _clEnqueueAcquireGLObjects(
 	cl_event* ev
 )
 {
-	WARN(__FILE__,__LINE__,"unsupported");
+	printcl( CL_WARNING "unsupported");
 
 	return(CL_SUCCESS);
 }
@@ -112,7 +113,7 @@ _clEnqueueReleaseGLObjects(
 	const cl_event* dummy4, cl_event* dummy5
 )
 {
-	WARN(__FILE__,__LINE__,"unsupported");
+	printcl( CL_WARNING "unsupported");
 
 	return(CL_SUCCESS);
 }
@@ -123,7 +124,7 @@ _clGetGLContextInfoKHR(
 	cl_gl_context_info dummy, size_t dummy2, void* dummy3, size_t* dummy4
 )
 {
-	WARN(__FILE__,__LINE__,"unsupported");
+	printcl( CL_WARNING "unsupported");
 
 	return(CL_SUCCESS);
 }

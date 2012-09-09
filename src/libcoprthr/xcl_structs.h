@@ -26,7 +26,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "util.h"
+//#include "util.h"
+#include "printcl.h"
 
 #include "imp_structs.h"
 
@@ -400,7 +401,7 @@ struct _cl_event {
 
 #define __release_event(ev) do { \
 	if (--ev->refc == 0) { \
-	DEBUG(__FILE__,__LINE__,"__release_event: do release"); \
+	printcl( CL_DEBUG "__release_event: do release"); \
 	__do_release_event(ev); \
 	__free_event(ev); \
 	} else __unlock_event(ev); \

@@ -23,6 +23,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "memobj.h"
 
 void __do_create_memobj(cl_mem memobj) {}
@@ -43,7 +44,7 @@ void __do_release_memobj(cl_mem memobj)
 
 		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
 
-			WARN(__FILE__,__LINE__,"device unsupported, how did you get here?");
+			printcl( CL_WARNING "device unsupported, how did you get here?");
 
 		} else {
 
@@ -63,7 +64,7 @@ void __do_create_buffer(cl_mem memobj)
 	memobj->imp.res = (void**)calloc(ndev,sizeof(void*));
 	memobj->imp.resmap = (void**)calloc(ndev,sizeof(void*));
 
-	DEBUG(__FILE__,__LINE__,"using static resource allocation across devices");
+	printcl( CL_DEBUG "using static resource allocation across devices");
 
 	for(i=0;i<ndev;i++) {
 
@@ -73,11 +74,11 @@ void __do_create_buffer(cl_mem memobj)
 
 			if (memobj->sz > 0 && memobj->imp.res[i] == 0) {
 
-				WARN(__FILE__,__LINE__,"malloc failed");
+				printcl( CL_WARNING "malloc failed");
 
 			} else {
 
-				DEBUG(__FILE__,__LINE__,"malloc'd %d bytes",memobj->sz);
+				printcl( CL_DEBUG "malloc'd %d bytes",memobj->sz);
 
 			}
 
@@ -85,7 +86,7 @@ void __do_create_buffer(cl_mem memobj)
 				memcpy(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
 
 			if (memobj->flags&CL_MEM_USE_HOST_PTR) {
-				WARN(__FILE__,__LINE__,
+				printcl( CL_WARNING 
 					"workaround: CL_MEM_USE_HOST_PTR => CL_MEM_COPY_HOST_PTR,"
 					" fix this");
 				memcpy(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
@@ -93,7 +94,7 @@ void __do_create_buffer(cl_mem memobj)
 
 		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
 
-			WARN(__FILE__,__LINE__,"device unsupported, how did you get here?");
+			printcl( CL_WARNING "device unsupported, how did you get here?");
 
 		} else {
 
@@ -115,22 +116,22 @@ void __do_create_image2d(cl_mem memobj)
 	memobj->imp.resmap = (void**)calloc(ndev,sizeof(void*));
 
 	if (CL_MEM_READ_WRITE&memobj->flags) 
-		DEBUG(__FILE__,__LINE__,"CL_MEM_READ_WRITE set");
+		printcl( CL_DEBUG "CL_MEM_READ_WRITE set");
 
 	if (CL_MEM_READ_ONLY&memobj->flags) 
-		DEBUG(__FILE__,__LINE__,"CL_MEM_READ_ONLY set");
+		printcl( CL_DEBUG "CL_MEM_READ_ONLY set");
 
 	if (CL_MEM_WRITE_ONLY&memobj->flags) 
-		DEBUG(__FILE__,__LINE__,"CL_MEM_WRITE_ONLY set");
+		printcl( CL_DEBUG "CL_MEM_WRITE_ONLY set");
 
 	if (CL_MEM_USE_HOST_PTR&memobj->flags) 
-		DEBUG(__FILE__,__LINE__,"CL_MEM_USE_HOST_PTR set");
+		printcl( CL_DEBUG "CL_MEM_USE_HOST_PTR set");
 
 	if (CL_MEM_ALLOC_HOST_PTR&memobj->flags) 
-		DEBUG(__FILE__,__LINE__,"CL_MEM_ALLOC_HOST_PTR set");
+		printcl( CL_DEBUG "CL_MEM_ALLOC_HOST_PTR set");
 
 	if (CL_MEM_COPY_HOST_PTR&memobj->flags) 
-		DEBUG(__FILE__,__LINE__,"CL_MEM_COPY_HOST_PTR set");
+		printcl( CL_DEBUG "CL_MEM_COPY_HOST_PTR set");
 
 
 	for(i=0;i<ndev;i++) {
@@ -147,17 +148,17 @@ void __do_create_image2d(cl_mem memobj)
 
 			if (memobj->sz > 0 && memobj->imp.res[i] == 0) {
 
-				WARN(__FILE__,__LINE__,"malloc failed");
+				printcl( CL_WARNING "malloc failed");
 
 			} else {
 
-				DEBUG(__FILE__,__LINE__,"malloc'd %d bytes",memobj->sz);
+				printcl( CL_DEBUG "malloc'd %d bytes",memobj->sz);
 
 			}
 
 		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
 
-			WARN(__FILE__,__LINE__,"device unsupported, how did you get here?");
+			printcl( CL_WARNING "device unsupported, how did you get here?");
 
 		} else {
 

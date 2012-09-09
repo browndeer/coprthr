@@ -37,7 +37,7 @@
 #include "xcl_structs.h"
 #include "cmdcall.h"
 #include "workp.h"
-#include "util.h"
+//#include "util.h"
 #include "ser_engine.h"
 
 //#include <setjmp.h>
@@ -46,29 +46,29 @@
 static void* 
 exec_ndrange_kernel(cl_device_id devid, void* p)
 {
-	xclreport( XCL_DEBUG "cmdcall_x86_64:exec_ndrange_kernel");
+	printcl( CL_DEBUG "cmdcall_x86_64:exec_ndrange_kernel");
 
 	int i;
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
 
-	xclreport( XCL_DEBUG "argp->flags %x\n",argp->flags);
-	xclreport( XCL_DEBUG "argp->k.krn %p\n",argp->k.krn);
-	xclreport( XCL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
-	xclreport( XCL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
+	printcl( CL_DEBUG "argp->flags %x\n",argp->flags);
+	printcl( CL_DEBUG "argp->k.krn %p\n",argp->k.krn);
+	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
+	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
 	
 
-	xclreport( XCL_DEBUG "argp->k.word_dim %d\n",argp->k.work_dim);
-	xclreport( XCL_DEBUG "argp->k.global_work_offset[] %d %d %d\n",
+	printcl( CL_DEBUG "argp->k.word_dim %d\n",argp->k.work_dim);
+	printcl( CL_DEBUG "argp->k.global_work_offset[] %d %d %d\n",
 		argp->k.global_work_offset[0],
 		argp->k.global_work_offset[1],
 		argp->k.global_work_offset[2]);
-	xclreport( XCL_DEBUG "argp->k.global_work_size[] %d %d %d\n",
+	printcl( CL_DEBUG "argp->k.global_work_size[] %d %d %d\n",
 		argp->k.global_work_size[0],
 		argp->k.global_work_size[1],
 		argp->k.global_work_size[2]);
-	xclreport( XCL_DEBUG "argp->k.local_work_size[] %d %d %d\n",
+	printcl( CL_DEBUG "argp->k.local_work_size[] %d %d %d\n",
 		argp->k.local_work_size[0],
 		argp->k.local_work_size[1],
 		argp->k.local_work_size[2]);
@@ -76,7 +76,7 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 	int base = __resolve_devid(devid,cpu.veid_base);
 	int nve = __resolve_devid(devid,cpu.nve);
 
-	xclreport( XCL_DEBUG "cpu.nve = %d", nve );
+	printcl( CL_DEBUG "cpu.nve = %d", nve );
 
 #define safe_div(a,b) ((b==0)? 0 : a/b)
 
@@ -114,7 +114,7 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 
 	workp_init( wp );
 
-	report_workp_entry(XCL_DEBUG,&e0);
+	report_workp_entry(CL_DEBUG,&e0);
 
 	workp_genpart( wp, &e0 );
 
@@ -122,7 +122,7 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 	struct workp_entry* e;
 
 	while (e = workp_nxt_entry(wp)) 
-		report_workp_entry(XCL_DEBUG,e);
+		report_workp_entry(CL_DEBUG,e);
 
 //	common_engine_workp = wp;
 
@@ -143,21 +143,21 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 
 static void* task(cl_device_id devid, void* argp)
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:task: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:task: unsupported");
 	return(0); 
 }
 
 
 static void* native_kernel(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:native_kernel: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:native_kernel: unsupported");
 	return(0); 
 }
 
 
 static void* read_buffer_safe(cl_device_id devid, void* p) 
 {
-	xclreport( XCL_DEBUG "cmdcall_x86_64:read_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:read_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -185,7 +185,7 @@ static void* read_buffer_safe(cl_device_id devid, void* p)
 
 static void* read_buffer(cl_device_id devid, void* p) 
 {
-	xclreport( XCL_DEBUG "cmdcall_x86_64:read_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:read_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -210,7 +210,7 @@ static void* read_buffer(cl_device_id devid, void* p)
 
 static void* write_buffer_safe(cl_device_id devid, void* p) 
 {
-	xclreport( XCL_DEBUG "cmdcall_x86_64:write_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:write_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -238,7 +238,7 @@ static void* write_buffer_safe(cl_device_id devid, void* p)
 
 static void* write_buffer(cl_device_id devid, void* p) 
 {
-	xclreport( XCL_DEBUG "cmdcall_x86_64:write_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:write_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -263,7 +263,7 @@ static void* write_buffer(cl_device_id devid, void* p)
 
 static void* copy_buffer_safe(cl_device_id devid, void* p)
 {
-	xclreport( XCL_DEBUG "cmdcall_x86_64:copy_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:copy_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -294,7 +294,7 @@ static void* copy_buffer_safe(cl_device_id devid, void* p)
 
 static void* copy_buffer(cl_device_id devid, void* p)
 {
-	xclreport( XCL_DEBUG "cmdcall_x86_64:copy_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:copy_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -321,10 +321,10 @@ static void* copy_buffer(cl_device_id devid, void* p)
 
 static void* read_image(cl_device_id devid, void* p) 
 {
-//	WARN(__FILE__,__LINE__,"cmdcall_x86_64:read_image: unsupported");
+//	printcl( CL_WARNING "cmdcall_x86_64:read_image: unsupported");
 //	return(0); 
 
-	xclreport( XCL_DEBUG "cmdcall_x86_64:read_image");
+	printcl( CL_DEBUG "cmdcall_x86_64:read_image");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -370,10 +370,10 @@ static void* read_image(cl_device_id devid, void* p)
 
 static void* write_image(cl_device_id devid, void* p) 
 {
-//	WARN(__FILE__,__LINE__,"cmdcall_x86_64:write_image: unsupported");
+//	printcl( CL_WARNING "cmdcall_x86_64:write_image: unsupported");
 //	return(0); 
 
-	xclreport( XCL_DEBUG "cmdcall_x86_64:write_image");
+	printcl( CL_DEBUG "cmdcall_x86_64:write_image");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -391,13 +391,13 @@ static void* write_image(cl_device_id devid, void* p)
 /*
 	size_t len = argp->m.len;
 
-	xclreport( XCL_DEBUG "cmdcall_x86_64:write_image: XXX %p %p %d",dst+offset,src,len);
+	printcl( CL_DEBUG "cmdcall_x86_64:write_image: XXX %p %p %d",dst+offset,src,len);
 
 	if (dst+offset == src) return(0);
 	else memcpy(dst+offset,src,len);
 
 	size_t* sp = (size_t*)dst;
-xclreport( XCL_DEBUG "cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],sp[16]);
+printcl( CL_DEBUG "cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],sp[16]);
 */
 
 	/* XXX here we should check for 3D image, ignore for now -DAR */
@@ -424,63 +424,63 @@ xclreport( XCL_DEBUG "cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],sp[1
 
 static void* copy_image(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:copy_image: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:copy_image: unsupported");
 	return(0); 
 }
 
 
 static void* copy_image_to_buffer(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:copy_image_to_buffer: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:copy_image_to_buffer: unsupported");
 	return(0); 
 }
 
 
 static void* copy_buffer_to_image(cl_device_id devid, void* argp)
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:copy_buffer_to_image: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:copy_buffer_to_image: unsupported");
 	return(0); 
 }
 
 
 static void* map_buffer(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:map_buffer: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:map_buffer: unsupported");
 	return(0); 
 }
 
 
 static void* map_image(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:map_image: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:map_image: unsupported");
 	return(0); 
 }
 
 
 static void* unmap_mem_object(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:unmap_mem_object: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:unmap_mem_object: unsupported");
 	return(0); 
 }
 
 
 static void* marker(cl_device_id devid, void* p) 
 {
-	xclreport( XCL_DEBUG "cmdcall_x86_64:marker");
+	printcl( CL_DEBUG "cmdcall_x86_64:marker");
 	return(0); 
 }
 
 
 static void* acquire_gl_objects(cl_device_id devid, void* argp)
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:acquire_gl_objects: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:acquire_gl_objects: unsupported");
 	return(0); 
 }
 
 
 static void* release_gl_objects(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:acquire_gl_objects: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:acquire_gl_objects: unsupported");
 	return(0); 
 }
 

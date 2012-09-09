@@ -1,6 +1,6 @@
 /* command_queue.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -25,6 +25,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "command_queue.h"
 #include "cmdsched.h"
 
@@ -39,7 +40,7 @@ void __do_create_command_queue( cl_command_queue cmdq )
 	/* fork cmdq sched thread */
 	int err; 
 	if (err = pthread_create(&cmdq->imp.td,0,cmdqx0,(void*)cmdq) ) {
-		ERROR(__FILE__,__FILE__,"__do_create_command_queue:"
+		printcl( CL_ERR "__do_create_command_queue:"
 			" pthread_create failed");
 		exit(1);
 	}
@@ -49,7 +50,7 @@ void __do_create_command_queue( cl_command_queue cmdq )
 	__sig_cmdq(cmdq);
 	__unlock_cmdq(cmdq);
 
-	DEBUG(__FILE__,__LINE__,"signaled cmdq with qstat ->1\n");
+	printcl( CL_DEBUG "signaled cmdq with qstat ->1\n");
 }
 
 
@@ -64,12 +65,12 @@ void __do_release_command_queue( cl_command_queue cmdq )
 
 	if (cmdq->imp.cmds_queued.tqh_first) {
 
-		WARN(__FILE__,__LINE__,
+		printcl( CL_WARNING 
 			"__do_release_command_queue: cmds_queued not empty");
 
 		cl_event ev;
 		for(ev=cmdq->imp.cmds_queued.tqh_first; ev!=0; ev=ev->imp.cmds.tqe_next)
-			DEBUG(__FILE__,__LINE__,"cmds_queued: ev %p\n",ev);
+			printcl( CL_DEBUG "cmds_queued: ev %p\n",ev);
 
 	}
 
@@ -83,7 +84,7 @@ void __do_release_command_queue( cl_command_queue cmdq )
 
 	pthread_join(cmdq->imp.td,&st);
 
-	DEBUG(__FILE__,__LINE__,"__do_release_command_queue:"
+	printcl( CL_DEBUG "__do_release_command_queue:"
 		" cmdq->td joinied with status %d",st);	
 
 }
@@ -93,7 +94,7 @@ void __do_release_command_queue( cl_command_queue cmdq )
 void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev ) 
 {
 
-	DEBUG(__FILE__,__LINE__,"__do_enqueue_cmd: ev %p",ev);
+	printcl( CL_DEBUG "__do_enqueue_cmd: ev %p",ev);
 
 	__lock_cmdq(cmdq);
 

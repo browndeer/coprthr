@@ -23,6 +23,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 
 
 // Sampler API Calls
@@ -37,7 +38,7 @@ _clCreateSampler(
 	 cl_int* err_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clCreateSampler: warning: unsupported");
+	printcl( CL_WARNING "clCreateSampler: warning: unsupported");
 
 //	if (__invalid_context(ctx)) return(CL_INVALID_CONTEXT);
 	if (__invalid_context(ctx)) __error_return(CL_INVALID_CONTEXT,cl_sampler);
@@ -69,7 +70,7 @@ _clCreateSampler(
 cl_int 
 _clRetainSampler( cl_sampler sampler )
 {
-	WARN(__FILE__,__LINE__,"clRetainSampler: warning: unsupported");
+	printcl( CL_WARNING "clRetainSampler: warning: unsupported");
 
 	if (__invalid_sampler(sampler)) return(CL_INVALID_SAMPLER);
 
@@ -82,7 +83,7 @@ _clRetainSampler( cl_sampler sampler )
 cl_int 
 _clReleaseSampler( cl_sampler sampler )
 {
-	WARN(__FILE__,__LINE__,"clReleaseSampler: warning: unsupported");
+	printcl( CL_WARNING "clReleaseSampler: warning: unsupported");
 
 	if (__invalid_sampler(sampler)) return(CL_INVALID_SAMPLER);
 
@@ -107,7 +108,7 @@ _clGetSamplerInfo(
 	 size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetSamplerInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetSamplerInfo: warning: unsupported");
 
 	if (__invalid_sampler(sampler)) return(CL_INVALID_SAMPLER);
 

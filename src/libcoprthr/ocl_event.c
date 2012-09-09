@@ -24,6 +24,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "event.h"
 
 
@@ -36,7 +37,7 @@ _clWaitForEvents(
 	 const cl_event* evlist
 )
 {
-	DEBUG(__FILE__,__LINE__,"clWaitForEvents");
+	printcl( CL_DEBUG "clWaitForEvents");
 
 	if (nev == 0) return(CL_INVALID_VALUE);
 
@@ -62,7 +63,7 @@ _clGetEventInfo(
 	 size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetEventInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetEventInfo: warning: unsupported");
 
 	if (__invalid_event(ev)) return(CL_INVALID_EVENT);
 
@@ -106,7 +107,7 @@ _clGetEventInfo(
 cl_int
 _clRetainEvent( cl_event ev )
 {
-	DEBUG(__FILE__,__LINE__,"clRetainEvent");
+	printcl( CL_DEBUG "clRetainEvent");
 
 	if (__invalid_event(ev)) return(CL_INVALID_EVENT);
 
@@ -121,7 +122,7 @@ _clRetainEvent( cl_event ev )
 cl_int
 _clReleaseEvent( cl_event ev )
 {
-	DEBUG(__FILE__,__LINE__,"clReleaseEvent");
+	printcl( CL_DEBUG "clReleaseEvent");
 
 	if (__invalid_event(ev)) return(CL_INVALID_EVENT);
 

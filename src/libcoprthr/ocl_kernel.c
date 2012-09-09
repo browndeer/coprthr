@@ -24,6 +24,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "kernel.h"
 #include "program.h"
 
@@ -37,7 +38,7 @@ _clCreateKernel(
 	 cl_int* err_ret
 )
 {
-	DEBUG(__FILE__,__LINE__,"clCreateKernel");
+	printcl( CL_DEBUG "clCreateKernel");
 
 	if (__invalid_program(prg)) __error_return(CL_INVALID_PROGRAM,cl_kernel);
 
@@ -80,7 +81,7 @@ _clCreateKernelsInProgram(
 	 cl_uint* nkrn_ret
 )
 {
-	DEBUG(__FILE__,__LINE__,"clCreateKernelsInProgram");
+	printcl( CL_DEBUG "clCreateKernelsInProgram");
 
 	if (__invalid_program(prg)) return(CL_INVALID_PROGRAM);
 
@@ -123,7 +124,7 @@ _clCreateKernelsInProgram(
 cl_int 
 _clRetainKernel( cl_kernel krn )
 {
-	DEBUG(__FILE__,__LINE__,"clRetainKernel");
+	printcl( CL_DEBUG "clRetainKernel");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
@@ -136,7 +137,7 @@ _clRetainKernel( cl_kernel krn )
 cl_int 
 _clReleaseKernel( cl_kernel krn )
 {
-	DEBUG(__FILE__,__LINE__,"clReleaseKernel");
+	printcl( CL_DEBUG "clReleaseKernel");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
@@ -154,7 +155,7 @@ _clSetKernelArg(
 	 const void* arg_val
 )
 {
-	DEBUG(__FILE__,__LINE__,"clSetKernelArg");
+	printcl( CL_DEBUG "clSetKernelArg");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
@@ -180,7 +181,7 @@ _clGetKernelInfo(
 	 size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetKernelInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetKernelInfo: warning: unsupported");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
@@ -191,9 +192,9 @@ _clGetKernelInfo(
 		case CL_KERNEL_FUNCTION_NAME:
 
 			sz = strnlen(krn->name,__CLMAXSTR_LEN)+1;
-			DEBUG(__FILE__,__LINE__,"clGetKernelInfo: name |%s|",krn->name);
+			printcl( CL_DEBUG "clGetKernelInfo: name |%s|",krn->name);
 			__case_get_param(sz,krn->name);
-			DEBUG(__FILE__,__LINE__,"clGetKernelInfo: param_val |%s|",param_val);
+			printcl( CL_DEBUG "clGetKernelInfo: param_val |%s|",param_val);
 
 			break;
 
@@ -241,7 +242,7 @@ _clGetKernelWorkGroupInfo(
 	 size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetKernelWorkGroupInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetKernelWorkGroupInfo: warning: unsupported");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 

@@ -24,6 +24,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 
 
 // Program Object APIs
@@ -38,7 +39,7 @@ _clCreateProgramWithSource(
 	 cl_int* err_ret
 )
 {
-	DEBUG(__FILE__,__LINE__,"clCreateProgramWithSource");
+	printcl( CL_DEBUG "clCreateProgramWithSource");
 
 	if (__invalid_context(ctx)) __error_return(CL_INVALID_CONTEXT,cl_program);
 
@@ -118,7 +119,7 @@ _clCreateProgramWithBinary(
 	 cl_int* err_ret
 )
 {
-	DEBUG(__FILE__,__LINE__,"clCreateProgramWithBinary");
+	printcl( CL_DEBUG "clCreateProgramWithBinary");
 
 	if (__invalid_context(ctx)) __error_return(CL_INVALID_CONTEXT,cl_program);
 
@@ -178,7 +179,7 @@ _clCreateProgramWithBinary(
 cl_int 
 _clRetainProgram( cl_program prg )
 {
-	DEBUG(__FILE__,__LINE__,"clRetainProgram");
+	printcl( CL_DEBUG "clRetainProgram");
 
 	if (__invalid_program(prg)) return(CL_INVALID_VALUE);
 
@@ -191,7 +192,7 @@ _clRetainProgram( cl_program prg )
 cl_int 
 _clReleaseProgram( cl_program prg )
 {
-	DEBUG(__FILE__,__LINE__,"clReleaseProgram");
+	printcl( CL_DEBUG "clReleaseProgram");
 
 	if (__invalid_program(prg)) return(CL_INVALID_VALUE);
 
@@ -211,17 +212,17 @@ _clBuildProgram(
 	 void* user_data
 )
 {
-	WARN(__FILE__,__LINE__,"clBuildProgram: warning: unsupported");
+	printcl( CL_WARNING "clBuildProgram: warning: unsupported");
 
 	if (__invalid_program(prg)) return(CL_INVALID_VALUE);
 
-	DEBUG(__FILE__,__LINE__,"clBuildProgram: progam valid");
+	printcl( CL_DEBUG "clBuildProgram: progam valid");
 
 	if (!devices && ndev > 0) return(CL_INVALID_VALUE);
 
 	if (devices && ndev == 0) return(CL_INVALID_VALUE);
 
-	DEBUG(__FILE__,__LINE__,"clBuildProgram: device valid");
+	printcl( CL_DEBUG "clBuildProgram: device valid");
 
 	if (!pfn_notify && user_data) return(CL_INVALID_VALUE);
 
@@ -243,7 +244,7 @@ _clBuildProgram(
 
 		if (prg->src) {
 
-			DEBUG(__FILE__,__LINE__,
+			printcl( CL_DEBUG 
 				"compiler avail %d",__do_check_compiler_available(devices[j]));
 
 			if (options) prg->build_options[j] = options;
@@ -255,7 +256,7 @@ _clBuildProgram(
 
 		} else {
 
-			DEBUG2("bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
+			printcl( CL_DEBUG "bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
 
 			if (!prg->bin[j] || prg->bin_sz[j] == 0) return(CL_INVALID_BINARY);
 
@@ -275,7 +276,7 @@ _clBuildProgram(
 cl_int 
 _clUnloadCompiler( void)
 {
-	WARN(__FILE__,__LINE__,"clUnloadCompiler: warning: unsupported");
+	printcl( CL_WARNING "clUnloadCompiler: warning: unsupported");
 
 	return(CL_ENOTSUP);
 }
@@ -290,7 +291,7 @@ _clGetProgramInfo(
 	 size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetProgramInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetProgramInfo: warning: unsupported");
 
 	if (__invalid_program(prg)) return(CL_INVALID_PROGRAM);
 
@@ -360,7 +361,7 @@ _clGetProgramBuildInfo(
 	 size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetProgramBuildInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetProgramBuildInfo: warning: unsupported");
 
 	if (__invalid_program(prg)) return(CL_INVALID_PROGRAM);
 

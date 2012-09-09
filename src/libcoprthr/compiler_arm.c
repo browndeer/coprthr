@@ -72,6 +72,7 @@
 #include <sys/wait.h>
 #include <dirent.h>
 
+#include "printcl.h"
 #include "elf_cl.h"
 #include "compiler.h"
 
@@ -172,7 +173,7 @@ static char* logbuf = 0;
 #define __writefile(file,filesz,pfile) do { \
 	FILE* fp = fopen(file,"w"); \
 	fprintf(fp,"#include \"__libcoprthr.h\"\n"); \
-	DEBUG(__FILE__,__LINE__,"trying to write %d bytes",filesz); \
+	printcl( CL_DEBUG "trying to write %d bytes",filesz); \
 	if (fwrite(pfile,1,filesz,fp) != filesz) { \
 		ERROR(__FILE__,__LINE__,"error: write '%s' failed",file); \
 		return((void*)CLERROR_BUILD_FAILED); \
@@ -183,7 +184,7 @@ static char* logbuf = 0;
 #define __writefile_cpp(file,filesz,pfile) do { \
 	FILE* fp = fopen(file,"w"); \
 	fprintf(fp,"#include \"__libcoprthr.h\"\nextern \"C\" {\n"); \
-	DEBUG(__FILE__,__LINE__,"trying to write %d bytes",filesz); \
+	printcl( CL_DEBUG "trying to write %d bytes",filesz); \
 	if (fwrite(pfile,1,filesz,fp) != filesz) { \
 		ERROR(__FILE__,__LINE__,"error: write '%s' failed",file); \
 		return((void*)CLERROR_BUILD_FAILED); \
@@ -218,13 +219,13 @@ static char* logbuf = 0;
 /* XXX note that logbuf is not protected from overfull, fix this -DAR */
 #define __execshell(command,p) do { \
 	char c; int n=0; \
-	DEBUG(__FILE__,__LINE__,"__execshell: %s",command); \
+	printcl( CL_DEBUG "__execshell: %s",command); \
 	FILE* fp0 = fopen("dummy","w"); \
-	DEBUG2("__execshell: fp0=%d",fp0); \
+	printcl( CL_DEBUG "__execshell: fp0=%d",fp0); \
 	fprintf(fp0,"dummy\n"); \
 	fclose(fp0); \
 	FILE* fp = popen(command,"r"); \
-	DEBUG2("__execshell: fp=%d",fp); \
+	printcl( CL_DEBUG "__execshell: fp=%d",fp); \
 	while((c=fgetc(fp)) != EOF && n++<32) *p++ = c; \
 	err = pclose(fp); \
 	} while(0);
@@ -240,11 +241,11 @@ static void __remove_work_dir(char* wd)
          strncpy(fullpath,wd,256);
          strncat(fullpath,"/",256);
          strncat(fullpath,dp->d_name,256);
-         DEBUG2("removing '%s'",fullpath);
+         printcl( CL_DEBUG "removing '%s'",fullpath);
          unlink(fullpath);
       }
    }
-   DEBUG2("removing '%s'",wd);
+   printcl( CL_DEBUG "removing '%s'",wd);
    rmdir(wd);
 #endif
 }
@@ -299,7 +300,7 @@ void* compile_arm(
 	char default_opt[] = "";
 	if (!opt) opt = default_opt;
 
-	DEBUG2("opt |%s|",opt);
+	printcl( CL_DEBUG "opt |%s|",opt);
 
 #ifdef __XCL_TEST
 	char wdtemp[] = "./";
@@ -331,8 +332,8 @@ void* compile_arm(
 	unsigned char* pfile_textb = 0;
 	unsigned char* pfile_elfcl = 0;
 
-	DEBUG(__FILE__,__LINE__,"compile: work dir %s",wd);
-	DEBUG(__FILE__,__LINE__,"compile: filebase %s",filebase);
+	printcl( CL_DEBUG "compile: work dir %s",wd);
+	printcl( CL_DEBUG "compile: filebase %s",filebase);
 
 	if (!buf1) buf1 = malloc(DEFAULT_BUF1_SZ);
 	if (!buf2) buf2 = malloc(DEFAULT_BUF2_SZ);
@@ -359,14 +360,14 @@ void* compile_arm(
 	char* logp = logbuf;
 	char* p2_prev;
 
-	DEBUG(__FILE__,__LINE__,"compile: %p",src);
+	printcl( CL_DEBUG "compile: %p",src);
 
 	/* with cltrace LD_PRELOAD env var is problem so just prevent intercepts */
 	unsetenv("LD_PRELOAD");
 
 	if (src) {
 
-		DEBUG(__FILE__,__LINE__,"compile: build from source");
+		printcl( CL_DEBUG "compile: build from source");
 
 
 		/* copy rt objects to work dir */
@@ -398,17 +399,17 @@ void* compile_arm(
 
 		filesz_cl = src_sz;
 		pfile_cl = src;
-		DEBUG(__FILE__,__LINE__,"compile: writefile %s %d %p",
+		printcl( CL_DEBUG "compile: writefile %s %d %p",
 			file_cl,filesz_cl,pfile_cl);
 		__writefile(file_cl,filesz_cl,pfile_cl);
-		DEBUG(__FILE__,__LINE__,"%s written\n",buf1);
+		printcl( CL_DEBUG "%s written\n",buf1);
 		__check_err(__test_file(file_cl),
          "compiler_arm: internal error: write file cl failed.");
 
-		DEBUG(__FILE__,__LINE__,"compile: writefile_cpp %s %d %p",
+		printcl( CL_DEBUG "compile: writefile_cpp %s %d %p",
 			file_cpp,filesz_cl,pfile_cl);
 		__writefile_cpp(file_cpp,filesz_cl,pfile_cl);
-		DEBUG(__FILE__,__LINE__,"%s written\n",buf1);
+		printcl( CL_DEBUG "%s written\n",buf1);
 		__check_err(__test_file(file_cpp),
          "compiler_arm: internal error: write file cpp failed.");
 
@@ -468,7 +469,7 @@ void* compile_arm(
          "compiler_arm: internal error: kcall wrapper compilation failed.");
 
 
-		DEBUG(__FILE__,__LINE__,
+		printcl( CL_DEBUG 
 			"log\n"
 			"------------------------------------------------------------\n"
 			"%s\n"
@@ -480,7 +481,7 @@ void* compile_arm(
 
 		/* now extract arg data */
 
-		DEBUG(__FILE__,__LINE__,"extract arg data");
+		printcl( CL_DEBUG "extract arg data");
 
 		__command("cd %s; xclnm -n -d %s",wd,file_cl); 
 		fp = popen(buf1,"r");
@@ -662,7 +663,7 @@ void* compile_arm(
 
 		/* error no source or binary */
 
-		WARN(__FILE__,__LINE__,"compile: no source");
+		printcl( CL_WARNING "compile: no source");
 		__remove_work_dir(wd);
 		return((void*)-1);
 
@@ -708,7 +709,7 @@ void* compile_arm(
    char* opt, char** log
 )
 {
-   ERROR2("ARM cross-compiler not supported");
+   printcl( CL_ERR "ARM cross-compiler not supported");
    exit((void*)-1);
 }
 

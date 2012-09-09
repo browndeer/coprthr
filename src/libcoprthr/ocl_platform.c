@@ -24,6 +24,7 @@
 #include <CL/cl_ext.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "platform.h"
 
 #define min(a,b) ((a<b)?a:b)
@@ -52,7 +53,7 @@ _clGetPlatformIDs(
 
 	__do_get_nplatforms_avail(&nplatforms_avail);
 
-	DEBUG(__FILE__,__LINE__,"nplatforms_avail %d\n",nplatforms_avail);
+	printcl( CL_DEBUG "nplatforms_avail %d\n",nplatforms_avail);
 
 	if (nplatforms) nplatforms = min(nplatforms,nplatforms_avail);
 	else nplatforms = nplatforms_avail;

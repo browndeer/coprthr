@@ -24,7 +24,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
-
+#include "printcl.h"
 
 // Memory Object API Calls
 
@@ -38,7 +38,7 @@ _clCreateBuffer(
 	cl_int* err_ret
 ) 
 {
-	DEBUG(__FILE__,__LINE__,"clCreateBuffer");
+	printcl( CL_DEBUG "clCreateBuffer");
 
 	if (__invalid_context(ctx)) __error_return(CL_INVALID_CONTEXT,cl_mem);
 
@@ -72,7 +72,7 @@ _clCreateBuffer(
 
 	struct _cl_mem* membuf = (struct _cl_mem*)malloc(sizeof(struct _cl_mem));
 
-	DEBUG(__FILE__,__LINE__,"malloc returned %p",membuf);
+	printcl( CL_DEBUG "malloc returned %p",membuf);
 
 
 	if (membuf) {
@@ -110,11 +110,11 @@ _clCreateImage2D(
 	cl_int* err_ret
 ) 
 {
-//	WARN(__FILE__,__LINE__,"clCreateImage2D: warning: unsupported");
+//	printcl( CL_WARNING "clCreateImage2D: warning: unsupported");
 //	__error(CL_ENOTSUP);
 //	return((cl_mem)0);
 
-	DEBUG(__FILE__,__LINE__,"clCreateImage2D");
+	printcl( CL_DEBUG "clCreateImage2D");
 
 	if (__invalid_context(ctx)) __error_return(CL_INVALID_CONTEXT,cl_mem);
 
@@ -201,7 +201,7 @@ _clCreateImage3D(
 	cl_int* err_ret
 ) 
 {
-	WARN(__FILE__,__LINE__,"clCreateImage3D: warning: unsupported");
+	printcl( CL_WARNING "clCreateImage3D: warning: unsupported");
 
 	__error_return(CL_ENOTSUP,cl_mem);
 
@@ -213,7 +213,7 @@ _clCreateImage3D(
 cl_int 
 _clRetainMemObject(cl_mem memobj) 
 {
-	DEBUG(__FILE__,__LINE__,"clRetainMemObject");
+	printcl( CL_DEBUG "clRetainMemObject");
 
 	if (!memobj) return(CL_INVALID_MEM_OBJECT);
 
@@ -226,7 +226,7 @@ _clRetainMemObject(cl_mem memobj)
 cl_int 
 _clReleaseMemObject(cl_mem memobj)
 {
-	DEBUG(__FILE__,__LINE__,"clReleaseMemObject");
+	printcl( CL_DEBUG "clReleaseMemObject");
 
 	if (__invalid_memobj(memobj)) return(CL_INVALID_MEM_OBJECT);
 
@@ -245,7 +245,7 @@ _clGetSupportedImageFormats(
 	cl_image_format* imgfmt,
 	cl_uint* nimgfmt_ret)
 {
-	WARN(__FILE__,__LINE__,"clGetSupportedImageFormats: warning: unsupported");
+	printcl( CL_WARNING "clGetSupportedImageFormats: warning: unsupported");
 
 	return(CL_ENOTSUP);
 }
@@ -260,7 +260,7 @@ _clGetMemObjectInfo(
 	size_t* param_sz_ret
 ) 
 {
-	DEBUG(__FILE__,__LINE__,"clGetMemObjectInfo");
+	printcl( CL_DEBUG "clGetMemObjectInfo");
 
 	if (__invalid_memobj(memobj)) return(CL_INVALID_MEM_OBJECT);
 
@@ -329,7 +329,7 @@ _clGetImageInfo(
 	size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetImageInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetImageInfo: warning: unsupported");
 
 	if (__invalid_memobj(image)) return(CL_INVALID_MEM_OBJECT);
 

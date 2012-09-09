@@ -24,6 +24,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 
 
 // Profiling API Calls
@@ -37,7 +38,7 @@ _clGetEventProfilingInfo(
 	size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetEventProfilingInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetEventProfilingInfo: warning: unsupported");
 
 
 	size_t sz;

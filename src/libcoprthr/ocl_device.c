@@ -24,6 +24,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "device.h"
 
 #define min(a,b) ((a<b)?a:b)

@@ -1,6 +1,6 @@
 /* event.h
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -26,7 +26,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
-
+#include "printcl.h"
 
 
 void __do_release_event(cl_event ev);
@@ -38,24 +38,24 @@ void __do_release_event(cl_event ev);
  */
 
 #define __lock_event(ev) do { \
-	DEBUG(__FILE__,__LINE__,"__lock_event: attempt %p",ev); \
+	printcl( CL_DEBUG "__lock_event: attempt %p",ev); \
 	pthread_mutex_lock(&ev->imp.mtx); \
-	DEBUG(__FILE__,__LINE__,"__lock_event: locked %p",ev); \
+	printcl( CL_DEBUG "__lock_event: locked %p",ev); \
 	} while(0)
 
 #define __unlock_event(ev) do { \
 	pthread_mutex_unlock(&ev->imp.mtx); \
-	DEBUG(__FILE__,__LINE__,"__unlock_event: unlocked %p",ev); \
+	printcl( CL_DEBUG "__unlock_event: unlocked %p",ev); \
 	} while(0)
 
 #define __wait_event(ev) do { \
-	DEBUG(__FILE__,__LINE__,"__wait_event: sleep%p",ev); \
+	printcl( CL_DEBUG "__wait_event: sleep%p",ev); \
 	pthread_cond_wait(&ev->imp.sig,&ev->imp.mtx); \
-	DEBUG(__FILE__,__LINE__,"__wait_event: wake%p",ev); \
+	printcl( CL_DEBUG "__wait_event: wake%p",ev); \
 	} while(0)
 
 #define __sig_event(ev) do { \
-	DEBUG(__FILE__,__LINE__,"__sig_event: %p",ev); \
+	printcl( CL_DEBUG "__sig_event: %p",ev); \
 	pthread_cond_signal(&ev->imp.sig); \
 	} while(0)
 

@@ -24,7 +24,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
-
+#include "printcl.h"
 
 // Flush and Finish API calls
 
@@ -32,7 +32,7 @@
 cl_int 
 _clFlush(cl_command_queue cmdq)
 {
-	WARN(__FILE__,__LINE__,"clFlush: warning: unsupported");
+	printcl( CL_WARNING "clFlush: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -45,7 +45,7 @@ _clFlush(cl_command_queue cmdq)
 cl_int 
 _clFinish(cl_command_queue cmdq )
 {
-	WARN(__FILE__,__LINE__,"clFinish: warning: unsupported");
+	printcl( CL_WARNING "clFinish: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 

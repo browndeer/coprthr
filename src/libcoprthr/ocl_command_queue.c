@@ -1,6 +1,6 @@
 /* ocl_command_queue.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -29,7 +29,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
-
+#include "printcl.h"
 
 // Command Queue API Calls
 
@@ -41,7 +41,7 @@ _clCreateCommandQueue(
 	cl_int* err_ret
 )
 {
-	DEBUG(__FILE__,__LINE__,"clCreateCommandQueue");
+	printcl( CL_DEBUG "clCreateCommandQueue");
 
 	if (__invalid_context(ctx)) 
 		__error_return(CL_INVALID_CONTEXT,cl_command_queue);
@@ -90,7 +90,7 @@ _clCreateCommandQueue(
 cl_int 
 _clRetainCommandQueue( cl_command_queue cmdq )
 {
-	DEBUG(__FILE__,__LINE__,"clRetainCommandQueue");
+	printcl( CL_DEBUG "clRetainCommandQueue");
 
 	if (!cmdq) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -104,7 +104,7 @@ _clRetainCommandQueue( cl_command_queue cmdq )
 cl_int 
 _clReleaseCommandQueue( cl_command_queue cmdq )
 {
-	DEBUG(__FILE__,__LINE__,"clReleaseCommandQueue");
+	printcl( CL_DEBUG "clReleaseCommandQueue");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -130,7 +130,7 @@ _clGetCommandQueueInfo(
 	size_t* param_sz_ret
 )
 {
-	DEBUG(__FILE__,__LINE__,"clGetCommandQueueInfo");
+	printcl( CL_DEBUG "clGetCommandQueueInfo");
 
 	if (!cmdq) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -181,7 +181,7 @@ _clSetCommandQueueProperty(
 	cl_command_queue_properties* prop_old
 )
 {
-	WARN(__FILE__,__LINE__,"clSetCommandQueueProperty: warning: unsupported");
+	printcl( CL_WARNING "clSetCommandQueueProperty: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 

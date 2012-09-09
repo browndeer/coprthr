@@ -23,6 +23,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "event.h"
 #include <pthread.h>
 
@@ -41,16 +42,16 @@ _clEnqueueReadBuffer(
 	cl_event* event
 )
 {
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer");
+	printcl( CL_DEBUG "clEnqueueReadBuffer");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: membuf=%p",membuf);
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: membuf->type=%d",membuf->type);
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: __invalid_membuf()=%d",__invalid_membuf(membuf));
+	printcl( CL_DEBUG "clEnqueueReadBuffer: membuf=%p",membuf);
+	printcl( CL_DEBUG "clEnqueueReadBuffer: membuf->type=%d",membuf->type);
+	printcl( CL_DEBUG "clEnqueueReadBuffer: __invalid_membuf()=%d",__invalid_membuf(membuf));
 	if (__invalid_membuf(membuf)) return(CL_INVALID_MEM_OBJECT);
 
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: membuf->sz=%d",membuf->sz);
+	printcl( CL_DEBUG "clEnqueueReadBuffer: membuf->sz=%d",membuf->sz);
 	if (membuf->sz < (offset+cb) || !ptr) return(CL_INVALID_VALUE);
 
 	if (__invalid_context(cmdq->ctx)) return(CL_INVALID_CONTEXT);
@@ -69,7 +70,7 @@ _clEnqueueReadBuffer(
 
 		__init_event(ev);
 
-		DEBUG(__FILE__,__LINE__,"test lock");
+		printcl( CL_DEBUG "test lock");
 		__lock_event(ev);
 		__unlock_event(ev);
 
@@ -87,17 +88,17 @@ _clEnqueueReadBuffer(
 /*
 	if (block) {
 
-		DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer blocking");
+		printcl( CL_DEBUG "clEnqueueReadBuffer blocking");
 
 		__lock_event(ev);
 
       while (ev->cmd_stat != CL_COMPLETE) {
-         DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: wait-sleep\n");
+         printcl( CL_DEBUG "clEnqueueReadBuffer: wait-sleep\n");
          __wait_event(ev);
-         DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: wait-wake\n");
+         printcl( CL_DEBUG "clEnqueueReadBuffer: wait-wake\n");
       }
 
-      DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: event %p complete\n",ev);
+      printcl( CL_DEBUG "clEnqueueReadBuffer: event %p complete\n",ev);
 
 		__unlock_event(ev);
 
@@ -122,7 +123,7 @@ _clEnqueueWriteBuffer(
    cl_event* event
 )
 {
-	DEBUG(__FILE__,__LINE__,"clEnqueueWriteBuffer");
+	printcl( CL_DEBUG "clEnqueueWriteBuffer");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -159,17 +160,17 @@ _clEnqueueWriteBuffer(
 
 	if (block) {
 
-		DEBUG(__FILE__,__LINE__,"clEnqueueWriteBuffer blocking");
+		printcl( CL_DEBUG "clEnqueueWriteBuffer blocking");
 
 		__lock_event(ev);
 
       while (ev->cmd_stat != CL_COMPLETE) {
-         DEBUG(__FILE__,__LINE__,"wait-sleep\n");
+         printcl( CL_DEBUG "wait-sleep\n");
          __wait_event(ev);
-         DEBUG(__FILE__,__LINE__,"wait-wake\n");
+         printcl( CL_DEBUG "wait-wake\n");
       }
 
-      DEBUG(__FILE__,__LINE__,"event %p complete\n",ev);
+      printcl( CL_DEBUG "event %p complete\n",ev);
 
 		__unlock_event(ev);
 
@@ -193,7 +194,7 @@ _clEnqueueCopyBuffer(
 	cl_event* event 
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueCopyBuffer: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueCopyBuffer: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -261,7 +262,7 @@ _clEnqueueReadImage(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueReadImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueReadImage: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -321,7 +322,7 @@ _clEnqueueWriteImage(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueWriteImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueWriteImage: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -380,7 +381,7 @@ _clEnqueueCopyImage(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueCopyImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueCopyImage: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -440,7 +441,7 @@ _clEnqueueCopyImageToBuffer(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueCopyImageToBuffer: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueCopyImageToBuffer: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -500,7 +501,7 @@ _clEnqueueCopyBufferToImage(
 	cl_event* event 
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueCopyBufferToImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueCopyBufferToImage: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -561,7 +562,7 @@ _clEnqueueMapBuffer(
 	cl_int* err_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueMapBuffer: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueMapBuffer: warning: unsupported");
 
 	void* ptr = 0;
 
@@ -629,7 +630,7 @@ _clEnqueueMapImage(
 	cl_int* err_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueMapImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueMapImage: warning: unsupported");
 
 	void* ptr = 0;
 
@@ -691,7 +692,7 @@ _clEnqueueUnmapMemObject(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueUnmapMemObject: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueUnmapMemObject: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -745,7 +746,7 @@ _clEnqueueNDRangeKernel(
 {
 	int i;
 	
-	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel gwo=%p",global_work_offset);
+	printcl( CL_DEBUG "clEnqueueNDRangeKernel gwo=%p",global_work_offset);
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -761,14 +762,14 @@ _clEnqueueNDRangeKernel(
 
 	if (cmdq->ctx != krn->ctx) return(CL_INVALID_CONTEXT);
 
-	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel: A %d %p %p",nwaitlist,waitlist,cmdq);
+	printcl( CL_DEBUG "clEnqueueNDRangeKernel: A %d %p %p",nwaitlist,waitlist,cmdq);
 	__check_waitlist(nwaitlist,waitlist,cmdq->ctx);
-	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel: A");
+	printcl( CL_DEBUG "clEnqueueNDRangeKernel: A");
 
 	if (work_dim < 1 || work_dim > 3) return(CL_INVALID_WORK_DIMENSION);
 
 //	if (global_work_offset) return(CL_INVALID_GLOBAL_OFFSET);
-	if (global_work_offset) WARN(__FILE__,__LINE__,"clEnqueueNDRangeKernel: ignoring global_work_offset");
+	if (global_work_offset) printcl( CL_WARNING "clEnqueueNDRangeKernel: ignoring global_work_offset");
 
 	if (!global_work_size) return(CL_INVALID_VALUE);
 
@@ -817,7 +818,7 @@ _clEnqueueTask(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueTask: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueTask: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -872,7 +873,7 @@ _clEnqueueNativeKernel(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueNativeKernel: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueNativeKernel: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -904,7 +905,7 @@ _clEnqueueMarker(
    cl_event* event
 )
 {
-	DEBUG(__FILE__,__LINE__,"clEnqueueMarker");
+	printcl( CL_DEBUG "clEnqueueMarker");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -938,7 +939,7 @@ _clEnqueueWaitForEvents(
 	const cl_event* waitlist
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueWaitForEvents: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueWaitForEvents: warning: unsupported");
 
 /*
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
@@ -974,7 +975,7 @@ _clEnqueueWaitForEvents(
 cl_int 
 _clEnqueueBarrier( cl_command_queue cmdq )
 {
-	DEBUG(__FILE__,__LINE__,"clEnqueueBarrier");
+	printcl( CL_DEBUG "clEnqueueBarrier");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 

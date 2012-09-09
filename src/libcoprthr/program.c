@@ -31,6 +31,7 @@
 #include "cmdcall.h" /* XXX this is only used for backdoor -DAR */
 #include "vcore.h"	/* XXX this is only used for backdoor -DAR */
 #include "ocl_types.h"
+#include "printcl.h"
 
 #define _GNU_SOURCE
 #include <dlfcn.h>
@@ -38,7 +39,7 @@
 
 void __do_create_program(cl_program prg) 
 {
-	xclreport( XCL_DEBUG "__do_create_program with ndev = %d",prg->ndev);
+	printcl( CL_DEBUG "__do_create_program with ndev = %d",prg->ndev);
 
 	prg->imp.v_kbin = (void**)calloc(prg->ndev,sizeof(void*));
 	prg->imp.v_kbin_tmpfile = (char**)calloc(prg->ndev,sizeof(char*));
@@ -68,7 +69,7 @@ cl_int __do_build_program_from_binary(
 	cl_program prg,cl_device_id devid, cl_uint devnum
 ){ 
 
-	xclreport( XCL_DEBUG "__do_build_program_from_binary");
+	printcl( CL_DEBUG "__do_build_program_from_binary");
 
 	int i,j;
 
@@ -120,12 +121,12 @@ cl_int __do_build_program_from_binary(
 	}
 	
 
-	xclreport( XCL_DEBUG "clstrtab_sz %d\n",clstrtab_sz);
+	printcl( CL_DEBUG "clstrtab_sz %d\n",clstrtab_sz);
 
 
 	char* ppp = (char*)cltextb;
 
-	#if defined(XCL_DEBUG)
+	#if defined(CL_DEBUG)
 	fprintf(stdout,"%p\n",shstrtab);
 	fprintb(stdout,shstrtab,100); printf("\n");
 	fprintf(stdout,"%p\n",clstrtab);
@@ -133,12 +134,12 @@ cl_int __do_build_program_from_binary(
 	#endif
 
 	for(i=0;i<clsymtab_n;i++) {
-		xclreport( XCL_DEBUG 
+		printcl( CL_DEBUG 
 			"[%d] clsym |%s|",i,clstrtab+clsymtab[i].e_name);
 	}
 
 	for(i=0;i<clargtab_n;i++) {
-		xclreport( XCL_DEBUG 
+		printcl( CL_DEBUG 
 			"[%d] clarg |%s| (+%d)",i,clstrtab+clargtab[i].e_name,
 			clargtab[i].e_name);
 	}
@@ -167,7 +168,7 @@ cl_int __do_build_program_from_binary(
 			int narg = 0; 
 			int arg;
 			for(arg=arg0;arg;arg=prg->imp.clargtab[arg].e_nxt,narg++);
-			xclreport( XCL_DEBUG "%s has %d args\n",prg->imp.kname[i],narg);
+			printcl( CL_DEBUG "%s has %d args\n",prg->imp.kname[i],narg);
 			prg->imp.knarg[i] = narg;
 			prg->imp.karg_kind[i] = (cl_uint*)malloc(narg*sizeof(cl_uint));
 			prg->imp.karg_sz[i] = (size_t*)malloc(narg*sizeof(size_t));
@@ -184,49 +185,49 @@ cl_int __do_build_program_from_binary(
 					case TYPEID_CHAR:
 					case TYPEID_UCHAR: 
 						sz=1; 
-						xclreport( XCL_DEBUG "arg type [%d] ~char",arg);
+						printcl( CL_DEBUG "arg type [%d] ~char",arg);
 						break;
 						
 					case TYPEID_SHORT:
 					case TYPEID_USHORT: 
 						sz=2; 
-						xclreport( XCL_DEBUG "arg type [%d] ~short",arg);
+						printcl( CL_DEBUG "arg type [%d] ~short",arg);
 						break;
 
 					case TYPEID_INT:
 					case TYPEID_UINT: 
 					case TYPEID_FLOAT:
 						sz=4; 
-						xclreport( XCL_DEBUG "arg type [%d] ~int",arg);
+						printcl( CL_DEBUG "arg type [%d] ~int",arg);
 						break;
 
 					case TYPEID_LONG: 
 					case TYPEID_ULONG: 
 					case TYPEID_DOUBLE:
 						sz=8; 
-						xclreport( XCL_DEBUG "arg type [%d] ~long",arg);
+						printcl( CL_DEBUG "arg type [%d] ~long",arg);
 						break;
 
 					case TYPEID_OPAQUE:
 						sz=0; 
-						xclreport( XCL_DEBUG "arg type [%d] ~opaque",arg);
+						printcl( CL_DEBUG "arg type [%d] ~opaque",arg);
 						break;
 
 					case TYPEID_VOID:
 					default: sz=0; 
-					xclreport( XCL_DEBUG "arg type [%d] ~void",arg);
+					printcl( CL_DEBUG "arg type [%d] ~void",arg);
 					break;
 
 				}
 
-				xclreport( XCL_DEBUG "base arg_sz[%d] %d",arg,sz);
+				printcl( CL_DEBUG "base arg_sz[%d] %d",arg,sz);
 
 				sz *= prg->imp.clargtab[arg].e_vecn;
 				sz *= prg->imp.clargtab[arg].e_arrn;
 				
-				xclreport( XCL_DEBUG "w/multiplicity arg_sz[%d] %d",arg,sz);
+				printcl( CL_DEBUG "w/multiplicity arg_sz[%d] %d",arg,sz);
 
-				xclreport( XCL_DEBUG "e_ptrc=%d e_addrspace=%d",
+				printcl( CL_DEBUG "e_ptrc=%d e_addrspace=%d",
 					prg->imp.clargtab[arg].e_ptrc,
 					prg->imp.clargtab[arg].e_addrspace);
 
@@ -271,7 +272,7 @@ cl_int __do_build_program_from_binary(
 
 				}
 
-				xclreport( XCL_DEBUG "after kind check arg_sz[%d] %d",arg,sz);
+				printcl( CL_DEBUG "after kind check arg_sz[%d] %d",arg,sz);
 
 				prg->imp.karg_sz[i][j] = sz;
 				bufsz += sz;
@@ -307,13 +308,13 @@ cl_int __do_build_program_from_binary(
 
 	else prg->imp.v_kbin[devnum] = 0;
 
-	xclreport( XCL_DEBUG "kbin[%d] = %p",devnum,prg->imp.v_kbin[devnum]);
+	printcl( CL_DEBUG "kbin[%d] = %p",devnum,prg->imp.v_kbin[devnum]);
 
 	for(i=0;i<prg->imp.nclsym;i++) {
 
 		strncpy(name,prg->imp.kname[i],1024);
 
-		xclreport( XCL_DEBUG "devnum knum %d %d",devnum,i);
+		printcl( CL_DEBUG "devnum knum %d %d",devnum,i);
 
 /*
 		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) {
@@ -325,8 +326,8 @@ cl_int __do_build_program_from_binary(
 			prg->imp.v_ksyms[devnum][i].kthr = 0;
 		}
 
-//		xclreport( XCL_DEBUG "ksym %s -> %p",name,prg->imp.v_ksym[devnum][i]);
-		xclreport( XCL_DEBUG "kthr %s -> %p",
+//		printcl( CL_DEBUG "ksym %s -> %p",name,prg->imp.v_ksym[devnum][i]);
+		printcl( CL_DEBUG "kthr %s -> %p",
 			name,prg->imp.v_ksyms[devnum][i].kthr);
 
 		strncpy(name,"__XCL_call_",1024);
@@ -339,7 +340,7 @@ cl_int __do_build_program_from_binary(
 			prg->imp.v_ksyms[devnum][i].kcall = 0;
 		}
 
-		xclreport( XCL_DEBUG "kcall %s -> %p",
+		printcl( CL_DEBUG "kcall %s -> %p",
 //			name,prg->imp.v_kcall[devnum][i]);
 			name,prg->imp.v_ksyms[devnum][i].kcall);
 */
@@ -365,18 +366,18 @@ cl_int __do_build_program_from_source(
 	cl_program prg,cl_device_id devid, cl_uint devnum
 ){ 
 
-	xclreport( XCL_DEBUG "__do_build_program_from_source");
+	printcl( CL_DEBUG "__do_build_program_from_source");
 
 	compiler_t comp = (compiler_t)__resolve_devid(devid,comp);
 
 	if (!comp) return(CL_COMPILER_NOT_AVAILABLE);
 	
-	xclreport( XCL_DEBUG 
+	printcl( CL_DEBUG 
 		"__do_build_program_from_source: compiler=%p",comp);	
 
 	/* XXX should optimize JIT by checking for device equivalence -DAR */
 
-	xclreport( XCL_DEBUG "build_options[%d] |%s|",
+	printcl( CL_DEBUG "build_options[%d] |%s|",
 		devnum,prg->build_options[devnum]);
 
 //	struct _elf_data* edata = (struct _elf_data*)comp(
@@ -439,7 +440,7 @@ int __do_find_kernel_in_program( cl_program prg, const char* kname )
 	int k;
 
 	for(k=0;k<prg->imp.nkrn;k++) {
-		xclreport( XCL_DEBUG "compare |%s|%s\n",prg->imp.kname[k],kname);
+		printcl( CL_DEBUG "compare |%s|%s\n",prg->imp.kname[k],kname);
 		if (!strncmp(prg->imp.kname[k],kname,__CLMAXSTR_LEN)) break;
 	}
 
@@ -455,22 +456,22 @@ int bind_ksyms_default( struct _imp_ksyms_struct* ksyms, void* h, char* kname )
 
 	strncpy(name,kname,1024);
 	ksyms->kthr = dlsym(h,name);
-	xclreport( XCL_DEBUG "kthr %s -> %p", name,ksyms->kthr);
+	printcl( CL_DEBUG "kthr %s -> %p", name,ksyms->kthr);
 
 	strncpy(name,"__XCL_ser_",1024);
 	strncat(name,kname,1024);
 	ksyms->kthr2 = dlsym(h,name);
-	xclreport( XCL_DEBUG "kthr2 %s -> %p", name,ksyms->kthr2);
+	printcl( CL_DEBUG "kthr2 %s -> %p", name,ksyms->kthr2);
 
 	strncpy(name,"__XCL_call_",1024);
 	strncat(name,kname,1024);
 	ksyms->kcall = dlsym(h,name);
-	xclreport( XCL_DEBUG "kcall %s -> %p", name,ksyms->kcall);
+	printcl( CL_DEBUG "kcall %s -> %p", name,ksyms->kcall);
 
 	strncpy(name,"__XCL_call2_",1024);
 	strncat(name,kname,1024);
 	ksyms->kcall2 = dlsym(h,name);
-	xclreport( XCL_DEBUG "kcall2 %s -> %p", name,ksyms->kcall2);
+	printcl( CL_DEBUG "kcall2 %s -> %p", name,ksyms->kcall2);
 
 }
 

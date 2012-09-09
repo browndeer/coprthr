@@ -1,6 +1,6 @@
 /* cmdcall_x86_64.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -24,13 +24,14 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "cmdcall.h"
-#include "util.h"
+//#include "util.h"
 
 
 static void* ndrange_kernel(cl_device_id devid, void* p)
 {
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:ndrange_kernel");
+	printcl( CL_DEBUG "cmdcall_x86_64:ndrange_kernel");
 
 	int i;
 
@@ -39,22 +40,22 @@ static void* ndrange_kernel(cl_device_id devid, void* p)
 /* XXX do not create local copy on stack, fix -DAR */
 //	struct cmdcall_arg arg = *(struct cmdcall_arg*)p;
 
-	DEBUG(__FILE__,__LINE__,"argp->flags %x\n",argp->flags);
-	DEBUG(__FILE__,__LINE__,"argp->k.krn %p\n",argp->k.krn);
-	DEBUG(__FILE__,__LINE__,"argp->k.krn->narg %d\n",argp->k.krn->narg);
-	DEBUG(__FILE__,__LINE__,"argp->k.krn->narg %d\n",argp->k.krn->narg);
+	printcl( CL_DEBUG "argp->flags %x\n",argp->flags);
+	printcl( CL_DEBUG "argp->k.krn %p\n",argp->k.krn);
+	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
+	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
 	
 
-	DEBUG(__FILE__,__LINE__,"argp->k.word_dim %d\n",argp->k.work_dim);
-	DEBUG(__FILE__,__LINE__,"argp->k.global_work_offset[] %d %d %d\n",
+	printcl( CL_DEBUG "argp->k.word_dim %d\n",argp->k.work_dim);
+	printcl( CL_DEBUG "argp->k.global_work_offset[] %d %d %d\n",
 		argp->k.global_work_offset[0],
 		argp->k.global_work_offset[1],
 		argp->k.global_work_offset[2]);
-	DEBUG(__FILE__,__LINE__,"argp->k.global_work_size[] %d %d %d\n",
+	printcl( CL_DEBUG "argp->k.global_work_size[] %d %d %d\n",
 		argp->k.global_work_size[0],
 		argp->k.global_work_size[1],
 		argp->k.global_work_size[2]);
-	DEBUG(__FILE__,__LINE__,"argp->k.local_work_size[] %d %d %d\n",
+	printcl( CL_DEBUG "argp->k.local_work_size[] %d %d %d\n",
 		argp->k.local_work_size[0],
 		argp->k.local_work_size[1],
 		argp->k.local_work_size[2]);
@@ -72,21 +73,21 @@ static void* ndrange_kernel(cl_device_id devid, void* p)
 
 static void* task(cl_device_id devid, void* argp)
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:task: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:task: unsupported");
 	return(0); 
 }
 
 
 static void* native_kernel(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:native_kernel: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:native_kernel: unsupported");
 	return(0); 
 }
 
 
 static void* read_buffer_safe(cl_device_id devid, void* p) 
 {
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:read_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:read_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -114,7 +115,7 @@ static void* read_buffer_safe(cl_device_id devid, void* p)
 
 static void* read_buffer(cl_device_id devid, void* p) 
 {
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:read_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:read_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -139,7 +140,7 @@ static void* read_buffer(cl_device_id devid, void* p)
 
 static void* write_buffer_safe(cl_device_id devid, void* p) 
 {
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:write_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:write_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -167,7 +168,7 @@ static void* write_buffer_safe(cl_device_id devid, void* p)
 
 static void* write_buffer(cl_device_id devid, void* p) 
 {
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:write_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:write_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -192,7 +193,7 @@ static void* write_buffer(cl_device_id devid, void* p)
 
 static void* copy_buffer_safe(cl_device_id devid, void* p)
 {
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:copy_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:copy_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -223,7 +224,7 @@ static void* copy_buffer_safe(cl_device_id devid, void* p)
 
 static void* copy_buffer(cl_device_id devid, void* p)
 {
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:copy_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:copy_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -250,10 +251,10 @@ static void* copy_buffer(cl_device_id devid, void* p)
 
 static void* read_image(cl_device_id devid, void* p) 
 {
-//	WARN(__FILE__,__LINE__,"cmdcall_x86_64:read_image: unsupported");
+//	printcl( CL_WARNING "cmdcall_x86_64:read_image: unsupported");
 //	return(0); 
 
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:read_image");
+	printcl( CL_DEBUG "cmdcall_x86_64:read_image");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -299,10 +300,10 @@ static void* read_image(cl_device_id devid, void* p)
 
 static void* write_image(cl_device_id devid, void* p) 
 {
-//	WARN(__FILE__,__LINE__,"cmdcall_x86_64:write_image: unsupported");
+//	printcl( CL_WARNING "cmdcall_x86_64:write_image: unsupported");
 //	return(0); 
 
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:write_image");
+	printcl( CL_DEBUG "cmdcall_x86_64:write_image");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
@@ -320,13 +321,13 @@ static void* write_image(cl_device_id devid, void* p)
 /*
 	size_t len = argp->m.len;
 
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:write_image: XXX %p %p %d",dst+offset,src,len);
+	printcl( CL_DEBUG "cmdcall_x86_64:write_image: XXX %p %p %d",dst+offset,src,len);
 
 	if (dst+offset == src) return(0);
 	else memcpy(dst+offset,src,len);
 
 	size_t* sp = (size_t*)dst;
-DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],sp[16]);
+printcl( CL_DEBUG "cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],sp[16]);
 */
 
 	/* XXX here we should check for 3D image, ignore for now -DAR */
@@ -353,63 +354,63 @@ DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],s
 
 static void* copy_image(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:copy_image: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:copy_image: unsupported");
 	return(0); 
 }
 
 
 static void* copy_image_to_buffer(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:copy_image_to_buffer: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:copy_image_to_buffer: unsupported");
 	return(0); 
 }
 
 
 static void* copy_buffer_to_image(cl_device_id devid, void* argp)
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:copy_buffer_to_image: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:copy_buffer_to_image: unsupported");
 	return(0); 
 }
 
 
 static void* map_buffer(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:map_buffer: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:map_buffer: unsupported");
 	return(0); 
 }
 
 
 static void* map_image(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:map_image: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:map_image: unsupported");
 	return(0); 
 }
 
 
 static void* unmap_mem_object(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:unmap_mem_object: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:unmap_mem_object: unsupported");
 	return(0); 
 }
 
 
 static void* marker(cl_device_id devid, void* p) 
 {
-	DEBUG(__FILE__,__LINE__,"cmdcall_x86_64:marker");
+	printcl( CL_DEBUG "cmdcall_x86_64:marker");
 	return(0); 
 }
 
 
 static void* acquire_gl_objects(cl_device_id devid, void* argp)
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:acquire_gl_objects: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:acquire_gl_objects: unsupported");
 	return(0); 
 }
 
 
 static void* release_gl_objects(cl_device_id devid, void* argp) 
 {
-	WARN(__FILE__,__LINE__,"cmdcall_x86_64:acquire_gl_objects: unsupported");
+	printcl( CL_WARNING "cmdcall_x86_64:acquire_gl_objects: unsupported");
 	return(0); 
 }
 

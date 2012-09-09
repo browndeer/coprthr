@@ -40,7 +40,7 @@
 
 #include "vcore.h"
 #include "cmdcall.h"
-#include "util.h"
+//#include "util.h"
 
 
 
@@ -100,7 +100,7 @@ vcengine( void* p )
 
 	struct work_struct work;
 
-	xclreport( XCL_DEBUG "vcengine-attempt-lock");
+	printcl( CL_DEBUG "vcengine-attempt-lock");
 	pthread_mutex_lock(&engine_mtx[veid]);
 
 
@@ -112,7 +112,7 @@ vcengine( void* p )
 
 	char* vc_stack[VCORE_NC];
 
-	xclreport( XCL_DEBUG "vc_stack_base %p\n",vc_stack_base);
+	printcl( CL_DEBUG "vc_stack_base %p\n",vc_stack_base);
 
 
 	for(i=0;i<VCORE_NC;i++) {
@@ -125,13 +125,13 @@ vcengine( void* p )
 
 		*data = (struct vc_data){vcid,&vcengine_jbuf,vc_jbuf+i,0,&work};
 
-		xclreport( XCL_DEBUG "sp %p data %p\n",vc_stack[i],data);
+		printcl( CL_DEBUG "sp %p data %p\n",vc_stack[i],data);
 	}
 
 
-	xclreport( XCL_DEBUG "[%d] vcengine_jbuf %p\n",veid,&vcengine_jbuf);
+	printcl( CL_DEBUG "[%d] vcengine_jbuf %p\n",veid,&vcengine_jbuf);
 	for(i=0;i<VCORE_NC;i++) 
-		xclreport( XCL_DEBUG "vc_jbufp[%d] %p\n",i,vc_jbuf+i);
+		printcl( CL_DEBUG "vc_jbufp[%d] %p\n",i,vc_jbuf+i);
 
 
 	engine_local_mem_free[veid] = engine_local_mem_base[veid] 
@@ -140,7 +140,7 @@ vcengine( void* p )
 	engine_local_mem_sz[veid] = VCORE_LOCAL_MEM_SZ;
 	
 
-	xclreport( XCL_DEBUG "vcengine-set-ready");
+	printcl( CL_DEBUG "vcengine-set-ready");
 	engine_ready[veid] = 1;
 
 
@@ -150,11 +150,11 @@ vcengine( void* p )
 	div_t qr;
 	struct cmdcall_arg* cmd_argp;
 
-	xclreport( XCL_DEBUG "[%d] ENTER BIG LOOP FOR VCENGINE\n",veid);
+	printcl( CL_DEBUG "[%d] ENTER BIG LOOP FOR VCENGINE\n",veid);
 
 	do {
 
-		xclreport( XCL_DEBUG "vcengine-wait1");
+		printcl( CL_DEBUG "vcengine-wait1");
 
 		pthread_cond_wait(&engine_sig1[veid],&engine_mtx[veid]);
 
@@ -162,7 +162,7 @@ vcengine( void* p )
 
 			/* propagate info so that vcore() can execute specified kernel */
 
-			xclreport( XCL_DEBUG "vcengine[%d]: krn %p",veid,cmd_argp->k.krn);
+			printcl( CL_DEBUG "vcengine[%d]: krn %p",veid,cmd_argp->k.krn);
 			edata->funcp = cmd_argp->k.ksym;
 			edata->callp = cmd_argp->k.kcall;
 			edata->pr_arg_off = cmd_argp->k.pr_arg_off;
@@ -182,14 +182,14 @@ vcengine( void* p )
 				gtid_offset[d] = cmd_argp->k.global_work_offset[d];
 				gid_offset[d] = gtid_offset[d]/work.ltsz[d];
 
-				xclreport( XCL_DEBUG "vcengine[%d]: %d %d %d %d\n",
+				printcl( CL_DEBUG "vcengine[%d]: %d %d %d %d\n",
 					veid,d,gtid_offset[d],work.gtsz[d],work.ltsz[d]);
 
 				nc *= work.ltsz[d];
 				ng *= work.gsz[d];
 			} 
 
-			xclreport( XCL_DEBUG "vcengine[%d]: nc=%d  ng=%d",veid,nc,ng);
+			printcl( CL_DEBUG "vcengine[%d]: nc=%d  ng=%d",veid,nc,ng);
 
 			for(i=0;i<nc;i++) {
 
@@ -216,7 +216,7 @@ vcengine( void* p )
 
 			edata->vc_runc = 0;
 
-			xclreport( XCL_DEBUG "vcengine[%d]: num_of_groups %d",veid,ng);
+			printcl( CL_DEBUG "vcengine[%d]: num_of_groups %d",veid,ng);
 
 			for(g=0;g<ng;g++) { /* loop over thread groups */
 
@@ -243,19 +243,19 @@ vcengine( void* p )
 	
 				switch(work.tdim) {
 					case 3:
-						xclreport( XCL_DEBUG 
+						printcl( CL_DEBUG 
 							"vcengine[%d]: gid[]={%d,%d,%d} gtid[]={%d,%d,%d}",veid,
 							work.gid[0],work.gid[1],work.gid[2],
 							work.gtid[0],work.gtid[1],work.gtid[2]);
 						break;
 					case 2:
-						xclreport( XCL_DEBUG 
+						printcl( CL_DEBUG 
 							"vcengine[%d]: gid[]={%d,%d} gtid[]={%d,%d}",veid,
 							work.gid[0],work.gid[1],
 							work.gtid[0],work.gtid[1]);
 						break;
 					case 1:
-						xclreport( XCL_DEBUG 
+						printcl( CL_DEBUG 
 							"vcengine[%d]: gid[]={%d} gtid[]={%d}",veid,
 							work.gid[0],
 							work.gtid[0]);
@@ -270,13 +270,13 @@ vcengine( void* p )
 					work.gsz[d] = work.gtsz[d]/work.ltsz[d];
 				}
 
-				xclreport( XCL_DEBUG "launching vcores (%d)",nc);
+				printcl( CL_DEBUG "launching vcores (%d)",nc);
 
 				char* sp;
 				for(i=0;i<nc;i++) {
 					if (!(__vc_setjmp(vcengine_jbuf))) {
 						sp = vc_stack[i];
-						xclreport( XCL_DEBUG "[%d] sp %p callp %p edata %p",
+						printcl( CL_DEBUG "[%d] sp %p callp %p edata %p",
 							i,sp,edata->callp,edata);
 						__callsp(sp,edata->callp,edata);
 					}
@@ -288,10 +288,10 @@ vcengine( void* p )
 				} 
 
 				if (edata->vc_runc) {
-					xclreport( XCL_DEBUG "vcengine[%d]: unterminated vcore",veid);
+					printcl( CL_DEBUG "vcengine[%d]: unterminated vcore",veid);
 					exit(-1);
 				} else {
-					xclreport( XCL_DEBUG 
+					printcl( CL_DEBUG 
 						"vcengine[%d]: all vcores completed",veid);
 				} 
 
@@ -301,7 +301,7 @@ vcengine( void* p )
 			
 		} 
 
-		xclreport( XCL_DEBUG "vcengine-sig2");
+		printcl( CL_DEBUG "vcengine-sig2");
 		pthread_cond_signal(&engine_sig2[veid]);
 
 	} while(!engine_shutdown[veid]);
@@ -309,7 +309,7 @@ vcengine( void* p )
 	engine_shutdown[veid] = 2;
 
 	pthread_mutex_unlock(&engine_mtx[veid]);
-	xclreport( XCL_DEBUG "vcengine-unlock");
+	printcl( CL_DEBUG "vcengine-unlock");
 
 }
 
@@ -317,7 +317,7 @@ vcengine( void* p )
 void* 
 vcproc_startup( void* p )
 {
-	xclreport( XCL_DEBUG "vcproc_create");
+	printcl( CL_DEBUG "vcproc_create");
 
 	int i;
 
@@ -328,7 +328,7 @@ vcproc_startup( void* p )
 	if (getenv("COPRTHR_VCORE_NE")) 
 		vcore_ne = min(vcore_ne,atoi(getenv("COPRTHR_VCORE_NE")));
 
-	xclreport( XCL_DEBUG "vcore_ne = %d",vcore_ne);
+	printcl( CL_DEBUG "vcore_ne = %d",vcore_ne);
 
 	engine_td = (pthread_t*)calloc(vcore_ne,sizeof(pthread_t));
 	engine_mtx = (pthread_mutex_t*)calloc(vcore_ne,sizeof(pthread_mutex_t));
@@ -344,7 +344,7 @@ vcproc_startup( void* p )
 	engine_local_mem_free = (char**)calloc(vcore_ne,sizeof(char*));
 	engine_local_mem_sz = (size_t*)calloc(vcore_ne,sizeof(size_t));
 
-	xclreport( XCL_DEBUG "alloc vc_stack_storage: calloc(%d,1)"
+	printcl( CL_DEBUG "alloc vc_stack_storage: calloc(%d,1)"
 		,(VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne);
 
 	vc_stack_storage = (char*)calloc((VCORE_NC+1)*VCORE_STACK_SZ*vcore_ne,1);
@@ -386,7 +386,7 @@ vcproc_startup( void* p )
 
 		while(!engine_ready[i]) pthread_yield();
 
-		xclreport( XCL_DEBUG "ready[%d] %d",i,engine_ready[i]);
+		printcl( CL_DEBUG "ready[%d] %d",i,engine_ready[i]);
 	}
 
 	pthread_attr_destroy(&td_attr);
@@ -404,7 +404,7 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 	int veid_end = veid_base + nve;
 
-	xclreport( XCL_DEBUG "veid_base,nve %d,%d",veid_base,nve);
+	printcl( CL_DEBUG "veid_base,nve %d,%d",veid_base,nve);
 
 	struct cmdcall_arg* subcmd_argp 
 		= (struct cmdcall_arg*)malloc(nve*sizeof(struct cmdcall_arg));
@@ -416,7 +416,7 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 		/* XXX it would be better to spin once at initialization to take this
 		/* XXX step out of the execution code -DAR */
 
-		xclreport( XCL_DEBUG "ve[%d] vcproc_cmd-spin-until-ready",e);
+		printcl( CL_DEBUG "ve[%d] vcproc_cmd-spin-until-ready",e);
 		while(!engine_ready[e]) pthread_yield(); 
 
 	}
@@ -424,14 +424,14 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 	/* first apply correction to global ptrs */
 
-	xclreport( XCL_DEBUG "cmdcall_x86_64:ndrange_kernel: fix global ptrs %p",
+	printcl( CL_DEBUG "cmdcall_x86_64:ndrange_kernel: fix global ptrs %p",
 		argp->k.arg_kind);
 
 	for(i=0;i<argp->k.krn->narg;i++) {
 
-		xclreport( XCL_DEBUG  "fix global ptrs %d",i);
+		printcl( CL_DEBUG  "fix global ptrs %d",i);
 
-		xclreport( XCL_DEBUG "arg_kind=%d", argp->k.arg_kind[i]);
+		printcl( CL_DEBUG "arg_kind=%d", argp->k.arg_kind[i]);
 
    cl_context ctx;
    unsigned int ndev;
@@ -445,9 +445,9 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 			case CLARG_KIND_CONSTANT:
 			case CLARG_KIND_GLOBAL:
 
-				xclreport( XCL_DEBUG  "ptr_to_arg[%d]=%p",i,p);
+				printcl( CL_DEBUG  "ptr_to_arg[%d]=%p",i,p);
 
-				xclreport( XCL_DEBUG  "*cl_mem=%p", (*(cl_mem*)p));
+				printcl( CL_DEBUG  "*cl_mem=%p", (*(cl_mem*)p));
 
 				ctx = (*(cl_mem*)p)->ctx;
 				ndev = ctx->ndev;
@@ -486,7 +486,7 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
    	__clone(subcmd_argp[i].k.pr_arg_buf,argp->k.pr_arg_buf,
 			argp->k.arg_buf_sz,void);
 
-		xclreport( XCL_DEBUG "ve[%d] arg_buf %p %p",
+		printcl( CL_DEBUG "ve[%d] arg_buf %p %p",
 			e,argp->k.pr_arg_buf,subcmd_argp[i].k.pr_arg_buf);
 
 	}
@@ -496,7 +496,7 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 	for(e=veid_base,i=0;e<veid_end;e++,i++) {
 
-		xclreport( XCL_DEBUG "%p",&subcmd_argp[i].k.krn->narg);
+		printcl( CL_DEBUG "%p",&subcmd_argp[i].k.krn->narg);
 
 		for(j=0;j<subcmd_argp[i].k.krn->narg;j++) {
 
@@ -513,7 +513,7 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 						return((void*)-1);						
 					}
 
-					xclreport( XCL_DEBUG "ve[%d] argn %d alloc local mem %p %d",
+					printcl( CL_DEBUG "ve[%d] argn %d alloc local mem %p %d",
 						e,j,engine_local_mem_free[e],sz);
 
 					*(void**)p = (void*)engine_local_mem_free[e];
@@ -521,7 +521,7 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 					engine_local_mem_free[e] += sz;
 					engine_local_mem_sz[e] -= sz;
 
-					xclreport( XCL_DEBUG "ve[%d] local mem sz free %d",
+					printcl( CL_DEBUG "ve[%d] local mem sz free %d",
 						e,engine_local_mem_sz[e]);
 
 					break;
@@ -551,9 +551,9 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 	for(e=veid_base,i=0;e<veid_end;e++,i++) for(j=0;j<d;j++) 
 		subcmd_argp[i].k.global_work_size0[j] = argp->k.global_work_size[j];
 
-	xclreport( XCL_DEBUG "partitioning d=%d gwsz=%d lwsz=%d",d,gwsd1,lwsd1);
+	printcl( CL_DEBUG "partitioning d=%d gwsz=%d lwsz=%d",d,gwsd1,lwsd1);
 
-	xclreport( XCL_DEBUG "using nve=%d",nve);
+	printcl( CL_DEBUG "using nve=%d",nve);
 
 //	unsigned int ng = gwsd1/lwsd1;
 //	unsigned int nge = ng/nve;
@@ -566,16 +566,16 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 //	unsigned int inc0 = nge0*lwsd1;
 	unsigned int inc = nge*lwsd1;
 
-	xclreport( XCL_DEBUG "d gwsd1 lwsd1 ng: %d %d %d %d\n",d,gwsd1,lwsd1,ng);
-//	xclreport( XCL_DEBUG "partitioning: %d %d -> %d %d \n",nge,nge0,inc,inc0);
+	printcl( CL_DEBUG "d gwsd1 lwsd1 ng: %d %d %d %d\n",d,gwsd1,lwsd1,ng);
+//	printcl( CL_DEBUG "partitioning: %d %d -> %d %d \n",nge,nge0,inc,inc0);
 	for(e=veid_base,i=0;e<veid_end;e++,i++) {
-		xclreport( XCL_DEBUG "partitioning[%d]: %d -> %d \n",
+		printcl( CL_DEBUG "partitioning[%d]: %d -> %d \n",
 			i,nge+((i<ng_rem)? 1:0),inc+((i<ng_rem)? lwsd1:0) );
 	}
 
 	unsigned int gwo = argp->k.global_work_offset[d-1];
 
-	xclreport( XCL_DEBUG "initial gwo %d\n",gwo);
+	printcl( CL_DEBUG "initial gwo %d\n",gwo);
 
 //	subcmd_argp[0].k.global_work_offset[d-1] = gwo;
 //	gwo += subcmd_argp[0].k.global_work_size[d-1] = inc0;
@@ -589,7 +589,7 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 	}
 
 	for(e=veid_base,i=0;e<veid_end;e++,i++) {
-		xclreport( XCL_DEBUG "%d %d %d\n",
+		printcl( CL_DEBUG "%d %d %d\n",
 			subcmd_argp[i].k.global_work_offset[d-1],
 			subcmd_argp[i].k.global_work_size[d-1],
 			subcmd_argp[i].k.local_work_size[d-1]);
@@ -598,18 +598,18 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 	for(e=veid_base,i=0;e<veid_end;e++,i++) {
 
-		xclreport( XCL_DEBUG "ve[%d] vcproc_cmd-spin-until-ready",e);
+		printcl( CL_DEBUG "ve[%d] vcproc_cmd-spin-until-ready",e);
 		while(!engine_ready[e]) pthread_yield(); 
 
-		xclreport( XCL_DEBUG "ve[%d] vcproc_cmd-attempt-lock",e);
+		printcl( CL_DEBUG "ve[%d] vcproc_cmd-attempt-lock",e);
 		pthread_mutex_lock(&engine_mtx[e]);
 
 		engine_cmd_argp[e] = subcmd_argp+i;
 
-		xclreport( XCL_DEBUG "ve[%d] vcproc_cmd-sig1",e);
+		printcl( CL_DEBUG "ve[%d] vcproc_cmd-sig1",e);
 		pthread_cond_signal(&engine_sig1[e]);
 
-		xclreport( XCL_DEBUG "ve[%d] vcproc_cmd-unlock",e);
+		printcl( CL_DEBUG "ve[%d] vcproc_cmd-unlock",e);
 		pthread_mutex_unlock(&engine_mtx[e]);
 
 	}
@@ -620,18 +620,18 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 
 	for(e=veid_base;e<veid_end;e++) {
 
-		xclreport( XCL_DEBUG "ve[%d] vcproc_cmd-attempt-lock",e);
+		printcl( CL_DEBUG "ve[%d] vcproc_cmd-attempt-lock",e);
 		pthread_mutex_lock(&engine_mtx[e]);
 
-		xclreport( XCL_DEBUG "ve[%d] vcproc_cmd-wait2",e);
+		printcl( CL_DEBUG "ve[%d] vcproc_cmd-wait2",e);
 		if (engine_cmd_argp[e]) pthread_cond_wait(&engine_sig2[e],&engine_mtx[e]);
 
-		xclreport( XCL_DEBUG "ve[%d] vcproc_cmd complete",e);
+		printcl( CL_DEBUG "ve[%d] vcproc_cmd complete",e);
 
 		engine_local_mem_free[e] = engine_local_mem_base[e];
 		engine_local_mem_sz[e] = VCORE_LOCAL_MEM_SZ;
 
-		xclreport( XCL_DEBUG "ve[%d] vcproc_cmd-unlock",e);
+		printcl( CL_DEBUG "ve[%d] vcproc_cmd-unlock",e);
 		pthread_mutex_unlock(&engine_mtx[e]);
 
 	}
@@ -647,7 +647,7 @@ vcproc_cmd( int veid_base, int nve, struct cmdcall_arg* argp)
 static void __attribute__((destructor))
 __vcproc_shutdown_dtor( void* p )
 {
-	xclreport( XCL_DEBUG "__vcproc_shutdown_dtor");
+	printcl( CL_DEBUG "__vcproc_shutdown_dtor");
 
 	int i;
 	int retval;
@@ -656,18 +656,18 @@ __vcproc_shutdown_dtor( void* p )
 
 	while (remaining) for(i=0;i<vcore_ne;i++) {
 
-		xclreport( XCL_DEBUG "remaining %d",remaining);
+		printcl( CL_DEBUG "remaining %d",remaining);
 
 		if (engine_data[i].vc_runc > 0) {
 			fprintf(stderr,"very bad, vc_runc[%d] > 0",i);
-			xclreport( XCL_DEBUG "pthread_cancel %d",i)
+			printcl( CL_DEBUG "pthread_cancel %d",i)
 			pthread_cancel(engine_td[i]);
-			xclreport( XCL_DEBUG "pthread_cancel succeded %d",i)
+			printcl( CL_DEBUG "pthread_cancel succeded %d",i)
 			engine_shutdown[i] = 3;
 			--remaining;
 		}
 
-		xclreport( XCL_DEBUG "shutdown[%d] %d",i,engine_shutdown[i]);
+		printcl( CL_DEBUG "shutdown[%d] %d",i,engine_shutdown[i]);
 
 		switch(engine_shutdown[i]) {
 

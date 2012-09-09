@@ -26,7 +26,7 @@
 #include <libelf/libelf.h>
 
 #include "version.h"
-#include "util.h"
+//#include "util.h"
 #include "elf_cl.h"
 
 
