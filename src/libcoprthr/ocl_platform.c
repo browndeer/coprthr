@@ -29,7 +29,7 @@
 #define min(a,b) ((a<b)?a:b)
 
 
-extern void* __icd_call_vector[];
+//void** __icd_call_vector;
 
 
 // Platform API Calls

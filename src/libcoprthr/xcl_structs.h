@@ -1,6 +1,6 @@
 /* xcl_structs.h 
  *
- * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -31,7 +31,7 @@
 #include "imp_structs.h"
 
 /* XXX temporarily put this here */
-void* __icd_call_vector[];
+void* __icd_call_vector;
 
 /* XXX this is a workaround to correct missing tags in cl.h -dar */
 #ifndef CL_COMMAND_BARRIER

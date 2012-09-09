@@ -26,9 +26,9 @@
 #include <sys/queue.h>
 #include <pthread.h>
 
-#ifdef ENABLE_ATIGPU
-#include "cal.h"
-#endif
+//#ifdef ENABLE_ATIGPU
+//#include "cal.h"
+//#endif
 
 #include "cpuset_type.h"
 #include "cmdcall.h"
@@ -410,7 +410,7 @@ struct _elf_data {
    } while(0)
 
 
-extern void* __icd_call_vector[];
+void* __icd_call_vector;
 
 #endif
 

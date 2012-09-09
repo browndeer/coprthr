@@ -47,5 +47,7 @@ _clGetPlatformInfo(
 
 __DECL_API_CALLS(_,)
 
-void* __icd_call_vector[] = __set_icd_call_vector(_,);
+static void* _icd_call_vector[] = __set_icd_call_vector(_,);
+
+void* __icd_call_vector = (void*)_icd_call_vector;
 
