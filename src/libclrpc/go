@@ -1,5 +1,6 @@
 
-./gen clrpc.rpc
+#./gen clrpc.rpc
+event_rpcgen.py clrpc.rpc
 
 
 

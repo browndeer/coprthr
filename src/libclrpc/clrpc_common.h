@@ -31,7 +31,6 @@
 #include "event2/thread.h"
 #include "event2/bufferevent.h"
 
-
 typedef int64_t clrpc_int;
 typedef int64_t clrpc_int64;
 typedef uint64_t clrpc_uint;
@@ -40,9 +39,11 @@ typedef uint64_t clrpc_bool;
 
 typedef uint64_t clrpc_ptr;
 typedef struct { clrpc_ptr local, remote; } clrpc_dptr;
+//typedef struct { void* reserved; clrpc_ptr local, remote; } clrpc_dptr;
 
 typedef clrpc_dptr _clrpc_platform_id;
-typedef _clrpc_platform_id* clrpc_platform_id;
+//typedef _clrpc_platform_id* clrpc_platform_id; ////////////
+typedef struct _dummy_platform_id* clrpc_platform_id; ////////////
 
 typedef int64_t clrpc_platform_info;
 typedef int64_t clrpc_device_info;
@@ -52,25 +53,31 @@ typedef int64_t clrpc_program_info;
 typedef int64_t clrpc_kernel_info;
 
 typedef clrpc_dptr _clrpc_device_id;
-typedef _clrpc_device_id* clrpc_device_id;
+//typedef _clrpc_device_id* clrpc_device_id; /////////////
+typedef struct _dummy_device_id* clrpc_device_id; /////////////
 
 typedef clrpc_dptr _clrpc_context;
-typedef _clrpc_context* clrpc_context;
+//typedef _clrpc_context* clrpc_context; /////////////
+typedef struct _dummy_context* clrpc_context; /////////////
 
 typedef clrpc_dptr _clrpc_command_queue;
-typedef _clrpc_command_queue* clrpc_command_queue;
+//typedef _clrpc_command_queue* clrpc_command_queue; /////////////
+typedef struct _dummy_command_queue* clrpc_command_queue; /////////////
 
 typedef int64_t clrpc_command_queue_properties;
 typedef int64_t clrpc_mem_flags;
 
 typedef clrpc_dptr _clrpc_event;
-typedef _clrpc_event* clrpc_event;
+//typedef _clrpc_event* clrpc_event; /////////////
+typedef struct _dummy_event* clrpc_event; /////////////
 
 typedef clrpc_dptr _clrpc_program;
-typedef _clrpc_program* clrpc_program;
+//typedef _clrpc_program* clrpc_program; ////////////
+typedef struct _dummy_program* clrpc_program; ////////////
 
 typedef clrpc_dptr _clrpc_kernel;
-typedef _clrpc_kernel* clrpc_kernel;
+//typedef _clrpc_kernel* clrpc_kernel; ////////////
+typedef struct _dummy_kernel* clrpc_kernel; ////////////
 
 
 typedef struct {
@@ -174,6 +181,13 @@ rpc_pool_with_connection(const char* address, ev_uint16_t port);
    EVTAG_ASSIGN(d,local,((clrpc_dptr*)val)->local); \
    EVTAG_ASSIGN(d,remote,((clrpc_dptr*)val)->remote); \
    } while(0)
+#define CLRPC_ASSIGN_DPTR_FROM_OBJECT(msg,mbr,val) do { \
+   struct dual_ptr* d; \
+   EVTAG_GET(msg,mbr,&d); \
+   EVTAG_ASSIGN(d,local,((_xobject_t*)val)->object->local); \
+   EVTAG_ASSIGN(d,remote,((_xobject_t*)val)->object->remote); \
+   } while(0)
+
 
 #define CLRPC_ALLOC_DPTR_ARRAY(size,array) do { \
    int i; \
@@ -192,12 +206,20 @@ rpc_pool_with_connection(const char* address, ev_uint16_t port);
       EVTAG_ASSIGN(d,local,((clrpc_dptr*)array[i])->local); \
       EVTAG_ASSIGN(d,remote,((clrpc_dptr*)array[i])->remote); \
    } } while(0)
+#define CLRPC_ASSIGN_DPTR_ARRAY_FROM_OBJECT(msg,size,mbr,array) do { \
+   int i; \
+   struct dual_ptr* d; \
+   for(i=0;i<size;i++) { \
+      d = EVTAG_ARRAY_ADD(msg, mbr); \
+      EVTAG_ASSIGN(d,local,((_xobject_t*)array[i])->object->local); \
+      EVTAG_ASSIGN(d,remote,((_xobject_t*)array[i])->object->remote); \
+   } } while(0)
 
 #define CLRPC_ASSIGN_DPTR_ARRAY2(msg,size,array) do { \
    int i; \
    struct dual_ptr* d; \
    for(i=0;i<size;i++) { \
-      d = EVTAG_ARRAY_ADD(msg, array); \
+      d = EVTAG_ARRAY_ADD(msg,array); \
       EVTAG_ASSIGN(d,local,(*(clrpc_dptr**)array[i])->local); \
       EVTAG_ASSIGN(d,remote,(*(clrpc_dptr**)array[i])->remote); \
    } } while(0)

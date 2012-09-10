@@ -1142,7 +1142,7 @@ main(int argc, const char **argv)
 
 	char default_address[] = "127.0.0.1";
 	const char* address = default_address;
-	ev_uint16_t port = 8080;
+	ev_uint16_t port = 8091;
 
 	n = 1;
    while (n < argc) {

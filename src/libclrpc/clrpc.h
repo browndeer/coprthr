@@ -5,6 +5,8 @@
 
 #include <CL/cl.h>
 
+#define __CLRPC_TYPES
+
 #include "util.h"
 #include "clrpc_common.h"
 
