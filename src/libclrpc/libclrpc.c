@@ -18,6 +18,7 @@
 #include <string.h>
 #include <errno.h>
 #include <pthread.h>
+#include <assert.h>
 
 #include <CL/cl.h>
 
@@ -50,129 +51,15 @@ typedef struct {
 	obj = (void*)xobj; \
 	} while (0)
 
-/*
-typedef struct {
-	void* _reserved;
-	cl_platform_id platform;
-	struct evrpc_pool* rpc_pool;
-} _xplatform_id;
-#define _xplatform_id_rpc_pool(obj) \
-	((_xplatform_id*)((clrpc_dptr*)obj)->local)->rpc_pool
-#define _xplatform_id_create(xobj,obj,pool) \
-	_xplatform_id* xobj = (_xplatform_id*)malloc(sizeof(_xplatform_id)); \
-	do { \
-	xobj->platform = (cl_platform_id)obj; \
-	xobj->rpc_pool = pool; \
-	xobj->_reserved = 0xabcdabcd; \
-	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
-	} while (0)
-*/
-
-/*
-typedef struct {
-	cl_device_id device;
-	struct evrpc_pool* rpc_pool;
-} _xdevice_id;
-#define _xdevice_id_rpc_pool(obj) \
-	((_xdevice_id*)((clrpc_dptr*)obj)->local)->rpc_pool
-#define _xdevice_id_create(xobj,obj,pool) \
-	_xdevice_id* xobj = (_xdevice_id*)malloc(sizeof(_xdevice_id)); \
-	do { \
-	xobj->device = (cl_device_id)obj; \
-	xobj->rpc_pool = pool; \
-	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
-	} while (0)
-*/
-
-/*
-typedef struct {
-	cl_context context;
-	struct evrpc_pool* rpc_pool;
-} _xcontext;
-#define _xcontext_rpc_pool(obj) \
-	((_xcontext*)((clrpc_dptr*)obj)->local)->rpc_pool
-#define _xcontext_create(xobj,obj,pool) \
-	_xcontext* xobj = (_xcontext*)malloc(sizeof(_xcontext)); \
-	do { \
-	xobj->context = (cl_context)obj; \
-	xobj->rpc_pool = pool; \
-	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
-	} while (0)
-*/
-
-/*
-typedef struct { 
-	cl_command_queue command_queue; 
-	struct evrpc_pool* rpc_pool;
-} _xcommand_queue;
-#define _xcommand_queue_rpc_pool(obj) \
-	((_xcommand_queue*)((clrpc_dptr*)obj)->local)->rpc_pool
-#define _xcommand_queue_create(xobj,obj,pool) \
-	_xcommand_queue* xobj = (_xcommand_queue*)malloc(sizeof(_xcommand_queue)); \
-	do { \
-	xobj->command_queue = (cl_command_queue)obj; \
-	xobj->rpc_pool = pool; \
-	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
-	} while (0)
-*/
-
-/*
-typedef struct { 
-	cl_mem memobj; 
-	struct evrpc_pool* rpc_pool; 
-} _xmem;
-#define _xmem_rpc_pool(obj) ((_xmem*)((clrpc_dptr*)obj)->local)->rpc_pool
-#define _xmem_create(xobj,obj,pool) \
-	_xmem* xobj = (_xmem*)malloc(sizeof(_xmem)); \
-	do { \
-	xobj->memobj = (cl_mem)obj; \
-	xobj->rpc_pool = pool; \
-	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
-	} while (0)
-*/
-
-/*
-typedef struct {
-	cl_program program;
-	struct evrpc_pool* rpc_pool;
-} _xprogram;
-#define _xprogram_rpc_pool(obj) \
-	((_xprogram*)((clrpc_dptr*)obj)->local)->rpc_pool
-#define _xprogram_create(xobj,obj,pool) \
-	_xprogram* xobj = (_xprogram*)malloc(sizeof(_xprogram)); \
-	do { \
-	xobj->program = (cl_program)obj; \
-	xobj->rpc_pool = pool; \
-	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
-	} while (0)
-*/
-
-/*
-typedef struct {
-	cl_kernel kernel;
-	struct evrpc_pool* rpc_pool;
-} _xkernel;
-#define _xkernel_rpc_pool(obj) \
-	((_xkernel*)((clrpc_dptr*)obj)->local)->rpc_pool
-#define _xkernel_create(xobj,obj,pool) \
-	_xkernel* xobj = (_xkernel*)malloc(sizeof(_xkernel)); \
-	do { \
-	xobj->kernel = (cl_kernel)obj; \
-	xobj->rpc_pool = pool; \
-	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
-	} while (0)
-*/
 
 typedef struct {
 	void* _reserved;
-//   cl_event event;
 	clrpc_dptr* object;
 	struct evrpc_pool* rpc_pool;
    void* buf_ptr;
    size_t buf_sz;
 } _xevent;
 
-//#define _xevent_rpc_pool(obj) ((_xevent*)((clrpc_dptr*)obj)->local)->rpc_pool
 #define _xevent_rpc_pool(xobj) (((_xevent*)xobj)->rpc_pool)
 
 #define _xevent_create(xobj,obj,pool) \
@@ -194,6 +81,7 @@ _clrpc_##fname##_clicb(struct evrpc_status* status, \
 	CLRPC_UNBLOCK(parg); \
 } 
 
+#if(0)
 #define CLRPC_GENERIC_RELEASE(name,type,arg) \
 CLRPC_UNBLOCK_CLICB(name) \
 cl_int name( cl_##type arg ) __alias(clrpc_##name); \
@@ -208,6 +96,7 @@ cl_int clrpc_##name( cl_##type arg ) \
 	xclreport( XCL_DEBUG "clrpc_" #name ": retval = %d",retval); \
 	return(retval); \
 }
+#endif
 
 #define CLRPC_GENERIC_RELEASE3(name,type,arg) \
 CLRPC_UNBLOCK_CLICB(name) \
@@ -226,22 +115,6 @@ cl_int clrpc_##name( cl_##type x##arg ) \
 }
 
 #if(0)
-#define CLRPC_GENERIC_RELEASE2(name,type,arg) \
-CLRPC_UNBLOCK_CLICB(name) \
-cl_int clrpc_##name( cl_##type arg ) \
-{ \
-	CLRPC_INIT(name); \
-	_x##type* xarg = (_x##type*)arg; \
-	CLRPC_ASSIGN_DPTR(request,arg,xarg->arg); \
-	CLRPC_MAKE_REQUEST_WAIT2(xarg->rpc_pool,name); \
-	cl_int retval; \
-	CLRPC_GET(reply,int,retval,&retval); \
-	xclreport( XCL_DEBUG "clrpc_" #name ": retval = %d",retval); \
-	CLRPC_FINAL(name); \
-	return(retval); \
-}
-#endif
-
 #define CLRPC_GENERIC_GETINFO(name,type,arg,infotype) \
 CLRPC_UNBLOCK_CLICB(name) \
 cl_int name(cl_##type arg, cl_##infotype param_name, \
@@ -267,6 +140,7 @@ cl_int clrpc_##name(cl_##type arg, cl_##infotype param_name, \
 	printf("%ld:%s\n",param_sz,(char*)param_val); \
 	return(retval); \
 }
+#endif
 
 #define CLRPC_GENERIC_GETINFO3(name,type,arg,infotype) \
 CLRPC_UNBLOCK_CLICB(name) \
@@ -299,38 +173,6 @@ cl_int clrpc_##name(cl_##type x##arg, cl_##infotype param_name, \
 	return(retval); \
 }
 
-#if(0)
-#define CLRPC_GENERIC_GETINFO2(name,type,arg,infotype) \
-CLRPC_UNBLOCK_CLICB(name) \
-cl_int clrpc_##name(cl_##type arg, cl_##infotype param_name, \
-	size_t param_sz, void* param_val, size_t *param_sz_ret) \
-{ \
-	cl_int retval = 0; \
-	CLRPC_INIT(name); \
-	cl_##type arg2 = *(cl_##type*)arg; \
-	do { \
-   struct dual_ptr* d; \
-   EVTAG_GET(request,arg,&d); \
-   EVTAG_ASSIGN(d,local,((clrpc_dptr*)arg2)->local); \
-   EVTAG_ASSIGN(d,remote,((clrpc_dptr*)arg2)->remote); \
-   } while(0); \
-	CLRPC_ASSIGN(request,infotype,param_name,param_name); \
-	CLRPC_ASSIGN(request,uint,param_sz,param_sz); \
-	CLRPC_MAKE_REQUEST_WAIT2(((_x##type*)arg)->rpc_pool,name); \
-	CLRPC_GET(reply,int,retval,&retval); \
-	CLRPC_GET(reply,uint,param_sz_ret,param_sz_ret); \
-	xclreport( XCL_DEBUG "clrpc_" #name ": *param_sz_ret %ld",*param_sz_ret); \
-	param_sz = min(param_sz,*param_sz_ret); \
-	void* tmp_param_val = 0; \
-	unsigned int tmplen = 0; \
-	EVTAG_GET_WITH_LEN(reply,param_val,(unsigned char**)&tmp_param_val,&tmplen);\
-	memcpy(param_val,tmp_param_val,param_sz); \
-	printf("%ld:%s\n",param_sz,(char*)param_val); \
-	CLRPC_FINAL(name); \
-	return(retval); \
-}
-#endif
-
 
 struct xevent_struct {
    clrpc_ptr event;
@@ -338,6 +180,23 @@ struct xevent_struct {
    size_t buf_sz;
 };
 
+
+static struct evrpc_pool*
+rpc_pool_with_connection( const char* address, ev_uint16_t port)
+{
+   struct evhttp_connection *evcon;
+   struct evrpc_pool *pool;
+
+   pool = evrpc_pool_new(NULL);
+   assert(pool != NULL);
+
+   evcon = evhttp_connection_new(address, port);
+   assert(evcon != NULL);
+
+   evrpc_pool_add_connection(pool, evcon);
+
+   return (pool);
+}
 
 struct event_base* global_base;
 evutil_socket_t global_spair[2] = { -1, -1 };
@@ -545,9 +404,7 @@ clrpc_clGetPlatformIDs( cl_uint nplatforms,
 
 		for(i=0;i<tmp_nplatforms;i++) {
 
-//			_xplatform_id_create(xplatform,platforms[i],rpc_pools[n]);	
 			_xobject_create(xplatform,platforms[i],rpc_pools[n]);	
-//			platforms[i] = ((clrpc_dptr*)platforms[i])->local;
 
 			xclreport( XCL_DEBUG "at creation platform[%d] is %p",i,platforms[i]);
 		}
@@ -614,7 +471,6 @@ clrpc_clGetDeviceIDs( cl_platform_id xplatform, cl_device_type devtype,
 	
 	CLRPC_ASSIGN_DPTR_ARRAY(request,ndevices,devices);
 
-//	CLRPC_MAKE_REQUEST_WAIT2(_xplatform_id_rpc_pool(platform),clGetDeviceIDs);
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xplatform),clGetDeviceIDs);
 
 	CLRPC_GET(reply,int,retval,&retval);
@@ -634,14 +490,12 @@ clrpc_clGetDeviceIDs( cl_platform_id xplatform, cl_device_type devtype,
 
 	for(i=0;i<ndevices;i++) {
 
-//		_xdevice_id_create(xdevice,devices[i],_xplatform_id_rpc_pool(platform));
 		_xobject_create(xdevice,devices[i],_xobject_rpc_pool(xplatform));
 
 	}
 
 	for(i=0;i<ndevices;i++) {
 		xclreport( XCL_DEBUG "device pool values %d %p",i,
-//			((_xdevice_id*)devices[i])->rpc_pool);
 			((_xobject_t*)devices[i])->rpc_pool);
 	}
 
@@ -685,7 +539,6 @@ clrpc_clCreateContext(
 	if (ndev==0 || !xdevices) { *err_ret = CL_INVALID_VALUE; return(0); }
 
 	clrpc_dptr* context = (clrpc_dptr*)malloc(sizeof(clrpc_dptr));
-//	_xcontext_create(xcontext,context,_xobject_rpc_pool(xdevices[0]));
 	_xobject_create(xcontext,context,_xobject_rpc_pool(xdevices[0]));
 
 	CLRPC_INIT(clCreateContext);
@@ -702,8 +555,6 @@ clrpc_clCreateContext(
 		xclreport( XCL_DEBUG "checking prop %d",prop[i]);
 		if (prop[i] == CL_CONTEXT_PLATFORM) {
 			xprop[j] = (clrpc_ptr)prop[i];
-//			xprop[j+1] = ((clrpc_dptr*)prop[i+1])->local;
-//			xprop[j+2] = ((clrpc_dptr*)prop[i+1])->remote;
 			clrpc_dptr* obj = ((_xobject_t*)prop[i+1])->object;
 			xprop[j+1] = obj->local;
 			xprop[j+2] = obj->remote;
@@ -721,19 +572,15 @@ clrpc_clCreateContext(
 
 	CLRPC_ASSIGN_DPTR_ARRAY_FROM_OBJECT(request,ndev,devices,xdevices);
 
-//	clrpc_dptr* retval = context;
 	_xobject_t* retval = (_xobject_t*)context;
-//	CLRPC_ASSIGN_DPTR(request,retval,retval);
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,retval,retval);
 
 	xclreport( XCL_DEBUG "here");
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xdevices[0]),clCreateContext);
 	xclreport( XCL_DEBUG "here");
 
-//	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&context->remote);
 	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&retval->object->remote);
 	xclreport( XCL_DEBUG "context local remote %p %p",
-//		context->local,context->remote);
 		retval->object->local,retval->object->remote);
 
 	CLRPC_GET(reply,int,err_ret,err_ret);
@@ -781,30 +628,22 @@ clrpc_clCreateCommandQueue(
 )
 {
 	clrpc_dptr* command_queue = (clrpc_dptr*)malloc(sizeof(clrpc_dptr));
-//	_xcommand_queue_create(xcommand_queue,command_queue,
 	_xobject_create(xcommand_queue,command_queue,
 		_xobject_rpc_pool(xcontext));
 
 	CLRPC_INIT(clCreateCommandQueue);
 
-//	clrpc_dptr* context = ((_xobject_t*)xcontext)->object;	
-//	clrpc_dptr* device = ((_xobject_t*)xdevice)->object;
-
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,context,xcontext);
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,device,xdevice);
 	CLRPC_ASSIGN(request,command_queue_properties,properties,properties);
 
-//	clrpc_dptr* retval = command_queue;
 	_xobject_t* retval = (_xobject_t*)command_queue;
-//	CLRPC_ASSIGN_DPTR(request,retval,retval);
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,retval,retval);
 
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xcontext),clCreateCommandQueue);
 
-//	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&command_queue->remote);
 	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&retval->object->remote);
 	xclreport( XCL_DEBUG "command_queue local remote %p %p",
-//		command_queue->local,command_queue->remote);
 		retval->object->local,retval->object->remote);
 
 	CLRPC_GET(reply,int,err_ret,err_ret);
@@ -844,12 +683,9 @@ clrpc_clCreateBuffer(
 )
 {
 	clrpc_dptr* buffer = (clrpc_dptr*)malloc(sizeof(clrpc_dptr));
-//	_xmem_create(xbuffer,buffer,_xobject_rpc_pool(xcontext));
 	_xobject_create(xbuffer,buffer,_xobject_rpc_pool(xcontext));
 
 	CLRPC_INIT(clCreateBuffer);
-
-//	clrpc_dptr* context = ((_xobject_t*)xcontext)->object;
 
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,context,xcontext);
 	CLRPC_ASSIGN(request,mem_flags,flags,flags);
@@ -858,17 +694,14 @@ clrpc_clCreateBuffer(
 	if (host_ptr)
 		xclreport( XCL_WARNING "host_ptr not supported, forced to null");
 
-//	clrpc_dptr* retval = buffer;
 	_xobject_t* retval = (_xobject_t*)buffer;
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,retval,retval);
 
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xcontext),clCreateBuffer);
 
-//	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&buffer->remote);
 	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&retval->object->remote);
 	xclreport( XCL_DEBUG "buffer %p local remote %p %p",
 		buffer,
-//		buffer->local,buffer->remote);
 		retval->object->local,retval->object->remote);
 
 	CLRPC_GET(reply,int,err_ret,err_ret);
@@ -941,13 +774,10 @@ clrpc_clEnqueueReadBuffer (
 
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xbuffer),clEnqueueReadBuffer);
 
-//	CLRPC_GET_DPTR_REMOTE(reply,uint,event,&(event)->remote);
 	CLRPC_GET_DPTR_REMOTE(reply,uint,event,&xevent->object->remote);
 	xclreport( XCL_DEBUG "event local remote %p %p",
-//		(event)->local,(event)->remote);
 		xevent->object->local,xevent->object->remote);
 
-//	*pevent = (cl_event)event;
 	*pevent = (cl_event)xevent;
 
 	if ( EVTAG_HAS(reply,_bytes) ) {
@@ -1019,7 +849,6 @@ clrpc_clEnqueueWriteBuffer (
 	_xevent_create(xevent,event,_xobject_rpc_pool(xbuffer));
 	xevent->buf_ptr = 0;
 	xevent->buf_sz = 0;
-//	event->local = (clrpc_ptr)xevent;
 
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,event,xevent);
 
@@ -1027,13 +856,10 @@ clrpc_clEnqueueWriteBuffer (
 
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xbuffer),clEnqueueWriteBuffer);
 
-//	CLRPC_GET_DPTR_REMOTE(reply,uint,event,&(event)->remote);
 	CLRPC_GET_DPTR_REMOTE(reply,uint,event,&xevent->object->remote);
 	xclreport( XCL_DEBUG "event local remote %p %p",
-//		(event)->local,(event)->remote);
 		xevent->object->local,xevent->object->remote);
 
-//	*pevent = (cl_event)event;
 	*pevent = (cl_event)xevent;
 
 	cl_int retval;
@@ -1067,11 +893,8 @@ cl_int clrpc_clReleaseEvent( cl_event xevent )
    CLRPC_INIT(clReleaseEvent);
    CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,event,xevent);
    CLRPC_MAKE_REQUEST_WAIT2(_xevent_rpc_pool(xevent),clReleaseEvent);
-//	struct xevent_struct* xevent
-//		= (struct xevent_struct*)((clrpc_dptr*)event)->local;
 	free(((_xevent*)xevent)->object);
 	free(xevent);
-//	free(event);
    cl_int retval;
    CLRPC_GET(reply,int,retval,&retval);
    xclreport( XCL_DEBUG "clrpc_" "clReleaseEvent" ": retval = %d",retval);
@@ -1102,12 +925,9 @@ clrpc_clCreateProgramWithSource(
 	int i;
 
 	clrpc_dptr* program = (clrpc_dptr*)malloc(sizeof(clrpc_dptr));
-//	_xprogram_create(xprogram,program,_xobject_rpc_pool(xcontext));
 	_xobject_create(xprogram,program,_xobject_rpc_pool(xcontext));
 
 	CLRPC_INIT(clCreateProgramWithSource);
-
-//	clrpc_dptr* context = ((_xobject_t*)xcontext)->object;
 
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,context,xcontext);
 	CLRPC_ASSIGN(request,uint,count,count);
@@ -1123,17 +943,14 @@ clrpc_clCreateProgramWithSource(
 	for(i=0;i<count;i++)
 		EVTAG_ARRAY_ADD_VALUE(request,lengths,lengths[i]);
 
-//	clrpc_dptr* retval = program;
 	_xobject_t* retval = (_xobject_t*)program;
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,retval,retval);
 
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xcontext),
 		clCreateProgramWithSource);
 
-//	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&program->remote);
 	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&retval->object->remote);
 	xclreport( XCL_DEBUG "program local remote %p %p",
-//		program->local,program->remote);
 		retval->object->local,retval->object->remote);
 
 	CLRPC_GET(reply,int,err_ret,err_ret);
@@ -1224,7 +1041,6 @@ clrpc_clCreateKernel(
 )
 {
 	clrpc_dptr* kernel = (clrpc_dptr*)malloc(sizeof(clrpc_dptr));
-//	_xkernel_create(xkernel,kernel,_xobject_rpc_pool(xprogram));
 	_xobject_create(xkernel,kernel,_xobject_rpc_pool(xprogram));
 
 	CLRPC_INIT(clCreateKernel);
@@ -1232,16 +1048,13 @@ clrpc_clCreateKernel(
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,program,xprogram);
 	EVTAG_ASSIGN(request,kernel_name,kernel_name);
 
-//	clrpc_dptr* retval = kernel;
 	_xobject_t* retval = (_xobject_t*)kernel;
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,retval,retval);
 
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xprogram),clCreateKernel);
 
-//	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&kernel->remote);
 	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&retval->object->remote);
 	xclreport( XCL_DEBUG "kernel local remote %p %p",
-//		kernel->local,kernel->remote);
 		retval->object->local,retval->object->remote);
 
 	CLRPC_GET(reply,int,err_ret,err_ret);
@@ -1292,7 +1105,8 @@ clrpc_clSetKernelArg(
 	EVTAG_ASSIGN(request,arg_index,arg_index);
 	EVTAG_ASSIGN(request,arg_size,arg_size);
 	if (arg_value) {
-		xclreport( XCL_DEBUG "clrpc_clSetKernelArg: arg_value %p %p",arg_value,*(void**)arg_value);
+		xclreport( XCL_DEBUG "clrpc_clSetKernelArg: arg_value %p %p",
+			arg_value,*(void**)arg_value);
 		 EVTAG_ASSIGN_WITH_LEN(request,arg_value,(unsigned char*)arg_value,
 			arg_size);
 	}
@@ -1366,13 +1180,10 @@ clrpc_clEnqueueNDRangeKernel (
 
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xkernel),clEnqueueNDRangeKernel);
 
-//	CLRPC_GET_DPTR_REMOTE(reply,uint,event,&(event)->remote);
 	CLRPC_GET_DPTR_REMOTE(reply,uint,event,&xevent->object->remote);
 	xclreport( XCL_DEBUG "event local remote %p %p",
-//		(event)->local,(event)->remote);
 		xevent->object->local,xevent->object->remote);
 
-//	*pevent = (cl_event)event;
 	*pevent = (cl_event)xevent;
 
 	cl_int retval;
@@ -1449,7 +1260,6 @@ clrpc_clWaitForEvents(
 		void* tmp_ptr = tmp_buf;
 		for(i=0;i<nevents;i++) {
 
-//			_xevent* xevent = (_xevent*)((clrpc_dptr*)events[i])->local;
 			_xevent* xevent = (_xevent*)xevents[i];
 
 			xclreport( XCL_DEBUG "[%d] xevent registered: %p %p %ld",

@@ -43,8 +43,6 @@ clrpc_client_test(void)
 	for(i=0;i<nplatforms;i++) {
 		clrpc_dptr* tmp = ((_xobj_t*)platforms[i])->obj;
 		xclreport( XCL_DEBUG "platforms[%d] local=%p remote=%p\n",
-//			i,(void*)((clrpc_dptr*)platforms[i])->local,
-//			(void*)((clrpc_dptr*)platforms[i])->remote);
 			i,(void*)tmp->local,
 			(void*)tmp->remote);
 	}
@@ -79,8 +77,6 @@ clrpc_client_test(void)
 	for(i=0;i<ndevices;i++) {
 		clrpc_dptr* tmp = ((_xobj_t*)devices[i])->obj;
 		xclreport( XCL_DEBUG "devices[%d] local=%p remote=%p\n",
-//			i,(void*)((clrpc_dptr*)devices[i])->local,
-//			(void*)((clrpc_dptr*)devices[i])->remote);
 			i,(void*)tmp->local,
 			(void*)tmp->remote);
 		clrpc_clGetDeviceInfo(devices[i],CL_DEVICE_NAME,1023,buffer,&sz);
@@ -90,8 +86,6 @@ clrpc_client_test(void)
 	for(i=0;i<nplatforms;i++) {
 		clrpc_dptr* tmp = ((_xobj_t*)platforms[i])->obj;
 		xclreport( XCL_DEBUG "platforms[%d] local=%p remote=%p\n",
-//			i,(void*)((clrpc_dptr*)platforms[i])->local,
-//			(void*)((clrpc_dptr*)platforms[i])->remote);
 			i,(void*)tmp->local,
 			(void*)tmp->remote);
 	}

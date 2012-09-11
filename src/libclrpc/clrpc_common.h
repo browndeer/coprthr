@@ -39,11 +39,9 @@ typedef uint64_t clrpc_bool;
 
 typedef uint64_t clrpc_ptr;
 typedef struct { clrpc_ptr local, remote; } clrpc_dptr;
-//typedef struct { void* reserved; clrpc_ptr local, remote; } clrpc_dptr;
 
 typedef clrpc_dptr _clrpc_platform_id;
-//typedef _clrpc_platform_id* clrpc_platform_id; ////////////
-typedef struct _dummy_platform_id* clrpc_platform_id; ////////////
+typedef struct _dummy_platform_id* clrpc_platform_id;
 
 typedef int64_t clrpc_platform_info;
 typedef int64_t clrpc_device_info;
@@ -53,31 +51,25 @@ typedef int64_t clrpc_program_info;
 typedef int64_t clrpc_kernel_info;
 
 typedef clrpc_dptr _clrpc_device_id;
-//typedef _clrpc_device_id* clrpc_device_id; /////////////
-typedef struct _dummy_device_id* clrpc_device_id; /////////////
+typedef struct _dummy_device_id* clrpc_device_id;
 
 typedef clrpc_dptr _clrpc_context;
-//typedef _clrpc_context* clrpc_context; /////////////
-typedef struct _dummy_context* clrpc_context; /////////////
+typedef struct _dummy_context* clrpc_context;
 
 typedef clrpc_dptr _clrpc_command_queue;
-//typedef _clrpc_command_queue* clrpc_command_queue; /////////////
-typedef struct _dummy_command_queue* clrpc_command_queue; /////////////
+typedef struct _dummy_command_queue* clrpc_command_queue;
 
 typedef int64_t clrpc_command_queue_properties;
 typedef int64_t clrpc_mem_flags;
 
 typedef clrpc_dptr _clrpc_event;
-//typedef _clrpc_event* clrpc_event; /////////////
-typedef struct _dummy_event* clrpc_event; /////////////
+typedef struct _dummy_event* clrpc_event;
 
 typedef clrpc_dptr _clrpc_program;
-//typedef _clrpc_program* clrpc_program; ////////////
-typedef struct _dummy_program* clrpc_program; ////////////
+typedef struct _dummy_program* clrpc_program;
 
 typedef clrpc_dptr _clrpc_kernel;
-//typedef _clrpc_kernel* clrpc_kernel; ////////////
-typedef struct _dummy_kernel* clrpc_kernel; ////////////
+typedef struct _dummy_kernel* clrpc_kernel;
 
 
 typedef struct {
@@ -89,15 +81,15 @@ typedef struct {
 extern evutil_socket_t pair[2];
 extern struct event_base *global_base;
 
-int get_socket_port(evutil_socket_t fd);
+//int get_socket_port(evutil_socket_t fd);
 
-struct evconnlistener;
-struct sockaddr;
-int get_listener_addr(struct evconnlistener *lev,
-    struct sockaddr *sa, ev_socklen_t *socklen);
+//struct evconnlistener;
+//struct sockaddr;
+//int get_listener_addr(struct evconnlistener *lev,
+//    struct sockaddr *sa, ev_socklen_t *socklen);
 
-struct evrpc_pool*
-rpc_pool_with_connection(const char* address, ev_uint16_t port);
+//struct evrpc_pool*
+//rpc_pool_with_connection(const char* address, ev_uint16_t port);
 
 
 #define CLRPC_HEADER(fname) EVRPC_HEADER(_clrpc_##fname, \

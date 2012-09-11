@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include <assert.h>
 
 #define min(a,b) ((a<b)?a:b)
 
@@ -90,6 +91,24 @@ http_setup(const char* address, ev_uint16_t port)
 
 	return (myhttp);
 }
+
+static struct evrpc_pool*
+rpc_pool_with_connection( const char* address, ev_uint16_t port)
+{
+   struct evhttp_connection *evcon;
+   struct evrpc_pool *pool;
+
+   pool = evrpc_pool_new(NULL);
+   assert(pool != NULL);
+
+   evcon = evhttp_connection_new(address, port);
+   assert(evcon != NULL);
+
+   evrpc_pool_add_connection(pool, evcon);
+
+   return (pool);
+}
+
 
 CLRPC_HEADER(clGetPlatformIDs)
 CLRPC_HEADER(clGetPlatformInfo)
