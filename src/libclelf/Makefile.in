@@ -77,7 +77,7 @@ endif
 
 all: $(TARGET)
 
-.phony: install uninstall clean distclean check_root debug
+.PHONY: install uninstall clean distclean check_root debug
 
 libclelf.so: $(OBJS)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclelf.so \

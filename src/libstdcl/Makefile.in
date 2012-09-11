@@ -119,7 +119,7 @@ endif
 
 all: $(TARGET)
 
-.phony: install uninstall clean distclean check_root debug
+.PHONY: install uninstall clean distclean check_root debug
 
 libstdcl.so: $(OBJS) $(LIBCLELF)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \
