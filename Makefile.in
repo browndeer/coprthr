@@ -17,12 +17,12 @@ INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
-ifeq (@ENABLE_LIBCOPRTHR@,1)
-SUBDIRS += ./src/libcoprthr ./tools/xclnm
-endif
-
 ifeq (@ENABLE_LIBOCL@,1)
 SUBDIRS += ./src/libocl 
+endif
+
+ifeq (@ENABLE_LIBCOPRTHR@,1)
+SUBDIRS += ./src/libcoprthr ./tools/xclnm
 endif
 
 SUBDIRS += ./include ./src/libclelf ./src/libstdcl 
@@ -41,10 +41,14 @@ ifeq (@ENABLE_CLTRACE@,1)
 SUBDIRS += ./tools/cltrace
 endif
 
+ifeq (@ENABLE_LIBCLRPC@,1)
+SUBDIRS += ./src/libclrpc
+endif
+
 #SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))
 #SUBDIRS += $(addprefix ./tools/,$(BUILD_TOOLS)) 
 
-DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./examples
+DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples
 
 export TOPDIR = $(CURDIR)
 

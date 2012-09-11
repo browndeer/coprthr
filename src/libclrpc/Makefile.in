@@ -46,46 +46,63 @@ else
 LIBS += -lpthread -ldl -lrt 
 endif
 
-OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
+LIBS += -levent -levent_pthreads -levent_pthreads
+
+OBJS = util.o clrpc.gen.o 
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
 HDRS = clrpc.h 
 
 
 INSTALL_INCS = $(HDRS)
-INSTALL_LIBS = libclrpc.so libclrpc_d.so
+INSTALL_LIBS = libclrpc.so 
+INSTALL_BINS = clrpcd
 
 CCFLAGS += -g -O2 -fPIC
 
 TARGET += libclrpc.so 
-LIB_OBJS += $(OBJS)
-LIB_OBJS_D += $(OBJS_D)
+#LIB_OBJS += $(OBJS)
+#LIB_OBJS_D += $(OBJS_D)
 
 ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
 TARGET += libclrpc_d.so 
+INSTALL_LIBS += libclrpc_d.so
+INSTALL_BINS += clrpcd_d
 endif
 
+TARGET += clrpcd clrpc_test_cli
+
+TARGET += clrpc.gen.c clrpc.gen.h
 
 all: $(TARGET)
 
-.phony: install uninstall clean distclean 
+.PHONY: install uninstall clean distclean 
 
-libstdcl.so: $(OBJS)
+clrpc.gen.h clrpc.gen.c:
+	event_rpcgen.py clrpc.rpc
+
+libclrpc.so: clrpc.gen.h libclrpc.o $(OBJS)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclrpc.so \
-		-o libclrpc.so $(LIB_OBJS) $(LIBS) 
+		-o libclrpc.so libclrpc.o $(OBJS) $(LIBS) 
 
-libstdcl_d.so: $(OBJS_D)
+libclrpc_d.so: libclrpc_d.o $(OBJS_D)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclrpc_d.so \
-		-o libclrpc_d.so $(LIB_OBJS_D) $(LIBS)
+		-o libclrpc_d.so libclrpc_d.o $(OBJS_D) $(LIBS)
+
+clrpcd: clrpcd.o $(OBJS)
+	$(CC) $(CCFLAGS) -o clrpcd clrpcd.o $(OBJS) $(LIBS) -lOpenCL
+
+clrpc_test_cli: clrpc_test_cli.o
+	$(CC) $(CCFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L. -lclrpc 
 
 
 .SUFFIXES:
 .SUFFIXES: .c .o
 
-.c.o:
+.c.o: clrpc.gen.h 
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
-%_d.o:
+%_d.o: clrpc.gen.h
 	$(CC) $(CCFLAGS) $(DEFS) -DXCL_REPORT $(INCS) -c $*.c -o $*_d.o
 
 %.3.gz:
@@ -109,6 +126,7 @@ uninstall:
 
 clean:
 	rm -f *.o *.so *.x
+	rm -f $(TARGET)
 
 distclean: clean
 
