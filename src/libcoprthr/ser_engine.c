@@ -520,7 +520,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 					sz = *(size_t*)p;
 
 					if (engine_local_mem_sz[e] < sz) {
-						ERROR(__FILE__,__LINE__,"out of local mem");
+						printcl( CL_ERR "out of local mem");
 						return((void*)-1);						
 					}
 

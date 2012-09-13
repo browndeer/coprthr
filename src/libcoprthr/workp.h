@@ -162,7 +162,7 @@ unsigned int workp_genpart(
 #define report_workp_entry( level, e ) do { \
    switch((e)->ndr_dim) { \
    case 3: \
-      xclreport( level \
+      printcl( level \
          "XXX %d {%d %d %d} {%d %d %d} {%d %d %d} {%d %d %d} {%d %d %d}" \
          " {%d %d %d}", \
          (e)->ndr_dim, \
@@ -174,7 +174,7 @@ unsigned int workp_genpart(
          (e)->ndp_ltd0[0],(e)->ndp_ltd0[1],(e)->ndp_ltd0[2] ); \
       break; \
    case 2: \
-      xclreport( level \
+      printcl( level \
          "XXX %d {%d %d} {%d %d} {%d %d} {%d %d} {%d %d} {%d %d}", \
          (e)->ndr_dim, \
          (e)->ndr_gtdoff[0],(e)->ndr_gtdoff[1], \

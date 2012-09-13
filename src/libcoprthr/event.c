@@ -34,16 +34,16 @@ void __do_release_event(cl_event ev)
 
 	/* XXX this assumes the ev is on cmds_complete, check this first! -DAR */
 
-	printc( CL_DEBUG "__do_release_event: attempt lock cmdq");
+	printcl( CL_DEBUG "__do_release_event: attempt lock cmdq");
 	__lock_cmdq(ev->cmdq);
-	printc( CL_DEBUG "__do_release_event: locked cmdq");
-	printc( CL_DEBUG "__do_release_event: remove ev from cmdq");
-	printc( CL_DEBUG "__do_release_event: cmdq %p\n",ev->cmdq);
+	printcl( CL_DEBUG "__do_release_event: locked cmdq");
+	printcl( CL_DEBUG "__do_release_event: remove ev from cmdq");
+	printcl( CL_DEBUG "__do_release_event: cmdq %p\n",ev->cmdq);
 	TAILQ_REMOVE(&ev->cmdq->imp.cmds_complete,ev,imp.cmds);
-	printc( CL_DEBUG "__do_release_event: removed from cmdq");
+	printcl( CL_DEBUG "__do_release_event: removed from cmdq");
 	__unlock_cmdq(ev->cmdq);
 	ev->cmdq = 0;
-	printc( CL_DEBUG "__do_release_event: success");
+	printcl( CL_DEBUG "__do_release_event: success");
 }
 
 
@@ -289,7 +289,7 @@ void __do_set_cmd_ndrange_kernel(
 
 	argp->k.krn = krn;
 
-	printc( CL_DEBUG "ndev = %d",krn->prg->ndev);
+	printcl( CL_DEBUG "ndev = %d",krn->prg->ndev);
 
 	int devnum;
 	for(devnum=0;devnum<krn->prg->ndev;devnum++) 
@@ -300,7 +300,7 @@ void __do_set_cmd_ndrange_kernel(
 		exit(-1);
 	}
 
-	printc( CL_DEBUG "devnum = %d",devnum);
+	printcl( CL_DEBUG "devnum = %d",devnum);
 
 //	argp->k.ksym = ((void***)krn->imp.v_ksym)[devnum][krn->imp.knum];
 //	argp->k.kcall = ((void***)krn->imp.v_kcall)[devnum][krn->imp.knum];
@@ -310,7 +310,7 @@ void __do_set_cmd_ndrange_kernel(
 	argp->k.narg = krn->narg;
 	argp->k.arg_buf_sz = krn->imp.arg_buf_sz;
 
-printc( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp.arg_kind);
+printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp.arg_kind);
 	
 	argp->k.arg_kind = krn->imp.arg_kind;
 	argp->k.arg_sz = krn->imp.arg_sz;
@@ -322,7 +322,7 @@ printc( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp.arg_kind);
 	__clone(argp->k.pr_arg_off,krn->imp.arg_off,krn->narg,uint32_t);
 	__clone(argp->k.pr_arg_buf,krn->imp.arg_buf,krn->imp.arg_buf_sz,void);
 
-	printc( CL_DEBUG "arg_buf %p,%p",krn->imp.arg_buf,argp->k.pr_arg_buf);	
+	printcl( CL_DEBUG "arg_buf %p,%p",krn->imp.arg_buf,argp->k.pr_arg_buf);	
 	intptr_t offset 
 		= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->imp.arg_buf;
 
@@ -366,7 +366,7 @@ void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 	argp->k.kcall = krn->imp.v_ksyms[devnum][krn->imp.knum].kcall;
 	argp->k.narg = krn->narg;
 
-printc( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp.arg_kind);
+printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp.arg_kind);
 	
 	argp->k.arg_kind = krn->imp.arg_kind;
 	argp->k.arg_sz = krn->imp.arg_sz;
@@ -394,17 +394,17 @@ void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 
 		ev = evlist[i];
 
-		printc( CL_DEBUG "wait for event %p %d\n",ev,ev->cmd_stat);
+		printcl( CL_DEBUG "wait for event %p %d\n",ev,ev->cmd_stat);
 
 		__lock_event(ev);
 
 		while (ev->cmd_stat != CL_COMPLETE) {
-			printc( CL_DEBUG "__do_wait_for_events: wait-sleep\n");
+			printcl( CL_DEBUG "__do_wait_for_events: wait-sleep\n");
 			__wait_event(ev);
-			printc( CL_DEBUG "__do_wait_for_events: wait-wake\n");
+			printcl( CL_DEBUG "__do_wait_for_events: wait-wake\n");
 		}
  
-		printc( CL_DEBUG "event %p complete\n",ev);
+		printcl( CL_DEBUG "event %p complete\n",ev);
 
 		__unlock_event(evlist[i]);
 

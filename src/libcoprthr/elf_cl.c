@@ -28,6 +28,7 @@
 #include "version.h"
 //#include "util.h"
 #include "elf_cl.h"
+#include "printcl.h"
 
 
 static
@@ -76,13 +77,13 @@ int elfcl_write(
 	Elf_Data* data;
 
 	if (elf_version(EV_CURRENT) == EV_NONE) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: libelf initialization failed: %s",elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((e = elf_begin(fd, ELF_C_WRITE, 0)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_begin() failed: %s", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -111,7 +112,7 @@ int elfcl_write(
 
 	if ((ehdr = elf64_newehdr(e)) == 0) {
 		int err = elf_errno();
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_newehdr() failed: %d %s.", err, elf_errmsg(err));
 		exit(-1);
 	}
@@ -124,7 +125,7 @@ int elfcl_write(
 #elif defined(__i386__) 
 
 	if ((ehdr = elf32_newehdr(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_newehdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -137,7 +138,7 @@ int elfcl_write(
 #elif defined(__arm__) 
 
 	if ((ehdr = elf32_newehdr(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_newehdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -154,13 +155,13 @@ int elfcl_write(
 	 */
 
 	if ((scn = elf_newscn(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newscn() failed: %s.",elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((data = elf_newdata(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newdata() failed: %s.",elf_errmsg(-1)); 
 		exit(-1);
 	}
@@ -175,13 +176,13 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 	if ((shdr = elf64_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 #elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -199,13 +200,13 @@ int elfcl_write(
 	 */
 
 	if ((scn = elf_newscn(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newscn() failed: %s.",elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((data = elf_newdata(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newdata() failed: %s.",elf_errmsg(-1)); 
 		exit(-1);
 	}
@@ -220,13 +221,13 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 	if ((shdr = elf64_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 #elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -244,13 +245,13 @@ int elfcl_write(
 	 */
 
 	if ((scn = elf_newscn(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newscn() failed: %s.",elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((data = elf_newdata(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newdata() failed: %s.",elf_errmsg(-1)); 
 		exit(-1);
 	}
@@ -265,13 +266,13 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 	if ((shdr = elf64_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 #elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -290,13 +291,13 @@ int elfcl_write(
 	 */
 
 	if ((scn = elf_newscn(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newscn() failed: %s.",elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((data = elf_newdata(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newdata() failed: %s.",elf_errmsg(-1)); 
 		exit(-1);
 	}
@@ -311,13 +312,13 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 	if ((shdr = elf64_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 #elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -336,13 +337,13 @@ int elfcl_write(
 	 */
 
 	if ((scn = elf_newscn(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newscn() failed: %s.",elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((data = elf_newdata(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newdata() failed: %s.",elf_errmsg(-1)); 
 		exit(-1);
 	}
@@ -357,13 +358,13 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 	if ((shdr = elf64_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 #elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -382,13 +383,13 @@ int elfcl_write(
 	 */
 
 	if ((scn = elf_newscn(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newscn() failed: %s.",elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((data = elf_newdata(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newdata() failed: %s.",elf_errmsg(-1)); 
 		exit(-1);
 	}
@@ -403,13 +404,13 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 	if ((shdr = elf64_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 #elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -428,13 +429,13 @@ int elfcl_write(
 	 */
 
 	if ((scn = elf_newscn(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newscn() failed: %s.",elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((data = elf_newdata(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newdata() failed: %s.",elf_errmsg(-1)); 
 		exit(-1);
 	}
@@ -449,13 +450,13 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 	if ((shdr = elf64_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 #elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -474,13 +475,13 @@ int elfcl_write(
 	 */
 
 	if ((scn = elf_newscn(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newscn() failed: %s.",elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((data = elf_newdata(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newdata() failed: %s.",elf_errmsg(-1)); 
 		exit(-1);
 	}
@@ -495,13 +496,13 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 	if ((shdr = elf64_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 #elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -520,13 +521,13 @@ int elfcl_write(
 	 */
 
 	if ((scn = elf_newscn(e)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newscn() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 
 	if ((data = elf_newdata(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_newdata() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -541,13 +542,13 @@ int elfcl_write(
 
 #if defined(__x86_64__)
 	if ((shdr = elf64_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf64_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 #elif defined(__i386__) || defined(__arm__)
 	if ((shdr = elf32_getshdr(scn)) == 0) {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf32_getshdr() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
@@ -564,14 +565,14 @@ int elfcl_write(
 //	printf("EV_CURRENT %d\n",EV_CURRENT);
 
 	if (elf_update(e, ELF_C_NULL) < 0)  {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_update(0) failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
 
 
 	if (elf_update(e, ELF_C_WRITE) < 0)  {
-		ERROR(__FILE__,__LINE__,
+		printcl( CL_ERR 
 			"write_elf_cl: elf_update() failed: %s.", elf_errmsg(-1));
 		exit(-1);
 	}
