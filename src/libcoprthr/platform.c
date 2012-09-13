@@ -55,7 +55,7 @@ void __do_discover_platforms()
 		COPRTHR_VERSION_STRING,
 		"coprthr",
 		"Brown Deer Technology, LLC.",
-		"<extensions>",
+		"cl_khr_icd",
 		__ndevices,__dtab,&__dstrtab
 	};
 

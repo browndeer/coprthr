@@ -65,6 +65,7 @@ _clGetPlatformIDs(
 	return(CL_SUCCESS);
 }
 
+char __suffix_str[] = "_coprthr";
 
 cl_int 
 _clGetPlatformInfo(
@@ -125,6 +126,9 @@ _clGetPlatformInfo(
 			break;
 
 		case CL_PLATFORM_ICD_SUFFIX_KHR:
+
+			if (p) p = (void*)__suffix_str;
+			break;
 
 		default:
 
