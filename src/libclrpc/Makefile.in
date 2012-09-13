@@ -33,7 +33,9 @@ INSTALL_MAN_DIR=@mandir@
 
 DEFS = -DHAVE_CONFIG_H
 
-INCS += -I../../include $(USE_OPENCL_INCLUDES)
+DEFS += -DXCL_REPORT
+
+INCS += -I../../include $(USE_OPENCL_INCLUDES) -I../libocl
 
 LIBS += $(USE_OPENCL_LIBS)
 
@@ -48,7 +50,7 @@ endif
 
 LIBS += -levent -levent_pthreads -levent_pthreads
 
-OBJS = util.o clrpc.gen.o 
+OBJS = clrpc.gen.o 
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
 HDRS = clrpc.h 
@@ -70,7 +72,7 @@ INSTALL_LIBS += libclrpc_d.so
 INSTALL_BINS += clrpcd_d
 endif
 
-TARGET += clrpcd clrpc_test_cli
+TARGET += clrpcd clrpc_test_cli clrpc_test_cli2
 
 TARGET += clrpc.gen.c clrpc.gen.h
 
@@ -94,6 +96,9 @@ clrpcd: clrpcd.o $(OBJS)
 
 clrpc_test_cli: clrpc_test_cli.o
 	$(CC) $(CCFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L. -lclrpc 
+
+clrpc_test_cli2: clrpc_test_cli2.o
+	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L. -lclrpc 
 
 
 .SUFFIXES:

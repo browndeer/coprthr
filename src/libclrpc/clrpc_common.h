@@ -31,6 +31,8 @@
 #include "event2/thread.h"
 #include "event2/bufferevent.h"
 
+#include "printcl.h"
+
 typedef int64_t clrpc_int;
 typedef int64_t clrpc_int64;
 typedef uint64_t clrpc_uint;
@@ -112,9 +114,9 @@ extern struct event_base *global_base;
 	pthread_cond_init(&cbarg.sig,0); \
 	EVRPC_MAKE_REQUEST(_clrpc_##fname, \
 		clrpc_pool, request, reply, _clrpc_##fname##_clicb, &cbarg ); \
-	xclreport( XCL_DEBUG "CLRPC_MAKE_REQUEST: waiting ..."); \
+	printcl( CL_DEBUG "CLRPC_MAKE_REQUEST: waiting ..."); \
 	pthread_cond_wait(&cbarg.sig,&cbarg.mtx); \
-	xclreport( XCL_DEBUG "CLRPC_MAKE_REQUEST: ... done waiting"); \
+	printcl( CL_DEBUG "CLRPC_MAKE_REQUEST: ... done waiting"); \
 	pthread_mutex_destroy(&cbarg.mtx); \
 	pthread_cond_destroy(&cbarg.sig); \
 	} while(0);
@@ -125,9 +127,9 @@ extern struct event_base *global_base;
 	pthread_cond_init(&cbarg.sig,0); \
 	EVRPC_MAKE_REQUEST(_clrpc_##fname, \
 		pool, request, reply, _clrpc_##fname##_clicb, &cbarg ); \
-	xclreport( XCL_DEBUG "CLRPC_MAKE_REQUEST: waiting ..."); \
+	printcl( CL_DEBUG "CLRPC_MAKE_REQUEST: waiting ..."); \
 	pthread_cond_wait(&cbarg.sig,&cbarg.mtx); \
-	xclreport( XCL_DEBUG "CLRPC_MAKE_REQUEST: ... done waiting"); \
+	printcl( CL_DEBUG "CLRPC_MAKE_REQUEST: ... done waiting"); \
 	pthread_mutex_destroy(&cbarg.mtx); \
 	pthread_cond_destroy(&cbarg.sig); \
 	} while(0);
@@ -187,7 +189,7 @@ extern struct event_base *global_base;
       array[i] = (void*)calloc(1,sizeof(clrpc_dptr)); \
       ((clrpc_dptr*)array[i])->local = (clrpc_ptr)array[i]; \
       ((clrpc_dptr*)array[i])->remote = 0; \
-      xclreport( XCL_DEBUG "dptr local [%d] = %p",i,array[i]); \
+      printcl( CL_DEBUG "dptr local [%d] = %p",i,array[i]); \
    } } while(0)
 
 #define CLRPC_ASSIGN_DPTR_ARRAY(msg,size,array) do { \

@@ -7,10 +7,12 @@
 
 #define __CLRPC_TYPES
 
-#include "util.h"
+//#include "util.h"
 #include "clrpc_common.h"
 
-int clrpc_init( unsigned int nserver, clrpc_server_info* );
+//int clrpc_init( unsigned int nserver, clrpc_server_info* );
+int clrpc_init();
+int clrpc_connect( unsigned int nserver, clrpc_server_info* );
 int clrpc_final( void );
 
 cl_int 
