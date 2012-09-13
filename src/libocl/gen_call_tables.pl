@@ -46,6 +46,9 @@ foreach $l (@lines) {
 		}
 	}
 }
+#for ($j = 0; $j <256; $j += 1) {
+#	printf OUT "#define OCLCALL_generic_$j\t$j\n";
+#}
 
 printf OUT "\n#define OCLCALL_NARG_reserved 0\n\n";
 
@@ -63,9 +66,15 @@ foreach $l (@lines) {
 				printf OUT "#define OCLCALL_NARG_$name\t$narg\n";
 			}
 		}
-#		$i = $i + 1;
+		$i = $i + 1;
 	}
 }
+#for ($j = $i; $j <256; $j += 1) {
+#	printf OUT "static __inline void _generic_$j( void ) { printf(\"<generic> \" \"$j\" \"\\n\"); fflush(stdout); }\n";
+#}
+#for ($j = 0; $j <256; $j += 1) {
+#	printf OUT "#define OCLCALL_NARG_generic_$j\t0\n";
+#}
 
 printf OUT "\nextern char* oclcallnames[];\n";
 printf OUT "\nextern struct oclent_struct empty_oclent[];\n";
@@ -115,9 +124,12 @@ foreach $l (@lines) {
 				printf OUT "\tprefix##$name##suffix, \\\n";
 			}
 		}
-#		$i = $i + 1;
+	$i = $i + 1;
 	}
 }
+#for ($j = $i; $j <256; $j += 1) {
+#	printf OUT "\t_generic_$j, \\\n";
+#}
 printf OUT "\t}\n";
 
 printf OUT "\n#endif\n";

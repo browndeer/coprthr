@@ -40,6 +40,7 @@
 #include "libocl.h"
 #include "oclcall.h"
 #include "printcl.h"
+#include "clrpc.h"
 
 #ifndef DEFAULT_OPENCL_ICD_PATH
 #define DEFAULT_OPENCL_ICD_PATH "/etc/OpenCL/vendors"
@@ -63,6 +64,8 @@ struct oclconf_info_struct {
    struct oclconf_platform_struct* platforms;
    size_t nicd_dirs;
 	char** icd_dirs;
+	int clrpc_enable;
+	char** clrpc_servers;
 };
 
 
@@ -108,8 +111,11 @@ clGetPlatformIDs(
 	int i,j,n;
 
 	char fullpath[256];
+	char strbuf[256];
 
 	if (!_libocl_platforms) {
+
+		printcl( CL_DEBUG "searching for platforms");
 
 		struct oclconf_info_struct oclconf_info;
 
@@ -120,6 +126,7 @@ clGetPlatformIDs(
 				" (/etc/OpenCL/vendors");
 
 			oclconf_info.nplatforms = 0;
+			oclconf_info.platforms = 0;
 			oclconf_info.nicd_dirs = 1;
 			oclconf_info.icd_dirs = (char**)malloc(sizeof(char*));
 			oclconf_info.icd_dirs[0] = strdup("/etc/OpenCL/vendors");
@@ -128,6 +135,7 @@ clGetPlatformIDs(
 
 //		_nplatforms = 0;
 
+		printcl( CL_DEBUG "conf returns nplatforms = %d",oclconf_info.nplatforms);
 
 		printcl( CL_DEBUG "%d icd dirs specified",oclconf_info.nicd_dirs);
 
@@ -209,11 +217,19 @@ clGetPlatformIDs(
 			}
 		}
 
+		printcl( CL_DEBUG "%d local platforms found",oclconf_info.nplatforms);
 
-		printcl( CL_DEBUG "%d platforms found",oclconf_info.nplatforms);
+		cl_uint rpc_nplatforms = 0;
+
+		clrpc_clGetPlatformIDs( 0,0,&rpc_nplatforms );
+		printcl( CL_DEBUG "%d platforms available via RPC servers",
+			rpc_nplatforms);
+
+
+		int np = oclconf_info.nplatforms + rpc_nplatforms;
 
 		_libocl_platforms = (struct platform_struct*)
-			calloc(oclconf_info.nplatforms,sizeof(struct platform_struct));
+			calloc(np,sizeof(struct platform_struct));
 
 		for(i=0;i<oclconf_info.nplatforms;i++) {
 
@@ -240,67 +256,77 @@ clGetPlatformIDs(
 				printcl( CL_DEBUG "\tuse call_postfix '%s'",
 					oclconf_info.platforms[i].platform_call_postfix);
 
-  	    void* h = dlopen(oclconf_info.platforms[i].platform_lib,RTLD_LAZY);
-  	    printcl( CL_DEBUG "dlopen dlh=%p",h);
+  	    	void* h = dlopen(oclconf_info.platforms[i].platform_lib,RTLD_LAZY);
+  	    	printcl( CL_DEBUG "dlopen dlh=%p",h);
 
-  	    if (h) {
+  	    	if (h) {
 
-  	       printcl( CL_DEBUG "dlopen successful");
+  	  			printcl( CL_DEBUG "dlopen successful");
 
-  	       _libocl_platforms[_nplatforms].dlh = h;
+				_libocl_platforms[_nplatforms].dlh = h;
 
-			/* XXX Now we begin the unnecessarily complicated ICD steps 
-			 * XXX for loading a library.
-			 * XXX Note to OpenCL standard committee - man dlopen. -DAR */
+				/* XXX Now we begin the unnecessarily complicated ICD steps 
+				 * XXX for loading a library.
+				 * XXX Note to OpenCL standard committee - man dlopen. -DAR */
 
-			void* pf_clIcdGetPlatformIDsKHR 
-				= dlsym(h,"clIcdGetPlatformIDsKHR");
+				void* pf_clIcdGetPlatformIDsKHR 
+					= dlsym(h,"clIcdGetPlatformIDsKHR");
 
-			void* pf_clGetPlatformInfo = dlsym(h,"clGetPlatformInfo");
+				void* pf_clGetPlatformInfo = dlsym(h,"clGetPlatformInfo");
 
-			void* pf_clGetExtensionFunctionAddress 
-				= dlsym(h,"clGetExtensionFunctionAddress");
+				void* pf_clGetExtensionFunctionAddress 
+					= dlsym(h,"clGetExtensionFunctionAddress");
 
-			printcl( CL_DEBUG "pf %p %p %p",pf_clIcdGetPlatformIDsKHR,
-				pf_clGetPlatformInfo,pf_clGetExtensionFunctionAddress);
+				printcl( CL_DEBUG "pf %p %p %p",pf_clIcdGetPlatformIDsKHR,
+					pf_clGetPlatformInfo,pf_clGetExtensionFunctionAddress);
 
-			if (!pf_clIcdGetPlatformIDsKHR 
-				&& pf_clGetExtensionFunctionAddress
-			) {
+				if (!pf_clIcdGetPlatformIDsKHR 
+					&& pf_clGetExtensionFunctionAddress
+				) {
 
-           	typedef void* (*pf_t)(char*);
-				pf_clIcdGetPlatformIDsKHR 
-					= ((pf_t)pf_clGetExtensionFunctionAddress)(
+           		typedef void* (*pf_t)(char*);
+					pf_clIcdGetPlatformIDsKHR 
+						= ((pf_t)pf_clGetExtensionFunctionAddress)(
 						"clIcdGetPlatformIDsKHR");
 
-			}
+				}
 
-			printcl( CL_DEBUG "pf %p %p %p",pf_clIcdGetPlatformIDsKHR,
-				pf_clGetPlatformInfo,pf_clGetExtensionFunctionAddress);
+				printcl( CL_DEBUG "pf %p %p %p",pf_clIcdGetPlatformIDsKHR,
+					pf_clGetPlatformInfo,pf_clGetExtensionFunctionAddress);
 
-			if (!pf_clIcdGetPlatformIDsKHR || !pf_clGetPlatformInfo 
-				|| !pf_clGetExtensionFunctionAddress
-			) {
-				printcl( CL_WARNING "missing ICD required call, skipping");
-				continue;
-			}
+				if (!pf_clIcdGetPlatformIDsKHR || !pf_clGetPlatformInfo 
+					|| !pf_clGetExtensionFunctionAddress
+				) {
+					printcl( CL_WARNING "missing ICD required call, skipping");
+					continue;
+				}
 
-			cl_platform_id platform = 0;
+				cl_platform_id platform = 0;
 
-			{
-				typedef cl_int (*pf_t)(cl_uint,cl_platform_id*,cl_uint*);
-				cl_uint n;
-				int err = ((pf_t)pf_clIcdGetPlatformIDsKHR)(0,0,&n);
-				printcl( CL_DEBUG 
-					"clIcdGetPlatformIDsKHR shows %d platforms available",n);
-				err = ((pf_t)pf_clIcdGetPlatformIDsKHR)(1,&platform,0);
-				printcl( CL_DEBUG 
-					"clIcdGetPlatformIDsKHR returns platform %p",platform);
-			}
+				{
+					typedef cl_int (*pf_t)(cl_uint,cl_platform_id*,cl_uint*);
+					cl_uint n;
+					int err = ((pf_t)pf_clIcdGetPlatformIDsKHR)(0,0,&n);
+					printcl( CL_DEBUG 
+						"clIcdGetPlatformIDsKHR shows %d platforms available",n);
 
-			if (!platform) continue;
+					if (n>1)
+						printcl( CL_WARNING 
+							"library provides multiple platforms, taking first one");
 
-			_libocl_platforms[_nplatforms].imp_platform_id = platform;
+					if (n>0) {
+
+						err = ((pf_t)pf_clIcdGetPlatformIDsKHR)(1,&platform,0);
+
+						printcl( CL_DEBUG 
+							"clIcdGetPlatformIDsKHR returns platform %p",platform);
+
+					}
+				}
+
+				if (!platform) continue;
+
+				_libocl_platforms[_nplatforms].imp_platform_id = platform;
 
 /* XXX keep this code to support non-ICD platforms in future -DAR 
                struct oclent_struct* oclent
@@ -329,8 +355,33 @@ clGetPlatformIDs(
 
   	      	++_nplatforms;
 
+				printcl( CL_DEBUG "inc _nplatforms to %d",_nplatforms);
+
 			}
 
+		}
+
+		if (rpc_nplatforms) {
+
+				cl_platform_id* platforms = (cl_platform_id*)
+					calloc(rpc_nplatforms,sizeof(cl_platform_id));
+
+				printcl( CL_DEBUG "%d %p",rpc_nplatforms,platforms);
+
+				clrpc_clGetPlatformIDs( rpc_nplatforms, platforms, 0);
+
+				for(i=0;i<rpc_nplatforms;i++,_nplatforms++) {
+
+					clrpc_clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,
+						256,strbuf,0);
+
+					printcl( CL_DEBUG "adding RPC platform name '%s'",strbuf);
+
+					_libocl_platforms[_nplatforms].imp_platform_id = platforms[i];
+				
+				}
+
+				free(platforms);
 		}
 
 		free_oclconf_info( &oclconf_info );
@@ -342,8 +393,10 @@ clGetPlatformIDs(
 	if (nplatforms_ret) *nplatforms_ret = _nplatforms;
 
 	if (platforms) {
-		for(n=0;n<min(nplatforms,_nplatforms);n++) 
+		for(n=0;n<min(nplatforms,_nplatforms);n++) {
 			platforms[n] = _libocl_platforms[n].imp_platform_id;
+			printcl( CL_DEBUG "platform %d is %p",n,platforms[n]);
+		}
 	}
 
 //	free_oclconf_info( &oclconf_info );
@@ -472,6 +525,7 @@ int read_oclconf_info( struct oclconf_info_struct* info )
   config_setting_t* cfg_platforms;
   config_setting_t* cfg_platform;
   config_setting_t* cfg_icd_dirs;
+  config_setting_t* cfg_clrpc;
 //	int ival;
 //	const char* sval;
 //	const char* str;
@@ -562,6 +616,14 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 		}
 
 	}
+
+
+	if (cfg_clrpc = config_lookup(&cfg,"clrpc")) {
+
+		printf("there is a clrpc section\n");
+
+	}
+
 
 	if (path) free(path);
 

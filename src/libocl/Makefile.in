@@ -44,7 +44,7 @@ endif
 
 TOPDIR ?= ../../
 
-INCS += -I. -I$(TOPDIR)/include 
+INCS += -I. -I$(TOPDIR)/include  -I../libclrpc
 
 INCS += $(LIBELF_INC)
 
