@@ -98,7 +98,7 @@ clrpc_test_cli: clrpc_test_cli.o
 	$(CC) $(CCFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L. -lclrpc 
 
 clrpc_test_cli2: clrpc_test_cli2.o
-	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L. -lclrpc 
+	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L../libocl  -locl
 
 
 .SUFFIXES:
