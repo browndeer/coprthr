@@ -26,9 +26,9 @@
 #include <sys/queue.h>
 #include <pthread.h>
 
-#ifdef ENABLE_ATIGPU
-#include "cal.h"
-#endif
+//#ifdef ENABLE_ATIGPU
+//#include "cal.h"
+//#endif
 
 #include "cpuset_type.h"
 #include "cmdcall.h"
@@ -155,7 +155,7 @@ struct _imp_device {
 };
 
 #define __imp_init_device(imp) do { \
-	bzero(&imp,sizeof(_imp_device)); \
+	bzero(&imp,sizeof(struct _imp_device)); \
 	} while(0)
 
 #define __imp_free_device(imp) do {} while(0)
@@ -177,7 +177,7 @@ struct _imp_platform {
 };
 
 #define __imp_init_platform(imp) do { \
-	bzero(&imp,sizeof(_imp_pllatform)); \
+	bzero(&imp,sizeof(struct _imp_platform)); \
 	} while(0)
 
 #define __imp_free_platform(imp) do {} while(0)
@@ -410,6 +410,7 @@ struct _elf_data {
    } while(0)
 
 
+extern void* __icd_call_vector;
 
 #endif
 

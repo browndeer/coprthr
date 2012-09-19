@@ -1,6 +1,6 @@
 /* device.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -55,11 +55,11 @@
 #include "compiler.h"
 #include "program.h"
 
-#ifdef ENABLE_ATIGPU
-#include "cal.h"
-#include "calcl.h"
+//#ifdef ENABLE_ATIGPU
+//#include "cal.h"
+//#include "calcl.h"
 //#include "compiler_atigpu.h"
-#endif
+//#endif
 
 
 char* strnlen_ws( char* p, char* s, size_t maxlen)
@@ -112,6 +112,8 @@ void __do_discover_devices(
 	struct _cl_device_id* dtab = *p_dtab = (struct _cl_device_id*)
 		malloc(*p_ndevices*sizeof(struct _cl_device_id));
 
+	__init_device_id(dtab);
+
 	dtab[0].imp = (struct _imp_device){
 		CL_DEVICE_TYPE_CPU,
 		0,				/* vendorid */
@@ -152,7 +154,7 @@ void __do_discover_devices(
 		0, 	/* drv_version */
 		0, 	/* profile */
 		0, 	/* version */
-		0,		/* extensions */
+		"cl_khr_icd",		/* extensions */
 		0,0 	/* dstrtab, dstrtab_sz */
 	};
 
@@ -199,7 +201,7 @@ void __do_discover_devices(
 #elif defined(__x86_64__) || defined(__i386__)
 
 	if (stat("/proc/cpuinfo",&fs)) {
-		WARN(__FILE__,__LINE__,"stat failed on /proc/cpuinfo");
+		printcl( CL_WARNING "stat failed on /proc/cpuinfo");
 		return;
 	}
 
@@ -247,7 +249,7 @@ void __do_discover_devices(
 
 
 	if (stat("/proc/meminfo",&fs)) {
-		WARN(__FILE__,__LINE__,"stat failed on /proc/meminfo");
+		printcl( CL_WARNING "stat failed on /proc/meminfo");
 		return;
 	}
 
@@ -271,7 +273,7 @@ void __do_discover_devices(
 #elif defined(__arm__) 
 
 	if (stat("/proc/cpuinfo",&fs)) {
-		WARN(__FILE__,__LINE__,"stat failed on /proc/cpuinfo");
+		printcl( CL_WARNING "stat failed on /proc/cpuinfo");
 		return;
 	}
 
@@ -322,7 +324,7 @@ void __do_discover_devices(
 
 
 	if (stat("/proc/meminfo",&fs)) {
-		WARN(__FILE__,__LINE__,"stat failed on /proc/meminfo");
+		printcl( CL_WARNING "stat failed on /proc/meminfo");
 		return;
 	}
 
@@ -385,20 +387,20 @@ void __do_discover_devices(
 #ifdef ENABLE_NCPU
 //	char buf[256];
 
-	xclreport( XCL_DEBUG "checking for force_ncpu");
+	printcl( CL_DEBUG "checking for force_ncpu");
 
 	if (!getenv_token("COPRTHR_OCL","force_ncpu",buf,256)) ncpu = atoi(buf);
 
 	if (ncore%ncpu) {
-		WARN(__FILE__,__LINE__,"force_ncpu ignored, must be multiple of ncore");
+		printcl( CL_WARNING "force_ncpu ignored, must be multiple of ncore");
 		ncpu = 1;
 	}
 
 	if (ncpu > 1) {
 
-		WARN(__FILE__,__LINE__,"force_ncpu %d",ncpu);
+		printcl( CL_WARNING "force_ncpu %d",ncpu);
 
-		xclreport( XCL_DEBUG "force_ncpu = %d",ncpu);
+		printcl( CL_DEBUG "force_ncpu = %d",ncpu);
 
 		*p_dtab = (struct _cl_device_id*)
 			realloc(*p_dtab,(ncpu-1)*sizeof(struct _cl_device_id));
@@ -414,7 +416,7 @@ void __do_discover_devices(
 			dtab[devnum].imp.cpu.veid_base = devnum*cpd;
 			dtab[devnum].imp.cpu.nve = cpd;
 			
-			xclreport( XCL_DEBUG "devnum base nve %d %d %d",
+			printcl( CL_DEBUG "devnum base nve %d %d %d",
 				devnum,dtab[devnum].imp.cpu.veid_base,dtab[devnum].imp.cpu.nve);
 		}
 
@@ -434,8 +436,8 @@ void __do_discover_devices(
 #endif
 
 
-//	xclreport( XCL_DEBUG "calling vcproc_startup");
-	xclreport( XCL_WARNING "vcproc_startup is disabled");
+//	printcl( CL_DEBUG "calling vcproc_startup");
+	printcl( XCL_WARNING "vcproc_startup is disabled");
 //	vcproc_startup(0);
 
 
@@ -448,13 +450,15 @@ void __do_discover_devices(
 
 #if(0)
 
+/* XXX keep ATI stuff around for reference, for a while - DAR */
+
 static int __cal_init = 0;
 
 void __attribute((__constructor__)) _init_cal_ctor()
 {
 	__cal_init = (calInit()==CAL_RESULT_OK)? 1 : 0;
-	if (__cal_init) { xclreport( XCL_DEBUG "CAL init ok"); }
-	else { WARN(__FILE__,__LINE__,"CAL init failed"); }
+	if (__cal_init) { printcl( CL_DEBUG "CAL init ok"); }
+	else { printcl( CL_WARNING "CAL init failed"); }
 }
 
 void __attribute__((__destructor__)) _fini_cal_dtor()
@@ -464,7 +468,7 @@ void __attribute__((__destructor__)) _fini_cal_dtor()
 	__cal_init = 0;
 
 	if (calShutdown() != CAL_RESULT_OK) 
-		WARN(__FILE__,__LINE__,"calShutdown failed");
+		printcl( CL_WARNING "calShutdown failed");
 }
 
 void __do_discover_devices_atigpu(
@@ -495,7 +499,7 @@ void __do_discover_devices_atigpu(
 	unsigned int devnum = *p_ndevices;
 	unsigned int ndev = *p_ndevices += (unsigned int)ngpu;
 
-	xclreport( XCL_DEBUG "found %d ATI GPUs",ngpu);
+	printcl( CL_DEBUG "found %d ATI GPUs",ngpu);
 
 	if (*p_dtab) {
 		*p_dtab = (struct _cl_device_id*)
@@ -518,9 +522,9 @@ void __do_discover_devices_atigpu(
 		CALdeviceinfo info;
 		calDeviceGetInfo(&info,n);
 
-		xclreport( XCL_DEBUG "[%d] ATI GPU target %d",
+		printcl( CL_DEBUG "[%d] ATI GPU target %d",
 			devnum,info.target);
-		xclreport( XCL_DEBUG 
+		printcl( CL_DEBUG 
 			"[%d] ATI GPU max res width1d, width2d, height2d %d %d %d",devnum,
 			info.maxResource1DWidth,
 			info.maxResource2DWidth,
@@ -530,42 +534,42 @@ void __do_discover_devices_atigpu(
 		attr.struct_size = sizeof(CALdeviceattribs);
 		calDeviceGetAttribs(&attr,n);
 
-		xclreport( XCL_DEBUG "[%d] ATI GPU target %d",devnum,attr.target);
-		xclreport( XCL_DEBUG "[%d] ATI GPU local mem %d",devnum,attr.localRAM);
-		xclreport( XCL_DEBUG "[%d] ATI GPU uncached remote mem %d",
+		printcl( CL_DEBUG "[%d] ATI GPU target %d",devnum,attr.target);
+		printcl( CL_DEBUG "[%d] ATI GPU local mem %d",devnum,attr.localRAM);
+		printcl( CL_DEBUG "[%d] ATI GPU uncached remote mem %d",
 			devnum,attr.uncachedRemoteRAM);
-		xclreport( XCL_DEBUG "[%d] ATI GPU cached remote mem %d",
+		printcl( CL_DEBUG "[%d] ATI GPU cached remote mem %d",
 			devnum,attr.cachedRemoteRAM);
-		xclreport( XCL_DEBUG "[%d] ATI GPU engine clk %d",
+		printcl( CL_DEBUG "[%d] ATI GPU engine clk %d",
 			devnum,attr.engineClock);
-		xclreport( XCL_DEBUG "[%d] ATI GPU mem clk %d",
+		printcl( CL_DEBUG "[%d] ATI GPU mem clk %d",
 			devnum,attr.memoryClock);
-		xclreport( XCL_DEBUG "[%d] ATI GPU wavefront size %d",
+		printcl( CL_DEBUG "[%d] ATI GPU wavefront size %d",
 			devnum,attr.wavefrontSize);
-		xclreport( XCL_DEBUG "[%d] ATI GPU nsimd %d",devnum,attr.numberOfSIMD);
-		xclreport( XCL_DEBUG "[%d] ATI GPU double %d",
+		printcl( CL_DEBUG "[%d] ATI GPU nsimd %d",devnum,attr.numberOfSIMD);
+		printcl( CL_DEBUG "[%d] ATI GPU double %d",
 			devnum,attr.doublePrecision);
-		xclreport( XCL_DEBUG "[%d] ATI GPU local data share %d",
+		printcl( CL_DEBUG "[%d] ATI GPU local data share %d",
 			devnum,attr.localDataShare);
-		xclreport( XCL_DEBUG "[%d] ATI GPU global data share %d",
+		printcl( CL_DEBUG "[%d] ATI GPU global data share %d",
 			devnum,attr.globalDataShare);
-		xclreport( XCL_DEBUG "[%d] ATI GPU global GPR %d",
+		printcl( CL_DEBUG "[%d] ATI GPU global GPR %d",
 			devnum,attr.globalGPR);
-		xclreport( XCL_DEBUG "[%d] ATI GPU computeShader %d",
+		printcl( CL_DEBUG "[%d] ATI GPU computeShader %d",
 			devnum,attr.computeShader);
-		xclreport( XCL_DEBUG "[%d] ATI GPU memExport %d",
+		printcl( CL_DEBUG "[%d] ATI GPU memExport %d",
 			devnum,attr.memExport);
-		xclreport( XCL_DEBUG "[%d] ATI GPU pitch align %d",
+		printcl( CL_DEBUG "[%d] ATI GPU pitch align %d",
 			devnum,attr.pitch_alignment);
-		xclreport( XCL_DEBUG "[%d] ATI GPU nuav %d",
+		printcl( CL_DEBUG "[%d] ATI GPU nuav %d",
 			devnum,attr.numberOfUAVs);
-		xclreport( XCL_DEBUG "[%d] ATI GPU bUAVMemExport %d",
+		printcl( CL_DEBUG "[%d] ATI GPU bUAVMemExport %d",
 			devnum,attr.bUAVMemExport);
-		xclreport( XCL_DEBUG "[%d] ATI GPU b3dProgramGrid %d",
+		printcl( CL_DEBUG "[%d] ATI GPU b3dProgramGrid %d",
 			devnum,attr.b3dProgramGrid);
-		xclreport( XCL_DEBUG "[%d] ATI GPU nshaderengines %d",
+		printcl( CL_DEBUG "[%d] ATI GPU nshaderengines %d",
 			devnum,attr.numberOfShaderEngines);
-		xclreport( XCL_DEBUG "[%d] ATI GPU targetrev %d",
+		printcl( CL_DEBUG "[%d] ATI GPU targetrev %d",
 			devnum,attr.targetRevision);
 
 		dtab[devnum].imp = (struct _imp_device){
@@ -640,12 +644,12 @@ void __do_discover_devices_atigpu(
 		memcpy(&dtab[devnum].imp.atigpu.calinfo,&info,sizeof(CALdeviceinfo));
 
 
-		xclreport( XCL_DEBUG "finished devnum %d",devnum);
+		printcl( CL_DEBUG "finished devnum %d",devnum);
 
 	}
 
 
-	xclreport( XCL_DEBUG "check again target %d",dtab[1].imp.atigpu.calinfo.target);
+	printcl( CL_DEBUG "check again target %d",dtab[1].imp.atigpu.calinfo.target);
 
 }
 
@@ -672,19 +676,19 @@ void __do_get_ndevices(
 	unsigned int ndevices = __resolve_platformid(platformid,ndevices);
 	struct _cl_device_id* dtab = __resolve_platformid(platformid,dtab);
 
-	xclreport( XCL_DEBUG "ndevices = %d",ndevices);
+	printcl( CL_DEBUG "ndevices = %d",ndevices);
 
 	int devnum;
 	unsigned int n = 0;
 
 	for(devnum=0;devnum<ndevices;devnum++) {
-		xclreport( XCL_DEBUG "match devtype %d %d",
+		printcl( CL_DEBUG "match devtype %d %d",
 			dtab[devnum].imp.devtype,devtype);
 //		if (dtab[devnum].imp.devtype == devtype) n++;
 		if (dtab[devnum].imp.devtype & devtype) n++;
 	}
 
-	xclreport( XCL_DEBUG "n = %d",n);
+	printcl( CL_DEBUG "n = %d",n);
 
 	*ndev = n;
 }

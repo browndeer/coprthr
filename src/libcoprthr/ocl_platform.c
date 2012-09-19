@@ -1,6 +1,6 @@
-/* xcl_platform.c 
+/* ocl_platform.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -21,17 +21,23 @@
 /* DAR */
 
 #include <CL/cl.h>
+#include <CL/cl_ext.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "platform.h"
 
 #define min(a,b) ((a<b)?a:b)
 
-// Platform API
+
+//void** __icd_call_vector;
+
+
+// Platform API Calls
 
 
 cl_int 
-clGetPlatformIDs(
+_clGetPlatformIDs(
 	cl_uint nplatforms,
 	cl_platform_id* platforms,
 	cl_uint* nplatforms_ret
@@ -47,7 +53,7 @@ clGetPlatformIDs(
 
 	__do_get_nplatforms_avail(&nplatforms_avail);
 
-	DEBUG(__FILE__,__LINE__,"nplatforms_avail %d\n",nplatforms_avail);
+	printcl( CL_DEBUG "nplatforms_avail %d\n",nplatforms_avail);
 
 	if (nplatforms) nplatforms = min(nplatforms,nplatforms_avail);
 	else nplatforms = nplatforms_avail;
@@ -59,9 +65,10 @@ clGetPlatformIDs(
 	return(CL_SUCCESS);
 }
 
+char __suffix_str[] = "_coprthr";
 
 cl_int 
-clGetPlatformInfo(
+_clGetPlatformInfo(
 	cl_platform_id platformid, 
 	cl_platform_info param_name,
 	size_t param_sz, 
@@ -69,6 +76,8 @@ clGetPlatformInfo(
 	size_t* param_sz_ret
 ) 
 {
+	fprintf(stderr,"IMP _clGetPlatformInfo\n"); fflush(stderr);
+	
 	if (__invalid_platform_id(platformid)) return(CL_INVALID_PLATFORM);
 
 	char* p;
@@ -116,6 +125,11 @@ clGetPlatformInfo(
 
 			break;
 
+		case CL_PLATFORM_ICD_SUFFIX_KHR:
+
+			if (p) p = (void*)__suffix_str;
+			break;
+
 		default:
 
 			return(CL_INVALID_VALUE);
@@ -123,5 +137,19 @@ clGetPlatformInfo(
 
 	return(CL_SUCCESS);
 }
+
+
+
+// Aliased Platform API Calls
+
+cl_int
+clGetPlatformIDs( cl_uint nplatforms, cl_platform_id* platforms,
+   cl_uint* nplatforms_ret)
+	__attribute__((alias("_clGetPlatformIDs")));
+
+cl_int
+clGetPlatformInfo( cl_platform_id platformid, cl_platform_info param_name,
+   size_t param_sz, void* param_val, size_t* param_sz_ret)
+	__attribute__((alias("_clGetPlatformInfo")));
 
 

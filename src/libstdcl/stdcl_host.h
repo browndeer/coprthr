@@ -55,6 +55,8 @@
 #include "clmalloc.h"
 #include "clfcn.h"
 #include "clarg.h"
+#include "clerror.h"
+
 
 
 typedef struct clndrange_struct clndrange_t;

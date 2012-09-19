@@ -1,6 +1,6 @@
-/* xcl_event.c
+/* ocl_event.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -24,19 +24,20 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "event.h"
 
 
-// Event Object APIs
+// Event Object API Calls
 
 
 cl_int 
-clWaitForEvents(
+_clWaitForEvents(
 	 cl_uint nev,
 	 const cl_event* evlist
 )
 {
-	DEBUG(__FILE__,__LINE__,"clWaitForEvents");
+	printcl( CL_DEBUG "clWaitForEvents");
 
 	if (nev == 0) return(CL_INVALID_VALUE);
 
@@ -54,7 +55,7 @@ clWaitForEvents(
 
 
 cl_int 
-clGetEventInfo(
+_clGetEventInfo(
 	 cl_event ev,
 	 cl_event_info param_name,
 	 size_t param_sz,
@@ -62,7 +63,7 @@ clGetEventInfo(
 	 size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetEventInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetEventInfo: warning: unsupported");
 
 	if (__invalid_event(ev)) return(CL_INVALID_EVENT);
 
@@ -104,9 +105,9 @@ clGetEventInfo(
 
 
 cl_int
-clRetainEvent( cl_event ev )
+_clRetainEvent( cl_event ev )
 {
-	DEBUG(__FILE__,__LINE__,"clRetainEvent");
+	printcl( CL_DEBUG "clRetainEvent");
 
 	if (__invalid_event(ev)) return(CL_INVALID_EVENT);
 
@@ -119,9 +120,9 @@ clRetainEvent( cl_event ev )
 
 
 cl_int
-clReleaseEvent( cl_event ev )
+_clReleaseEvent( cl_event ev )
 {
-	DEBUG(__FILE__,__LINE__,"clReleaseEvent");
+	printcl( CL_DEBUG "clReleaseEvent");
 
 	if (__invalid_event(ev)) return(CL_INVALID_EVENT);
 
@@ -133,5 +134,23 @@ clReleaseEvent( cl_event ev )
 }
 
 
+// Aliased Event object API Calls
+
+cl_int
+clWaitForEvents( cl_uint nev, const cl_event* evlist)
+	__attribute__((alias("_clWaitForEvents")));
+
+cl_int
+clGetEventInfo( cl_event ev, cl_event_info param_name, size_t param_sz,
+    void* param_val, size_t* param_sz_ret)
+	__attribute__((alias("_clGetEventInfo")));
+
+cl_int
+clRetainEvent( cl_event ev )
+	__attribute__((alias("_clRetainEvent")));
+
+cl_int
+clReleaseEvent( cl_event ev )
+	__attribute__((alias("_clReleaseEvent")));
 
 

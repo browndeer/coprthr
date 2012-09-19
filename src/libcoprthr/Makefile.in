@@ -28,9 +28,9 @@ endif
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
-XCL_OBJS = xcl_platform.o xcl_device.o xcl_context.o xcl_command_queue.o \
-	xcl_enqueue.o xcl_event.o xcl_program.o xcl_kernel.o xcl_memobj.o \
-	xcl_flush.o
+XCL_OBJS = ocl_platform.o ocl_device.o ocl_context.o ocl_command_queue.o \
+	ocl_enqueue.o ocl_event.o ocl_program.o ocl_kernel.o ocl_memobj.o \
+	ocl_flush.o xcl_icd.o ocl_sampler.o ocl_profile.o ocl_clgl.o
 
 IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	environment.o \
@@ -38,9 +38,10 @@ IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	cmdsched.o cmdcall.o cmdcall_x86_64.o cmdcall_arm.o \
 	elf_cl.o compiler_x86_64.o compiler_arm.o \
 	vcore.o \
-	watermark.o util.o \
+	watermark.o \
 	cmdcall_x86_64_sl.o sl_engine.o \
-	cmdcall_x86_64_ser.o ser_engine.o
+	cmdcall_x86_64_ser.o ser_engine.o \
+	icd.o
 
 
 RT_OBJS = __vcore_rt.o
@@ -55,13 +56,17 @@ DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
 
 TOPDIR ?= ../../
 
+SCRIPTS = ../scripts/
+OCLCALL_MASTER = ../libocl/oclcall.master
+
 INCS += -I. -I$(TOPDIR)/include 
 
 INCS += $(LIBELF_INC)
 
 LIBS += $(LIBELF_LIB)
 
-LIBS += -lfl  -lpthread -lrt
+#LIBS += -lfl  -lpthread -lrt
+LIBS += -lpthread -lrt
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
 else
@@ -105,6 +110,7 @@ XCLNM_YYPREFIX = __xclnm_
 
 TARGET = libcoprthr.so $(RT_OBJS) 
 TARGET += libcoprthr_d.so
+TARGET += icd.c
 
 all: $(TARGET) 
 
@@ -124,8 +130,11 @@ all: $(TARGET)
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
 %_d.o:
-	$(CC) $(CCFLAGS) $(DEFS) -DXCL_REPORT $(INCS) -c $*.c -o $*_d.o
+	$(CC) $(CCFLAGS) $(DEFS) -DENABLE_REPORT $(INCS) -c $*.c -o $*_d.o
 
+icd.c:
+	perl $(SCRIPTS)/gen_ocl_call_vector.pl __icd_call_vector _ \
+		< $(OCLCALL_MASTER) > icd.c
 
 libcoprthr.so: $(OBJS) $(RT_OBJS)
 	$(CC) $(CCFLAGS) $(INCS) \
@@ -176,6 +185,7 @@ uninstall:
 
 clean:
 	rm -f *.o *.so
+	rm -f $(TARGET)
 
 distclean: clean
 

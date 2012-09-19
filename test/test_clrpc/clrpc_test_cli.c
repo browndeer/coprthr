@@ -5,17 +5,24 @@
 
 #include "clrpc.h"
 
+typedef struct {
+   void* _reserved;
+   clrpc_dptr* obj;
+   struct evrpc_pool* rpc_pool;
+} _xobj_t;
+
 static void
 clrpc_client_test(void)
 {
 	int err;
 
-	clrpc_server_info server[] = {
+	clrpc_server_info servers[] = {
 		{ "127.0.0.1", 8091 }
 		,{ "127.0.0.1", 8092 }
 	};
 
-	clrpc_init(2,server);
+//	clrpc_init(2,servers);
+	clrpc_connect(2,servers);
 
 	cl_uint nplatforms = 0;
 	cl_platform_id* platforms = 0;
@@ -23,7 +30,7 @@ clrpc_client_test(void)
 
 	clrpc_clGetPlatformIDs(nplatforms,platforms,&nplatforms_ret);	
 
-	xclreport( XCL_DEBUG "after call one i get nplatforms_ret = %d",
+	printf(  "after call one i get nplatforms_ret = %d",
 		nplatforms_ret);
 
 	if (nplatforms_ret == 0) exit(1);
@@ -35,28 +42,30 @@ clrpc_client_test(void)
 
 	int i;
 	for(i=0;i<nplatforms;i++) {
-		xclreport( XCL_DEBUG "platforms[%d] local=%p remote=%p\n",
-			i,(void*)((clrpc_dptr*)platforms[i])->local,
-			(void*)((clrpc_dptr*)platforms[i])->remote);
+		clrpc_dptr* tmp = ((_xobj_t*)platforms[i])->obj;
+		printf(  "platforms[%d] local=%p remote=%p\n",
+			i,(void*)tmp->local,
+			(void*)tmp->remote);
 	}
 
 	char buffer[1024];
 	size_t sz;
+	cl_platform_id rpc_platform = 0;
 	for(i=0;i<nplatforms;i++) {
 		clrpc_clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1023,buffer,&sz);
-		xclreport( XCL_DEBUG "CL_PLATFORM_NAME|%ld:%s|\n",sz,buffer);
+		printf(  "CL_PLATFORM_NAME|%ld:%s|\n",sz,buffer);
 	}
 
 	cl_uint ndevices = 0;
 	cl_device_id* devices = 0;
 	cl_uint ndevices_ret;
 
-	xclreport( XCL_DEBUG "here");
+	printf(  "here");
 
 	clrpc_clGetDeviceIDs(platforms[1],CL_DEVICE_TYPE_GPU,
 		ndevices,devices,&ndevices_ret);
 
-	xclreport( XCL_DEBUG "after call one i get ndevices_ret = %d",
+	printf(  "after call one i get ndevices_ret = %d",
       ndevices_ret);
 
 	if (ndevices_ret > 10) exit(-1);
@@ -68,23 +77,25 @@ clrpc_client_test(void)
 		ndevices,devices,&ndevices_ret);
 
 	for(i=0;i<ndevices;i++) {
-		xclreport( XCL_DEBUG "devices[%d] local=%p remote=%p\n",
-			i,(void*)((clrpc_dptr*)devices[i])->local,
-			(void*)((clrpc_dptr*)devices[i])->remote);
+		clrpc_dptr* tmp = ((_xobj_t*)devices[i])->obj;
+		printf(  "devices[%d] local=%p remote=%p\n",
+			i,(void*)tmp->local,
+			(void*)tmp->remote);
 		clrpc_clGetDeviceInfo(devices[i],CL_DEVICE_NAME,1023,buffer,&sz);
-		xclreport( XCL_DEBUG "CL_DEVICE_NAME |%s|",buffer);
+		printf(  "CL_DEVICE_NAME |%s|",buffer);
 	}
 
 	for(i=0;i<nplatforms;i++) {
-		xclreport( XCL_DEBUG "platforms[%d] local=%p remote=%p\n",
-			i,(void*)((clrpc_dptr*)platforms[i])->local,
-			(void*)((clrpc_dptr*)platforms[i])->remote);
+		clrpc_dptr* tmp = ((_xobj_t*)platforms[i])->obj;
+		printf(  "platforms[%d] local=%p remote=%p\n",
+			i,(void*)tmp->local,
+			(void*)tmp->remote);
 	}
 
 	cl_context_properties ctxprop[] = { 
 		CL_CONTEXT_PLATFORM, (cl_context_properties)platforms[1], 0 };
 
-	xclreport("i am setting this: prop[1] %p",platforms[0]);
+	printf("i am setting this: prop[1] %p",platforms[1]);
 
 	cl_context ctx = clrpc_clCreateContext(ctxprop,ndevices,devices, 0,0,&err);
 
@@ -93,7 +104,7 @@ clrpc_client_test(void)
 
 	for(i=0;i<ndevices;i++) {
 		cmdq[i] = clrpc_clCreateCommandQueue(ctx,devices[i],0,&err);
-		xclreport( XCL_DEBUG	 "cmdq %d %p",i,cmdq[i]);
+		printf( 	 "cmdq %d %p",i,cmdq[i]);
 	}
 
 	cl_mem a_buf = clrpc_clCreateBuffer(ctx,CL_MEM_READ_WRITE,1024*sizeof(int),
@@ -145,12 +156,12 @@ clrpc_client_test(void)
 	size_t gwsz = 128;
 	size_t lwsz = 16;
 
-	clrpc_clSetKernelArg(krn,0,sizeof(cl_mem),a_buf);
-	clrpc_clSetKernelArg(krn,1,sizeof(cl_mem),c_buf);
+	clrpc_clSetKernelArg(krn,0,sizeof(cl_mem),&a_buf);
+	clrpc_clSetKernelArg(krn,1,sizeof(cl_mem),&c_buf);
 	clrpc_clEnqueueNDRangeKernel(cmdq[0],krn,1,&offset,&gwsz,&lwsz,4,ev,&ev[4]);
 
-	clrpc_clSetKernelArg(krn,0,sizeof(cl_mem),b_buf);
-	clrpc_clSetKernelArg(krn,1,sizeof(cl_mem),d_buf);
+	clrpc_clSetKernelArg(krn,0,sizeof(cl_mem),&b_buf);
+	clrpc_clSetKernelArg(krn,1,sizeof(cl_mem),&d_buf);
 	clrpc_clEnqueueNDRangeKernel(cmdq[0],krn,1,&offset,&gwsz,&lwsz,5,ev,&ev[5]);
 
 	clrpc_clEnqueueReadBuffer(cmdq[0],c_buf,CL_FALSE,0,1024*sizeof(int),c,

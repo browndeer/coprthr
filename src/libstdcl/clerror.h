@@ -1,6 +1,6 @@
-/* xcl_extension.c
+/* clerror.h
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,17 +20,14 @@
 
 /* DAR */
 
-#include <XCL/cl.h>
+#ifndef _CLERROR_H
+#define _CLERROR_H
 
-// Extensions
+void oclperror( const char* s );
+void clperror( const char* s );
 
-void*
-clGetExtensionFunctionAddress( const char* fname ) 
-{
-	WARN(__FILE__,__LINE__,
-		"clGetExtensionFunctionAddress: warning: unsupported");
+const char* oclerror_str( int n );
+const char* clerror_str( int n );
 
-	return((void*)0);
-}
-
+#endif
 

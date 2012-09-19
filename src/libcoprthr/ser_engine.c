@@ -38,7 +38,7 @@
 #include "xcl_structs.h"
 #include "cmdcall.h"
 #include "workp.h"
-#include "util.h"
+//#include "util.h"
 
 #include "ser_engine.h"
 
@@ -77,7 +77,7 @@ void* ser_engine_startup( void* p )
 	if (getenv("COPRTHR_MAX_NUM_ENGINES")) 
 		nengines = min(nengines,atoi(getenv("COPRTHR_MAX_NUM_ENGINES")));
 
-	xclreport( XCL_INFO "ser_engine_startup: nengines=%d",nengines);
+	printcl( XCL_INFO "ser_engine_startup: nengines=%d",nengines);
 
 	engine_td = (pthread_t*)calloc(nengines,sizeof(pthread_t));
 	engine_mtx = (pthread_mutex_t*)calloc(nengines,sizeof(pthread_mutex_t));
@@ -121,7 +121,7 @@ void* ser_engine_startup( void* p )
 		engine_cmd_argp[i] = 0;
 		engine_data[i].engid = i;
 
-		xclreport( XCL_DEBUG "ser_engine pthread_create %d",i); 
+		printcl( CL_DEBUG "ser_engine pthread_create %d",i); 
 
 		void* addr;
 		size_t size;
@@ -130,27 +130,27 @@ void* ser_engine_startup( void* p )
 		engine_data[i].stack_base = engine_stack_storage + i*THR_STACK_SZ;
 		int rc = pthread_attr_setstack(&td_attr,
 			engine_data[i].stack_base,THR_STACK_SZ);
-		xclreport( XCL_DEBUG "pthread set stack (%d) %p %d",rc,
+		printcl( CL_DEBUG "pthread set stack (%d) %p %d",rc,
 			engine_data[i].stack_base,THR_STACK_SZ);
 
 		rc = pthread_attr_getstack(&td_attr,&addr,&size);
-		xclreport( XCL_DEBUG "pthread get stack (%d) %p %d",rc,addr,size);
+		printcl( CL_DEBUG "pthread get stack (%d) %p %d",rc,addr,size);
 
 		pthread_create(&engine_td[i],&td_attr,ser_engine,(void*)&engine_data[i]);
 
 		CPU_ZERO(&mask);
 		CPU_SET(i%ncore,&mask);
 		if (pthread_setaffinity_np(engine_td[i],sizeof(cpu_set_t),&mask)) {
-			xclreport( XCL_WARNING "engine: pthread_setaffinity_np failed");
+			printcl( CL_WARNING "engine: pthread_setaffinity_np failed");
 		}
 
 		pthread_yield();
 
-		xclreport( XCL_DEBUG "ser_engine wait until engine ready %d",i); 
+		printcl( CL_DEBUG "ser_engine wait until engine ready %d",i); 
 
 		while(!engine_ready[i]) pthread_yield();
 
-		xclreport( XCL_DEBUG "ser_engine ready[%d] %d",i,engine_ready[i]);
+		printcl( CL_DEBUG "ser_engine ready[%d] %d",i,engine_ready[i]);
 	}
 
 	pthread_attr_destroy(&td_attr);
@@ -162,13 +162,13 @@ void* ser_engine_startup( void* p )
 static void* ser_engine( void* p )
 {
 
-	xclreport( XCL_DEBUG "what is my stack frame address? %p",__fp());
+	printcl( CL_DEBUG "what is my stack frame address? %p",__fp());
 
 	int i;
 	struct engine_data* edata = (struct engine_data*)p;
 	int engid = edata->engid;
 
-	xclreport( XCL_DEBUG "engine-attempt-lock");
+	printcl( CL_DEBUG "engine-attempt-lock");
 	pthread_mutex_lock(&engine_mtx[engid]);
 
 
@@ -179,13 +179,13 @@ static void* ser_engine( void* p )
 
 	engine_local_mem_sz[engid] = BLK_LOCAL_MEM_SZ;
 
-	xclreport( XCL_DEBUG "engine_local_mem=%p",
+	printcl( CL_DEBUG "engine_local_mem=%p",
 		engine_local_mem);
 
-	xclreport( XCL_DEBUG "engine_local_mem_free[%d]=%p",
+	printcl( CL_DEBUG "engine_local_mem_free[%d]=%p",
 		engid,engine_local_mem_free[engid]);
 
-	xclreport( XCL_DEBUG "engine-set-ready");
+	printcl( CL_DEBUG "engine-set-ready");
 	engine_ready[engid] = 1;
 
 
@@ -195,11 +195,11 @@ static void* ser_engine( void* p )
 	div_t qr;
 	struct cmdcall_arg* cmd_argp;
 
-	xclreport( XCL_DEBUG "[%d] ENTER BIG LOOP FOR VCENGINE\n",engid);
+	printcl( CL_DEBUG "[%d] ENTER BIG LOOP FOR VCENGINE\n",engid);
 
 	do {
 
-		xclreport( XCL_DEBUG "engine-wait1");
+		printcl( CL_DEBUG "engine-wait1");
 
 		pthread_cond_wait(&engine_sig1[engid],&engine_mtx[engid]);
 
@@ -207,26 +207,26 @@ static void* ser_engine( void* p )
 
 			/* propagate info so that vcore() can execute specified kernel */
 
-			xclreport( XCL_DEBUG "vcengine[%d]: krn %p",engid,cmd_argp->k.krn);
+			printcl( CL_DEBUG "vcengine[%d]: krn %p",engid,cmd_argp->k.krn);
 			edata->funcp = cmd_argp->k.ksyms->kthr2;
 			edata->callp = cmd_argp->k.ksyms->kcall2;
 			edata->pr_arg_buf = cmd_argp->k.pr_arg_buf;
 			edata->pr_arg_off = cmd_argp->k.pr_arg_off;
 
 			if (!edata->callp) {
-				xclreport( XCL_ERR "ser_engine: ERROR: null callp");
+				printcl( XCL_ERR "ser_engine: ERROR: null callp");
 				exit(-1);
 			};
 
-		xclreport( XCL_DEBUG "workp_get_entry %p %d",common_engine_workp, engid);
+		printcl( CL_DEBUG "workp_get_entry %p %d",common_engine_workp, engid);
 			struct workp_entry* e = workp_get_entry( common_engine_workp, engid );
 
-			report_workp_entry( XCL_DEBUG, e );
+			report_workp_entry( CL_DEBUG, e );
 
          nc = 1;
          for(d = 0; d < e->ndr_dim; d++) nc *= e->ndr_ltdsz[d];
 
-         xclreport( XCL_DEBUG "vcengine[%d]: nc=%d",engid,nc);
+         printcl( CL_DEBUG "vcengine[%d]: nc=%d",engid,nc);
 
          for(i=0;i<nc;i++) {
 
@@ -256,7 +256,7 @@ static void* ser_engine( void* p )
 			{
 			int blk0,blk1,blk2;
 
-			xclreport( XCL_DEBUG "blk loop %d %d | %d %d | %d %d",
+			printcl( CL_DEBUG "blk loop %d %d | %d %d | %d %d",
 				e->ndp_blk_first[2],e->ndp_blk_end[2],
 				e->ndp_blk_first[1],e->ndp_blk_end[1],
 				e->ndp_blk_first[0],e->ndp_blk_end[0]);
@@ -279,7 +279,7 @@ static void* ser_engine( void* p )
 				}
 
 
-				xclreport( XCL_DEBUG "launching vcores (%d)",nc);
+				printcl( CL_DEBUG "launching vcores (%d)",nc);
 
 				for(i=0;i<nc;i++) {
 
@@ -287,7 +287,7 @@ static void* ser_engine( void* p )
 
 				}
 
-					xclreport( XCL_DEBUG 
+					printcl( CL_DEBUG 
 						"ser_engine[%d]: all threads completed",engid);
 
 			} } }
@@ -299,7 +299,7 @@ static void* ser_engine( void* p )
 			{
 			int blk0,blk1;
 
-			xclreport( XCL_DEBUG "blk loop %d %d | %d %d",
+			printcl( CL_DEBUG "blk loop %d %d | %d %d",
 				e->ndp_blk_first[1],e->ndp_blk_end[1],
 				e->ndp_blk_first[0],e->ndp_blk_end[0]);
 
@@ -317,7 +317,7 @@ static void* ser_engine( void* p )
 				}
 
 
-				xclreport( XCL_DEBUG "launching vcores (%d)",nc);
+				printcl( CL_DEBUG "launching vcores (%d)",nc);
 
 				for(i=0;i<nc;i++) {
 
@@ -325,7 +325,7 @@ static void* ser_engine( void* p )
 
 				}
 
-					xclreport( XCL_DEBUG 
+					printcl( CL_DEBUG 
 						"ser_engine[%d]: all threads completed",engid);
 
 			} }
@@ -338,12 +338,12 @@ static void* ser_engine( void* p )
 			{
 			int blk0,ltd0;
 
-			xclreport( XCL_DEBUG "blk loop %d %d",
+			printcl( CL_DEBUG "blk loop %d %d",
 				e->ndp_blk_first[0],e->ndp_blk_end[0]);
 
 			for(blk0=e->ndp_blk_first[0]; blk0 < e->ndp_blk_end[0]; blk0++) {
 
-				xclreport( XCL_DEBUG "launching threads (%d)",nc);
+				printcl( CL_DEBUG "launching threads (%d)",nc);
 
 				for(ltd0=0; ltd0 < e->ndr_ltdsz[0]; ltd0++) {
 
@@ -351,7 +351,7 @@ static void* ser_engine( void* p )
 					data->ltdidx[0] = ltd0;
 					data->gtdidx[0] = blk0*e->ndr_ltdsz[0] + data->ltdidx[0];
 
-					xclreport( XCL_DEBUG "thr call %d %d %d",
+					printcl( CL_DEBUG "thr call %d %d %d",
 						data->blkidx[0],data->gtdidx[0],data->ltdidx[0] );
 
 					((void(*)(void*))edata->callp)(edata);
@@ -359,7 +359,7 @@ static void* ser_engine( void* p )
 				}
 
 
-					xclreport( XCL_DEBUG 
+					printcl( CL_DEBUG 
 						"ser_engine[%d]: all threads completed",engid);
 
 			}
@@ -374,7 +374,7 @@ static void* ser_engine( void* p )
 		} 
 
 
-		xclreport( XCL_DEBUG "engine-sig2");
+		printcl( CL_DEBUG "engine-sig2");
 		pthread_cond_signal(&engine_sig2[engid]);
 
 	} while(!engine_shutdown[engid]);
@@ -382,7 +382,7 @@ static void* ser_engine( void* p )
 	engine_shutdown[engid] = 2;
 
 	pthread_mutex_unlock(&engine_mtx[engid]);
-	xclreport( XCL_DEBUG "engine-unlock");
+	printcl( CL_DEBUG "engine-unlock");
 
 }
 
@@ -396,7 +396,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 	int engid_end = engid_base + ne;
 
-	xclreport( XCL_DEBUG "engid_base,ne %d,%d",engid_base,ne);
+	printcl( CL_DEBUG "engid_base,ne %d,%d",engid_base,ne);
 
 	common_engine_workp = wp;
 
@@ -410,7 +410,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 		/* XXX it would be better to spin once at initialization to take this
 		/* XXX step out of the execution code -DAR */
 
-		xclreport( XCL_DEBUG "ve[%d] klaunch-spin-until-ready",e);
+		printcl( CL_DEBUG "ve[%d] klaunch-spin-until-ready",e);
 		while(!engine_ready[e]) pthread_yield(); 
 
 	}
@@ -418,14 +418,14 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 	/* first apply correction to global ptrs */
 
-	xclreport( XCL_DEBUG "cmdcall_x86_64:ndrange_kernel: fix global ptrs %p",
+	printcl( CL_DEBUG "cmdcall_x86_64:ndrange_kernel: fix global ptrs %p",
 		argp->k.arg_kind);
 
 	for(i=0;i<argp->k.krn->narg;i++) {
 
-		xclreport( XCL_DEBUG  "fix global ptrs %d",i);
+		printcl( CL_DEBUG  "fix global ptrs %d",i);
 
-		xclreport( XCL_DEBUG "arg_kind=%d", argp->k.arg_kind[i]);
+		printcl( CL_DEBUG "arg_kind=%d", argp->k.arg_kind[i]);
 
    cl_context ctx;
    unsigned int ndev;
@@ -434,7 +434,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 		void* p = (void*)(argp->k.pr_arg_buf + argp->k.pr_arg_off[i]);
 
-		xclreport( XCL_DEBUG "XXX %d %p %p", 
+		printcl( CL_DEBUG "XXX %d %p %p", 
 			argp->k.pr_arg_off[i],
 			argp->k.pr_arg_buf,
 			p);
@@ -446,10 +446,10 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 				{
 
-				xclreport( XCL_DEBUG  "argp->k.pr_arg_off[%d]=%p",
+				printcl( CL_DEBUG  "argp->k.pr_arg_off[%d]=%p",
 					i,argp->k.pr_arg_off[i]);
 
-				xclreport( XCL_DEBUG  "*cl_mem=%p",
+				printcl( CL_DEBUG  "*cl_mem=%p",
 					(*(cl_mem*)p));
 
 				ctx = (*(cl_mem*)p)->ctx;
@@ -481,7 +481,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 	/* make copies of *argp for each engine and allocate local mem */
 
-	xclreport( XCL_DEBUG "copy *argp for each engine and alloc local mem");
+	printcl( CL_DEBUG "copy *argp for each engine and alloc local mem");
 
 	for(e=engid_base,i=0;e<engid_end;e++,i++) {
 
@@ -493,11 +493,11 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
    	__clone(subcmd_argp[i].k.pr_arg_buf,argp->k.pr_arg_buf,
 			argp->k.arg_buf_sz,void);
 
-		xclreport( XCL_DEBUG "ve[%d] arg_buf %p %p",
+		printcl( CL_DEBUG "ve[%d] arg_buf %p %p",
 			e,argp->k.pr_arg_buf,subcmd_argp[i].k.pr_arg_buf);
 
    	for(j=0;j<subcmd_argp[i].k.narg;j++) 
-			xclreport( XCL_DEBUG "ve[%d] arg_off[%d] %p",
+			printcl( CL_DEBUG "ve[%d] arg_off[%d] %p",
 				e,j,subcmd_argp[i].k.pr_arg_off[j]);
 
 	}
@@ -506,7 +506,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 	for(e=engid_base,i=0;e<engid_end;e++,i++) {
 
-		xclreport( XCL_DEBUG "%p",&subcmd_argp[i].k.krn->narg);
+		printcl( CL_DEBUG "%p",&subcmd_argp[i].k.krn->narg);
 
 		for(j=0;j<subcmd_argp[i].k.krn->narg;j++) {
 
@@ -520,11 +520,11 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 					sz = *(size_t*)p;
 
 					if (engine_local_mem_sz[e] < sz) {
-						ERROR(__FILE__,__LINE__,"out of local mem");
+						printcl( CL_ERR "out of local mem");
 						return((void*)-1);						
 					}
 
-					xclreport( XCL_DEBUG "ve[%d] argn %d alloc local mem %p %d",
+					printcl( CL_DEBUG "ve[%d] argn %d alloc local mem %p %d",
 						e,j,engine_local_mem_free[e],sz);
 
 					*(void**)p = (void*)engine_local_mem_free[e];
@@ -532,7 +532,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 					engine_local_mem_free[e] += sz;
 					engine_local_mem_sz[e] -= sz;
 
-					xclreport( XCL_DEBUG "ve[%d] local mem sz free %d",
+					printcl( CL_DEBUG "ve[%d] local mem sz free %d",
 						e,engine_local_mem_sz[e]);
 
 					break;
@@ -555,18 +555,18 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 	for(e=engid_base,i=0;e<engid_end;e++,i++) {
 
-		xclreport( XCL_DEBUG "ve[%d] klaunch-spin-until-ready",e);
+		printcl( CL_DEBUG "ve[%d] klaunch-spin-until-ready",e);
 		while(!engine_ready[e]) pthread_yield(); 
 
-		xclreport( XCL_DEBUG "ve[%d] klaunch-attempt-lock",e);
+		printcl( CL_DEBUG "ve[%d] klaunch-attempt-lock",e);
 		pthread_mutex_lock(&engine_mtx[e]);
 
 		engine_cmd_argp[e] = subcmd_argp+i;
 
-		xclreport( XCL_DEBUG "ve[%d] klaunch-sig1",e);
+		printcl( CL_DEBUG "ve[%d] klaunch-sig1",e);
 		pthread_cond_signal(&engine_sig1[e]);
 
-		xclreport( XCL_DEBUG "ve[%d] klaunch-unlock",e);
+		printcl( CL_DEBUG "ve[%d] klaunch-unlock",e);
 		pthread_mutex_unlock(&engine_mtx[e]);
 
 	}
@@ -575,18 +575,18 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 	for(e=engid_base;e<engid_end;e++) {
 
-		xclreport( XCL_DEBUG "ve[%d] klaunch-attempt-lock",e);
+		printcl( CL_DEBUG "ve[%d] klaunch-attempt-lock",e);
 		pthread_mutex_lock(&engine_mtx[e]);
 
-		xclreport( XCL_DEBUG "ve[%d] klaunch-wait2",e);
+		printcl( CL_DEBUG "ve[%d] klaunch-wait2",e);
 		if (engine_cmd_argp[e]) pthread_cond_wait(&engine_sig2[e],&engine_mtx[e]);
 
-		xclreport( XCL_DEBUG "ve[%d] klaunch complete",e);
+		printcl( CL_DEBUG "ve[%d] klaunch complete",e);
 
 		engine_local_mem_free[e] = engine_local_mem_base[e];
 		engine_local_mem_sz[e] = BLK_LOCAL_MEM_SZ;
 
-		xclreport( XCL_DEBUG "ve[%d] klaunch-unlock",e);
+		printcl( CL_DEBUG "ve[%d] klaunch-unlock",e);
 		pthread_mutex_unlock(&engine_mtx[e]);
 
 	}

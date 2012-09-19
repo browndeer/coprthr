@@ -30,7 +30,7 @@
 #define __USE_GNU
 #include <dlfcn.h>
 
-#include "util.h"
+//#include "util.h"
 
 #include "elf_cl.h"
 

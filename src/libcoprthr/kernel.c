@@ -23,6 +23,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "kernel.h"
 
 
@@ -33,11 +34,11 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 
 	cl_program prg = krn->prg;
 
-	DEBUG(__FILE__,__LINE__,"__do_create_kernel: knum=%d",k);
+	printcl( CL_DEBUG "__do_create_kernel: knum=%d",k);
 
 	krn->name = prg->imp.kname[k];
 
-	DEBUG(__FILE__,__LINE__,"__do_create_kernel: kname=%s",krn->name);
+	printcl( CL_DEBUG "__do_create_kernel: kname=%s",krn->name);
 
 /* XXX this is odd way of assigning kernel, fix it by contracting v_* -DAR */
 
@@ -49,7 +50,7 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 
 	cl_uint narg = krn->narg = prg->imp.knarg[k];
 
-	DEBUG(__FILE__,__LINE__,"__do_create_kernel: narg=%d",narg);
+	printcl( CL_DEBUG "__do_create_kernel: narg=%d",narg);
 
 	if (narg == 0) return;
 
@@ -72,7 +73,7 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 	for(i=0;i<narg;i++) {
 		krn->imp.arg_off[i] = sz;
 		sz += krn->imp.arg_sz[i];
-		DEBUG(__FILE__,__LINE__,"CHECKING arg_sz[%d] %d",i,krn->imp.arg_sz[i]);
+		printcl( CL_DEBUG "CHECKING arg_sz[%d] %d",i,krn->imp.arg_sz[i]);
 	}
 
 }
@@ -98,13 +99,13 @@ int __do_set_kernel_arg(
 
 		case CLARG_KIND_VOID:
 
-			WARN(__FILE__,__LINE__,"setting void arg has no effect");
+			printcl( CL_WARNING "setting void arg has no effect");
 
 			break;
 
 		case CLARG_KIND_DATA:
 
-			DEBUG(__FILE__,__LINE__,"CLARG_KIND_DATA compare sz %d %d",
+			printcl( CL_DEBUG "CLARG_KIND_DATA compare sz %d %d",
 				arg_sz,krn->imp.arg_sz[argn]);
 
 			if (arg_sz != krn->imp.arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
@@ -125,7 +126,7 @@ int __do_set_kernel_arg(
 
 			if (arg_sz != sizeof(cl_mem)) return(CL_INVALID_ARG_SIZE);
 
-			DEBUG(__FILE__,__LINE__,"from set arg %p %p",
+			printcl( CL_DEBUG "from set arg %p %p",
 				arg_val,*(cl_mem*)arg_val);
 
 			memcpy(p,arg_val,arg_sz);
@@ -144,7 +145,7 @@ int __do_set_kernel_arg(
 
 		case CLARG_KIND_CONSTANT:
 
-//			ERROR(__FILE__,__LINE__,"constant arg not supported");
+//			printcl( CL_ERR "constant arg not supported");
 //			return(CL_ENOTSUP);
 //
 //			break;
@@ -157,7 +158,7 @@ int __do_set_kernel_arg(
 
 			if (arg_sz != sizeof(cl_mem)) return(CL_INVALID_ARG_SIZE);
 
-			DEBUG(__FILE__,__LINE__,"from set arg %p %p",
+			printcl( CL_DEBUG "from set arg %p %p",
 				arg_val,*(cl_mem*)arg_val);
 
 			memcpy(p,arg_val,arg_sz);
@@ -168,21 +169,21 @@ int __do_set_kernel_arg(
 
 			if (arg_sz != sizeof(cl_sampler)) return(CL_INVALID_ARG_SIZE);
 
-			ERROR(__FILE__,__LINE__,"sampler arg not supported");
+			printcl( CL_ERR "sampler arg not supported");
 			return(CL_ENOTSUP);
 
 			break;
 
 		case CLARG_KIND_IMAGE2D:
 
-			ERROR(__FILE__,__LINE__,"image2d arg not supported");
+			printcl( CL_ERR "image2d arg not supported");
 			return(CL_ENOTSUP);
 
 			break;
 
 		case CLARG_KIND_IMAGE3D:
 
-			ERROR(__FILE__,__LINE__,"image3d arg not supported");
+			printcl( CL_ERR "image3d arg not supported");
 			return(CL_ENOTSUP);
 
 			break;

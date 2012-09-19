@@ -1,6 +1,6 @@
-/* xcl_enqueue.c
+/* ocl_enqueue.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -23,13 +23,14 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "event.h"
 #include <pthread.h>
 
-// Enqueued Commands APIs
+// Enqueue Command API Calls
 
 cl_int 
-clEnqueueReadBuffer(
+_clEnqueueReadBuffer(
 	cl_command_queue cmdq,
 	cl_mem membuf,
 	cl_bool block,
@@ -41,16 +42,16 @@ clEnqueueReadBuffer(
 	cl_event* event
 )
 {
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer");
+	printcl( CL_DEBUG "clEnqueueReadBuffer");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: membuf=%p",membuf);
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: membuf->type=%d",membuf->type);
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: __invalid_membuf()=%d",__invalid_membuf(membuf));
+	printcl( CL_DEBUG "clEnqueueReadBuffer: membuf=%p",membuf);
+	printcl( CL_DEBUG "clEnqueueReadBuffer: membuf->type=%d",membuf->type);
+	printcl( CL_DEBUG "clEnqueueReadBuffer: __invalid_membuf()=%d",__invalid_membuf(membuf));
 	if (__invalid_membuf(membuf)) return(CL_INVALID_MEM_OBJECT);
 
-	DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: membuf->sz=%d",membuf->sz);
+	printcl( CL_DEBUG "clEnqueueReadBuffer: membuf->sz=%d",membuf->sz);
 	if (membuf->sz < (offset+cb) || !ptr) return(CL_INVALID_VALUE);
 
 	if (__invalid_context(cmdq->ctx)) return(CL_INVALID_CONTEXT);
@@ -69,7 +70,7 @@ clEnqueueReadBuffer(
 
 		__init_event(ev);
 
-		DEBUG(__FILE__,__LINE__,"test lock");
+		printcl( CL_DEBUG "test lock");
 		__lock_event(ev);
 		__unlock_event(ev);
 
@@ -87,17 +88,17 @@ clEnqueueReadBuffer(
 /*
 	if (block) {
 
-		DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer blocking");
+		printcl( CL_DEBUG "clEnqueueReadBuffer blocking");
 
 		__lock_event(ev);
 
       while (ev->cmd_stat != CL_COMPLETE) {
-         DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: wait-sleep\n");
+         printcl( CL_DEBUG "clEnqueueReadBuffer: wait-sleep\n");
          __wait_event(ev);
-         DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: wait-wake\n");
+         printcl( CL_DEBUG "clEnqueueReadBuffer: wait-wake\n");
       }
 
-      DEBUG(__FILE__,__LINE__,"clEnqueueReadBuffer: event %p complete\n",ev);
+      printcl( CL_DEBUG "clEnqueueReadBuffer: event %p complete\n",ev);
 
 		__unlock_event(ev);
 
@@ -110,7 +111,7 @@ clEnqueueReadBuffer(
 
                             
 cl_int 
-clEnqueueWriteBuffer(
+_clEnqueueWriteBuffer(
 	cl_command_queue cmdq, 
 	cl_mem membuf, 
    cl_bool block, 
@@ -122,7 +123,7 @@ clEnqueueWriteBuffer(
    cl_event* event
 )
 {
-	DEBUG(__FILE__,__LINE__,"clEnqueueWriteBuffer");
+	printcl( CL_DEBUG "clEnqueueWriteBuffer");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -159,17 +160,17 @@ clEnqueueWriteBuffer(
 
 	if (block) {
 
-		DEBUG(__FILE__,__LINE__,"clEnqueueWriteBuffer blocking");
+		printcl( CL_DEBUG "clEnqueueWriteBuffer blocking");
 
 		__lock_event(ev);
 
       while (ev->cmd_stat != CL_COMPLETE) {
-         DEBUG(__FILE__,__LINE__,"wait-sleep\n");
+         printcl( CL_DEBUG "wait-sleep\n");
          __wait_event(ev);
-         DEBUG(__FILE__,__LINE__,"wait-wake\n");
+         printcl( CL_DEBUG "wait-wake\n");
       }
 
-      DEBUG(__FILE__,__LINE__,"event %p complete\n",ev);
+      printcl( CL_DEBUG "event %p complete\n",ev);
 
 		__unlock_event(ev);
 
@@ -181,7 +182,7 @@ clEnqueueWriteBuffer(
 
                             
 cl_int 
-clEnqueueCopyBuffer(
+_clEnqueueCopyBuffer(
 	cl_command_queue cmdq, 
 	cl_mem src_membuf,
 	cl_mem dst_membuf, 
@@ -193,7 +194,7 @@ clEnqueueCopyBuffer(
 	cl_event* event 
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueCopyBuffer: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueCopyBuffer: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -247,7 +248,7 @@ clEnqueueCopyBuffer(
 
                             
 cl_int 
-clEnqueueReadImage(
+_clEnqueueReadImage(
 	cl_command_queue cmdq,
 	cl_mem image,
 	cl_bool block,
@@ -261,7 +262,7 @@ clEnqueueReadImage(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueReadImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueReadImage: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -307,7 +308,7 @@ clEnqueueReadImage(
                             
 
 cl_int 
-clEnqueueWriteImage(
+_clEnqueueWriteImage(
 	cl_command_queue cmdq,
 	cl_mem image,
 	cl_bool block,
@@ -321,7 +322,7 @@ clEnqueueWriteImage(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueWriteImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueWriteImage: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -368,7 +369,7 @@ clEnqueueWriteImage(
 
 
 cl_int 
-clEnqueueCopyImage(
+_clEnqueueCopyImage(
 	cl_command_queue cmdq,
 	cl_mem src_image,
 	cl_mem dst_image, 
@@ -380,7 +381,7 @@ clEnqueueCopyImage(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueCopyImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueCopyImage: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -428,7 +429,7 @@ clEnqueueCopyImage(
 
 
 cl_int 
-clEnqueueCopyImageToBuffer(
+_clEnqueueCopyImageToBuffer(
 	cl_command_queue cmdq,
 	cl_mem src_image,
 	cl_mem dst_membuf,
@@ -440,7 +441,7 @@ clEnqueueCopyImageToBuffer(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueCopyImageToBuffer: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueCopyImageToBuffer: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -488,7 +489,7 @@ clEnqueueCopyImageToBuffer(
 
 
 cl_int 
-clEnqueueCopyBufferToImage(
+_clEnqueueCopyBufferToImage(
 	cl_command_queue cmdq,
 	cl_mem src_membuf,
 	cl_mem dst_image, 
@@ -500,7 +501,7 @@ clEnqueueCopyBufferToImage(
 	cl_event* event 
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueCopyBufferToImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueCopyBufferToImage: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -548,7 +549,7 @@ clEnqueueCopyBufferToImage(
 
 
 void* 
-clEnqueueMapBuffer(
+_clEnqueueMapBuffer(
 	cl_command_queue cmdq,
 	cl_mem membuf,
 	cl_bool block,
@@ -561,7 +562,7 @@ clEnqueueMapBuffer(
 	cl_int* err_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueMapBuffer: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueMapBuffer: warning: unsupported");
 
 	void* ptr = 0;
 
@@ -614,7 +615,7 @@ clEnqueueMapBuffer(
 
 
 void* 
-clEnqueueMapImage(
+_clEnqueueMapImage(
 	cl_command_queue cmdq,
 	cl_mem image,
 	cl_bool block,
@@ -629,7 +630,7 @@ clEnqueueMapImage(
 	cl_int* err_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueMapImage: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueMapImage: warning: unsupported");
 
 	void* ptr = 0;
 
@@ -682,7 +683,7 @@ clEnqueueMapImage(
 
 
 cl_int 
-clEnqueueUnmapMemObject(
+_clEnqueueUnmapMemObject(
 	cl_command_queue cmdq,
 	cl_mem memobj,
 	void* mapped_ptr,
@@ -691,7 +692,7 @@ clEnqueueUnmapMemObject(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueUnmapMemObject: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueUnmapMemObject: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -731,7 +732,7 @@ clEnqueueUnmapMemObject(
 
 
 cl_int 
-clEnqueueNDRangeKernel(
+_clEnqueueNDRangeKernel(
 	cl_command_queue cmdq,
 	cl_kernel krn,
 	cl_uint work_dim,
@@ -745,7 +746,7 @@ clEnqueueNDRangeKernel(
 {
 	int i;
 	
-	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel gwo=%p",global_work_offset);
+	printcl( CL_DEBUG "clEnqueueNDRangeKernel gwo=%p",global_work_offset);
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -761,14 +762,14 @@ clEnqueueNDRangeKernel(
 
 	if (cmdq->ctx != krn->ctx) return(CL_INVALID_CONTEXT);
 
-	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel: A %d %p %p",nwaitlist,waitlist,cmdq);
+	printcl( CL_DEBUG "clEnqueueNDRangeKernel: A %d %p %p",nwaitlist,waitlist,cmdq);
 	__check_waitlist(nwaitlist,waitlist,cmdq->ctx);
-	DEBUG(__FILE__,__LINE__,"clEnqueueNDRangeKernel: A");
+	printcl( CL_DEBUG "clEnqueueNDRangeKernel: A");
 
 	if (work_dim < 1 || work_dim > 3) return(CL_INVALID_WORK_DIMENSION);
 
 //	if (global_work_offset) return(CL_INVALID_GLOBAL_OFFSET);
-	if (global_work_offset) WARN(__FILE__,__LINE__,"clEnqueueNDRangeKernel: ignoring global_work_offset");
+	if (global_work_offset) printcl( CL_WARNING "clEnqueueNDRangeKernel: ignoring global_work_offset");
 
 	if (!global_work_size) return(CL_INVALID_VALUE);
 
@@ -809,7 +810,7 @@ clEnqueueNDRangeKernel(
 
 
 cl_int 
-clEnqueueTask(
+_clEnqueueTask(
 	cl_command_queue cmdq,
 	cl_kernel krn,
 	cl_uint nwaitlist,
@@ -817,7 +818,7 @@ clEnqueueTask(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueTask: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueTask: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -859,7 +860,7 @@ clEnqueueTask(
 
 
 cl_int 
-clEnqueueNativeKernel(
+_clEnqueueNativeKernel(
 	cl_command_queue cmdq,
 	void (*user_func)(void *), 
 	void* args,
@@ -872,7 +873,7 @@ clEnqueueNativeKernel(
 	cl_event* event
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueNativeKernel: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueNativeKernel: warning: unsupported");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -899,12 +900,12 @@ clEnqueueNativeKernel(
 
 
 cl_int 
-clEnqueueMarker(
+_clEnqueueMarker(
 	cl_command_queue cmdq,
    cl_event* event
 )
 {
-	DEBUG(__FILE__,__LINE__,"clEnqueueMarker");
+	printcl( CL_DEBUG "clEnqueueMarker");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -932,13 +933,13 @@ clEnqueueMarker(
 
 
 cl_int 
-clEnqueueWaitForEvents(
+_clEnqueueWaitForEvents(
 	cl_command_queue cmdq,
 	cl_uint nwaitlist,
 	const cl_event* waitlist
 )
 {
-	WARN(__FILE__,__LINE__,"clEnqueueWaitForEvents: warning: unsupported");
+	printcl( CL_WARNING "clEnqueueWaitForEvents: warning: unsupported");
 
 /*
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
@@ -972,9 +973,9 @@ clEnqueueWaitForEvents(
 
 
 cl_int 
-clEnqueueBarrier( cl_command_queue cmdq )
+_clEnqueueBarrier( cl_command_queue cmdq )
 {
-	DEBUG(__FILE__,__LINE__,"clEnqueueBarrier");
+	printcl( CL_DEBUG "clEnqueueBarrier");
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
@@ -998,5 +999,112 @@ clEnqueueBarrier( cl_command_queue cmdq )
 	return(CL_SUCCESS);
 }
 
+
+
+
+// Aliased Enqueue Command API Calls
+
+cl_int
+clEnqueueReadBuffer( cl_command_queue cmdq, cl_mem membuf, cl_bool block,
+   size_t offset, size_t cb, void* ptr, cl_uint nwaitlist, 
+	const cl_event* waitlist, cl_event* event)
+	__attribute__((alias("_clEnqueueReadBuffer")));
+
+cl_int
+clEnqueueWriteBuffer( cl_command_queue cmdq, cl_mem membuf, cl_bool block,
+   size_t offset, size_t cb, const void* ptr, cl_uint nwaitlist,
+   const cl_event* waitlist, cl_event* event)
+	__attribute__((alias("_clEnqueueWriteBuffer")));
+
+cl_int
+clEnqueueCopyBuffer( cl_command_queue cmdq, cl_mem src_membuf, 
+	cl_mem dst_membuf, size_t src_offset, size_t dst_offset, size_t cb,
+   cl_uint nwaitlist, const cl_event* waitlist, cl_event* event)
+	__attribute__((alias("_clEnqueueCopyBuffer")));
+
+cl_int
+clEnqueueReadImage( cl_command_queue cmdq, cl_mem image, cl_bool block,
+   const size_t* origin, const size_t* region, 
+	size_t row_pitch, size_t slice_pitch, void* ptr, cl_uint nwaitlist,
+   const cl_event* waitlist, cl_event* event)
+	__attribute__((alias("_clEnqueueReadImage")));
+
+cl_int
+clEnqueueWriteImage( cl_command_queue cmdq, cl_mem image, cl_bool block,
+   const size_t* origin, const size_t* region, 
+	size_t row_pitch, size_t slice_pitch, const void* ptr, cl_uint nwaitlist,
+   const cl_event* waitlist, cl_event* event)
+	__attribute__((alias("_clEnqueueWriteImage")));
+
+cl_int
+clEnqueueCopyImage( cl_command_queue cmdq, cl_mem src_image, cl_mem dst_image,
+   const size_t* src_origin, const size_t* dst_origin, const size_t* region,
+   cl_uint nwaitlist, const cl_event* waitlist, cl_event* event)
+	__attribute__((alias("_clEnqueueCopyImage")));
+
+cl_int
+clEnqueueCopyImageToBuffer( cl_command_queue cmdq, cl_mem src_image, 
+	cl_mem dst_membuf, const size_t* src_origin, const size_t* region, 
+   size_t dst_offset, cl_uint nwaitlist, const cl_event* waitlist, 
+	cl_event* event)
+	__attribute__((alias("_clEnqueueCopyImageToBuffer")));
+
+cl_int
+clEnqueueCopyBufferToImage( cl_command_queue cmdq, cl_mem src_membuf,
+   cl_mem dst_image, size_t src_offset, const size_t* dst_origin,
+   const size_t* region, cl_uint nwaitlist, const cl_event* waitlist, 
+	cl_event* event)
+	__attribute__((alias("_clEnqueueCopyBufferToImage")));
+
+void*
+clEnqueueMapBuffer( cl_command_queue cmdq, cl_mem membuf, cl_bool block,
+   cl_map_flags map_flags, size_t offset, size_t cb, cl_uint nwaitlist,
+   const cl_event* waitlist, cl_event* event, cl_int* err_ret)
+	__attribute__((alias("_clEnqueueMapBuffer")));
+
+void*
+clEnqueueMapImage( cl_command_queue cmdq, cl_mem image, cl_bool block,
+   cl_map_flags map_flags, const size_t* origin, const size_t* region,
+   size_t* row_pitch, size_t* slice_pitch, cl_uint nwaitlist,
+   const cl_event* waitlist, cl_event* event, cl_int* err_ret)
+	__attribute__((alias("_clEnqueueMapImage")));
+
+cl_int clEnqueueUnmapMemObject( cl_command_queue cmdq, cl_mem memobj,
+   void* mapped_ptr, cl_uint nwaitlist, const cl_event* waitlist, 
+	cl_event* event)
+	__attribute__((alias("_clEnqueueUnmapMemObject")));
+
+
+cl_int
+clEnqueueNDRangeKernel( cl_command_queue cmdq, cl_kernel krn, cl_uint work_dim,
+   const size_t* global_work_offset, const size_t* global_work_size,
+   const size_t* local_work_size, cl_uint nwaitlist, const cl_event* waitlist,
+   cl_event* event)
+	__attribute__((alias("_clEnqueueNDRangeKernel")));
+
+cl_int
+clEnqueueTask( cl_command_queue cmdq, cl_kernel krn, cl_uint nwaitlist,
+   const cl_event* waitlist, cl_event* event)
+	__attribute__((alias("_clEnqueueTask")));
+
+cl_int
+clEnqueueNativeKernel( cl_command_queue cmdq, void (*user_func)(void *),
+   void* args, size_t cb_args, cl_uint nmemobj, const cl_mem* memobj,
+   const void**  args_mem_loc, cl_uint nwaitlist, const cl_event* waitlist,
+   cl_event* event)
+	__attribute__((alias("_clEnqueueNativeKernel")));
+
+cl_int
+clEnqueueMarker( cl_command_queue cmdq, cl_event* event)
+	__attribute__((alias("_clEnqueueMarker")));
+
+cl_int
+clEnqueueWaitForEvents( cl_command_queue cmdq, cl_uint nwaitlist,
+   const cl_event* waitlist)
+	__attribute__((alias("_clEnqueueWaitForEvents")));
+
+cl_int
+clEnqueueBarrier( cl_command_queue cmdq )
+	__attribute__((alias("_clEnqueueBarrier")));
 
 

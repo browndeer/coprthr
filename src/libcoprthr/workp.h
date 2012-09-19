@@ -39,7 +39,7 @@ struct workp_entry {
 #if !defined(__xcl_kcall__) && !defined(__xcl_kthr__)
 
 #include <pthread.h>
-#include "util.h"
+//#include "util.h"
 
 #define mutex_t pthread_mutex_t
 #define mutex_init pthread_mutex_init
@@ -111,7 +111,7 @@ unsigned int workp_genpart(
 	unsigned int alpha = delta/n;
 	unsigned int beta = delta%n;
 
-	xclreport( XCL_DEBUG "delta alpha beta %d %d %d\n",delta,alpha,beta);
+	printcl( CL_DEBUG "delta alpha beta %d %d %d\n",delta,alpha,beta);
 
 	struct workp_entry* e = workp_get_entry(wp,0);
 
@@ -162,7 +162,7 @@ unsigned int workp_genpart(
 #define report_workp_entry( level, e ) do { \
    switch((e)->ndr_dim) { \
    case 3: \
-      xclreport( level \
+      printcl( level \
          "XXX %d {%d %d %d} {%d %d %d} {%d %d %d} {%d %d %d} {%d %d %d}" \
          " {%d %d %d}", \
          (e)->ndr_dim, \
@@ -174,7 +174,7 @@ unsigned int workp_genpart(
          (e)->ndp_ltd0[0],(e)->ndp_ltd0[1],(e)->ndp_ltd0[2] ); \
       break; \
    case 2: \
-      xclreport( level \
+      printcl( level \
          "XXX %d {%d %d} {%d %d} {%d %d} {%d %d} {%d %d} {%d %d}", \
          (e)->ndr_dim, \
          (e)->ndr_gtdoff[0],(e)->ndr_gtdoff[1], \
@@ -185,7 +185,7 @@ unsigned int workp_genpart(
          (e)->ndp_ltd0[0],(e)->ndp_ltd0[1] ); \
       break; \
    case 1: \
-      xclreport( XCL_DEBUG \
+      printcl( CL_DEBUG \
          "XXX %d {%d} {%d} {%d} {%d} {%d} {%d}", \
          (e)->ndr_dim, \
          (e)->ndr_gtdoff[0], \

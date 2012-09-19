@@ -1,6 +1,6 @@
 /* clcontext.c
  *
- * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -49,6 +49,8 @@
 #include "clinit.h"
 #include "clfcn.h"
 #include "clcontext.h"
+#include "printcl.h"
+#include "clerrno.h"
 
 #ifdef DEFAULT_OPENCL_PLATFORM
 #define DEFAULT_PLATFORM_NAME DEFAULT_OPENCL_PLATFORM
@@ -123,37 +125,37 @@ clcontext_create(
 	cl_uint ndev = 0;
 	cl_command_queue_properties prop = 0;
 
-	DEBUG(__FILE__,__LINE__,"clcontext_create() called");
+	printcl( CL_DEBUG "clcontext_create() called");
 
 
 	/***
 	 *** allocate CONTEXT struct
 	 ***/
 
-	DEBUG(__FILE__,__LINE__,
-		"clcontext_create: sizeof CONTEXT %d",sizeof(CONTEXT));
+	printcl( CL_DEBUG "clcontext_create: sizeof CONTEXT %d",sizeof(CONTEXT));
 
 	assert(sizeof(CONTEXT)<getpagesize());
 #ifdef _WIN64
 	cp = (CONTEXT*)_aligned_malloc(sizeof(CONTEXT),getpagesize());
 	if (!cp) {
-		WARN(__FILE__,__LINE__,"clcontext_create: memalign failed");
+		printcl( CL_WARNING "clcontext_create: memalign failed");
 	}
 #else
 	if (posix_memalign((void**)&cp,getpagesize(),sizeof(CONTEXT))) {
-		WARN(__FILE__,__LINE__,"clcontext_create: posix_memalign failed");
+		printcl( CL_WARNING "clcontext_create: posix_memalign failed");
 	}
 #endif
 
-	DEBUG(__FILE__,__LINE__,"clcontext_create: context_ptr=%p",cp);
+	printcl( CL_DEBUG "clcontext_create: context_ptr=%p",cp);
 	
 	if ((intptr_t)cp & (getpagesize()-1)) {
-		ERROR(__FILE__,__LINE__,
-			"clcontext_create: fatal error: unaligned context_ptr");
+		printcl( CL_ERR "clcontext_create: fatal error: unaligned context_ptr");
+		__set_clerrno(-1);
 		exit(-1);
 	}
 
-	if (!cp) { errno=ENOMEM; return(0); }
+//	if (!cp) { errno=ENOMEM; return(0); }
+	if (!cp) { __set_clerrno(ENOMEM); return(0); }
 
 	
 
@@ -170,45 +172,53 @@ clcontext_create(
 	 ***	- If no platform is found supporting at least 1 device, return 0.
     ***/
 
-   clGetPlatformIDs(0,0,&nplatforms);
+   err = clGetPlatformIDs(0,0,&nplatforms);
+	__set_oclerrno(err);
 
    if (nplatforms > 0) {
 
       platforms = (cl_platform_id*)malloc(nplatforms*sizeof(cl_platform_id));
-      clGetPlatformIDs(nplatforms,platforms,0);
+      err = clGetPlatformIDs(nplatforms,platforms,0);
+		__set_oclerrno(err);
 
       for(i=0;i<nplatforms;i++) { 
 
          char info[1024];
 
-         DEBUG(__FILE__,__LINE__,"clcontext_create: available platform:");
+         printcl( CL_DEBUG "clcontext_create: available platform:");
 
-         clGetPlatformInfo(platforms[i],CL_PLATFORM_PROFILE,1024,info,0);
-         DEBUG(__FILE__,__LINE__,
-            "clcontext_create: [%p]CL_PLATFORM_PROFILE=%s",platforms[i],info);
+         err = clGetPlatformInfo(platforms[i],CL_PLATFORM_PROFILE,1024,info,0);
+			__set_oclerrno(err);
 
-         clGetPlatformInfo(platforms[i],CL_PLATFORM_VERSION,1024,info,0);
-         DEBUG(__FILE__,__LINE__,
-            "clcontext_create: [%p]CL_PLATFORM_VERSION=%s",platforms[i],info);
+         printcl( CL_DEBUG "clcontext_create: [%p]CL_PLATFORM_PROFILE=%s",
+				platforms[i],info);
 
-         clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
-         DEBUG(__FILE__,__LINE__,
-            "clcontext_create: [%p]CL_PLATFORM_NAME=%s",platforms[i],info);
+         err = clGetPlatformInfo(platforms[i],CL_PLATFORM_VERSION,1024,info,0);
+			__set_oclerrno(err);
+			printcl( CL_DEBUG "clcontext_create: [%p]CL_PLATFORM_VERSION=%s",
+				platforms[i],info);
 
-         clGetPlatformInfo(platforms[i],CL_PLATFORM_VENDOR,1024,info,0);
-         DEBUG(__FILE__,__LINE__,
-            "clcontext_create: [%p]CL_PLATFORM_VENDOR=%s",platforms[i],info);
+         err = clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
+			__set_oclerrno(err);
+			printcl( CL_DEBUG "clcontext_create: [%p]CL_PLATFORM_NAME=%s",
+				platforms[i],info);
 
-         clGetPlatformInfo(platforms[i],CL_PLATFORM_EXTENSIONS,1024,info,0);
-         DEBUG(__FILE__,__LINE__,
-            "clcontext_create: [%p]CL_PLATFORM_EXTENSIONS=%s",
+         err = clGetPlatformInfo(platforms[i],CL_PLATFORM_VENDOR,1024,info,0);
+			__set_oclerrno(err);
+			printcl( CL_DEBUG "clcontext_create: [%p]CL_PLATFORM_VENDOR=%s",
+				platforms[i],info);
+
+         err = clGetPlatformInfo(
+				platforms[i],CL_PLATFORM_EXTENSIONS,1024, info,0);
+			__set_oclerrno(err);
+			printcl( CL_DEBUG "clcontext_create: [%p]CL_PLATFORM_EXTENSIONS=%s",
 				platforms[i],info);
 
       }
 
    } else {
 
-      WARN(__FILE__,__LINE__, "clcontext_create: no platforms found!");
+      printcl( CL_WARNING "clcontext_create: no platforms found!");
 
 		return((CONTEXT*)0);
 
@@ -252,6 +262,7 @@ clcontext_create(
 		int code = clelf_platform_code(name);
 
 		err = clGetDeviceIDs(platforms[i],devtyp,0,0,&platform_devcount[i]);
+		__set_oclerrno(err);
 
 		for(j=0; j< nselect; j++) {
 
@@ -259,7 +270,8 @@ clcontext_create(
 //			if (!strncasecmp(select_name[j],name,strnlen(select_name[j],64))) {
 			if (select_code[j]==code) {
 
-				DEBUG2("platform %d supports %d devices",i,platform_devcount[i]);
+				printcl( CL_DEBUG "platform %d supports %d devices",
+					i,platform_devcount[i]);
 
 				if (platform_devcount[i] > 0) {
 					select_id[j] = platforms[i];
@@ -276,7 +288,7 @@ clcontext_create(
 
 		if (platform_devcount[0] == 0) {
 
-      	WARN(__FILE__,__LINE__, 
+      	printcl( CL_WARNING
 				"clcontext_create: no platforms supporting device type (%d)!",
 				devtyp);
 
@@ -293,7 +305,7 @@ clcontext_create(
 		for(i=0; i< nselect; i++) if (select_id[i]) { 
 
 			platformid = select_id[i];
-			DEBUG2("selecting platform %d",i);
+			printcl( CL_DEBUG "selecting platform %d",i);
 			break;
 
 		}
@@ -323,7 +335,7 @@ clcontext_create(
 
 
 
-	DEBUG(__FILE__,__LINE__,"clcontext_create: platformid=%p",platformid);
+	printcl( CL_DEBUG "clcontext_create: platformid=%p",platformid);
 
 	
 
@@ -346,45 +358,61 @@ clcontext_create(
 	ctxprop[nctxprop-1] =  (cl_context_properties)0;
 	
 
-	clGetPlatformInfo(platformid,CL_PLATFORM_PROFILE,0,0,&sz);
+	err = clGetPlatformInfo(platformid,CL_PLATFORM_PROFILE,0,0,&sz);
+	__set_oclerrno(err);
 
 	cp->platform_profile = (char*)malloc(sz);
 
-	clGetPlatformInfo(platformid,CL_PLATFORM_PROFILE,sz,cp->platform_profile,0);
+	err = clGetPlatformInfo(
+		platformid,CL_PLATFORM_PROFILE,sz,cp->platform_profile,0);
+	__set_oclerrno(err);
 
 	clGetPlatformInfo(platformid,CL_PLATFORM_VERSION,0,0,&sz);
+	__set_oclerrno(err);
+
 
 	cp->platform_version = (char*)malloc(sz);
 
-	clGetPlatformInfo(platformid,CL_PLATFORM_VERSION,sz,cp->platform_version,0);
+	err = clGetPlatformInfo(
+		platformid,CL_PLATFORM_VERSION,sz,cp->platform_version,0);
+	__set_oclerrno(err);
 
-	clGetPlatformInfo(platformid,CL_PLATFORM_NAME,0,0,&sz);
+
+	err = clGetPlatformInfo(platformid,CL_PLATFORM_NAME,0,0,&sz);
+	__set_oclerrno(err);
 
 	cp->platform_name = (char*)malloc(sz);
 
-	clGetPlatformInfo(platformid,CL_PLATFORM_NAME,sz,cp->platform_name,0);
+	err = clGetPlatformInfo(platformid,CL_PLATFORM_NAME,sz,cp->platform_name,0);
+	__set_oclerrno(err);
 
-	clGetPlatformInfo(platformid,CL_PLATFORM_VENDOR,0,0,&sz);
+	err = clGetPlatformInfo(platformid,CL_PLATFORM_VENDOR,0,0,&sz);
+	__set_oclerrno(err);
 
 	cp->platform_vendor = (char*)malloc(sz);
 
-	clGetPlatformInfo(platformid,CL_PLATFORM_VENDOR,sz,cp->platform_vendor,0);
+	err = clGetPlatformInfo(
+		platformid,CL_PLATFORM_VENDOR,sz,cp->platform_vendor,0);
+	__set_oclerrno(err);
 
-	clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,0,0,&sz);
+	err = clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,0,0,&sz);
+	__set_oclerrno(err);
 
 	cp->platform_extensions = (char*)malloc(sz);
 
-	clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,sz,
+	err = clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,sz,
 		cp->platform_extensions,0);
+	__set_oclerrno(err);
 
 
-	DEBUG(__FILE__,__LINE__,"clcontext_create: selected platform: |%s|",
+	printcl( CL_DEBUG "clcontext_create: selected platform: |%s|",
 		cp->platform_name);	
 
 
 #ifdef _WIN64
 
 	cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
+	__set_oclerrno(err);
 
 #else
 
@@ -394,14 +422,16 @@ clcontext_create(
 
 		cl_uint platform_ndev;
 		err = clGetDeviceIDs(platformid,devtyp,0,0,&platform_ndev);
+		 __set_oclerrno(err);
 		cl_uint platform_vndev = platform_ndev;
 
 		cl_device_id* platform_dev 
 			= (cl_device_id*)malloc(platform_ndev*sizeof(cl_device_id));
 
 		err = clGetDeviceIDs(platformid,devtyp,platform_ndev,platform_dev,0);
+		__set_oclerrno(err);
 
-		DEBUG(__FILE__,__LINE__,"clcontext_create: lock_key=%d",lock_key);
+		printcl( CL_DEBUG "clcontext_create: lock_key=%d",lock_key);
 
 		pid_t pid = getpid();
 
@@ -410,8 +440,8 @@ clcontext_create(
 		char shmobj[64];
 		snprintf(shmobj,64,"/stdcl_ctx_lock%d.%d",devtyp,lock_key);
 
-		DEBUG(__FILE__,__LINE__,
-			"clcontext_create: attempt master shm_open %s from %d",shmobj,pid);
+		printcl( CL_DEBUG "clcontext_create: attempt master shm_open %s from %d",
+			shmobj,pid);
 
 		int fd = shm_open(shmobj,O_RDWR|O_CREAT|O_EXCL,0);
 		void* p0;
@@ -423,10 +453,10 @@ clcontext_create(
 
 		if (fd < 0) {
 			
-			DEBUG(__FILE__,__LINE__,
+			printcl( CL_DEBUG
 				"clcontext_create: master shm_open failed from %d (%d)",pid,fd);
 
-			DEBUG(__FILE__,__LINE__,
+			printcl( CL_DEBUG
 				"clcontext_create: attempt slave shm_open from %d",pid);
 
 			timeout = 0;
@@ -444,7 +474,7 @@ clcontext_create(
 
 			if (timeout) {
 
-				ERROR(__FILE__,__LINE__,"clcontext_create: shm_open timeout");
+				printcl( CL_ERR "clcontext_create: shm_open timeout");
 
 			}
 
@@ -468,7 +498,7 @@ clcontext_create(
 
 		} else {
 
-			DEBUG(__FILE__,__LINE__,
+			printcl( CL_DEBUG
 				"clcontext_create: master shm_open succeeded from %d",pid);
 
 			ftruncate(fd,sz_page);
@@ -483,7 +513,7 @@ clcontext_create(
 			__ctx_lock->key = lock_key;
 			pthread_mutex_init(&__ctx_lock->mtx,0);
 			ndev = min(ndevmax,platform_vndev);
-		DEBUG(__FILE__,__LINE__,"ndev=%d %d %d",ndev,ndevmax,platform_vndev);
+			printcl( CL_DEBUG "ndev=%d %d %d",ndev,ndevmax,platform_vndev);
 			__ctx_lock->refc = ndev;
 
 			fchmod(fd,S_IRUSR|S_IWUSR);
@@ -492,14 +522,15 @@ clcontext_create(
 
 		}
 
-		DEBUG(__FILE__,__LINE__,"ndev=%d",ndev);
+		printcl( CL_DEBUG "ndev=%d",ndev);
 
 		if (noff < platform_vndev) {
 
 			cp->ctx = clCreateContext(ctxprop,ndev,
 				platform_dev + noff%platform_ndev,0,0,&err);
+			__set_oclerrno(err);
 
-			DEBUG(__FILE__,__LINE__,
+			printcl( CL_DEBUG
 				"clcontext_create: platform_ndev=%d ndev=%d noffset=%d",
 				platform_ndev,ndev,noff);
 
@@ -514,6 +545,7 @@ clcontext_create(
 	} else {
 
 		cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
+		__set_oclerrno(err);
 
 	}
 #endif
@@ -522,13 +554,15 @@ clcontext_create(
 
 		cp->devtyp = devtyp;
 		err = clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,0,0,&devlist_sz);
+		__set_oclerrno(err);
 		cp->ndev = devlist_sz/sizeof(cl_device_id);
 		cp->dev = (cl_device_id*)malloc(10*devlist_sz);
 		err=clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,devlist_sz,cp->dev,0);
+		__set_oclerrno(err);
 
 	} else {
 
-		WARN(__FILE__,__LINE__,"clcontext_create: failed");
+		printcl( CL_WARNING "clcontext_create: failed");
 
 #ifndef _WIN64
 		if (lock_key > 0 && ndev > 0) {
@@ -546,7 +580,7 @@ clcontext_create(
 
    }
 
-	DEBUG(__FILE__,__LINE__,"number of devices %d",cp->ndev);
+	printcl( CL_DEBUG "number of devices %d",cp->ndev);
 
 		
 
@@ -556,7 +590,7 @@ clcontext_create(
 
 	cp->cmdq = (cl_command_queue*)malloc(sizeof(cl_command_queue)*cp->ndev);
 
-	DEBUG(__FILE__,__LINE__,"will try to create cmdq");
+	printcl( CL_DEBUG "will try to create cmdq");
 
 	
 
@@ -565,12 +599,12 @@ clcontext_create(
 			cp->cmdq[i] = 0; /* have to defer, dllmain limitations */
 #else
 			cp->cmdq[i] = clCreateCommandQueue(cp->ctx,cp->dev[i],prop,&err);
+			__set_oclerrno(err);
 
-			DEBUG(__FILE__,__LINE__,"clcontext_create:"
-				" error from create cmdq %d (%p)\n",
+			printcl( CL_DEBUG 
+				"clcontext_create: error from create cmdq %d (%p)\n",
 				err,cp->cmdq[i]);
 #endif
-			//DEBUG(__FILE__,__LINE__,"MADE IT"); return (CONTEXT*)0;
 		}
 
 
@@ -615,7 +649,7 @@ clcontext_create(
 LIBSTDCL_API int 
 clcontext_destroy(CONTEXT* cp)
 {
-	DEBUG(__FILE__,__LINE__,"clcontext_destroy() called");
+	printcl( CL_DEBUG "clcontext_destroy() called");
 
 	int i;
 	int err = 0;
@@ -624,7 +658,7 @@ clcontext_destroy(CONTEXT* cp)
 
 	size_t ndev = cp->ndev;
 
-	DEBUG(__FILE__,__LINE__,"clcontext_destroy: ndev %d",ndev);
+	printcl( CL_DEBUG "clcontext_destroy: ndev %d",ndev);
 
 	if (cp->kev) free(cp->kev);
 
@@ -634,25 +668,30 @@ clcontext_destroy(CONTEXT* cp)
 	/* XXX here force detach of any clmalloc() memory -DAR */
 
 #ifdef _WIN64
-	DEBUG(__FILE__,__LINE__,
-		"clcontext_destroy: cannot release cmdq's, its windows, hope for the best");
+	printcl( CL_DEBUG "clcontext_destroy:"
+		" cannot release cmdq's, its windows, hope for the best");
 #else
 	for(i=0;i<ndev;i++) {
-		DEBUG(__FILE__,__LINE__,"checking cmdq for release %p",cp->cmdq[i]);
-		if (cp->cmdq[i]) err |= clReleaseCommandQueue(cp->cmdq[i]);
+		printcl( CL_DEBUG "checking cmdq for release %p",cp->cmdq[i]);
+		if (cp->cmdq[i]) {
+			err |= clReleaseCommandQueue(cp->cmdq[i]);
+			__set_oclerrno(err);
+		}
 	}
 
-	DEBUG(__FILE__,__LINE__,"clcontext_destroy: released cmdq's");
+	printcl( CL_DEBUG "clcontext_destroy: released cmdq's");
 #endif
 
 	err |= clReleaseContext(cp->ctx);
+	__set_oclerrno(err);
 
-	DEBUG(__FILE__,__LINE__,"clcontext_destroy: released ctx");
+	printcl( CL_DEBUG "clcontext_destroy: released ctx");
 
 	if (cp->cmdq) free(cp->cmdq);
-	DEBUG(__FILE__,__LINE__,"clcontext_destroy: free'd cmdq\n");
+	printcl( CL_DEBUG "clcontext_destroy: free'd cmdq\n");
+
 	if (cp->dev) free(cp->dev);
-	DEBUG(__FILE__,__LINE__,"clcontext_destroy: free'd dev\n");
+	printcl( CL_DEBUG "clcontext_destroy: free'd dev\n");
 
 	if (cp->platform_profile) free(cp->platform_profile);
 	if (cp->platform_version) free(cp->platform_version);
@@ -662,19 +701,19 @@ clcontext_destroy(CONTEXT* cp)
 
 #ifndef _WIN64
 	if (__ctx_lock) {
-		DEBUG(__FILE__,__LINE__,"clcontext_destroy: ctx lock check refc");
+		printcl( CL_DEBUG "clcontext_destroy: ctx lock check refc");
 		pthread_mutex_lock(&__ctx_lock->mtx);
 		int n = __ctx_lock->refc -= cp->ndev;
-		DEBUG(__FILE__,__LINE__,"clcontext_destroy: ctx lock refc now %d",n);
+		printcl( CL_DEBUG "clcontext_destroy: ctx lock refc now %d",n);
 		if (n == 0) {
 			int key = __ctx_lock->key;
 			pthread_mutex_unlock(&__ctx_lock->mtx);
 			char shmobj[64];
 			snprintf(shmobj,64,"/stdcl_ctx_lock%d.%d",cp->devtyp,key);
-			DEBUG(__FILE__,__LINE__,"clcontext_destroy: shm_unlink %s",shmobj);
+			printcl( CL_DEBUG "clcontext_destroy: shm_unlink %s",shmobj);
 			err = shm_unlink(shmobj);
 			if (err) 
-				WARN(__FILE__,__LINE__,"clcontext_destroy: shm_unlink failed");
+				printcl( CL_WARNING "clcontext_destroy: shm_unlink failed");
 		}
 		pthread_mutex_unlock(&__ctx_lock->mtx);
 	}
@@ -693,7 +732,8 @@ clcontext_destroy(CONTEXT* cp)
 
 /* XXX there is no check of err code, this should be added -DAR */
 
-LIBSTDCL_API int  clgetdevinfo( CONTEXT* cp, struct cldev_info* info)
+LIBSTDCL_API int  
+clgetdevinfo( CONTEXT* cp, struct cldev_info* info)
 {
 
 	if (!cp) { errno=ENOENT; return(-1); }
@@ -708,147 +748,141 @@ LIBSTDCL_API int  clgetdevinfo( CONTEXT* cp, struct cldev_info* info)
 
 		for(n=0,d=cp->dev,di=info;n<ndev;n++,d++,di++) {
 
-			err = clGetDeviceInfo(
-  		    	*d,CL_DEVICE_TYPE,
-  		    	sizeof(cl_device_type),&di->dev_type,0
-  		 	);
+			err = clGetDeviceInfo( *d,CL_DEVICE_TYPE, sizeof(cl_device_type),
+				&di->dev_type,0);
+			__set_oclerrno(err);
 
-		   err = clGetDeviceInfo(
-  	   		*d,CL_DEVICE_VENDOR_ID,
-  		    	sizeof(cl_uint),&di->dev_vendor_id,0
-  		 	);
+		   err = clGetDeviceInfo( *d,CL_DEVICE_VENDOR_ID, sizeof(cl_uint),
+				&di->dev_vendor_id,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MAX_COMPUTE_UNITS,sizeof(cl_uint),&di->dev_max_core,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_COMPUTE_UNITS,sizeof(cl_uint),
+				&di->dev_max_core,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
-				sizeof(cl_uint),&di->dev_max_wi_dim,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS,
+				sizeof(cl_uint),&di->dev_max_wi_dim,0);
+			__set_oclerrno(err);
 
 			assert(di->dev_max_wi_dim<=4);
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MAX_WORK_ITEM_SIZES,
-				di->dev_max_wi_dim*sizeof(size_t),di->dev_max_wi_sz,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_WORK_ITEM_SIZES,
+				di->dev_max_wi_dim*sizeof(size_t),di->dev_max_wi_sz,0);
+			__set_oclerrno(err);
+
 			di->dev_max_wi_sz_is_symmetric=1;
      		for(i=0;i<di->dev_max_wi_dim;i++)
      	   	if(di->dev_max_wi_sz[0]!=di->dev_max_wi_sz[i]) 
 					di->dev_max_wi_sz_is_symmetric=0;
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MAX_WORK_GROUP_SIZE,
-				sizeof(size_t),&di->dev_max_wg_sz,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_WORK_GROUP_SIZE,
+				sizeof(size_t),&di->dev_max_wg_sz,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR,
-				sizeof(cl_uint),&di->dev_pref_vec_char,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT,
-				sizeof(cl_uint),&di->dev_pref_vec_short,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT,
-				sizeof(cl_uint),&di->dev_pref_vec_int,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG,
-				sizeof(cl_uint),&di->dev_pref_vec_long,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT,
-				sizeof(cl_uint),&di->dev_pref_vec_float,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE,
-				sizeof(cl_uint),&di->dev_pref_vec_double,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR,
+				sizeof(cl_uint),&di->dev_pref_vec_char,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MAX_CLOCK_FREQUENCY,
-				sizeof(cl_uint),&di->dev_max_freq,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT,
+				sizeof(cl_uint),&di->dev_pref_vec_short,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_ADDRESS_BITS,
-				sizeof(cl_bitfield),&di->dev_addr_bits,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT,
+				sizeof(cl_uint),&di->dev_pref_vec_int,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-            *d,CL_DEVICE_GLOBAL_MEM_SIZE,
-            sizeof(cl_ulong),&di->dev_global_mem_sz,0
-			);	
+			err = clGetDeviceInfo( *d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG,
+				sizeof(cl_uint),&di->dev_pref_vec_long,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-            *d,CL_DEVICE_MAX_MEM_ALLOC_SIZE,
-            sizeof(cl_ulong),&di->dev_max_mem_alloc_sz,0
-			);	
+			err = clGetDeviceInfo( *d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT,
+				sizeof(cl_uint),&di->dev_pref_vec_float,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE,
+				sizeof(cl_uint),&di->dev_pref_vec_double,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_CLOCK_FREQUENCY,
+				sizeof(cl_uint),&di->dev_max_freq,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_ADDRESS_BITS,
+				sizeof(cl_bitfield),&di->dev_addr_bits,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_GLOBAL_MEM_SIZE,
+            sizeof(cl_ulong),&di->dev_global_mem_sz,0);	
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_MEM_ALLOC_SIZE,
+            sizeof(cl_ulong),&di->dev_max_mem_alloc_sz,0);	
+			__set_oclerrno(err);
 
 
 			/*
 			 * check image support
 			 */
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_IMAGE_SUPPORT,
-				sizeof(cl_bool),&di->dev_img_sup,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MAX_READ_IMAGE_ARGS,
-				sizeof(cl_uint),&di->dev_max_img_args_r,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MAX_WRITE_IMAGE_ARGS,
-				sizeof(cl_uint),&di->dev_max_img_args_w,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_IMAGE2D_MAX_WIDTH,
-				sizeof(size_t),&di->dev_img2d_max_width,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_IMAGE2D_MAX_HEIGHT,
-				sizeof(size_t),&di->dev_img2d_max_height,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_IMAGE2D_MAX_WIDTH,
-				sizeof(size_t),&di->dev_img3d_max_width,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_IMAGE2D_MAX_HEIGHT,
-				sizeof(size_t),&di->dev_img3d_max_height,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_IMAGE3D_MAX_DEPTH,
-				sizeof(size_t),&di->dev_img3d_max_height,0
-			);
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MAX_SAMPLERS,
-				sizeof(cl_uint),&di->dev_max_samplers,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_IMAGE_SUPPORT,
+				sizeof(cl_bool),&di->dev_img_sup,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MAX_PARAMETER_SIZE,
-				sizeof(size_t),&di->dev_max_param_sz,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_READ_IMAGE_ARGS,
+				sizeof(cl_uint),&di->dev_max_img_args_r,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_MEM_BASE_ADDR_ALIGN,
-				sizeof(cl_uint),&di->dev_mem_base_addr_align,0
-			);
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_WRITE_IMAGE_ARGS,
+				sizeof(cl_uint),&di->dev_max_img_args_w,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_IMAGE2D_MAX_WIDTH,
+				sizeof(size_t),&di->dev_img2d_max_width,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_IMAGE2D_MAX_HEIGHT,
+				sizeof(size_t),&di->dev_img2d_max_height,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_IMAGE2D_MAX_WIDTH,
+				sizeof(size_t),&di->dev_img3d_max_width,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_IMAGE2D_MAX_HEIGHT,
+				sizeof(size_t),&di->dev_img3d_max_height,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_IMAGE3D_MAX_DEPTH,
+				sizeof(size_t),&di->dev_img3d_max_height,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_SAMPLERS,
+				sizeof(cl_uint),&di->dev_max_samplers,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_MAX_PARAMETER_SIZE,
+				sizeof(size_t),&di->dev_max_param_sz,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_MEM_BASE_ADDR_ALIGN,
+				sizeof(cl_uint),&di->dev_mem_base_addr_align,0);
+			__set_oclerrno(err);
 
 			err = clGetDeviceInfo(*d,CL_DEVICE_NAME,256,di->dev_name,0);
-			err = clGetDeviceInfo(*d,CL_DEVICE_VENDOR,256,di->dev_vendor,0);
-			err = clGetDeviceInfo(*d,CL_DEVICE_VERSION,256,di->dev_version,0);
-			err = clGetDeviceInfo(*d,CL_DRIVER_VERSION,256,di->dev_drv_version,0);
+			__set_oclerrno(err);
 
-			err = clGetDeviceInfo(
-				*d,CL_DEVICE_LOCAL_MEM_SIZE,
-			 	sizeof(cl_ulong),&di->dev_local_mem_sz,0
-			);
+			err = clGetDeviceInfo(*d,CL_DEVICE_VENDOR,256,di->dev_vendor,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo(*d,CL_DEVICE_VERSION,256,di->dev_version,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo(*d,CL_DRIVER_VERSION,256,di->dev_drv_version,0);
+			__set_oclerrno(err);
+
+			err = clGetDeviceInfo( *d,CL_DEVICE_LOCAL_MEM_SIZE,
+			 	sizeof(cl_ulong),&di->dev_local_mem_sz,0);
+			__set_oclerrno(err);
 	
 		}
 
@@ -859,7 +893,8 @@ LIBSTDCL_API int  clgetdevinfo( CONTEXT* cp, struct cldev_info* info)
 
 
 
-LIBSTDCL_API void  clfreport_devinfo( FILE* fp, size_t ndev, struct cldev_info* info )
+LIBSTDCL_API void  
+clfreport_devinfo( FILE* fp, size_t ndev, struct cldev_info* info )
 {
 	int i,n;
 	struct cldev_info* di;
@@ -958,7 +993,8 @@ LIBSTDCL_API void  clfreport_devinfo( FILE* fp, size_t ndev, struct cldev_info* 
 
 }
 
-LIBSTDCL_API int  clstat( CONTEXT* cp, struct clstat_info* st)
+LIBSTDCL_API int  
+clstat( CONTEXT* cp, struct clstat_info* st)
 {
 	if (!cp || !st) return(-1);
 
@@ -970,7 +1006,8 @@ LIBSTDCL_API int  clstat( CONTEXT* cp, struct clstat_info* st)
 	return(0);
 }
 
-LIBSTDCL_API cl_uint  clgetndev( CONTEXT* cp )
+LIBSTDCL_API cl_uint  
+clgetndev( CONTEXT* cp )
 {
 	if (!cp) return (0);
 	return (cp->ndev);
@@ -981,9 +1018,9 @@ __get_platformid(
  cl_uint nplatform, cl_platform_id* platforms, const char* platform_name
 )  
 {
+	int err;
 
-   DEBUG(__FILE__,__LINE__, 
-		"__get_platformid: platform_name |%s|",platform_name);
+   printcl( CL_DEBUG "__get_platformid: platform_name |%s|",platform_name);
 
    int i,j;
    char name[256];
@@ -992,8 +1029,8 @@ __get_platformid(
 
       strcpy(name,DEFAULT_PLATFORM_NAME);
 
-      DEBUG(__FILE__,__LINE__,
-         "__get_platformid: use default platform_name |%s|",name);
+      printcl( CL_DEBUG "__get_platformid: use default platform_name |%s|",
+			name);
 
    } else {
 
@@ -1004,14 +1041,15 @@ __get_platformid(
    if (platforms) for(i=0;i<nplatform;i++) {
 
       char info[1024];
-      clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
 
-      DEBUG(__FILE__,__LINE__,"__get_platformid: compare |%s|%s|",name,info);
+      err = clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
+		__set_oclerrno(err);
+
+      printcl( CL_DEBUG "__get_platformid: compare |%s|%s|",name,info);
 
       if (!strncasecmp(name,info,strlen(name))) {
 
-         DEBUG(__FILE__,__LINE__,"__get_platformid: "
-            " match %s %s",name,info);
+         printcl( CL_DEBUG "__get_platformid:  match %s %s",name,info);
 
          return(platforms[i]);
 
@@ -1021,6 +1059,7 @@ __get_platformid(
 
    if (nplatform > 0) return(platforms[0]); /* default to first one */
 
+	__set_clerrno(-1);
    return((cl_platform_id)(-1)); /* none found */
 
 }

@@ -84,7 +84,7 @@ F90_OBJS += $(subst .mod,_f90.o,$(MODS))
 F90_OBJS_D += $(subst .mod,_f90.o,$(MODS))
 
 HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h \
-	clarg.h clforka.h \
+	clarg.h clforka.h clerror.h \
 	clmalloc_allocator.h clvector.h clmulti_array.h \
 	stdcl_host.h stdcl_kernel.h stdcl_kernel_openclcompat.h
 
@@ -119,7 +119,7 @@ endif
 
 all: $(TARGET)
 
-.phony: install uninstall clean distclean check_root debug
+.PHONY: install uninstall clean distclean check_root debug
 
 libstdcl.so: $(OBJS) $(LIBCLELF)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \

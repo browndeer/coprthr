@@ -39,6 +39,8 @@
 #include "stdcl.h"
 #include "clmalloc.h"
 #include "clsched.h"
+#include "printcl.h"
+#include "clerrno.h"
 
 //#include "sigsegv.h"
 //#include "mmaputil.h"
@@ -73,7 +75,7 @@ LIBSTDCL_API
 void* clmalloc(CONTEXT* cp, size_t size, int flags)
 {
 
-	DEBUG(__FILE__,__LINE__,"clmalloc: size=%d flag=%d",size,flags);
+	printcl( CL_DEBUG "clmalloc: size=%d flag=%d",size,flags);
 
 	int err;
 	intptr_t ptri = (intptr_t)malloc(size+sizeof(struct _memd_struct));
@@ -82,13 +84,13 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 //	bzero(memd,sizeof(struct _memd_struct));
 	memset(memd,0,sizeof(struct _memd_struct));
 
-	DEBUG(__FILE__,__LINE__,"clmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
+	printcl( CL_DEBUG "clmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
 
-	DEBUG(__FILE__,__LINE__,"clmalloc: sizeof struct _memd_struct %d",
+	printcl( CL_DEBUG "clmalloc: sizeof struct _memd_struct %d",
 		sizeof(struct _memd_struct));
 
 	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
-		WARN(__FILE__,__LINE__,
+		printcl( CL_WARNING 
 			"clmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
 	} //// XXX CL_MEM_READ_WRITE implied -DAR
 
@@ -115,29 +117,26 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 
 		if (memd->flags&__MEMD_F_IMG2D) {
 
-			memd->clbuf = clCreateImage2D(
-				cp->ctx, CL_MEM_READ_WRITE, &(memd->imgfmt), 
-				memd->sz, memd->sz1, memd->sz2,
-				NULL, &err
-			);
+			memd->clbuf = clCreateImage2D( cp->ctx, CL_MEM_READ_WRITE, 
+				&(memd->imgfmt), memd->sz, memd->sz1, memd->sz2, NULL, &err);
+			__set_oclerrno(err);
 
-			DEBUG(__FILE__,__LINE__,"create image sz: %d %d %d\n",
+			printcl( CL_DEBUG "create image sz: %d %d %d\n",
 				memd->sz, memd->sz1, memd->sz2);
 
 		} else {
 
-			DEBUG(__FILE__,__LINE__,"create buffer");
+			printcl( CL_DEBUG "create buffer");
 
-			memd->clbuf = clCreateBuffer(
-  	   	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
-  		  	  	size,(void*)ptr,&err
-  		 	);
+			memd->clbuf = clCreateBuffer( cp->ctx,
+				CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR, size,(void*)ptr,&err);
+			__set_oclerrno(err);
 
 		}
 
-		DEBUG(__FILE__,__LINE__,"clmalloc: clCreateBuffer clbuf=%p",memd->clbuf);
+		printcl( CL_DEBUG "clmalloc: clCreateBuffer clbuf=%p",memd->clbuf);
 
-		DEBUG(__FILE__,__LINE__,"clmalloc: err from clCreateBuffer %d",err);
+		printcl( CL_DEBUG "clmalloc: err from clCreateBuffer %d",err);
 
 		memd->flags |= __MEMD_F_ATTACHED;
 
@@ -155,9 +154,9 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 	}
 
 	if (memd->flags&__MEMD_F_IMG2D) {
-		DEBUG(__FILE__,__LINE__,"clmattach: order = %x",
+		printcl( CL_DEBUG "clmattach: order = %x",
 			memd->imgfmt.image_channel_order);
-		DEBUG(__FILE__,__LINE__,"clmattach: type = %x",
+		printcl( CL_DEBUG "clmattach: type = %x",
 			memd->imgfmt.image_channel_data_type);
 	}
 
@@ -166,22 +165,21 @@ void* clmalloc(CONTEXT* cp, size_t size, int flags)
 
 
 LIBSTDCL_API
-//void clfree( void* ptr )
 int clfree( void* ptr )
 {
 	int err;
 
-	DEBUG(__FILE__,__LINE__,"clfree: ptr=%p\n",ptr);
+	printcl( CL_DEBUG "clfree: ptr=%p\n",ptr);
 
 	if (!__test_memd_magic(ptr)) {
 
-		WARN(__FILE__,__LINE__,"clfree: invalid ptr");
+		printcl( CL_WARNING "clfree: invalid ptr");
 
 		return 0 ;
 
 	}
 	
-	if (!ptr) { WARN(__FILE__,__LINE__,"clfree: null ptr"); return 0; }
+	if (!ptr) { printcl( CL_WARNING "clfree: null ptr"); return 0; }
 
 //	if (!assert_cldev_valid(dev)) return (0);
 
@@ -191,13 +189,14 @@ int clfree( void* ptr )
 	if (memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) {
 
 		err = clReleaseMemObject(memd->clbuf);
+		__set_oclerrno(err);
 
 		LIST_REMOVE(memd, memd_list);
 
 	}
 
 	free((void*)ptri);	
-		
+
 	return 0;	
 }
 
@@ -207,11 +206,11 @@ int clmattach( CONTEXT* cp, void* ptr )
 {
 	int err;
 
-	DEBUG(__FILE__,__LINE__,"clmattach: ptr=%p",ptr);
+	printcl( CL_DEBUG "clmattach: ptr=%p",ptr);
 
 	if (!__test_memd_magic(ptr)) {
 
-		ERROR(__FILE__,__LINE__,"clmattach: invalid ptr");
+		printcl( CL_ERR "clmattach: invalid ptr");
 
 		return(EFAULT);
 
@@ -223,10 +222,10 @@ int clmattach( CONTEXT* cp, void* ptr )
 	if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
 		|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
 
-		DEBUG(__FILE__,__LINE__,"%p %d",
+		printcl( CL_DEBUG "%p %d",
 			memd->clbuf,memd->flags&__MEMD_F_ATTACHED);
 
-		ERROR(__FILE__,__LINE__,"clmattach: memd corrupt");
+		printcl( CL_ERR "clmattach: memd corrupt");
 
 		return(EFAULT);
 
@@ -238,29 +237,25 @@ int clmattach( CONTEXT* cp, void* ptr )
 	if (memd->flags&__MEMD_F_IMG) {
 
 			cl_image_format fmt = memd->imgfmt;
-			DEBUG(__FILE__,__LINE__,"clmattach: order = %x",fmt.image_channel_order);
-			DEBUG(__FILE__,__LINE__,"clmattach: type = %x",fmt.image_channel_data_type);
+			printcl( CL_DEBUG "clmattach: order = %x",fmt.image_channel_order);
+			printcl( CL_DEBUG "clmattach: type = %x",fmt.image_channel_data_type);
 
-		memd->clbuf = clCreateImage2D(
-//			cp->ctx, CL_MEM_READ_WRITE, &(memd->imgfmt), 
-			cp->ctx, CL_MEM_READ_WRITE|memd->usrflags, &(memd->imgfmt), 
-			memd->sz, memd->sz1, memd->sz2,
-			NULL, &err
-		);
+		memd->clbuf = clCreateImage2D( cp->ctx, CL_MEM_READ_WRITE|memd->usrflags,
+			&(memd->imgfmt), memd->sz, memd->sz1, memd->sz2, NULL, &err);
+		__set_oclerrno(err);
 
 	} else {
 
-		memd->clbuf = clCreateBuffer(
-//    	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
-    	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR|memd->usrflags,
-    	 	memd->sz,(void*)ptr,&err
-  		);
+		memd->clbuf = clCreateBuffer( cp->ctx,
+			CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR|memd->usrflags,
+    	 	memd->sz,(void*)ptr,&err);
+		__set_oclerrno(err);
 
 	}
 
-	DEBUG(__FILE__,__LINE__,"clmattach: clCreateBuffer clbuf=%p",memd->clbuf);
+	printcl( CL_DEBUG "clmattach: clCreateBuffer clbuf=%p",memd->clbuf);
 
-	DEBUG(__FILE__,__LINE__,"clmattach: err from clCreateBuffer %d",err);
+	printcl( CL_DEBUG "clmattach: err from clCreateBuffer %d",err);
 
 	memd->flags |= __MEMD_F_ATTACHED;
 
@@ -276,7 +271,7 @@ int clmdetach( void* ptr )
 
 	if (!__test_memd_magic(ptr)) {
 
-		ERROR(__FILE__,__LINE__,"clmdetach: invalid ptr");
+		printcl( CL_ERR "clmdetach: invalid ptr");
 
 		return(EFAULT);
 
@@ -288,7 +283,7 @@ int clmdetach( void* ptr )
 	if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
 		|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
 
-		ERROR(__FILE__,__LINE__,"clmdetach: memd corrupt");
+		printcl( CL_ERR "clmdetach: memd corrupt");
 
 		return(EFAULT);
 	}
@@ -296,6 +291,7 @@ int clmdetach( void* ptr )
 	if (!(memd->flags&__MEMD_F_ATTACHED)) return(EINVAL);
 
 	err = clReleaseMemObject(memd->clbuf);
+	__set_oclerrno(err);
 
 	LIST_REMOVE(memd, memd_list);
 
@@ -314,7 +310,7 @@ int clmctl_va( void* ptr, int op, va_list ap )
 
 	if (!__test_memd_magic(ptr)) {
 
-		ERROR(__FILE__,__LINE__,"clmdetach: invalid ptr");
+		printcl( CL_ERR "clmdetach: invalid ptr");
 
 		return(EFAULT);
 
@@ -326,7 +322,7 @@ int clmctl_va( void* ptr, int op, va_list ap )
 	if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
 		|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
 
-		ERROR(__FILE__,__LINE__,"clmdetach: memd corrupt");
+		printcl( CL_ERR "clmdetach: memd corrupt");
 
 		return(EFAULT);
 
@@ -365,7 +361,7 @@ int clmctl_va( void* ptr, int op, va_list ap )
 
 			if (memd->flags&__MEMD_F_ATTACHED) {
 
-				WARN(__FILE__,__LINE__,"clmctl: operation not permitted");
+				printcl( CL_WARNING "clmctl: operation not permitted");
 
 				retval = EPERM;
 
@@ -384,7 +380,7 @@ int clmctl_va( void* ptr, int op, va_list ap )
 					memd->imgfmt.image_channel_data_type = CL_FLOAT;
 				}
 
-				DEBUG(__FILE__,__LINE__,"clmctl: set image2d");
+				printcl( CL_DEBUG "clmctl: set image2d");
 
 			}
 
@@ -394,7 +390,7 @@ int clmctl_va( void* ptr, int op, va_list ap )
 
 			if (memd->flags&__MEMD_F_ATTACHED) {
 
-				WARN(__FILE__,__LINE__,"clmctl: operation not permitted");
+				printcl( CL_WARNING "clmctl: operation not permitted");
 
 				retval = EPERM;
 
@@ -404,8 +400,7 @@ int clmctl_va( void* ptr, int op, va_list ap )
 
 				memd->usrflags |= usrflags;
 
-				DEBUG(__FILE__,__LINE__,"clmctl: set usrflags: 0x%x",
-					memd->usrflags);
+				printcl( CL_DEBUG "clmctl: set usrflags: 0x%x", memd->usrflags);
 
 			}
 
@@ -413,7 +408,7 @@ int clmctl_va( void* ptr, int op, va_list ap )
 
 			if (memd->flags&__MEMD_F_ATTACHED) {
 
-				WARN(__FILE__,__LINE__,"clmctl: operation not permitted");
+				printcl( CL_WARNING "clmctl: operation not permitted");
 
 				retval = EPERM;
 
@@ -423,14 +418,13 @@ int clmctl_va( void* ptr, int op, va_list ap )
 
 				memd->usrflags &= ~usrflags;
 
-				DEBUG(__FILE__,__LINE__,"clmctl: clr usrflags: 0x%x",
-					memd->usrflags);
+				printcl( CL_DEBUG "clmctl: clr usrflags: 0x%x", memd->usrflags);
 
 			}
 
 		default:
 
-			WARN(__FILE__,__LINE__,"clmctl: invalid operation");
+			printcl( CL_WARNING "clmctl: invalid operation");
 
 			retval = EINVAL;
 			
@@ -464,7 +458,7 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
             intptr_t p1 = (intptr_t)memd + sizeof(struct _memd_struct);
             intptr_t p2 = p1 + memd->sz;
             if (p1 < (intptr_t)ptr && (intptr_t)ptr < p2) {
-               DEBUG(__FILE__,__LINE__,"memd match");
+               printcl( CL_DEBUG "memd match");
 					ptr = (void*)p1;
                break;
             }
@@ -472,7 +466,7 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		if (memd == 0) {
 
-			WARN(__FILE__,__LINE__,"clmsync: bad pointer");
+			printcl( CL_WARNING "clmsync: bad pointer");
 
 			return((cl_event)0);
 
@@ -480,7 +474,7 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 	}
 
-	DEBUG(__FILE__,__LINE__,"clmsync: memd = %p, base_ptr = %p",
+	printcl( CL_DEBUG "clmsync: memd = %p, base_ptr = %p",
 		memd,(intptr_t)memd+sizeof(struct _memd_struct));
 
 #ifdef _WIN64
@@ -491,30 +485,29 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		/* XXX this is a test for tracking-DAR */
 		if (flags&CL_MEM_NOFORCE && memd->devnum == devnum) {
-			WARN(__FILE__,__LINE__,"clmsync/CL_MEM_NOFORCE no transfer");
+			printcl( CL_WARNING "clmsync/CL_MEM_NOFORCE no transfer");
 			return((cl_event)0);
 		}
 
 //		if (memd->flags&__MEMD_F_IMG2D) {
 		if (memd->flags&__MEMD_F_IMG) {
 
-			DEBUG(__FILE__,__LINE__,"%d %d",memd->sz,memd->sz1);
+			printcl( CL_DEBUG "%d %d",memd->sz,memd->sz1);
 
 			size_t origin[3] = {0,0,0};
 			size_t region[3] = { memd->sz, memd->sz1, 1 };
 
-			err = clEnqueueWriteImage(
-				cp->cmdq[devnum],memd->clbuf,CL_FALSE,
-				origin,region,0,0,ptr,0,NULL,&ev
-			);
-			DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueWriteImage err %d",err);
+			err = clEnqueueWriteImage( cp->cmdq[devnum],memd->clbuf,CL_FALSE,
+				origin,region,0,0,ptr,0,NULL,&ev);
+			__set_oclerrno(err);
+			printcl( CL_DEBUG "clmsync: clEnqueueWriteImage err %d",err);
 
 		} else {
 
-			err = clEnqueueWriteBuffer(
-				cp->cmdq[devnum],memd->clbuf,CL_FALSE,0,memd->sz,ptr,0,0,&ev
-  		 	);
-			DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueWriteBuffer err %d",err);
+			err = clEnqueueWriteBuffer( cp->cmdq[devnum],memd->clbuf,CL_FALSE,
+				0,memd->sz,ptr,0,0,&ev);
+			__set_oclerrno(err);
+			printcl( CL_DEBUG "clmsync: clEnqueueWriteBuffer err %d",err);
 
 		}
 
@@ -525,7 +518,7 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 		/* XXX this is a test for tracking-DAR */
 		if (flags&CL_MEM_NOFORCE && memd->devnum == -1) {
-			WARN(__FILE__,__LINE__,"clmsync/CL_MEM_NOFORCE no transfer");
+			printcl( CL_WARNING "clmsync/CL_MEM_NOFORCE no transfer");
 			return((cl_event)0);
 		}
 
@@ -535,26 +528,25 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 			size_t origin[3] = {0,0,0};
 			size_t region[3] = { memd->sz, memd->sz1, 1 };
 
-			err = clEnqueueReadImage(
-				cp->cmdq[devnum],memd->clbuf,CL_FALSE,
-				origin,region,0,0,ptr,0,NULL,&ev
-			);
+			err = clEnqueueReadImage( cp->cmdq[devnum],memd->clbuf,CL_FALSE,
+				origin,region,0,0,ptr,0,NULL,&ev);
+			__set_oclerrno(err);
 
 		} else {
 
-			err = clEnqueueReadBuffer(
-				cp->cmdq[devnum],memd->clbuf,CL_FALSE,0,memd->sz,ptr,0,0,&ev
-   		);
+			err = clEnqueueReadBuffer( cp->cmdq[devnum],memd->clbuf,CL_FALSE,
+				0,memd->sz,ptr,0,0,&ev);
+			__set_oclerrno(err);
 
 		}
 
 		memd->devnum = -1;
 
-		DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueReadBuffer err %d",err);
+		printcl( CL_DEBUG "clmsync: clEnqueueReadBuffer err %d",err);
 
 	} else {
 
-		WARN(__FILE__,__LINE__,"clmsync: no target specified");
+		printcl( CL_WARNING "clmsync: no target specified");
 
 		return((cl_event)0);
 
@@ -572,9 +564,11 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	} else { /* CL_EVENT_WAIT */
 
 		err = clWaitForEvents(1,&ev);
+		__set_oclerrno(err);
 
 		if ( !(flags & CL_EVENT_NORELEASE) ) {
-			clReleaseEvent(ev);
+			err = clReleaseEvent(ev);
+			__set_oclerrno(err);
 			ev = (cl_event)0;
 		}
 
@@ -586,8 +580,7 @@ clmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 
 LIBSTDCL_API
-cl_event 
-clmcopy(
+cl_event clmcopy(
 	CONTEXT* cp, unsigned int devnum, void* src, void* dst, int flags )
 {
 	int err;
@@ -609,7 +602,7 @@ clmcopy(
             intptr_t p1 = (intptr_t)src_memd + sizeof(struct _memd_struct);
             intptr_t p2 = p1 + src_memd->sz;
             if (p1 < (intptr_t)src && (intptr_t)src < p2) {
-               DEBUG(__FILE__,__LINE__,"memd match");
+               printcl( CL_DEBUG "memd match");
 					src = (void*)p1;
                break;
             }
@@ -617,7 +610,7 @@ clmcopy(
 
 		if (src_memd == 0) {
 
-			WARN(__FILE__,__LINE__,"clmsync: bad pointer");
+			printcl( CL_WARNING "clmsync: bad pointer");
 
 			return((cl_event)0);
 
@@ -633,7 +626,7 @@ clmcopy(
             intptr_t p1 = (intptr_t)dst_memd + sizeof(struct _memd_struct);
             intptr_t p2 = p1 + dst_memd->sz;
             if (p1 < (intptr_t)dst && (intptr_t)dst < p2) {
-               DEBUG(__FILE__,__LINE__,"memd match");
+               printcl( CL_DEBUG "memd match");
 					dst = (void*)p1;
                break;
             }
@@ -641,7 +634,7 @@ clmcopy(
 
 		if (dst_memd == 0) {
 
-			WARN(__FILE__,__LINE__,"clmsync: bad pointer");
+			printcl( CL_WARNING "clmsync: bad pointer");
 
 			return((cl_event)0);
 
@@ -649,10 +642,10 @@ clmcopy(
 
 	}
 
-	DEBUG(__FILE__,__LINE__,"clmcopy: (src) memd = %p, base_ptr = %p",
+	printcl( CL_DEBUG "clmcopy: (src) memd = %p, base_ptr = %p",
 		src_memd,(intptr_t)src_memd+sizeof(struct _memd_struct));
 
-	DEBUG(__FILE__,__LINE__,"clmsync: (dst) memd = %p, base_ptr = %p",
+	printcl( CL_DEBUG "clmsync: (dst) memd = %p, base_ptr = %p",
 		dst_memd,(intptr_t)dst_memd+sizeof(struct _memd_struct));
 
 #ifdef _WIN64
@@ -665,18 +658,17 @@ clmcopy(
 //		if (dst_memd->flags&__MEMD_F_IMG2D) {
 		if (dst_memd->flags&__MEMD_F_IMG) {
 			
-			DEBUG(__FILE__,__LINE__,"%d %d",src_memd->sz,src_memd->sz1);
-			DEBUG(__FILE__,__LINE__,"%d %d",dst_memd->sz,dst_memd->sz1);
+			printcl( CL_DEBUG "%d %d",src_memd->sz,src_memd->sz1);
+			printcl( CL_DEBUG "%d %d",dst_memd->sz,dst_memd->sz1);
 
 			size_t origin[3] = {0,0,0};
 			size_t region[3] = { src_memd->sz, src_memd->sz1, 1 };
 
-			err = clEnqueueCopyImage( 
-				cp->cmdq[devnum],src_memd->clbuf, dst_memd->clbuf,
-				origin,origin,region, 0,0,&ev
-			);
+			err = clEnqueueCopyImage( cp->cmdq[devnum],
+				src_memd->clbuf, dst_memd->clbuf, origin,origin,region, 0,0,&ev);
+			__set_oclerrno(err);
 
-			DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueCopyImage err %d",err);
+			printcl( CL_DEBUG "clmsync: clEnqueueCopyImage err %d",err);
 
 		} else {
 
@@ -689,12 +681,10 @@ clmcopy(
 
 		} else {
 
-			err = clEnqueueCopyBuffer(
-				cp->cmdq[devnum],src_memd->clbuf,dst_memd->clbuf,
-				0,0,src_memd->sz,0,0,&ev
-  	 		);
-
-			DEBUG(__FILE__,__LINE__,"clmsync: clEnqueueCopyBuffer err %d",err);
+			err = clEnqueueCopyBuffer( cp->cmdq[devnum],
+				src_memd->clbuf,dst_memd->clbuf, 0,0,src_memd->sz,0,0,&ev);
+			__set_oclerrno(err);
+			printcl( CL_DEBUG "clmsync: clEnqueueCopyBuffer err %d",err);
 
 		}
 
@@ -709,9 +699,11 @@ clmcopy(
 	} else { /* CL_EVENT_WAIT */
 
 		err = clWaitForEvents(1,&ev);
+		__set_oclerrno(err);
 
 		if ( !(flags & CL_EVENT_NORELEASE) ) {
-			clReleaseEvent(ev);
+			err = clReleaseEvent(ev);
+			__set_oclerrno(err);
 			ev = (cl_event)0;
 		}
 
@@ -757,19 +749,19 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 {
 	int err;
 
-	DEBUG(__FILE__,__LINE__,"clmrealloc: p=%p size=%d flag=%d",p,size,flags);
+	printcl( CL_DEBUG "clmrealloc: p=%p size=%d flag=%d",p,size,flags);
 
 	if (p == 0) return clmalloc(cp,size,flags);
 
 	if (!__test_memd_magic(p)) {
 
-		ERROR(__FILE__,__LINE__,"clmrealloc: invalid ptr");
+		printcl( CL_ERR "clmrealloc: invalid ptr");
 
 		return(0);
 	}
 
 	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
-		WARN(__FILE__,__LINE__,
+		printcl( CL_WARNING 
 			"clmrealloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
 	} //// XXX CL_MEM_READ_WRITE implied -DAR
 
@@ -783,7 +775,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 	if (ptr) {
 
-		DEBUG(__FILE__,__LINE__,"ptr != 0");
+		printcl( CL_DEBUG "ptr != 0");
 		ptri = (intptr_t)ptr - sizeof(struct _memd_struct);
 		memd = (struct _memd_struct*)ptri;
 		memd_flags = memd->flags;
@@ -791,7 +783,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 #ifndef DISABLE_CLGL
 		if (memd_flags&__MEMD_F_GLBUF) {
 
-			ERROR(__FILE__,__LINE__,"clmrealloc: invalid ptr");
+			printcl( CL_ERR "clmrealloc: invalid ptr");
 
 			return(0);
 		}
@@ -800,7 +792,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 		if ( (!memd->clbuf && (memd->flags&__MEMD_F_ATTACHED)) 
 			|| (memd->clbuf && !(memd->flags&__MEMD_F_ATTACHED)) ) {
 
-			ERROR(__FILE__,__LINE__,"clmrealloc: memd corrupt");
+			printcl( CL_ERR "clmrealloc: memd corrupt");
 
 			return(0);
 		}
@@ -808,6 +800,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 		if (memd->flags&__MEMD_F_ATTACHED) {
 
 			err = clReleaseMemObject(memd->clbuf);
+			__set_oclerrno(err);
 
 			LIST_REMOVE(memd, memd_list);
 
@@ -815,7 +808,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 		ptri = (intptr_t)realloc((void*)ptri,size+sizeof(struct _memd_struct));
 
-		DEBUG(__FILE__,__LINE__,"%p %d",ptri,size+sizeof(struct _memd_struct));
+		printcl( CL_DEBUG "%p %d",ptri,size+sizeof(struct _memd_struct));
 
 	} else {
 
@@ -828,7 +821,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 	ptr = ptri+sizeof(struct _memd_struct);
 	memd = (struct _memd_struct*)ptri;
-	DEBUG(__FILE__,__LINE__,"%p %p",ptr,memd);
+	printcl( CL_DEBUG "%p %p",ptr,memd);
 
 	memd->magic = CLMEM_MAGIC;
 	memd->flags = memd_flags;
@@ -837,7 +830,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 	if (flags&CL_MEM_DETACHED) {
 	
-		DEBUG(__FILE__,__LINE__,"detached %p %p",ptr,memd);
+		printcl( CL_DEBUG "detached %p %p",ptr,memd);
 		memd->clbuf = (cl_mem)0;
 		memd->flags &= ~(__MEMD_F_ATTACHED);
 
@@ -845,26 +838,23 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 		if (memd->flags&__MEMD_F_IMG2D) {
 
-			memd->clbuf = clCreateImage2D(
-//				cp->ctx, CL_MEM_READ_WRITE, &(memd->imgfmt), 
-				cp->ctx, CL_MEM_READ_WRITE|memd->usrflags, &(memd->imgfmt), 
-				memd->sz, memd->sz1, memd->sz2,
-				NULL, &err
-			);
+			memd->clbuf = clCreateImage2D( cp->ctx, 
+				CL_MEM_READ_WRITE|memd->usrflags, &(memd->imgfmt), 
+				memd->sz, memd->sz1, memd->sz2, NULL, &err);
+			__set_oclerrno(err);
 
 		} else {
 
-			memd->clbuf = clCreateBuffer(
-//  	   	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR,
-  	   	 	cp->ctx,CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR|memd->usrflags,
-  	  	  		size,(void*)ptr,&err
-  		 	);
+			memd->clbuf = clCreateBuffer( cp->ctx,
+				CL_MEM_READ_WRITE|CL_MEM_COPY_HOST_PTR|memd->usrflags,
+  	  	  		size,(void*)ptr,&err);
+			__set_oclerrno(err);
 
 		}
 
-		DEBUG(__FILE__,__LINE__,"clmrealloc: clCreateBuffer clbuf=%p",memd->clbuf);
+		printcl( CL_DEBUG "clmrealloc: clCreateBuffer clbuf=%p",memd->clbuf);
 
-		DEBUG(__FILE__,__LINE__,"clmrealloc: err from clCreateBuffer %d",err);
+		printcl( CL_DEBUG "clmrealloc: err from clCreateBuffer %d",err);
 
 		memd->flags |= __MEMD_F_ATTACHED;
 
@@ -883,7 +873,7 @@ void* clmrealloc( CONTEXT* cp, void* p, size_t size, int flags )
 
 	if (!__test_memd_magic((void*)ptr)) {
 
-		ERROR(__FILE__,__LINE__,"clmrealloc: invalid ptr");
+		printcl( CL_ERR "clmrealloc: invalid ptr");
 
 		return(0);
 	}
@@ -901,7 +891,7 @@ void* clglmalloc(
 )
 {
 
-	DEBUG(__FILE__,__LINE__,"clglmalloc: glbuf=%d flag=%d",glbuf,flags);
+	printcl( CL_DEBUG "clglmalloc: glbuf=%d flag=%d",glbuf,flags);
 
 	int err;
 
@@ -910,7 +900,7 @@ void* clglmalloc(
 	
 	if (flags&CL_MEM_DETACHED) {
 	
-		WARN(__FILE__,__LINE__,"clglmalloc: invalid flag: CL_MEM_DETACHED");
+		printcl( CL_WARNING "clglmalloc: invalid flag: CL_MEM_DETACHED");
 
 		return(0);
 
@@ -918,67 +908,59 @@ void* clglmalloc(
 
 	if (flags&CL_MEM_GLBUF) {
 
-		tmp_clbuf = clCreateFromGLBuffer(
- 	    	cp->ctx,CL_MEM_READ_WRITE,
- 	    	glbuf,&err
- 	 	);
+		tmp_clbuf = clCreateFromGLBuffer( cp->ctx,CL_MEM_READ_WRITE, glbuf,&err);
+		__set_oclerrno(err);
 
 	} else if (flags&CL_MEM_GLTEX2D) {
 
-		tmp_clbuf = clCreateFromGLTexture2D(
-    	 	cp->ctx,CL_MEM_READ_WRITE,
-			target,miplevel,
-    	 	glbuf,&err
-  		);
+		tmp_clbuf = clCreateFromGLTexture2D( cp->ctx,CL_MEM_READ_WRITE,
+			target,miplevel, glbuf,&err);
+		__set_oclerrno(err);
 
 		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG2D|__MEMD_F_GLTEX2D|__MEMD_F_ATTACHED;
 
 	} else if (flags&CL_MEM_GLTEX3D) {
 
-		tmp_clbuf = clCreateFromGLTexture3D(
-    	 	cp->ctx,CL_MEM_READ_WRITE,
-			target,miplevel,
-    	 	glbuf,&err
-  		);
+		tmp_clbuf = clCreateFromGLTexture3D( cp->ctx,CL_MEM_READ_WRITE,
+			target,miplevel, glbuf,&err);
+		__set_oclerrno(err);
 
 		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG3D|__MEMD_F_GLTEX3D|__MEMD_F_ATTACHED;
 
 	} else if (flags&CL_MEM_GLRBUF) {
 
-		tmp_clbuf = clCreateFromGLRenderbuffer(
-    	 	cp->ctx,CL_MEM_READ_WRITE,
-    	 	glbuf,&err
-  		);
+		tmp_clbuf = clCreateFromGLRenderbuffer( cp->ctx,CL_MEM_READ_WRITE,
+    	 	glbuf,&err);
+		__set_oclerrno(err);
 
 		tmp_flags = __MEMD_F_RW|__MEMD_F_IMG2D|__MEMD_F_GLRBUF|__MEMD_F_ATTACHED;
 
 	} else { /* default case, consider deprecating to be safe -DAR */
 
-//		WARN(__FILE__,__LINE__,"clglmalloc: invalid flags");
-		tmp_clbuf = clCreateFromGLBuffer(
-    	 	cp->ctx,CL_MEM_READ_WRITE,
-    	 	glbuf,&err
-  		);
+//		printcl( CL_WARNING "clglmalloc: invalid flags");
+		tmp_clbuf = clCreateFromGLBuffer( cp->ctx,CL_MEM_READ_WRITE, glbuf,&err);
+		__set_oclerrno(err);
 
 		return(0);
 
 	}
 
-	DEBUG(__FILE__,__LINE__,
-		"clglmalloc: clCreateFromGL* clbuf=%p",tmp_clbuf);
+	printcl( CL_DEBUG "clglmalloc: clCreateFromGL* clbuf=%p",tmp_clbuf);
 
-	DEBUG(__FILE__,__LINE__, "clglmalloc: err from clCreateFromGL* %d",err);
+	printcl( CL_DEBUG  "clglmalloc: err from clCreateFromGL* %d",err);
 
 	size_t size;
 	err = clGetMemObjectInfo(tmp_clbuf,CL_MEM_SIZE,sizeof(size_t),&size,0);
+	__set_oclerrno(err);
 
-	DEBUG(__FILE__,__LINE__,"clglmalloc: clGetMemObjectInfo err %d",err);
+	printcl( CL_DEBUG "clglmalloc: clGetMemObjectInfo err %d",err);
 
 	if (size == 0) {
 
-		WARN(__FILE__,__LINE__,"clglmalloc: size=0, something went wrong");
+		printcl( CL_WARNING "clglmalloc: size=0, something went wrong");
 
-		clReleaseMemObject(tmp_clbuf);
+		err = clReleaseMemObject(tmp_clbuf);
+		__set_oclerrno(err);
 
 		return(0);
 
@@ -988,9 +970,10 @@ void* clglmalloc(
 
 	if (ptri == 0) {
 
-		WARN(__FILE__,__LINE__,"clglmalloc: out of memory");
+		printcl( CL_WARNING "clglmalloc: out of memory");
 
-		clReleaseMemObject(tmp_clbuf);
+		err = clReleaseMemObject(tmp_clbuf);
+		__set_oclerrno(err);
 
 		return(0);
 
@@ -999,13 +982,13 @@ void* clglmalloc(
 	intptr_t ptr = ptri+sizeof(struct _memd_struct);
 	struct _memd_struct* memd = (struct _memd_struct*)ptri;
 
-	DEBUG(__FILE__,__LINE__,"clmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
+	printcl( CL_DEBUG "clmalloc: ptri=%p ptr=%p memd=%p",ptri,ptr,memd);
 
-	DEBUG(__FILE__,__LINE__,"clmalloc: sizeof struct _memd_struct %d",
+	printcl( CL_DEBUG "clmalloc: sizeof struct _memd_struct %d",
 		sizeof(struct _memd_struct));
 
 	if ((flags&CL_MEM_READ_ONLY) || (flags&CL_MEM_WRITE_ONLY)) {
-		WARN(__FILE__,__LINE__,
+		printcl( CL_WARNING 
 			"clmalloc: CL_MEM_READ_ONLY and CL_MEM_WRITE_ONLY unsupported");
 	} //// XXX CL_MEM_READ_WRITE implied -DAR
 
@@ -1023,8 +1006,7 @@ void* clglmalloc(
 }
 
 LIBSTDCL_API
-cl_event 
-clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
+cl_event clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 {
 	int err;
 
@@ -1044,7 +1026,7 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
             intptr_t p1 = (intptr_t)memd + sizeof(struct _memd_struct);
             intptr_t p2 = p1 + memd->sz;
             if (p1 < (intptr_t)ptr && (intptr_t)ptr < p2) {
-               DEBUG(__FILE__,__LINE__,"memd match");
+               printcl( CL_DEBUG "memd match");
 					ptr = (void*)p1;
                break;
             }
@@ -1052,11 +1034,11 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	}
 
 
-	DEBUG(__FILE__,__LINE__,"clglmsync: memd = %p, base_ptr = %p",
+	printcl( CL_DEBUG "clglmsync: memd = %p, base_ptr = %p",
 		memd,(intptr_t)memd+sizeof(struct _memd_struct));
 
 
-	WARN(__FILE__,__LINE__,"clglmsync: no supp for dev/host sync yet");
+	printcl( CL_WARNING "clglmsync: no supp for dev/host sync yet");
 
 #ifdef _WIN64
 	__cmdq_create(cp,devnum);
@@ -1064,23 +1046,23 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 
 	if (flags&CL_MEM_CLBUF) {
 
-		err = clEnqueueAcquireGLObjects( 
-			cp->cmdq[devnum],1,&(memd->clbuf),0,0,&ev);
+		err = clEnqueueAcquireGLObjects( cp->cmdq[devnum],1,&(memd->clbuf),
+			0,0,&ev);
+		__set_oclerrno(err);
 
-		DEBUG(__FILE__,__LINE__,
-			"clglmsync: clEnqueueAcquireGLObjects err %d",err);
+		printcl( CL_DEBUG "clglmsync: clEnqueueAcquireGLObjects err %d",err);
 
 	} else if (flags&CL_MEM_GLBUF) {
 
-		err = clEnqueueReleaseGLObjects(
-			cp->cmdq[devnum],1,&(memd->clbuf),0,0,&ev);
+		err = clEnqueueReleaseGLObjects( cp->cmdq[devnum],1,&(memd->clbuf),
+			0,0,&ev);
+		__set_oclerrno(err);
 
-		DEBUG(__FILE__,__LINE__,
-			"clglmsync: clEnqueueReleaseGLObjects err %d",err);
+		printcl( CL_DEBUG "clglmsync: clEnqueueReleaseGLObjects err %d",err);
 	
 	} else {
 
-		WARN(__FILE__,__LINE__,"clglmsync: invalid flag, did nothing");
+		printcl( CL_WARNING "clglmsync: invalid flag, did nothing");
 
 		return((cl_event)0);
 
@@ -1096,9 +1078,11 @@ clglmsync(CONTEXT* cp, unsigned int devnum, void* ptr, int flags )
 	} else { /* CL_EVENT_WAIT */
 
 		err = clWaitForEvents(1,&ev);
+		__set_oclerrno(err);
 
 		if ( !(flags & CL_EVENT_NORELEASE) ) {
-			clReleaseEvent(ev);
+			err = clReleaseEvent(ev);
+			__set_oclerrno(err);
 			ev = (cl_event)0;
 		}
 

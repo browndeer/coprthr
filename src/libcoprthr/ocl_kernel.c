@@ -1,6 +1,6 @@
-/* xcl_kernel.c 
+/* ocl_kernel.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -24,20 +24,21 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "kernel.h"
 #include "program.h"
 
-// Kernel Object APIs
+// Kernel Object API Calls
 
 
 cl_kernel 
-clCreateKernel(
+_clCreateKernel(
 	 cl_program prg,
 	 const char* kname,
 	 cl_int* err_ret
 )
 {
-	DEBUG(__FILE__,__LINE__,"clCreateKernel");
+	printcl( CL_DEBUG "clCreateKernel");
 
 	if (__invalid_program(prg)) __error_return(CL_INVALID_PROGRAM,cl_kernel);
 
@@ -73,14 +74,14 @@ clCreateKernel(
 
 
 cl_int 
-clCreateKernelsInProgram(
+_clCreateKernelsInProgram(
 	 cl_program prg,
 	 cl_uint nkrn,
 	 cl_kernel* kernels,
 	 cl_uint* nkrn_ret
 )
 {
-	DEBUG(__FILE__,__LINE__,"clCreateKernelsInProgram");
+	printcl( CL_DEBUG "clCreateKernelsInProgram");
 
 	if (__invalid_program(prg)) return(CL_INVALID_PROGRAM);
 
@@ -121,9 +122,9 @@ clCreateKernelsInProgram(
 
 
 cl_int 
-clRetainKernel( cl_kernel krn )
+_clRetainKernel( cl_kernel krn )
 {
-	DEBUG(__FILE__,__LINE__,"clRetainKernel");
+	printcl( CL_DEBUG "clRetainKernel");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
@@ -134,9 +135,9 @@ clRetainKernel( cl_kernel krn )
 
 
 cl_int 
-clReleaseKernel( cl_kernel krn )
+_clReleaseKernel( cl_kernel krn )
 {
-	DEBUG(__FILE__,__LINE__,"clReleaseKernel");
+	printcl( CL_DEBUG "clReleaseKernel");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
@@ -147,14 +148,14 @@ clReleaseKernel( cl_kernel krn )
 
 
 cl_int 
-clSetKernelArg(
+_clSetKernelArg(
 	 cl_kernel krn,
 	 cl_uint argn,
 	 size_t arg_sz,
 	 const void* arg_val
 )
 {
-	DEBUG(__FILE__,__LINE__,"clSetKernelArg");
+	printcl( CL_DEBUG "clSetKernelArg");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
@@ -172,7 +173,7 @@ clSetKernelArg(
 
 
 cl_int 
-clGetKernelInfo(
+_clGetKernelInfo(
 	 cl_kernel krn,
 	 cl_kernel_info param_name,
 	 size_t param_sz,
@@ -180,7 +181,7 @@ clGetKernelInfo(
 	 size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetKernelInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetKernelInfo: warning: unsupported");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
@@ -191,9 +192,9 @@ clGetKernelInfo(
 		case CL_KERNEL_FUNCTION_NAME:
 
 			sz = strnlen(krn->name,__CLMAXSTR_LEN)+1;
-			DEBUG(__FILE__,__LINE__,"clGetKernelInfo: name |%s|",krn->name);
+			printcl( CL_DEBUG "clGetKernelInfo: name |%s|",krn->name);
 			__case_get_param(sz,krn->name);
-			DEBUG(__FILE__,__LINE__,"clGetKernelInfo: param_val |%s|",param_val);
+			printcl( CL_DEBUG "clGetKernelInfo: param_val |%s|",param_val);
 
 			break;
 
@@ -232,7 +233,7 @@ clGetKernelInfo(
 
 
 cl_int 
-clGetKernelWorkGroupInfo(
+_clGetKernelWorkGroupInfo(
 	 cl_kernel krn,
 	 cl_device_id devid,
 	 cl_kernel_work_group_info param_name,
@@ -241,7 +242,7 @@ clGetKernelWorkGroupInfo(
 	 size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetKernelWorkGroupInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetKernelWorkGroupInfo: warning: unsupported");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
@@ -280,3 +281,41 @@ clGetKernelWorkGroupInfo(
 
 	return(CL_ENOTSUP);
 }
+
+
+// Aliased Kernel Object API calls
+
+
+cl_kernel
+clCreateKernel( cl_program prg, const char* kname, cl_int* err_ret)
+	__attribute__((alias("_clCreateKernel")));
+
+cl_int
+clCreateKernelsInProgram( cl_program prg, cl_uint nkrn, cl_kernel* kernels,
+    cl_uint* nkrn_ret)
+	__attribute__((alias("_clCreateKernelsInProgram")));
+
+cl_int
+clRetainKernel( cl_kernel krn )
+	__attribute__((alias("_clRetainKernel")));
+
+cl_int
+clReleaseKernel( cl_kernel krn )
+	__attribute__((alias("_clReleaseKernel")));
+
+cl_int
+clSetKernelArg( cl_kernel krn, cl_uint argn, size_t arg_sz, 
+	const void* arg_val)
+	__attribute__((alias("_clSetKernelArg")));
+
+cl_int
+clGetKernelInfo( cl_kernel krn, cl_kernel_info param_name, size_t param_sz,
+    void* param_val, size_t* param_sz_ret)
+	__attribute__((alias("_clGetKernelInfo")));
+
+cl_int
+clGetKernelWorkGroupInfo( cl_kernel krn, cl_device_id devid, 
+	cl_kernel_work_group_info param_name, size_t param_sz, void* param_val,
+	size_t* param_sz_ret)
+	__attribute__((alias("_clGetKernelWorkGroupInfo")));
+

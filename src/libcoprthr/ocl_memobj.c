@@ -1,6 +1,6 @@
-/* xcl_memobj.c 
+/* ocl_memobj.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -24,13 +24,13 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 
-
-// Memory Object APIs
+// Memory Object API Calls
 
  
 cl_mem 
-clCreateBuffer(
+_clCreateBuffer(
 	cl_context ctx,
 	cl_mem_flags flags,
 	size_t size,
@@ -38,7 +38,7 @@ clCreateBuffer(
 	cl_int* err_ret
 ) 
 {
-	DEBUG(__FILE__,__LINE__,"clCreateBuffer");
+	printcl( CL_DEBUG "clCreateBuffer");
 
 	if (__invalid_context(ctx)) __error_return(CL_INVALID_CONTEXT,cl_mem);
 
@@ -72,7 +72,7 @@ clCreateBuffer(
 
 	struct _cl_mem* membuf = (struct _cl_mem*)malloc(sizeof(struct _cl_mem));
 
-	DEBUG(__FILE__,__LINE__,"malloc returned %p",membuf);
+	printcl( CL_DEBUG "malloc returned %p",membuf);
 
 
 	if (membuf) {
@@ -99,7 +99,7 @@ clCreateBuffer(
 
  
 cl_mem 
-clCreateImage2D(
+_clCreateImage2D(
 	cl_context ctx,
 	cl_mem_flags flags,
 	const cl_image_format* img_format,
@@ -110,11 +110,11 @@ clCreateImage2D(
 	cl_int* err_ret
 ) 
 {
-//	WARN(__FILE__,__LINE__,"clCreateImage2D: warning: unsupported");
+//	printcl( CL_WARNING "clCreateImage2D: warning: unsupported");
 //	__error(CL_ENOTSUP);
 //	return((cl_mem)0);
 
-	DEBUG(__FILE__,__LINE__,"clCreateImage2D");
+	printcl( CL_DEBUG "clCreateImage2D");
 
 	if (__invalid_context(ctx)) __error_return(CL_INVALID_CONTEXT,cl_mem);
 
@@ -188,7 +188,7 @@ clCreateImage2D(
                       
  
 cl_mem 
-clCreateImage3D(
+_clCreateImage3D(
 	cl_context ctx,
 	cl_mem_flags flags,
 	const cl_image_format* img_format,
@@ -201,7 +201,7 @@ clCreateImage3D(
 	cl_int* err_ret
 ) 
 {
-	WARN(__FILE__,__LINE__,"clCreateImage3D: warning: unsupported");
+	printcl( CL_WARNING "clCreateImage3D: warning: unsupported");
 
 	__error_return(CL_ENOTSUP,cl_mem);
 
@@ -211,9 +211,9 @@ clCreateImage3D(
                         
  
 cl_int 
-clRetainMemObject(cl_mem memobj) 
+_clRetainMemObject(cl_mem memobj) 
 {
-	DEBUG(__FILE__,__LINE__,"clRetainMemObject");
+	printcl( CL_DEBUG "clRetainMemObject");
 
 	if (!memobj) return(CL_INVALID_MEM_OBJECT);
 
@@ -224,9 +224,9 @@ clRetainMemObject(cl_mem memobj)
 
 
 cl_int 
-clReleaseMemObject(cl_mem memobj)
+_clReleaseMemObject(cl_mem memobj)
 {
-	DEBUG(__FILE__,__LINE__,"clReleaseMemObject");
+	printcl( CL_DEBUG "clReleaseMemObject");
 
 	if (__invalid_memobj(memobj)) return(CL_INVALID_MEM_OBJECT);
 
@@ -237,7 +237,7 @@ clReleaseMemObject(cl_mem memobj)
 
 
 cl_int 
-clGetSupportedImageFormats(
+_clGetSupportedImageFormats(
 	cl_context ctx,
 	cl_mem_flags flags,
 	cl_mem_object_type imgtype,
@@ -245,14 +245,14 @@ clGetSupportedImageFormats(
 	cl_image_format* imgfmt,
 	cl_uint* nimgfmt_ret)
 {
-	WARN(__FILE__,__LINE__,"clGetSupportedImageFormats: warning: unsupported");
+	printcl( CL_WARNING "clGetSupportedImageFormats: warning: unsupported");
 
 	return(CL_ENOTSUP);
 }
 
                                     
 cl_int 
-clGetMemObjectInfo(
+_clGetMemObjectInfo(
 	cl_mem memobj,
    cl_mem_info param_name, 
 	size_t param_sz,
@@ -260,7 +260,7 @@ clGetMemObjectInfo(
 	size_t* param_sz_ret
 ) 
 {
-	DEBUG(__FILE__,__LINE__,"clGetMemObjectInfo");
+	printcl( CL_DEBUG "clGetMemObjectInfo");
 
 	if (__invalid_memobj(memobj)) return(CL_INVALID_MEM_OBJECT);
 
@@ -321,7 +321,7 @@ clGetMemObjectInfo(
 
 
 cl_int 
-clGetImageInfo(
+_clGetImageInfo(
 	cl_mem image,
 	cl_image_info param_name, 
 	size_t param_sz,
@@ -329,7 +329,7 @@ clGetImageInfo(
 	size_t* param_sz_ret
 )
 {
-	WARN(__FILE__,__LINE__,"clGetImageInfo: warning: unsupported");
+	printcl( CL_WARNING "clGetImageInfo: warning: unsupported");
 
 	if (__invalid_memobj(image)) return(CL_INVALID_MEM_OBJECT);
 
@@ -337,4 +337,48 @@ clGetImageInfo(
 }
 
 
+
+// Aliased Memory Object API Calls
+
+cl_mem
+clCreateBuffer( cl_context ctx, cl_mem_flags flags, size_t size,
+   void* host_ptr, cl_int* err_ret)
+	__attribute__((alias("_clCreateBuffer")));
+
+cl_mem
+clCreateImage2D( cl_context ctx, cl_mem_flags flags, 
+	const cl_image_format* img_format, size_t img_width, size_t img_height,
+   size_t img_row_pitch, void* host_ptr, cl_int* err_ret)
+	__attribute__((alias("_clCreateImage2D")));
+
+cl_mem
+clCreateImage3D( cl_context ctx, cl_mem_flags flags, 
+	const cl_image_format* img_format, size_t img_width, size_t img_height,
+   size_t img_depth, size_t img_row_pitch, size_t img_slice_pitch,
+   void* host_ptr, cl_int* err_ret)
+	__attribute__((alias("_clCreateImage3D")));
+
+cl_int
+clRetainMemObject(cl_mem memobj)
+	__attribute__((alias("_clRetainMemObject")));
+
+cl_int
+clReleaseMemObject(cl_mem memobj)
+	__attribute__((alias("_clReleaseMemObject")));
+
+cl_int
+clGetSupportedImageFormats( cl_context ctx, cl_mem_flags flags,
+   cl_mem_object_type imgtype, cl_uint nimgfmt, cl_image_format* imgfmt,
+   cl_uint* nimgfmt_ret)
+	__attribute__((alias("_clGetSupportedImageFormats")));
+
+cl_int
+clGetMemObjectInfo( cl_mem memobj, cl_mem_info param_name, size_t param_sz,
+   void* param_val, size_t* param_sz_ret) 
+	__attribute__((alias("_clGetMemObjectInfo")));
+
+cl_int
+clGetImageInfo( cl_mem image, cl_image_info param_name, size_t param_sz,
+   void* param_val, size_t* param_sz_ret)
+	__attribute__((alias("_clGetImageInfo")));
 

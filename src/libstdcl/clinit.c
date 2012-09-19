@@ -1,6 +1,6 @@
 /* clinit.c
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -46,7 +46,8 @@
 #define __STDCL__
 #include "clinit.h"
 #include "clcontext.h"
-
+#include "printcl.h"
+#include "clerrno.h"
 
 #ifdef DEFAULT_OPENCL_PLATFORM
 #define DEFAULT_PLATFORM_NAME DEFAULT_OPENCL_PLATFORM
@@ -107,7 +108,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	int lock_key;
 
 
-	DEBUG(__FILE__,__LINE__,"_libstdcl_init() called");
+	printcl( CL_DEBUG "_libstdcl_init() called");
 
 	/*
 	 * set _proc_cl struct
@@ -116,26 +117,26 @@ void __attribute__((__constructor__)) _libstdcl_init()
 #ifndef _WIN64
 
 	pid_t pid = getpid();
-	DEBUG(__FILE__,__LINE__,"_libstdcl_init: pid=%d\n",pid);
+	printcl( CL_DEBUG "_libstdcl_init: pid=%d\n",pid);
 
 	char procexe[256];
 	snprintf(procexe,256,"/proc/%d/exe",pid);
 
 	struct stat st;
-	if (stat(procexe,&st)) ERROR(__FILE__,__LINE__,"stat procexe failed");
+	if (stat(procexe,&st)) printcl( CL_ERR "stat procexe failed");
 
 	procelf_fd = open(procexe,O_RDONLY);
 
 	if (procelf_fd < 0) { 
 
-		ERROR(__FILE__,__LINE__,"opening procexe failed");
+		printcl( CL_ERR "opening procexe failed");
 
 	} else {
 
 		procelf = mmap(0,st.st_size,PROT_READ,MAP_PRIVATE,procelf_fd,0);
 		procelf_sz = st.st_size;
 
-		DEBUG(__FILE__,__LINE__,"_libstdcl_init: procelf size %d bytes\n",
+		printcl( CL_DEBUG "_libstdcl_init: procelf size %d bytes\n",
 			st.st_size);
 
 		_proc_clelf_sect 
@@ -149,7 +150,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 	if (sect) {
 
-		DEBUG(__FILE__,__LINE__,"_libstdcl_init: proc clelf sections:"
+		printcl( CL_DEBUG "_libstdcl_init: proc clelf sections:"
 			" %p %p %p %p %p %p %p\n",
 			sect->clprgtab,
 			sect->clkrntab,
@@ -170,7 +171,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	 * initialize stddev (all CL devices)
 	 */
 
-	DEBUG(__FILE__,__LINE__,"clinit: initialize stddev");
+	printcl( CL_DEBUG "clinit: initialize stddev");
 
 
 	stddev = 0;
@@ -202,7 +203,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 	}
 
-	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
+	printcl( CL_DEBUG "back from clcontext_create\n");
 
 
 
@@ -210,7 +211,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	 * initialize stdcpu (all CPU CL devices)
 	 */
 
-	DEBUG(__FILE__,__LINE__,"clinit: initialize stdcpu");
+	printcl( CL_DEBUG "clinit: initialize stdcpu");
 
 
 	stdcpu = 0;
@@ -242,7 +243,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 	}
 
-	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
+	printcl( CL_DEBUG "back from clcontext_create\n");
 
 
 
@@ -251,7 +252,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	 * initialize stdgpu (all GPU CL devices)
 	 */
 
-	DEBUG(__FILE__,__LINE__,"clinit: initialize stdgpu");
+	printcl( CL_DEBUG "clinit: initialize stdgpu");
 
 	stdgpu = 0;
 	ndev = 0; /* this is a special case that implies all available -DAR */
@@ -282,7 +283,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 	}
 
-	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
+	printcl( CL_DEBUG "back from clcontext_create\n");
 
 
 
@@ -290,7 +291,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	 * initialize stdrpu (all RPU CL devices)
 	 */
 
-	DEBUG(__FILE__,__LINE__,"clinit: initialize stdrpu");
+	printcl( CL_DEBUG "clinit: initialize stdrpu");
 
 	stdrpu = 0;
 	ndev = 0; /* this is a special case that implies all available -DAR */
@@ -316,7 +317,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 	}
 
-	DEBUG(__FILE__,__LINE__,"back from clcontext_create\n");
+	printcl( CL_DEBUG "back from clcontext_create\n");
 
 
 
@@ -329,7 +330,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 			snprintf(
 				__log_automatic_kernels_filename,256+6,
 				"coprthr.autokern.log.%d",getpid());
-		DEBUG(__FILE__,__LINE__,"log_automatic_kernels written to %s",
+		printcl( CL_DEBUG "log_automatic_kernels written to %s",
 			__log_automatic_kernels_filename);
 	}
 
@@ -344,7 +345,7 @@ void _libstdcl_fini()
 void __attribute__((__destructor__)) _libstdcl_fini()
 #endif
 {
-	DEBUG(__FILE__,__LINE__,"_libstdcl_fini() called");
+	printcl( CL_DEBUG "_libstdcl_fini() called");
 
 	if (stdgpu) clcontext_destroy(stdgpu);
 

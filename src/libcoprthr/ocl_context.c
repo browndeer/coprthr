@@ -1,6 +1,6 @@
-/* xcl_context.c 
+/* ocl_context.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -24,6 +24,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "context.h"
 
 
@@ -33,12 +34,11 @@ static int __find_context_property(cl_context_properties*,
 	cl_context_properties, void*);
 
 
-// Context APIs  
+// Context API Calls
 
 
 cl_context 
-clCreateContext(
-//	cl_context_properties* prop,
+_clCreateContext(
 	const cl_context_properties* prop,
 	cl_uint ndev, 
 	const cl_device_id* devices, 
@@ -47,7 +47,7 @@ clCreateContext(
 	cl_int* err_ret
 )
 {
-	DEBUG(__FILE__,__LINE__,"clCreateContext");
+	printcl( CL_DEBUG "clCreateContext");
 
 	size_t sz;
 
@@ -62,7 +62,7 @@ clCreateContext(
 
 	if (!__find_context_property(prop,CL_CONTEXT_PLATFORM,&platformid)) {
 
-		WARN(__FILE__,__LINE__,"clCreateContext: no platformid, using default");
+		printcl( CL_WARNING "clCreateContext: no platformid, using default");
 
 		__do_get_default_platformid(&platformid);
 	}
@@ -100,7 +100,7 @@ clCreateContext(
 
 	 
 cl_context 
-clCreateContextFromType(
+_clCreateContextFromType(
 	const cl_context_properties* prop, 
   	cl_device_type devtype, 
 	void (*pfn_notify) (const char*, const void*, size_t, void*),
@@ -108,7 +108,7 @@ clCreateContextFromType(
 	cl_int* err_ret	
 )
 {
-	DEBUG(__FILE__,__LINE__,"clCreateContextFromType");
+	printcl( CL_DEBUG "clCreateContextFromType");
 
 	if (!pfn_notify && user_data) __error_return(CL_INVALID_VALUE,cl_context);
 
@@ -120,7 +120,7 @@ clCreateContextFromType(
 
 	if (!__find_context_property(prop,CL_CONTEXT_PLATFORM,&platformid)) {
 
-		WARN(__FILE__,__LINE__,"clCreateContext: no platformid, using default");
+		printcl( CL_WARNING "clCreateContext: no platformid, using default");
 
 		__do_get_default_platformid(&platformid);
 
@@ -132,7 +132,7 @@ clCreateContextFromType(
 //   __do_get_ndevices(platformid,&n);
    __do_get_ndevices(platformid,devtype,&n);
 
-	DEBUG(__FILE__,__LINE__,"clCreateContextFromType: platform ndev=%d",n);
+	printcl( CL_DEBUG "clCreateContextFromType: platform ndev=%d",n);
 
    if (n == 0) __error_return(CL_DEVICE_NOT_FOUND,cl_context);
 
@@ -144,7 +144,7 @@ clCreateContextFromType(
 
 	for(i=0;i<n;i++) {
 
-		DEBUG(__FILE__,__LINE__,
+		printcl( CL_DEBUG 
 			"clCreateContextFromType: compare %x %x",
 			__resolve_devid(devices[i],devtype),devtype);
 
@@ -153,7 +153,7 @@ clCreateContextFromType(
 
 	}
 
-	DEBUG(__FILE__,__LINE__,"clCreateContextFromType: matching ndev=%d",ndev);
+	printcl( CL_DEBUG "clCreateContextFromType: matching ndev=%d",ndev);
 
 	if (ndev == 0) __error_return(CL_DEVICE_NOT_FOUND,cl_context);
 
@@ -197,9 +197,9 @@ clCreateContextFromType(
 
 
 cl_int 
-clRetainContext(cl_context	ctx )
+_clRetainContext(cl_context	ctx )
 {
-	DEBUG(__FILE__,__LINE__,"clRetainContext");
+	printcl( CL_DEBUG "clRetainContext");
 
 	if (__invalid_context(ctx)) return(CL_INVALID_CONTEXT);
 
@@ -210,9 +210,9 @@ clRetainContext(cl_context	ctx )
 
 
 cl_int 
-clReleaseContext(cl_context ctx )
+_clReleaseContext(cl_context ctx )
 {
-	DEBUG(__FILE__,__LINE__,"clReleaseContext");
+	printcl( CL_DEBUG "clReleaseContext");
 
 	if (__invalid_context(ctx)) return(CL_INVALID_CONTEXT);
 
@@ -229,7 +229,7 @@ clReleaseContext(cl_context ctx )
 
 	 
 cl_int 
-clGetContextInfo(
+_clGetContextInfo(
 	cl_context ctx, cl_context_info param_name, 
 	size_t param_sz, void* param_val, size_t* param_sz_ret
 )
@@ -260,7 +260,7 @@ clGetContextInfo(
 			break;
 
 		case CL_CONTEXT_PROPERTIES:
-			WARN(__FILE__,__LINE__,"clGetContextInfo: unsupported");
+			printcl( CL_WARNING "clGetContextInfo: unsupported");
 			/* XXX context properties are not supported here yet. -DAR */
 
 		default:
@@ -284,24 +284,51 @@ static int __find_context_property(
 
 		cl_context_properties p = props[n++];
 
-		DEBUG(__FILE__,__LINE__,"__find_context_property: (%x) p=%x",prop,p);
+		printcl( CL_DEBUG "__find_context_property: (%x) p=%x",prop,p);
 
 		if (p == 0) return(0);
 
 		cl_context_properties v = props[n++];
 
-		DEBUG(__FILE__,__LINE__,"__find_context_property: v=%x",v);
+		printcl( CL_DEBUG "__find_context_property: v=%x",v);
 
-		if (p == prop) { *(cl_context_properties*)val = v; 
-DEBUG(__FILE__,__LINE__,"__find_context_property: match"); return(1); 
-}
+		if (p == prop) { 
+			*(cl_context_properties*)val = v; 
+			printcl( CL_DEBUG "__find_context_property: match"); return(1); 
+		}
 
 	}
 
-	WARN(__FILE__,__LINE__, "__find_conext_property:"
+	printcl( CL_WARNING  "__find_conext_property:"
 		" cl_context_properties list not terminated");
 
 	return(0);
 }
+
+
+// Aliased Context API Calls
+
+cl_context
+clCreateContext( const cl_context_properties*, cl_uint, const cl_device_id*,
+   void (*) (const char*, const void*, size_t, void*), void*, cl_int*)
+	__attribute__((alias("_clCreateContext")));
+
+cl_context
+clCreateContextFromType( const cl_context_properties*, cl_device_type,
+   void (*) (const char*, const void*, size_t, void*), void*, cl_int*)
+	__attribute__((alias("_clCreateContextFromType")));
+
+cl_int
+clRetainContext(cl_context)
+	__attribute__((alias("_clRetainContext")));
+
+cl_int
+clReleaseContext(cl_context)
+	__attribute__((alias("_clReleaseContext")));
+
+cl_int
+clGetContextInfo( cl_context, cl_context_info, size_t, void*, size_t*)
+	__attribute__((alias("_clGetContextInfo")));
+
 
 

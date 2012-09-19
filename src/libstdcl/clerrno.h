@@ -1,6 +1,6 @@
-/* xcl_flush.c 
+/* clerrno.h
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,39 +20,11 @@
 
 /* DAR */
 
+#ifndef _CLERRNO_H
+#define _CLERRNO_H
 
-#include <CL/cl.h>
+extern int oclerrno;
+extern int clerrno;
 
-#include "xcl_structs.h"
-
-
-// Flush and Finish APIs
-
-
-cl_int 
-clFlush(cl_command_queue cmdq)
-{
-	WARN(__FILE__,__LINE__,"clFlush: warning: unsupported");
-
-	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
-
-//	__do_flush(cmdq);
-
-	return(CL_SUCCESS);
-}
-
-
-cl_int 
-clFinish(cl_command_queue cmdq )
-{
-	WARN(__FILE__,__LINE__,"clFinish: warning: unsupported");
-
-	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
-
-//	__do_finish(cmdq);
-
-	return(CL_SUCCESS);
-}
-
-
+#endif
 

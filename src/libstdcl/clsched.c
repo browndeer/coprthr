@@ -37,12 +37,12 @@
 
 #include <CL/cl.h>
 #include "util.h"
+#include "printcl.h"
+#include "clerrno.h"
+
 
 #define __STDCL__
 #include "clsched.h"
-
-
-#define __error(e) do { errno=e; return(-1); } while(0); 
 
 
 LIBSTDCL_API
@@ -61,33 +61,33 @@ cl_event clfork(
 
 	cl_event ev;
 
-	DEBUG(__FILE__,__LINE__,"clfork: devnum=%d\n",devnum);
-	DEBUG(__FILE__,__LINE__,"clfork: kev,evp %p,%p\n",cp->kev[devnum].ev,evp);
+	printcl( CL_DEBUG "clfork: devnum=%d\n",devnum);
+	printcl( CL_DEBUG "clfork: kev,evp %p,%p\n",cp->kev[devnum].ev,evp);
 
 #ifdef _WIN64
 	__cmdq_create(cp,devnum);
 #endif
 
-	 DEBUG(__FILE__,__LINE__,"clfork: ndr.dim=%d\n",ndr->dim);
+	 printcl( CL_DEBUG "clfork: ndr.dim=%d\n",ndr->dim);
 
 #if defined(CL_VERSION_1_1)
-	 DEBUG(__FILE__,__LINE__,"clfork: using CL_VERSION_1_1");
+	 printcl( CL_DEBUG "clfork: using CL_VERSION_1_1");
 #endif
 
 #if defined(CL_VERSION_1_1)
-	 DEBUG(__FILE__,__LINE__,"clfork: ndr.gtid_offset=%d %d %d %d\n",
+	 printcl( CL_DEBUG "clfork: ndr.gtid_offset=%d %d %d %d\n",
 		ndr->gtid_offset[0],ndr->gtid_offset[1],
 		ndr->gtid_offset[2],ndr->gtid_offset[3]);
 #endif
-	 DEBUG(__FILE__,__LINE__,"clfork: ndr.gtid=%d %d %d %d\n",
+	 printcl( CL_DEBUG "clfork: ndr.gtid=%d %d %d %d\n",
 		ndr->gtid[0],ndr->gtid[1],ndr->gtid[2],ndr->gtid[3]);
-	 DEBUG(__FILE__,__LINE__,"clfork: ndr.ltid=%d %d %d %d\n",
+	 printcl( CL_DEBUG "clfork: ndr.ltid=%d %d %d %d\n",
 		ndr->ltid[0],ndr->ltid[1],ndr->ltid[2],ndr->ltid[3]);
 
 	if (flags & CL_FAST) {
 
 #if defined(CL_VERSION_1_1)
-	 DEBUG(__FILE__,__LINE__,"clfork: using CL_VERSION_1_1");
+	 printcl( CL_DEBUG "clfork: using CL_VERSION_1_1");
 #endif
 
 	int err = clEnqueueNDRangeKernel(
@@ -98,6 +98,8 @@ cl_event clfork(
 #endif
 		0,0,0
 	);
+	__set_oclerrno(err);
+
 	return((cl_event)0);
 
 
@@ -111,8 +113,9 @@ cl_event clfork(
 #endif
 		(evp)?1:0,evp,&ev
 	);
+	__set_oclerrno(err);
 
-	DEBUG(__FILE__,__LINE__,"clfork: clEnqueueNDRangeKernel err %d\n",err);
+	printcl( CL_DEBUG "clfork: clEnqueueNDRangeKernel err %d\n",err);
 
 	if (flags & CL_EVENT_NOWAIT) {
 
@@ -120,13 +123,13 @@ cl_event clfork(
 		cp->kev[devnum].ev_free %= STDCL_EVENTLIST_MAX;
 		++cp->kev[devnum].nev;
 
-//	} else { /* CL_EVENT_WAIT */
 	} else if (flags & CL_EVENT_WAIT) { /* CL_EVENT_WAIT */
 
-		DEBUG(__FILE__,__LINE__,"clfork: clWaitForEvents %d,%p",1,&ev);
+		printcl( CL_DEBUG "clfork: clWaitForEvents %d,%p",1,&ev);
 
 		err = clWaitForEvents( 1, &ev);
-		DEBUG(__FILE__,__LINE__,"clfork: clWaitForEvents %d",err);
+		__set_oclerrno(err);
+		printcl( CL_DEBUG "clfork: clWaitForEvents %d",err);
 
 //#ifdef USE_DEPRECATED_FLAGS
 //		if (flags & CL_EVENT_RELEASE && !(flags & CL_EVENT_NORELEASE) ) {
@@ -135,7 +138,8 @@ cl_event clfork(
 //		}
 //#else
 		if ( !(flags & CL_EVENT_NORELEASE) ) {
-			clReleaseEvent(ev);
+			err = clReleaseEvent(ev);
+			__set_oclerrno(err);
 			ev = (cl_event)0;
 		}
 //#endif
@@ -145,8 +149,8 @@ cl_event clfork(
 	}
 
 
-	DEBUG(__FILE__,__LINE__,
-		"clfork first,free %d,%d\n",cp->kev[devnum].ev_first,cp->kev[devnum].ev_free);
+	printcl( CL_DEBUG "clfork first,free %d,%d\n",
+		cp->kev[devnum].ev_first,cp->kev[devnum].ev_free);
 	
 	return(ev);
 }
@@ -164,7 +168,8 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 #endif
 
 	if (flags&CL_FAST) {
-		clFinish(cp->cmdq[0]);
+		err = clFinish(cp->cmdq[0]);
+		__set_oclerrno(err);
 		return((cl_event)0);
 	}
 
@@ -176,18 +181,18 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 //	}
 //#else
 	if ( flags&CL_EVENT_NORELEASE ) {
-		WARN(__FILE__,__LINE__,"clwait: ignoring CL_EVENT_NORELEASE");
+		printcl( CL_WARNING "clwait: ignoring CL_EVENT_NORELEASE");
 	}
 //#endif
 
 	/* provide warning if no event list has been chosen */
 
 	if (!flags&(CL_KERNEL_EVENT|CL_MEM_EVENT)) {
-		WARN(__FILE__,__LINE__,"clwait: no event list specified");
+		printcl( CL_WARNING "clwait: no event list specified");
 	}
 
 
-	DEBUG(__FILE__,__LINE__,"clwait: devnum=%d kev.ndev=%d mev.nev=%d",
+	printcl( CL_DEBUG "clwait: devnum=%d kev.ndev=%d mev.nev=%d",
 		devnum,cp->kev[devnum].nev,cp->mev[devnum].nev);
 
 	/*
@@ -196,66 +201,78 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 
 	if (flags&CL_KERNEL_EVENT && cp->kev[devnum].nev > 0) {
 
-		DEBUG(__FILE__,__LINE__,
-			"clwait first,free=%d,%d knev=%d\n",
+		printcl( CL_DEBUG "clwait first,free=%d,%d knev=%d\n",
 			cp->kev[devnum].ev_first,cp->kev[devnum].ev_free,cp->kev[devnum].nev);
 
 //		if (!cp->kev[devnum].nev) return((cl_event)0);
 
 		if (cp->kev[devnum].ev_first < cp->kev[devnum].ev_free) {
 
-			DEBUG(__FILE__,__LINE__, "clwait one event list");
+			printcl( CL_DEBUG "clwait one event list");
 
-			DEBUG(__FILE__,__LINE__, "clwait: clWaitForEvents(%d,%p) %p",
+			printcl( CL_DEBUG "clwait: clWaitForEvents(%d,%p) %p",
 				cp->kev[devnum].ev_free - cp->kev[devnum].ev_first,
 				&cp->kev[devnum].ev[cp->kev[devnum].ev_first],cp->kev[devnum].ev);
 
-DEBUG(__FILE__,__LINE__, "clwait: here");
-
 			err = clWaitForEvents(
 				cp->kev[devnum].ev_free - cp->kev[devnum].ev_first, 
-				&cp->kev[devnum].ev[cp->kev[devnum].ev_first]
-			);
-
-DEBUG(__FILE__,__LINE__, "clwait: here");
+				&cp->kev[devnum].ev[cp->kev[devnum].ev_first] );
+			__set_oclerrno(err);
 
 			for(evp = cp->kev[devnum].ev + cp->kev[devnum].ev_first; 
 				evp < cp->kev[devnum].ev + cp->kev[devnum].ev_free; evp++
-			) clReleaseEvent(*evp);
+			) {
+				err = clReleaseEvent(*evp);
+				__set_oclerrno(err);
+			}
 
 			cp->kev[devnum].nev = cp->kev[devnum].ev_first 
 				= cp->kev[devnum].ev_free = 0;
 
 		} else if (cp->kev[devnum].ev_free > cp->kev[devnum].ev_first) {
 
-			DEBUG(__FILE__,__LINE__, "clwait two event lists");
+			printcl( CL_DEBUG "clwait two event lists");
 
 			err = clWaitForEvents(STDCL_EVENTLIST_MAX - cp->kev[devnum].ev_first, 
-				&cp->kev[devnum].ev[cp->kev[devnum].ev_first]
-			);
+				&cp->kev[devnum].ev[cp->kev[devnum].ev_first]);
+			__set_oclerrno(err);
 
 			err = clWaitForEvents(cp->kev[devnum].ev_free, cp->kev[devnum].ev);
+			__set_oclerrno(err);
 
 			for(evp = cp->kev[devnum].ev + cp->kev[devnum].ev_first; 
 				evp < cp->kev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
-			) clReleaseEvent(*evp);
+			) {
+				err = clReleaseEvent(*evp);
+				__set_oclerrno(err);
+			}
 
 			for(evp = cp->kev[devnum].ev; 
 				evp < cp->kev[devnum].ev + cp->kev[devnum].ev_free; evp++
-			) clReleaseEvent(*evp);
+			) {
+				err = clReleaseEvent(*evp);
+				__set_oclerrno(err);
+			}
 
-			cp->kev[devnum].nev = cp->kev[devnum].ev_first = cp->kev[devnum].ev_free = 0;
+			cp->kev[devnum].nev 
+				= cp->kev[devnum].ev_first = cp->kev[devnum].ev_free = 0;
 
 		} else {
 
-			DEBUG(__FILE__,__LINE__, "clwait full even list");
+			printcl( CL_DEBUG "clwait full even list");
 
 			err = clWaitForEvents(STDCL_EVENTLIST_MAX,cp->kev[devnum].ev);
+			__set_oclerrno(err);
 
-			for(evp = cp->kev[devnum].ev; evp < cp->kev[devnum].ev + STDCL_EVENTLIST_MAX; evp++)
-				clReleaseEvent(*evp);
+			for(evp = cp->kev[devnum].ev; 
+				evp < cp->kev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
+			) {
+				err = clReleaseEvent(*evp);
+				__set_oclerrno(err);
+			}
 
-			cp->kev[devnum].nev = cp->kev[devnum].ev_first = cp->kev[devnum].ev_free = 0;
+			cp->kev[devnum].nev 
+				= cp->kev[devnum].ev_first = cp->kev[devnum].ev_free = 0;
 
 		}
 
@@ -263,60 +280,76 @@ DEBUG(__FILE__,__LINE__, "clwait: here");
 
 	if (flags&CL_MEM_EVENT && cp->mev[devnum].nev > 0) {
 
-		DEBUG(__FILE__,__LINE__,
-			"clwait first,free=%d,%d mnev=%d\n",
+		printcl( CL_DEBUG "clwait first,free=%d,%d mnev=%d\n",
 			cp->mev[devnum].ev_first,cp->mev[devnum].ev_free,cp->mev[devnum].nev);
 
 //		if (!cp->mev[devnum].nev) return((cl_event)0);
 
 		if (cp->mev[devnum].ev_first < cp->mev[devnum].ev_free) {
 
-			DEBUG(__FILE__,__LINE__, "clwait one event list");
+			printcl( CL_DEBUG "clwait one event list");
 
-			DEBUG(__FILE__,__LINE__, "clwait: clWaitForEvents(%d,%p) %p",
+			printcl( CL_DEBUG "clwait: clWaitForEvents(%d,%p) %p",
 				cp->mev[devnum].ev_free - cp->mev[devnum].ev_first,
 				&cp->mev[devnum].ev[cp->mev[devnum].ev_first],cp->mev[devnum].ev);
 
 			err = clWaitForEvents(
 				cp->mev[devnum].ev_free - cp->mev[devnum].ev_first, 
-				&cp->mev[devnum].ev[cp->mev[devnum].ev_first]
-			);
+				&cp->mev[devnum].ev[cp->mev[devnum].ev_first]);
+			__set_oclerrno(err);
 
 			for(evp = cp->mev[devnum].ev + cp->mev[devnum].ev_first; 
 				evp < cp->mev[devnum].ev + cp->mev[devnum].ev_free; evp++
-			) clReleaseEvent(*evp);
+			) {
+				err = clReleaseEvent(*evp);
+				__set_oclerrno(err);
+			}
 
 			cp->mev[devnum].nev = cp->mev[devnum].ev_first 
 				= cp->mev[devnum].ev_free = 0;
 
 		} else if (cp->mev[devnum].ev_free > cp->mev[devnum].ev_first) {
 
-			DEBUG(__FILE__,__LINE__, "clwait two event lists");
+			printcl( CL_DEBUG "clwait two event lists");
 
 			err = clWaitForEvents(STDCL_EVENTLIST_MAX - cp->mev[devnum].ev_first, 
 				&cp->mev[devnum].ev[cp->mev[devnum].ev_first]);
+			__set_oclerrno(err);
 
 			err = clWaitForEvents(cp->mev[devnum].ev_free, cp->mev[devnum].ev);
+			__set_oclerrno(err);
 
 			for(evp = cp->mev[devnum].ev + cp->mev[devnum].ev_first; 
 				evp < cp->mev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
-			) clReleaseEvent(*evp);
+			) {
+				clReleaseEvent(*evp);
+				__set_oclerrno(err);
+			}
 
 			for(evp = cp->mev[devnum].ev; 
 				evp < cp->mev[devnum].ev + cp->mev[devnum].ev_free; evp++
-			) clReleaseEvent(*evp);
+			) {
+				err = clReleaseEvent(*evp);
+				__set_oclerrno(err);
+			}
 
 			cp->mev[devnum].nev = cp->mev[devnum].ev_first 
 				= cp->mev[devnum].ev_free = 0;
 
 		} else {
 
-			DEBUG(__FILE__,__LINE__, "clwait full even list");
+			printcl( CL_DEBUG "clwait full even list");
 
 			err = clWaitForEvents(STDCL_EVENTLIST_MAX,cp->mev[devnum].ev);
+			__set_oclerrno(err);
 
-			for(evp = cp->mev[devnum].ev; evp < cp->mev[devnum].ev + STDCL_EVENTLIST_MAX; evp++)
-				clReleaseEvent(*evp);
+			for( evp = cp->mev[devnum].ev; 
+				evp < cp->mev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
+			) {
+
+				err = clReleaseEvent(*evp);
+				__set_oclerrno(err);
+			}
 
 			cp->mev[devnum].nev = cp->mev[devnum].ev_first 
 				= cp->mev[devnum].ev_free = 0;
@@ -349,9 +382,11 @@ cl_event clwaitev(
 	}
 //#endif
 
-
 	err = clWaitForEvents(1,&ev);
-	clReleaseEvent(ev);
+	__set_oclerrno(err);
+
+	err = clReleaseEvent(ev);
+	__set_oclerrno(err);
 
 	/* XXX here should force ev to 0 however, require evp -DAR */
 
@@ -372,7 +407,8 @@ int clflush(CONTEXT* cp, unsigned int devnum, int flags)
 	__cmdq_create(cp,devnum);
 #endif
 
-	clFlush(cp->cmdq[devnum]);
+	int err = clFlush(cp->cmdq[devnum]);
+	__set_oclerrno(err);
 
 	return(0);
 

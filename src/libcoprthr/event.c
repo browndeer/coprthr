@@ -1,6 +1,6 @@
 /* event.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -23,6 +23,7 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
+#include "printcl.h"
 #include "event.h"
 #include "command_queue.h"
 
@@ -33,16 +34,16 @@ void __do_release_event(cl_event ev)
 
 	/* XXX this assumes the ev is on cmds_complete, check this first! -DAR */
 
-	DEBUG(__FILE__,__LINE__,"__do_release_event: attempt lock cmdq");
+	printcl( CL_DEBUG "__do_release_event: attempt lock cmdq");
 	__lock_cmdq(ev->cmdq);
-	DEBUG(__FILE__,__LINE__,"__do_release_event: locked cmdq");
-	DEBUG(__FILE__,__LINE__,"__do_release_event: remove ev from cmdq");
-	DEBUG(__FILE__,__LINE__,"__do_release_event: cmdq %p\n",ev->cmdq);
+	printcl( CL_DEBUG "__do_release_event: locked cmdq");
+	printcl( CL_DEBUG "__do_release_event: remove ev from cmdq");
+	printcl( CL_DEBUG "__do_release_event: cmdq %p\n",ev->cmdq);
 	TAILQ_REMOVE(&ev->cmdq->imp.cmds_complete,ev,imp.cmds);
-	DEBUG(__FILE__,__LINE__,"__do_release_event: removed from cmdq");
+	printcl( CL_DEBUG "__do_release_event: removed from cmdq");
 	__unlock_cmdq(ev->cmdq);
 	ev->cmdq = 0;
-	DEBUG(__FILE__,__LINE__,"__do_release_event: success");
+	printcl( CL_DEBUG "__do_release_event: success");
 }
 
 
@@ -124,10 +125,10 @@ void __do_set_cmd_read_image(
 	ev->imp.cmd_argp->m.src = (void*)src;
 
 	if (src_origin) __copy3(ev->imp.cmd_argp->m.src_origin,src_origin); 
-	else ERROR(__FILE__,__LINE__,"fix this");
+	else printcl( CL_ERR "fix this");
 
 	if (region) __copy3(ev->imp.cmd_argp->m.region,region);
-	else ERROR(__FILE__,__LINE__,"fix this");
+	else printcl( CL_ERR "fix this");
 
 	ev->imp.cmd_argp->m.row_pitch = (void*)row_pitch;
 	ev->imp.cmd_argp->m.slice_pitch = (void*)slice_pitch;
@@ -288,18 +289,18 @@ void __do_set_cmd_ndrange_kernel(
 
 	argp->k.krn = krn;
 
-	DEBUG(__FILE__,__LINE__,"ndev = %d",krn->prg->ndev);
+	printcl( CL_DEBUG "ndev = %d",krn->prg->ndev);
 
 	int devnum;
 	for(devnum=0;devnum<krn->prg->ndev;devnum++) 
 		if (cmdq->devid == krn->prg->devices[devnum]) break;
 
 	if (devnum == krn->prg->ndev) {
-		ERROR(__FILE__,__LINE__,"internal error");
+		printcl( CL_ERR "internal error");
 		exit(-1);
 	}
 
-	DEBUG(__FILE__,__LINE__,"devnum = %d",devnum);
+	printcl( CL_DEBUG "devnum = %d",devnum);
 
 //	argp->k.ksym = ((void***)krn->imp.v_ksym)[devnum][krn->imp.knum];
 //	argp->k.kcall = ((void***)krn->imp.v_kcall)[devnum][krn->imp.knum];
@@ -309,7 +310,7 @@ void __do_set_cmd_ndrange_kernel(
 	argp->k.narg = krn->narg;
 	argp->k.arg_buf_sz = krn->imp.arg_buf_sz;
 
-DEBUG(__FILE__,__LINE__,"setting argp->k.arg_kind %p",krn->imp.arg_kind);
+printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp.arg_kind);
 	
 	argp->k.arg_kind = krn->imp.arg_kind;
 	argp->k.arg_sz = krn->imp.arg_sz;
@@ -321,7 +322,7 @@ DEBUG(__FILE__,__LINE__,"setting argp->k.arg_kind %p",krn->imp.arg_kind);
 	__clone(argp->k.pr_arg_off,krn->imp.arg_off,krn->narg,uint32_t);
 	__clone(argp->k.pr_arg_buf,krn->imp.arg_buf,krn->imp.arg_buf_sz,void);
 
-	DEBUG(__FILE__,__LINE__,"arg_buf %p,%p",krn->imp.arg_buf,argp->k.pr_arg_buf);	
+	printcl( CL_DEBUG "arg_buf %p,%p",krn->imp.arg_buf,argp->k.pr_arg_buf);	
 	intptr_t offset 
 		= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->imp.arg_buf;
 
@@ -355,7 +356,7 @@ void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 		if (ev->cmdq->devid == krn->prg->devices[devnum]) break;
 
 	if (devnum == krn->prg->ndev) {
-		ERROR(__FILE__,__LINE__,"internal error");
+		printcl( CL_ERR "internal error");
 		exit(-1);
 	}
 
@@ -365,7 +366,7 @@ void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 	argp->k.kcall = krn->imp.v_ksyms[devnum][krn->imp.knum].kcall;
 	argp->k.narg = krn->narg;
 
-DEBUG(__FILE__,__LINE__,"setting argp->k.arg_kind %p",krn->imp.arg_kind);
+printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp.arg_kind);
 	
 	argp->k.arg_kind = krn->imp.arg_kind;
 	argp->k.arg_sz = krn->imp.arg_sz;
@@ -393,17 +394,17 @@ void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 
 		ev = evlist[i];
 
-		DEBUG(__FILE__,__LINE__,"wait for event %p %d\n",ev,ev->cmd_stat);
+		printcl( CL_DEBUG "wait for event %p %d\n",ev,ev->cmd_stat);
 
 		__lock_event(ev);
 
 		while (ev->cmd_stat != CL_COMPLETE) {
-			DEBUG(__FILE__,__LINE__,"__do_wait_for_events: wait-sleep\n");
+			printcl( CL_DEBUG "__do_wait_for_events: wait-sleep\n");
 			__wait_event(ev);
-			DEBUG(__FILE__,__LINE__,"__do_wait_for_events: wait-wake\n");
+			printcl( CL_DEBUG "__do_wait_for_events: wait-wake\n");
 		}
  
-		DEBUG(__FILE__,__LINE__,"event %p complete\n",ev);
+		printcl( CL_DEBUG "event %p complete\n",ev);
 
 		__unlock_event(evlist[i]);
 

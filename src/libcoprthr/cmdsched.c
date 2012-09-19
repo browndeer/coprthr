@@ -1,6 +1,6 @@
 /* cmdsched.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -27,6 +27,7 @@
 #include <CL/cl.h>
 #include <assert.h>
 
+#include "printcl.h"
 #include "cpuset_type.h"
 #include "cmdsched.h"
 #include "command_queue.h"
@@ -49,9 +50,9 @@ void* cmdqx0( void* argp )
 		&__resolve_devid(devid,cpumask));
 
 
-//	xclreport( XCL_DEBUG "cmdqx0: cmdq=%p devid=%p cpumask_count=%d",
+//	printcl( CL_DEBUG "cmdqx0: cmdq=%p devid=%p cpumask_count=%d",
 //		cmdq,devid,CPU_COUNT(&__resolve_devid(devid,cpumask)));
-	xclreport( XCL_DEBUG "cmdqx0: cmdq=%p devid=%p cpumask_count=?",
+	printcl( CL_DEBUG "cmdqx0: cmdq=%p devid=%p cpumask_count=?",
 		cmdq,devid);
 /* XXX most of the useful cpu_set macros are missing from rhel/centos 
  * maybe they will get to that after they upgrade to a modern GCC version -DAR
@@ -67,12 +68,12 @@ void* cmdqx0( void* argp )
 
 	__lock_cmdq(cmdq);
 
-	xclreport( XCL_DEBUG "cmdqx0: idle");
+	printcl( CL_DEBUG "cmdqx0: idle");
 
 	while (cmdq->imp.qstat == 0) {
-		xclreport( XCL_DEBUG "idle-sleep\n");
+		printcl( CL_DEBUG "idle-sleep\n");
 		__wait_cmdq(cmdq);
-		xclreport( XCL_DEBUG "idle-wake\n");
+		printcl( CL_DEBUG "idle-wake\n");
 	}
 
 	__unlock_cmdq(cmdq);
@@ -80,27 +81,27 @@ void* cmdqx0( void* argp )
 
 	__lock_cmdq(cmdq);
 
-	xclreport( XCL_INFO "cmdqx0: run");
+	printcl( CL_INFO "cmdqx0: run");
 
 	while (cmdq->imp.qstat == 1) {
 
-		xclreport( XCL_DEBUG "cmdqx0:"
+		printcl( CL_DEBUG "cmdqx0:"
 			" queued %p",cmdq->imp.cmds_queued.tqh_first);
 
 		while (ev = cmdq->imp.cmds_queued.tqh_first) {
 
 
-			xclreport( XCL_DEBUG "cmdqx0:"
+			printcl( CL_DEBUG "cmdqx0:"
 				" submit cmd ev %p",ev);
 
 			/* 
 			 * submit cmd 
 			 */
 
-			xclreport( XCL_DEBUG "cmdqx0: attempt __lock_event");
+			printcl( CL_DEBUG "cmdqx0: attempt __lock_event");
 			__lock_event(ev);
 
-			xclreport( XCL_DEBUG "cmdqx0: attempt __retain_event");
+			printcl( CL_DEBUG "cmdqx0: attempt __retain_event");
 			__retain_event(ev);
 
 			TAILQ_REMOVE(&cmdq->imp.cmds_queued,ev,imp.cmds);
@@ -108,7 +109,7 @@ void* cmdqx0( void* argp )
 			ev->cmd_stat = CL_SUBMITTED;
 
 			__unlock_cmdq(cmdq);
-			xclreport( XCL_DEBUG "%p: submitted %d\n",ev,ev->cmd);
+			printcl( CL_DEBUG "%p: submitted %d\n",ev,ev->cmd);
 //			cmdcall[ev->cmd-CLCMD_OFFSET](ev->imp.cmd_argp);
 			cmdcall[ev->cmd-CLCMD_OFFSET](devid,ev->imp.cmd_argp);
 			__lock_cmdq(cmdq);
@@ -136,7 +137,7 @@ void* cmdqx0( void* argp )
 			ev->cmd_stat = CL_RUNNING;
 
 			__unlock_cmdq(cmdq);
-			xclreport( XCL_DEBUG "%p: running %d\n",ev,ev->cmd);
+			printcl( CL_DEBUG "%p: running %d\n",ev,ev->cmd);
 			__lock_cmdq(cmdq);
 
 			__sig_event(ev);
@@ -162,19 +163,19 @@ void* cmdqx0( void* argp )
 			__release_event(ev);
 			/* unlock implicit in release -DAR */
 
-			xclreport( XCL_DEBUG "%p: complete %d\n",ev,ev->cmd);
+			printcl( CL_DEBUG "%p: complete %d\n",ev,ev->cmd);
 			
 		}
 
-		xclreport( XCL_DEBUG "run-cmdqx0 sleep\n");
+		printcl( CL_DEBUG "run-cmdqx0 sleep\n");
 		__wait_cmdq(cmdq);
-		xclreport( XCL_DEBUG "run-cmdqx0 wake\n");
+		printcl( CL_DEBUG "run-cmdqx0 wake\n");
 
 	}
 
 	__unlock_cmdq(cmdq);
 	
-	xclreport( XCL_INFO "cmdqx0: shutdown");
+	printcl( CL_INFO "cmdqx0: shutdown");
 	
 	pthread_exit((void*)0);
 }
