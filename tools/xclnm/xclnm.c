@@ -352,7 +352,10 @@ int main( int argc, char** argv)
 	 * the parsed assembly code to root
 	 */
 
-	if (in_filename) __xclnm_yyin = fopen(in_filename,"r");
+	if (in_filename) {
+		if (!strcmp(in_filename,"--")) __xclnm_yyin = stdin;
+		else __xclnm_yyin = fopen(in_filename,"r");
+	}
 
 	if (!__xclnm_yyin) fprintf(stderr,"xclnm: no input file\n");
 
