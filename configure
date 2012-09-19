@@ -4030,6 +4030,8 @@ ac_config_files="$ac_config_files test/test_stdcl/Makefile"
 
 ac_config_files="$ac_config_files test/test_libcoprthr/Makefile"
 
+ac_config_files="$ac_config_files test/test_clrpc/Makefile"
+
 ac_config_files="$ac_config_files include/Makefile"
 
 ac_config_files="$ac_config_files examples/Makefile"
@@ -4694,6 +4696,7 @@ do
     "test/Makefile") CONFIG_FILES="$CONFIG_FILES test/Makefile" ;;
     "test/test_stdcl/Makefile") CONFIG_FILES="$CONFIG_FILES test/test_stdcl/Makefile" ;;
     "test/test_libcoprthr/Makefile") CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr/Makefile" ;;
+    "test/test_clrpc/Makefile") CONFIG_FILES="$CONFIG_FILES test/test_clrpc/Makefile" ;;
     "include/Makefile") CONFIG_FILES="$CONFIG_FILES include/Makefile" ;;
     "examples/Makefile") CONFIG_FILES="$CONFIG_FILES examples/Makefile" ;;
     "examples/hello_stdcl/Makefile") CONFIG_FILES="$CONFIG_FILES examples/hello_stdcl/Makefile" ;;

@@ -65,22 +65,26 @@ clrpc_client_test2(void)
 		printf(  "CL_PLATFORM_NAME|%ld:%s|\n",sz,buffer);
 	}
 
+int iplat;
+for(iplat=0;iplat<nplatforms;iplat++) {
+
+printf("\n******************\nTEST PLATFORM %d\n*************\n\n",iplat);
+
 	cl_uint ndevices = 0;
 	cl_device_id* devices = 0;
 	cl_uint ndevices_ret;
 
-	clGetDeviceIDs(platforms[0],CL_DEVICE_TYPE_CPU,
+	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_ALL,
 		ndevices,devices,&ndevices_ret);
 
-	printf(  "after call one i get ndevices_ret = %d",
-      ndevices_ret);
+	printf(  "after call one i get ndevices_ret = %d\n", ndevices_ret);
 
 	if (ndevices_ret > 10) exit(-1);
 
 	ndevices = ndevices_ret;
 	devices = (cl_device_id*)calloc(ndevices,sizeof(cl_device_id));
 
-	clGetDeviceIDs(platforms[1],CL_DEVICE_TYPE_GPU,
+	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_ALL,
 		ndevices,devices,&ndevices_ret);
 
 	if (!ndevices_ret) {
@@ -90,24 +94,14 @@ clrpc_client_test2(void)
 
 	for(i=0;i<ndevices;i++) {
 		clrpc_dptr* tmp = ((_xobj_t*)devices[i])->obj;
-//		printf(  "devices[%d] local=%p remote=%p\n",
-//			i,(void*)tmp->local,
-//			(void*)tmp->remote);
 		clGetDeviceInfo(devices[i],CL_DEVICE_NAME,1023,buffer,&sz);
-		printf(  "CL_DEVICE_NAME |%s|",buffer);
-	}
-
-	for(i=0;i<nplatforms;i++) {
-		clrpc_dptr* tmp = ((_xobj_t*)platforms[i])->obj;
-//		printf(  "platforms[%d] local=%p remote=%p\n",
-//			i,(void*)tmp->local,
-//			(void*)tmp->remote);
+		printf(  "CL_DEVICE_NAME |%s|\n",buffer);
 	}
 
 	cl_context_properties ctxprop[] = { 
-		CL_CONTEXT_PLATFORM, (cl_context_properties)platforms[1], 0 };
+		CL_CONTEXT_PLATFORM, (cl_context_properties)platforms[iplat], 0 };
 
-	printf("i am setting this: prop[1] %p",platforms[1]);
+	printf("i am setting this: prop[%d] %p\n",iplat,platforms[iplat]);
 
 	cl_context ctx = clCreateContext(ctxprop,ndevices,devices, 0,0,&err);
 
@@ -202,7 +196,10 @@ clrpc_client_test2(void)
 	clReleaseCommandQueue(cmdq[0]);
 	clReleaseContext(ctx);
 
-	sleep(5);
+	printf("sleeping ...\n");
+	sleep(1);
+
+}
 
 //	clrpc_final();
 

@@ -27,7 +27,7 @@
 #include "printcl.h"
 #include "clrpc_common.h"
 #include "clrpc.gen.h"
-#include "oclcall.h"
+//#include "oclcall.h"
 
 /* why the hell do i have to define this? -DAR */
 #define min(a,b) ((a<b)?a:b)
@@ -36,7 +36,7 @@
 #define __alias(name) 
 
 
-void** __rpc_icd_call_vector;
+extern void** __clrpc_call_vector;
 
 
 typedef struct {
@@ -52,7 +52,7 @@ typedef struct {
 	do { \
 	xobj->object = (clrpc_dptr*)obj; \
 	xobj->rpc_pool = pool; \
-	xobj->_reserved = (void*)__rpc_icd_call_vector; \
+	xobj->_reserved = (void*)__clrpc_call_vector; \
 	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
 	obj = (void*)xobj; \
 	} while (0)
@@ -73,7 +73,7 @@ typedef struct {
 	do { \
 	xobj->object = (clrpc_dptr*)obj; \
 	xobj->rpc_pool = pool; \
-	xobj->_reserved = (void*)__rpc_icd_call_vector; \
+	xobj->_reserved = (void*)__clrpc_call_vector; \
 	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
 	} while (0)
 
@@ -1355,57 +1355,57 @@ clrpc_clWaitForEvents(
 
 
 /* XXX these calls are not yet implemented so we make them null for now -DAR */
-#define clrpc_clCreateContextFromType 0
-#define clrpc_clRetainContext 0
-#define clrpc_clRetainCommandQueue 0
-#define clrpc_clGetCommandQueueInfo 0
-#define clrpc_clSetCommandQueueProperty 0
-#define clrpc_clCreateImage2D 0
-#define clrpc_clCreateImage3D 0
-#define clrpc_clRetainMemObject 0
-#define clrpc_clGetSupportedImageFormats 0
-#define clrpc_clGetMemObjectInfo 0
-#define clrpc_clGetImageInfo 0
-#define clrpc_clCreateSampler 0
-#define clrpc_clRetainSampler 0
-#define clrpc_clReleaseSampler 0
-#define clrpc_clGetSamplerInfo 0
-#define clrpc_clCreateProgramWithBinary 0
-#define clrpc_clRetainProgram 0
-#define clrpc_clUnloadCompiler 0
-#define clrpc_clGetProgramBuildInfo 0
-#define clrpc_clCreateKernelsInProgram 0
-#define clrpc_clRetainKernel 0
-#define clrpc_clGetKernelWorkGroupInfo 0
-#define clrpc_clRetainEvent 0
-#define clrpc_clGetEventProfilingInfo 0
-#define clrpc_clFinish 0
-#define clrpc_clEnqueueCopyBuffer 0
-#define clrpc_clEnqueueReadImage 0
-#define clrpc_clEnqueueWriteImage 0
-#define clrpc_clEnqueueCopyImage 0
-#define clrpc_clEnqueueCopyImageToBuffer 0
-#define clrpc_clEnqueueCopyBufferToImage 0
-#define clrpc_clEnqueueMapBuffer 0
-#define clrpc_clEnqueueMapImage 0
-#define clrpc_clEnqueueUnmapMemObject 0
-#define clrpc_clEnqueueTask 0
-#define clrpc_clEnqueueNativeKernel 0
-#define clrpc_clEnqueueMarker 0
-#define clrpc_clEnqueueWaitForEvents 0
-#define clrpc_clEnqueueBarrier 0
-#define clrpc_clCreateFromGLBuffer 0
-#define clrpc_clCreateFromGLTexture2D 0
-#define clrpc_clCreateFromGLTexture3D 0
-#define clrpc_clCreateFromGLRenderbuffer 0
-#define clrpc_clGetGLObjectInfo 0
-#define clrpc_clGetGLTextureInfo 0
-#define clrpc_clEnqueueAcquireGLObjects 0
-#define clrpc_clEnqueueReleaseGLObjects 0
+void* clrpc_clCreateContextFromType = 0;
+void* clrpc_clRetainContext = 0;
+void* clrpc_clRetainCommandQueue = 0;
+void* clrpc_clGetCommandQueueInfo = 0;
+void* clrpc_clSetCommandQueueProperty = 0;
+void* clrpc_clCreateImage2D = 0;
+void* clrpc_clCreateImage3D = 0;
+void* clrpc_clRetainMemObject = 0;
+void* clrpc_clGetSupportedImageFormats = 0;
+void* clrpc_clGetMemObjectInfo = 0;
+void* clrpc_clGetImageInfo = 0;
+void* clrpc_clCreateSampler = 0;
+void* clrpc_clRetainSampler = 0;
+void* clrpc_clReleaseSampler = 0;
+void* clrpc_clGetSamplerInfo = 0;
+void* clrpc_clCreateProgramWithBinary = 0;
+void* clrpc_clRetainProgram = 0;
+void* clrpc_clUnloadCompiler = 0;
+void* clrpc_clGetProgramBuildInfo = 0;
+void* clrpc_clCreateKernelsInProgram = 0;
+void* clrpc_clRetainKernel = 0;
+void* clrpc_clGetKernelWorkGroupInfo = 0;
+void* clrpc_clRetainEvent = 0;
+void* clrpc_clGetEventProfilingInfo = 0;
+void* clrpc_clFinish = 0;
+void* clrpc_clEnqueueCopyBuffer = 0;
+void* clrpc_clEnqueueReadImage = 0;
+void* clrpc_clEnqueueWriteImage = 0;
+void* clrpc_clEnqueueCopyImage = 0;
+void* clrpc_clEnqueueCopyImageToBuffer = 0;
+void* clrpc_clEnqueueCopyBufferToImage = 0;
+void* clrpc_clEnqueueMapBuffer = 0;
+void* clrpc_clEnqueueMapImage = 0;
+void* clrpc_clEnqueueUnmapMemObject = 0;
+void* clrpc_clEnqueueTask = 0;
+void* clrpc_clEnqueueNativeKernel = 0;
+void* clrpc_clEnqueueMarker = 0;
+void* clrpc_clEnqueueWaitForEvents = 0;
+void* clrpc_clEnqueueBarrier = 0;
+void* clrpc_clCreateFromGLBuffer = 0;
+void* clrpc_clCreateFromGLTexture2D = 0;
+void* clrpc_clCreateFromGLTexture3D = 0;
+void* clrpc_clCreateFromGLRenderbuffer = 0;
+void* clrpc_clGetGLObjectInfo = 0;
+void* clrpc_clGetGLTextureInfo = 0;
+void* clrpc_clEnqueueAcquireGLObjects = 0;
+void* clrpc_clEnqueueReleaseGLObjects = 0;
 
 
 
-static void* _rpc_icd_call_vector[] = __set_icd_call_vector(clrpc_,);
-void** __rpc_icd_call_vector = (void**)_rpc_icd_call_vector;
+//static void* _rpc_icd_call_vector[] = __set_icd_call_vector(clrpc_,);
+//void** __clrpc_call_vector = (void**)_rpc_icd_call_vector;
 
 

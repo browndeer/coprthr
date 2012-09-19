@@ -31,9 +31,12 @@ INSTALL_MAN_DIR=@mandir@
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
+SCRIPTS = ../scripts
+OCLCALL_MASTER = ../libocl/oclcall.master
+
 DEFS = -DHAVE_CONFIG_H
 
-DEFS += -DXCL_REPORT
+DEFS += -DENABLE_PRINTCL
 
 INCS += -I../../include $(USE_OPENCL_INCLUDES) -I../libocl
 
@@ -53,7 +56,7 @@ LIBS += -levent -levent_pthreads -levent_pthreads
 OBJS = clrpc.gen.o 
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
-HDRS = clrpc.h 
+HDRS = clrpc.h  clrpc_common.h
 
 
 INSTALL_INCS = $(HDRS)
@@ -72,9 +75,9 @@ INSTALL_LIBS += libclrpc_d.so
 INSTALL_BINS += clrpcd_d
 endif
 
-TARGET += clrpcd clrpc_test_cli clrpc_test_cli2
+TARGET += clrpcd 
 
-TARGET += clrpc.gen.c clrpc.gen.h
+TARGET += clrpc.gen.c clrpc.gen.h libclrpc_call_vector.c
 
 all: $(TARGET)
 
@@ -83,22 +86,26 @@ all: $(TARGET)
 clrpc.gen.h clrpc.gen.c:
 	event_rpcgen.py clrpc.rpc
 
-libclrpc.so: clrpc.gen.h libclrpc.o $(OBJS)
-	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclrpc.so \
-		-o libclrpc.so libclrpc.o $(OBJS) $(LIBS) 
+libclrpc_call_vector.c:
+	perl $(SCRIPTS)/gen_ocl_call_vector.pl __clrpc_call_vector clrpc_ \
+		< $(OCLCALL_MASTER) > libclrpc_call_vector.c
 
-libclrpc_d.so: libclrpc_d.o $(OBJS_D)
+libclrpc.so: clrpc.gen.h libclrpc.o libclrpc_call_vector.o $(OBJS)
+	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclrpc.so \
+		-o libclrpc.so libclrpc.o libclrpc_call_vector.o $(OBJS) $(LIBS) 
+
+libclrpc_d.so: libclrpc_d.o libclrpc_call_vector.o $(OBJS_D)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclrpc_d.so \
-		-o libclrpc_d.so libclrpc_d.o $(OBJS_D) $(LIBS)
+		-o libclrpc_d.so libclrpc_d.o libclrpc_call_vector.o $(OBJS_D) $(LIBS)
 
 clrpcd: clrpcd.o $(OBJS)
 	$(CC) $(CCFLAGS) -o clrpcd clrpcd.o $(OBJS) $(LIBS) -lOpenCL
 
-clrpc_test_cli: clrpc_test_cli.o
-	$(CC) $(CCFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L. -lclrpc 
-
-clrpc_test_cli2: clrpc_test_cli2.o
-	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L../libocl  -locl
+#clrpc_test_cli: clrpc_test_cli.o
+#	$(CC) $(CCFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L. -lclrpc 
+#
+#clrpc_test_cli2: clrpc_test_cli2.o
+#	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L../libocl  -locl
 
 
 .SUFFIXES:
@@ -108,7 +115,7 @@ clrpc_test_cli2: clrpc_test_cli2.o
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
 %_d.o: clrpc.gen.h
-	$(CC) $(CCFLAGS) $(DEFS) -DXCL_REPORT $(INCS) -c $*.c -o $*_d.o
+	$(CC) $(CCFLAGS) $(DEFS) -DENABLE_PRINTCL $(INCS) -c $*.c -o $*_d.o
 
 %.3.gz:
 	-gzip -f -c $*.3 > $*.3.gz
@@ -121,7 +128,7 @@ install: $(INSTALL_INCS) $(INSTALL_LIBS) $(INSTALL_BINS)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
 	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
-	install -m 644 $(INSTALL_BINS) $(INSTALL_BIN_DIR)
+	install -m 755 $(INSTALL_BINS) $(INSTALL_BIN_DIR)
 
 uninstall: 
 	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 

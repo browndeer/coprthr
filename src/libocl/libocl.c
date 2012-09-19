@@ -221,10 +221,25 @@ clGetPlatformIDs(
 
 		cl_uint rpc_nplatforms = 0;
 
+cl_int (*clrpc_clGetPlatformIDs) (cl_uint,cl_platform_id*,cl_uint*);
+cl_int (*clrpc_clGetPlatformInfo) (cl_platform_id,cl_platform_info,size_t,void*,size_t*);
+	
+		void* h_libclrpc = dlopen("libclrpc.so",RTLD_LAZY);
+		clrpc_clGetPlatformIDs = dlsym(h_libclrpc,"clrpc_clGetPlatformIDs");
+		clrpc_clGetPlatformInfo = dlsym(h_libclrpc,"clrpc_clGetPlatformInfo");
+
+	printcl( CL_DEBUG "libclrpc: %p %p %p",h_libclrpc,clrpc_clGetPlatformIDs,clrpc_clGetPlatformInfo);
+
+int try_rpc = 1;
+		if (!clrpc_clGetPlatformIDs || !clrpc_clGetPlatformInfo) {
+			try_rpc = 0;
+		}
+
+if (try_rpc) {
 		clrpc_clGetPlatformIDs( 0,0,&rpc_nplatforms );
 		printcl( CL_DEBUG "%d platforms available via RPC servers",
 			rpc_nplatforms);
-
+}
 
 		int np = oclconf_info.nplatforms + rpc_nplatforms;
 
@@ -529,6 +544,14 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 //	int ival;
 //	const char* sval;
 //	const char* str;
+
+	info->nplatforms = 0;
+	info->platforms = 0;
+	info->nicd_dirs = 0;
+	info->icd_dirs = 0;
+	info->clrpc_enable = 0;
+	info->clrpc_servers = 0;
+
 
   config_init(&cfg);
 

@@ -50,7 +50,7 @@ INCS += $(LIBELF_INC)
 
 LIBS += $(LIBELF_LIB)
 
-LIBS += -lfl  -lpthread -lrt
+#LIBS += -lfl  -lpthread -lrt
 
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
@@ -121,9 +121,9 @@ install:
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	install -m 755 libocl.so $(INSTALL_LIB_DIR)
 	install -m 755 libocl_d.so $(INSTALL_LIB_DIR)
-	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so
+#	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so
 #ifeq ($(ENABLE_DEBUG_LIBCOPRTHR),1)
-	ln -sf $(INSTALL_LIB_DIR)/libocl_d.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
+#	ln -sf $(INSTALL_LIB_DIR)/libocl_d.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
 #endif
 
 uninstall: 

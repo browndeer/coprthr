@@ -17,6 +17,10 @@ INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
+ifeq (@ENABLE_LIBCLRPC@,1)
+SUBDIRS += ./src/libclrpc
+endif
+
 ifeq (@ENABLE_LIBOCL@,1)
 SUBDIRS += ./src/libocl 
 endif
@@ -39,10 +43,6 @@ endif
 
 ifeq (@ENABLE_CLTRACE@,1)
 SUBDIRS += ./tools/cltrace
-endif
-
-ifeq (@ENABLE_LIBCLRPC@,1)
-SUBDIRS += ./src/libclrpc
 endif
 
 #SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))

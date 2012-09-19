@@ -410,7 +410,7 @@ struct _elf_data {
    } while(0)
 
 
-void* __icd_call_vector;
+extern void* __icd_call_vector;
 
 #endif
 

@@ -56,13 +56,17 @@ DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
 
 TOPDIR ?= ../../
 
+SCRIPTS = ../scripts/
+OCLCALL_MASTER = ../libocl/oclcall.master
+
 INCS += -I. -I$(TOPDIR)/include 
 
 INCS += $(LIBELF_INC)
 
 LIBS += $(LIBELF_LIB)
 
-LIBS += -lfl  -lpthread -lrt
+#LIBS += -lfl  -lpthread -lrt
+LIBS += -lpthread -lrt
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
 else
@@ -106,6 +110,7 @@ XCLNM_YYPREFIX = __xclnm_
 
 TARGET = libcoprthr.so $(RT_OBJS) 
 TARGET += libcoprthr_d.so
+TARGET += icd.c
 
 all: $(TARGET) 
 
@@ -127,6 +132,9 @@ all: $(TARGET)
 %_d.o:
 	$(CC) $(CCFLAGS) $(DEFS) -DENABLE_REPORT $(INCS) -c $*.c -o $*_d.o
 
+icd.c:
+	perl $(SCRIPTS)/gen_ocl_call_vector.pl __icd_call_vector _ \
+		< $(OCLCALL_MASTER) > icd.c
 
 libcoprthr.so: $(OBJS) $(RT_OBJS)
 	$(CC) $(CCFLAGS) $(INCS) \
@@ -177,6 +185,7 @@ uninstall:
 
 clean:
 	rm -f *.o *.so
+	rm -f $(TARGET)
 
 distclean: clean
 

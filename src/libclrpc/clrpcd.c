@@ -88,7 +88,7 @@ http_setup(const char* address, ev_uint16_t port)
 		exit(-1);
 	}
 
-	printcl( XCL_INFO "http_setup: address=%s port=%d",address,port);
+	printcl( CL_INFO "http_setup: address=%s port=%d",address,port);
 
 	return (myhttp);
 }

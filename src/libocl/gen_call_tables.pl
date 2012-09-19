@@ -80,57 +80,57 @@ printf OUT "\nextern char* oclcallnames[];\n";
 printf OUT "\nextern struct oclent_struct empty_oclent[];\n";
 printf OUT "extern unsigned int oclncalls;\n";
 
-printf OUT "\n#define __DECL_API_CALLS( prefix, suffix ) \\\n";
-foreach $l (@lines) {
-	if (!($l =~ /^[ \t]*#.*/)) {
-		@fields = split(' ', $l);
-		$name = $fields[0];
-		if ($name =~ /^[a-zA-Z].*/) {
-			$type = $fields[1];
-			$retype = $fields[2];
-			$tlist = $fields[3];
-			$tlist =~ s/~/ /g;
-			@args = split(',',$tlist);
-			$atlist = "";
-			$alist = "";
-			$j=0;
-			foreach $a (@args) {
-				if ($j > 0) { $atlist .=",$a a$j"; }
-				else { $atlist .= "$a a$j"; }
-				if ($j > 0) { $alist .=",a$j"; }
-				else { $alist .= "a$j"; }
-				$j += 1;
-			}
-			if (!($name =~ /^reserved/)) { 
-				printf OUT "\t$retype prefix##$name##suffix($atlist);\\\n";
-			}
-		}
-	}
-}
-printf OUT "\n";
+#printf OUT "\n#define __DECL_API_CALLS( prefix, suffix ) \\\n";
+#foreach $l (@lines) {
+#	if (!($l =~ /^[ \t]*#.*/)) {
+#		@fields = split(' ', $l);
+#		$name = $fields[0];
+#		if ($name =~ /^[a-zA-Z].*/) {
+#			$type = $fields[1];
+#			$retype = $fields[2];
+#			$tlist = $fields[3];
+#			$tlist =~ s/~/ /g;
+#			@args = split(',',$tlist);
+#			$atlist = "";
+#			$alist = "";
+#			$j=0;
+#			foreach $a (@args) {
+#				if ($j > 0) { $atlist .=",$a a$j"; }
+#				else { $atlist .= "$a a$j"; }
+#				if ($j > 0) { $alist .=",a$j"; }
+#				else { $alist .= "a$j"; }
+#				$j += 1;
+#			}
+#			if (!($name =~ /^reserved/)) { 
+#				printf OUT "\t$retype prefix##$name##suffix($atlist);\\\n";
+#			}
+#		}
+#	}
+#}
+#printf OUT "\n";
 
-printf OUT "\n#define __set_icd_call_vector( prefix, suffix ) { \\\n";
-$i=0;
-foreach $l (@lines) {
-	if (!($l =~ /^[ \t]*#.*/)) {
-		@fields = split(' ', $l);
-		$name = $fields[0];
-		if ($name =~ /^[a-zA-Z].*/) {
-			unless ($name =~ /reserved/) {
-				$tlist = $fields[3];
-				@args = split(',',$tlist);
-				if ($tlist =~ /^void$/) { $narg = 0; }
-				else { $narg = $#args+1; }
-				printf OUT "\tprefix##$name##suffix, \\\n";
-			}
-		}
-	$i = $i + 1;
-	}
-}
+#printf OUT "\n#define __set_icd_call_vector( prefix, suffix ) { \\\n";
+#$i=0;
+#foreach $l (@lines) {
+#	if (!($l =~ /^[ \t]*#.*/)) {
+#		@fields = split(' ', $l);
+#		$name = $fields[0];
+#		if ($name =~ /^[a-zA-Z].*/) {
+#			unless ($name =~ /reserved/) {
+#				$tlist = $fields[3];
+#				@args = split(',',$tlist);
+#				if ($tlist =~ /^void$/) { $narg = 0; }
+#				else { $narg = $#args+1; }
+#				printf OUT "\tprefix##$name##suffix, \\\n";
+#			}
+#		}
+#	$i = $i + 1;
+#	}
+#}
 #for ($j = $i; $j <256; $j += 1) {
 #	printf OUT "\t_generic_$j, \\\n";
 #}
-printf OUT "\t}\n";
+#printf OUT "\t}\n";
 
 printf OUT "\n#endif\n";
 
@@ -218,6 +218,7 @@ foreach $l (@lines) {
 				printf OUT "\t\t= *(void**)a0;\n";
 #				printf OUT "\tDEBUG2(\"\toclent=%%p\",oclent);\n";
 				printf OUT "\tprintcl( CL_DEBUG \"$name (loader) %%p\",oclent);\n";
+				printf OUT "\tprintcl( CL_DEBUG \"%%p\", ((void**)oclent)+OCLCALL_$name );\n";
 
 
 				printf OUT "\ttypedef $retype (*pf_t) ($tlist);\n";

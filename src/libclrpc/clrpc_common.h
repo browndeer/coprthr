@@ -124,6 +124,7 @@ extern struct event_base *global_base;
 #define CLRPC_MAKE_REQUEST_WAIT2(pool,fname)  do { \
 	struct cb_struct cbarg; \
 	pthread_mutex_init(&cbarg.mtx,0); \
+   pthread_mutex_lock(&cbarg.mtx); \
 	pthread_cond_init(&cbarg.sig,0); \
 	EVRPC_MAKE_REQUEST(_clrpc_##fname, \
 		pool, request, reply, _clrpc_##fname##_clicb, &cbarg ); \
