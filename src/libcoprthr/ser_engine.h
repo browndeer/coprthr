@@ -106,16 +106,13 @@ static __inline size_t get_local_id(uint d)
 { return((__get_thr_data())->ltdidx[d]); }
 
 #define barrier(flags) do { \
-   struct thr_data* data = __get_thr_data();\
-   if (!(setjmp(*(data->this_jbufp))))\
-      longjmp(*(data->next_jbufp),flags);\
 } while(0)
 
 #endif
 
 #if !defined(__xcl_kcall__) && !defined(__xcl_kthr__)
 
-static void* ser_engine( void* p );
+//static void* ser_engine( void* p );
 
 void* ser_engine_startup( void* p );
 
