@@ -447,7 +447,7 @@ static __always_inline _##type operator + ( _##type& a ); \
 static __always_inline _##type operator + ( _##type& a ) { return a; }
 
 #define GENERIC_UNARY_OP(type,op) \
-static __always_inline ##type operator - ( _##type& a ); \
+static __always_inline _##type operator - ( _##type& a ); \
 static __always_inline _##type operator - ( _##type& a ) \
 	{ return (_##type){ -a.vec }; }
 
