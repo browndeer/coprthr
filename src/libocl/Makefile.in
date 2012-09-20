@@ -60,7 +60,7 @@ endif
 
 LIBS += -lconfig
 
-LIBS += -L../libclrpc -lclrpc
+#LIBS += -L../libclrpc -lclrpc
 
 OBJS_D = $(subst .o,_d.o,$(OBJS))
 
