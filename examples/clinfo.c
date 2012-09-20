@@ -1,5 +1,7 @@
 
 #include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <assert.h>
 #include <CL/cl.h>
 
