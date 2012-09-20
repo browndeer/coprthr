@@ -158,6 +158,7 @@ cl_int clrpc_##name(cl_##type x##arg, cl_##infotype param_name, \
 	size_t param_sz, void* param_val, size_t *param_sz_ret) \
 { \
 	cl_int retval = 0; \
+	size_t tmp_param_sz_ret; \
 	CLRPC_INIT(name); \
 	printcl( CL_DEBUG "here"); \
 	clrpc_dptr* arg = (clrpc_dptr*) (((_xobject_t*)x##arg)->object); \
@@ -169,14 +170,14 @@ cl_int clrpc_##name(cl_##type x##arg, cl_##infotype param_name, \
 	printcl( CL_DEBUG "here"); \
 	CLRPC_GET(reply,int,retval,&retval); \
 	printcl( CL_DEBUG "here"); \
-	CLRPC_GET(reply,uint,param_sz_ret,param_sz_ret); \
-	printcl( CL_DEBUG "clrpc_" #name ": *param_sz_ret %ld",*param_sz_ret); \
-	param_sz = min(param_sz,*param_sz_ret); \
+	CLRPC_GET(reply,uint,param_sz_ret,&tmp_param_sz_ret); \
+	printcl( CL_DEBUG "clrpc_" #name ": *param_sz_ret %ld",tmp_param_sz_ret); \
+	param_sz = min(param_sz,tmp_param_sz_ret); \
 	void* tmp_param_val = 0; \
 	unsigned int tmplen = 0; \
 	EVTAG_GET_WITH_LEN(reply,param_val,(unsigned char**)&tmp_param_val,&tmplen);\
 	memcpy(param_val,tmp_param_val,param_sz); \
-	printf("%ld:%s\n",param_sz,(char*)param_val); \
+	if (param_sz_ret) *param_sz_ret = tmp_param_sz_ret; \
 	return(retval); \
 }
 
@@ -528,6 +529,7 @@ clrpc_clGetDeviceIDs( cl_platform_id xplatform, cl_device_type devtype,
 	int i;
 
 	cl_int retval = 0;
+	cl_uint tmp_ndevices_ret;
 
 	CLRPC_INIT(clGetDeviceIDs);
 
@@ -546,16 +548,16 @@ clrpc_clGetDeviceIDs( cl_platform_id xplatform, cl_device_type devtype,
 
 	CLRPC_GET(reply,int,retval,&retval);
 
-	CLRPC_GET(reply,uint,ndevices_ret,ndevices_ret);
+	CLRPC_GET(reply,uint,ndevices_ret,&tmp_ndevices_ret);
 	printcl( CL_DEBUG "clrpc_clGetDeviceIDs: *ndevices_ret = %d\n",
-		*ndevices_ret);
+		tmp_ndevices_ret);
 
 	printcl( CL_DEBUG 
 		"clrpc_clGetDeviceIDs: compare ndevices"
 		" *ndevices_ret ARRAY_LEN %d %d %d\n",
-		ndevices,*ndevices_ret,EVTAG_ARRAY_LEN(reply, devices));
+		ndevices,tmp_ndevices_ret,EVTAG_ARRAY_LEN(reply, devices));
 
-	ndevices = min(ndevices,*ndevices_ret);
+	ndevices = min(ndevices,tmp_ndevices_ret);
 
 	CLRPC_GET_DPTR_ARRAY(reply,ndevices,devices);
 
@@ -571,6 +573,8 @@ clrpc_clGetDeviceIDs( cl_platform_id xplatform, cl_device_type devtype,
 	}
 
 	CLRPC_FINAL(clGetDeviceIDs);
+
+	if (ndevices_ret) *ndevices_ret = tmp_ndevices_ret;
 
 	return(retval);
 }
