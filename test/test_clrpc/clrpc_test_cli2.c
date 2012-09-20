@@ -17,6 +17,8 @@ clrpc_client_test2(void)
 {
 	int err;
 
+	int size = 1024;
+
 	clrpc_server_info servers[] = {
 		{ "127.0.0.1", 8091 }
 		,{ "127.0.0.1", 8092 }
@@ -62,7 +64,7 @@ clrpc_client_test2(void)
 	cl_platform_id rpc_platform = 0;
 	for(i=0;i<nplatforms;i++) {
 		clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1023,buffer,&sz);
-		printf(  "CL_PLATFORM_NAME|%ld:%s|\n",sz,buffer);
+		printf(  "\n [%d] CL_PLATFORM_NAME|%ld:%s|\n",i,sz,buffer);
 	}
 
 int iplat;
@@ -74,7 +76,7 @@ printf("\n******************\nTEST PLATFORM %d\n*************\n\n",iplat);
 	cl_device_id* devices = 0;
 	cl_uint ndevices_ret;
 
-	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_ALL,
+	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_CPU,
 		ndevices,devices,&ndevices_ret);
 
 	printf(  "after call one i get ndevices_ret = %d\n", ndevices_ret);
@@ -84,12 +86,14 @@ printf("\n******************\nTEST PLATFORM %d\n*************\n\n",iplat);
 	ndevices = ndevices_ret;
 	devices = (cl_device_id*)calloc(ndevices,sizeof(cl_device_id));
 
-	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_ALL,
+	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_CPU,
 		ndevices,devices,&ndevices_ret);
 
 	if (!ndevices_ret) {
-		printf("no devices, stopping.\n");
-		exit(1);
+		//printf("no devices, stopping.\n");
+		//exit(1);
+		printf("no devices, skipping.\n");
+		continue;
 	}
 
 	for(i=0;i<ndevices;i++) {
@@ -113,41 +117,23 @@ printf("\n******************\nTEST PLATFORM %d\n*************\n\n",iplat);
 		printf( 	 "cmdq %d %p",i,cmdq[i]);
 	}
 
-	cl_mem a_buf = clCreateBuffer(ctx,CL_MEM_READ_WRITE,1024*sizeof(int),
+	cl_mem a_buf = clCreateBuffer(ctx,CL_MEM_READ_WRITE,size*sizeof(int),
 		0,&err);
-	cl_mem b_buf = clCreateBuffer(ctx,CL_MEM_READ_WRITE,1024*sizeof(int),
+	cl_mem b_buf = clCreateBuffer(ctx,CL_MEM_READ_WRITE,size*sizeof(int),
 		0,&err);
-	cl_mem c_buf = clCreateBuffer(ctx,CL_MEM_READ_WRITE,1024*sizeof(int),
+	cl_mem c_buf = clCreateBuffer(ctx,CL_MEM_READ_WRITE,size*sizeof(int),
 		0,&err);
-	cl_mem d_buf = clCreateBuffer(ctx,CL_MEM_READ_WRITE,1024*sizeof(int),
+	cl_mem d_buf = clCreateBuffer(ctx,CL_MEM_READ_WRITE,size*sizeof(int),
 		0,&err);
 
 	int* a = (int*)malloc(1024*sizeof(int));
 	int* b = (int*)malloc(1024*sizeof(int));
 	int* c = (int*)malloc(1024*sizeof(int));
 	int* d = (int*)malloc(1024*sizeof(int));
-	for(i=0;i<1024;i++) a[i] = i*10;
-	for(i=0;i<1024;i++) b[i] = i*10+1;
-	for(i=0;i<1024;i++) c[i] = 0;
-	for(i=0;i<1024;i++) d[i] = 0;
-
-	cl_event ev[8];
-
-	for(i=0;i<32;i++) printf("%d/",a[i]); printf("\n");
-	for(i=0;i<32;i++) printf("%d/",b[i]); printf("\n");
-
-	clEnqueueWriteBuffer(cmdq[0],a_buf,CL_FALSE,0,1024*sizeof(int),a,
-		0,0,&ev[0]);
-	clEnqueueWriteBuffer(cmdq[0],b_buf,CL_FALSE,0,1024*sizeof(int),b,
-		1,ev,&ev[1]);
-	clEnqueueWriteBuffer(cmdq[0],c_buf,CL_FALSE,0,1024*sizeof(int),c,
-		2,ev,&ev[2]);
-	clEnqueueWriteBuffer(cmdq[0],d_buf,CL_FALSE,0,1024*sizeof(int),d,
-		3,ev,&ev[3]);
 
 	char* prgsrc[] = { 
-		"__kernel void my_kern( __global int* a, __global int* b )\n"
-		" { int i = get_global_id(0); b[i] = a[i] * a[i]; }\n" 
+		"__kernel void my_kern( int n, __global int* a, __global int* b )\n"
+		" { int i = get_global_id(0); int tmp = 0; int j; for(j=0;j<n;j++) tmp += a[i] * a[j]; b[i] = tmp; }\n" 
 	};
 	size_t prgsrc_sz = strlen(prgsrc[0]) + 1;
 
@@ -158,24 +144,48 @@ printf("\n******************\nTEST PLATFORM %d\n*************\n\n",iplat);
 
 	cl_kernel krn = clCreateKernel(prg,"my_kern",&err);
 
+int idev;
+for(idev=0;idev<ndevices;idev++) {
+printf("\n******************\nTEST DEVICE %d(%d)\n*************\n\n",idev,iplat);
+
+	for(i=0;i<size;i++) a[i] = i*10;
+	for(i=0;i<size;i++) b[i] = i*10+1;
+	for(i=0;i<size;i++) c[i] = 0;
+	for(i=0;i<size;i++) d[i] = 0;
+
+	cl_event ev[8];
+
+	for(i=0;i<32;i++) printf("%d/",a[i]); printf("\n");
+	for(i=0;i<32;i++) printf("%d/",b[i]); printf("\n");
+
+	clEnqueueWriteBuffer(cmdq[idev],a_buf,CL_FALSE,0,size*sizeof(int),a,
+		0,0,&ev[0]);
+	clEnqueueWriteBuffer(cmdq[idev],b_buf,CL_FALSE,0,size*sizeof(int),b,
+		1,ev,&ev[1]);
+	clEnqueueWriteBuffer(cmdq[idev],c_buf,CL_FALSE,0,size*sizeof(int),c,
+		2,ev,&ev[2]);
+	clEnqueueWriteBuffer(cmdq[idev],d_buf,CL_FALSE,0,size*sizeof(int),d,
+		3,ev,&ev[3]);
+
 	size_t offset = 0; 
 	size_t gwsz = 128;
 	size_t lwsz = 16;
 
-	clSetKernelArg(krn,0,sizeof(cl_mem),&a_buf);
-	clSetKernelArg(krn,1,sizeof(cl_mem),&c_buf);
-	clEnqueueNDRangeKernel(cmdq[0],krn,1,&offset,&gwsz,&lwsz,4,ev,&ev[4]);
+	clSetKernelArg(krn,0,sizeof(int),&size);
+	clSetKernelArg(krn,1,sizeof(cl_mem),&a_buf);
+	clSetKernelArg(krn,2,sizeof(cl_mem),&c_buf);
+	clEnqueueNDRangeKernel(cmdq[idev],krn,1,&offset,&gwsz,&lwsz,4,ev,&ev[4]);
 
-	clSetKernelArg(krn,0,sizeof(cl_mem),&b_buf);
-	clSetKernelArg(krn,1,sizeof(cl_mem),&d_buf);
-	clEnqueueNDRangeKernel(cmdq[0],krn,1,&offset,&gwsz,&lwsz,5,ev,&ev[5]);
+	clSetKernelArg(krn,1,sizeof(cl_mem),&b_buf);
+	clSetKernelArg(krn,2,sizeof(cl_mem),&d_buf);
+	clEnqueueNDRangeKernel(cmdq[idev],krn,1,&offset,&gwsz,&lwsz,5,ev,&ev[5]);
 
-	clEnqueueReadBuffer(cmdq[0],c_buf,CL_FALSE,0,1024*sizeof(int),c,
+	clEnqueueReadBuffer(cmdq[idev],c_buf,CL_FALSE,0,size*sizeof(int),c,
 		6,ev,&ev[6]);
-	clEnqueueReadBuffer(cmdq[0],d_buf,CL_FALSE,0,1024*sizeof(int),d,
+	clEnqueueReadBuffer(cmdq[idev],d_buf,CL_FALSE,0,size*sizeof(int),d,
 		7,ev,&ev[7]);
 
-	clFlush(cmdq[0]);
+	clFlush(cmdq[idev]);
 
 	clWaitForEvents(8,ev);
 
@@ -183,6 +193,8 @@ printf("\n******************\nTEST PLATFORM %d\n*************\n\n",iplat);
 	for(i=0;i<32;i++) printf("%d/",d[i]); printf("\n");
 
 	for(i=0;i<8;i++) clReleaseEvent(ev[i]);
+
+}
 
 	clReleaseKernel(krn);
 
