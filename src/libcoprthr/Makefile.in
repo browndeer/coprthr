@@ -91,8 +91,10 @@ DEFS += \
 	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
 	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
 
+#DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
+#   -Wno-unused-result -Wno-format-security -Wno-format
 DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
-   -Wno-unused-result -Wno-format-security -Wno-format
+   -Wno-format-security -Wno-format
 
 CCFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
 CCFLAGS_VCORE += -O0 -fPIC 
