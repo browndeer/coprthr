@@ -64,6 +64,7 @@ struct xevent_struct {
 #define CLRPC_XEVENT_CREATE(xevent,event,ptr,sz) \
 	struct xevent_struct* xevent \
 		= (struct xevent_struct*)malloc(sizeof(struct xevent_struct)); \
+	printcl( CL_DEBUG "xevent at creation is %p",xevent); \
 	do { xevent->event = event; xevent->buf_ptr = ptr; xevent->buf_sz = sz; \
 	} while(0)
 
@@ -532,6 +533,7 @@ _clrpc_clEnqueueReadBuffer_svrcb(
 		EVTAG_ARRAY_GET(request, event_wait_list, i, &d);
 		EVTAG_GET(d,local,&local);
 		EVTAG_GET(d,remote,&remote);
+		printcl( CL_DEBUG "clEnqueueReadBuffer xevent remote = %p",remote);
 		event_wait_list[i] = (cl_event)((struct xevent_struct*)remote)->event;
 		printcl( CL_DEBUG "event_wait_list[] %p",event_wait_list[i]);
 	}
@@ -605,7 +607,13 @@ _clrpc_clEnqueueWriteBuffer_svrcb(
    unsigned int tmp_cb = 0;
    EVTAG_GET_WITH_LEN(request,_bytes,(unsigned char**)&tmp_ptr,&tmp_cb);
 	printcl( CL_DEBUG "COMPARE cb %ld %d",cb,tmp_cb);
-	ptr = tmp_ptr; /* XXX simplify later -DAR */
+
+
+//	ptr = tmp_ptr; /* XXX simplify later -DAR */
+	ptr = malloc(tmp_cb);
+	memcpy(ptr,tmp_ptr,tmp_cb);
+
+	printcl( CL_DEBUG "memcpy %p %p %d",ptr,tmp_ptr,tmp_cb);
 
 	CLRPC_GET(request,uint,num_events_in_wait_list,&num_events_in_wait_list);
 
@@ -638,7 +646,8 @@ _clrpc_clEnqueueWriteBuffer_svrcb(
 
 	printcl( CL_DEBUG "retval %d", retval);
 
-	CLRPC_XEVENT_CREATE(xevent,event,0,0);
+//	CLRPC_XEVENT_CREATE(xevent,event,0,0);
+	CLRPC_XEVENT_CREATE(xevent,event,ptr,0);
 
 	clrpc_dptr retevent;
 	EVTAG_GET(request,event,&d);
@@ -694,6 +703,7 @@ static void _clrpc_clReleaseEvent_svrcb(
    EVTAG_GET(request,event,&d); 
    EVTAG_GET(d,remote,(void*)&xevent); 
 	cl_int retval = clReleaseEvent(xevent->event);
+	if (xevent->buf_ptr) free(xevent->buf_ptr);
 	free(xevent);
 	CLRPC_ASSIGN(reply, int, retval, retval ); 
    EVRPC_REQUEST_DONE(rpc); 
@@ -1003,6 +1013,7 @@ _clrpc_clEnqueueNDRangeKernel_svrcb(
 	EVTAG_GET(request,event,&d);
 	EVTAG_GET(d,local,&retevent.local);
 	retevent.remote = (clrpc_ptr)xevent;
+	printcl( CL_DEBUG "remote xevent = %p",xevent);
 	EVTAG_GET(reply,event,&d);
 	EVTAG_ASSIGN(d,local,retevent.local);
 	EVTAG_ASSIGN(d,remote,retevent.remote);
@@ -1080,6 +1091,9 @@ _clrpc_clWaitForEvents_svrcb(
 		for(i=0;i<nevents;i++) {
 			if (xevents[i]->buf_sz > 0 && xevents[i]->buf_ptr) {
 				memcpy(tmp_ptr,xevents[i]->buf_ptr,xevents[i]->buf_sz);
+				int* ptmp = (int*)tmp_ptr;
+				printf("EVENT %d:",i);
+				int ii; for(ii=0;ii<10;ii++) printf("*%d",ptmp[ii]); printf("\n"); fflush(stdout);
 				tmp_ptr += xevents[i]->buf_sz;
 			}
 		}
