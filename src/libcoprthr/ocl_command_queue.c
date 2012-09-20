@@ -64,14 +64,12 @@ _clCreateCommandQueue(
 		= (struct _cl_command_queue*)malloc(sizeof(struct _cl_command_queue));
 
 	
-	fprintf(stderr,"here"); fflush(stderr);
-
 	if (cmdq) {
 
 		__init_command_queue(cmdq);
 
 		void* tmp = *(void**)cmdq;
-		fprintf(stderr,"deref cmdq %p",tmp); fflush(stderr);
+//		fprintf(stderr,"deref cmdq %p",tmp); fflush(stderr);
 
 		cmdq->refc = 1;
 		cmdq->ctx = ctx;
