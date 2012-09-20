@@ -255,11 +255,29 @@ extern struct event_base *global_base;
 		EVTAG_ASSIGN(d, remote, (clrpc_ptr)vals[i]); \
 	} } while(0);
 
+/*
 #define CLRPC_GET_DPTR_REMOTE(msg,basetype,mbr,pval) do { \
 	struct dual_ptr* d; \
 	EVTAG_GET(msg,mbr,&d); \
 	CLRPC_GET(d,basetype,remote,pval); \
 	} while(0)
+*/
+
+#define CLRPC_GET_DPTR_REMOTE(msg,basetype,mbr,pval) do { \
+	struct dual_ptr* d; \
+	EVTAG_GET(msg,mbr,&d); \
+	EVTAG_GET(d,remote,(void*)pval); \
+	} while(0)
+	
+
+#define CLRPC_GET(msg,basetype,mbr,pval) do { \
+   clrpc_##basetype tmp; \
+   EVTAG_GET(msg,mbr,(void*)&tmp); \
+   *pval = (cl_##basetype)tmp; \
+   } while(0)
+
+
+
 
 #define CLRPC_UNBLOCK(parg) do { \
    struct cb_struct* cbarg = (struct cb_struct*)parg; \
