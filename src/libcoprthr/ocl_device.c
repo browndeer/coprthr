@@ -51,9 +51,11 @@ _clGetDeviceIDs(
 
 	__do_get_ndevices(platformid,devtype,&n);
 
+	if (ndev_ret) *ndev_ret = n;
+
 	if (n == 0) return(CL_DEVICE_NOT_FOUND);
 
-	if (ndev_ret) *ndev_ret = n;
+//	if (ndev_ret) *ndev_ret = n;
 
 	n = min(n,ndev);
 
