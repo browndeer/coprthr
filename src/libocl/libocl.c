@@ -225,10 +225,10 @@ clGetPlatformIDs(
 
 		int rpc_enable = oclconf_info.clrpc_enable;
 
-		if (rpc_enable) {
+		clrpc_server_info* rpc_servers = (clrpc_server_info*)
+			calloc(oclconf_info.clrpc_nservers,sizeof(clrpc_server_info));
 
-			clrpc_server_info* servers = (clrpc_server_info*)
-				calloc(oclconf_info.clrpc_nservers,sizeof(clrpc_server_info));
+		if (rpc_enable) {
 
 			for(i=0;i<oclconf_info.clrpc_nservers;i++) {
 
@@ -243,41 +243,49 @@ clGetPlatformIDs(
 						*psep = '\0';
 					}
 			
-					servers[i].address = tmpstr;
-					servers[i].port = (ev_uint16_t)port;			
+					rpc_servers[i].address = tmpstr;
+					rpc_servers[i].port = (ev_uint16_t)port;			
 				
-					printcl( CL_DEBUG "added '%s' %d",servers[i].address,
-						servers[i].port);	
+					printcl( CL_DEBUG "added '%s' %d",rpc_servers[i].address,
+						rpc_servers[i].port);	
 				}
 				
 			}
 
-			clrpc_connect(oclconf_info.clrpc_nservers,servers);
+//			clrpc_connect(oclconf_info.clrpc_nservers,servers);
 
-		}
+		} 
 
+//		cl_uint rpc_nplatforms = 0;
 
-		cl_uint rpc_nplatforms = 0;
-
-cl_int (*clrpc_clGetPlatformIDs) (cl_uint,cl_platform_id*,cl_uint*);
-cl_int (*clrpc_clGetPlatformInfo) (cl_platform_id,cl_platform_info,size_t,void*,size_t*);
+		int (*clrpc_connect) ( unsigned int, clrpc_server_info* );
+		cl_int (*clrpc_clGetPlatformIDs) (cl_uint,cl_platform_id*,cl_uint*);
+		cl_int (*clrpc_clGetPlatformInfo) (cl_platform_id,cl_platform_info,
+			size_t,void*,size_t*);
 	
 		void* h_libclrpc = dlopen("libclrpc.so",RTLD_LAZY);
+		clrpc_connect = dlsym(h_libclrpc,"clrpc_connect");
 		clrpc_clGetPlatformIDs = dlsym(h_libclrpc,"clrpc_clGetPlatformIDs");
 		clrpc_clGetPlatformInfo = dlsym(h_libclrpc,"clrpc_clGetPlatformInfo");
 
-	printcl( CL_DEBUG "libclrpc: %p %p %p",h_libclrpc,clrpc_clGetPlatformIDs,clrpc_clGetPlatformInfo);
+		printcl( CL_DEBUG "libclrpc: %p %p %p %p",h_libclrpc,clrpc_connect,
+			clrpc_clGetPlatformIDs,clrpc_clGetPlatformInfo);
 
-//int rpc_enable = 1;
-		if (!clrpc_clGetPlatformIDs || !clrpc_clGetPlatformInfo) {
-			rpc_enable = 0;
+
+		if (clrpc_connect) clrpc_connect(oclconf_info.clrpc_nservers,rpc_servers);
+		else rpc_enable = 0;
+
+
+		if (!clrpc_clGetPlatformIDs || !clrpc_clGetPlatformInfo) rpc_enable = 0;
+
+		cl_uint rpc_nplatforms = 0;
+
+		if (rpc_enable) {
+			clrpc_clGetPlatformIDs( 0,0,&rpc_nplatforms );
+			printcl( CL_DEBUG "%d platforms available via RPC servers",
+				rpc_nplatforms);
 		}
 
-if (rpc_enable) {
-		clrpc_clGetPlatformIDs( 0,0,&rpc_nplatforms );
-		printcl( CL_DEBUG "%d platforms available via RPC servers",
-			rpc_nplatforms);
-}
 
 		int np = oclconf_info.nplatforms + rpc_nplatforms;
 
