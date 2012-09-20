@@ -65,6 +65,7 @@ struct oclconf_info_struct {
    size_t nicd_dirs;
 	char** icd_dirs;
 	int clrpc_enable;
+	int clrpc_nservers;
 	char** clrpc_servers;
 };
 
@@ -219,6 +220,43 @@ clGetPlatformIDs(
 
 		printcl( CL_DEBUG "%d local platforms found",oclconf_info.nplatforms);
 
+
+		/* process conf clrpc info */
+
+		int rpc_enable = oclconf_info.clrpc_enable;
+
+		if (rpc_enable) {
+
+			clrpc_server_info* servers = (clrpc_server_info*)
+				calloc(oclconf_info.clrpc_nservers,sizeof(clrpc_server_info));
+
+			for(i=0;i<oclconf_info.clrpc_nservers;i++) {
+
+				if (oclconf_info.clrpc_servers[i]) {
+
+					char* tmpstr = strdup(oclconf_info.clrpc_servers[i]);
+
+					int port = 2112;
+					char* psep = 0;
+					if (psep = strrchr(tmpstr,':')) {
+						port = atoi(psep+1);
+						*psep = '\0';
+					}
+			
+					servers[i].address = tmpstr;
+					servers[i].port = (ev_uint16_t)port;			
+				
+					printcl( CL_DEBUG "added '%s' %d",servers[i].address,
+						servers[i].port);	
+				}
+				
+			}
+
+			clrpc_connect(oclconf_info.clrpc_nservers,servers);
+
+		}
+
+
 		cl_uint rpc_nplatforms = 0;
 
 cl_int (*clrpc_clGetPlatformIDs) (cl_uint,cl_platform_id*,cl_uint*);
@@ -230,12 +268,12 @@ cl_int (*clrpc_clGetPlatformInfo) (cl_platform_id,cl_platform_info,size_t,void*,
 
 	printcl( CL_DEBUG "libclrpc: %p %p %p",h_libclrpc,clrpc_clGetPlatformIDs,clrpc_clGetPlatformInfo);
 
-int try_rpc = 1;
+//int rpc_enable = 1;
 		if (!clrpc_clGetPlatformIDs || !clrpc_clGetPlatformInfo) {
-			try_rpc = 0;
+			rpc_enable = 0;
 		}
 
-if (try_rpc) {
+if (rpc_enable) {
 		clrpc_clGetPlatformIDs( 0,0,&rpc_nplatforms );
 		printcl( CL_DEBUG "%d platforms available via RPC servers",
 			rpc_nplatforms);
@@ -541,6 +579,8 @@ int read_oclconf_info( struct oclconf_info_struct* info )
   config_setting_t* cfg_platform;
   config_setting_t* cfg_icd_dirs;
   config_setting_t* cfg_clrpc;
+  config_setting_t* cfg_servers;
+  config_setting_t* cfg_server;
 //	int ival;
 //	const char* sval;
 //	const char* str;
@@ -573,10 +613,10 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 
 	if (!path) return(-1);
 
-	printf("selected path is '%s'\n",path);
+	printcl( CL_DEBUG "selected path is '%s'",path);
 
 	if(! config_read_file(&cfg, path)) {
-		fprintf(stderr, "%s:%d - %s\n", config_error_file(&cfg),
+		printcl( CL_ERR "%s:%d - %s", config_error_file(&cfg),
 			config_error_line(&cfg), config_error_text(&cfg));
 		config_destroy(&cfg);
 		exit(-1);
@@ -586,7 +626,7 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 
 		int n = config_setting_length(cfg_platforms);
 
-		printf("there are %d platforms\n",n);
+		printcl( CL_DEBUG "there are %d platforms",n);
 
 		info->nplatforms = n;
 
@@ -625,7 +665,7 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 
 		int n = config_setting_length(cfg_icd_dirs);
 
-		printf("there are %d icd_dirs\n",n);
+		printcl( CL_DEBUG "there are %d icd_dirs",n);
 
 		info->nicd_dirs = n;
 
@@ -635,7 +675,7 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 
 			const char* icd_dir = config_setting_get_string_elem(cfg_icd_dirs,i);
 
-			info->icd_dirs[i] = icd_dir;
+			info->icd_dirs[i] = strdup(icd_dir);
 		}
 
 	}
@@ -643,8 +683,46 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 
 	if (cfg_clrpc = config_lookup(&cfg,"clrpc")) {
 
-		printf("there is a clrpc section\n");
+		printcl( CL_DEBUG "there is a clrpc section");
 
+		const char* enable = 0;
+
+		if (config_setting_lookup_string(cfg_clrpc,"enable",&enable)) {
+
+			info->clrpc_enable = (strcasecmp(enable,"yes"))? 0 : 1;
+
+		}	
+		printcl( CL_DEBUG "enble string %s",enable);
+
+		if (cfg_servers = config_setting_get_member(cfg_clrpc,"servers")) {
+
+			int n = config_setting_length(cfg_servers);
+
+			info->clrpc_nservers = n;
+
+			printcl( CL_DEBUG "there are %d RPC servers",n);
+
+			info->clrpc_servers = (char**) calloc(n,sizeof(char*));
+
+			for(i=0;i<n;i++) {
+
+				if (cfg_server = config_setting_get_elem(cfg_servers,i)) {
+
+					const char* url = 0;
+
+					if (config_setting_lookup_string(cfg_server,"url",&url)) {
+
+						info->clrpc_servers[i] = strdup(url);
+
+						printcl( CL_DEBUG "add server '%s'",url);
+					}
+
+				}
+
+			}
+
+		}
+	
 	}
 
 
