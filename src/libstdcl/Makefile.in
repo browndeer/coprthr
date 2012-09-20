@@ -75,7 +75,7 @@ LIBCLELF_D = ../libclelf/libclelf_d.a
 
 #LIBS += -L../libclelf -lclelf
 
-OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o
+OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o clerror.o
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
 MODS = stdcl.mod
