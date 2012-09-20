@@ -528,6 +528,19 @@ AC_ARG_WITH(opencl-icd-path,
   [ OPENCL_ICD_PATH=/etc/OpenCL/vendors ])
 
 
+### set path for libevent
+AC_ARG_WITH(libevent,
+  AC_HELP_STRING([--with-libevent=DIR],
+  [set path for libevent]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([no libevent path specified])
+    else
+      LIBEVENT_PATH=$withval
+    fi;
+  ],
+  [ LIBEVENT_PATH=/usr/local ])
+
 
 
 BASH=`which bash`
@@ -560,6 +573,7 @@ AC_SUBST(LIBCOPRTHR_CXX)
 AC_SUBST(LIBCOPRTHR_MODEL)
 
 AC_SUBST(OPENCL_ICD_PATH)
+AC_SUBST(LIBEVENT_PATH)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install-message.txt])

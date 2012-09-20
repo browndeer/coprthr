@@ -12,6 +12,8 @@ USE_OPENCL_INCLUDES = -I@OPENCL_INCLUDE@
 
 #LIBELF_INC = @libelf_inc@
 #LIBELF_LIB = @libelf_lib@
+LIBEVENT_INC = -I@LIBEVENT_PATH@/include
+LIBEVENT_LIB = -L@LIBEVENT_PATH@/lib
 
 ### enable build of debug version if not already defined
 ifeq (@ENABLE_DEBUG_LIBS@,1)
@@ -51,7 +53,8 @@ else
 LIBS += -lpthread -ldl -lrt 
 endif
 
-LIBS += -levent -levent_pthreads -levent_pthreads
+INCS += -I@LIBEVENT_PATH@/include
+LIBS += -L@LIBEVENT_PATH@/lib -levent -levent_pthreads -levent_pthreads
 
 OBJS = clrpc.gen.o 
 OBJS_D = $(subst .o,_d.o,$(OBJS)) 
