@@ -35,7 +35,9 @@ DEFS = -DHAVE_CONFIG_H
 
 #DEFS += -DXCL_REPORT
 
-INCS += -I../../include $(USE_OPENCL_INCLUDES) -I../libocl -I/usr/local/browndeer/include
+INCS += -I../../include $(USE_OPENCL_INCLUDES) -I../libocl 
+INCS += -I/usr/local/browndeer/include
+INCS += -I@LIBEVENT_PATH@/include
 
 LIBS += $(USE_OPENCL_LIBS)
 
@@ -83,7 +85,7 @@ clrpc_test_cli: clrpc_test_cli.o
 	$(CC) $(CCFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L/usr/local/browndeer/lib -lclrpc 
 
 clrpc_test_cli2: clrpc_test_cli2.o
-	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L/usr/local/browndeer/lib  -locl
+	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L/usr/local/browndeer/lib  -locl -lclrpc
 
 
 .SUFFIXES:

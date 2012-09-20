@@ -20,14 +20,12 @@ clrpc_client_test2(void)
 	int size = 1024;
 
 	clrpc_server_info servers[] = {
-		{ "192.168.1.70", 2112 }
+		{ "192.168.1.73", 2112 }
 	};
 
-//	if ( clrpc_init(2,servers) )
-//		printf("OOPS, clrpc_init RETURNED A -1\n");
 
-	if ( clrpc_connect(1,servers) )
-		printf("OOPS, clrpc_connect RETURNED A -1\n");
+//	if ( clrpc_connect(1,servers) )
+//		printf("OOPS, clrpc_connect RETURNED A -1\n");
 
 	cl_uint nplatforms = 0;
 	cl_platform_id* platforms = 0;
@@ -75,7 +73,7 @@ printf("\n******************\nTEST PLATFORM %d\n*************\n\n",iplat);
 	cl_device_id* devices = 0;
 	cl_uint ndevices_ret;
 
-	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_CPU,
+	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_ALL,
 		ndevices,devices,&ndevices_ret);
 
 	printf(  "after call one i get ndevices_ret = %d\n", ndevices_ret);
@@ -85,7 +83,7 @@ printf("\n******************\nTEST PLATFORM %d\n*************\n\n",iplat);
 	ndevices = ndevices_ret;
 	devices = (cl_device_id*)calloc(ndevices,sizeof(cl_device_id));
 
-	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_CPU,
+	clGetDeviceIDs(platforms[iplat],CL_DEVICE_TYPE_ALL,
 		ndevices,devices,&ndevices_ret);
 
 	if (!ndevices_ret) {
@@ -207,8 +205,8 @@ printf("\n******************\nTEST DEVICE %d(%d)\n*************\n\n",idev,iplat)
 	clReleaseCommandQueue(cmdq[0]);
 	clReleaseContext(ctx);
 
-	printf("sleeping ...\n");
-	sleep(1);
+//	printf("sleeping ...\n");
+//	sleep(1);
 
 }
 
