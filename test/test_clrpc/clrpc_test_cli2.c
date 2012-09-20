@@ -20,14 +20,13 @@ clrpc_client_test2(void)
 	int size = 1024;
 
 	clrpc_server_info servers[] = {
-		{ "127.0.0.1", 8091 }
-		,{ "127.0.0.1", 8092 }
+		{ "192.168.1.70", 2112 }
 	};
 
 //	if ( clrpc_init(2,servers) )
 //		printf("OOPS, clrpc_init RETURNED A -1\n");
 
-	if ( clrpc_connect(2,servers) )
+	if ( clrpc_connect(1,servers) )
 		printf("OOPS, clrpc_connect RETURNED A -1\n");
 
 	cl_uint nplatforms = 0;
