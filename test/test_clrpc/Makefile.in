@@ -21,9 +21,9 @@ USE_OPENCL_INCLUDES = -I@OPENCL_INCLUDE@
 #endif
 
 
-#INSTALL_INCLUDE_DIR=@includedir@
+INSTALL_INCLUDE_DIR=@includedir@
 #INSTALL_BIN_DIR=@bindir@
-#INSTALL_LIB_DIR=@libdir@
+INSTALL_LIB_DIR=@libdir@
 #INSTALL_MAN_DIR=@mandir@
 
 
@@ -36,7 +36,7 @@ DEFS = -DHAVE_CONFIG_H
 #DEFS += -DXCL_REPORT
 
 INCS += -I../../include $(USE_OPENCL_INCLUDES) -I../libocl 
-INCS += -I/usr/local/browndeer/include
+INCS += -I$(INSTALL_INCLUDE_DIR)
 INCS += -I@LIBEVENT_PATH@/include
 
 LIBS += $(USE_OPENCL_LIBS)
@@ -82,10 +82,10 @@ all: $(TARGET)
 .PHONY: install uninstall clean distclean 
 
 clrpc_test_cli: clrpc_test_cli.o
-	$(CC) $(CCFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L/usr/local/browndeer/lib -lclrpc 
+	$(CC) $(CCFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L$(INSTALL_LIB_DIR)  -locl -lclrpc
 
 clrpc_test_cli2: clrpc_test_cli2.o
-	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L/usr/local/browndeer/lib  -locl -lclrpc
+	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L$(INSTALL_LIB_DIR)  -locl -lclrpc
 
 
 .SUFFIXES:
