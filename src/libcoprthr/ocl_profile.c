@@ -38,8 +38,11 @@ _clGetEventProfilingInfo(
 	size_t* param_sz_ret
 )
 {
-	printcl( CL_WARNING "clGetEventProfilingInfo: warning: unsupported");
+	printcl( CL_DEBUG "clGetEventProfilingInfo:");
 
+	if (__invalid_event(event)) return(CL_INVALID_EVENT); 
+
+	if (event->cmd_stat != CL_COMPLETE) return(CL_PROFILING_INFO_NOT_AVAILABLE);
 
 	size_t sz;
 

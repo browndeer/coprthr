@@ -20,6 +20,7 @@
 
 /* DAR */
 
+#include <sys/time.h>
 #include <pthread.h>
 
 #include <CL/cl.h>
@@ -93,6 +94,7 @@ void __do_release_command_queue( cl_command_queue cmdq )
 
 void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev ) 
 {
+	struct timeval tv;
 
 	printcl( CL_DEBUG "__do_enqueue_cmd: ev %p",ev);
 
@@ -107,6 +109,11 @@ void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev )
 	__sig_cmdq(cmdq);
 
 	__unlock_cmdq(cmdq);
+
+	gettimeofday(&tv,0);
+
+	ev->tm_queued = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
+
 }
 
 /*

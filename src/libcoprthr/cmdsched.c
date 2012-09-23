@@ -22,6 +22,7 @@
 
 #define _GNU_SOURCE
 #include <sched.h>
+#include <sys/time.h>
 #include <pthread.h>
 
 #include <CL/cl.h>
@@ -39,6 +40,9 @@
 
 void* cmdqx0( void* argp )
 {
+
+	struct timeval tv;
+
 	cl_command_queue cmdq = (cl_command_queue)argp;
 
 	cl_device_id devid = cmdq->devid;
@@ -107,9 +111,12 @@ void* cmdqx0( void* argp )
 			TAILQ_REMOVE(&cmdq->imp.cmds_queued,ev,imp.cmds);
 			cmdq->imp.cmd_submitted = ev;
 			ev->cmd_stat = CL_SUBMITTED;
+			gettimeofday(&tv,0);
+			ev->tm_submit = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
+			ev->tm_start = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 
 			__unlock_cmdq(cmdq);
-			printcl( CL_DEBUG "%p: submitted %d\n",ev,ev->cmd);
+			printcl( CL_DEBUG "%p: submitted %x\n",ev,ev->cmd);
 //			cmdcall[ev->cmd-CLCMD_OFFSET](ev->imp.cmd_argp);
 			cmdcall[ev->cmd-CLCMD_OFFSET](devid,ev->imp.cmd_argp);
 			__lock_cmdq(cmdq);
@@ -137,7 +144,7 @@ void* cmdqx0( void* argp )
 			ev->cmd_stat = CL_RUNNING;
 
 			__unlock_cmdq(cmdq);
-			printcl( CL_DEBUG "%p: running %d\n",ev,ev->cmd);
+			printcl( CL_DEBUG "%p: running %x\n",ev,ev->cmd);
 			__lock_cmdq(cmdq);
 
 			__sig_event(ev);
@@ -157,13 +164,15 @@ void* cmdqx0( void* argp )
 			TAILQ_INSERT_TAIL(&cmdq->imp.cmds_complete,ev,imp.cmds);
 			cmdq->imp.cmd_running = ev;
 			ev->cmd_stat = CL_COMPLETE;
+			gettimeofday(&tv,0);
+			ev->tm_end = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 
 			__sig_event(ev);
 
 			__release_event(ev);
 			/* unlock implicit in release -DAR */
 
-			printcl( CL_DEBUG "%p: complete %d\n",ev,ev->cmd);
+			printcl( CL_DEBUG "%p: complete %x\n",ev,ev->cmd);
 			
 		}
 
