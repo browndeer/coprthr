@@ -1176,7 +1176,7 @@ main(int argc, const char **argv)
 
 	char default_address[] = "127.0.0.1";
 	const char* address = default_address;
-	ev_uint16_t port = 8091;
+	ev_uint16_t port = 2112;
 
 	n = 1;
    while (n < argc) {
@@ -1187,12 +1187,15 @@ main(int argc, const char **argv)
 			address = argv[n++];
 		} else if (!strcmp(arg,"-p")) {
 			port = atoi(argv[n++]);
+		} else if (!strcmp(arg,"-d")) {
+			setenv("COPRTHR_CLMESG_LEVEL","7",1);
 		} else {
 			printcl( CL_ERR "unrecognized option '%s'\n",arg);
 			exit(1);
 		}
 
 	}
+
 
 	evthread_use_pthreads();
 
