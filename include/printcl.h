@@ -23,6 +23,29 @@
 #ifndef _PRINTCL
 #define _PRINTCL
 
+#ifndef ENABLE_SILENT
+#define ENABLE_PRINTCL
+#endif
+
+#if MAX_CLMESG_LEVEL == 0
+#define __MAX_CLMESG_LEVEL_CHR '0'
+#elif MAX_CLMESG_LEVEL == 1
+#define __MAX_CLMESG_LEVEL_CHR '1'
+#elif MAX_CLMESG_LEVEL == 2
+#define __MAX_CLMESG_LEVEL_CHR '2'
+#elif MAX_CLMESG_LEVEL == 3
+#define __MAX_CLMESG_LEVEL_CHR '3'
+#elif MAX_CLMESG_LEVEL == 4
+#define __MAX_CLMESG_LEVEL_CHR '4'
+#elif MAX_CLMESG_LEVEL == 5
+#define __MAX_CLMESG_LEVEL_CHR '5'
+#elif MAX_CLMESG_LEVEL == 6
+#define __MAX_CLMESG_LEVEL_CHR '6'
+#else
+#define __MAX_CLMESG_LEVEL_CHR '7'
+#endif
+
+
 #ifdef _WIN64
 #include "fix_windows.h"
 #else
@@ -69,8 +92,8 @@
  * New reporting utility, will alias later to replace DEGUG/WARN/ERROR -DAR
  */
 
-#ifndef PRINTCL_DEFAULT_LEVEL
-#define PRINTCL_DEFAULT_LEVEL 7
+#ifndef DEFAULT_CLMESG_LEVEL
+#define DEFAULT_CLMESG_LEVEL 6
 #endif
 
 /* these reporting levels mirror those in the BSD kernel - DAR */
@@ -84,13 +107,14 @@
 #define CL_INFO		"<6>" /* informational */
 #define CL_DEBUG		"<7>" /* debug-level messages */
 
-#define PRINTCL_TAG	"cl"
+#define PRINTCL_TAG	"clmesg"
 
 static void _printcl(char*,int, const char*, const char*, ...);
 
 #ifdef ENABLE_PRINTCL
 
 #define printcl(msg,...)  do { \
+	if (msg[1] <= __MAX_CLMESG_LEVEL_CHR) \
 	_printcl(__FILE__,__LINE__,PRINTCL_TAG,msg,##__VA_ARGS__); \
    } while(0)
 
@@ -122,8 +146,8 @@ _printcl(char* file, int line, const char* tag, const char* msg, ... )
 
 	if (__printcl_level < 0) {
 		char* envset = getenv("COPRTHR_CLMESG_LEVEL");
-		__printcl_level = (envset)? atoi(envset) : PRINTCL_DEFAULT_LEVEL;
-		fprintf(stderr,"printcl: default level set to %d\n", __printcl_level);
+		__printcl_level = (envset)? atoi(envset) : DEFAULT_CLMESG_LEVEL;
+//		fprintf(stderr,"printcl: default level set to %d\n", __printcl_level);
 	}
 
 	int level = 7;
