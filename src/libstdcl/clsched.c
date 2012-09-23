@@ -167,11 +167,11 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 	__cmdq_create(cp,devnum);
 #endif
 
-	if (flags&CL_FAST) {
-		err = clFinish(cp->cmdq[0]);
-		__set_oclerrno(err);
-		return((cl_event)0);
-	}
+//	if (flags&CL_FAST) {
+//		err = clFinish(cp->cmdq[0]);
+//		__set_oclerrno(err);
+//		return((cl_event)0);
+//	}
 
 	/* XXX clwait should be responsive to these flags, fix -DAR */
 
@@ -180,10 +180,12 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 //		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
 //	}
 //#else
-	if ( flags&CL_EVENT_NORELEASE ) {
-		printcl( CL_WARNING "clwait: ignoring CL_EVENT_NORELEASE");
-	}
+//	if ( flags&CL_EVENT_NORELEASE ) {
+//		printcl( CL_WARNING "clwait: ignoring CL_EVENT_NORELEASE");
+//	}
 //#endif
+
+	int release = (flags&CL_EVENT_NORELEASE)? 0 : 1;
 
 	/* provide warning if no event list has been chosen */
 
@@ -222,8 +224,10 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 			for(evp = cp->kev[devnum].ev + cp->kev[devnum].ev_first; 
 				evp < cp->kev[devnum].ev + cp->kev[devnum].ev_free; evp++
 			) {
-				err = clReleaseEvent(*evp);
-				__set_oclerrno(err);
+				if (release) {
+					err = clReleaseEvent(*evp);
+					__set_oclerrno(err);
+				} 
 			}
 
 			cp->kev[devnum].nev = cp->kev[devnum].ev_first 
@@ -243,15 +247,19 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 			for(evp = cp->kev[devnum].ev + cp->kev[devnum].ev_first; 
 				evp < cp->kev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
 			) {
-				err = clReleaseEvent(*evp);
-				__set_oclerrno(err);
+				if (release) {
+					err = clReleaseEvent(*evp);
+					__set_oclerrno(err);
+				}
 			}
 
 			for(evp = cp->kev[devnum].ev; 
 				evp < cp->kev[devnum].ev + cp->kev[devnum].ev_free; evp++
 			) {
-				err = clReleaseEvent(*evp);
-				__set_oclerrno(err);
+				if (release) {
+					err = clReleaseEvent(*evp);
+					__set_oclerrno(err);
+				}
 			}
 
 			cp->kev[devnum].nev 
@@ -267,8 +275,10 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 			for(evp = cp->kev[devnum].ev; 
 				evp < cp->kev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
 			) {
-				err = clReleaseEvent(*evp);
-				__set_oclerrno(err);
+				if (release) {
+					err = clReleaseEvent(*evp);
+					__set_oclerrno(err);
+				}
 			}
 
 			cp->kev[devnum].nev 
@@ -301,8 +311,10 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 			for(evp = cp->mev[devnum].ev + cp->mev[devnum].ev_first; 
 				evp < cp->mev[devnum].ev + cp->mev[devnum].ev_free; evp++
 			) {
-				err = clReleaseEvent(*evp);
-				__set_oclerrno(err);
+				if (release) {
+					err = clReleaseEvent(*evp);
+					__set_oclerrno(err);
+				}
 			}
 
 			cp->mev[devnum].nev = cp->mev[devnum].ev_first 
@@ -322,15 +334,19 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 			for(evp = cp->mev[devnum].ev + cp->mev[devnum].ev_first; 
 				evp < cp->mev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
 			) {
-				clReleaseEvent(*evp);
-				__set_oclerrno(err);
+				if (release) {
+					clReleaseEvent(*evp);
+					__set_oclerrno(err);
+				}
 			}
 
 			for(evp = cp->mev[devnum].ev; 
 				evp < cp->mev[devnum].ev + cp->mev[devnum].ev_free; evp++
 			) {
-				err = clReleaseEvent(*evp);
-				__set_oclerrno(err);
+				if (release) {
+					err = clReleaseEvent(*evp);
+					__set_oclerrno(err);
+				}
 			}
 
 			cp->mev[devnum].nev = cp->mev[devnum].ev_first 
@@ -346,9 +362,10 @@ cl_event clwait(CONTEXT* cp, unsigned int devnum, int flags)
 			for( evp = cp->mev[devnum].ev; 
 				evp < cp->mev[devnum].ev + STDCL_EVENTLIST_MAX; evp++
 			) {
-
-				err = clReleaseEvent(*evp);
-				__set_oclerrno(err);
+				if (release) {
+					err = clReleaseEvent(*evp);
+					__set_oclerrno(err);
+				}
 			}
 
 			cp->mev[devnum].nev = cp->mev[devnum].ev_first 
@@ -377,16 +394,18 @@ cl_event clwaitev(
 //		WARN(__FILE__,__LINE__,"clwait: forcing CL_EVENT_RELEASE");
 //	}
 //#else
-	if ( flags&CL_EVENT_NORELEASE ) {
-		WARN(__FILE__,__LINE__,"clwait: ignoring CL_EVENT_NORELEASE");
-	}
+//	if ( flags&CL_EVENT_NORELEASE ) {
+//		WARN(__FILE__,__LINE__,"clwait: ignoring CL_EVENT_NORELEASE");
+//	}
 //#endif
 
 	err = clWaitForEvents(1,&ev);
 	__set_oclerrno(err);
 
-	err = clReleaseEvent(ev);
-	__set_oclerrno(err);
+	if ( !(flags&CL_EVENT_NORELEASE) ) {
+		err = clReleaseEvent(ev);
+		__set_oclerrno(err);
+	}
 
 	/* XXX here should force ev to 0 however, require evp -DAR */
 

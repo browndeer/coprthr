@@ -31,7 +31,8 @@
 
 #include "clcontext.h"
 
-#define CL_FAST      0x08
+//#define CL_FAST      0x08
+#define CL_FAST      0x0	/* XXX disables all use, this will be going away */
 
 #define CL_EVENT_WAIT     	0x01
 #define CL_EVENT_NOWAIT   	0x02
