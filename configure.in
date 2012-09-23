@@ -69,7 +69,15 @@ AC_ARG_ENABLE(libcoprthr-ncpu,
   AC_HELP_STRING([--enable-libcoprthr-ncpu],[enable libcoprthr ncpu (default=yes)]),, enable_libcoprthr_ncpu=yes)
 
 AC_ARG_ENABLE(fortran,
-  AC_HELP_STRING([--enable-fortran],[enable fortran bindings (default=no)]),, enable_fortran=yes)
+  AC_HELP_STRING([--enable-fortran],[enable fortran bindings (default=no)]),, enable_fortran=no)
+
+AC_ARG_ENABLE(silent,
+  AC_HELP_STRING([--enable-silent],[enable silent build (default=no)]),, 
+  enable_silent=no)
+
+AC_ARG_ENABLE(debug,
+  AC_HELP_STRING([--enable-debug],[enable debug messages (default=no)]),,
+  enable_debug=no)
 
 enable_libcoprthr_ncpu=enable_libcoprthr;
 
@@ -78,7 +86,7 @@ echo enable_libcoprthr $enable_libcoprthr
 ### now process the selected options
 
 SET_OPT($enable_clete, ENABLE_CLETE, "CLETE expression template acceleration")
-SET_OPT($enable_debug_libs, ENABLE_DEBUG_LIBS, "building debug versions of librarires - use \<libname\>_d.so")
+#SET_OPT($enable_debug_libs, ENABLE_DEBUG_LIBS, "building debug versions of librarires - use \<libname\>_d.so")
 SET_OPT($enable_cltrace, ENABLE_CLTRACE, "building cltrace tool")
 SET_OPT($enable_clld, ENABLE_CLLD, "building clld tool")
 SET_OPT($enable_libcoprthr, ENABLE_LIBCOPRTHR, "building libcoprthr")
@@ -534,12 +542,81 @@ AC_ARG_WITH(libevent,
   [set path for libevent]),
   [
     if test x$withval = xno; then
-		AC_MSG_ERROR([no libevent path specified])
+		AC_MSG_ERROR([usage: --with-libevent=DIR])
     else
       LIBEVENT_PATH=$withval
     fi;
   ],
   [ LIBEVENT_PATH=/usr/local ])
+
+if ! test -e $LIBEVENT_PATH/include/event2; then
+   AC_MSG_ERROR([cannot find libevent headers])
+fi;
+if ! test -e $LIBEVENT_PATH/lib/libevent.so; then
+   AC_MSG_ERROR([cannot find libevent.so ])
+fi;
+
+
+### set path for libconfig
+AC_ARG_WITH(libconfig,
+  AC_HELP_STRING([--with-libconfig=DIR],
+  [set path for libconfig]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([usage: --with-libconfig=DIR])
+    else
+      LIBCONFIG_PATH=$withval
+    fi;
+  ],
+  [ LIBCONFIG_PATH=/usr/local ])
+
+if ! test -e $LIBCONFIG_PATH/include/libconfig.h; then
+   AC_MSG_ERROR([cannot find libconfig header])
+fi;
+if ! test -e $LIBCONFIG_PATH/lib/libconfig.so; then
+   AC_MSG_ERROR([cannot find libconfig.so ])
+fi;
+
+
+
+### set max clmesg level
+AC_ARG_WITH(max-clmesg-level,
+  AC_HELP_STRING([--with-max-clmesg-level=LEVEL],
+  [set max clmesg level]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([usage: --with-max-clmesg-level=LEVEL])
+    else
+      MAX_CLMESG_LEVEL=$withval
+    fi;
+  ],
+  [ MAX_CLMESG_LEVEL=7 ])
+
+### set default clmesg level
+AC_ARG_WITH(default-clmesg-level,
+  AC_HELP_STRING([--with-default-clmesg-level=LEVEL],
+  [set default clmesg level]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([usage: --with-default-clmesg-level=LEVEL])
+    else
+      DEFAULT_CLMESG_LEVEL=$withval
+    fi;
+  ],
+  [ DEFAULT_CLMESG_LEVEL=6 ])
+
+if test x$enable_debug = xyes; then
+	if test x$enable_silent = xyes; then
+		AC_MSG_WARN([--enable-silent overrides --enable-debug]);
+		enable_debug=no;
+	else
+		MAX_CLMESG_LEVEL=7;
+		DEFAULT_CLMESG_LEVEL=7;
+	fi;
+fi;
+
+SET_OPT($enable_silent, ENABLE_SILENT, "silent build")
+SET_OPT($enable_debug, ENABLE_DEBUG, "debug build")
 
 
 
@@ -559,6 +636,10 @@ AC_SUBST(ENABLE_LIBCLRPC)
 AC_SUBST(ENABLE_NCPU)
 #AC_SUBST(ENABLE_ATIGPU)
 #AC_SUBST(ENABLE_BDT_BUILTINS)
+AC_SUBST(ENABLE_SILENT)
+AC_SUBST(ENABLE_DEBUG)
+AC_SUBST(MAX_CLMESG_LEVEL)
+AC_SUBST(DEFAULT_CLMESG_LEVEL)
 
 AC_SUBST(OPENCL_INCLUDE)
 AC_SUBST(OPENCL_LIB)
@@ -574,6 +655,7 @@ AC_SUBST(LIBCOPRTHR_MODEL)
 
 AC_SUBST(OPENCL_ICD_PATH)
 AC_SUBST(LIBEVENT_PATH)
+AC_SUBST(LIBCONFIG_PATH)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install-message.txt])

@@ -20,11 +20,11 @@ LIBELF_INC = @libelf_inc@
 LIBELF_LIB = @libelf_lib@
 
 ### enable build of debug version if not already defined
-ifeq (@ENABLE_DEBUG_LIBS@,1)
-ENABLE_DEBUG_LIBSTDCL=1
-else
-ENABLE_DEBUG_LIBSTDCL=0
-endif
+#ifeq (@ENABLE_DEBUG_LIBS@,1)
+#ENABLE_DEBUG_LIBSTDCL=1
+#else
+#ENABLE_DEBUG_LIBSTDCL=0
+#endif
 
 
 DEFS += -DSTDCL_WARN 
@@ -49,6 +49,16 @@ ifneq (@ENABLE_CLGL@,1)
 DEFS += -DDISABLE_CLGL 
 endif
 
+ifeq (@ENABLE_SILENT@,1)
+DEFS += -DENABLE_SILENT
+endif
+ifneq (@MAX_CLMESG_LEVEL@,)
+DEFS += -DMAX_CLMESG_LEVEL=@MAX_CLMESG_LEVEL@
+endif
+ifneq (@DEFAULT_CLMESG_LEVEL@,)
+DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
+endif
+
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
@@ -71,17 +81,17 @@ endif
 
 ### choosing to static link libclelf into libstdcl to simplify use -DAR
 LIBCLELF = ../libclelf/libclelf.a
-LIBCLELF_D = ../libclelf/libclelf_d.a
+#LIBCLELF_D = ../libclelf/libclelf_d.a
 
 #LIBS += -L../libclelf -lclelf
 
 OBJS = clinit.o clcontext.o clfcn.o clmalloc.o clsched.o clarg.o clerror.o
-OBJS_D = $(subst .o,_d.o,$(OBJS)) 
+#OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
 MODS = stdcl.mod
 
 F90_OBJS += $(subst .mod,_f90.o,$(MODS))
-F90_OBJS_D += $(subst .mod,_f90.o,$(MODS))
+#F90_OBJS_D += $(subst .mod,_f90.o,$(MODS))
 
 HDRS = stdcl.h clinit.h clfcn.h clcontext.h clsched.h clmalloc.h \
 	clarg.h clforka.h clerror.h \
@@ -96,7 +106,8 @@ MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
 	clndrange_set1d.3 clflush.3
 
 INSTALL_INCS = $(HDRS)
-INSTALL_LIBS = libstdcl.so libstdcl_d.so
+#INSTALL_LIBS = libstdcl.so libstdcl_d.so
+INSTALL_LIBS = libstdcl.so 
 
 CCFLAGS += -g -O2 -fPIC
 F90FLAGS = -fPIC
@@ -105,16 +116,16 @@ F90FLAGS = -fPIC
 ifneq ($(F90),)
 TARGET = $(MODS)
 LIB_OBJS = $(F90_OBJS)
-LIB_OBJS_D = $(F90_OBJS)
+#LIB_OBJS_D = $(F90_OBJS)
 endif
 
 TARGET += libstdcl.so $(addsuffix .gz,$(MAN3))
 LIB_OBJS += $(OBJS)
-LIB_OBJS_D += $(OBJS_D)
+#LIB_OBJS_D += $(OBJS_D)
 
-ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
-TARGET += libstdcl_d.so 
-endif
+#ifeq ($(ENABLE_DEBUG_LIBSTDCL),1)
+#TARGET += libstdcl_d.so 
+#endif
 
 
 all: $(TARGET)
@@ -125,9 +136,9 @@ libstdcl.so: $(OBJS) $(LIBCLELF)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \
 		-o libstdcl.so $(LIB_OBJS) $(LIBCLELF) $(LIBS) 
 
-libstdcl_d.so: $(OBJS_D) $(LIBCLELF_D)
-	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl_d.so \
-		-o libstdcl_d.so $(LIB_OBJS_D) $(LIBCLELF_D) $(LIBS)
+#libstdcl_d.so: $(OBJS_D) $(LIBCLELF_D)
+#	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl_d.so \
+#		-o libstdcl_d.so $(LIB_OBJS_D) $(LIBCLELF_D) $(LIBS)
 
 .SUFFIXES:
 .SUFFIXES: .c .o .f90 .mod
@@ -138,8 +149,8 @@ libstdcl_d.so: $(OBJS_D) $(LIBCLELF_D)
 .c.o:
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
-%_d.o:
-	$(CC) $(CCFLAGS) $(DEFS) -DSTDCL_DEBUG $(INCS) -c $*.c -o $*_d.o
+#%_d.o:
+#	$(CC) $(CCFLAGS) $(DEFS) -DSTDCL_DEBUG $(INCS) -c $*.c -o $*_d.o
 
 %.3.gz:
 	-gzip -f -c $*.3 > $*.3.gz

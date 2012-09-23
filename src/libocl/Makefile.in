@@ -14,7 +14,7 @@ LIBELF_LIB=@libelf_lib@
 #DEFS += -DOCL_DEBUG 
 #DEFS += -DOCL_WARN
 
-DEFS += -DENABLE_PRINTCL
+#DEFS += -DENABLE_PRINTCL
 
 #DEFS += -DUSE_FAST_SETJMP	# ONLY USE THIS IF YOU KNOW WHAT YOU ARE DOING
 
@@ -40,6 +40,16 @@ endif
 #DEFS += -DOCL_DEBUG 
 #endif
 
+ifeq (@ENABLE_SILENT@,1)
+DEFS += -DENABLE_SILENT
+endif
+ifneq (@MAX_CLMESG_LEVEL@,)
+DEFS += -DMAX_CLMESG_LEVEL=@MAX_CLMESG_LEVEL@
+endif
+ifneq (@DEFAULT_CLMESG_LEVEL@,)
+DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
+endif
+
 ######################################################################
 
 TOPDIR ?= ../../
@@ -47,6 +57,8 @@ TOPDIR ?= ../../
 INCS += -I. -I$(TOPDIR)/include  -I../libclrpc
 
 INCS += $(LIBELF_INC)
+
+ 
 
 LIBS += $(LIBELF_LIB)
 
@@ -58,11 +70,12 @@ else
 LIBS += -ldl 
 endif
 
-LIBS += -lconfig
+incs += -I@LIBCONFIG_PATH@/include
+LIBS += -L@LIBCONFIG_PATH@/lib -lconfig
 
 #LIBS += -L../libclrpc -lclrpc
 
-OBJS_D = $(subst .o,_d.o,$(OBJS))
+#OBJS_D = $(subst .o,_d.o,$(OBJS))
 
 DEFS += \
 	-DINSTALL_BIN_DIR=\"$(INSTALL_BIN_DIR)\" \
@@ -75,9 +88,9 @@ CCFLAGS_VCORE_RT = -O1 -fPIC -funroll-loops -fstrict-aliasing
 
 
 TARGET = libocl.so $(RT_OBJS) 
-ifeq (@ENABLE_DEBUG_LIBS@,1)
-TARGET += libocl_d.so
-endif
+#ifeq (@ENABLE_DEBUG_LIBS@,1)
+#TARGET += libocl_d.so
+#endif
 
 all: $(TARGET) 
 
@@ -95,8 +108,8 @@ all: $(TARGET)
 .S.o:
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
-%_d.o:
-	$(CC) $(CCFLAGS) $(DEFS) -DOCL_DEBUG $(INCS) -c $*.c -o $*_d.o
+#%_d.o:
+#	$(CC) $(CCFLAGS) $(DEFS) -DOCL_DEBUG $(INCS) -c $*.c -o $*_d.o
 
 oclcall.o: oclcall.master
 	perl gen_call_tables.pl
@@ -106,9 +119,9 @@ libocl.so: oclcall.o $(OBJS) $(RT_OBJS)
 	$(CC) $(CCFLAGS) $(INCS) \
 		-shared -Wl,-soname,libocl.so -o libocl.so  $(OBJS) $(LIBS)
 
-libocl_d.so: $(OBJS_D) $(RT_OBJS)
-	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libocl_d.so -o libocl_d.so  $(OBJS_D) $(LIBS)
+#libocl_d.so: $(OBJS_D) $(RT_OBJS)
+#	$(CC) $(CCFLAGS) $(INCS) \
+#		-shared -Wl,-soname,libocl_d.so -o libocl_d.so  $(OBJS_D) $(LIBS)
 
 debug:
 	export ENABLE_DEBUG=1
@@ -120,15 +133,17 @@ install:
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	install -m 755 libocl.so $(INSTALL_LIB_DIR)
-	install -m 755 libocl_d.so $(INSTALL_LIB_DIR)
+#	install -m 755 libocl_d.so $(INSTALL_LIB_DIR)
 #	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so
 #ifeq ($(ENABLE_DEBUG_LIBCOPRTHR),1)
 #	ln -sf $(INSTALL_LIB_DIR)/libocl_d.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
 #endif
 
 uninstall: 
-	rm -f $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libocl_d.so
-	rm -f $(INSTALL_LIB_DIR)/libOpenCL.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
+#	rm -f $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libocl_d.so
+#	rm -f $(INSTALL_LIB_DIR)/libOpenCL.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
+	rm -f $(INSTALL_LIB_DIR)/libocl.so 
+	rm -f $(INSTALL_LIB_DIR)/libOpenCL.so 
 
 clean:
 	rm -f *.o *.so
