@@ -343,18 +343,27 @@ int clrpc_init()
 
 int clrpc_connect( unsigned int nservers, clrpc_server_info* servers )
 {
-	int i;
+	int i,j,n;
 
 	if (!_clrpc_init) clrpc_init();
 
-	rpc_pools = (struct evrpc_pool**)malloc(nservers*sizeof(struct evrpc_pool*));
+	n = clrpc_nservers;
+	clrpc_nservers += nservers;
 
-	clrpc_nservers = nservers;
+	if (n==0) {
+		rpc_pools = (struct evrpc_pool**)
+			malloc(clrpc_nservers*sizeof(struct evrpc_pool*));
+	} else {
+		rpc_pools = (struct evrpc_pool**)
+			realloc(rpc_pools,clrpc_nservers*sizeof(struct evrpc_pool*));
+	}
 
-	for(i=0;i<nservers;i++) {	
+//	clrpc_nservers = nservers;
+
+	for(i=0,j=n;i<nservers;i++,j++) {	
 		clrpc_port = servers[i].port;
 		clrpc_pool = rpc_pool_with_connection(servers[i].address,servers[i].port);
-		rpc_pools[i] = clrpc_pool;
+		rpc_pools[j] = clrpc_pool;
 	}
 
 	return(0);
