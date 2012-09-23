@@ -35,7 +35,7 @@ _clCreateFromGLBuffer(
 	cl_context ctx, cl_mem_flags flags, cl_GLuint dummy1, int* err_ret
 )
 {
-	printcl( CL_WARNGING "unsupported");
+	printcl( CL_WARNING "unsupported");
 
 	return((cl_mem)0);
 }

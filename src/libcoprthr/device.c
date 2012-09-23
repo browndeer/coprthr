@@ -437,7 +437,7 @@ void __do_discover_devices(
 
 
 //	printcl( CL_DEBUG "calling vcproc_startup");
-	printcl( XCL_WARNING "vcproc_startup is disabled");
+	printcl( CL_WARNING "vcproc_startup is disabled");
 //	vcproc_startup(0);
 
 

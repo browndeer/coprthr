@@ -101,7 +101,7 @@ void* sl_engine_startup( void* p )
 	if (getenv("COPRTHR_MAX_NUM_ENGINES")) 
 		nengines = min(nengines,atoi(getenv("COPRTHR_MAX_NUM_ENGINES")));
 
-	printcl( XCL_INFO "sl_engine_startup: nengines=%d",nengines);
+	printcl( CL_INFO "sl_engine_startup: nengines=%d",nengines);
 
 	engine_td = (pthread_t*)calloc(nengines,sizeof(pthread_t));
 	engine_mtx = (pthread_mutex_t*)calloc(nengines,sizeof(pthread_mutex_t));

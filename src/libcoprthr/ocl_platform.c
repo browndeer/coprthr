@@ -43,6 +43,8 @@ _clGetPlatformIDs(
 	cl_uint* nplatforms_ret
 )
 {
+	printcl( CL_DEBUG "clGetPlatformIDs");
+	
 	if (nplatforms == 0 && platforms) return(CL_INVALID_VALUE);
 
 	if (!platforms && !nplatforms_ret) return(CL_INVALID_VALUE);
@@ -76,7 +78,7 @@ _clGetPlatformInfo(
 	size_t* param_sz_ret
 ) 
 {
-	fprintf(stderr,"IMP _clGetPlatformInfo\n"); fflush(stderr);
+	printcl( CL_DEBUG "clGetPlatformInfo");
 	
 	if (__invalid_platform_id(platformid)) return(CL_INVALID_PLATFORM);
 

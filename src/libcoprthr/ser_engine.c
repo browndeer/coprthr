@@ -77,7 +77,7 @@ void* ser_engine_startup( void* p )
 	if (getenv("COPRTHR_MAX_NUM_ENGINES")) 
 		nengines = min(nengines,atoi(getenv("COPRTHR_MAX_NUM_ENGINES")));
 
-	printcl( XCL_INFO "ser_engine_startup: nengines=%d",nengines);
+	printcl( CL_INFO "ser_engine_startup: nengines=%d",nengines);
 
 	engine_td = (pthread_t*)calloc(nengines,sizeof(pthread_t));
 	engine_mtx = (pthread_mutex_t*)calloc(nengines,sizeof(pthread_mutex_t));
@@ -214,7 +214,7 @@ static void* ser_engine( void* p )
 			edata->pr_arg_off = cmd_argp->k.pr_arg_off;
 
 			if (!edata->callp) {
-				printcl( XCL_ERR "ser_engine: ERROR: null callp");
+				printcl( CL_ERR "ser_engine: ERROR: null callp");
 				exit(-1);
 			};
 
