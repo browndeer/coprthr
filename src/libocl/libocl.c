@@ -131,6 +131,9 @@ clGetPlatformIDs(
 			oclconf_info.nicd_dirs = 1;
 			oclconf_info.icd_dirs = (char**)malloc(sizeof(char*));
 			oclconf_info.icd_dirs[0] = strdup("/etc/OpenCL/vendors");
+			oclconf_info.clrpc_enable = 0;
+			oclconf_info.clrpc_nservers = 0;
+			oclconf_info.clrpc_servers = 0;
 
 		}
 
@@ -272,8 +275,12 @@ clGetPlatformIDs(
 			clrpc_clGetPlatformIDs,clrpc_clGetPlatformInfo);
 
 
-		if (clrpc_connect) clrpc_connect(oclconf_info.clrpc_nservers,rpc_servers);
-		else rpc_enable = 0;
+		printcl( CL_DEBUG "nservers=%d",oclconf_info.clrpc_nservers);
+
+		if (clrpc_connect && oclconf_info.clrpc_nservers > 0) 
+			clrpc_connect(oclconf_info.clrpc_nservers,rpc_servers);
+		else 
+			rpc_enable = 0;
 
 
 		if (!clrpc_clGetPlatformIDs || !clrpc_clGetPlatformInfo) rpc_enable = 0;
@@ -667,7 +674,13 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 
 		}
 
-	} 
+	}  else {
+
+		info->nplatforms = 0;
+		info->platforms = 0;
+
+	}
+
 
 	if (cfg_icd_dirs = config_lookup(&cfg,"icd_dirs")) {
 
@@ -685,6 +698,11 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 
 			info->icd_dirs[i] = strdup(icd_dir);
 		}
+
+	} else {
+
+		info->nicd_dirs = 0;
+		info->icd_dirs = 0;
 
 	}
 
@@ -731,6 +749,12 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 
 		}
 	
+	} else {
+
+		info->clrpc_enable = 0;
+		info->clrpc_nservers = 0;
+		info->clrpc_servers = 0;
+
 	}
 
 
