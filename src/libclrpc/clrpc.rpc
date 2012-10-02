@@ -116,6 +116,28 @@ struct _clrpc_clCreateContext_reply {
 }
 
 
+/***
+ *** cl_context
+ *** clCreateContextFromType(
+ ***  const cl_context_properties* prop,
+ ***	cl_device_type devtype,
+ ***  void (*pfn_notify) (const char*, const void*, size_t, void*),
+ ***  void* user_data,
+ ***  cl_int* err_ret )
+ ***/
+
+struct _clrpc_clCreateContextFromType_request {
+	array int64 xprop = 1;
+	int64 devtype = 2;
+	struct[dual_ptr] retval = 3;
+}
+
+struct _clrpc_clCreateContextFromType_reply {
+	struct[dual_ptr] retval = 1;
+	int64 err_ret = 2;
+}
+
+
 /*** cl_int
  *** clGetContextInfo(
  ***   cl_context context,
@@ -135,6 +157,19 @@ struct _clrpc_clGetContextInfo_reply {
 	int64 retval = 1;
    optional bytes param_val = 2;
 	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int clRetainContext( cl_context context )
+ ***/
+
+struct _clrpc_clRetainContext_request {
+	struct[dual_ptr] context = 1;
+}
+
+struct _clrpc_clRetainContext_reply {
+	int64 retval = 1;
 }
 
 
@@ -172,6 +207,63 @@ struct _clrpc_clCreateCommandQueue_reply {
 }
 
 
+/*** cl_int
+ *** clGetCommandQueueInfo(
+ ***   cl_command_queue command_queue,
+ ***   cl_command_queue_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetCommandQueueInfo_request {
+	struct[dual_ptr] command_queue = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetCommandQueueInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+
+/*** cl_int 
+ *** clSetCommandQueueProperty(
+ *** 	cl_command_queue command_queue,
+ ***	cl_command_queue_properties properties,
+ ***	cl_bool enable,
+ ***	cl_command_queue_properties* old_properties)
+ ***/
+
+struct _clrpc_clSetCommandQueueProperty_request {
+	struct[dual_ptr] command_queue = 1;
+	int64 properties = 2;
+	int64 enable = 3;
+}
+
+struct _clrpc_clSetCommandQueueProperty_reply {
+	int64 retval = 1;
+	optional int64 old_properties = 2;
+}
+
+
+
+/***
+ *** cl_int clRetainCommandQueue( cl_command_queue command_queue )
+ ***/
+
+struct _clrpc_clRetainCommandQueue_request {
+	struct[dual_ptr] command_queue = 1;
+}
+
+struct _clrpc_clRetainCommandQueue_reply {
+	int64 retval = 1;
+}
+
+
 /***
  *** cl_int clReleaseCommandQueue( cl_command_queue command_queue )
  ***/
@@ -204,6 +296,41 @@ struct _clrpc_clCreateBuffer_request {
 struct _clrpc_clCreateBuffer_reply {
 	struct[dual_ptr] retval = 1;
 	int64 err_ret = 2;
+}
+
+
+/*** cl_int
+ *** clGetMemObjectInfo(
+ ***   cl_mem memobj,
+ ***   cl_mem_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetMemObjectInfo_request {
+	struct[dual_ptr] memobj = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetMemObjectInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int clRetainMemObject( cl_mem memobj )
+ ***/
+
+struct _clrpc_clRetainMemObject_request {
+	struct[dual_ptr] memobj = 1;
+}
+
+struct _clrpc_clRetainMemObject_reply {
+	int64 retval = 1;
 }
 
 
@@ -283,6 +410,37 @@ struct _clrpc_clEnqueueWriteBuffer_reply {
 
 
 /***
+ *** cl_int clEnqueueCopyBuffer (
+ ***	cl_command_queue command_queue,
+ ***	cl_mem src_buffer,
+ ***	cl_mem dst_buffer,
+ ***	size_t src_offset,
+ ***	size_t dst_offset,
+ ***	size_t cb,
+ ***	cl_uint num_events_in_wait_list,
+ ***	const cl_event *event_wait_list,
+ ***	cl_event *event)
+ ***/
+
+struct _clrpc_clEnqueueCopyBuffer_request {
+	struct[dual_ptr] command_queue = 1;
+	struct[dual_ptr] src_buffer = 2;
+	struct[dual_ptr] dst_buffer = 3;
+	int64 src_offset = 4;
+	int64 dst_offset = 5;
+	int64 cb = 6;
+	int64 num_events_in_wait_list = 7;
+	array struct[dual_ptr] event_wait_list = 8;
+	struct[dual_ptr] event = 9;
+}
+
+struct _clrpc_clEnqueueCopyBuffer_reply {
+	struct[dual_ptr] event = 1;
+	int64 retval = 2;
+}
+
+
+/***
  *** cl_program clCreateProgramWithSource(
  ***	cl_context context,
  ***	cl_uint count,
@@ -351,6 +509,19 @@ struct _clrpc_clBuildProgram_reply {
 
 
 /***
+ *** cl_int clRetainProgram( cl_program program )
+ ***/
+
+struct _clrpc_clRetainProgram_request {
+	struct[dual_ptr] program = 1;
+}
+
+struct _clrpc_clRetainProgram_reply {
+	int64 retval = 1;
+}
+
+
+/***
  *** cl_int clReleaseProgram( cl_program program )
  ***/
 
@@ -401,6 +572,19 @@ struct _clrpc_clGetKernelInfo_reply {
 	int64 retval = 1;
    optional bytes param_val = 2;
 	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int clRetainKernel( cl_kernel kernel )
+ ***/
+
+struct _clrpc_clRetainKernel_request {
+	struct[dual_ptr] kernel = 1;
+}
+
+struct _clrpc_clRetainKernel_reply {
+	int64 retval = 1;
 }
 
 
@@ -480,6 +664,20 @@ struct _clrpc_clFlush_reply {
 	int64 retval = 1;
 }
 
+
+/***
+ *** cl_int clFinish (cl_command_queue command_queue)
+ ***/
+
+struct _clrpc_clFinish_request {
+	struct[dual_ptr] command_queue = 1;
+}
+
+struct _clrpc_clFinish_reply {
+	int64 retval = 1;
+}
+
+
 /***
  *** cl_int clWaitForEvents (cl_uint num_events, const cl_event *event_list)
  ***/
@@ -514,6 +712,41 @@ struct _clrpc_clGetEventInfo_reply {
 	int64 retval = 1;
    optional bytes param_val = 2;
 	optional int64 param_sz_ret = 3;
+}
+
+
+/*** cl_int
+ *** clGetEventProfilingInfo(
+ ***   cl_event event,
+ ***   cl_profiling_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetEventProfilingInfo_request {
+	struct[dual_ptr] event = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetEventProfilingInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+/***
+ *** cl_int clRetainEvent( cl_event event )
+ ***/
+
+struct _clrpc_clRetainEvent_request {
+	struct[dual_ptr] event = 1;
+}
+
+struct _clrpc_clRetainEvent_reply {
+	int64 retval = 1;
 }
 
 

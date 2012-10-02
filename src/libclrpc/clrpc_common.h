@@ -45,10 +45,15 @@ typedef struct { clrpc_ptr local, remote; } clrpc_dptr;
 typedef clrpc_dptr _clrpc_platform_id;
 typedef struct _dummy_platform_id* clrpc_platform_id;
 
+typedef int64_t clrpc_device_type;
+
 typedef int64_t clrpc_platform_info;
 typedef int64_t clrpc_device_info;
 typedef int64_t clrpc_context_info;
+typedef int64_t clrpc_command_queue_info;
+typedef int64_t clrpc_mem_info;
 typedef int64_t clrpc_event_info;
+typedef int64_t clrpc_profiling_info;
 typedef int64_t clrpc_program_info;
 typedef int64_t clrpc_kernel_info;
 
