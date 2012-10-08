@@ -1,7 +1,7 @@
 %{
 /* xclnm_scan.l
  *
- * Copyright (c) 2008-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2008-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -60,6 +60,8 @@ FILE* __xclnm_yyin;
 
 
 %% /* rules */
+
+"typedef"			{ __plb(); ival_return(TYPEDEF); }
 
 "__kernel" 			{ __plb(); ival_return(KERNEL); }
 "kernel" 			{ __plb(); ival_return(KERNEL); }

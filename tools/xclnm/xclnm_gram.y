@@ -1,7 +1,7 @@
 %{
 /* xclnm_gram.y
  *
- * Copyright (c) 2008-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2008-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -83,7 +83,7 @@
 %token	BODY OPEN_BODY CLOSE_BODY
 %token	STRING
 %token	VARG
-%token	TYPEDEF_OPAQUE
+%token	TYPEDEF
 %token	SKIP
 
 %{
@@ -152,10 +152,11 @@ void yyerror(const char*);
 %type <ival> ptrc
 %type <ival> vecn
 %type <ival> body
+%type <ival> typedef
 
 %type <ival> input line
 %type <ival> VARG
-%type <ival> TYPEDEF_OPAQUE
+%type <ival> TYPEDEF
 %type <ival> SKIP
 
 
@@ -170,6 +171,7 @@ input:	/* empty */ { $$=0; }
 line: 	'\n' { $$=0; }
 			| func_dec { __rlb(); cur_nptr = node_insert(cur_nptr,$1); }
 			| func_def { __rlb(); cur_nptr = node_insert(cur_nptr,$1); }
+			| typedef { __rlb(); }
 			| SKIP {__rlb(); };
 
 
@@ -232,7 +234,10 @@ type:	TYPE_VOID { $$ = node_create_type(1,1,TYPEID_VOID,0,0); }
 		| type ptrc { $$=node_set_ptrc($1,$2); } ;
 
 ptrc:		ptrc '*' { $$ = $1+1; }
-			| '*' { $$ = 1; }
+			| '*' { $$ = 1; };
+
+typedef:	TYPEDEF BODY SYMBOL ';' 
+				{ add_typedef(symbuf+$3); };
 
 body:		BODY { $$=$1; };
 
