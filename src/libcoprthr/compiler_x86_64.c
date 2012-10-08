@@ -59,6 +59,9 @@
 #define CCFLAGS_KCALL " -O0 "
 #define CCFLAGS_LINK 
 
+#define ECC_BLOCKED_FLAGS "-D_FORTIFY_SOURCE", "-fexceptions", \
+       "-fstack-protector-all" "-fstack-protector-all"
+
 
 #define _GNU_SOURCE
 #include <link.h>
@@ -264,13 +267,16 @@ static int __test_file( char* file )
 	return (stat(file,&s));
 }
 
+static char* ecc_block_flags[] = { ECC_BLOCKED_FLAGS };
+
 #if defined(__x86_64__)
 
 void* compile_x86_64(
 	cl_device_id devid,
 	unsigned char* src, size_t src_sz, 
 	unsigned char** p_bin, size_t* p_bin_sz, 
-	char* opt, char** log 
+//	char* opt, char** log 
+	char* opt_in, char** log 
 )
 {
 	int i;
@@ -282,20 +288,50 @@ void* compile_x86_64(
 	char line[1024];
 
 	char default_opt[] = "";
-	if (!opt) opt = default_opt;
+//	if (!opt) opt = default_opt;
+	char* opt = (opt_in)? strdup(opt_in) : strdup(default_opt);
 
-	DEBUG2("opt |%s|",opt);
+//	DEBUG2("opt |%s|",opt);
+       xclreport( XCL_DEBUG "opt |%s|",opt);
 
-#ifdef __XCL_TEST
-	char wdtemp[] = "./";
-	char filebase[] 	= "XXXXXX";
-	char* wd = wdtemp;
-#else
-	char wdtemp[] = "/tmp/xclXXXXXX";
+       for(i=0;i<sizeof(ecc_block_flags)/sizeof(char*);i++) {
+               char* p;
+               while (p=strstr(opt,ecc_block_flags[i])) {
+                       memset(p,' ',strlen(ecc_block_flags[i]));
+                       xclreport( XCL_WARNING "blocked compiler option '%s'",
+                               ecc_block_flags[i]);
+                       xclreport( XCL_DEBUG "new opt |%s|",opt);
+               }
+       }
+
+       xclreport( XCL_DEBUG "opt after filter |%s|",opt);
+
+
+//#ifdef __XCL_TEST
+//	char wdtemp[] = "./";
+//	char filebase[] 	= "XXXXXX";
+//	char* wd = wdtemp;
+//#else
+
+      char* coprthr_tmp = getenv("COPRTHR_TMP");
+       if (stat(coprthr_tmp,&fst) || !S_ISDIR(fst.st_mode)
+               || fst.st_mode & S_IRWXU != S_IRWXU) coprthr_tmp = 0;
+
+       char* wdtemp;
+
+       if (coprthr_tmp) {
+               wdtemp = (char*)malloc(strlen(coprthr_tmp) +11);
+               sprintf(wdtemp,"%s/xclXXXXXX",coprthr_tmp);
+       } else {
+               wdtemp = strdup("/tmp/xclXXXXXX");
+       }
+
+
+//	char wdtemp[] = "/tmp/xclXXXXXX";
 	char filebase[] 	= "XXXXXX";
 	char* wd = mkdtemp(wdtemp);
 	mktemp(filebase);
-#endif
+//#endif
 
 	char file_cl[256];
 	char file_cpp[256];
@@ -712,7 +748,13 @@ void* compile_x86_64(
 		munmap(p,ofsz);
 	} else {
 		close(ofd);
-		__remove_work_dir(wd);
+       if (!coprthr_tmp) {
+       xclreport( XCL_DEBUG "removing work directory");
+			__remove_work_dir(wd);
+       }
+
+       if (wdtemp) free(wdtemp);
+
 		return((void*)-1);
 	}
 
