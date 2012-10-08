@@ -288,9 +288,9 @@ clcontext_create(
 
 		if (platform_devcount[0] == 0) {
 
-      	printcl( CL_WARNING
-				"clcontext_create: no platforms supporting device type (%d)!",
-				devtyp);
+//      	printcl( CL_WARNING
+//				"clcontext_create: no platforms supporting device type (%d)!",
+//				devtyp);
 
 			return((CONTEXT*)0);
 
