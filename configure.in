@@ -57,7 +57,7 @@ AC_ARG_ENABLE(clld,
   AC_HELP_STRING([--enable-clld],[enable building clld tool (default=yes)]),, enable_clld=yes)
 
 AC_ARG_ENABLE(libcoprthr,
-  AC_HELP_STRING([--enable-libcoprthr],[enable libcoprthr (default=no)]),, enable_libcoprthr=no)
+  AC_HELP_STRING([--enable-libcoprthr],[enable libcoprthr (default=yes)]),, enable_libcoprthr=yes)
 
 AC_ARG_ENABLE(libocl,
   AC_HELP_STRING([--enable-libocl],[enable libocl (default=yes)]),, enable_libocl=yes)
