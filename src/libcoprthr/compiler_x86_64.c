@@ -158,7 +158,7 @@ static char* logbuf = 0;
 
 #define CLERROR_BUILD_FAILED -1
 
-
+#if(0)
 #define __writefile(file,filesz,pfile) do { \
 	FILE* fp = fopen(file,"w"); \
 	fprintf(fp,"#include \"opencl_lift.h\"\n"); \
@@ -167,6 +167,7 @@ static char* logbuf = 0;
 		printcl( CL_ERR "error: write '%s' failed",file); \
 		return((void*)CLERROR_BUILD_FAILED); \
 	} \
+	fprintf(fp,"/* end */\n"); \
 	fclose(fp); \
 	} while(0);
 
@@ -179,8 +180,38 @@ static char* logbuf = 0;
 		return((void*)CLERROR_BUILD_FAILED); \
 	} \
 	fprintf(fp,"\n}\n"); \
+	fprintf(fp,"/* end */\n"); \
 	fclose(fp); \
 	} while(0);
+#endif
+#define __writefile(file,filesz,pfile) do { \
+       FILE* fp = fopen(file,"w"); \
+       xclreport( XCL_DEBUG "trying to write %d bytes",filesz); \
+       xclreport( XCL_DEBUG "last char is (int)%d",(int)pfile[filesz-1]); \
+       if (pfile[filesz-1] == '\0') { \
+               fprintf(fp,pfile); \
+       } else if (fwrite(pfile,1,filesz,fp) != filesz) { \
+               ERROR(__FILE__,__LINE__,"error: write '%s' failed",file); \
+               return((void*)CLERROR_BUILD_FAILED); \
+       } \
+       fprintf(fp,"/* end */\n"); \
+       fclose(fp); \
+       } while(0);
+
+#define __writefile_cpp(file,filesz,pfile) do { \
+       FILE* fp = fopen(file,"w"); \
+       fprintf(fp,"#include \"opencl_lift.h\"\nextern \"C\" {\n"); \
+       xclreport( XCL_DEBUG "trying to write %d bytes",filesz); \
+       if (pfile[filesz-1] == '\0') { \
+               fprintf(fp,pfile); \
+       } else if (fwrite(pfile,1,filesz,fp) != filesz) { \
+               ERROR(__FILE__,__LINE__,"error: write '%s' failed",file); \
+               return((void*)CLERROR_BUILD_FAILED); \
+       } \
+       fprintf(fp,"\n}\n"); \
+       fprintf(fp,"/* end */\n"); \
+        fclose(fp); \
+        } while(0);
 
 
 #define __mapfile(file,filesz,pfile) do { \
