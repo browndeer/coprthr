@@ -353,7 +353,7 @@ int main( int argc, char** argv)
 	 */
 
 	if (in_filename) {
-		if (!strcmp(in_filename,"--")) __xclnm_yyin = stdin;
+		if (!strcmp(in_filename,"-")) __xclnm_yyin = stdin;
 		else __xclnm_yyin = fopen(in_filename,"r");
 	}
 
