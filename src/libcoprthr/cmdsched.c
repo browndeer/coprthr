@@ -162,7 +162,7 @@ void* cmdqx0( void* argp )
 			ev = cmdq->imp.cmd_running;
 			cmdq->imp.cmd_running = 0;
 			TAILQ_INSERT_TAIL(&cmdq->imp.cmds_complete,ev,imp.cmds);
-			cmdq->imp.cmd_running = ev;
+//			cmdq->imp.cmd_running = ev;
 			ev->cmd_stat = CL_COMPLETE;
 			gettimeofday(&tv,0);
 			ev->tm_end = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
@@ -175,6 +175,9 @@ void* cmdqx0( void* argp )
 			printcl( CL_DEBUG "%p: complete %x\n",ev,ev->cmd);
 			
 		}
+
+		/* XXX added to wake up thread that might be blocking on finish(cmdq) */
+		__sig_cmdq(cmdq);
 
 		printcl( CL_DEBUG "run-cmdqx0 sleep\n");
 		__wait_cmdq(cmdq);
