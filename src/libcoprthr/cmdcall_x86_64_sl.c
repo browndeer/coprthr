@@ -443,10 +443,24 @@ static void* copy_buffer_to_image(cl_device_id devid, void* argp)
 }
 
 
-static void* map_buffer(cl_device_id devid, void* argp) 
+static void* map_buffer(cl_device_id devid, void* p) 
 {
-	printcl( CL_WARNING "cmdcall_x86_64:map_buffer: unsupported");
-	return(0); 
+//	printcl( CL_WARNING "cmdcall_x86_64:map_buffer: unsupported");
+//	return(0); 
+
+	printcl( CL_DEBUG "cmdcall_x86_64:map_buffer");
+
+	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
+
+	size_t len = argp->m.len;
+
+	*(void**)argp->m.dst = malloc(len);
+
+	/* XXX need to add the 1.2 flag -DAR */
+//	if ( !__test_flags(argp->flags,CL_MAP_WRITE_INVALIDATE_REGION) )
+		read_buffer_safe( devid, p);
+	
+	return(0);
 }
 
 
@@ -457,10 +471,22 @@ static void* map_image(cl_device_id devid, void* argp)
 }
 
 
-static void* unmap_mem_object(cl_device_id devid, void* argp) 
+static void* unmap_mem_object(cl_device_id devid, void* p) 
 {
-	printcl( CL_WARNING "cmdcall_x86_64:unmap_mem_object: unsupported");
-	return(0); 
+//	printcl( CL_WARNING "cmdcall_x86_64:unmap_mem_object: unsupported");
+//	return(0); 
+
+	printcl( CL_DEBUG "cmdcall_x86_64:unmap_buffer");
+
+	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
+
+	/* XXX need to add the 1.2 flag -DAR */
+	if ( __test_flags(argp->flags,CL_MAP_WRITE) )
+//	if ( __test_flags(argp->flags,CL_MAP_WRITE|CL_MAP_WRITE_INVALIDATE_REGION) )
+		write_buffer_safe( devid, p );
+
+	free( *(void**)argp->m.dst );
+
 }
 
 
