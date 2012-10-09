@@ -48,5 +48,7 @@ void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev );
 
 //void __do_cmd_set_submitted( cl_event ev );
 
+void __do_finish( cl_command_queue cmdq );
+
 #endif
 

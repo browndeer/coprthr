@@ -37,6 +37,7 @@ _clFlush(cl_command_queue cmdq)
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
 //	__do_flush(cmdq);
+	/* nothing to do, coprthr uses immediate command queues */
 
 	return(CL_SUCCESS);
 }
@@ -49,7 +50,7 @@ _clFinish(cl_command_queue cmdq )
 
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
-//	__do_finish(cmdq);
+	__do_finish(cmdq);
 
 	return(CL_SUCCESS);
 }

@@ -157,3 +157,24 @@ void __do_cmd_set_complete( cl_event ev )
 }
 */
 
+void __do_finish( cl_command_queue cmdq )
+{
+       __lock_cmdq(cmdq);
+
+       while ( !TAILQ_EMPTY(&cmdq->imp.cmds_queued)
+               || cmdq->imp.cmd_submitted || cmdq->imp.cmd_running
+       ) {
+
+               printcl( CL_DEBUG "empty %d submitted %p running %p",
+                       TAILQ_EMPTY(&cmdq->imp.cmds_queued),
+                       cmdq->imp.cmd_submitted,cmdq->imp.cmd_running);
+
+               __wait_cmdq(cmdq);
+
+
+       }
+
+       __unlock_cmdq(cmdq);
+
+}
+
