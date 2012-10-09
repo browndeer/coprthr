@@ -1349,7 +1349,7 @@ Optional Features:
                           (default=yes)
   --enable-cltrace        enable building cltrace tool (default=yes)
   --enable-clld           enable building clld tool (default=yes)
-  --enable-libcoprthr     enable libcoprthr (default=no)
+  --enable-libcoprthr     enable libcoprthr (default=yes)
   --enable-libocl         enable libocl (default=yes)
   --enable-libclrpc       enable libclrpc (default=yes)
   --enable-libcoprthr-ncpu
@@ -3334,7 +3334,7 @@ fi
 if test "${enable_libcoprthr+set}" = set; then
   enableval=$enable_libcoprthr;
 else
-  enable_libcoprthr=no
+  enable_libcoprthr=yes
 fi
 
 
