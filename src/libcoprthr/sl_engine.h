@@ -53,7 +53,8 @@ typedef cl_double2 double2;
 #define MAX_NUM_THR  64
 #define BLK_LOCAL_MEM_SZ 32768
 
-#define THR_STACK_SZ 16384
+//#define THR_STACK_SZ 16384
+#define THR_STACK_SZ 262144
 #define THR_STACK_MASK (~(THR_STACK_SZ-1))
 #define __fp() __builtin_frame_address(0)
 #define __get_thr_data() (struct thr_data*)(((intptr_t)__fp())&THR_STACK_MASK)
