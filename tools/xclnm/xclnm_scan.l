@@ -62,6 +62,7 @@ FILE* __xclnm_yyin;
 %% /* rules */
 
 "typedef"			{ __plb(); ival_return(TYPEDEF); }
+"struct"				{ __plb(); ival_return(STRUCT); }
 
 "__kernel" 			{ __plb(); ival_return(KERNEL); }
 "kernel" 			{ __plb(); ival_return(KERNEL); }
@@ -79,6 +80,8 @@ FILE* __xclnm_yyin;
 "private" 			{ __plb(); }
 "__constant" 		{ __plb(); }
 "constant" 			{ __plb(); }
+"inline" 			{ __plb(); }
+"__inline" 			{ __plb(); }
 
 "void" 							{ __plb(); ival_return(TYPE_VOID); }
 "char" 							{ __plb(); ival_return(TYPE_INT8); }
@@ -130,7 +133,7 @@ FILE* __xclnm_yyin;
 
 "..."			{ __plb(); return(VARG); }
 
-{DIG}+		{ __plb(); __xclnm_lval.ival = atoi(yytext); fprintf(stderr,"XXX %d\n",__xclnm_lval.ival); return(ICONST); }
+{DIG}+		{ __plb(); __xclnm_lval.ival = atoi(yytext); return(ICONST); }
 
 {DIG}+{WS}*x		{ __plb(); __xclnm_lval.ival = atoi(yytext); return(VECN); }
 

@@ -84,6 +84,7 @@
 %token	STRING
 %token	VARG
 %token	TYPEDEF
+%token	STRUCT
 %token	SKIP
 
 %{
@@ -150,13 +151,15 @@ void yyerror(const char*);
 %type <node> func_dec func_def
 %type <node> args arg type
 %type <ival> ptrc
-%type <ival> vecn
+%type <ival> array
 %type <ival> body
 %type <ival> typedef
+%type <ival> struct
 
 %type <ival> input line
 %type <ival> VARG
 %type <ival> TYPEDEF
+%type <ival> STRUCT
 %type <ival> SKIP
 
 
@@ -193,9 +196,10 @@ func_def: 	type SYMBOL '(' ')' body
 args:		args ',' arg { $$ = node_insert_tail($1,$3); } 
 			| arg ;
 
-arg:	type SYMBOL { $$ = node_create_arg($1,$2); }
+arg:	type SYMBOL array { $$ = node_create_arg(node_set_arrn($1,$3),$2); }
+		| type SYMBOL { $$ = node_create_arg($1,$2); }
 		| type { $$ = node_create_arg($1,0); }
-		| VARG { $$ = node_create_arg($1,0); } ;
+		| VARG { $$ = node_create_arg($1,0); };
 
 type:	TYPE_VOID { $$ = node_create_type(1,1,TYPEID_VOID,0,0); } 
 		| TYPE_INT8 { $$ = node_create_type(1,1,TYPEID_CHAR,0,0); } 
@@ -236,12 +240,17 @@ type:	TYPE_VOID { $$ = node_create_type(1,1,TYPEID_VOID,0,0); }
 ptrc:		ptrc '*' { $$ = $1+1; }
 			| '*' { $$ = 1; };
 
-typedef:	TYPEDEF BODY SYMBOL ';' 
+array:	array '[' ICONST ']' { $$ = $1+1; };
+			| '[' ICONST ']' { $$ = 2; };
+
+struct:	STRUCT BODY 
+				{ $$ = $1; };
+
+typedef:	TYPEDEF struct SYMBOL ';' 
 				{ add_typedef(symbuf+$3); };
 
 body:		BODY { $$=$1; };
 
-vecn:		VECN { $$=$1; };
 
 %%
 
