@@ -582,6 +582,7 @@ __get_devnum_in_program(
 	return((cl_uint)-1);
 }
 
+#define __test_flags(f,g) ( (f) & (g) )
 
 #endif
 
