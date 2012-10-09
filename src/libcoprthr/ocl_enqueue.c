@@ -85,7 +85,6 @@ _clEnqueueReadBuffer(
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
 
-/*
 	if (block) {
 
 		printcl( CL_DEBUG "clEnqueueReadBuffer blocking");
@@ -103,7 +102,6 @@ _clEnqueueReadBuffer(
 		__unlock_event(ev);
 
 	}
-*/
 
 
 	return(CL_SUCCESS);
