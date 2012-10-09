@@ -186,8 +186,8 @@ static char* logbuf = 0;
 #endif
 #define __writefile(file,filesz,pfile) do { \
        FILE* fp = fopen(file,"w"); \
-       xclreport( XCL_DEBUG "trying to write %d bytes",filesz); \
-       xclreport( XCL_DEBUG "last char is (int)%d",(int)pfile[filesz-1]); \
+       printcl( CL_DEBUG "trying to write %d bytes",filesz); \
+       printcl( CL_DEBUG "last char is (int)%d",(int)pfile[filesz-1]); \
        if (pfile[filesz-1] == '\0') { \
                fprintf(fp,pfile); \
        } else if (fwrite(pfile,1,filesz,fp) != filesz) { \
@@ -201,7 +201,7 @@ static char* logbuf = 0;
 #define __writefile_cpp(file,filesz,pfile) do { \
        FILE* fp = fopen(file,"w"); \
        fprintf(fp,"#include \"opencl_lift.h\"\nextern \"C\" {\n"); \
-       xclreport( XCL_DEBUG "trying to write %d bytes",filesz); \
+       printcl( CL_DEBUG "trying to write %d bytes",filesz); \
        if (pfile[filesz-1] == '\0') { \
                fprintf(fp,pfile); \
        } else if (fwrite(pfile,1,filesz,fp) != filesz) { \
@@ -287,7 +287,7 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 #define __check_err( err, msg ) do { if (err) { \
 	__append_str(log,msg,0,0); \
 	__remove_work_dir(wd); \
-	return(CL_BUILD_PROGRAM_FAILURE); \
+	return((void*)CL_BUILD_PROGRAM_FAILURE); \
 } }while(0)
 
 static int __test_file( char* file ) 
@@ -297,6 +297,20 @@ static int __test_file( char* file )
 	printcl( CL_DEBUG "__test_file %d", err);
 	return (stat(file,&s));
 }
+
+#define __shell_command( fmt, ... ) do { \
+   __command(fmt,##__VA_ARGS__); \
+   __log(logp,"]%s\n",buf1); \
+   __execshell(buf1,logp); \
+   } while(0)
+
+#define __assert_file( fmt, ... ) do { \
+      snprintf(fullpath,256,fmt,##__VA_ARGS__); \
+      __check_err(__test_file(fullpath), \
+         "compiler_x86_64: internal error: assert file failed "); \
+   } while(0)
+
+
 
 static char* ecc_block_flags[] = { ECC_BLOCKED_FLAGS };
 
@@ -323,19 +337,19 @@ void* compile_x86_64(
 	char* opt = (opt_in)? strdup(opt_in) : strdup(default_opt);
 
 //	DEBUG2("opt |%s|",opt);
-       xclreport( XCL_DEBUG "opt |%s|",opt);
+       printcl( CL_DEBUG "opt |%s|",opt);
 
        for(i=0;i<sizeof(ecc_block_flags)/sizeof(char*);i++) {
                char* p;
                while (p=strstr(opt,ecc_block_flags[i])) {
                        memset(p,' ',strlen(ecc_block_flags[i]));
-                       xclreport( XCL_WARNING "blocked compiler option '%s'",
+                       printcl( CL_WARNING "blocked compiler option '%s'",
                                ecc_block_flags[i]);
-                       xclreport( XCL_DEBUG "new opt |%s|",opt);
+                       printcl( CL_DEBUG "new opt |%s|",opt);
                }
        }
 
-       xclreport( XCL_DEBUG "opt after filter |%s|",opt);
+       printcl( CL_DEBUG "opt after filter |%s|",opt);
 
 
 //#ifdef __XCL_TEST
@@ -502,6 +516,7 @@ void* compile_x86_64(
 
 		/* generate kcall wrappers */
 
+#if(0)
 		__command("cd %s; xclnm --kcall -d -c %s -o _kcall_%s.c 2>&1",
 			wd,file_cl,filebase); 
 		__log(p2,"]%s\n",buf1);
@@ -517,6 +532,30 @@ void* compile_x86_64(
 		snprintf(fullpath,256,"%s/_kcall2_%s.c",wd,filebase);
 		__check_err(__test_file(fullpath),
 			"compiler_x86_64: internal error: kcall2 wrapper generation failed.");
+#endif
+
+                char* wrappers[] = { "kcall", "kcall2" };
+
+                for(i=0;i<sizeof(wrappers)/sizeof(char*);i++) {
+
+//                     __shell_command( "cd %s; xclnm --%s -d -c %s -o _%s_%s.c
+//                             wd,wrappers[i],file_cl,wrappers[i],filebase);
+
+                       __shell_command( "cd %s;"
+                               " cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s "
+                               " | awk -v prog=\\\"%s\\\" "
+                               "'BEGIN { pr=0; }"
+                               " { "
+                               "   if($0~/^#/ && $3==prog) pr=1;"
+                               "   else if ($0~/^#/) pr=0;"
+                               "   if ($0!~/^#/ && pr==1) print $0;"
+                               " }' | xclnm --%s -d -c -o _%s_%s.c - 2>&1",
+                               wd,file_cl,file_cl,wrappers[i],wrappers[i],filebase);
+
+                       printcl( CL_DEBUG "%s", buf1 );
+
+                        __assert_file( "%s/_%s_%s.c",wd,wrappers[i],filebase );
+                }
 
 
 		/* gcc compile kcall wrappers */
@@ -570,7 +609,18 @@ void* compile_x86_64(
 
 		printcl( CL_DEBUG "extract arg data");
 
-		__command("cd %s; xclnm -n -d %s",wd,file_cl); 
+//		__command("cd %s; xclnm -n -d %s",wd,file_cl); 
+               __command("cd %s;"
+                       "cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s "
+                       " | awk -v prog=\\\"%s\\\" "
+                       "'BEGIN { pr=0; }"
+            " { "
+            "   if($0~/^#/ && $3==prog) pr=1;"
+            "   else if ($0~/^#/) pr=0;"
+            "   if ($0!~/^#/ && pr==1) print $0;"
+            " }' | xclnm -n -d - ",wd,file_cl,file_cl);
+               printcl( CL_DEBUG "%s", buf1);
+
 		fp = popen(buf1,"r");
 		fscanf(fp,"%d",&nsym);
 		pclose(fp); 
@@ -595,7 +645,21 @@ void* compile_x86_64(
 		int ptrc;
 		int n;
 		int arg0;
-		__command("cd %s; xclnm --clsymtab -d -c %s.cl",wd,filebase);
+//		__command("cd %s; xclnm --clsymtab -d -c %s.cl",wd,filebase);
+
+               __command("cd %s; "
+                       " cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s "
+                       " | awk -v prog=\\\"%s\\\" "
+                       "'BEGIN { pr=0; }"
+            " { "
+            "   if($0~/^#/ && $3==prog) pr=1;"
+            "   else if ($0~/^#/) pr=0;"
+            "   if ($0!~/^#/ && pr==1) print $0;"
+            " }' | xclnm --clsymtab -d -c - ",wd,file_cl,file_cl);
+
+               printcl( CL_DEBUG "%s", buf1 );
+
+
 		fp = popen(buf1,"r");
 		while (!feof(fp)) {
 			if (fscanf(fp,"%d %c %s %d %d %d %d %d %d %d",
@@ -655,7 +719,22 @@ void* compile_x86_64(
 		char aname[256];
 		int argn;
 		__command("cd %s; xclnm --clargtab -d -c %s.cl",wd,filebase);
+               __command("cd %s;"
+                               "cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s "
+                               " | awk -v prog=\\\"%s\\\" "
+                               "'BEGIN { pr=0; }"
+            " { "
+            "   if($0~/^#/ && $3==prog) pr=1;"
+            "   else if ($0~/^#/) pr=0;"
+            "   if ($0!~/^#/ && pr==1) print $0;"
+            " }' | xclnm --clargtab -d -c - ",wd,file_cl,file_cl);
+
+               printcl( CL_DEBUG "%s",buf1);
+
+
 		fp = popen(buf1,"r");
+		printcl( CL_DEBUG "fp = %d",fp);
+
 		while (!feof(fp)) {
 
 			if (fscanf(fp,"%d %s %d %d %d %d %d %d %s ",
@@ -780,7 +859,7 @@ void* compile_x86_64(
 	} else {
 		close(ofd);
        if (!coprthr_tmp) {
-       xclreport( XCL_DEBUG "removing work directory");
+       printcl( CL_DEBUG "removing work directory");
 			__remove_work_dir(wd);
        }
 
