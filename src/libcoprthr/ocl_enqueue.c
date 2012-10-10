@@ -569,7 +569,7 @@ _clEnqueueMapBuffer(
 
 	if (__invalid_membuf(membuf)) __error_return(CL_INVALID_MEM_OBJECT,void*);
 
-	if (membuf->sz < (offset+cb) || !ptr) __error_return(CL_INVALID_VALUE,void*);
+	if (membuf->sz < (offset+cb)) __error_return(CL_INVALID_VALUE,void*);
 
 	if (__invalid_context(cmdq->ctx)) __error_return(CL_INVALID_CONTEXT,void*);
 
@@ -577,19 +577,18 @@ _clEnqueueMapBuffer(
 
 	if (cmdq->ctx != membuf->ctx) __error_return(CL_INVALID_CONTEXT,void*);
 
-//	__check_waitlist(nwaitlist,waitlist,cmdq->ctx);
+	__check_waitlist(nwaitlist,waitlist,cmdq->ctx);
 
 
 	struct _cl_event* ev = (struct _cl_event*)malloc(sizeof(struct _cl_event));
-
-	/* need to create mapped ptr */
-
 
 	if (ev) {
 
 		__init_event(ev);
 
 		__set_cmd_map_buffer(ev);
+
+		printcl( CL_DEBUG "calling __do_set_cmd_map_buffer");
 
 		__do_set_cmd_map_buffer(ev,membuf,map_flags,offset,cb,&ptr);
 
@@ -600,11 +599,23 @@ _clEnqueueMapBuffer(
 	} else __error_return(CL_OUT_OF_HOST_MEMORY,void*);
 
 
-
 	if (block) {
 
-	}
+		printcl( CL_DEBUG "clEnqueueMapBuffer blocking");
 
+		__lock_event(ev);
+
+      while (ev->cmd_stat != CL_COMPLETE) {
+         printcl( CL_DEBUG "wait-sleep\n");
+         __wait_event(ev);
+         printcl( CL_DEBUG "wait-wake\n");
+      }
+
+      printcl( CL_DEBUG "event %p complete\n",ev);
+
+		__unlock_event(ev);
+
+	}
 
 	__success();
 
@@ -706,7 +717,6 @@ _clEnqueueUnmapMemObject(
 
 	__check_waitlist(nwaitlist,waitlist,cmdq->ctx);
 
-
 	struct _cl_event* ev = (struct _cl_event*)malloc(sizeof(struct _cl_event));
 
 
@@ -723,7 +733,6 @@ _clEnqueueUnmapMemObject(
 		if (event) *event = ev;
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
-
 
 	return(CL_SUCCESS);
 }

@@ -445,21 +445,38 @@ static void* copy_buffer_to_image(cl_device_id devid, void* argp)
 
 static void* map_buffer(cl_device_id devid, void* p) 
 {
-//	printcl( CL_WARNING "cmdcall_x86_64:map_buffer: unsupported");
-//	return(0); 
-
 	printcl( CL_DEBUG "cmdcall_x86_64:map_buffer");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+   size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
-	*(void**)argp->m.dst = malloc(len);
+	void* ptr0 = malloc(len+2*sizeof(size_t));
 
-	/* XXX need to add the 1.2 flag -DAR */
-//	if ( !__test_flags(argp->flags,CL_MAP_WRITE_INVALIDATE_REGION) )
-		read_buffer_safe( devid, p);
-	
+	((size_t*)ptr0)[0] = offset;
+	((size_t*)ptr0)[1] = len;
+
+	void* ptr = ptr0 + 2*sizeof(size_t);
+
+	*(void**)argp->m.dst = ptr;
+
+/* XXX need to add the 1.2 flag -DAR */
+//	if ( !__test_flags(argp->flags,CL_MAP_WRITE_INVALIDATE_REGION) ) {
+
+   cl_context ctx = ((cl_mem)argp->m.src)->ctx;
+   unsigned int ndev = ctx->ndev;
+   cl_device_id* devices = ctx->devices;
+   unsigned int n = 0;
+   while (n < ndev && devices[n] != devid) ++n;
+
+   void* src = ((cl_mem)argp->m.src)->imp.res[n];
+
+   if (ptr==src+offset) return(0);
+   else memcpy(ptr,src+offset,len);
+
+//	}
+
 	return(0);
 }
 
@@ -473,20 +490,39 @@ static void* map_image(cl_device_id devid, void* argp)
 
 static void* unmap_mem_object(cl_device_id devid, void* p) 
 {
-//	printcl( CL_WARNING "cmdcall_x86_64:unmap_mem_object: unsupported");
-//	return(0); 
 
-	printcl( CL_DEBUG "cmdcall_x86_64:unmap_buffer");
+	printcl( CL_DEBUG "cmdcall_x86_64:unmap_mem_object");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+	void* ptr = argp->m.dst;
+
+	void* ptr0 = ptr - 2*sizeof(size_t);
+
 	/* XXX need to add the 1.2 flag -DAR */
-	if ( __test_flags(argp->flags,CL_MAP_WRITE) )
-//	if ( __test_flags(argp->flags,CL_MAP_WRITE|CL_MAP_WRITE_INVALIDATE_REGION) )
-		write_buffer_safe( devid, p );
+	if ( __test_flags(argp->flags,CL_MAP_WRITE) ) {
+//	if (__test_flags(argp->flags,CL_MAP_WRITE|CL_MAP_WRITE_INVALIDATE_REGION)) {
+//		write_buffer_safe( devid, p );
 
-	free( *(void**)argp->m.dst );
+		cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
+		unsigned int ndev = ctx->ndev;
+		cl_device_id* devices = ctx->devices;
+		unsigned int n = 0;
+		while (n < ndev && devices[n] != devid) ++n;
 
+		void* src = ((cl_mem)argp->m.src)->imp.res[n];
+
+		size_t offset = ((size_t*)ptr0)[0] = offset;
+		size_t len = ((size_t*)ptr0)[1] = len;
+
+		if (src+offset == ptr) return(0);
+		else memcpy(src+offset,ptr,len);
+
+	}
+
+	free( ptr0 );
+
+	return(0);
 }
 
 

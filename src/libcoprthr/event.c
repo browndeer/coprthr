@@ -217,7 +217,7 @@ void __do_set_cmd_map_buffer(
 	cl_event ev, 
 	cl_mem membuf,
 	cl_map_flags flags, size_t offset, size_t len,
-	void* p
+	void* pp
 )
 {
 	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
@@ -225,7 +225,7 @@ void __do_set_cmd_map_buffer(
 	__init_cmdcall_arg(ev->imp.cmd_argp);
 
 	ev->imp.cmd_argp->flags = flags;
-	ev->imp.cmd_argp->m.dst = (void*)p;
+	ev->imp.cmd_argp->m.dst = (void*)pp;
 	ev->imp.cmd_argp->m.src = (void*)membuf;
 	ev->imp.cmd_argp->m.src_offset = offset;
 	ev->imp.cmd_argp->m.len = len;
