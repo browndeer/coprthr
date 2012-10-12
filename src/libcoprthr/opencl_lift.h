@@ -58,166 +58,11 @@
 #endif
 
 
-/***
- *** vcore defines and structs 
- ***/
-
-//#define __vc_setjmp  setjmp
-//#define __vc_longjmp longjmp
-//#define __vc_jmp_buf jmp_buf
-
-//#define VCORE_NC           64       /* number of vcores per engine   */
-//#define VCORE_STACK_SZ     16384    /* stack size per vcore          */
-//#define VCORE_LOCAL_MEM_SZ 32768 /* local mem size per engine     */
-
-//#define VCORE_STACK_MASK (~(VCORE_STACK_SZ-1))
-//#define __fp() __builtin_frame_address(0)
-//#define __get_thr_data() (struct thr_data*)(((intptr_t)__fp())&VCORE_STACK_MASK)
-
-/*
-#if defined(__x86_64__)
-#define __setvcdata(pdata) __asm__ __volatile__ ( \
-   "movq %%rbp,%%r14\n\t" \
-   "andq $-16384,%%r14\n\t" \
-   "movq %%r14,%0\n" \
-   : "=m" (pdata) : : "%r14" \
-   )
-#elif defined(__arm__)
-#define __setvcdata(pdata) __asm__ __volatile__ ( \
-   "mov %%r3,%%fp\n\t" \
-   "bic %%r3,%%r3,#16320\n\t" \
-   "bic %%r3,%%r3,#63\n\t" \
-   "str %%r3,%0\n" \
-   : "=m" (pdata) : : "%r3" \
-   )
-#else
-#error unsupported architecture
-#endif
-*/
-
-/*
-struct work_struct {
-   unsigned int tdim;
-   size_t ltsz[3];
-   size_t gsz[3];
-   size_t gtsz[3];
-   size_t gid[3];
-   size_t gtid[3];
-};
-
-struct vc_data {
-   int vcid;
-   __vc_jmp_buf* vcengine_jbufp;
-   __vc_jmp_buf* this_jbufp;
-   __vc_jmp_buf* next_jbufp;
-   struct work_struct* workp;
-   size_t ltid[3];
-};
-*/
-
-/*
-struct workp_entry {
-   unsigned int ndr_dim;
-   unsigned int ndr_gtdoff[3];
-   unsigned int ndr_gtdsz[3];
-   unsigned int ndr_ltdsz[3];
-   unsigned int ndp_blk_first[3];
-   unsigned int ndp_blk_end[3];
-   unsigned int ndp_ltd0[3];
-};
-
-struct vc_data {
-   int vcid;
-   __vc_jmp_buf* vcengine_jbufp;
-   __vc_jmp_buf* this_jbufp;
-   __vc_jmp_buf* next_jbufp;
-   struct workp_entry* we;
-   size_t blkidx[3];
-   size_t gtdidx[3];
-   size_t ltdidx[3];
-};
-*/
-
-
 #if defined(__FreeBSD__)
 typedef unsigned int uint;
 #endif
 
 extern "C" {
-
-/*
-static __inline unsigned int get_global_id(unsigned int d) 
-{
-   struct vc_data* data = __get_thr_data();
-   return((unsigned int)data->ltid[d] + data->workp->gtid[d]);
-}
-
-static __inline uint get_work_dim() 
-{ return((__get_thr_data())->workp->tdim); }
-
-static __inline size_t get_local_size(uint d) 
-{ return((__get_thr_data())->workp->ltsz[d]); }
-
-static __inline size_t get_local_id(uint d) 
-{ return((__get_thr_data())->ltid[d]); }
-
-static __inline size_t get_num_groups(uint d) 
-{ return((__get_thr_data())->workp->gsz[d]); }
-
-static __inline size_t get_global_size(uint d) 
-{ return((__get_thr_data())->workp->gtsz[d]); }
-
-static __inline size_t get_group_id(uint d) 
-{ return((__get_thr_data())->workp->gid[d]); }
-
-*/
-
-/*
-static __inline uint get_work_dim()
-{ return((__get_thr_data())->we->ndr_dim); }
-
-static __inline size_t get_num_groups(uint d)
-{ 
-	size_t g = (__get_thr_data())->we->ndr_gtdsz[d];
-	size_t l = (__get_thr_data())->we->ndr_ltdsz[d];
-	return(g/l);
-}
-
-static __inline size_t get_group_id(uint d)
-{ return((__get_thr_data())->blkidx[d]); }
-
-static __inline size_t get_global_size(uint d)
-{ return((__get_thr_data())->we->ndr_gtdsz[d]); }
-
-static __inline unsigned int get_global_id(unsigned int d)
-{ return((unsigned int)(__get_thr_data())->gtdidx[d]); }
-
-static __inline size_t get_local_size(uint d)
-{ return((__get_thr_data())->we->ndr_ltdsz[d]); }
-
-static __inline size_t get_local_id(uint d)
-{ return((__get_thr_data())->ltdidx[d]); }
-*/
-
-
-//static __inline void barrier( int flags )
-//{
-//   struct vc_data* data;
-//   __setvcdata(data);
-//   if (!(__vc_setjmp(*(data->this_jbufp))))
-//      __vc_longjmp(*(data->next_jbufp),flags);
-//}
-//#define barrier(a)
-//void barrier( int flags );
-
-/*
-#define barrier(flags) do { \
-   struct thr_data* data = __get_thr_data();\
-   if (!(setjmp(*(data->this_jbufp))))\
-      longjmp(*(data->next_jbufp),flags);\
-} while(0)
-*/
-
 
 }
 
@@ -255,192 +100,188 @@ static __inline size_t get_local_id(uint d)
 
 /*** builtin vector data types [6.1.2] ***/
 
-typedef char __char2 __attribute__((vector_size(2)));
-typedef union {
-	typedef char type_t;
-   __char2 vec;
-   struct { char x,y; };
-   struct { char s0,s1; };
-   char s[2];
-} _char2;
-typedef _char2 char2;
+#define VECTOR_TYPE_2( ctype, cltype ) \
+typedef ctype __##cltype##2 __attribute__((vector_size(2*sizeof(ctype)))); \
+typedef union { \
+	typedef ctype type_t; \
+   __##cltype##2 vec; \
+   struct { ctype x,y; }; \
+   struct { ctype s0,s1; }; \
+   ctype s[2]; \
+} _##cltype##2; \
+typedef _##cltype##2 cltype##2;
+
+#define VECTOR_TYPE_4( ctype, cltype ) \
+typedef ctype __##cltype##4 __attribute__((vector_size(4*sizeof(ctype)))); \
+typedef union { \
+	typedef ctype type_t; \
+   __##cltype##4 vec; \
+   struct { ctype x,y,z,w; }; \
+   struct { ctype s0,s1,s2,s3; }; \
+   struct { cltype##2 xy,zw; }; \
+   struct { cltype##2 s01,s23; }; \
+   ctype s[4]; \
+} _##cltype##4; \
+typedef _##cltype##4 cltype##4;
+
+#define VECTOR_TYPE_8( ctype, cltype ) \
+typedef ctype __##cltype##8 __attribute__((vector_size(8*sizeof(ctype)))); \
+typedef union { \
+	typedef ctype type_t; \
+   __##cltype##8 vec; \
+   struct { ctype s0,s1,s2,s3,s4,s5,s6,s7; }; \
+   struct { cltype##2 s01,s23,s45,s67; }; \
+   struct { cltype##4 s0123,s4567; }; \
+   ctype s[8]; \
+} _##cltype##8; \
+typedef _##cltype##8 cltype##8;
+
+VECTOR_TYPE_2(char,char)
 #define __vector_char2(a,b) (__char2){a,b}
 #define _vector_char2(a,b) (_char2){(__char2){a,b}}
 #define vector_char2(a,b) _vector_char2(a,b)
 
-typedef unsigned char __uchar2 __attribute__((vector_size(2)));
-typedef union {
-	typedef unsigned char type_t;
-   __uchar2 vec;
-   struct { unsigned char x,y; };
-   struct { unsigned char s0,s1; };
-   unsigned char s[2];
-} _uchar2;
-typedef _uchar2 uchar2;
+VECTOR_TYPE_2( unsigned char, uchar )
 #define __vector_uchar2(a,b) (__uchar2){a,b}
 #define _vector_uchar2(a,b) (_uchar2){(__uchar2){a,b}}
 #define vector_uchar2(a,b) _vector_uchar2(a,b)
 
-#if __cplusplus
-extern "C" {
-#endif
-
-typedef int __int2 __attribute__((vector_size(8)));
-typedef union {
-	typedef int type_t;
-   __int2 vec;
-   struct { int x,y; };
-   struct { int s0,s1; };
-   int s[2];
-} _int2;
-typedef _int2 int2;
+VECTOR_TYPE_2( int, int )
 #define __vector_int2(a,b) (__int2){a,b}
 #define _vector_int2(a,b) (_int2){(__int2){a,b}}
 #define vector_int2(a,b) _vector_int2(a,b)
 
-#if __cplusplus
-}
-#endif
-
-typedef unsigned int __uint2 __attribute__((vector_size(8)));
-typedef union {
-	typedef unsigned int type_t;
-   __uint2 vec;
-   struct { unsigned int x,y; };
-   struct { unsigned int s0,s1; };
-   unsigned int s[2];
-} _uint2;
-typedef _uint2 uint2;
+VECTOR_TYPE_2(unsigned int, uint)
 #define __vector_uint2(a,b) (__uint2){a,b}
 #define _vector_uint2(a,b) (_uint2){(__uint2){a,b}}
 #define vector_uint2(a,b) _vector_uint2(a,b)
 
-typedef long long __long2 __attribute__((vector_size(16)));
-typedef union {
-	typedef long long type_t;
-   __long2 vec;
-   struct { long long x,y; };
-   struct { long long s0,s1; };
-   long long s[2];
-} _long2;
-typedef _long2 long2;
+VECTOR_TYPE_2( long long, long )
 #define __vector_long2(a,b) (__long2){a,b}
 #define _vector_long2(a,b) (_long2){(__long2){a,b}}
 #define vector_long2(a,b) _vector_long2(a,b)
 
-typedef unsigned long long __ulong2 __attribute__((vector_size(16)));
-typedef union {
-	typedef unsigned long long type_t;
-   __ulong2 vec;
-   struct { unsigned long long x,y; };
-   struct { unsigned long long s0,s1; };
-   unsigned long long s[2];
-} _ulong2;
-typedef _ulong2 ulong2;
+VECTOR_TYPE_2( unsigned long long, ulong )
 #define __vector_ulong2(a,b) (__ulong2){a,b}
 #define _vector_ulong2(a,b) (_ulong2){(__ulong2){a,b}}
 #define vector_ulong2(a,b) _vector_ulong2(a,b)
 
-typedef float __float2 __attribute__((vector_size(8)));
-typedef union {
-	typedef float type_t;
-   __float2 vec;
-   struct { float x,y; };
-   struct { float s0,s1; };
-   float s[2];
-} _float2;
-typedef _float2 float2;
+VECTOR_TYPE_2( float, float )
 #define __vector_float2(a,b) (__float2){a,b}
 #define _vector_float2(a,b) (_float2){(__float2){a,b}}
 #define vector_float2(a,b) _vector_float2(a,b)
 
-typedef double __double2 __attribute__((vector_size(16)));
-typedef union {
-	typedef double type_t;
-   __double2 vec;
-   struct { double x,y; };
-   struct { double s0,s1; };
-   double s[2];
-} _double2;
-typedef _double2 double2;
+VECTOR_TYPE_2( double, double )
 #define __vector_double2(a,b) (__double2){a,b}
 #define _vector_double2(a,b) (_double2){(__double2){a,b}}
 #define vector_double2(a,b) _vector_double2(a,b)
 
-typedef char __char4 __attribute__((vector_size(4)));
-typedef union {
-	typedef char type_t;
-   __char4 vec;
-   struct { char x,y,z,w; };
-   struct { char s0,s1,s2,s3; };
-   struct { char2 xy,zw; };
-   struct { char2 s01,s23; };
-   char s[4];
-} _char4;
-typedef _char4 char4;
+VECTOR_TYPE_4( char, char )
 #define __vector_char4(a,b,c,d) (__char4){a,b,c,d}
 #define _vector_char4(a,b,c,d) (_char4){(__char4){a,b,c,d}}
 #define vector_char4(a,b,c,d) _vector_char4(a,b,c,d)
 
-typedef unsigned char __uchar4 __attribute__((vector_size(4)));
-typedef union {
-	typedef unsigned char type_t;
-   __uchar4 vec;
-   struct { unsigned char x,y,z,w; };
-   struct { unsigned char s0,s1,s2,s3; };
-   struct { uchar2 xy,zw; };
-   struct { uchar2 s01,s23; };
-   char s[4];
-} _uchar4;
-typedef _uchar4 uchar4;
+VECTOR_TYPE_4( unsigned char, uchar )
 #define __vector_uchar4(a,b,c,d) (__uchar4){a,b,c,d}
 #define _vector_uchar4(a,b,c,d) (_uchar4){(__uchar4){a,b,c,d}}
 #define vector_uchar4(a,b,c,d) _vector_uchar4(a,b,c,d)
 
-typedef int __int4 __attribute__((vector_size(16)));
-typedef union {
-	typedef int type_t;
-   __int4 vec;
-   struct { int x,y,z,w; };
-   struct { int s0,s1,s2,s3; };
-   struct { int2 xy,zw; };
-   struct { int2 s01,s23; };
-   int s[4];
-} _int4;
-typedef _int4 int4;
+VECTOR_TYPE_4( int, int )
 #define __vector_int4(a,b,c,d) (__int4){a,b,c,d}
 #define _vector_int4(a,b,c,d) (_int4){(__int4){a,b,c,d}}
 #define vector_int4(a,b,c,d) _vector_int4(a,b,c,d)
 
-typedef unsigned int __uint4 __attribute__((vector_size(16)));
-typedef union {
-	typedef unsigned int type_t;
-   __uint4 vec;
-   struct { unsigned int x,y,z,w; };
-   struct { unsigned int s0,s1,s2,s3; };
-   struct { uint2 xy,zw; };
-   struct { uint2 s01,s23; };
-   unsigned int s[4];
-} _uint4;
-typedef _uint4 uint4;
+VECTOR_TYPE_4( unsigned int, uint )
 #define __vector_uint4(a,b,c,d) (__uint4){a,b,c,d}
 #define _vector_uint4(a,b,c,d) (_uint4){(__uint4){a,b,c,d}}
 #define vector_uint4(a,b,c,d) _vector_uint4(a,b,c,d)
 
-typedef float __float4 __attribute__((vector_size(16)));
-typedef union {
-	typedef float type_t;
-   __float4 vec;
-   struct { float x,y,z,w; };
-   struct { float s0,s1,s2,s3; };
-   struct { float2 xy,zw; };
-   struct { float2 s01,s23; };
-   float s[4];
-} _float4;
-typedef _float4 float4;
+VECTOR_TYPE_4( long long, long )
+#define __vector_long4(a,b,c,d) (__long4){a,b,c,d}
+#define _vector_long4(a,b,c,d) (_long4){(__long4){a,b,c,d}}
+#define vector_long4(a,b,c,d) _vector_long4(a,b,c,d)
+
+VECTOR_TYPE_4( unsigned long long, ulong )
+#define __vector_ulong4(a,b,c,d) (__ulong4){a,b,c,d}
+#define _vector_ulong4(a,b,c,d) (_ulong4){(__ulong4){a,b,c,d}}
+#define vector_ulong4(a,b,c,d) _vector_ulong4(a,b,c,d)
+
+VECTOR_TYPE_4( float, float )
 #define __vector_float4(a,b,c,d) (__float4){a,b,c,d}
 #define _vector_float4(a,b,c,d) (_float4){(__float4){a,b,c,d}}
 #define vector_float4(a,b,c,d) _vector_float4(a,b,c,d)
+
+VECTOR_TYPE_4( double, double )
+#define __vector_double4(a,b,c,d) (__double4){a,b,c,d}
+#define _vector_double4(a,b,c,d) (_double4){(__double4){a,b,c,d}}
+#define vector_double4(a,b,c,d) _vector_double4(a,b,c,d)
+
+
+VECTOR_TYPE_8( char, char )
+#define __vector_char8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(__char8){s0,s1,s2,s3,s4,s5,s6,s7}
+#define _vector_char8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(_char8){(__char8){s0,s1,s2,s3,s4,s5,s6,s7}}
+#define vector_char8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	_vector_char8(s0,s1,s2,s3,s4,s5,s6,s7)
+
+VECTOR_TYPE_8( unsigned char, uchar )
+#define __vector_uchar8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(__uchar8){s0,s1,s2,s3,s4,s5,s6,s7}
+#define _vector_uchar8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(_uchar8){(__uchar8){s0,s1,s2,s3,s4,s5,s6,s7}}
+#define vector_uchar8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	_vector_uchar8(s0,s1,s2,s3,s4,s5,s6,s7)
+
+VECTOR_TYPE_8( int, int )
+#define __vector_int8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(__int8){s0,s1,s2,s3,s4,s5,s6,s7}
+#define _vector_int8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(_int8){(__int8){s0,s1,s2,s3,s4,s5,s6,s7}}
+#define vector_int8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	_vector_int8(s0,s1,s2,s3,s4,s5,s6,s7)
+
+VECTOR_TYPE_8( unsigned int, uint )
+#define __vector_uint8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(__uint8){s0,s1,s2,s3,s4,s5,s6,s7}
+#define _vector_uint8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(_uint8){(__uint8){s0,s1,s2,s3,s4,s5,s6,s7}}
+#define vector_uint8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	_vector_uint8(s0,s1,s2,s3,s4,s5,s6,s7)
+
+VECTOR_TYPE_8( long long, long )
+#define __vector_long8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(__long8){s0,s1,s2,s3,s4,s5,s6,s7}
+#define _vector_long8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(_long8){(__long8){s0,s1,s2,s3,s4,s5,s6,s7}}
+#define vector_long8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	_vector_long8(s0,s1,s2,s3,s4,s5,s6,s7)
+
+VECTOR_TYPE_8( unsigned long long, ulong )
+#define __vector_ulong8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(__ulong8){s0,s1,s2,s3,s4,s5,s6,s7}
+#define _vector_ulong8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(_ulong8){(__ulong8){s0,s1,s2,s3,s4,s5,s6,s7}}
+#define vector_ulong8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	_vector_ulong8(s0,s1,s2,s3,s4,s5,s6,s7)
+
+VECTOR_TYPE_8( float, float )
+#define __vector_float8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(__float8){s0,s1,s2,s3,s4,s5,s6,s7}
+#define _vector_float8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(_float8){(__float8){s0,s1,s2,s3,s4,s5,s6,s7}}
+#define vector_float8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	_vector_float8(s0,s1,s2,s3,s4,s5,s6,s7)
+
+VECTOR_TYPE_8( double, double )
+#define __vector_double8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(__double8){s0,s1,s2,s3,s4,s5,s6,s7}
+#define _vector_double8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	(_double8){(__double8){s0,s1,s2,s3,s4,s5,s6,s7}}
+#define vector_double8(s0,s1,s2,s3,s4,s5,s6,s7) \
+	_vector_double8(s0,s1,s2,s3,s4,s5,s6,s7)
+
+
 
 #define GENERIC_UNARY_PLUS(type) \
 static __always_inline _##type operator + ( _##type& a ); \
@@ -466,6 +307,22 @@ static __always_inline _##type operator op ( _##type& a ) \
 	{ \
 		_##type tmp = _vector_##type( (type::type_t)op a.s0, \
 			(type::type_t)op a.s1,(type::type_t)op a.s2,(type::type_t)op a.s3); \
+		return tmp; \
+	}
+
+#define EXPLICIT_UNARY_OP_VEC8(type,op) \
+static __always_inline _##type operator op ( _##type& a ); \
+static __always_inline _##type operator op ( _##type& a ) \
+	{ \
+		_##type tmp = _vector_##type( \
+			(type::type_t)op a.s0, \
+			(type::type_t)op a.s1, \
+			(type::type_t)op a.s2, \
+			(type::type_t)op a.s3, \
+			(type::type_t)op a.s4, \
+			(type::type_t)op a.s5, \
+			(type::type_t)op a.s6, \
+			(type::type_t)op a.s7); \
 		return tmp; \
 	}
 
@@ -497,6 +354,20 @@ static __always_inline _##type \
 		return lhs;  \
 	}
 
+#define EXPLICIT_OP_ASSIGN_VEC8(type,op) \
+static __always_inline _##type \
+	operator op##= ( _##type& lhs, const _##type rhs ); \
+static __always_inline _##type \
+	operator op##= ( _##type& lhs, const _##type rhs ) \
+	{  \
+		lhs.vec = __vector_##type( \
+			lhs.s0 op rhs.s0, lhs.s1 op rhs.s1, \
+			lhs.s2 op rhs.s2, lhs.s3 op rhs.s3, \
+			lhs.s4 op rhs.s4, lhs.s5 op rhs.s5, \
+			lhs.s6 op rhs.s6, lhs.s7 op rhs.s7  );  \
+		return lhs;  \
+	}
+
 
 /* unary plus */
 GENERIC_UNARY_PLUS(char2)
@@ -511,7 +382,18 @@ GENERIC_UNARY_PLUS(char4)
 GENERIC_UNARY_PLUS(uchar4)
 GENERIC_UNARY_PLUS(int4)
 GENERIC_UNARY_PLUS(uint4)
+GENERIC_UNARY_PLUS(long4)
+GENERIC_UNARY_PLUS(ulong4)
 GENERIC_UNARY_PLUS(float4)
+GENERIC_UNARY_PLUS(double4)
+GENERIC_UNARY_PLUS(char8)
+GENERIC_UNARY_PLUS(uchar8)
+GENERIC_UNARY_PLUS(int8)
+GENERIC_UNARY_PLUS(uint8)
+GENERIC_UNARY_PLUS(long8)
+GENERIC_UNARY_PLUS(ulong8)
+GENERIC_UNARY_PLUS(float8)
+GENERIC_UNARY_PLUS(double8)
 
 
 /* unary minus */
@@ -528,7 +410,18 @@ EXPLICIT_UNARY_OP_VEC4(char4,-)
 EXPLICIT_UNARY_OP_VEC4(uchar4,-)
 EXPLICIT_UNARY_OP_VEC4(int4,-)
 EXPLICIT_UNARY_OP_VEC4(uint4,-)
+EXPLICIT_UNARY_OP_VEC4(long4,-)
+EXPLICIT_UNARY_OP_VEC4(ulong4,-)
 EXPLICIT_UNARY_OP_VEC4(float4,-)
+EXPLICIT_UNARY_OP_VEC4(double4,-)
+EXPLICIT_UNARY_OP_VEC8(char8,-)
+EXPLICIT_UNARY_OP_VEC8(uchar8,-)
+EXPLICIT_UNARY_OP_VEC8(int8,-)
+EXPLICIT_UNARY_OP_VEC8(uint8,-)
+EXPLICIT_UNARY_OP_VEC8(long8,-)
+EXPLICIT_UNARY_OP_VEC8(ulong8,-)
+EXPLICIT_UNARY_OP_VEC8(float8,-)
+EXPLICIT_UNARY_OP_VEC8(double8,-)
 #else
 GENERIC_UNARY_OP(char2,-)
 GENERIC_UNARY_OP(uchar2,-)
@@ -542,7 +435,10 @@ GENERIC_UNARY_OP(char4,-)
 GENERIC_UNARY_OP(uchar4,-)
 GENERIC_UNARY_OP(int4,-)
 GENERIC_UNARY_OP(uint4,-)
+GENERIC_UNARY_OP(long4,-)
+GENERIC_UNARY_OP(ulong4,-)
 GENERIC_UNARY_OP(float4,-)
+GENERIC_UNARY_OP(double4,-)
 #endif
 
 /* unary bitwise not */
@@ -556,6 +452,14 @@ EXPLICIT_UNARY_OP_VEC4(char4,~)
 EXPLICIT_UNARY_OP_VEC4(uchar4,~)
 EXPLICIT_UNARY_OP_VEC4(int4,~)
 EXPLICIT_UNARY_OP_VEC4(uint4,~)
+EXPLICIT_UNARY_OP_VEC4(long4,~)
+EXPLICIT_UNARY_OP_VEC4(ulong4,~)
+EXPLICIT_UNARY_OP_VEC8(char8,~)
+EXPLICIT_UNARY_OP_VEC8(uchar8,~)
+EXPLICIT_UNARY_OP_VEC8(int8,~)
+EXPLICIT_UNARY_OP_VEC8(uint8,~)
+EXPLICIT_UNARY_OP_VEC8(long8,~)
+EXPLICIT_UNARY_OP_VEC8(ulong8,~)
 
 
 /* add assign */
@@ -572,7 +476,18 @@ EXPLICIT_OP_ASSIGN_VEC4(char4,+)
 EXPLICIT_OP_ASSIGN_VEC4(uchar4,+)
 EXPLICIT_OP_ASSIGN_VEC4(int4,+)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,+)
+EXPLICIT_OP_ASSIGN_VEC4(long4,+)
+EXPLICIT_OP_ASSIGN_VEC4(ulong4,+)
 EXPLICIT_OP_ASSIGN_VEC4(float4,+)
+EXPLICIT_OP_ASSIGN_VEC4(double4,+)
+EXPLICIT_OP_ASSIGN_VEC8(char8,+)
+EXPLICIT_OP_ASSIGN_VEC8(uchar8,+)
+EXPLICIT_OP_ASSIGN_VEC8(int8,+)
+EXPLICIT_OP_ASSIGN_VEC8(uint8,+)
+EXPLICIT_OP_ASSIGN_VEC8(long8,+)
+EXPLICIT_OP_ASSIGN_VEC8(ulong8,+)
+EXPLICIT_OP_ASSIGN_VEC8(float8,+)
+EXPLICIT_OP_ASSIGN_VEC8(double8,+)
 #else
 GENERIC_OP_ASSIGN(char2,+)
 GENERIC_OP_ASSIGN(uchar2,+)
@@ -586,7 +501,18 @@ GENERIC_OP_ASSIGN(char4,+)
 GENERIC_OP_ASSIGN(uchar4,+)
 GENERIC_OP_ASSIGN(int4,+)
 GENERIC_OP_ASSIGN(uint4,+)
+GENERIC_OP_ASSIGN(long4,+)
+GENERIC_OP_ASSIGN(ulong4,+)
 GENERIC_OP_ASSIGN(float4,+)
+GENERIC_OP_ASSIGN(double4,+)
+GENERIC_OP_ASSIGN(char8,+)
+GENERIC_OP_ASSIGN(uchar8,+)
+GENERIC_OP_ASSIGN(int8,+)
+GENERIC_OP_ASSIGN(uint8,+)
+GENERIC_OP_ASSIGN(long8,+)
+GENERIC_OP_ASSIGN(ulong8,+)
+GENERIC_OP_ASSIGN(float8,+)
+GENERIC_OP_ASSIGN(double8,+)
 #endif
 
 /* subtract assign */
@@ -603,7 +529,18 @@ EXPLICIT_OP_ASSIGN_VEC4(char4,-)
 EXPLICIT_OP_ASSIGN_VEC4(uchar4,-)
 EXPLICIT_OP_ASSIGN_VEC4(int4,-)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,-)
+EXPLICIT_OP_ASSIGN_VEC4(long4,-)
+EXPLICIT_OP_ASSIGN_VEC4(ulong4,-)
 EXPLICIT_OP_ASSIGN_VEC4(float4,-)
+EXPLICIT_OP_ASSIGN_VEC4(double4,-)
+EXPLICIT_OP_ASSIGN_VEC8(char8,-)
+EXPLICIT_OP_ASSIGN_VEC8(uchar8,-)
+EXPLICIT_OP_ASSIGN_VEC8(int8,-)
+EXPLICIT_OP_ASSIGN_VEC8(uint8,-)
+EXPLICIT_OP_ASSIGN_VEC8(long8,-)
+EXPLICIT_OP_ASSIGN_VEC8(ulong8,-)
+EXPLICIT_OP_ASSIGN_VEC8(float8,-)
+EXPLICIT_OP_ASSIGN_VEC8(double8,-)
 #else
 GENERIC_OP_ASSIGN(char2,-)
 GENERIC_OP_ASSIGN(uchar2,-)
@@ -617,7 +554,18 @@ GENERIC_OP_ASSIGN(char4,-)
 GENERIC_OP_ASSIGN(uchar4,-)
 GENERIC_OP_ASSIGN(int4,-)
 GENERIC_OP_ASSIGN(uint4,-)
+GENERIC_OP_ASSIGN(long4,-)
+GENERIC_OP_ASSIGN(ulong4,-)
 GENERIC_OP_ASSIGN(float4,-)
+GENERIC_OP_ASSIGN(double4,-)
+GENERIC_OP_ASSIGN(char8,-)
+GENERIC_OP_ASSIGN(uchar8,-)
+GENERIC_OP_ASSIGN(int8,-)
+GENERIC_OP_ASSIGN(uint8,-)
+GENERIC_OP_ASSIGN(long8,-)
+GENERIC_OP_ASSIGN(ulong8,-)
+GENERIC_OP_ASSIGN(float8,-)
+GENERIC_OP_ASSIGN(double8,-)
 #endif
 
 /* multiply assign */
@@ -634,7 +582,18 @@ EXPLICIT_OP_ASSIGN_VEC4(char4,*)
 EXPLICIT_OP_ASSIGN_VEC4(uchar4,*)
 EXPLICIT_OP_ASSIGN_VEC4(int4,*)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,*)
+EXPLICIT_OP_ASSIGN_VEC4(long4,*)
+EXPLICIT_OP_ASSIGN_VEC4(ulong4,*)
 EXPLICIT_OP_ASSIGN_VEC4(float4,*)
+EXPLICIT_OP_ASSIGN_VEC4(double4,*)
+EXPLICIT_OP_ASSIGN_VEC8(char8,*)
+EXPLICIT_OP_ASSIGN_VEC8(uchar8,*)
+EXPLICIT_OP_ASSIGN_VEC8(int8,*)
+EXPLICIT_OP_ASSIGN_VEC8(uint8,*)
+EXPLICIT_OP_ASSIGN_VEC8(long8,*)
+EXPLICIT_OP_ASSIGN_VEC8(ulong8,*)
+EXPLICIT_OP_ASSIGN_VEC8(float8,*)
+EXPLICIT_OP_ASSIGN_VEC8(double8,*)
 #else
 GENERIC_OP_ASSIGN(char2,*)
 GENERIC_OP_ASSIGN(uchar2,*)
@@ -648,7 +607,18 @@ GENERIC_OP_ASSIGN(char4,*)
 GENERIC_OP_ASSIGN(uchar4,*)
 GENERIC_OP_ASSIGN(int4,*)
 GENERIC_OP_ASSIGN(uint4,*)
+GENERIC_OP_ASSIGN(long4,*)
+GENERIC_OP_ASSIGN(ulong4,*)
 GENERIC_OP_ASSIGN(float4,*)
+GENERIC_OP_ASSIGN(double4,*)
+GENERIC_OP_ASSIGN(char8,*)
+GENERIC_OP_ASSIGN(uchar8,*)
+GENERIC_OP_ASSIGN(int8,*)
+GENERIC_OP_ASSIGN(uint8,*)
+GENERIC_OP_ASSIGN(long8,*)
+GENERIC_OP_ASSIGN(ulong8,*)
+GENERIC_OP_ASSIGN(float8,*)
+GENERIC_OP_ASSIGN(double8,*)
 #endif
 
 /* modulo assign */
@@ -662,6 +632,14 @@ EXPLICIT_OP_ASSIGN_VEC4(char4,%)
 EXPLICIT_OP_ASSIGN_VEC4(uchar4,%)
 EXPLICIT_OP_ASSIGN_VEC4(int4,%)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,%)
+EXPLICIT_OP_ASSIGN_VEC4(long4,%)
+EXPLICIT_OP_ASSIGN_VEC4(ulong4,%)
+EXPLICIT_OP_ASSIGN_VEC8(char8,%)
+EXPLICIT_OP_ASSIGN_VEC8(uchar8,%)
+EXPLICIT_OP_ASSIGN_VEC8(int8,%)
+EXPLICIT_OP_ASSIGN_VEC8(uint8,%)
+EXPLICIT_OP_ASSIGN_VEC8(long8,%)
+EXPLICIT_OP_ASSIGN_VEC8(ulong8,%)
 
 /* divide assign */
 #if GCC_VERSION < 40600
@@ -677,7 +655,18 @@ EXPLICIT_OP_ASSIGN_VEC4(char4,/)
 EXPLICIT_OP_ASSIGN_VEC4(uchar4,/)
 EXPLICIT_OP_ASSIGN_VEC4(int4,/)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,/)
+EXPLICIT_OP_ASSIGN_VEC4(long4,/)
+EXPLICIT_OP_ASSIGN_VEC4(ulong4,/)
 EXPLICIT_OP_ASSIGN_VEC4(float4,/)
+EXPLICIT_OP_ASSIGN_VEC4(double4,/)
+EXPLICIT_OP_ASSIGN_VEC8(char8,/)
+EXPLICIT_OP_ASSIGN_VEC8(uchar8,/)
+EXPLICIT_OP_ASSIGN_VEC8(int8,/)
+EXPLICIT_OP_ASSIGN_VEC8(uint8,/)
+EXPLICIT_OP_ASSIGN_VEC8(long8,/)
+EXPLICIT_OP_ASSIGN_VEC8(ulong8,/)
+EXPLICIT_OP_ASSIGN_VEC8(float8,/)
+EXPLICIT_OP_ASSIGN_VEC8(double8,/)
 #else
 GENERIC_OP_ASSIGN(char2,/)
 GENERIC_OP_ASSIGN(uchar2,/)
@@ -691,7 +680,18 @@ GENERIC_OP_ASSIGN(char4,/)
 GENERIC_OP_ASSIGN(uchar4,/)
 GENERIC_OP_ASSIGN(int4,/)
 GENERIC_OP_ASSIGN(uint4,/)
+GENERIC_OP_ASSIGN(long4,/)
+GENERIC_OP_ASSIGN(ulong4,/)
 GENERIC_OP_ASSIGN(float4,/)
+GENERIC_OP_ASSIGN(double4,/)
+GENERIC_OP_ASSIGN(char8,/)
+GENERIC_OP_ASSIGN(uchar8,/)
+GENERIC_OP_ASSIGN(int8,/)
+GENERIC_OP_ASSIGN(uint8,/)
+GENERIC_OP_ASSIGN(long8,/)
+GENERIC_OP_ASSIGN(ulong8,/)
+GENERIC_OP_ASSIGN(float8,/)
+GENERIC_OP_ASSIGN(double8,/)
 #endif
 
 /* bitwise and assign */
@@ -705,6 +705,14 @@ EXPLICIT_OP_ASSIGN_VEC4(char4,&)
 EXPLICIT_OP_ASSIGN_VEC4(uchar4,&)
 EXPLICIT_OP_ASSIGN_VEC4(int4,&)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,&)
+EXPLICIT_OP_ASSIGN_VEC4(long4,&)
+EXPLICIT_OP_ASSIGN_VEC4(ulong4,&)
+EXPLICIT_OP_ASSIGN_VEC8(char8,&)
+EXPLICIT_OP_ASSIGN_VEC8(uchar8,&)
+EXPLICIT_OP_ASSIGN_VEC8(int8,&)
+EXPLICIT_OP_ASSIGN_VEC8(uint8,&)
+EXPLICIT_OP_ASSIGN_VEC8(long8,&)
+EXPLICIT_OP_ASSIGN_VEC8(ulong8,&)
 
 /* bitwise or assign */
 EXPLICIT_OP_ASSIGN_VEC2(char2,|)
@@ -717,6 +725,14 @@ EXPLICIT_OP_ASSIGN_VEC4(char4,|)
 EXPLICIT_OP_ASSIGN_VEC4(uchar4,|)
 EXPLICIT_OP_ASSIGN_VEC4(int4,|)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,|)
+EXPLICIT_OP_ASSIGN_VEC4(long4,|)
+EXPLICIT_OP_ASSIGN_VEC4(ulong4,|)
+EXPLICIT_OP_ASSIGN_VEC8(char8,|)
+EXPLICIT_OP_ASSIGN_VEC8(uchar8,|)
+EXPLICIT_OP_ASSIGN_VEC8(int8,|)
+EXPLICIT_OP_ASSIGN_VEC8(uint8,|)
+EXPLICIT_OP_ASSIGN_VEC8(long8,|)
+EXPLICIT_OP_ASSIGN_VEC8(ulong8,|)
 
 /* bitwise xor assign */
 EXPLICIT_OP_ASSIGN_VEC2(char2,^)
@@ -729,6 +745,14 @@ EXPLICIT_OP_ASSIGN_VEC4(char4,^)
 EXPLICIT_OP_ASSIGN_VEC4(uchar4,^)
 EXPLICIT_OP_ASSIGN_VEC4(int4,^)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,^)
+EXPLICIT_OP_ASSIGN_VEC4(long4,^)
+EXPLICIT_OP_ASSIGN_VEC4(ulong4,^)
+EXPLICIT_OP_ASSIGN_VEC8(char8,^)
+EXPLICIT_OP_ASSIGN_VEC8(uchar8,^)
+EXPLICIT_OP_ASSIGN_VEC8(int8,^)
+EXPLICIT_OP_ASSIGN_VEC8(uint8,^)
+EXPLICIT_OP_ASSIGN_VEC8(long8,^)
+EXPLICIT_OP_ASSIGN_VEC8(ulong8,^)
 
 
 /*** other builtin data types [6.1.3] ***/
@@ -738,11 +762,86 @@ EXPLICIT_OP_ASSIGN_VEC4(uint4,^)
 
 /*** conversions and type casting [6.2] ***/
 
+#define convert_char(x) static_cast<char>(x) 
+#define convert_uchar(x) static_cast<unsigned char>(x) 
 #define convert_int(x) static_cast<int>(x) 
+#define convert_uint(x) static_cast<unsigned int>(x) 
+#define convert_long(x) static_cast<long>(x) 
+#define convert_ulong(x) static_cast<unsigned long>(x) 
 #define convert_float(x) static_cast<float>(x) 
+#define convert_double(x) static_cast<double>(x) 
+
+#define convert_char2(x) static_cast<char2>(x) 
+#define convert_uchar2(x) static_cast<uchar2>(x) 
+#define convert_int2(x) static_cast<int2>(x) 
+#define convert_uint2(x) static_cast<uint2>(x) 
+#define convert_long2(x) static_cast<long2>(x) 
+#define convert_ulong2(x) static_cast<ulong2>(x) 
+#define convert_float2(x) static_cast<float2>(x) 
+#define convert_double2(x) static_cast<double2>(x) 
+
+#define convert_char4(x) static_cast<char4>(x)
+#define convert_uchar4(x) static_cast<uchar4>(x)       
+#define convert_int4(x) static_cast<int4>(x)
+#define convert_uint4(x) static_cast<uint4>(x)       
+#define convert_long4(x) static_cast<long4>(x)
+#define convert_ulong4(x) static_cast<ulong4>(x)       
+#define convert_float4(x) static_cast<float4>(x)
+#define convert_double4(x) static_cast<double4>(x)
+
+#define convert_char8(x) static_cast<char8>(x)
+#define convert_uchar8(x) static_cast<uchar8>(x)       
+#define convert_int8(x) static_cast<int8>(x)
+#define convert_uint8(x) static_cast<uint8>(x)       
+#define convert_long8(x) static_cast<long8>(x)
+#define convert_ulong8(x) static_cast<ulong8>(x)       
+#define convert_float8(x) static_cast<float8>(x)
+#define convert_double8(x) static_cast<double8>(x)
+
+
+/*
 static __always_inline double as_double( float2 f2 );
 static __always_inline double as_double( float2 f2 ) 
 	{ return *(double*)(&f2); }
+
+template < typename T >
+static __always_inline float2 as_float2( T x ) { return *(float2*)(&x); }
+
+template < typename T >
+static __always_inline uint2 as_uint2( T x ) { return *(uint2*)(&x); }
+
+template < typename T >
+static __always_inline int2 as_int2( T x ) { return *(int2*)(&x); }
+*/
+
+#define AS_TYPE(type) \
+template < typename T > \
+static __always_inline type as_##type( T x ) { return *(type*)(&x); }
+
+AS_TYPE(char2)
+AS_TYPE(uchar2)
+AS_TYPE(int2)
+AS_TYPE(uint2)
+AS_TYPE(long2)
+AS_TYPE(ulong2)
+AS_TYPE(float2)
+AS_TYPE(double2)
+AS_TYPE(char4)
+AS_TYPE(uchar4)
+AS_TYPE(int4)
+AS_TYPE(uint4)
+AS_TYPE(long4)
+AS_TYPE(ulong4)
+AS_TYPE(float4)
+AS_TYPE(double4)
+AS_TYPE(char8)
+AS_TYPE(uchar8)
+AS_TYPE(int8)
+AS_TYPE(uint8)
+AS_TYPE(long8)
+AS_TYPE(ulong8)
+AS_TYPE(float8)
+AS_TYPE(double8)
 
 
 /*** 
