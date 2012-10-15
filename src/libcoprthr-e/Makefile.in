@@ -1,0 +1,219 @@
+### 
+### Makefile for libcoprthr
+###
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+### this useless define is needed to silence useless autoconf warning
+datarootdir=@datarootdir@
+
+LIBELF_INC=@libelf_inc@
+LIBELF_LIB=@libelf_lib@
+
+### select default install paths 
+INSTALL_BIN_DIR=@bindir@
+INSTALL_LIB_DIR=@libdir@
+INSTALL_INCLUDE_DIR=@includedir@
+INSTALL_MAN_DIR=@mandir@
+
+### set custom path for ICD files
+ifneq (@OPENCL_ICD_PATH@,)
+OPENCL_ICD_PATH=@OPENCL_ICD_PATH@
+else
+OPENCL_ICD_PATH=/etc/OpenCL/vendors/
+endif
+
+ifeq (@ENABLE_LIBCOPRTHR_DEBUG_STANDARD@,1)
+DEFS += -DXCL_REPORT -DXCL_REPORT_DEFAULT_LEVEL=5
+endif
+
+ESDK_INC = -I/opt/adapteva/esdk/tools/host/x86_64/include \
+   -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
+ESDK_LIB = -L/opt/adapteva/esdk/tools/host/x86_64/lib -le_host
+
+############################################################################
+##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
+############################################################################
+
+XCL_OBJS = xcl_platform.o xcl_device.o xcl_context.o xcl_command_queue.o \
+	xcl_enqueue.o xcl_event.o xcl_program.o xcl_kernel.o xcl_memobj.o \
+	xcl_flush.o
+
+IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
+	environment.o \
+	program.o kernel.o memobj.o \
+	cmdsched.o cmdcall.o \
+	elf_cl.o \
+	watermark.o \
+	dmalloc.o \
+	compiler_e32.o cmdcall_e32ser.o e32ser_engine.o \
+	cmdcall_e32sl.o e32sl_engine.o \
+	cmdcall_e32pth.o e32pth_engine.o
+
+RT_OBJS = _e32ser_core_main.o _e32ser_core.ldf \
+	_e32sl_core_main.o _e32sl_core.ldf \
+	_e32pth_core_main.o _e32pth_core.ldf
+
+INSTALL_HDRS = \
+	e32ser_if.h e32ser_mem_if.h e32ser_engine.h \
+	e32sl_if.h e32sl_mem_if.h e32sl_engine.h \
+	e32pth_if.h e32pth_mem_if.h e32pth_engine.h \
+	workp.h opencl_lift.h e32_opencl_ext.h e32_config.h
+
+
+DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
+DEFS += -DENABLE_NCPU
+
+DEFS += -DLIBCOPRTHR_CC=\"@LIBCOPRTHR_CC@\"
+DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
+
+######################################################################
+
+TOPDIR ?= ../../
+
+INCS += -I. -I$(TOPDIR)/include 
+
+INCS += $(LIBELF_INC)
+INCS += $(ESDK_INC)
+
+LIBS += $(LIBELF_LIB)
+LIBS += $(ESDK_LIB)
+
+
+LIBS += -lfl  -lpthread -lrt
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+LIBS += -lc 
+else
+LIBS += -ldl 
+endif
+
+#ifeq (@LIBCOPRTHR_MODEL@,template)
+#LIBCOPRTHR_HDR = __libcoprthr.h-template
+#else ifeq (@LIBCOPRTHR_MODEL@,no-template)
+#LIBCOPRTHR_HDR = __libcoprthr.h-no-template
+#else
+#LIBCOPRTHR_HDR = __libcoprthr.h
+#endif
+
+
+OBJS = $(XCL_OBJS) $(IMP_OBJS)
+
+OBJS_D = $(subst .o,_d.o,$(OBJS))
+
+DEFS += \
+	-DINSTALL_BIN_DIR=\"$(INSTALL_BIN_DIR)\" \
+	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
+	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
+
+DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
+       -Wno-unused-result -Wno-format-security -Wno-format
+CCFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
+CCFLAGS_VCORE += -O0 -fPIC 
+CCFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
+
+
+#YACC = yacc
+YACC = bison
+YACCCFLAGS =  -y -v 
+
+LEX = flex
+LEXFLAGS = 
+
+XCLNM_YYPREFIX = __xclnm_
+
+TARGET = libcoprthr.so $(RT_OBJS) 
+TARGET += libcoprthr_d.so
+
+all: $(TARGET) 
+
+.PHONY: clean install uninstall
+
+.SUFFIXES:
+.SUFFIXES: .l .y .S .s .c .o
+
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+.s.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+.S.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+%_d.o:
+	$(CC) $(CCFLAGS) $(DEFS) -DXCL_REPORT $(INCS) -c $*.c -o $*_d.o
+
+
+#libcoprthr.so: $(OBJS) $(RT_OBJS)
+libcoprthr.so: $(OBJS) 
+	$(CC) $(CCFLAGS) $(INCS) \
+		-shared -Wl,-soname,libcoprthr.so -o libcoprthr.so  $(OBJS) $(LIBS)
+
+#libcoprthr_d.so: $(OBJS_D) $(RT_OBJS)
+libcoprthr_d.so: $(OBJS_D) 
+	$(CC) $(CCFLAGS) $(INCS) \
+		-shared -Wl,-soname,libcoprthr_d.so -o libcoprthr_d.so  $(OBJS_D) $(LIBS)
+
+vcore.o: vcore.c
+	$(CC) -c $(CCFLAGS_VCORE) $(DEFS) $(INCS) -o vcore.o vcore.c
+
+#__vcore_rt.o: __vcore_rt.c
+#	$(CC) -c $(CCFLAGS_VCORE_RT) $(DEFS) $(INCS) -o __vcore_rt.o __vcore_rt.c
+
+_e32ser_core_main.o: _e32ser_core_main.c
+	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
+		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
+		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
+		-fstack-usage \
+		-o _e32ser_core_main.o _e32ser_core_main.c
+
+_e32sl_core_main.o: _e32sl_core_main.c
+	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
+		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
+		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
+		-U_FORTIFY_SOURCE -fno-stack-protector \
+		-fstack-usage \
+		-o _e32sl_core_main.o _e32sl_core_main.c
+
+_e32pth_core_main.o: _e32pth_core_main.c
+	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
+		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
+		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
+		-U_FORTIFY_SOURCE -fno-stack-protector \
+		-fstack-usage \
+		-o _e32pth_core_main.o _e32pth_core_main.c
+
+
+debug:
+	export ENABLE_DEBUG=1
+	make -f Makefile all
+
+
+install: 
+	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
+	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
+	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
+	ln -sf $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr-e.so
+	install -m 755 libcoprthr_d.so $(INSTALL_LIB_DIR)
+	ln -sf $(INSTALL_LIB_DIR)/libcoprthr_d.so \
+		$(INSTALL_LIB_DIR)/libcoprthr-e_d.so
+	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
+	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
+	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(OPENCL_ICD_PATH)/coprthr.icd
+
+uninstall: 
+	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr_d.so
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
+	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,$(INSTALL_HDRS))
+	rm -f $(OPENCL_ICD_PATH)/coprthr.icd
+
+clean:
+	rm -f *.o *.so *.su
+
+distclean: clean
+
+

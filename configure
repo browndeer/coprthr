@@ -696,6 +696,7 @@ enable_libcoprthr_ncpu
 enable_fortran
 enable_silent
 enable_debug
+enable_epiphany
 with_opencl_platform
 with_opencl_include
 with_opencl_lib
@@ -1357,6 +1358,7 @@ Optional Features:
   --enable-fortran        enable fortran bindings (default=no)
   --enable-silent         enable silent build (default=no)
   --enable-debug          enable debug messages (default=no)
+  --enable-epiphany       enable epiphany support (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -3386,6 +3388,14 @@ else
 fi
 
 
+# Check whether --enable-epiphany was given.
+if test "${enable_epiphany+set}" = set; then
+  enableval=$enable_epiphany;
+else
+  enable_epiphany=no
+fi
+
+
 enable_libcoprthr_ncpu=enable_libcoprthr;
 
 echo enable_libcoprthr $enable_libcoprthr
@@ -3450,6 +3460,14 @@ if test x$enable_libclrpc != xno; then
 		else
 			echo "disabled "building libclrpc""
 			ENABLE_LIBCLRPC=0
+		fi;
+
+if test x$enable_epiphany != xno; then
+			echo "enabled "epiphany support""
+			ENABLE_EPIPHANY=1
+		else
+			echo "disabled "epiphany support""
+			ENABLE_EPIPHANY=0
 		fi;
 
 
@@ -4168,6 +4186,10 @@ ac_config_files="$ac_config_files src/libocl/Makefile"
 
 ac_config_files="$ac_config_files src/libcoprthr/Makefile"
 
+if test x$enable_epiphany = xyes; then
+	ac_config_files="$ac_config_files src/libcoprthr-e/Makefile"
+
+fi;
 ac_config_files="$ac_config_files src/libclelf/Makefile"
 
 ac_config_files="$ac_config_files src/libclrpc/Makefile"
@@ -4845,6 +4867,7 @@ do
     "src/CLETE/Makefile") CONFIG_FILES="$CONFIG_FILES src/CLETE/Makefile" ;;
     "src/libocl/Makefile") CONFIG_FILES="$CONFIG_FILES src/libocl/Makefile" ;;
     "src/libcoprthr/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr/Makefile" ;;
+    "src/libcoprthr-e/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr-e/Makefile" ;;
     "src/libclelf/Makefile") CONFIG_FILES="$CONFIG_FILES src/libclelf/Makefile" ;;
     "src/libclrpc/Makefile") CONFIG_FILES="$CONFIG_FILES src/libclrpc/Makefile" ;;
     "tools/cltrace/Makefile") CONFIG_FILES="$CONFIG_FILES tools/cltrace/Makefile" ;;

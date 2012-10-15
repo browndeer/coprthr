@@ -79,6 +79,10 @@ AC_ARG_ENABLE(debug,
   AC_HELP_STRING([--enable-debug],[enable debug messages (default=no)]),,
   enable_debug=no)
 
+AC_ARG_ENABLE(epiphany,
+	AC_HELP_STRING([--enable-epiphany],[enable epiphany support (default=no)]),,
+	enable_epiphany=no)
+
 enable_libcoprthr_ncpu=enable_libcoprthr;
 
 echo enable_libcoprthr $enable_libcoprthr
@@ -96,6 +100,7 @@ SET_OPT($enable_fortran, ENABLE_FORTRAN, "fortran binding support")
 #SET_OPT($enable_libcoprthr_atigpu, ENABLE_ATIGPU, "libcoprthr atigpu support")
 #SET_OPT($enable_libcoprthr_bdt_builtins, ENABLE_BDT_BUILTINS, "libcoprthr use bdt builtins")
 SET_OPT($enable_libclrpc, ENABLE_LIBCLRPC, "building libclrpc")
+SET_OPT($enable_epiphany, ENABLE_EPIPHANY, "epiphany support")
 
 
 #OPENCL_INCLUDE=
@@ -663,6 +668,9 @@ AC_CONFIG_FILES([src/libstdcl/Makefile])
 AC_CONFIG_FILES([src/CLETE/Makefile])
 AC_CONFIG_FILES([src/libocl/Makefile])
 AC_CONFIG_FILES([src/libcoprthr/Makefile])
+if test x$enable_epiphany = xyes; then
+	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
+fi;
 AC_CONFIG_FILES([src/libclelf/Makefile])
 AC_CONFIG_FILES([src/libclrpc/Makefile])
 AC_CONFIG_FILES([tools/cltrace/Makefile])

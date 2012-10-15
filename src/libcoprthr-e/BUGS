@@ -1,0 +1,4 @@
+
+- potential bug when __case_get_param() is used to set strings, must set
+    sz = strnlen() + 1, not sure this was always done.
+
