@@ -59,67 +59,67 @@ nbody_kern(
 			float4 dp = p2 - p0;	
 			float invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
 			a0 += (p2.w * invr*invr*invr)*dp;
-			dp = p2 - p1;	
+			dp = p2 - p1;
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
 			a1 += (p2.w * invr*invr*invr)*dp;
 
 
 			dp = p3 - p0;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a0 += (p2.w * invr*invr*invr)*dp;
+			a0 += (p3.w * invr*invr*invr)*dp;
 			dp = p3 - p1;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a1 += (p2.w * invr*invr*invr)*dp;
+			a1 += (p3.w * invr*invr*invr)*dp;
 
 
 
 			dp = p4 - p0;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a0 += (p2.w * invr*invr*invr)*dp;
+			a0 += (p4.w * invr*invr*invr)*dp;
 			dp = p4 - p1;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a1 += (p2.w * invr*invr*invr)*dp;
+			a1 += (p4.w * invr*invr*invr)*dp;
 
 
 			dp = p5 - p0;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a0 += (p2.w * invr*invr*invr)*dp;
+			a0 += (p5.w * invr*invr*invr)*dp;
 			dp = p5 - p1;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a1 += (p2.w * invr*invr*invr)*dp;
+			a1 += (p5.w * invr*invr*invr)*dp;
 
 
 
 			dp = p6 - p0;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a0 += (p2.w * invr*invr*invr)*dp;
+			a0 += (p6.w * invr*invr*invr)*dp;
 			dp = p6 - p1;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a1 += (p2.w * invr*invr*invr)*dp;
+			a1 += (p6.w * invr*invr*invr)*dp;
 
 
 			dp = p7 - p0;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a0 += (p2.w * invr*invr*invr)*dp;
+			a0 += (p7.w * invr*invr*invr)*dp;
 			dp = p7 - p1;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a1 += (p2.w * invr*invr*invr)*dp;
+			a1 += (p7.w * invr*invr*invr)*dp;
 
 
 			dp = p8 - p0;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a0 += (p2.w * invr*invr*invr)*dp;
+			a0 += (p8.w * invr*invr*invr)*dp;
 			dp = p8 - p1;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a1 += (p2.w * invr*invr*invr)*dp;
+			a1 += (p8.w * invr*invr*invr)*dp;
 
 
 			dp = p9 - p0;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a0 += (p2.w * invr*invr*invr)*dp;
+			a0 += (p9.w * invr*invr*invr)*dp;
 			dp = p9 - p1;	
 			invr = rsqrt(dp.x*dp.x + dp.y*dp.y + dp.z*dp.z + eps);
-			a1 += (p2.w * invr*invr*invr)*dp;
+			a1 += (p9.w * invr*invr*invr)*dp;
 
 	}
 
