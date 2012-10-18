@@ -62,12 +62,17 @@
 typedef unsigned int uint;
 #endif
 
+typedef unsigned int uint;
+typedef unsigned char uchar;
+
 extern "C" {
 
 }
 
 #define CLK_LOCAL_MEM_FENCE 1
+#define CLK_GLOBAL_MEM_FENCE 1
 
+#define prefetch( x, y ) 
 
 /*** adress space qualifiers [6.5] ***/
 
@@ -1301,6 +1306,12 @@ static __always_inline _float4 cross_T( _float4 a, _float4 b)
 			a.x*b.y-a.y*b.x, 0.0f);
 	}
 
+/* xxx */
+static __always_inline int sign_T( int a ); 
+static __always_inline int sign_T( int a ) { return copysignf(1,a); } 
+static __always_inline float sign_T( float a ); 
+static __always_inline float sign_T( float a ) { return copysignf(1.0f,a); } 
+
 
 #define sqrt(a) sqrt_T(a)
 #define acos(a) acos_T(a)
@@ -1329,6 +1340,7 @@ static __always_inline _float4 cross_T( _float4 a, _float4 b)
 #define rint(a) rint_T(a)
 #define round(a) round_T(a)
 #define rsqrt(a) rsqrt_T(a)
+#define sign(a) sign_T(a)
 #define sin(a) sin_T(a)
 #define sinh(a) sinh_T(a)
 #define sqrt(a) sqrt_T(a)
