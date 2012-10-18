@@ -59,6 +59,10 @@ void __do_discover_platforms()
 		__ndevices,__dtab,&__dstrtab
 	};
 
+       for(i=0;i<__ndevices;i++)
+               __dtab[0].imp.platformid = __ptab; /* XXX this is new -DAR */
+
+
 }
 
 
@@ -83,9 +87,9 @@ void __do_get_platforms(cl_uint n, cl_platform_id* platformid)
 
 void __do_get_default_platformid( cl_platform_id* platformid )
 {
-	ERROR(__FILE__,__LINE__," no default platformid, crashing here");
-	exit(-1);
-//	*platformid = (cl_platform_id);
+//	ERROR(__FILE__,__LINE__," no default platformid, crashing here");
+//	exit(-1);
+	*platformid = &__ptab[0];
 }
 
 

@@ -60,6 +60,8 @@ _clCreateContext(
 
 	cl_platform_id platformid;
 
+	printcl( CL_DEBUG "clCreateContext: try to get platformid");
+
 	if (!__find_context_property(prop,CL_CONTEXT_PLATFORM,&platformid)) {
 
 		printcl( CL_WARNING "clCreateContext: no platformid, using default");
@@ -77,8 +79,11 @@ _clCreateContext(
 		__init_context(ctx);
 
 		int n = 0;
-		while(n<MAXPROPLEN && prop[n]) n+=2;
-		__clone(ctx->prop,prop,n+1,cl_context_properties);
+		if (prop) {
+			while(n<MAXPROPLEN && prop[n]) n+=2;
+			__clone(ctx->prop,prop,n+1,cl_context_properties);
+		} else ctx->prop = 0;
+
 
 		ctx->ndev = ndev;
 		__clone(ctx->devices,devices,ndev,cl_device_id);
@@ -280,6 +285,8 @@ static int __find_context_property(
 {
 	int n = 0;
 
+	if (!props) return (0);
+
 	while( n < 2*MAXPROPLEN) {
 
 		cl_context_properties p = props[n++];
@@ -294,7 +301,8 @@ static int __find_context_property(
 
 		if (p == prop) { 
 			*(cl_context_properties*)val = v; 
-			printcl( CL_DEBUG "__find_context_property: match"); return(1); 
+			printcl( CL_DEBUG "__find_context_property: match"); 
+			return(1); 
 		}
 
 	}
