@@ -695,6 +695,7 @@ AC_CONFIG_FILES([examples/clete_clmulti_array_example/Makefile])
 AC_CONFIG_FILES([examples/clete_clvector_example/Makefile])
 AC_CONFIG_FILES([examples/bdt_em3d/Makefile])
 AC_CONFIG_FILES([examples/bdt_nbody/Makefile])
+AC_CONFIG_FILES([examples/bdt_nbody_e32/Makefile])
 AC_CONFIG_FILES([examples/bdt_nbody_tutorial/Makefile])
 AC_CONFIG_FILES([examples/bdt_nbody_tutorial_2/Makefile])
 
