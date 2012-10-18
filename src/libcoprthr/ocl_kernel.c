@@ -244,18 +244,20 @@ _clGetKernelWorkGroupInfo(
 {
 	printcl( CL_WARNING "clGetKernelWorkGroupInfo: warning: unsupported");
 
+printcl( CL_WARNING "clGetKernelWorkGroupInfo: krn %p",krn);
+
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
-	return(CL_ENOTSUP);
-
 	size_t sz;
+
+	size_t hack = 64;
 
 	switch (param_name) {
 
 		case CL_KERNEL_WORK_GROUP_SIZE:
 
-//			__case_get_param(sizeof(size_t),);
-			return(CL_ENOTSUP);
+			__case_get_param(sizeof(size_t),&hack);
+//			return(CL_ENOTSUP);
 
 			break;
 
@@ -279,7 +281,7 @@ _clGetKernelWorkGroupInfo(
 
 	}
 
-	return(CL_ENOTSUP);
+	return(CL_SUCCESS);
 }
 
 
