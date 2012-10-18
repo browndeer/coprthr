@@ -27,6 +27,21 @@
 #include "event.h"
 #include <pthread.h>
 
+#define FORCE_BLOCKING
+
+#define __wait(ev) do { \
+		printcl( CL_DEBUG "blocking on event %p",ev); \
+		__lock_event(ev); \
+      while (ev->cmd_stat != CL_COMPLETE) { \
+         printcl( CL_DEBUG "wait-sleep on event %p\n",ev); \
+         __wait_event(ev); \
+         printcl( CL_DEBUG "wait-wake on event %p",ev); \
+      } \
+      printcl( CL_DEBUG "event %p complete\n",ev); \
+		__unlock_event(ev); \
+	} while(0)
+
+
 // Enqueue Command API Calls
 
 cl_int 
@@ -84,7 +99,7 @@ _clEnqueueReadBuffer(
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
-
+/*
 	if (block) {
 
 		printcl( CL_DEBUG "clEnqueueReadBuffer blocking");
@@ -102,6 +117,12 @@ _clEnqueueReadBuffer(
 		__unlock_event(ev);
 
 	}
+*/
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#else
+	if (block) __wait(ev);
+#endif
 
 
 	return(CL_SUCCESS);
@@ -155,7 +176,7 @@ _clEnqueueWriteBuffer(
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
-
+/*
 	if (block) {
 
 		printcl( CL_DEBUG "clEnqueueWriteBuffer blocking");
@@ -173,6 +194,12 @@ _clEnqueueWriteBuffer(
 		__unlock_event(ev);
 
 	}
+*/
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#else
+	if (block) __wait(ev);
+#endif
 
 
 	return(CL_SUCCESS);
@@ -240,6 +267,9 @@ _clEnqueueCopyBuffer(
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
+#ifdef FORCE_BLOCKING	
+	__wait(ev);
+#endif
 
 	return(CL_SUCCESS);
 }
@@ -295,9 +325,11 @@ _clEnqueueReadImage(
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
 
-	if (block) {
-
-	}
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#else
+	if (block) __wait(ev);
+#endif
 
 
 	return(CL_SUCCESS);
@@ -356,10 +388,11 @@ _clEnqueueWriteImage(
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
 
-	if (block) {
-
-	}
-
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#else
+	if (block) __wait(ev);
+#endif
 
 	return(CL_SUCCESS);
 }
@@ -420,6 +453,9 @@ _clEnqueueCopyImage(
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#endif
 
 	return(CL_SUCCESS);
 }
@@ -479,6 +515,10 @@ _clEnqueueCopyImageToBuffer(
 		if (event) *event = ev;
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
+
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#endif
 
 
 	return(CL_SUCCESS);
@@ -540,6 +580,10 @@ _clEnqueueCopyBufferToImage(
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#endif
+
 
 	return(CL_SUCCESS);
 }
@@ -579,6 +623,7 @@ _clEnqueueMapBuffer(
 
 	__check_waitlist(nwaitlist,waitlist,cmdq->ctx);
 
+	printcl( CL_WARNING "clEnqueueMapBuffer: passed initial checks");
 
 	struct _cl_event* ev = (struct _cl_event*)malloc(sizeof(struct _cl_event));
 
@@ -599,9 +644,10 @@ _clEnqueueMapBuffer(
 	} else __error_return(CL_OUT_OF_HOST_MEMORY,void*);
 
 
+/*
 	if (block) {
 
-		printcl( CL_DEBUG "clEnqueueMapBuffer blocking");
+		printcl( CL_WARNING "clEnqueueMapBuffer blocking ev=%p",ev);
 
 		__lock_event(ev);
 
@@ -615,7 +661,16 @@ _clEnqueueMapBuffer(
 
 		__unlock_event(ev);
 
+	} else {
+		printcl( CL_DEBUG "clEnqueueMapBuffer non-blocking");
 	}
+*/
+
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#else
+	if (block) __wait(ev);
+#endif
 
 	__success();
 
@@ -680,10 +735,11 @@ _clEnqueueMapImage(
 	} else __error_return(CL_OUT_OF_HOST_MEMORY,void*);
 
 
-	if (block) {
-
-	}
-
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#else
+	if (block) __wait(ev);
+#endif
 
 	__success();
 
@@ -733,6 +789,10 @@ _clEnqueueUnmapMemObject(
 		if (event) *event = ev;
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
+
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#endif
 
 	return(CL_SUCCESS);
 }
@@ -811,6 +871,9 @@ _clEnqueueNDRangeKernel(
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#endif
 
 	return(CL_SUCCESS);
 }
@@ -861,6 +924,9 @@ _clEnqueueTask(
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#endif
 
 	return(CL_SUCCESS);
 }
@@ -900,6 +966,10 @@ _clEnqueueNativeKernel(
 		if (event) *event = ev;
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
+
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#endif
 */
 
 	return(CL_ENOTSUP);
@@ -934,6 +1004,9 @@ _clEnqueueMarker(
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#endif
 
 	return(CL_SUCCESS);
 }
@@ -1002,6 +1075,9 @@ _clEnqueueBarrier( cl_command_queue cmdq )
 
 	} else return(CL_OUT_OF_HOST_MEMORY);
 
+#ifdef FORCE_BLOCKING
+	__wait(ev);
+#endif
 
 	return(CL_SUCCESS);
 }
