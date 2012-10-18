@@ -496,12 +496,18 @@ cl_context clCreateContext(
 	cl_pfn_notify_t a3,void* a4,cl_int* a5
 )
 {
+	void* oclent;
 	cl_context_properties* p = (cl_context_properties*)a0;
-	int n=0;
-	for(;*p != 0 && n<256; p+=2,n++)
-		if (*p == CL_CONTEXT_PLATFORM) { ++p; break; }
-	if (*p==0 || n==256) return (cl_context)0;
-	void* oclent = *(void**)(*p);
+	if (p) {
+		int n=0;
+		for(;*p != 0 && n<256; p+=2,n++)
+			if (*p == CL_CONTEXT_PLATFORM) { ++p; break; }
+		if (*p==0 || n==256) return (cl_context)0;
+		oclent = *(void**)(*p);
+	} else {
+	 	oclent = *(void**)(a2[0]);
+	}
+
 	printcl( CL_DEBUG "clCreateContext (loader) %p",oclent);
 	typedef cl_context (*pf_t) (const cl_context_properties*,
 		cl_uint,const cl_device_id*,cl_pfn_notify_t,void*,cl_int*);
