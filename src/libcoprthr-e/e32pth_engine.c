@@ -42,7 +42,7 @@
 #include "program.h"
 #include "cmdcall.h"
 #include "workp.h"
-#include "util.h"
+//#include "util.h"
 
 #include "e32_config.h"
 #include "e32pth_engine.h"

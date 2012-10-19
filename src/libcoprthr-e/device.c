@@ -47,9 +47,9 @@
 #include "device.h"
 #include "cmdcall.h"
 #if defined(__x86_64__)
-#include "cmdcall_x86_64.h"
-#include "cmdcall_x86_64_sl.h"
-#include "cmdcall_x86_64_ser.h"
+//#include "cmdcall_x86_64.h"
+//#include "cmdcall_x86_64_sl.h"
+//#include "cmdcall_x86_64_ser.h"
 #include "cmdcall_e32ser.h"
 #include "cmdcall_e32sl.h"
 #include "cmdcall_e32pth.h"
