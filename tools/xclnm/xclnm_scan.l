@@ -63,6 +63,7 @@ FILE* __xclnm_yyin;
 
 "typedef"			{ __plb(); ival_return(TYPEDEF); }
 "struct"				{ __plb(); ival_return(STRUCT); }
+"union"				{ __plb(); ival_return(STRUCT); }
 
 "__kernel" 			{ __plb(); ival_return(KERNEL); }
 "kernel" 			{ __plb(); ival_return(KERNEL); }
