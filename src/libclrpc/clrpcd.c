@@ -70,19 +70,58 @@ static void _clrpc_##name##_svrcb( \
    EVRPC_REQUEST_DONE(rpc); \
 }
 
+#define HIDE(stmt)
+
+#define CLRPC_GENERIC_GETINFO_SVRCB4(name,type,arg,infotype) \
+static void _clrpc_##name##_svrcb( \
+	EVRPC_STRUCT(_clrpc_clGetGENERICInfo)* rpc, void* parg) \
+{ \
+	printcl( CL_DEBUG "_clrpc_" #name "_svrcb"); \
+	CLRPC_SVRCB_INIT(clGetGENERICInfo); \
+	cl_##type arg; \
+	cl_##infotype param_name; \
+	size_t param_sz; \
+	void* param_val = 0; \
+	size_t param_sz_ret; \
+	clrpc_ptr obj; \
+	CLRPC_GET_DPTR_REMOTE(request,type,obj,&obj); \
+	arg = (cl_##type)obj; \
+	CLRPC_GET(request,infotype,param_name,&param_name); \
+	CLRPC_GET(request,uint,param_sz,&param_sz); \
+	param_val = calloc(param_sz,1); \
+	cl_int retval = name(arg,param_name,param_sz,param_val,&param_sz_ret); \
+	CLRPC_ASSIGN(reply, int, retval, retval ); \
+	CLRPC_ASSIGN(reply, uint64, param_sz_ret, param_sz_ret ); \
+	unsigned int len = min(param_sz,param_sz_ret); \
+	EVTAG_ASSIGN_WITH_LEN(reply,param_val,param_val,len); \
+	if (len) printcl( CL_DEBUG "%d:%s",len,(char*)param_val); \
+	if (param_val) free(param_val); \
+   EVRPC_REQUEST_DONE(rpc); \
+}
+
 struct xevent_struct {
 	cl_event event;
 	void* buf_ptr;
 	size_t buf_sz;
+	int buf_flag;
 };
+#define XEVENT_BUF_FREE	0x1
 
 
-#define CLRPC_XEVENT_CREATE(xevent,event,ptr,sz) \
+#define CLRPC_XEVENT_CREATE(xevent,event) \
 	struct xevent_struct* xevent \
-		= (struct xevent_struct*)malloc(sizeof(struct xevent_struct)); \
-	printcl( CL_DEBUG "xevent at creation is %p",xevent); \
-	do { xevent->event = event; xevent->buf_ptr = ptr; xevent->buf_sz = sz; \
+		= (struct xevent_struct*)calloc(1,sizeof(struct xevent_struct)); \
+	do { \
+		xevent->event = event; \
+		printcl( CL_DEBUG "xevent at creation is %p",xevent); \
 	} while(0)
+
+#define __xevent_set_buf(xevent,ptr,sz,flag) do { \
+	xevent->buf_ptr = ptr; \
+	xevent->buf_sz = sz; \
+	xevent->buf_flag = flag; \
+	} while(0)
+
 
 struct event_base *global_base;
 evutil_socket_t global_spair[2] = { -1, -1 };
@@ -128,6 +167,7 @@ rpc_pool_with_connection( const char* address, ev_uint16_t port)
 }
 
 
+CLRPC_HEADER(clGetGENERICInfo)
 CLRPC_HEADER(clGetPlatformIDs)
 CLRPC_HEADER(clGetPlatformInfo)
 CLRPC_HEADER(clGetDeviceIDs)
@@ -148,11 +188,13 @@ CLRPC_HEADER(clReleaseMemObject)
 CLRPC_HEADER(clEnqueueReadBuffer)
 CLRPC_HEADER(clEnqueueWriteBuffer)
 CLRPC_HEADER(clEnqueueCopyBuffer)
+CLRPC_HEADER(clEnqueueMapBuffer)
 CLRPC_HEADER(clGetEventInfo)
 CLRPC_HEADER(clGetEventProfilingInfo)
 CLRPC_HEADER(clRetainEvent)
 CLRPC_HEADER(clReleaseEvent)
 CLRPC_HEADER(clCreateProgramWithSource)
+CLRPC_HEADER(clCreateProgramWithBinary)
 CLRPC_HEADER(clBuildProgram)
 CLRPC_HEADER(clGetProgramInfo)
 CLRPC_HEADER(clRetainProgram)
@@ -167,6 +209,7 @@ CLRPC_HEADER(clFlush)
 CLRPC_HEADER(clFinish)
 CLRPC_HEADER(clWaitForEvents)
 
+CLRPC_GENERATE(clGetGENERICInfo)
 CLRPC_GENERATE(clGetPlatformIDs)
 CLRPC_GENERATE(clGetPlatformInfo)
 CLRPC_GENERATE(clGetDeviceIDs)
@@ -187,11 +230,13 @@ CLRPC_GENERATE(clReleaseMemObject)
 CLRPC_GENERATE(clEnqueueReadBuffer)
 CLRPC_GENERATE(clEnqueueWriteBuffer)
 CLRPC_GENERATE(clEnqueueCopyBuffer)
+CLRPC_GENERATE(clEnqueueMapBuffer)
 CLRPC_GENERATE(clGetEventInfo)
 CLRPC_GENERATE(clGetEventProfilingInfo)
 CLRPC_GENERATE(clRetainEvent)
 CLRPC_GENERATE(clReleaseEvent)
 CLRPC_GENERATE(clCreateProgramWithSource)
+CLRPC_GENERATE(clCreateProgramWithBinary)
 CLRPC_GENERATE(clBuildProgram)
 CLRPC_GENERATE(clGetProgramInfo)
 CLRPC_GENERATE(clRetainProgram)
@@ -345,6 +390,7 @@ _clrpc_clGetDeviceIDs_svrcb(
 
 
 CLRPC_GENERIC_GETINFO_SVRCB(clGetDeviceInfo,device_id,device,device_info)
+//CLRPC_GENERIC_GETINFO_SVRCB4(clGetDeviceInfo,device_id,device,device_info)
 
 
 static void
@@ -637,7 +683,8 @@ _clrpc_clEnqueueReadBuffer_svrcb(
 
 	printcl( CL_DEBUG "retval %d", retval);
 
-	CLRPC_XEVENT_CREATE(xevent,event,ptr,cb);
+	CLRPC_XEVENT_CREATE(xevent,event);
+	__xevent_set_buf(xevent,ptr,cb,XEVENT_BUF_FREE);
 
 	clrpc_dptr retevent;
 	EVTAG_GET(request,event,&d);
@@ -733,7 +780,8 @@ _clrpc_clEnqueueWriteBuffer_svrcb(
 	printcl( CL_DEBUG "retval %d", retval);
 
 //	CLRPC_XEVENT_CREATE(xevent,event,0,0);
-	CLRPC_XEVENT_CREATE(xevent,event,ptr,0);
+	CLRPC_XEVENT_CREATE(xevent,event);
+	__xevent_set_buf(xevent,ptr,0,XEVENT_BUF_FREE);
 
 	clrpc_dptr retevent;
 	EVTAG_GET(request,event,&d);
@@ -809,7 +857,7 @@ _clrpc_clEnqueueCopyBuffer_svrcb(
 
 	printcl( CL_DEBUG "retval %d", retval);
 
-	CLRPC_XEVENT_CREATE(xevent,event,0,0);
+	CLRPC_XEVENT_CREATE(xevent,event);
 
 	clrpc_dptr retevent;
 	EVTAG_GET(request,event,&d);
@@ -820,6 +868,105 @@ _clrpc_clEnqueueCopyBuffer_svrcb(
 	EVTAG_ASSIGN(d,remote,retevent.remote);
 
 	CLRPC_ASSIGN(reply, int64, retval, retval );
+
+   EVRPC_REQUEST_DONE(rpc);
+}
+
+
+static void
+_clrpc_clEnqueueMapBuffer_svrcb(
+	EVRPC_STRUCT(_clrpc_clEnqueueMapBuffer)* rpc, void* parg)
+{
+	int i;
+
+	printcl( CL_DEBUG "_clrpc_clEnqueueMapBuffer_svrcb");
+	
+	CLRPC_SVRCB_INIT(clEnqueueMapBuffer);
+
+	cl_command_queue command_queue;
+	cl_mem buffer;
+	cl_bool blocking_map;
+	cl_map_flags map_flags;
+	size_t offset;
+	size_t cb;
+//	void* ptr = 0;
+	cl_uint num_events_in_wait_list;
+	cl_event* event_wait_list = 0;
+	cl_event event;
+	cl_int err_ret;
+
+	struct dual_ptr* d;
+
+   EVTAG_GET(request,command_queue,&d);
+   EVTAG_GET(d,remote,(void*)&command_queue);
+
+   EVTAG_GET(request,buffer,&d);
+   EVTAG_GET(d,remote,(void*)&buffer);
+
+	CLRPC_GET(request,bool,blocking_map,&blocking_map);
+
+	CLRPC_GET(request,map_flags,map_flags,&map_flags);
+
+	EVTAG_GET(request,offset,&offset);
+
+	EVTAG_GET(request,cb,&cb);
+
+	CLRPC_GET(request,uint,num_events_in_wait_list,&num_events_in_wait_list);
+
+	size_t len = EVTAG_ARRAY_LEN(request,event_wait_list);
+	if (len != num_events_in_wait_list) 
+		printcl( CL_ERR "array len not equal to num_events_in_wait_list");
+	if (len)
+		event_wait_list = (cl_event*)calloc(len,sizeof(cl_event));
+	for(i=0;i<len;i++) {
+		struct dual_ptr* d;
+		clrpc_ptr local,remote;
+		EVTAG_ARRAY_GET(request, event_wait_list, i, &d);
+		EVTAG_GET(d,local,&local);
+		EVTAG_GET(d,remote,&remote);
+		printcl( CL_DEBUG "clEnqueueReadBuffer xevent remote = %p",remote);
+		event_wait_list[i] = (cl_event)((struct xevent_struct*)remote)->event;
+		printcl( CL_DEBUG "event_wait_list[] %p",event_wait_list[i]);
+	}
+
+	printcl( CL_DEBUG "clEnqueueMapBuffer %p %p %d %d %ld %ld %d %p %p",
+		command_queue,buffer,blocking_map,map_flags,offset,cb,
+		num_events_in_wait_list,event_wait_list,&event);
+
+//	ptr = malloc(cb);
+
+	void* ptr = clEnqueueMapBuffer(command_queue,buffer,blocking_map,map_flags,
+		offset,cb,num_events_in_wait_list,event_wait_list,&event,&err_ret);
+
+	printcl( CL_DEBUG "remote membuf = %p",buffer);
+
+	printcl( CL_DEBUG "err_ret %d", err_ret);
+
+	CLRPC_XEVENT_CREATE(xevent,event);
+	if ( blocking_map == CL_FALSE ) 
+		__xevent_set_buf(xevent,ptr,cb,0);
+
+	clrpc_dptr retevent;
+	EVTAG_GET(request,event,&d);
+	EVTAG_GET(d,local,&retevent.local);
+	retevent.remote = (clrpc_ptr)xevent;
+	EVTAG_GET(reply,event,&d);
+	EVTAG_ASSIGN(d,local,retevent.local);
+	EVTAG_ASSIGN(d,remote,retevent.remote);
+
+	CLRPC_ASSIGN(reply, int64, err_ret, err_ret );
+
+	clrpc_dptr retval;
+	EVTAG_GET(request,retval,&d);
+	EVTAG_GET(d,local,&retval.local);
+	retval.remote = (clrpc_ptr)ptr;
+	EVTAG_GET(reply,retval,&d);
+	EVTAG_ASSIGN(d,local,retval.local);
+	EVTAG_ASSIGN(d,remote,retval.remote);
+
+	if ( blocking_map == CL_TRUE ) {
+		EVTAG_ASSIGN_WITH_LEN(reply,_bytes,ptr,cb);
+	}
 
    EVRPC_REQUEST_DONE(rpc);
 }
@@ -916,7 +1063,8 @@ static void _clrpc_clReleaseEvent_svrcb(
    EVTAG_GET(request,event,&d); 
    EVTAG_GET(d,remote,(void*)&xevent); 
 	cl_int retval = clReleaseEvent(xevent->event);
-	if (xevent->buf_ptr) free(xevent->buf_ptr);
+	if (xevent->buf_ptr && ((xevent->buf_flag)&XEVENT_BUF_FREE) ) 
+		free(xevent->buf_ptr);
 	free(xevent);
 	CLRPC_ASSIGN(reply, int, retval, retval ); 
    EVRPC_REQUEST_DONE(rpc); 
@@ -991,6 +1139,98 @@ _clrpc_clCreateProgramWithSource_svrcb(
 	
    EVRPC_REQUEST_DONE(rpc);
 }
+
+
+static void
+_clrpc_clCreateProgramWithBinary_svrcb(
+	EVRPC_STRUCT(_clrpc_clCreateProgramWithBinary)* rpc, void* parg)
+{
+	printcl( CL_DEBUG "_clrpc_clCreateProgramWithBinary_svrcb");
+	
+	CLRPC_SVRCB_INIT(clCreateProgramWithBinary);
+
+	int i;
+
+	cl_context context;
+	cl_uint ndev;
+	cl_device_id* devices;
+	size_t* lengths;
+	unsigned char** binaries;
+	cl_int* status;
+	cl_int err_ret;
+
+	struct dual_ptr* d;
+
+   EVTAG_GET(request,context,&d);
+   EVTAG_GET(d,remote,(void*)&context);
+
+	CLRPC_GET(request,uint,ndev,&ndev);
+	size_t devices_len = EVTAG_ARRAY_LEN(request,devices);
+	if (devices_len != ndev) 
+		printcl( CL_ERR "devices_len not equal to ndev");
+	devices = (cl_device_id*)calloc(ndev,sizeof(cl_device_id));
+	for(i=0;i<ndev;i++) {
+		struct dual_ptr* d;
+		clrpc_ptr local,remote;
+		EVTAG_ARRAY_GET(request, devices, i, &d);
+		EVTAG_GET(d,local,&local);
+		EVTAG_GET(d,remote,&remote);
+		devices[i] = (cl_device_id)remote;
+		printcl( CL_DEBUG "devices[] %p",devices[i]);
+	}
+
+	binaries = (unsigned char**)calloc(ndev,sizeof(char*));
+	lengths = (size_t*)calloc(ndev,sizeof(size_t));
+	status = (cl_int*)calloc(ndev,sizeof(cl_int));
+
+	size_t lengths_len = EVTAG_ARRAY_LEN(request,lengths);
+	if (lengths_len != ndev) 
+		printcl( CL_ERR "lengths_len not equal to count");
+
+	size_t sz = 0;
+	for(i=0;i<ndev;i++) {
+		clrpc_uint tmp;
+		EVTAG_ARRAY_GET(request,lengths,i,&tmp);
+		lengths[i] = tmp;
+		sz += tmp;
+	}
+
+	char* tmp_buf = 0;
+   unsigned int tmp_sz = 0;
+   EVTAG_GET_WITH_LEN(request,_bytes,(unsigned char**)&tmp_buf,&tmp_sz);
+	printcl( CL_DEBUG "COMPARE sz %ld %d",sz,tmp_sz);
+	char* p = tmp_buf;
+	printcl( CL_DEBUG "|%s|", p);
+	for(i=0;i<ndev;i++) {
+		binaries[i] = p; 
+		p += lengths[i];
+	}
+
+	cl_program program = clCreateProgramWithBinary(context,ndev,devices,
+		lengths,(const unsigned char**)binaries,status,&err_ret);
+
+	printcl( CL_DEBUG "remote program = %p",program);
+
+	clrpc_dptr retval;
+	EVTAG_GET(request,retval,&d);
+	EVTAG_GET(d,local,&retval.local);
+	retval.remote = (clrpc_ptr)program;
+	EVTAG_GET(reply,retval,&d);
+	EVTAG_ASSIGN(d,local,retval.local);
+	EVTAG_ASSIGN(d,remote,retval.remote);
+
+   for(i=0;i<ndev;i++)
+      EVTAG_ARRAY_ADD_VALUE(reply,status,status[i]);
+
+	CLRPC_ASSIGN(reply, int64, err_ret, err_ret );
+
+	if (binaries) free(binaries);
+	if (lengths) free(lengths);
+	if (status) free(status);
+	
+   EVRPC_REQUEST_DONE(rpc);
+}
+
 
 static void
 _clrpc_clBuildProgram_svrcb(
@@ -1225,7 +1465,7 @@ _clrpc_clEnqueueNDRangeKernel_svrcb(
 
 	printcl( CL_DEBUG "retval %d", retval);
 
-	CLRPC_XEVENT_CREATE(xevent,event,0,0);
+	CLRPC_XEVENT_CREATE(xevent,event);
 
 	clrpc_dptr retevent;
 	EVTAG_GET(request,event,&d);
@@ -1335,7 +1575,8 @@ _clrpc_clWaitForEvents_svrcb(
 				memcpy(tmp_ptr,xevents[i]->buf_ptr,xevents[i]->buf_sz);
 				int* ptmp = (int*)tmp_ptr;
 				printf("EVENT %d:",i);
-				int ii; for(ii=0;ii<10;ii++) printf("*%d",ptmp[ii]); printf("\n"); fflush(stdout);
+				int ii; for(ii=0;ii<10;ii++) 
+				printf("*%d",ptmp[ii]); printf("\n"); fflush(stdout);
 				tmp_ptr += xevents[i]->buf_sz;
 			}
 		}
@@ -1392,12 +1633,13 @@ clrpc_server( const char* address, ev_uint16_t port )
 	CLRPC_REGISTER(clEnqueueReadBuffer);
 	CLRPC_REGISTER(clEnqueueWriteBuffer);
 	CLRPC_REGISTER(clEnqueueCopyBuffer);
-//	CLRPC_REGISTER(clEnqueueMapBuffer);
+	CLRPC_REGISTER(clEnqueueMapBuffer);
 	CLRPC_REGISTER(clGetEventInfo);
 	CLRPC_REGISTER(clGetEventProfilingInfo);
 	CLRPC_REGISTER(clRetainEvent);
 	CLRPC_REGISTER(clReleaseEvent);
 	CLRPC_REGISTER(clCreateProgramWithSource);
+	CLRPC_REGISTER(clCreateProgramWithBinary);
 	CLRPC_REGISTER(clBuildProgram);
 	CLRPC_REGISTER(clGetProgramInfo);
 	CLRPC_REGISTER(clRetainProgram);

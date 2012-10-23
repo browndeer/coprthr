@@ -47,6 +47,28 @@ struct _clrpc_clGetPlatformInfo_reply {
 
 
 /***
+ *** cl_int clGetGENERICInfo (cl_obj_t obj,
+ *** 	cl_obj_info param_name,
+ *** 	size_t param_value_size,
+ *** 	void* param_value,
+ *** 	size_t* param_value_size_ret)
+ ***/
+
+struct _clrpc_clGetGENERICInfo_request {
+	struct[dual_ptr] obj = 1;
+	int64 param_name = 2;
+   int64 param_sz = 3;
+}
+
+struct _clrpc_clGetGENERICInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+}
+
+
+
+/***
  *** cl_int
  *** clGetDeviceIDs(
  ***   cl_platform_id platform,
@@ -441,6 +463,41 @@ struct _clrpc_clEnqueueCopyBuffer_reply {
 
 
 /***
+ *** void* clEnqueueMapBuffer(
+ ***	cl_command_queue command_queue,
+ ***	cl_mem buffer,
+ ***	cl_bool blocking_map,
+ ***	cl_map_flags map_flags,
+ ***	size_t offset,
+ ***	size_t cb,
+ ***	cl_uint num_events_in_wait_list,
+ ***	const cl_event *event_wait_list,
+ ***	cl_event *event,
+ ***	cl_int* err_ret)
+ ***/
+
+struct _clrpc_clEnqueueMapBuffer_request {
+	struct[dual_ptr] command_queue = 1;
+	struct[dual_ptr] buffer = 2;
+	int64 blocking_map = 3;
+	int64 map_flags = 4;
+	int64 offset = 5;
+	int64 cb = 6;
+	int64 num_events_in_wait_list = 7;
+	array struct[dual_ptr] event_wait_list = 8;
+	struct[dual_ptr] event = 9;
+	struct[dual_ptr] retval = 10;
+}
+
+struct _clrpc_clEnqueueMapBuffer_reply {
+	struct[dual_ptr] retval = 1;
+	struct[dual_ptr] event = 2;
+	int64 err_ret = 3;
+	optional bytes _bytes = 4;
+}
+
+
+/***
  *** cl_program clCreateProgramWithSource(
  ***	cl_context context,
  ***	cl_uint count,
@@ -455,12 +512,41 @@ struct _clrpc_clCreateProgramWithSource_request {
 	bytes _bytes = 3;
 	array int64 lengths = 4;
 	struct[dual_ptr] retval = 5;
-	int64 err_ret = 6;
+//	int64 err_ret = 6;
 }
 
 struct _clrpc_clCreateProgramWithSource_reply {
 	struct[dual_ptr] retval = 1;
 	int64 err_ret = 2;
+}
+
+
+/***
+ *** cl_program clCreateProgramWithBinary (
+ ***	cl_context context,
+ ***	cl_uint num_devices,
+ ***	const cl_device_id* device_list,
+ ***	const size_t* lengths,
+ ***	const unsigned char** binaries,
+ ***	cl_int* binary_status,
+ ***	cl_int* errcode_ret)
+ ***/
+
+struct _clrpc_clCreateProgramWithBinary_request {
+	struct[dual_ptr] context = 1;
+	int64 ndev = 2;
+	array struct[dual_ptr] devices = 3;
+	array int64 lengths = 4;
+	bytes _bytes = 5;
+	struct[dual_ptr] retval = 6;
+//   array int64 status = 7;
+//	int64 err_ret = 8;
+}
+
+struct _clrpc_clCreateProgramWithBinary_reply {
+	struct[dual_ptr] retval = 1;
+   array int64 status = 2;
+	int64 err_ret = 3;
 }
 
 

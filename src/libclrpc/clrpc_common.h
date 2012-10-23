@@ -68,6 +68,7 @@ typedef struct _dummy_command_queue* clrpc_command_queue;
 
 typedef int64_t clrpc_command_queue_properties;
 typedef int64_t clrpc_mem_flags;
+typedef int64_t clrpc_map_flags;
 
 typedef clrpc_dptr _clrpc_event;
 typedef struct _dummy_event* clrpc_event;

@@ -43,6 +43,7 @@ typedef struct {
    void* _reserved;
    clrpc_dptr* object;
    struct evrpc_pool* rpc_pool;
+	void* ext;
 } _xobject_t;
 
 #define _xobject_rpc_pool(xobj) ((_xobject_t*)xobj)->rpc_pool
@@ -52,6 +53,7 @@ typedef struct {
 	do { \
 	xobj->object = (clrpc_dptr*)obj; \
 	xobj->rpc_pool = pool; \
+	xobj->ext = 0; \
 	xobj->_reserved = (void*)__clrpc_call_vector; \
 	((clrpc_dptr*)obj)->local = (clrpc_ptr)xobj; \
 	obj = (void*)xobj; \
@@ -151,6 +153,34 @@ cl_int clrpc_##name(cl_##type x##arg, cl_##infotype param_name, \
 	return(retval); \
 }
 
+#define CLRPC_GENERIC_GETINFO4(name,type,arg,infotype) \
+cl_int name(cl_##type arg, cl_##infotype param_name, \
+   size_t param_sz, void* param_val, size_t *param_sz_ret) \
+	__alias(clrpc_##name); \
+cl_int clrpc_##name(cl_##type x##arg, cl_##infotype param_name, \
+	size_t param_sz, void* param_val, size_t *param_sz_ret) \
+{ \
+	cl_int retval = 0; \
+	size_t tmp_param_sz_ret; \
+	CLRPC_INIT(clGetGENERICInfo); \
+	clrpc_dptr* arg = (clrpc_dptr*) (((_xobject_t*)x##arg)->object); \
+	CLRPC_ASSIGN_DPTR(request,obj,arg); \
+	CLRPC_ASSIGN(request,int64,param_name,param_name); \
+	CLRPC_ASSIGN(request,uint,param_sz,param_sz); \
+	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(x##arg),clGetGENERICInfo); \
+	CLRPC_GET(reply,int,retval,&retval); \
+	CLRPC_GET(reply,uint,param_sz_ret,&tmp_param_sz_ret); \
+	printcl( CL_DEBUG "clrpc_clGetGENERICInfo: *param_sz_ret %ld",\
+		tmp_param_sz_ret); \
+	param_sz = min(param_sz,tmp_param_sz_ret); \
+	void* tmp_param_val = 0; \
+	unsigned int tmplen = 0; \
+	EVTAG_GET_WITH_LEN(reply,param_val,(unsigned char**)&tmp_param_val,&tmplen);\
+	memcpy(param_val,tmp_param_val,param_sz); \
+	if (param_sz_ret) *param_sz_ret = tmp_param_sz_ret; \
+	return(retval); \
+}
+
 
 struct xevent_struct {
    clrpc_ptr event;
@@ -179,6 +209,7 @@ rpc_pool_with_connection( const char* address, ev_uint16_t port)
 struct event_base* global_base;
 evutil_socket_t global_spair[2] = { -1, -1 };
 
+CLRPC_HEADER(clGetGENERICInfo)
 CLRPC_HEADER(clGetPlatformIDs)
 CLRPC_HEADER(clGetPlatformInfo)
 CLRPC_HEADER(clGetDeviceIDs)
@@ -200,12 +231,13 @@ CLRPC_HEADER(clReleaseMemObject)
 CLRPC_HEADER(clEnqueueReadBuffer)
 CLRPC_HEADER(clEnqueueWriteBuffer)
 CLRPC_HEADER(clEnqueueCopyBuffer)
-//CLRPC_HEADER(clEnqueueMapBuffer)
+CLRPC_HEADER(clEnqueueMapBuffer)
 CLRPC_HEADER(clGetEventInfo)
 CLRPC_HEADER(clGetEventProfilingInfo)
 CLRPC_HEADER(clRetainEvent)
 CLRPC_HEADER(clReleaseEvent)
 CLRPC_HEADER(clCreateProgramWithSource)
+CLRPC_HEADER(clCreateProgramWithBinary)
 CLRPC_HEADER(clBuildProgram)
 CLRPC_HEADER(clGetProgramInfo)
 CLRPC_HEADER(clRetainProgram)
@@ -220,6 +252,7 @@ CLRPC_HEADER(clFlush)
 CLRPC_HEADER(clFinish)
 CLRPC_HEADER(clWaitForEvents)
 
+CLRPC_GENERATE(clGetGENERICInfo)
 CLRPC_GENERATE(clGetPlatformIDs)
 CLRPC_GENERATE(clGetPlatformInfo)
 CLRPC_GENERATE(clGetDeviceIDs)
@@ -241,12 +274,13 @@ CLRPC_GENERATE(clReleaseMemObject)
 CLRPC_GENERATE(clEnqueueReadBuffer)
 CLRPC_GENERATE(clEnqueueWriteBuffer)
 CLRPC_GENERATE(clEnqueueCopyBuffer)
-//CLRPC_GENERATE(clEnqueueMapBuffer)
+CLRPC_GENERATE(clEnqueueMapBuffer)
 CLRPC_GENERATE(clGetEventInfo)
 CLRPC_GENERATE(clGetEventProfilingInfo)
 CLRPC_GENERATE(clRetainEvent)
 CLRPC_GENERATE(clReleaseEvent)
 CLRPC_GENERATE(clCreateProgramWithSource)
+CLRPC_GENERATE(clCreateProgramWithBinary)
 CLRPC_GENERATE(clBuildProgram)
 CLRPC_GENERATE(clGetProgramInfo)
 CLRPC_GENERATE(clRetainProgram)
@@ -346,6 +380,8 @@ int clrpc_connect( unsigned int nservers, clrpc_server_info* servers )
 		rpc_pools[j] = clrpc_pool;
 	}
 
+printcl( CL_DEBUG "clrpc_nservers %d",clrpc_nservers);
+
 	return(0);
 
 }
@@ -417,6 +453,8 @@ clrpc_clGetPlatformIDs( cl_uint nplatforms,
 		CLRPC_GET(reply,int,retval,&retval);
 
 		CLRPC_GET(reply,uint,nplatforms_ret,&tmp_nplatforms_ret);
+
+		printcl( CL_DEBUG "total %d",total);
 
 		total += tmp_nplatforms_ret;
 
@@ -497,7 +535,7 @@ cl_int clrpc_clGetPlatformInfo(cl_platform_id xplatform,
 	memcpy(param_val,tmp_param_val,param_sz); 
 	printf("%ld:%s\n",param_sz,(char*)param_val); 
 	if (param_sz_ret) *param_sz_ret = tmp_param_sz;
-	return(retval); \
+	return(retval); 
 }
 
 
@@ -575,6 +613,8 @@ clrpc_clGetDeviceIDs( cl_platform_id xplatform, cl_device_type devtype,
  */
 
 CLRPC_GENERIC_GETINFO3(clGetDeviceInfo,device_id,device,device_info)
+//CLRPC_UNBLOCK_CLICB(clGetGENERICInfo)
+//CLRPC_GENERIC_GETINFO4(clGetDeviceInfo,device_id,device,device_info)
 
 
 /*
@@ -1170,12 +1210,11 @@ clrpc_clEnqueueCopyBuffer (
 }
 
 
-#if(0)
 /*
  * clEnqueueMapBuffer
  */
 
-//CLRPC_UNBLOCK_CLICB(clEnqueueMapBuffer)
+CLRPC_UNBLOCK_CLICB(clEnqueueMapBuffer)
 
 void* clEnqueueMapBuffer( cl_command_queue command_queue, 
 	cl_mem buffer, cl_bool blocking_map, cl_map_flags map_flags, size_t offset,
@@ -1198,14 +1237,84 @@ clrpc_clEnqueueMapBuffer (
 )
 {
 
-	if (err_ret) *err_ret = CL_MAP_FAILURE;		
+	int i;
 
-	return(0);
+	void* ptr0 = malloc(cb + sizeof(void*) + sizeof(clrpc_dptr));
+	void* ptr = ptr0 + sizeof(void*) + sizeof(clrpc_dptr);
 
-	/* XXX this is a difficult one, working on it -DAR */
+	CLRPC_INIT(clEnqueueMapBuffer);
 
+	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,command_queue,xcommand_queue);
+
+	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,buffer,xbuffer);
+
+	EVTAG_ASSIGN(request,blocking_map,blocking_map);
+
+	EVTAG_ASSIGN(request,map_flags,map_flags);
+
+	EVTAG_ASSIGN(request,offset,offset);
+
+	EVTAG_ASSIGN(request,cb,cb);
+
+	CLRPC_ASSIGN(request,uint,num_events_in_wait_list,num_events_in_wait_list);
+
+	CLRPC_ASSIGN_DPTR_ARRAY_FROM_OBJECT(request,num_events_in_wait_list,
+		event_wait_list,xevent_wait_list);
+
+	clrpc_dptr* event = (clrpc_dptr*)malloc(sizeof(clrpc_dptr));
+	_xevent_create(xevent,event,_xobject_rpc_pool(xbuffer));
+
+/*XXX still need to rework this conditional */
+	if ( blocking_map == CL_FALSE ) {
+		xevent->buf_ptr = ptr;
+		xevent->buf_sz = cb;
+	} else {
+		xevent->buf_ptr = 0;
+		xevent->buf_sz = 0;
+	}
+
+	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,event,xevent);
+
+	clrpc_dptr* retval = (clrpc_dptr*)(ptr0 + sizeof(void*));
+	CLRPC_ASSIGN_DPTR(request,retval,retval);
+
+	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xbuffer),clEnqueueMapBuffer);
+
+	CLRPC_GET_DPTR_REMOTE(reply,uint,event,&xevent->object->remote);
+	printcl( CL_DEBUG "event local remote %p %p",
+		xevent->object->local,xevent->object->remote);
+
+	if (pevent) *pevent = (cl_event)xevent;
+
+	cl_int tmp_err_ret;
+	CLRPC_GET(reply,int,err_ret,&tmp_err_ret);
+	if (err_ret) *err_ret = tmp_err_ret;
+	printcl( CL_DEBUG "clrpc_clEnqueueMapBuffer: *err_ret = %d", tmp_err_ret);
+
+	if ( EVTAG_HAS(reply,_bytes) ) {
+		printcl( CL_DEBUG "bytes sent back");
+	} else {
+		printcl( CL_DEBUG "bytes not sent back");
+	}
+
+	/* XXX later make this depend on confirmed receipt in event -DAR */
+	if ( blocking_map == CL_TRUE ) {
+		void* tmp_ptr;
+		unsigned int tmp_sz;
+		EVTAG_GET_WITH_LEN(reply,_bytes,(unsigned char**)&tmp_ptr,&tmp_sz);
+		if (tmp_sz > 0) 
+			memcpy(ptr,tmp_ptr,cb);
+		int* iptr = (int*)ptr;
+		for(i=0;i<32;i++) printf("/%d",iptr[i]); printf("\n");
+	}
+
+	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&retval->remote);
+	
+	CLRPC_FINAL(clEnqueueMapBuffer);
+
+	return(ptr);
 }
-#endif
+
 
 
 /*
@@ -1289,6 +1398,7 @@ clrpc_clCreateProgramWithSource(
 		p += lengths[i];
 	}
 	EVTAG_ASSIGN_WITH_LEN(request,_bytes,(unsigned char*)buf,sz);
+
 	for(i=0;i<count;i++)
 		EVTAG_ARRAY_ADD_VALUE(request,lengths,lengths[i]);
 
@@ -1302,14 +1412,96 @@ clrpc_clCreateProgramWithSource(
 	printcl( CL_DEBUG "program local remote %p %p",
 		retval->object->local,retval->object->remote);
 
-	CLRPC_GET(reply,int,err_ret,err_ret);
+	cl_int tmp_err_ret;
+	CLRPC_GET(reply,int,err_ret,&tmp_err_ret);
 
 	printcl( CL_DEBUG "clrpc_clCreateProgramWithSource: *err_ret = %d", 
-		*err_ret);
+		tmp_err_ret);
+
+	if (err_ret) *err_ret = tmp_err_ret;
 
 	if (buf) free(buf);
 
 	CLRPC_FINAL(clCreateProgramWithSource);
+
+	return((cl_program)program);
+}
+
+
+/*
+ * clCreateProgramWithBinary
+ */
+
+CLRPC_UNBLOCK_CLICB(clCreateProgramWithBinary)
+
+cl_program clCreateProgramWithBinary( cl_context context, cl_uint ndev,
+	const cl_device_id* xdevices, const size_t* lengths,
+	const unsigned char** binaries, cl_int* status, cl_int* err_ret)
+	__alias(clrpc_clCreateProgramWithBinary);
+
+cl_program
+clrpc_clCreateProgramWithBinary(
+	cl_context xcontext, 
+	cl_uint ndev,
+	const cl_device_id* xdevices,
+	const size_t* lengths, 
+   const unsigned char** binaries, 
+	cl_int* status,
+	cl_int* err_ret
+)
+{
+	int i;
+
+	clrpc_dptr* program = (clrpc_dptr*)malloc(sizeof(clrpc_dptr));
+	_xobject_create(xprogram,program,_xobject_rpc_pool(xcontext));
+
+	CLRPC_INIT(clCreateProgramWithBinary);
+
+	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,context,xcontext);
+
+	CLRPC_ASSIGN(request,uint,ndev,ndev);
+
+	CLRPC_ASSIGN_DPTR_ARRAY_FROM_OBJECT(request,ndev,devices,xdevices);
+
+	size_t sz = 0;
+	for(i=0;i<ndev;i++) sz += lengths[i];
+	char* buf = (char*)malloc(sz);
+	char* p = buf;
+	for(i=0;i<ndev;i++) {
+		memcpy(p,binaries[i],lengths[i]);
+		p += lengths[i];
+	}
+	EVTAG_ASSIGN_WITH_LEN(request,_bytes,(unsigned char*)buf,sz);
+
+	for(i=0;i<ndev;i++)
+		EVTAG_ARRAY_ADD_VALUE(request,lengths,lengths[i]);
+
+	_xobject_t* retval = (_xobject_t*)program;
+	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,retval,retval);
+
+	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xcontext),
+		clCreateProgramWithBinary);
+
+	CLRPC_GET_DPTR_REMOTE(reply,uint,retval,&retval->object->remote);
+	printcl( CL_DEBUG "program local remote %p %p",
+		retval->object->local,retval->object->remote);
+
+	for(i=0;i<ndev;i++) {
+		clrpc_int tmp;
+		EVTAG_ARRAY_GET(reply,status,i,&tmp);
+		if (status) status[i] = tmp;
+	}
+
+	cl_int tmp_err_ret;
+	CLRPC_GET(reply,int,err_ret,&tmp_err_ret);
+	if (err_ret) *err_ret = tmp_err_ret;
+
+	printcl( CL_DEBUG "clrpc_clCreateProgramWithSource: *err_ret = %d", 
+		tmp_err_ret);
+
+	if (buf) free(buf);
+
+	CLRPC_FINAL(clCreateProgramWithBinary);
 
 	return((cl_program)program);
 }
@@ -1624,6 +1816,8 @@ clrpc_clFinish(
 
 	printcl( CL_DEBUG "clrpc_clFinish: retval = %d\n", retval);
 
+	printcl( CL_WARNING "clrpc_clFinish: buffer transfers not yet supported!");
+
 	return(retval);
 }
 
@@ -1702,7 +1896,7 @@ void* clrpc_clCreateSampler = 0;
 void* clrpc_clRetainSampler = 0;
 void* clrpc_clReleaseSampler = 0;
 void* clrpc_clGetSamplerInfo = 0;
-void* clrpc_clCreateProgramWithBinary = 0;
+//void* clrpc_clCreateProgramWithBinary = 0;
 //void* clrpc_clRetainProgram = 0;
 //void* clrpc_clUnloadCompiler = 0;
 void* clrpc_clGetProgramBuildInfo = 0;
@@ -1718,7 +1912,7 @@ void* clrpc_clEnqueueWriteImage = 0;
 void* clrpc_clEnqueueCopyImage = 0;
 void* clrpc_clEnqueueCopyImageToBuffer = 0;
 void* clrpc_clEnqueueCopyBufferToImage = 0;
-void* clrpc_clEnqueueMapBuffer = 0;
+//void* clrpc_clEnqueueMapBuffer = 0;
 void* clrpc_clEnqueueMapImage = 0;
 void* clrpc_clEnqueueUnmapMemObject = 0;
 void* clrpc_clEnqueueTask = 0;
