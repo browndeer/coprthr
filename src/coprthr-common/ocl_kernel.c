@@ -250,7 +250,8 @@ printcl( CL_WARNING "clGetKernelWorkGroupInfo: krn %p",krn);
 
 	size_t sz;
 
-	size_t hack = 64;
+//	size_t hack = 64;
+	size_t hack = __resolve_devid(devid,max_wg_sz);
 
 	switch (param_name) {
 

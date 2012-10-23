@@ -46,9 +46,13 @@ ESDK_LIB = -L/opt/adapteva/esdk/tools/host/x86_64/lib -le_host
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
-XCL_OBJS = xcl_platform.o xcl_device.o xcl_context.o xcl_command_queue.o \
-	xcl_enqueue.o xcl_event.o xcl_program.o xcl_kernel.o xcl_memobj.o \
-	xcl_flush.o
+OCL_OBJS = ocl_command_queue.o ocl_context.o ocl_device.o ocl_enqueue.o \
+	ocl_event.o ocl_program.o ocl_flush.o ocl_sampler.o ocl_profile.o \
+	ocl_kernel.o ocl_memobj.o ocl_platform.o ocl_clgl.o xcl_icd.o
+
+#XCL_OBJS = xcl_platform.o xcl_device.o xcl_context.o xcl_command_queue.o \
+#	xcl_enqueue.o xcl_event.o xcl_program.o xcl_kernel.o xcl_memobj.o \
+#	xcl_flush.o
 
 IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	environment.o \
@@ -59,7 +63,8 @@ IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	dmalloc.o \
 	compiler_e32.o cmdcall_e32ser.o e32ser_engine.o \
 	cmdcall_e32sl.o e32sl_engine.o \
-	cmdcall_e32pth.o e32pth_engine.o
+	cmdcall_e32pth.o e32pth_engine.o \
+	icd.o
 
 RT_OBJS = _e32ser_core_main.o _e32ser_core.ldf \
 	_e32sl_core_main.o _e32sl_core.ldf \
@@ -81,6 +86,9 @@ DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
 ######################################################################
 
 TOPDIR ?= ../../
+
+SCRIPTS = ../scripts/
+OCLCALL_MASTER = ../libocl/oclcall.master
 
 INCS += -I. -I$(TOPDIR)/include 
 
@@ -107,7 +115,7 @@ endif
 #endif
 
 
-OBJS = $(XCL_OBJS) $(IMP_OBJS)
+OBJS = $(OCL_OBJS) $(IMP_OBJS)
 
 OBJS_D = $(subst .o,_d.o,$(OBJS))
 
@@ -133,7 +141,10 @@ LEXFLAGS =
 XCLNM_YYPREFIX = __xclnm_
 
 TARGET = libcoprthr-e.so $(RT_OBJS) 
-TARGET += libcoprthr-e_d.so
+#TARGET += libcoprthr-e_d.so
+TARGET += icd.c
+
+VPATH = ../coprthr-common/
 
 all: $(TARGET) 
 
@@ -155,6 +166,9 @@ all: $(TARGET)
 %_d.o:
 	$(CC) $(CCFLAGS) $(DEFS) -DXCL_REPORT $(INCS) -c $*.c -o $*_d.o
 
+icd.c:
+	perl $(SCRIPTS)/gen_ocl_call_vector.pl __icd_call_vector _ \
+		< $(OCLCALL_MASTER) > icd.c
 
 #libcoprthr.so: $(OBJS) $(RT_OBJS)
 libcoprthr-e.so: $(OBJS) 
@@ -207,16 +221,17 @@ install:
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	install -m 755 libcoprthr-e.so $(INSTALL_LIB_DIR)
 #	ln -sf $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr-e.so
-	install -m 755 libcoprthr-e_d.so $(INSTALL_LIB_DIR)
+#	install -m 755 libcoprthr-e_d.so $(INSTALL_LIB_DIR)
 #	ln -sf $(INSTALL_LIB_DIR)/libcoprthr_d.so \
 #		$(INSTALL_LIB_DIR)/libcoprthr-e_d.so
 	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
 	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
 	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
-	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(OPENCL_ICD_PATH)/coprthr.icd
+	echo $(INSTALL_LIB_DIR)/libcoprthr-e.so > $(OPENCL_ICD_PATH)/coprthr-e.icd
 
 uninstall: 
-	rm -f $(INSTALL_LIB_DIR)/libcoprthr-e.so $(INSTALL_LIB_DIR)/libcoprthr-e_d.so
+#	rm -f $(INSTALL_LIB_DIR)/libcoprthr-e.so $(INSTALL_LIB_DIR)/libcoprthr-e_d.so
+	rm -f $(INSTALL_LIB_DIR)/libcoprthr-e.so 
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,$(INSTALL_HDRS))
 	rm -f $(OPENCL_ICD_PATH)/coprthr.icd

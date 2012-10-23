@@ -126,6 +126,8 @@ void __do_discover_devices(
 	struct _cl_device_id* dtab = *p_dtab = (struct _cl_device_id*)
 		malloc(*p_ndevices*sizeof(struct _cl_device_id));
 
+	__init_device_id(dtab);
+
 	dtab[0].imp = (struct _imp_device){
 		CL_DEVICE_TYPE_ACCELERATOR,
 		0,				/* vendorid */

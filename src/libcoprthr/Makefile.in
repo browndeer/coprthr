@@ -124,6 +124,8 @@ TARGET = libcoprthr.so $(RT_OBJS)
 #TARGET += libcoprthr_d.so
 TARGET += icd.c
 
+VPATH = ../coprthr-common/
+
 all: $(TARGET) 
 
 .PHONY: clean install uninstall

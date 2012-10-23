@@ -266,10 +266,15 @@ _clBuildProgram(
 
 		prg->build_stat[j] = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 
-		if (err != CL_SUCCESS) return(err);
+//		if (err != CL_SUCCESS) return(err);
 	}
 	
-	return(CL_SUCCESS);
+//	return(CL_SUCCESS);
+
+	if (err)
+		printcl( CL_WARNING "clBuildProgram failed with err %d",err);
+
+	return(err);
 }
 
 

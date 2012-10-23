@@ -119,7 +119,7 @@ void __do_discover_devices(
 		0,				/* vendorid */
 		1,				/* max_compute_units */
 		3,1,1,1,0,	/* max_wi_dim,max_wi_sz[] */
-		1,				/* max_wg_sz */
+		64,				/* max_wg_sz */
 		8,4,2,1,2,1,	/* pref_char/short/int/long/float/double/n */
 		0,				/* max_freq */
 		64,			/* bits */

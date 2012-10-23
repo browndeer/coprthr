@@ -50,6 +50,12 @@ _clWaitForEvents(
 
 	__do_wait_for_events(nev,evlist);
 
+	for(i=0;i<nev;i++)
+		if (evlist[i]->cmd_stat < 0) {
+			printcl( CL_ERR "event execution status error");
+			return(CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST);
+		}
+
 	return(CL_SUCCESS);
 }
 
