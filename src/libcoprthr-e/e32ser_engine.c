@@ -40,7 +40,7 @@
 #include "program.h"
 #include "cmdcall.h"
 #include "workp.h"
-#include "util.h"
+//#include "util.h"
 
 #include "e32_config.h"
 #include "e32ser_engine.h"
@@ -101,7 +101,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
    printcl( CL_DEBUG "threads per thread block %d",nthr);
 
    if (nthr > E32_NCORES) {
-      printcl( XCL_ERR "exceeded maximum thread block size");
+      printcl( CL_ERR "exceeded maximum thread block size");
       return(CL_OUT_OF_RESOURCES);
    }
 
@@ -109,7 +109,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 	/* XXX this is an estimate - assumes we can allow 2048 bytes -DAR */
 	if (argp->k.krn->imp.ksu > 0x800) {
-		printcl( XCL_ERR "exceeded maximum stack size");
+		printcl( CL_ERR "exceeded maximum stack size");
 		return(CL_OUT_OF_RESOURCES);
 	}
 
@@ -131,7 +131,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
          case CLARG_KIND_IMAGE2D:
          case CLARG_KIND_IMAGE3D:
-            { printcl( XCL_ERR "image arg not supported"); }
+            { printcl( CL_ERR "image arg not supported"); }
 
          default:
             repacked_arg_buf_sz += arg_sz;
@@ -155,7 +155,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 //	if (local_mem_free > 0x7000) {
 	if (local_mem_free > E32_CORE_LOCAL_MEM_HI - 0x1000) {
-		printcl( XCL_ERR "insufficient core-local memory");
+		printcl( CL_ERR "insufficient core-local memory");
 		return(CL_OUT_OF_RESOURCES);
 	}
 
@@ -237,7 +237,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
             if (sz > local_mem_sz) {
 
                *(void**)p = 0;
-               printcl( XCL_ERR "insuficient local memory");
+               printcl( CL_ERR "insuficient local memory");
                return(CL_OUT_OF_RESOURCES);
 
             } else {
@@ -266,7 +266,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
    }
 
 	if (device_mem_fault) {
-		printcl( XCL_ERR "device memory fault");
+		printcl( CL_ERR "device memory fault");
 		return(CL_MEM_OBJECT_ALLOCATION_FAILURE);
 	}
 
@@ -289,7 +289,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 		if (e_opened) {
 			printcl( CL_DEBUG "closing e-server connection");
 			if (e_close()) {
-      		printcl( XCL_ERR "cannot close connection to e-server");
+      		printcl( CL_ERR "cannot close connection to e-server");
 				return(CL_DEVICE_NOT_AVAILABLE);
 			}
 			e_opened = 0;
@@ -306,7 +306,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 		int rc;
 		if (rc = system(cmd)) {
-			printcl( XCL_ERR "e-loader failed, returned %d",rc);
+			printcl( CL_ERR "e-loader failed, returned %d",rc);
 			return(CL_DEVICE_NOT_AVAILABLE);
 		}
 
@@ -314,7 +314,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 		printcl( CL_DEBUG "opening e-server connection");
 		if (e_open((char *) servIP, eServLoaderPort)) {
-      	printcl( XCL_ERR "cannot open connection to e-server");
+      	printcl( CL_ERR "cannot open connection to e-server");
       	return(CL_DEVICE_NOT_AVAILABLE);
    	}
 		e_opened = 1;
@@ -388,7 +388,7 @@ e32ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
        	case CLARG_KIND_IMAGE2D:
        	case CLARG_KIND_IMAGE3D:
-				{ printcl( XCL_ERR "image arg not supported"); }
+				{ printcl( CL_ERR "image arg not supported"); }
 
          default: 
 				memcpy(p,arg_buf + (intptr_t)arg_off,arg_sz);

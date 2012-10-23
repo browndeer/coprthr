@@ -30,7 +30,7 @@
 #include "compiler.h"
 #include "elf_cl.h"
 #include "cmdcall.h" /* XXX this is only used for backdoor -DAR */
-#include "vcore.h"	/* XXX this is only used for backdoor -DAR */
+//#include "vcore.h"	/* XXX this is only used for backdoor -DAR */
 #include "ocl_types.h"
 
 #define _GNU_SOURCE

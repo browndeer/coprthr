@@ -254,7 +254,7 @@ clBuildProgram(
 
 		} else {
 
-			printcl CL_DEBUG "bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
+			printcl( CL_DEBUG "bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
 
 			if (!prg->bin[j] || prg->bin_sz[j] == 0) return(CL_INVALID_BINARY);
 

@@ -55,7 +55,10 @@
  * XXX also, do not raise CCFLAGS_KCALL, effect is to break everything. -DAR */
 
 //#define CCFLAGS_OCL " -O2 -msse3 " CCFLAGS_OCL_O2
-#define CCFLAGS_OCL " -fno-exceptions -O3 -msse3 -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations " XXX_GCC_HACK_FLAG 
+
+#define FIX_UBUNTU_FLAGS " -U_FORTIFY_SOURCE"
+
+#define CCFLAGS_OCL " -fno-exceptions -O3 -msse3 -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations " XXX_GCC_HACK_FLAG FIX_UBUNTU_FLAGS
 #define CCFLAGS_KCALL " -O0 "
 #define CCFLAGS_LINK 
 

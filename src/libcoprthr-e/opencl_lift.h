@@ -143,6 +143,9 @@ struct vc_data {
 typedef unsigned int uint;
 #endif
 
+typedef unsigned int uint;
+typedef unsigned char uchar;
+
 extern "C" {
 
 /*
@@ -781,6 +784,9 @@ static __always_inline int2 as_int2( T x ) { return *(int2*)(&x); }
 #define AS_TYPE(type) \
 template < typename T > \
 static __always_inline type as_##type( T x ) { return *(type*)(&x); }
+
+AS_TYPE(int)
+AS_TYPE(float)
 
 AS_TYPE(char2)
 AS_TYPE(uchar2)

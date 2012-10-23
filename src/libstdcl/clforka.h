@@ -168,6 +168,8 @@ void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, void* a)
 #define __clarg_set(cp,krn,ia,a) \
 ({ \
 __iftype_clarg_set(cp,krn,ia,a,cl_int) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_char) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_uchar) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_double) \

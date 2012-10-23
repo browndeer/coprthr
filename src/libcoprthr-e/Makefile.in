@@ -1,5 +1,5 @@
 ### 
-### Makefile for libcoprthr
+### Makefile for libcoprthr-e
 ###
 
 prefix=@prefix@
@@ -24,9 +24,19 @@ else
 OPENCL_ICD_PATH=/etc/OpenCL/vendors/
 endif
 
-ifeq (@ENABLE_LIBCOPRTHR_DEBUG_STANDARD@,1)
-DEFS += -DXCL_REPORT -DXCL_REPORT_DEFAULT_LEVEL=5
+#ifeq (@ENABLE_LIBCOPRTHR_DEBUG_STANDARD@,1)
+#DEFS += -DXCL_REPORT -DXCL_REPORT_DEFAULT_LEVEL=5
+#endif
+ifeq (@ENABLE_SILENT@,1)
+DEFS += -DENABLE_SILENT
 endif
+ifneq (@MAX_CLMESG_LEVEL@,)
+DEFS += -DMAX_CLMESG_LEVEL=@MAX_CLMESG_LEVEL@
+endif
+ifneq (@DEFAULT_CLMESG_LEVEL@,)
+DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
+endif
+
 
 ESDK_INC = -I/opt/adapteva/esdk/tools/host/x86_64/include \
    -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
@@ -122,8 +132,8 @@ LEXFLAGS =
 
 XCLNM_YYPREFIX = __xclnm_
 
-TARGET = libcoprthr.so $(RT_OBJS) 
-TARGET += libcoprthr_d.so
+TARGET = libcoprthr-e.so $(RT_OBJS) 
+TARGET += libcoprthr-e_d.so
 
 all: $(TARGET) 
 
@@ -147,14 +157,14 @@ all: $(TARGET)
 
 
 #libcoprthr.so: $(OBJS) $(RT_OBJS)
-libcoprthr.so: $(OBJS) 
+libcoprthr-e.so: $(OBJS) 
 	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthr.so -o libcoprthr.so  $(OBJS) $(LIBS)
+		-shared -Wl,-soname,libcoprthr-e.so -o libcoprthr-e.so  $(OBJS) $(LIBS)
 
 #libcoprthr_d.so: $(OBJS_D) $(RT_OBJS)
-libcoprthr_d.so: $(OBJS_D) 
+libcoprthr-e_d.so: $(OBJS_D) 
 	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthr_d.so -o libcoprthr_d.so  $(OBJS_D) $(LIBS)
+		-shared -Wl,-soname,libcoprthr-e_d.so -o libcoprthr-e_d.so  $(OBJS_D) $(LIBS)
 
 vcore.o: vcore.c
 	$(CC) -c $(CCFLAGS_VCORE) $(DEFS) $(INCS) -o vcore.o vcore.c
@@ -195,18 +205,18 @@ install:
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
-	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
-	ln -sf $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr-e.so
-	install -m 755 libcoprthr_d.so $(INSTALL_LIB_DIR)
-	ln -sf $(INSTALL_LIB_DIR)/libcoprthr_d.so \
-		$(INSTALL_LIB_DIR)/libcoprthr-e_d.so
+	install -m 755 libcoprthr-e.so $(INSTALL_LIB_DIR)
+#	ln -sf $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr-e.so
+	install -m 755 libcoprthr-e_d.so $(INSTALL_LIB_DIR)
+#	ln -sf $(INSTALL_LIB_DIR)/libcoprthr_d.so \
+#		$(INSTALL_LIB_DIR)/libcoprthr-e_d.so
 	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
 	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
 	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
 	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(OPENCL_ICD_PATH)/coprthr.icd
 
 uninstall: 
-	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr_d.so
+	rm -f $(INSTALL_LIB_DIR)/libcoprthr-e.so $(INSTALL_LIB_DIR)/libcoprthr-e_d.so
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,$(INSTALL_HDRS))
 	rm -f $(OPENCL_ICD_PATH)/coprthr.icd
