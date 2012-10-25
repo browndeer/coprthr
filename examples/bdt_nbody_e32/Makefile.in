@@ -33,7 +33,7 @@ ifeq ($(DISABLE_DISPLAY),1)
 DEFS += -DDISABLE_DISPLAY
 else
 OBJS += nbody_display.o bdt_bmp.o
-LIBS += -L/usr/lib64 -lglut -lGLEW
+LIBS += -L/usr/lib64 -lglut -lGLEW -lGLU
 #LIBS += -L/usr/local/atistream/lib/x86_64  -lglut -lGLEW
 endif
 

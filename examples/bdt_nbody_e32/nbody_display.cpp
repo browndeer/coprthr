@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <float.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include<GL/glut.h>
 
@@ -40,19 +41,17 @@
 #include "nbody.h"
 
 
-void iterate_cpu(
-   int nburst, int nparticle, int dummy,
-   float gdt, float es,
-   float* pp, float* vv
-);
+//void iterate_cpu(
+//   int nburst, int nparticle, int dummy,
+//   float gdt, float es,
+//   float* pp, float* vv
+//);
 
-#ifdef ENABLE_CL
 void iterate_cpu_cl(
    int nburst, int nparticle, int nthread,
    float gdt, float es,
    float* pp, float* vv
 );
-#endif
 
 
 extern char* cldevstr;
@@ -109,9 +108,10 @@ void display_init()
 //	}
 
 
-	if (iterate==iterate_cpu) { 
-		strncpy(devstr,"CPU",64);
-	} else if (iterate==iterate_cl) {
+//	if (iterate==iterate_cpu) { 
+//		strncpy(devstr,"CPU",64);
+//	} else if (iterate==iterate_cl) {
+	if (iterate==iterate_cl) {
 		if (cldevstr) strncpy(devstr,cldevstr,64);
 	}
 
@@ -222,21 +222,21 @@ keyboardFunc(unsigned char key, int x, int y)
 {
 	switch(key) {
 
-		case 'c':
-			iterate = iterate_cpu;
-			strncpy(devstr,"CPU",64);
-			step_count = 0;
-			gflops = 0.0;
-			break;
-
-#ifdef ENABLE_CL
-		case 'C':
-			iterate = iterate_cl;
-			strncpy(devstr,cldevstr,64);
-			step_count = 0;
-			gflops = 0.0;
-			break;
-#endif
+//		case 'c':
+//			iterate = iterate_cpu;
+//			strncpy(devstr,"CPU",64);
+//			step_count = 0;
+//			gflops = 0.0;
+//			break;
+//
+//#ifdef ENABLE_CL
+//		case 'C':
+//			iterate = iterate_cl;
+//			strncpy(devstr,cldevstr,64);
+//			step_count = 0;
+//			gflops = 0.0;
+//			break;
+//#endif
 
 		case 'q':
 		case 'Q':
