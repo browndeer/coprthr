@@ -88,6 +88,7 @@ install: subdirs
 	@cp -Rf ./doc $(prefix)
 	@cp -Rf ./examples $(prefix)
 	@cp -Rf ./test $(prefix)
+	install -m 755 ./tools/scripts/cldebug $(INSTALL_BIN_DIR)
 	@chmod -R a+rX $(prefix)
 	install -m 644 install-message.txt $(prefix)/install-message.txt
 	@cat install-message.txt

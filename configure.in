@@ -704,6 +704,7 @@ AC_CONFIG_FILES([test/test_libcoprthr/scripts/run_tests.sh],[chmod +x test/test_
 AC_CONFIG_FILES([test/test_libcoprthr/scripts/run_quick_tests.sh],[chmod +x test/test_libcoprthr/scripts/run_quick_tests.sh])
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_tests.sh],[chmod +x test/test_stdcl/scripts/run_tests.sh])
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_quick_tests.sh],[chmod +x test/test_stdcl/scripts/run_quick_tests.sh])
+AC_CONFIG_FILES([tools/scripts/cldebug],[chmod +x tools/scripts/cldebug])
 
 AC_OUTPUT
 
