@@ -498,6 +498,32 @@ struct _clrpc_clEnqueueMapBuffer_reply {
 
 
 /***
+ *** cl_int clEnqueueUnmapMemObject(
+ ***	cl_command_queue command_queue,
+ ***	cl_mem memobj,
+ ***	void* mapped_ptr,
+ ***	cl_uint num_events_in_wait_list,
+ ***	const cl_event *event_wait_list,
+ ***	cl_event *event)
+ ***/
+
+struct _clrpc_clEnqueueUnmapMemObject_request {
+	struct[dual_ptr] command_queue = 1;
+	struct[dual_ptr] memobj = 2;
+	struct[dual_ptr] mapped_ptr = 3;
+	optional bytes _bytes = 4;
+	int64 num_events_in_wait_list = 5;
+	array struct[dual_ptr] event_wait_list = 6;
+	struct[dual_ptr] event = 7;
+}
+
+struct _clrpc_clEnqueueUnmapMemObject_reply {
+	int64 retval = 1;
+	struct[dual_ptr] event = 2;
+}
+
+
+/***
  *** cl_program clCreateProgramWithSource(
  ***	cl_context context,
  ***	cl_uint count,

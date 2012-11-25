@@ -59,8 +59,11 @@ static void _clrpc_##name##_svrcb( \
 	CLRPC_GET_DPTR_REMOTE(request,type,arg,&arg); \
 	CLRPC_GET(request,infotype,param_name,&param_name); \
 	CLRPC_GET(request,uint,param_sz,&param_sz); \
-	param_val = calloc(param_sz,1); \
+	param_val = (param_sz)? calloc(param_sz,1) : 0; \
+	printcl( CL_DEBUG "param_sz = %ld", param_sz ); \
+	printcl( CL_DEBUG "calling '%s' ( %p, %d, %ld, %p, ...)", #name,arg,param_name,param_sz,param_val ); \
 	cl_int retval = name(arg,param_name,param_sz,param_val,&param_sz_ret); \
+	printcl( CL_DEBUG "retval %d", retval ); \
 	CLRPC_ASSIGN(reply, int, retval, retval ); \
 	CLRPC_ASSIGN(reply, uint64, param_sz_ret, param_sz_ret ); \
 	unsigned int len = min(param_sz,param_sz_ret); \
@@ -173,6 +176,7 @@ CLRPC_HEADER(clGetPlatformInfo)
 CLRPC_HEADER(clGetDeviceIDs)
 CLRPC_HEADER(clGetDeviceInfo)
 CLRPC_HEADER(clCreateContext)
+CLRPC_HEADER(clCreateContextFromType)
 CLRPC_HEADER(clGetContextInfo)
 CLRPC_HEADER(clRetainContext)
 CLRPC_HEADER(clReleaseContext)
@@ -189,6 +193,7 @@ CLRPC_HEADER(clEnqueueReadBuffer)
 CLRPC_HEADER(clEnqueueWriteBuffer)
 CLRPC_HEADER(clEnqueueCopyBuffer)
 CLRPC_HEADER(clEnqueueMapBuffer)
+CLRPC_HEADER(clEnqueueUnmapMemObject)
 CLRPC_HEADER(clGetEventInfo)
 CLRPC_HEADER(clGetEventProfilingInfo)
 CLRPC_HEADER(clRetainEvent)
@@ -215,6 +220,7 @@ CLRPC_GENERATE(clGetPlatformInfo)
 CLRPC_GENERATE(clGetDeviceIDs)
 CLRPC_GENERATE(clGetDeviceInfo)
 CLRPC_GENERATE(clCreateContext)
+CLRPC_GENERATE(clCreateContextFromType)
 CLRPC_GENERATE(clGetContextInfo)
 CLRPC_GENERATE(clRetainContext)
 CLRPC_GENERATE(clReleaseContext)
@@ -231,6 +237,7 @@ CLRPC_GENERATE(clEnqueueReadBuffer)
 CLRPC_GENERATE(clEnqueueWriteBuffer)
 CLRPC_GENERATE(clEnqueueCopyBuffer)
 CLRPC_GENERATE(clEnqueueMapBuffer)
+CLRPC_GENERATE(clEnqueueUnmapMemObject)
 CLRPC_GENERATE(clGetEventInfo)
 CLRPC_GENERATE(clGetEventProfilingInfo)
 CLRPC_GENERATE(clRetainEvent)
@@ -367,6 +374,8 @@ _clrpc_clGetDeviceIDs_svrcb(
 	cl_int retval = clGetDeviceIDs(platform,devtype,
 		ndevices,devices,&ndevices_ret);
 
+retval = 7;
+
 	printcl( CL_DEBUG " retval = %d",retval);
 	printcl( CL_DEBUG " ndevices_ret = %d",ndevices_ret);
 
@@ -377,6 +386,8 @@ _clrpc_clGetDeviceIDs_svrcb(
 
 	for(i=0;i<n;i++)
 		printcl( CL_DEBUG "real devices[%d] = %p",i,devices[i]);
+
+	printcl( CL_DEBUG "n devices %d %p",n,devices);
 
 	CLRPC_DPTR_ARRAY_COPY(request,reply,n,devices);
 	CLRPC_DPTR_ARRAY_SET_REMOTE(reply,n,devices,devices);
@@ -462,6 +473,82 @@ _clrpc_clCreateContext_svrcb(
 
 	if (prop) free(prop);
 	if (devices) free(devices);
+	
+   EVRPC_REQUEST_DONE(rpc);
+}
+
+
+static void
+_clrpc_clCreateContextFromType_svrcb(
+	EVRPC_STRUCT(_clrpc_clCreateContextFromType)* rpc, void* parg)
+{
+	printcl( CL_DEBUG "_clrpc_clCreateContextFromType_svrcb");
+	
+	CLRPC_SVRCB_INIT(clCreateContextFromType);
+
+	int i,j;
+
+	cl_context_properties* prop;
+//	cl_uint ndev;
+//	cl_device_id* devices;
+	cl_device_type devtype;
+	void* pfn_notify = 0;
+	void* user_Data = 0;
+	cl_int err_ret;
+
+	
+	size_t xprop_len = EVTAG_ARRAY_LEN(request,xprop);
+
+	if (xprop_len%3 != 1) 
+		printcl( CL_ERR "xprop_len incorrect");
+
+	int nprop = xprop_len/3;
+	prop = (cl_context_properties*)malloc(nprop*2+1);
+	for(i=0,j=0;i<2*nprop;i+=2,j+=3) {
+		clrpc_ptr tmp;
+		EVTAG_ARRAY_GET(request,xprop,j,&tmp);
+		prop[i] = (cl_context_properties)tmp;
+		EVTAG_ARRAY_GET(request,xprop,j+2,&tmp);
+		prop[i+1] = (cl_context_properties)tmp;
+		printcl( CL_DEBUG "prop[] %d 0x%x",(int)prop[i],(int)prop[i+1]);
+	}
+	prop[i] = 0;
+
+//	CLRPC_GET(request,uint,ndev,&ndev);
+//
+//	size_t devices_len = EVTAG_ARRAY_LEN(request,devices);
+//	if (devices_len != ndev) 
+//		printcl( CL_ERR "devices_len not equal to ndev");
+//	devices = (cl_device_id*)calloc(ndev,sizeof(cl_device_id));
+//	for(i=0;i<ndev;i++) {
+//		struct dual_ptr* d;
+//		clrpc_ptr local,remote;
+//		EVTAG_ARRAY_GET(request, devices, i, &d);
+//		EVTAG_GET(d,local,&local);
+//		EVTAG_GET(d,remote,&remote);
+//		devices[i] = (cl_device_id)remote;
+//		printcl( CL_DEBUG "devices[] %p",devices[i]);
+//	}
+	CLRPC_GET(request,uint,devtype,&devtype);
+
+	cl_context context = clCreateContextFromType(prop,devtype,pfn_notify,
+		user_Data,&err_ret);
+
+	printcl( CL_DEBUG "remote context = %p",context);
+
+	clrpc_dptr retval;
+	struct dual_ptr* d;
+	EVTAG_GET(request,retval,&d);
+	EVTAG_GET(d,local,&retval.local);
+	retval.remote = (clrpc_ptr)context;
+	EVTAG_GET(reply,retval,&d);
+	EVTAG_ASSIGN(d,local,retval.local);
+	EVTAG_ASSIGN(d,remote,retval.remote);
+
+	CLRPC_ASSIGN(reply, int64, err_ret, err_ret );
+
+	if (prop) free(prop);
+//	if (devices) free(devices);
 	
    EVRPC_REQUEST_DONE(rpc);
 }
@@ -924,7 +1011,7 @@ _clrpc_clEnqueueMapBuffer_svrcb(
 		EVTAG_ARRAY_GET(request, event_wait_list, i, &d);
 		EVTAG_GET(d,local,&local);
 		EVTAG_GET(d,remote,&remote);
-		printcl( CL_DEBUG "clEnqueueReadBuffer xevent remote = %p",remote);
+		printcl( CL_DEBUG "clEnqueueMapBuffer xevent remote = %p",remote);
 		event_wait_list[i] = (cl_event)((struct xevent_struct*)remote)->event;
 		printcl( CL_DEBUG "event_wait_list[] %p",event_wait_list[i]);
 	}
@@ -967,6 +1054,86 @@ _clrpc_clEnqueueMapBuffer_svrcb(
 	if ( blocking_map == CL_TRUE ) {
 		EVTAG_ASSIGN_WITH_LEN(reply,_bytes,ptr,cb);
 	}
+
+   EVRPC_REQUEST_DONE(rpc);
+}
+
+
+static void
+_clrpc_clEnqueueUnmapMemObject_svrcb(
+	EVRPC_STRUCT(_clrpc_clEnqueueUnmapMemObject)* rpc, void* parg)
+{
+	int i;
+
+	printcl( CL_DEBUG "_clrpc_clEnqueueUnmapMemObject_svrcb");
+	
+	CLRPC_SVRCB_INIT(clEnqueueUnmapMemObject);
+
+	cl_command_queue command_queue;
+	cl_mem memobj;
+	void* ptr = 0;
+	cl_uint num_events_in_wait_list;
+	cl_event* event_wait_list = 0;
+	cl_event event;
+
+	struct dual_ptr* d;
+
+   EVTAG_GET(request,command_queue,&d);
+   EVTAG_GET(d,remote,(void*)&command_queue);
+
+   EVTAG_GET(request,memobj,&d);
+   EVTAG_GET(d,remote,(void*)&memobj);
+
+   EVTAG_GET(request,mapped_ptr,&d);
+   EVTAG_GET(d,remote,(void*)&ptr);
+
+	void* tmp_ptr = 0;
+   unsigned int tmp_cb = 0;
+   EVTAG_GET_WITH_LEN(request,_bytes,(unsigned char**)&tmp_ptr,&tmp_cb);
+	printcl( CL_DEBUG "writing back %d bytes",tmp_cb);
+	memcpy(ptr,tmp_ptr,tmp_cb);
+	printcl( CL_DEBUG "memcpy %p %p %d",ptr,tmp_ptr,tmp_cb);
+
+	CLRPC_GET(request,uint,num_events_in_wait_list,&num_events_in_wait_list);
+
+	size_t len = EVTAG_ARRAY_LEN(request,event_wait_list);
+	if (len != num_events_in_wait_list) 
+		printcl( CL_ERR "array len not equal to num_events_in_wait_list");
+	if (len)
+		event_wait_list = (cl_event*)calloc(len,sizeof(cl_event));
+	for(i=0;i<len;i++) {
+		struct dual_ptr* d;
+		clrpc_ptr local,remote;
+		EVTAG_ARRAY_GET(request, event_wait_list, i, &d);
+		EVTAG_GET(d,local,&local);
+		EVTAG_GET(d,remote,&remote);
+		printcl( CL_DEBUG "clEnqueueUnmapMemObject xevent remote = %p",remote);
+		event_wait_list[i] = (cl_event)((struct xevent_struct*)remote)->event;
+		printcl( CL_DEBUG "event_wait_list[] %p",event_wait_list[i]);
+	}
+
+	printcl( CL_DEBUG "clEnqueueUnmapMemObject %p %p %p %d %p %p",
+		command_queue,memobj,ptr,
+		num_events_in_wait_list,event_wait_list,&event);
+
+	cl_int retval = clEnqueueUnmapMemObject(command_queue,memobj,ptr,
+		num_events_in_wait_list,event_wait_list,&event);
+
+	printcl( CL_DEBUG "remote memobj = %p",memobj);
+
+	printcl( CL_DEBUG "retval %d", retval );
+
+	CLRPC_XEVENT_CREATE(xevent,event);
+
+	clrpc_dptr retevent;
+	EVTAG_GET(request,event,&d);
+	EVTAG_GET(d,local,&retevent.local);
+	retevent.remote = (clrpc_ptr)xevent;
+	EVTAG_GET(reply,event,&d);
+	EVTAG_ASSIGN(d,local,retevent.local);
+	EVTAG_ASSIGN(d,remote,retevent.remote);
+
+	CLRPC_ASSIGN(reply, int64, retval, retval );
 
    EVRPC_REQUEST_DONE(rpc);
 }
@@ -1618,6 +1785,7 @@ clrpc_server( const char* address, ev_uint16_t port )
 	CLRPC_REGISTER(clGetDeviceIDs);
 	CLRPC_REGISTER(clGetDeviceInfo);
 	CLRPC_REGISTER(clCreateContext);
+	CLRPC_REGISTER(clCreateContextFromType);
 	CLRPC_REGISTER(clGetContextInfo);
 	CLRPC_REGISTER(clRetainContext);
 	CLRPC_REGISTER(clReleaseContext);

@@ -137,6 +137,7 @@ cl_int clrpc_##name(cl_##type x##arg, cl_##infotype param_name, \
 	size_t tmp_param_sz_ret; \
 	CLRPC_INIT(name); \
 	clrpc_dptr* arg = (clrpc_dptr*) (((_xobject_t*)x##arg)->object); \
+	printcl( CL_DEBUG "object local %p remote %p",arg->local,arg->remote); \
 	CLRPC_ASSIGN_DPTR(request,arg,arg); \
 	CLRPC_ASSIGN(request,infotype,param_name,param_name); \
 	CLRPC_ASSIGN(request,uint,param_sz,param_sz); \
@@ -232,6 +233,7 @@ CLRPC_HEADER(clEnqueueReadBuffer)
 CLRPC_HEADER(clEnqueueWriteBuffer)
 CLRPC_HEADER(clEnqueueCopyBuffer)
 CLRPC_HEADER(clEnqueueMapBuffer)
+CLRPC_HEADER(clEnqueueUnmapMemObject)
 CLRPC_HEADER(clGetEventInfo)
 CLRPC_HEADER(clGetEventProfilingInfo)
 CLRPC_HEADER(clRetainEvent)
@@ -275,6 +277,7 @@ CLRPC_GENERATE(clEnqueueReadBuffer)
 CLRPC_GENERATE(clEnqueueWriteBuffer)
 CLRPC_GENERATE(clEnqueueCopyBuffer)
 CLRPC_GENERATE(clEnqueueMapBuffer)
+CLRPC_GENERATE(clEnqueueUnmapMemObject)
 CLRPC_GENERATE(clGetEventInfo)
 CLRPC_GENERATE(clGetEventProfilingInfo)
 CLRPC_GENERATE(clRetainEvent)
@@ -557,7 +560,9 @@ clrpc_clGetDeviceIDs( cl_platform_id xplatform, cl_device_type devtype,
 	int i;
 
 	cl_int retval = 0;
-	cl_uint tmp_ndevices_ret;
+	cl_uint tmp_ndevices_ret = 0;
+
+	printcl( CL_DEBUG "clrpc_clGetDeviceIDs called with %d %p %p",ndevices,devices,ndevices_ret);
 
 	CLRPC_INIT(clGetDeviceIDs);
 
@@ -575,6 +580,7 @@ clrpc_clGetDeviceIDs( cl_platform_id xplatform, cl_device_type devtype,
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xplatform),clGetDeviceIDs);
 
 	CLRPC_GET(reply,int,retval,&retval);
+	printcl( CL_DEBUG "clrpc_clGetDeviceIDs: retval = %d\n", retval);
 
 	CLRPC_GET(reply,uint,ndevices_ret,&tmp_ndevices_ret);
 	printcl( CL_DEBUG "clrpc_clGetDeviceIDs: *ndevices_ret = %d\n",
@@ -792,7 +798,72 @@ clrpc_clCreateContextFromType(
  * clGetContextInfo
  */
 
-CLRPC_GENERIC_GETINFO3(clGetContextInfo,context,context,context_info)
+//CLRPC_GENERIC_GETINFO3(clGetContextInfo,context,context,context_info)
+
+CLRPC_UNBLOCK_CLICB(clGetContextInfo) 
+
+cl_int clGetContextInfo(cl_context context, cl_context_info param_name,
+   size_t param_sz, void* param_val, size_t *param_sz_ret)
+	__alias(clrpc_clGetContextInfo);
+
+cl_int clrpc_clGetContextInfo(cl_context xcontext, cl_context_info param_name,
+	size_t param_sz, void* param_val, size_t *param_sz_ret)
+{
+	cl_int retval = 0;
+	size_t tmp_param_sz_ret;
+	CLRPC_INIT(clGetContextInfo);
+	clrpc_dptr* context = (clrpc_dptr*) (((_xobject_t*)xcontext)->object);
+	CLRPC_ASSIGN_DPTR(request,context,context);
+	CLRPC_ASSIGN(request,context_info,param_name,param_name);
+	CLRPC_ASSIGN(request,uint,param_sz,param_sz);
+	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xcontext),clGetContextInfo);
+	CLRPC_GET(reply,int,retval,&retval);
+	CLRPC_GET(reply,uint,param_sz_ret,&tmp_param_sz_ret);
+	printcl( CL_DEBUG "clrpc_clGetContextInfo: *param_sz_ret %ld",tmp_param_sz_ret);
+	param_sz = min(param_sz,tmp_param_sz_ret);
+	void* tmp_param_val = 0;
+	unsigned int tmplen = 0;
+	EVTAG_GET_WITH_LEN(reply,param_val,(unsigned char**)&tmp_param_val,&tmplen);
+	memcpy(param_val,tmp_param_val,param_sz);
+	if (param_sz_ret) *param_sz_ret = tmp_param_sz_ret;
+
+	/* XXX treat ill-conceived case where "param" is array of ptrs -DAR */
+	if (param_name==CL_CONTEXT_DEVICES) {
+		if (param_sz && param_val) {
+
+			cl_device_id* devices = (cl_device_id*)param_val;
+
+			cl_device_id* tmp_devices = (cl_device_id*)malloc(param_sz);
+			memcpy(tmp_devices,devices,param_sz);
+
+			int n = param_sz/sizeof(cl_device_id);
+
+			CLRPC_ALLOC_DPTR_ARRAY(n,devices);
+
+			int i;
+			for(i=0;i<n;i++) 
+				((clrpc_dptr*)devices[i])->remote = (clrpc_ptr)tmp_devices[i];
+
+			for(i=0;i<n;i++) 
+				printcl( CL_DEBUG "(%d) local %p remote %p",i,
+					((clrpc_dptr*)devices[i])->local,
+					((clrpc_dptr*)devices[i])->remote);
+
+			for(i=0;i<n;i++) {
+				_xobject_create(xdevice,devices[i], _xobject_rpc_pool(xcontext));
+			}
+
+			for(i=0;i<n;i++) {
+				clrpc_dptr* dptr = (clrpc_dptr*)(((_xobject_t*)devices[i])->object);
+				printcl( CL_DEBUG "(%d) local %p remote %p",i,dptr->local,dptr->remote);
+			}
+			
+		}
+	}
+	
+	return(retval);
+}
+
 
 
 /*
@@ -1239,8 +1310,11 @@ clrpc_clEnqueueMapBuffer (
 
 	int i;
 
-	void* ptr0 = malloc(cb + sizeof(void*) + sizeof(clrpc_dptr));
-	void* ptr = ptr0 + sizeof(void*) + sizeof(clrpc_dptr);
+	void* ptr0 = malloc(cb + sizeof(clrpc_int64) + sizeof(clrpc_dptr));
+	void* ptr = ptr0 + sizeof(clrpc_int64) + sizeof(clrpc_dptr);
+	clrpc_dptr* mapped_ptr = (clrpc_dptr*)(ptr0 + sizeof(clrpc_int64));
+	*(clrpc_int64*)ptr0 = (clrpc_int64)cb;
+	mapped_ptr->local = ptr;
 
 	CLRPC_INIT(clEnqueueMapBuffer);
 
@@ -1275,7 +1349,7 @@ clrpc_clEnqueueMapBuffer (
 
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,event,xevent);
 
-	clrpc_dptr* retval = (clrpc_dptr*)(ptr0 + sizeof(void*));
+	clrpc_dptr* retval = mapped_ptr;
 	CLRPC_ASSIGN_DPTR(request,retval,retval);
 
 	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xbuffer),clEnqueueMapBuffer);
@@ -1313,6 +1387,76 @@ clrpc_clEnqueueMapBuffer (
 	CLRPC_FINAL(clEnqueueMapBuffer);
 
 	return(ptr);
+}
+
+
+
+/*
+ * clEnqueueUnmapMemObject
+ */
+
+CLRPC_UNBLOCK_CLICB(clEnqueueUnmapMemObject)
+
+cl_int clEnqueueUnmapMemObject( cl_command_queue command_queue, cl_mem memobj,
+	void* mapped_ptr, cl_uint num_events_in_wait_list, 
+	const cl_event* event_wait_list, cl_event* event)
+	__alias(clrpc_clEnqueueUnmapMemObject);
+
+cl_int clrpc_clEnqueueUnmapMemObject( 
+	cl_command_queue xcommand_queue, 
+	cl_mem xmemobj,
+	void* ptr, 
+	cl_uint num_events_in_wait_list, 
+	const cl_event* xevent_wait_list,
+	cl_event* pevent
+)
+{
+
+	int i;
+
+	void* ptr0 = ptr - sizeof(clrpc_int64) - sizeof(clrpc_dptr);
+	clrpc_dptr* mapped_ptr = ptr0 + sizeof(clrpc_int64);
+	size_t cb = (size_t)*(clrpc_int64*)ptr0;
+
+	CLRPC_INIT(clEnqueueUnmapMemObject);
+
+	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,command_queue,xcommand_queue);
+
+	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,memobj,xmemobj);
+
+	CLRPC_ASSIGN_DPTR(request,mapped_ptr,mapped_ptr);
+
+	EVTAG_ASSIGN_WITH_LEN(request,_bytes,ptr,cb);
+
+	CLRPC_ASSIGN(request,uint,num_events_in_wait_list,num_events_in_wait_list);
+
+	CLRPC_ASSIGN_DPTR_ARRAY_FROM_OBJECT(request,num_events_in_wait_list,
+		event_wait_list,xevent_wait_list);
+
+	clrpc_dptr* event = (clrpc_dptr*)malloc(sizeof(clrpc_dptr));
+	_xevent_create(xevent,event,_xobject_rpc_pool(xmemobj));
+	xevent->buf_ptr = 0;
+	xevent->buf_sz = 0;
+
+	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,event,xevent);
+
+	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xcommand_queue),
+		clEnqueueUnmapMemObject);
+
+	CLRPC_GET_DPTR_REMOTE(reply,uint,event,&xevent->object->remote);
+	printcl( CL_DEBUG "event local remote %p %p",
+		xevent->object->local,xevent->object->remote);
+
+	if (pevent) *pevent = (cl_event)xevent;
+
+	cl_int retval;
+	CLRPC_GET(reply,int,retval,&retval);
+	printcl( CL_DEBUG "clrpc_clEnqueueUnmapMemObject: retval = %d", retval);
+
+	CLRPC_FINAL(clEnqueueUnmapMemObject);
+
+	return(retval);
+
 }
 
 
@@ -1881,40 +2025,23 @@ clrpc_clWaitForEvents(
 
 
 /* XXX these calls are not yet implemented so we make them null for now -DAR */
-//void* clrpc_clCreateContextFromType = 0;
-//void* clrpc_clRetainContext = 0;
-//void* clrpc_clRetainCommandQueue = 0;
-//void* clrpc_clGetCommandQueueInfo = 0;
-//void* clrpc_clSetCommandQueueProperty = 0;
 void* clrpc_clCreateImage2D = 0;
 void* clrpc_clCreateImage3D = 0;
-//void* clrpc_clRetainMemObject = 0;
 void* clrpc_clGetSupportedImageFormats = 0;
-//void* clrpc_clGetMemObjectInfo = 0;
 void* clrpc_clGetImageInfo = 0;
 void* clrpc_clCreateSampler = 0;
 void* clrpc_clRetainSampler = 0;
 void* clrpc_clReleaseSampler = 0;
 void* clrpc_clGetSamplerInfo = 0;
-//void* clrpc_clCreateProgramWithBinary = 0;
-//void* clrpc_clRetainProgram = 0;
-//void* clrpc_clUnloadCompiler = 0;
 void* clrpc_clGetProgramBuildInfo = 0;
 void* clrpc_clCreateKernelsInProgram = 0;
-//void* clrpc_clRetainKernel = 0;
 void* clrpc_clGetKernelWorkGroupInfo = 0;
-//void* clrpc_clRetainEvent = 0;
-//void* clrpc_clGetEventProfilingInfo = 0;
-//void* clrpc_clFinish = 0;
-//void* clrpc_clEnqueueCopyBuffer = 0;
 void* clrpc_clEnqueueReadImage = 0;
 void* clrpc_clEnqueueWriteImage = 0;
 void* clrpc_clEnqueueCopyImage = 0;
 void* clrpc_clEnqueueCopyImageToBuffer = 0;
 void* clrpc_clEnqueueCopyBufferToImage = 0;
-//void* clrpc_clEnqueueMapBuffer = 0;
 void* clrpc_clEnqueueMapImage = 0;
-void* clrpc_clEnqueueUnmapMemObject = 0;
 void* clrpc_clEnqueueTask = 0;
 void* clrpc_clEnqueueNativeKernel = 0;
 void* clrpc_clEnqueueMarker = 0;
