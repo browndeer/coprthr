@@ -640,7 +640,7 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 		printcl( CL_ERR "%s:%d - %s", config_error_file(&cfg),
 			config_error_line(&cfg), config_error_text(&cfg));
 		config_destroy(&cfg);
-		exit(-1);
+		return(-1);
 	}
 
 	if (cfg_platforms = config_lookup(&cfg,"platforms")) {
