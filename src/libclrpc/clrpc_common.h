@@ -132,16 +132,24 @@ extern struct event_base *global_base;
 	pthread_mutex_init(&cbarg.mtx,0); \
    pthread_mutex_lock(&cbarg.mtx); \
 	pthread_cond_init(&cbarg.sig,0); \
-	EVRPC_MAKE_REQUEST(_clrpc_##fname, \
+	clrpc_errno = EVRPC_MAKE_REQUEST(_clrpc_##fname, \
 		pool, request, reply, _clrpc_##fname##_clicb, &cbarg ); \
-	printcl( CL_DEBUG "CLRPC_MAKE_REQUEST: waiting ..."); \
-	pthread_cond_wait(&cbarg.sig,&cbarg.mtx); \
-	printcl( CL_DEBUG "CLRPC_MAKE_REQUEST: ... done waiting"); \
-	pthread_mutex_destroy(&cbarg.mtx); \
-	pthread_cond_destroy(&cbarg.sig); \
+	if (clrpc_errno) { \
+		printcl( CL_ERR "CLRPC_MAKE_REQUEST: make request failed"); \
+	} else { \
+		printcl( CL_DEBUG "CLRPC_MAKE_REQUEST: waiting ..."); \
+		pthread_cond_wait(&cbarg.sig,&cbarg.mtx); \
+		printcl( CL_DEBUG "CLRPC_MAKE_REQUEST: ... done waiting"); \
+		pthread_mutex_destroy(&cbarg.mtx); \
+		pthread_cond_destroy(&cbarg.sig); \
+		clrpc_errno = cbarg.err; \
+		if (clrpc_errno) \
+			printcl( CL_ERR "CLRPC_MAKE_REQUEST: error"); \
+	} \
 	} while(0);
 
 #define CLRPC_INIT(fname) \
+	int clrpc_errno = 0; \
 	struct _clrpc_##fname##_request* request = _clrpc_##fname##_request_new();\
 	struct _clrpc_##fname##_reply* reply = _clrpc_##fname##_reply_new(); \
 	do {} while(0)

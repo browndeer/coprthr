@@ -86,7 +86,10 @@ _clrpc_##fname##_clicb(struct evrpc_status* status, \
    struct _clrpc_##fname##_request* request, \
 	struct _clrpc_##fname##_reply* reply, void* parg) \
 { \
-   printcl( CL_DEBUG "_clrpc_" #fname "_clicb"); \
+   printcl( CL_DEBUG "_clrpc_" #fname "_clicb: status=%d(%d)", \
+		status->error,EVRPC_STATUS_ERR_NONE); \
+	((struct cb_struct*)parg)->err \
+		= (status->error==EVRPC_STATUS_ERR_NONE)? 0:-1; \
 	CLRPC_UNBLOCK(parg); \
 } 
 
@@ -301,6 +304,7 @@ CLRPC_GENERATE(clWaitForEvents)
 struct cb_struct {
 	pthread_mutex_t mtx;
 	pthread_cond_t sig;
+	int err;
 };
 
 static void* loop( void* parg ) 
@@ -385,6 +389,9 @@ int clrpc_connect( unsigned int nservers, clrpc_server_info* servers )
 
 printcl( CL_DEBUG "clrpc_nservers %d",clrpc_nservers);
 
+	evrpc_pool_set_timeout( clrpc_pool, 300 );
+	printcl( CL_INFO "CLRPC timeout set to %d sec", 300);
+
 	return(0);
 
 }
@@ -439,6 +446,8 @@ clrpc_clGetPlatformIDs( cl_uint nplatforms,
 
 		printcl( CL_DEBUG "rpc_pools[%d] %p",n,rpc_pools[n]);
 
+		int clrpc_errno = 0;
+
 		struct _clrpc_clGetPlatformIDs_request* request 
 			= _clrpc_clGetPlatformIDs_request_new();
 
@@ -452,6 +461,11 @@ clrpc_clGetPlatformIDs( cl_uint nplatforms,
 		CLRPC_ASSIGN_DPTR_ARRAY(request,nplatforms,platforms);
 
 		CLRPC_MAKE_REQUEST_WAIT2(rpc_pools[n],clGetPlatformIDs);
+
+		if (clrpc_errno) { 
+			printcl( CL_INFO "RPC server %d not responding",n); 
+			continue; 
+		}
 
 		CLRPC_GET(reply,int,retval,&retval);
 
