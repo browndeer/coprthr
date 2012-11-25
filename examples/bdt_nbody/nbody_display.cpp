@@ -28,6 +28,7 @@
 #include <stdlib.h>
 #include <float.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 #include<GL/glut.h>
 
