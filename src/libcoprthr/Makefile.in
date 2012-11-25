@@ -83,15 +83,6 @@ else
 LIBS += -ldl 
 endif
 
-ifeq (@LIBCOPRTHR_MODEL@,template)
-LIBCOPRTHR_HDR = __libcoprthr.h-template
-else ifeq (@LIBCOPRTHR_MODEL@,no-template)
-LIBCOPRTHR_HDR = __libcoprthr.h-no-template
-else
-LIBCOPRTHR_HDR = __libcoprthr.h
-endif
-
-
 OBJS = $(XCL_OBJS) $(IMP_OBJS)
 
 #OBJS_D = $(subst .o,_d.o,$(OBJS))
