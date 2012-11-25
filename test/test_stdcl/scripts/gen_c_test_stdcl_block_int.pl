@@ -81,7 +81,7 @@ printf "else if (!strncmp(arg,\"--dev\",6)) { cp = stddev; devnum = atoi(argv[i+
 printf "else if (!strncmp(arg,\"--cpu\",6)) { cp = stdcpu; devnum = atoi(argv[i++]); }\n";
 printf "else if (!strncmp(arg,\"--gpu\",6)) { cp = stdgpu; devnum = atoi(argv[i++]); }\n";
 printf "else {\n";
-printf "fprintf(stderr,\"unrecognized option '%s'\\n\",arg);\n";
+printf "fprintf(stderr,\"unrecognized option '%%s'\\n\",arg);\n";
 printf "exit(-1);\n";
 printf "}\n";
 printf "}\n";
