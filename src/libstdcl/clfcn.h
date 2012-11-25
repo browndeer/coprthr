@@ -1,6 +1,6 @@
 /* clfcn.h
  *
- * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -72,7 +72,9 @@ struct _krntab_struct {
 struct _txt_struct {
 	LIST_ENTRY(_txt_struct) txt_list;
 	struct _prgs_struct* prgs;
-	cl_program prg;
+//	cl_program prg;
+	cl_uint nprg;
+	cl_program* xxxprg;
 	cl_uint nkrn;
 	cl_kernel* krn;
 	struct _krntab_struct* krntab;

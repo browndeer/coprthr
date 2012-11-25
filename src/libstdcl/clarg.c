@@ -1,6 +1,6 @@
 /* clarg.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -74,8 +74,31 @@ clarg_set_global(CONTEXT* cp, cl_kernel krn, unsigned int argnum, void* ptr)
 	}
 
 	if (memd) {
-		err = clSetKernelArg(krn,argnum,sizeof(cl_mem),(void*)&memd->clbuf); 
-		__set_oclerrno(err);
+
+//		err = clSetKernelArg(krn,argnum,sizeof(cl_mem),(void*)&memd->clbuf); 
+//		err = clSetKernelArg(krn,argnum,sizeof(cl_mem),(void*)&memd->xxxclbuf[0]);
+
+		if (cp->nctx > 1) {
+
+			int ictx;
+			for(ictx=0; ictx < cp->nctx; ictx++) {
+
+				err = clSetKernelArg( ((cl_kernel*)krn)[ictx],argnum,sizeof(cl_mem),
+					(void*)&memd->xxxclbuf[ictx]);
+
+				__set_oclerrno(err);
+
+			}
+
+		} else {
+
+			err = clSetKernelArg(krn,argnum,sizeof(cl_mem),
+				(void*)&memd->xxxclbuf[0]);
+
+			__set_oclerrno(err);
+
+		}
+
 	}
 
 	return(offset);	

@@ -125,26 +125,51 @@ typedef struct clndrange_struct clndrange_t;
 template < typename T >
 void clarg_set( CONTEXT* cp, cl_kernel krn, 
 	unsigned int argnum, T arg)
-{ clSetKernelArg(krn,argnum,sizeof(T),(void*)&arg); }
+{
+	if (cp->nctx > 1) 
+		for(int ictx=0; ictx < cp->nctx; ictx++) 
+			clSetKernelArg(((cl_kernel*)krn)[ictx],argnum,sizeof(T),(void*)&arg);
+	else 
+		clSetKernelArg(krn,argnum,sizeof(T),(void*)&arg); 
+}
 
 #else
 
 template < typename T >
 void clarg_set( CONTEXT* cp __attribute__((__unused__)), cl_kernel krn, 
 	unsigned int argnum, T arg)
-{ clSetKernelArg(krn,argnum,sizeof(T),(void*)&arg); }
+{ 
+	if (cp->nctx > 1) 
+		for(int ictx=0; ictx < cp->nctx; ictx++) 
+			clSetKernelArg(((cl_kernel*)krn)[ictx],argnum,sizeof(T),(void*)&arg); 
+	else
+		clSetKernelArg(krn,argnum,sizeof(T),(void*)&arg); 
+}
 
 #endif
 
 #else
 
-#define clarg_set(cp,krn,argnum,arg) \
- clSetKernelArg(krn,argnum,sizeof(typeof(arg)),(void*)&arg)
+#define clarg_set(cp,krn,argnum,arg) do { \
+	int ictx; \
+	if (cp->nctx > 1) \
+		for(ictx=0; ictx < cp->nctx; ictx++) \
+			clSetKernelArg(((cl_kernel*)krn)[ictx],argnum,sizeof(typeof(arg)), \
+				(void*)&arg); \
+	else \
+		clSetKernelArg(krn,argnum,sizeof(typeof(arg)),(void*)&arg); \
+	} while(0)
 
 #endif
 
-#define clarg_set_local(cp,krn,argnum,arg) \
- clSetKernelArg(krn,argnum,arg,0)
+#define clarg_set_local(cp,krn,argnum,arg) do { \
+	int ictx; \
+	if (cp->nctx > 1) \
+		for(ictx=0; ictx < cp->nctx; ictx++) \
+ 			clSetKernelArg(((cl_kernel*)krn)[ictx],argnum,arg,0); \
+	else \
+ 		clSetKernelArg(krn,argnum,arg,0); \
+	} while(0)
 
 
 #ifdef __cplusplus

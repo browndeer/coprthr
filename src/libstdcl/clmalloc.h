@@ -1,6 +1,6 @@
 /* clmalloc.h
  *
- * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -67,23 +67,29 @@
 
 
 
-
 #define CLMEM_MAGIC     0x19661971
 struct _memd_struct {
    union {
       struct {
-         LIST_ENTRY(_memd_struct) memd_list;
-         unsigned int magic;
-         unsigned int flags;
-         size_t sz,sz1,sz2;
-         cl_mem clbuf;
-			int devnum;
-			cl_image_format imgfmt;
-			cl_mem_flags usrflags;
+         LIST_ENTRY(_memd_struct) memd_list; // 8 
+         unsigned int magic;						// 4 
+         unsigned int flags;						// 4
+         size_t sz,sz1,sz2;						// 24
+//         cl_mem clbuf;
+         cl_uint nclbuf;							// 4
+         cl_mem* xxxclbuf;							// 8
+         cl_mem* devbuf;							// 8
+			int devnum;									// 4
+			cl_image_format imgfmt;					// 8
+			cl_mem_flags usrflags;					// 8
+			void* _free_offset;
       };
       char __pad[128];
    };
 };
+
+/* XXX hardcoded to number of free bytes in memd -DAR */
+#define MEMD_FREE_SZ	48
 
 
 #ifdef __cplusplus

@@ -57,6 +57,7 @@ extern LIBSTDCL_API CONTEXT* stdcpu;
 extern LIBSTDCL_API CONTEXT* stdgpu;
 extern LIBSTDCL_API CONTEXT* stdrpu;
 extern LIBSTDCL_API CONTEXT* stdacc;
+extern LIBSTDCL_API CONTEXT* stdnpu;
 
 extern char* __log_automatic_kernels_filename;
 

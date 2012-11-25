@@ -65,6 +65,7 @@ LIBSTDCL_API CONTEXT* stdcpu = 0;
 LIBSTDCL_API CONTEXT* stdgpu = 0;
 LIBSTDCL_API CONTEXT* stdrpu = 0;
 LIBSTDCL_API CONTEXT* stdacc = 0;
+LIBSTDCL_API CONTEXT* stdnpu = 0;
 
 int procelf_fd = -1;
 void* procelf = 0;
@@ -361,6 +362,50 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	}
 
 	printcl( CL_DEBUG "back from clcontext_create\n");
+
+
+#if(1)
+	/*
+	 * initialize stdnpu (networked CL devices)
+	 */
+
+	printcl( CL_DEBUG "clinit: initialize stdnpu");
+
+
+	stdnpu = 0;
+	ndev = 0; /* this is a special case that implies all available -DAR */
+	enable = 1;
+	lock_key = 0;
+
+	if (getenv("STDNPU")) enable = atoi(getenv("STDNPU"));
+
+	if (enable) {
+
+		char name[256];
+		if (getenv("STDNPU_PLATFORM_NAME"))
+			strncpy(name,getenv("STDNPU_PLATFORM_NAME"),256);
+#ifdef DEFAULT_OPENCL_PLATFORM
+//		else name[0]='\0';
+		else strncpy(name,DEFAULT_OPENCL_PLATFORM,256);
+#else
+		else name[0]='\0';
+#endif
+
+		if (getenv("STDNPU_MAX_NDEV"))
+			ndev = atoi(getenv("STDACC_MAX_NDEV"));
+
+//		if (getenv("STDACC_LOCK"))
+//			lock_key = atoi(getenv("STDACC_LOCK"));
+/* XXX not supported for stdnpu -DAR */
+
+/* XXX right now testing networked GPUs -DAR */
+		stdnpu = clcontext_create_stdnpu(name,CL_DEVICE_TYPE_GPU,ndev,
+			0,lock_key);
+
+	}
+
+	printcl( CL_DEBUG "back from clcontext_create\n");
+#endif
 
 
 

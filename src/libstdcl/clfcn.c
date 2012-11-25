@@ -1,6 +1,6 @@
 /* clfcn.c
  *
- * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -51,6 +51,9 @@
  */
 
 
+#define __inc_idev(cp,idev) \
+		while( idev < cp->ndev && cp->xxxctx[ictx] == cp->devctx[idev++])
+
 LIBSTDCL_API void* 
 clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 {
@@ -86,13 +89,26 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 	txt->prgs = prgs;
 	txt->krn = 0;
 
+/*
 	txt->prg = clCreateProgramWithSource(
-		cp->ctx,1,(const char**)&ptr,&len,&err
+//		cp->ctx,1,(const char**)&ptr,&len,&err
+		cp->xxxctx[0],1,(const char**)&ptr,&len,&err
 	);
 	printcl( CL_DEBUG "clload: err from clCreateProgramWithSource %d",err);
+*/
+
+	txt->nprg = cp->nctx;
+
+	txt->xxxprg = (cl_program*)malloc(txt->nprg * sizeof(cl_program));
+
+	int ictx;
+	for(ictx=0; ictx < cp->nctx; ictx++) {
+		txt->xxxprg[ictx] = clCreateProgramWithSource( cp->xxxctx[ictx],
+			1,(const char**)&ptr,&len,&err );
+		printcl( CL_DEBUG "clload: err from clCreateProgramWithSource %d",err);
+	}
 
 	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
-
 
 
 	if (!(flags&CLLD_NOBUILD)) {
@@ -109,11 +125,14 @@ clload( CONTEXT* cp, void* ptr, size_t len, int flags )
 }
 
 
+#define __txt_get_krn(txt,n,ictx) ((cl_kernel*)(txt)->krn[(n)])[(ictx)]
+
 LIBSTDCL_API void* 
 clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 {
 	int n;
 	int err;
+	int ictx,idev;
 
 	printcl( CL_DEBUG "clloadb: checking cp ");
 
@@ -153,16 +172,44 @@ clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 
 	cl_int* bin_stat = (cl_int*)calloc(sizeof(cl_int),cp->ndev);
 
-	txt->prg = clCreateProgramWithBinary(cp->ctx,cp->ndev,cp->dev,
+/*
+//	txt->prg = clCreateProgramWithBinary(cp->ctx,cp->ndev,cp->dev,
+	txt->prg = clCreateProgramWithBinary(cp->xxxctx[0],cp->ndev,cp->dev,
 		bin_sz,(const unsigned char**)bin,bin_stat,&err);
 	__set_oclerrno(err);
 	printcl( CL_DEBUG "clloadb: err from clCreateProgramWithBinary %d (%p)",
 		err,txt->prg);
+*/
 
-	for(n=0;n<cp->ndev;n++) {
+	txt->nprg = cp->nctx;
+
+	txt->xxxprg = (cl_program*)malloc(txt->nprg * sizeof(cl_program));
+
+	idev = 0;
+	for(ictx=0; ictx < cp->nctx; ictx++) {
+
+		int idev0 = idev;
+		__inc_idev(cp,idev);
+
+//		printcl( CL_DEBUG "%d %d %p",idev0,idev,cp->xxxctx[ictx]);
+
+		txt->xxxprg[ictx] = clCreateProgramWithBinary(cp->xxxctx[ictx],
+			idev-idev0,cp->dev+idev0,
+			bin_sz+idev0,((const unsigned char**)bin)+idev0,bin_stat+idev0,&err);
+
+		__set_oclerrno(err);
+
+		printcl( CL_DEBUG "clloadb: err from clCreateProgramWithBinary %d (%p)",
+			err,txt->xxxprg[ictx]);
+	}
+
+
+	for(n=0; n<cp->ndev; n++) {
 		printcl( CL_DEBUG "clloadb: bin stat [%d] %d",n,bin_stat[n]);
 	}
 	printcl( CL_DEBUG "clloadb: err from clCreateProgramWithBinary %d",err);
+
+
 
 	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
 
@@ -173,9 +220,18 @@ clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 //		clbuild(cp,prgs,0,flags);
 //	}
 
-	err = clBuildProgram(txt->prg,cp->ndev,cp->dev,0,0,0);
-	__set_oclerrno(err);
-	printcl( CL_DEBUG "clloadb: err from clBuildProgram %d",err);
+	idev = 0;
+	for(ictx=0; ictx < cp->nctx; ictx++) {
+
+		int idev0 = idev;
+		__inc_idev(cp,idev);
+
+		err = clBuildProgram(txt->xxxprg[ictx],idev-idev0,cp->dev+idev0 ,0,0,0);
+
+		__set_oclerrno(err);
+	
+		printcl( CL_DEBUG "clloadb: err from clBuildProgram %d",err);
+	}
 
 
 //	LIST_INSERT_HEAD(&cp->txt_listhead, txt, txt_list);
@@ -183,15 +239,15 @@ clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 
 	/* extract the kernels */
 
-	err = clCreateKernelsInProgram(txt->prg,0,0,&txt->nkrn);
-	__set_oclerrno(err);
-	printcl( CL_DEBUG "clloadb: err from clCreateKernelsInProgram %d",err);
-	printcl( CL_DEBUG "clloadb: NUMBER OF KERNELS %d",txt->nkrn);
+   err = clCreateKernelsInProgram(txt->xxxprg[0],0,0,&txt->nkrn);
+   __set_oclerrno(err);
+   printcl( CL_DEBUG "clloadb: err from clCreateKernelsInProgram %d",err);
+   printcl( CL_DEBUG "clloadb: NUMBER OF KERNELS %d",txt->nkrn);
 
-	txt->krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
+   txt->krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
 
-	err = clCreateKernelsInProgram(txt->prg,txt->nkrn,txt->krn,0);
-	__set_oclerrno(err);
+   err = clCreateKernelsInProgram(txt->xxxprg[0],txt->nkrn,txt->krn,0);
+   __set_oclerrno(err);
 
 
 	txt->krntab = (struct _krntab_struct*)malloc(
@@ -224,6 +280,85 @@ clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 			txt->krntab[n].kctx,txt->krntab[n].kprg);
 
 	}
+
+
+   if (cp->nctx > 1) {
+
+      for(n=0;n<txt->nkrn;n++) {
+         cl_kernel krn = txt->krn[n];
+         txt->krn[n] = (cl_kernel)calloc(cp->nctx,sizeof(cl_kernel));
+         *(cl_kernel*)txt->krn[n] = krn;
+      }
+
+		cl_uint nkrn;
+   	cl_kernel* krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
+
+      for(ictx=1; ictx < cp->nctx; ictx++) {
+
+			err = clCreateKernelsInProgram(txt->xxxprg[ictx],txt->nkrn,krn,&nkrn);
+
+			__set_oclerrno(err);
+
+      	for(n=0;n<txt->nkrn;n++) {
+
+//         	((cl_kernel*)txt->krn[n])[ictx] = krn[n];
+				__txt_get_krn(txt,n,ictx) = krn[n];
+
+			}		
+	
+			
+			/* XXX here we just check consistency of kernels -DAR */
+
+			struct _krntab_struct kinfo;
+
+      	for(n=0;n<txt->nkrn;n++) {
+
+				cl_kernel krn = __txt_get_krn(txt,n,ictx);
+
+				err = clGetKernelInfo( krn, CL_KERNEL_FUNCTION_NAME,256, 
+					kinfo.kname,0);
+
+				__set_oclerrno(err);
+
+				if (strcmp(kinfo.kname,txt->krntab[n].kname)) 
+					printcl( CL_ERR "clloadb: kernel info mismatch" );				
+
+				err = clGetKernelInfo( krn,CL_KERNEL_NUM_ARGS,sizeof(cl_uint),
+					&kinfo.nargs,0);
+
+				__set_oclerrno(err);
+
+				if (kinfo.nargs != txt->krntab[n].nargs) 
+					printcl( CL_ERR "clloadb: kernel info mismatch" );
+
+				err = clGetKernelInfo( krn,CL_KERNEL_REFERENCE_COUNT,
+					sizeof(cl_uint), &kinfo.refc,0);
+
+				__set_oclerrno(err);
+
+				if (kinfo.refc != txt->krntab[n].refc) 
+					printcl( CL_ERR "clloadb: kernel info mismatch" );
+
+				err = clGetKernelInfo( krn,CL_KERNEL_CONTEXT,sizeof(cl_context),
+					&kinfo.kctx,0);
+
+				__set_oclerrno(err);
+
+				if (kinfo.kctx != txt->krntab[n].kctx)
+					printcl( CL_ERR "clloadb: kernel info mismatch" );
+
+				err = clGetKernelInfo( krn,CL_KERNEL_PROGRAM,sizeof(cl_program),
+					&kinfo.kprg,0);
+
+				__set_oclerrno(err);
+
+				if (kinfo.kprg != txt->krntab[n].kprg) 
+					printcl( CL_ERR "clloadb: kernel info mismatch" );
+
+			}		
+      }
+   }
+
 	
 	return((void*)prgs);
 
@@ -237,6 +372,7 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 {
 	int n;
 	int err;
+	int ictx, idev;
 	struct _prgs_struct* prgs;
 
 	printcl( CL_DEBUG " checking cp ");
@@ -329,42 +465,75 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 	}
 	printcl( CL_DEBUG "%s",opts);
 
+
+/*
 	err = clBuildProgram(txt->prg,cp->ndev,cp->dev,opts,0,0);
 	__set_oclerrno(err);
 	printcl( CL_DEBUG "clbuild: err from clBuildProgram %d",err);
+*/
+
+	idev = 0;
+	for(ictx=0; ictx < cp->nctx; ictx++) {
+
+		int idev0 = idev;
+		__inc_idev(cp,idev);
+
+		err = clBuildProgram(txt->xxxprg[ictx],idev-idev0,cp->dev+idev0,
+			opts,0,0);
+
+		__set_oclerrno(err);
+	
+		printcl( CL_DEBUG "clbuild: err from clBuildProgram %d",err);
+	}
+
+
+
+
 
 	if (opts) free(opts);
 
-	{
+
+
 //	char buf[256];
 //	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,256,&buf,0);
 //	printcl( CL_DEBUG "clld: log from clBuildProgram %s",buf);
 //	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_OPTIONS,256,&buf,0);
 //	printcl( CL_DEBUG "clbuild: log from clBuildProgram %s",buf);
 
-	size_t sz;
-	err = clGetProgramBuildInfo(
-		txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,0,0,&sz);
-	__set_oclerrno(err);
+	idev = 0;
+	for(ictx=0; ictx < cp->nctx; ictx++) {
 
-	char* buf = (char*)malloc(sz*sizeof(char));
-	err = clGetProgramBuildInfo(
-		txt->prg,cp->dev[0],CL_PROGRAM_BUILD_LOG,sz,buf,0);
-	__set_oclerrno(err);
+		int idev0 = idev;
+		__inc_idev(cp,idev);
 
-	printcl( CL_DEBUG "clld: log from clBuildProgram %s",buf);
+		size_t sz;
 
-	if (buf) free(buf);
+		err = clGetProgramBuildInfo(
+			txt->xxxprg[ictx],cp->dev[idev0],CL_PROGRAM_BUILD_LOG,0,0,&sz);
+	
+		__set_oclerrno(err);
+
+		char* buf = (char*)malloc(sz*sizeof(char));
+
+		err = clGetProgramBuildInfo(
+			txt->xxxprg[ictx],cp->dev[idev0],CL_PROGRAM_BUILD_LOG,sz,buf,0);
+
+		__set_oclerrno(err);
+
+		printcl( CL_DEBUG "clld: log from clBuildProgram %s",buf);
+
+		if (buf) free(buf);
 
 	}
 
-	err = clCreateKernelsInProgram(txt->prg,0,0,&txt->nkrn);
+
+	err = clCreateKernelsInProgram(txt->xxxprg[0],0,0,&txt->nkrn);
 	__set_oclerrno(err);
 	printcl( CL_DEBUG "clbuild: NUMBER OF KERNELS %d",txt->nkrn);
 
 	txt->krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
 
-	err = clCreateKernelsInProgram(txt->prg,txt->nkrn,txt->krn,0);
+	err = clCreateKernelsInProgram(txt->xxxprg[0],txt->nkrn,txt->krn,0);
 	__set_oclerrno(err);
 
 	txt->krntab = (struct _krntab_struct*)malloc(
@@ -397,6 +566,84 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 			txt->krntab[n].kctx,txt->krntab[n].kprg);
 
 	}
+
+
+   if (cp->nctx > 1) {
+
+      for(n=0;n<txt->nkrn;n++) {
+         cl_kernel krn = txt->krn[n];
+         txt->krn[n] = (cl_kernel)calloc(cp->nctx,sizeof(cl_kernel));
+         *(cl_kernel*)txt->krn[n] = krn;
+      }
+
+		cl_uint nkrn;
+   	cl_kernel* krn = (cl_kernel*)malloc(sizeof(cl_kernel)*txt->nkrn);
+
+      for(ictx=1; ictx < cp->nctx; ictx++) {
+
+			err = clCreateKernelsInProgram(txt->xxxprg[ictx],txt->nkrn,krn,&nkrn);
+
+			__set_oclerrno(err);
+
+      	for(n=0;n<txt->nkrn;n++) {
+
+//         	((cl_kernel*)txt->krn[n])[ictx] = krn[n];
+				__txt_get_krn(txt,n,ictx) = krn[n];
+
+			}		
+	
+			
+			/* XXX here we just check consistency of kernels -DAR */
+
+			struct _krntab_struct kinfo;
+
+      	for(n=0;n<txt->nkrn;n++) {
+
+				cl_kernel krn = __txt_get_krn(txt,n,ictx);
+
+				err = clGetKernelInfo( krn, CL_KERNEL_FUNCTION_NAME,256, 
+					kinfo.kname,0);
+
+				__set_oclerrno(err);
+
+				if (strcmp(kinfo.kname,txt->krntab[n].kname)) 
+					printcl( CL_ERR "clloadb: kernel info mismatch" );				
+
+				err = clGetKernelInfo( krn,CL_KERNEL_NUM_ARGS,sizeof(cl_uint),
+					&kinfo.nargs,0);
+
+				__set_oclerrno(err);
+
+				if (kinfo.nargs != txt->krntab[n].nargs) 
+					printcl( CL_ERR "clloadb: kernel info mismatch" );
+
+				err = clGetKernelInfo( krn,CL_KERNEL_REFERENCE_COUNT,
+					sizeof(cl_uint), &kinfo.refc,0);
+
+				__set_oclerrno(err);
+
+				if (kinfo.refc != txt->krntab[n].refc) 
+					printcl( CL_ERR "clloadb: kernel info mismatch" );
+
+				err = clGetKernelInfo( krn,CL_KERNEL_CONTEXT,sizeof(cl_context),
+					&kinfo.kctx,0);
+
+				__set_oclerrno(err);
+
+				if (kinfo.kctx != txt->krntab[n].kctx)
+					printcl( CL_ERR "clloadb: kernel info mismatch" );
+
+				err = clGetKernelInfo( krn,CL_KERNEL_PROGRAM,sizeof(cl_program),
+					&kinfo.kprg,0);
+
+				__set_oclerrno(err);
+
+				if (kinfo.kprg != txt->krntab[n].kprg) 
+					printcl( CL_ERR "clloadb: kernel info mismatch" );
+
+			}		
+      }
+   }
 
 	}
 
@@ -667,6 +914,7 @@ clclose(CONTEXT* cp, void* handle)
 {
 	int n;
 	int err;
+	int ictx;
 
 	if (!handle) return(-1);
 
@@ -682,17 +930,26 @@ clclose(CONTEXT* cp, void* handle)
 	while(txt) {
 		txt_next;
 		if (txt->prgs == prgs) {
+
 			printcl( CL_DEBUG " removing txt from list\n");
+
 			LIST_REMOVE(txt, txt_list);
+
 			for(n=0;n<txt->nkrn;n++) {
 				err = clReleaseKernel(txt->krn[n]);
 				__set_oclerrno(err);
 			}
+
 			free(txt->krn);
 			free(txt->krntab);
-			err = clReleaseProgram(txt->prg);
-			__set_oclerrno(err);
+
+			for(ictx=0; ictx < cp->nctx; ictx++) {
+				err = clReleaseProgram(txt->xxxprg[ictx]);
+				__set_oclerrno(err);
+			}
+
 			free(txt);
+
 			txt = 0;
 		}
 		txt = txt_next;

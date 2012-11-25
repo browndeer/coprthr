@@ -1,6 +1,6 @@
 /* clcontext.h
  *
- * Copyright (c) 2009-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -61,11 +61,15 @@ struct _clcontext_ptr_struct {
 	char* platform_name;
 	char* platform_vendor;
 	char* platform_extensions;
-	cl_context ctx;
+//	cl_context ctx;
+	cl_uint nctx;
+	cl_context* xxxctx;
 	cl_uint devtyp;
 	cl_uint impid;
 	cl_uint ndev;
 	cl_device_id* dev;
+	cl_context* devctx;
+	cl_uint* devctxi;
 	cl_command_queue* cmdq;
 	cl_uint nprg;
 	cl_program* prg;
@@ -160,14 +164,13 @@ struct cldev_info {
 	cl_ulong dev_local_mem_sz;
 };
 
-/* used by routines that must do lazt cmdq create on windows */
+/* used by routines that must do lazy cmdq create on windows */
 static __inline void __cmdq_create(CONTEXT* cp, cl_uint n)
 {
 	if (!cp->cmdq[n]) {
 		int err;
-		cp->cmdq[n] = clCreateCommandQueue(cp->ctx,cp->dev[n],0,&err);
-//		DEBUG(__FILE__,__LINE__,"clcontext_create: error from create cmdq %d (%p)\n",
-//			err,cp->cmdq[n]);
+//		cp->cmdq[n] = clCreateCommandQueue(cp->ctx,cp->dev[n],0,&err);
+		cp->cmdq[n] = clCreateCommandQueue(cp->devctx[n],cp->dev[n],0,&err);
 	}
 }
 
@@ -194,7 +197,10 @@ LIBSTDCL_API cl_uint clgetndev( CONTEXT* cp );
 LIBSTDCL_API int  clstat( CONTEXT* cp, struct clstat_info* info );
 
 LIBSTDCL_API int  clgetdevinfo( CONTEXT* cp, struct cldev_info* info );
+
 LIBSTDCL_API void  clfreport_devinfo( FILE* fp, size_t ndev, struct cldev_info* info );
+
+LIBSTDCL_API CONTEXT* clcontext_create_stdnpu( const char* platform_name, int devtyp, size_t ndevmax, cl_context_properties* ctxprop_ext, int flag );
 
 
 #ifdef __cplusplus

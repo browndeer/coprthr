@@ -1,6 +1,6 @@
 /* clsched.c
  *
- * Copyright (c) 2009 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -48,9 +48,11 @@
 LIBSTDCL_API
 cl_event clfork(
 	CONTEXT* cp, cl_uint devnum, 
-	cl_kernel krn, struct clndrange_struct* ndr, int flags
+	cl_kernel krns, struct clndrange_struct* ndr, int flags
 )
 {
+	cl_kernel krn = (cp->nctx > 1)? 
+		((cl_kernel*)krns)[cp->devctxi[devnum]] : krns;
 	
 	if (cp->kev[devnum].nev==STDCL_EVENTLIST_MAX) return((cl_event)0);
 
