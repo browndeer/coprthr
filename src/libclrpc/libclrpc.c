@@ -446,7 +446,7 @@ clrpc_clGetPlatformIDs( cl_uint nplatforms,
 
 		printcl( CL_DEBUG "rpc_pools[%d] %p",n,rpc_pools[n]);
 
-		int clrpc_errno = 0;
+		int clrpc_err = 0;
 
 		struct _clrpc_clGetPlatformIDs_request* request 
 			= _clrpc_clGetPlatformIDs_request_new();
@@ -462,7 +462,7 @@ clrpc_clGetPlatformIDs( cl_uint nplatforms,
 
 		CLRPC_MAKE_REQUEST_WAIT2(rpc_pools[n],clGetPlatformIDs);
 
-		if (clrpc_errno) { 
+		if (clrpc_err) { 
 			printcl( CL_INFO "RPC server %d not responding",n); 
 			continue; 
 		}
