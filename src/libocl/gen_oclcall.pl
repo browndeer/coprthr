@@ -132,6 +132,28 @@ printf OUT "extern unsigned int oclncalls;\n";
 #}
 #printf OUT "\t}\n";
 
+printf OUT "#define __oclcall_test_error_rv(rv)\n";
+printf OUT "#define __oclcall_test_error_parg(parg)\n";
+
+foreach $l (@lines) {
+	if (!($l =~ /^[ \t]*#.*/)) {
+		@fields = split(' ', $l);
+		$name = $fields[0];
+		if ($name =~ /^[a-zA-Z].*/) {
+			unless ($name =~ /reserved/) {
+#				$tlist = $fields[3];
+#				@args = split(',',$tlist);
+#				if ($tlist =~ /^void$/) { $narg = 0; }
+#				else { $narg = $#args+1; }
+				printf OUT "#define __oclcall_pre_$name()\n";
+				printf OUT "#define __oclcall_post_$name()\n";
+				printf OUT "#define __oclcall_pre_hook_$name()\n";
+				printf OUT "#define __oclcall_post_hook_$name()\n";
+			}
+		}
+	}
+}
+
 printf OUT "\n#endif\n";
 
 close(OUT);
@@ -145,7 +167,12 @@ open(OUT, ">oclcall.c");
 printf OUT "\n#include <stdio.h>\n";
 printf OUT "\n#include <CL/cl.h>\n";
 printf OUT "#include \"oclcall.h\"\n";
+printf OUT "#include \"oclcall_prepost.h\"\n";
 printf OUT "#include \"printcl.h\"\n";
+
+#printf OUT "extern struct clproc_state_struct* _libocl_clproc_state;\n";
+printf OUT "extern void** _libocl_prehook_call_vector;\n";
+printf OUT "extern void** _libocl_posthook_call_vector;\n";
 
 printf OUT "\nstatic void _ocl_no_implementation()\n";
 printf OUT "{\n";
@@ -223,8 +250,33 @@ foreach $l (@lines) {
 
 				printf OUT "\ttypedef $retype (*pf_t) ($tlist);\n";
 
+				### PREHOOK 
+				printf OUT "#ifdef ENABLE_LIBOCL_HOOK\n";
+				printf OUT "\tif (_libocl_prehook_call_vector\n";
+				printf OUT "\t\t&& _libocl_prehook_call_vector[OCLCALL_$name] )\n";
+				printf OUT "\t\t((pf_t)(_libocl_prehook_call_vector[OCLCALL_$name]))($alist);\n";
+				printf OUT "#endif\n";
+
+				printf OUT "\t__oclcall_pre_$name();\n";	
+
 				printf OUT "\t$retype rv \n";
 				printf OUT "\t\t= ((pf_t)(*(((void**)oclent)+OCLCALL_$name\)))($alist);\n";
+
+				printf OUT "\t__oclcall_post_$name();\n";	
+
+				### POSTHOOK 
+				printf OUT "#ifdef ENABLE_LIBOCL_HOOK\n";
+				printf OUT "\tif (_libocl_posthook_call_vector\n";
+				printf OUT "\t\t&& _libocl_posthook_call_vector[OCLCALL_$name] )\n";
+				printf OUT "\t\t((pf_t)(_libocl_posthook_call_vector[OCLCALL_$name]))($alist);\n";
+				printf OUT "#endif\n";
+
+				if ($retype eq "cl_int") {
+					printf OUT "\t__oclcall_test_error_rv(rv);\n";
+				} else {
+					printf OUT "\t__oclcall_test_error_parg(a$#args);\n";
+				}
+
 				printf OUT "\treturn rv;\n";	
 				printf OUT "}\n\n";
 
@@ -239,8 +291,33 @@ foreach $l (@lines) {
 
 				printf OUT "\ttypedef $retype (*pf_t) ($tlist);\n";
 
+				### PREHOOK 
+				printf OUT "#ifdef ENABLE_LIBOCL_HOOK\n";
+				printf OUT "\tif (_libocl_prehook_call_vector\n";
+				printf OUT "\t\t&& _libocl_prehook_call_vector[OCLCALL_$name] )\n";
+				printf OUT "\t\t((pf_t)(_libocl_prehook_call_vector[OCLCALL_$name]))($alist);\n";
+				printf OUT "#endif\n";
+
+				printf OUT "\t__oclcall_pre_$name();\n";	
+
 				printf OUT "\t$retype rv \n";
 				printf OUT "\t\t= ((pf_t)(*(((void**)oclent)+OCLCALL_$name\)))($alist);\n";
+				
+				printf OUT "\t__oclcall_post_$name();\n";	
+
+				### POSTHOOK 
+				printf OUT "#ifdef ENABLE_LIBOCL_HOOK\n";
+				printf OUT "\tif (_libocl_posthook_call_vector\n";
+				printf OUT "\t\t&& _libocl_posthook_call_vector[OCLCALL_$name] )\n";
+				printf OUT "\t\t((pf_t)(_libocl_posthook_call_vector[OCLCALL_$name]))($alist);\n";
+				printf OUT "#endif\n";
+
+				if ($retype eq "cl_int") {
+					printf OUT "\t__oclcall_test_error_rv(rv);\n";
+				} else {
+					printf OUT "\t__oclcall_test_error_parg(a$#args);\n";
+				}
+
 				printf OUT "\treturn rv;\n";	
 				printf OUT "}\n\n";
 
@@ -266,8 +343,33 @@ foreach $l (@lines) {
 
 				printf OUT "\ttypedef $retype (*pf_t) ($tlist);\n";
 
+				### PREHOOK 
+				printf OUT "#ifdef ENABLE_LIBOCL_HOOK\n";
+				printf OUT "\tif (_libocl_prehook_call_vector\n";
+				printf OUT "\t\t&& _libocl_prehook_call_vector[OCLCALL_$name] )\n";
+				printf OUT "\t\t((pf_t)(_libocl_prehook_call_vector[OCLCALL_$name]))($alist);\n";
+				printf OUT "#endif\n";
+
+				printf OUT "\t__oclcall_pre_$name();\n";	
+
 				printf OUT "\t$retype rv \n";
 				printf OUT "\t\t= ((pf_t)(*(((void**)oclent)+OCLCALL_$name\)))($alist);\n";
+
+				printf OUT "\t__oclcall_post_$name();\n";	
+
+				### POSTHOOK 
+				printf OUT "#ifdef ENABLE_LIBOCL_HOOK\n";
+				printf OUT "\tif (_libocl_posthook_call_vector\n";
+				printf OUT "\t\t&& _libocl_posthook_call_vector[OCLCALL_$name] )\n";
+				printf OUT "\t\t((pf_t)(_libocl_posthook_call_vector[OCLCALL_$name]))($alist);\n";
+				printf OUT "#endif\n";
+
+				if ($retype eq "cl_int") {
+					printf OUT "\t__oclcall_test_error_rv(rv);\n";
+				} else {
+					printf OUT "\t__oclcall_test_error_parg(a$#args);\n";
+				}
+
 				printf OUT "\treturn rv;\n";	
 				printf OUT "}\n\n";
 

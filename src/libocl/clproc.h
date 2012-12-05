@@ -1,4 +1,4 @@
-/* libocl.h
+/* clproc.h
  *
  * Copyright (c) 2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -20,26 +20,50 @@
 
 /* DAR */
 
+#ifndef _clproc_h
+#define _clproc_h
 
-#ifndef _libocl_h
-#define _libocl_h
+#include <sys/types.h>
+#include <unistd.h>
 
-#include "oclcall.h"
-
-struct platform_struct {
-   void* _reserved;
-   void* dlh;
-	struct oclent_struct* oclent;
-	cl_platform_id imp_platform_id;
+struct clproc_process_struct {
+	pid_t pid;
+	uid_t uid;
+	char command[32];
 };
 
-cl_int clGetPlatformIDs(
-   cl_uint nplatforms,
-   cl_platform_id* platforms,
-   cl_uint* nplatforms_ret
-);
+struct clproc_state_struct {
+	int status;
 
-cl_int clGetPlatformInfo(cl_platform_id a0,cl_platform_info a1,size_t a2,void* a3,size_t* a4);
+	int nplat;
+	int nctx;
+	int ndev;
+	int ncmdq;
+	int nprg;
+	int nkrn;
+	int nbuf;
+
+	struct timeval tstart;
+	struct timeval telapsed;
+	struct timeval twait;
+
+	size_t gmem;
+
+	int cmds;
+	int cmds_queued;
+
+	int krns;
+	int krns_queued;
+
+	int errs;
+	int errno;
+};
+
+#define CLPROC_STATUS_UNKNOWN		0
+#define CLPROC_STATUS_RUNNING		1
+#define CLPROC_STATUS_WAITING		2
+#define CLPROC_STATUS_STOPPED		3
+#define CLPROC_STATUS_COMPLETED	4
 
 #endif
 

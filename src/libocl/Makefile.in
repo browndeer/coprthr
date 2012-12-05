@@ -50,6 +50,11 @@ ifneq (@DEFAULT_CLMESG_LEVEL@,)
 DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
 endif
 
+ifeq (@ENABLE_LIBOCL_HOOK@,1)
+DEFS += -DENABLE_LIBOCL_HOOK
+OBJS += oclcall_hook.o
+endif
+
 ######################################################################
 
 TOPDIR ?= ../../
@@ -112,8 +117,12 @@ all: $(TARGET)
 #	$(CC) $(CCFLAGS) $(DEFS) -DOCL_DEBUG $(INCS) -c $*.c -o $*_d.o
 
 oclcall.o: oclcall.master
-	perl gen_call_tables.pl
+	perl gen_oclcall.pl
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c oclcall.c
+
+oclcall_hook.o: oclcall.master
+	perl gen_oclcall_hook.pl
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c oclcall_hook.c
 
 libocl.so: oclcall.o $(OBJS) $(RT_OBJS)
 	$(CC) $(CCFLAGS) $(INCS) \

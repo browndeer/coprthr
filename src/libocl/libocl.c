@@ -26,6 +26,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/mman.h>
 #include <fcntl.h>
 #include <dirent.h>
 
@@ -33,14 +34,19 @@
 #include <wordexp.h>
 #include <libconfig.h>
 
+#include <regex.h>
+
 #define __USE_GNU
 #include <dlfcn.h>
 
 //#include "util.h"
 #include "libocl.h"
 #include "oclcall.h"
+#include "oclcall_prepost.h"
 #include "printcl.h"
 #include "clrpc.h"
+
+#include "clproc.h"
 
 #ifndef DEFAULT_OPENCL_ICD_PATH
 #define DEFAULT_OPENCL_ICD_PATH "/etc/OpenCL/vendors"
@@ -73,6 +79,19 @@ struct oclconf_info_struct {
 int read_oclconf_info( struct oclconf_info_struct* info );
 void free_oclconf_info( struct oclconf_info_struct* info );
 
+/*
+struct clproc_state_struct _default_clproc_state;
+struct clproc_state_struct* _libocl_clproc_state = &_default_clproc_state;
+
+char* _libocl_clproc_dirname = 0;
+char* _libocl_clproc_statename = 0;
+*/
+
+static int _libocl_init_called = 0;
+void _libocl_init();
+
+void** _libocl_prehook_call_vector = 0;
+void** _libocl_posthook_call_vector = 0;
 
 struct oclent_struct*
 load_oclent( void* dlh )
@@ -106,8 +125,9 @@ clGetPlatformIDs(
    cl_uint* nplatforms_ret
 )
 {
-
 	printcl( CL_DEBUG "clGetPlatformIDs (loader) @ %p",&clGetPlatformIDs);
+
+	if (!_libocl_init_called) _libocl_init();
 
 	int i,j,n;
 
@@ -509,11 +529,13 @@ cl_context clCreateContext(
 	}
 
 	printcl( CL_DEBUG "clCreateContext (loader) %p",oclent);
+	__oclcall_pre_clCreateContext();
 	typedef cl_context (*pf_t) (const cl_context_properties*,
 		cl_uint,const cl_device_id*,cl_pfn_notify_t,void*,cl_int*);
 	cl_context rv 
 		= ((pf_t)(*(((void**)oclent)+OCLCALL_clCreateContext)))(
 		a0,a1,a2,a3,a4,a5);
+	__oclcall_post_clCreateContext();
 	return rv;
 }
 
@@ -530,11 +552,13 @@ cl_context clCreateContextFromType(
 	if (*p==0 || n==256) return (cl_context)0;
 	void* oclent = *(void**)(*p);
 	printcl( CL_DEBUG "clCreateContextFromType (loader) %p",oclent);
+	__oclcall_pre_clCreateContextFromType();
 	typedef cl_context (*pf_t) (const cl_context_properties*,
 		cl_device_type,cl_pfn_notify_t,void*,cl_int*);
 	cl_context rv 
 		= ((pf_t)(*(((void**)oclent)+OCLCALL_clCreateContextFromType)))(
 		a0,a1,a2,a3,a4);
+	__oclcall_post_clCreateContextFromType();
 	return rv;
 }
 
@@ -560,9 +584,11 @@ cl_int clWaitForEvents(
 	if (!a1) return CL_INVALID_EVENT;
 	void* oclent = *(void**)(*a1);
 	printcl( CL_DEBUG "clWaitForEvents (loader) %p",oclent);
+	__oclcall_pre_clWaitForEvents();
 	typedef cl_int (*pf_t) (cl_uint,const cl_event*);
 	cl_int rv 
 		= ((pf_t)(*(((void**)oclent)+OCLCALL_clWaitForEvents)))(a0,a1);
+	__oclcall_post_clWaitForEvents();
 	return rv;
 }
 
@@ -769,3 +795,112 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 	return(0);
 	
 }
+
+struct clproc_state_struct _default_clproc_state;
+struct clproc_state_struct* _libocl_clproc_state = &_default_clproc_state;
+
+char* _libocl_clproc_dirname = 0;
+char* _libocl_clproc_statename = 0;
+
+extern void** __oclcall_prehook_call_vector;
+extern void** __oclcall_posthook_call_vector;
+
+void __attribute__((__constructor__)) _libocl_init()
+{
+	if (_libocl_init_called) return;
+
+	printcl( CL_DEBUG "_libocl_init called");
+
+	_libocl_init_called = 1;
+
+	_libocl_clproc_dirname = (char*)malloc(64);
+	_libocl_clproc_statename = (char*)malloc(64);
+
+	pid_t pid = getpid();
+
+	snprintf(_libocl_clproc_dirname,64,"/var/clproc/%d",(int)pid);
+
+	mkdir(_libocl_clproc_dirname,S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
+
+	snprintf(_libocl_clproc_statename,64,"/var/clproc/%d/state",(int)pid);
+
+	int fd = open(_libocl_clproc_statename,O_CREAT|O_WRONLY,
+		S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+
+	_libocl_clproc_state = (struct clproc_state_struct*)
+		mmap( 0,sizeof(struct clproc_state_struct),PROT_WRITE,
+		MAP_NOSYNC|MAP_SHARED,fd,0);
+
+	ftruncate(fd,sizeof(struct clproc_state_struct));
+
+	close(fd);
+
+	fprintf(stderr,"_libocl_clproc_state %p\n",_libocl_clproc_state);
+	fflush(stderr);
+
+//	memset(_libocl_clproc_state,0,sizeof(struct clproc_state_struct));
+	memcpy(_libocl_clproc_state,&_default_clproc_state,
+		sizeof(struct clproc_state_struct));
+
+	_libocl_clproc_state->status = CLPROC_STATUS_RUNNING;
+
+#ifdef ENABLE_LIBOCL_HOOK
+	_libocl_prehook_call_vector = __oclcall_prehook_call_vector;
+	_libocl_posthook_call_vector = __oclcall_posthook_call_vector;
+#endif
+
+//		__oclcall_prehook_call_vector[0] = 0;
+
+}
+
+void __attribute__((__destructor__)) _libocl_fini()
+{
+	_libocl_clproc_state->status = CLPROC_STATUS_COMPLETED;
+
+	if (_libocl_clproc_state) 
+		munmap(_libocl_clproc_state,sizeof(struct clproc_state_struct));
+
+/*
+	if (_libocl_clproc_dirname) {
+		unlink(_libocl_clproc_statename);
+		rmdir(_libocl_clproc_dirname);
+		free(_libocl_clproc_statename);
+		free(_libocl_clproc_dirname);
+	}
+*/
+
+}
+
+
+void stopped_interface()
+{
+	char key = 0;
+	printf("[c]continue\n"); fflush(stdout);
+	while ( (key = getchar()) != 'c' ) {
+		printf("'%c' [c]continue\n",key);
+	}
+}
+
+
+/*
+int cldbif( char* msg )
+{
+	char buf[256]; 
+	regex_t regex;
+	regcomp(&regex, "br[^ ]*[ ]*", 0);
+	regmatch_t regmatch[10]; 
+	char key;
+	
+	do {
+		fscanf(stdin,"%256s",buf);
+		
+	} while(1);
+
+	while ( key = getchar()) ) {
+      printf("'%c' [c]continue\n",key);
+   }
+
+}
+
+*/
+
