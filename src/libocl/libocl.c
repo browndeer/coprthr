@@ -48,6 +48,8 @@
 
 #include "clproc.h"
 
+#include <errno.h>
+
 #ifndef DEFAULT_OPENCL_ICD_PATH
 #define DEFAULT_OPENCL_ICD_PATH "/etc/OpenCL/vendors"
 #endif
@@ -824,12 +826,38 @@ void __attribute__((__constructor__)) _libocl_init()
 
 	snprintf(_libocl_clproc_statename,64,"/var/clproc/%d/state",(int)pid);
 
+#ifdef __FreeBSD__
 	int fd = open(_libocl_clproc_statename,O_CREAT|O_WRONLY,
 		S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+#else
+	int fd = open(_libocl_clproc_statename,O_CREAT|O_RDWR,
+		S_IRUSR|S_IWUSR|S_IRGRP|S_IROTH);
+#endif
 
+	if (fd == -1) {
+		printcl( CL_ERR "open /var/clproc/<pid> failed %d",errno);
+	} else {
+		printcl( CL_DEBUG "fd %d",fd);
+	}
+
+#ifdef __FreeBSD__
 	_libocl_clproc_state = (struct clproc_state_struct*)
 		mmap( 0,sizeof(struct clproc_state_struct),PROT_WRITE,
 		MAP_NOSYNC|MAP_SHARED,fd,0);
+#else
+	printcl( CL_CRIT 
+		"Linux mmap does not support MAP_NOSYNC, demand a work-around");
+
+	_libocl_clproc_state = (struct clproc_state_struct*)
+		mmap( 0,sizeof(struct clproc_state_struct),PROT_WRITE|PROT_READ,
+		MAP_SHARED,fd,0);
+
+#endif
+
+	if (_libocl_clproc_state == (void*)(-1)) {
+		printcl( CL_ERR "mmap failed %d",errno);
+		perror(0);
+	}
 
 	ftruncate(fd,sizeof(struct clproc_state_struct));
 
