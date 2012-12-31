@@ -896,10 +896,24 @@ printcl( CL_DEBUG " cp ok ");
 			return(0);
 		}
 
+//		prgs = (struct _prgs_struct *)clload(cp,ptr,len,flags);
+//		prgs->fname = fname;
+//		prgs->fd = fd;
 
-		prgs = (struct _prgs_struct *)clload(cp,ptr,len,flags);
-		prgs->fname = fname;
-		prgs->fd = fd;
+      char* pext = strrchr(fname,'.');
+
+      if (
+         pext && strcmp(pext,".cl") && ((char*)ptr)[0]==(char)0x7f
+         && ((char*)ptr)[1]=='E' && ((char*)ptr)[2]=='L' && ((char*)ptr)[3]=='F'
+      ) {
+         printcl( CL_DEBUG "detected binary file");
+         prgs = (struct _prgs_struct *)clloadb(cp,1,(char**)&ptr,&len,flags);
+      } else {
+         prgs = (struct _prgs_struct *)clload(cp,ptr,len,flags);
+      }
+
+      prgs->fname = fname;
+      prgs->fd = fd;
 
 #endif
 

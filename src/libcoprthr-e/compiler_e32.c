@@ -365,8 +365,13 @@ int compile_e32(
 //#else
 
 	char* coprthr_tmp = getenv("COPRTHR_TMP");
+
+	printcl( CL_DEBUG "coprthr_tmp = '%s'",coprthr_tmp);
+
 	if (stat(coprthr_tmp,&fst) || !S_ISDIR(fst.st_mode) 
 		|| fst.st_mode & S_IRWXU != S_IRWXU) coprthr_tmp = 0;
+
+	printcl( CL_DEBUG "coprthr_tmp = '%s'",coprthr_tmp);
 
 	char* wdtemp;
 

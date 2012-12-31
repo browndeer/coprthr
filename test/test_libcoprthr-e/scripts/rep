@@ -1,0 +1,1 @@
+sed 's/CL_DEVICE_TYPE_CPU/CL_DEVICE_TYPE_ACCELERATOR/' $1 > tmp; mv tmp $1

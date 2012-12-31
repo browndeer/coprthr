@@ -32,7 +32,7 @@
 
 typedef void (*callp_t)(void*);
 
-struct core_local_data_struct core_local_data SECTION("section_core");
+volatile struct core_local_data_struct core_local_data SECTION("section_core");
 volatile e32_workp_entry_t core_we SECTION("section_core");
 volatile struct thr_data_struct thr_data SECTION("section_core");
 unsigned char coremap[E32_NCORES] SECTION("section_core");

@@ -80,12 +80,16 @@ AC_ARG_ENABLE(debug,
   enable_debug=no)
 
 AC_ARG_ENABLE(epiphany,
-	AC_HELP_STRING([--enable-epiphany],[enable epiphany support (default=no)]),,
-	enable_epiphany=no)
+	AC_HELP_STRING([--enable-epiphany],[enable epiphany support (default=yes)]),,
+	enable_epiphany=yes)
 
 AC_ARG_ENABLE(libocl-hook,
 	AC_HELP_STRING([--enable-libocl-hook],[enable libocl hook support (default=no)]),,
 	enable_libocl_hook=no)
+
+AC_ARG_ENABLE(emek-build,
+	AC_HELP_STRING([--enable-emek-build],[enable build for Epiphany EMEK (default=no)]),,
+	enable_emek_build=no)
 
 enable_libcoprthr_ncpu=enable_libcoprthr;
 
@@ -106,6 +110,7 @@ SET_OPT($enable_fortran, ENABLE_FORTRAN, "fortran binding support")
 SET_OPT($enable_libclrpc, ENABLE_LIBCLRPC, "building libclrpc")
 SET_OPT($enable_epiphany, ENABLE_EPIPHANY, "epiphany support")
 SET_OPT($enable_libocl_hook, ENABLE_LIBOCL_HOOK, "libocl hook support")
+SET_OPT($enable_emek_build, ENABLE_EMEK_BUILD, "Epiphany EMEK build")
 
 
 #OPENCL_INCLUDE=
@@ -630,6 +635,31 @@ SET_OPT($enable_debug, ENABLE_DEBUG, "debug build")
 
 
 
+###
+### Determine Epiphany SDK paths
+###
+
+AC_ARG_WITH(esdk,
+  AC_HELP_STRING([--with-esdk=DIR],
+  [set path for esdk]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([usage: --with-esdk=DIR])
+    else
+      ESDK_PATH=$withval
+    fi;
+  ],
+  [ 
+    if test -e /opt/adapteva/esdk/tools/host/x86_64; then
+      ESDK_PATH=/opt/adapteva/esdk/tools/host/x86_64;
+    elif test -e /usr/local/adapteva/include; then
+      ESDK_PATH=/usr/local/adapteva/include;
+    else
+      AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
+    fi;
+  ])
+
+
 BASH=`which bash`
 
 AC_SUBST(BASH)
@@ -650,6 +680,8 @@ AC_SUBST(ENABLE_SILENT)
 AC_SUBST(ENABLE_DEBUG)
 AC_SUBST(ENABLE_EPIPHANY)
 AC_SUBST(ENABLE_LIBOCL_HOOK)
+AC_SUBST(ENABLE_EMEK_BUILD)
+
 AC_SUBST(MAX_CLMESG_LEVEL)
 AC_SUBST(DEFAULT_CLMESG_LEVEL)
 
@@ -668,6 +700,7 @@ AC_SUBST(LIBCOPRTHR_MODEL)
 AC_SUBST(OPENCL_ICD_PATH)
 AC_SUBST(LIBEVENT_PATH)
 AC_SUBST(LIBCONFIG_PATH)
+AC_SUBST(ESDK_PATH)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install-message.txt])
@@ -677,6 +710,7 @@ AC_CONFIG_FILES([src/libocl/Makefile])
 AC_CONFIG_FILES([src/libcoprthr/Makefile])
 if test x$enable_epiphany = xyes; then
 	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
+	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])
 fi;
 AC_CONFIG_FILES([src/libclelf/Makefile])
 AC_CONFIG_FILES([src/libclrpc/Makefile])
@@ -708,6 +742,10 @@ AC_CONFIG_FILES([examples/bdt_nbody_tutorial_2/Makefile])
 
 AC_CONFIG_FILES([test/test_libcoprthr/scripts/run_tests.sh],[chmod +x test/test_libcoprthr/scripts/run_tests.sh])
 AC_CONFIG_FILES([test/test_libcoprthr/scripts/run_quick_tests.sh],[chmod +x test/test_libcoprthr/scripts/run_quick_tests.sh])
+if test x$enable_epiphany = xyes; then
+	AC_CONFIG_FILES([test/test_libcoprthr-e/scripts/run_tests.sh],[chmod +x test/test_libcoprthr-e/scripts/run_tests.sh])
+	AC_CONFIG_FILES([test/test_libcoprthr-e/scripts/run_quick_tests.sh],[chmod +x test/test_libcoprthr-e/scripts/run_quick_tests.sh])
+fi;
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_tests.sh],[chmod +x test/test_stdcl/scripts/run_tests.sh])
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_quick_tests.sh],[chmod +x test/test_stdcl/scripts/run_quick_tests.sh])
 AC_CONFIG_FILES([tools/scripts/cldebug],[chmod +x tools/scripts/cldebug])

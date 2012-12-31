@@ -56,7 +56,7 @@ ifeq (@ENABLE_EPIPHANY@,1)
 SUBDIRS += ./src/libcoprthr-e
 endif
 
-DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libcoprthr-e ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples
+DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libcoprthr-e ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_libcoprthr-e ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples
 
 export TOPDIR = $(CURDIR)
 
@@ -92,6 +92,7 @@ install: subdirs
 	@chmod -R a+rX $(prefix)
 	install -m 644 install-message.txt $(prefix)/install-message.txt
 	@cat install-message.txt
+	install -m 755 tools/scripts/cldebug $(INSTALL_BIN_DIR)
 
 uninstall: subdirs
 

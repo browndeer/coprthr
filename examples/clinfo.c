@@ -126,7 +126,7 @@ int main()
 			for(j=0;j<ndev;j++) {
 
 				clgetdevinfo( &devices[j], &devinfo);
-//				clfreport_devinfo( stdout, 1, &devinfo );
+				clfreport_devinfo( stdout, 1, &devinfo );
 
 			}
 

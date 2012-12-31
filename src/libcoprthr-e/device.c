@@ -33,11 +33,6 @@
 #include <sys/sysctl.h>
 #endif
 
-//#define _GNU_SOURCE
-//#include <sched.h>
-
-#include <e_host.h>
-
 #include <CL/cl.h>
 
 #include "xcl_config.h"
@@ -46,34 +41,43 @@
 #include "platform.h"
 #include "device.h"
 #include "cmdcall.h"
-#if defined(__x86_64__)
-//#include "cmdcall_x86_64.h"
-//#include "cmdcall_x86_64_sl.h"
-//#include "cmdcall_x86_64_ser.h"
-#include "cmdcall_e32ser.h"
-#include "cmdcall_e32sl.h"
+
+#if defined(__x86_64__) || defined(__arm__)
+#ifdef ENABLE_EMEK_BUILD
 #include "cmdcall_e32pth.h"
-#elif defined(__arm__)
-#include "cmdcall_arm.h"
+#else
+#include "cmdcall_e32pth_needham.h"
+#endif
 #else
 #error unsupported architecture
 #endif
-//#include "cmdcall_atigpu.h"
+
 #include "compiler.h"
 #include "program.h"
 
-#ifdef ENABLE_ATIGPU
-#include "cal.h"
-#include "calcl.h"
-//#include "compiler_atigpu.h"
-#endif
+#include "dmalloc.h"
 
+#include <e_host.h>
+#include "e_platform.h"
+
+//#define ENABLE_UVA
 
 /***** temporary e32 stuff -DAR */
 void* loaded_srec = 0;
 int e_opened = 0;
+
+#ifdef ENABLE_EMEK_BUILD
+
 char servIP[] = "127.0.0.1";
 const unsigned short eServLoaderPort = 50999;
+
+#else
+
+/* XXX zynq dram alloc and epiphany -DAR */
+DRAM_t e_dram;
+Epiphany_t e_epiphany;
+
+#endif
 
 
 char* strnlen_ws( char* p, char* s, size_t maxlen)
@@ -96,11 +100,6 @@ static char* truncate_ws(char* buf)
 	return(p);
 }
 
-//void __do_discover_devices_atigpu(
-//	unsigned int* p_ndevices, 
-//	struct _cl_device_id** p_dtab, 
-//	struct _strtab_entry* p_dstrtab 
-//);
 
 void __do_discover_devices(
 	unsigned int* p_ndevices, 
@@ -108,6 +107,8 @@ void __do_discover_devices(
 	struct _strtab_entry* p_dstrtab 
 )
 {
+	int err;
+
 	int devnum;
 
 	if (*p_dtab) return;
@@ -117,8 +118,6 @@ void __do_discover_devices(
 	p_dstrtab->buf[0] = '\0';
 	p_dstrtab->sz = 1;
 
-
-	/* assume we have at least one multicore CPU device */
 
 	unsigned int ncpu = 1;
 	*p_ndevices = ncpu;
@@ -151,11 +150,11 @@ void __do_discover_devices(
 		CL_NONE, 	/* global_mem_cache_type */
 		0, 			/* global_mem_cacheline_sz */
 		0, 			/* global_mem_cache_sz */
-		16777216-16384, 		/* global_mem_sz */
+		0, 			/* global_mem_sz */
 		65536, 		/* cl_ulong max_const_buffer_sz */
 		8, 			/* max_const_narg */
 		CL_LOCAL, 	/* local_mem_type */
-		32768, 			/* local_mem_sz */
+		0, 			/* local_mem_sz */
 		CL_FALSE,	/* supp_ec */
 		0, 			/* prof_timer_res */
 		CL_TRUE,		/* endian_little */
@@ -213,7 +212,26 @@ void __do_discover_devices(
 	dtab[0].imp.name = dstrtab+dstrtab_sz;
 	dstrtab_sz += sz;
 
-#elif defined(__x86_64__) || defined(__i386__)
+#elif defined(__x86_64__) || defined(__i386__) || defined(__arm__)
+
+
+/* XXX hardcoded device information for now -DAR */
+
+//	dtab[0].imp.max_compute_units = 16;
+//	dtab[0].imp.max_freq = 1000;
+//
+//   sz = 1+strnlen("E16G",__CLMAXSTR_LEN);
+//   strncpy(dstrtab+dstrtab_sz,"E16G",sz);
+//   dtab[0].imp.name = dstrtab+dstrtab_sz;
+//   dstrtab_sz += sz;
+//
+//	sz = 1+strnlen("Adapteva, Inc.",__CLMAXSTR_LEN);
+//	strncpy(dstrtab+dstrtab_sz,"Adapteva, Inc.",sz);
+//	dtab[0].imp.vendor = dstrtab+dstrtab_sz;
+//	dstrtab_sz += sz;
+
+
+#else // XXX else what? -DAR
 
 /*
 	if (stat("/proc/cpuinfo",&fs)) {
@@ -229,109 +247,10 @@ void __do_discover_devices(
 		char* left = (char*)strtok_r(buf,":",&savptr);
 		char* right = (char*)strtok_r(0,":",&savptr);
 
-		if (!strncasecmp(left,"processor",9)) {
-
-			if (atoi(right) > 0) break;
-
-		} else if (!strncasecmp(left,"cpu count",8)) {
-
-			dtab[0].imp.max_compute_units = atoi(right);
-
-		} else if (!strncasecmp(left,"cpu MHz",7)) {
-
-			dtab[0].imp.max_freq = atoi(right);
-
-		} else if (!strncasecmp(left,"model name",10)) {
-
-			right = truncate_ws(right);
-			sz = 1+strnlen(right,__CLMAXSTR_LEN);
-			strncpy(dstrtab+dstrtab_sz,right,sz);
-			dtab[0].imp.name = dstrtab+dstrtab_sz;
-			dstrtab_sz += sz;
-
-		} else if (!strncasecmp(left,"vendor_id",9)) {
-
-			right = truncate_ws(right);
-			sz = 1+strnlen(right,__CLMAXSTR_LEN);
-			strncpy(dstrtab+dstrtab_sz,right,sz);
-			dtab[0].imp.vendor = dstrtab+dstrtab_sz;
-			dstrtab_sz += sz;
-
-		}
-
-	}
-
-	fclose(fp);
-
-
-	if (stat("/proc/meminfo",&fs)) {
-		printcl( CL_WARNING "stat failed on /proc/meminfo");
-		return;
-	}
-
-	fp = fopen("/proc/meminfo","r");
-
-	while (fgets(buf,1024,fp)) {
-
-		char* savptr;
-		char* left = (char*)strtok_r(buf,":",&savptr);
-		char* right = (char*)strtok_r(0,":",&savptr);
-
-//		if (!strncasecmp(left,"MemFree",7)) {
-//
-//			dtab[0].imp.max_mem_alloc_sz = (1024/4)*atoi(right);
-//		}
-
-	}
-
-	fclose(fp);
-*/
-
-/* XXX hardcoded device information for now -DAR */
-
-	dtab[0].imp.max_compute_units = 16;
-	dtab[0].imp.max_freq = 1000;
-
-   sz = 1+strnlen("E16G",__CLMAXSTR_LEN);
-   strncpy(dstrtab+dstrtab_sz,"E16G",sz);
-   dtab[0].imp.name = dstrtab+dstrtab_sz;
-   dstrtab_sz += sz;
-
-	sz = 1+strnlen("Adapteva, Inc.",__CLMAXSTR_LEN);
-	strncpy(dstrtab+dstrtab_sz,"Adapteva, Inc.",sz);
-	dtab[0].imp.vendor = dstrtab+dstrtab_sz;
-	dstrtab_sz += sz;
-
-
-#elif defined(__arm__) 
-
-	if (stat("/proc/cpuinfo",&fs)) {
-		printcl( CL_WARNING "stat failed on /proc/cpuinfo");
-		return;
-	}
-
-	fp = fopen("/proc/cpuinfo","r");
-
-	while (fgets(buf,1024,fp)) {
-
-		char* savptr;
-		char* left = (char*)strtok_r(buf,":",&savptr);
-		char* right = (char*)strtok_r(0,":",&savptr);
-
 		if (!strncmp(left,"processor",9)) {
 
-//			if (atoi(right) > 0) break;
 			dtab[0].imp.max_compute_units = atoi(right) + 1;
 
-//		} else if (!strncasecmp(left,"cpu count",8)) {
-//
-//			dtab[0].imp.max_compute_units = atoi(right);
-//
-//		} else if (!strncasecmp(left,"cpu MHz",7)) {
-//
-//			dtab[0].imp.max_freq = atoi(right);
-//
-//		} else if (!strncasecmp(left,"model name",10)) {
 		} else if (!strncmp(left,"Processor",9)) {
 
 			right = truncate_ws(right);
@@ -340,7 +259,6 @@ void __do_discover_devices(
 			dtab[0].imp.name = dstrtab+dstrtab_sz;
 			dstrtab_sz += sz;
 
-//		} else if (!strncasecmp(left,"vendor_id",9)) {
 		} else if (!strncasecmp(left,"CPU implementer",15)) {
 
 			right = truncate_ws(right);
@@ -369,68 +287,38 @@ void __do_discover_devices(
 		char* left = (char*)strtok_r(buf,":",&savptr);
 		char* right = (char*)strtok_r(0,":",&savptr);
 
-//		if (!strncasecmp(left,"MemFree",7)) {
-//
-//			dtab[0].imp.max_mem_alloc_sz = (1024/4)*atoi(right);
-//		}
-
 	}
 
 	fclose(fp);
+*/
 
 #endif
 
 
-#if defined(__x86_64__)	
-//	dtab[0].imp.comp = (void*)compile_x86_64;
-	dtab[0].imp.comp = (void*)compile_e32;
+#if defined(__x86_64__)	|| defined(__arm__)
+
 	dtab[0].imp.ilcomp = 0;
 	dtab[0].imp.link = 0;
 	dtab[0].imp.bind_ksyms = bind_ksyms_default;
-//	dtab[0].imp.bind_ksyms = bind_ksyms_elf;
-//	dtab[0].imp.v_cmdcall = cmdcall_x86_64;
-//	dtab[0].imp.v_cmdcall = cmdcall_x86_64_sl;
-//	dtab[0].imp.v_cmdcall = cmdcall_x86_64_ser;
-#if defined(USE_E32SER)
-	dtab[0].imp.v_cmdcall = cmdcall_e32ser;
-#elif defined(USE_E32SL)
-	dtab[0].imp.v_cmdcall = cmdcall_e32sl;
-#elif defined(USE_E32PTH)
-	dtab[0].imp.v_cmdcall = cmdcall_e32pth;
-#else
-	dtab[0].imp.v_cmdcall = 0;
-#endif
-#elif defined(__arm__)
-   dtab[0].imp.comp = (void*)compile_arm;
-   dtab[0].imp.ilcomp = 0;
-   dtab[0].imp.link = 0;
-	dtab[0].imp.bind_ksyms = bind_ksyms_default;
-   dtab[0].imp.v_cmdcall = cmdcall_arm;
+
 #else
 #error unsupported architecture
 #endif
 
 
-//	int i;
-//	CPU_ZERO(&dtab[0].imp.cpumask);
-//	unsigned int ncore = sysconf(_SC_NPROCESSORS_ONLN);
-//	for(i=0;i<ncore;i++) CPU_SET(i,&dtab[0].imp.cpumask);
-
-//	dtab[0].imp.cpu.veid_first = 0;
-//	dtab[0].imp.cpu.veid_last = ncore-1;
-
+/* QQQ
 	int i;
 
 	unsigned int ncore = sysconf(_SC_NPROCESSORS_ONLN);
 
 	if (getenv("COPRTHR_VCORE_NE"))
 		ncore = min(ncore,atoi(getenv("COPRTHR_VCORE_NE")));
+*/
 
-//ncore = 1;
 
-#ifdef ENABLE_NCPU
-//	char buf[256];
+//#ifdef ENABLE_NCPU
 
+/*
 	printcl( CL_DEBUG "checking for force_ncpu");
 
 	if (!getenv_token("COPRTHR_OCL","force_ncpu",buf,256)) ncpu = atoi(buf);
@@ -472,17 +360,19 @@ void __do_discover_devices(
 		dtab[0].imp.cpu.veid_base = 0;
 		dtab[0].imp.cpu.nve = ncore;
 	}
-#else
+*/
+
+//#else
+/* QQQ
 	CPU_ZERO(&dtab[0].imp.cpumask);
 	for(i=0;i<ncore;i++) CPU_SET(i,&dtab[0].imp.cpumask);
 	dtab[0].imp.cpu.veid_base = 0;
 	dtab[0].imp.cpu.nve = ncore;
-#endif
+*/
+//#endif
 
 
-//	printcl( CL_DEBUG "calling vcproc_startup");
-//	printcl( XCL_WARNING "vcproc_startup is disabled");
-//	vcproc_startup(0);
+#ifdef ENABLE_EMEK_BUILD
 
    if (e_open((char*)servIP, eServLoaderPort)) {
       printcl( CL_ERR "Cannot establish connection to E-SERVER!");
@@ -490,220 +380,140 @@ void __do_discover_devices(
    }
    printcl( CL_DEBUG "connect e-server at %s:%d",servIP,eServLoaderPort);
 
-	e_opened = 1;
+   e_opened = 1;
 
+	struct e_platform_info_struct einfo;
+//	e_get_platform_info( &e_epiphany, &einfo );
+	e_get_platform_info( 0, &einfo );
 
-//#ifdef ENABLE_ATIGPU
-//	__do_discover_devices_atigpu( p_ndevices, p_dtab, p_dstrtab );
-//#endif
-		
-}
+	printcl( CL_DEBUG "epiphany platform info:");
+	printcl( CL_DEBUG "\tplatform_name '%s'",einfo.e_platform_name);
+	printcl( CL_DEBUG "\tdevice_id %d",einfo.e_device_id);
+	printcl( CL_DEBUG "\tglobal_mem_base %p",einfo.e_global_mem_base);
+	printcl( CL_DEBUG "\tglobal_mem_size %ld",einfo.e_global_mem_size);
+	printcl( CL_DEBUG "\tcore_local_mem_size %ld",einfo.e_core_local_mem_size);
+	printcl( CL_DEBUG "\tcore_base_addr %p",einfo.e_core_base_addr);
+	printcl( CL_DEBUG "\tarray_ncol %d",einfo.e_array_ncol);
+	printcl( CL_DEBUG "\tarray_nrow %d",einfo.e_array_nrow);
 
+	devmembase = einfo.e_global_mem_base;
+	devmemlo = devmembase + 0x4000;
+	devmemhi = devmemlo + einfo.e_global_mem_size;
 
-#if(0)
+	dmalloc_reset();
 
-static int __cal_init = 0;
+	dtab[0].imp.max_compute_units = 16;
+	dtab[0].imp.max_freq = 1000;
 
-void __attribute((__constructor__)) _init_cal_ctor()
-{
-	__cal_init = (calInit()==CAL_RESULT_OK)? 1 : 0;
-	if (__cal_init) { printcl( CL_DEBUG "CAL init ok"); }
-	else { printcl( CL_WARNING "CAL init failed"); }
-}
+   sz = 1+strnlen(einfo.e_platform_name,__CLMAXSTR_LEN);
+   strncpy(dstrtab+dstrtab_sz,einfo.e_platform_name,sz);
+   dtab[0].imp.name = dstrtab+dstrtab_sz;
+   dstrtab_sz += sz;
 
-void __attribute__((__destructor__)) _fini_cal_dtor()
-{
-	if (!__cal_init) return;
+	sz = 1+strnlen("Adapteva, Inc.",__CLMAXSTR_LEN);
+	strncpy(dstrtab+dstrtab_sz,"Adapteva, Inc.",sz);
+	dtab[0].imp.vendor = dstrtab+dstrtab_sz;
+	dstrtab_sz += sz;
 
-	__cal_init = 0;
+	dtab[0].imp.e32.core_local_mem_size = einfo.e_core_local_mem_size;
+	dtab[0].imp.e32.core_base_addr = einfo.e_core_base_addr;
+	dtab[0].imp.e32.array_ncol = einfo.e_array_ncol;
+	dtab[0].imp.e32.array_nrow = einfo.e_array_nrow;
+	dtab[0].imp.e32.ncore = (einfo.e_array_ncol)*(einfo.e_array_nrow);
 
-	if (calShutdown() != CAL_RESULT_OK) 
-		printcl( CL_WARNING "calShutdown failed");
-}
+	dtab[0].imp.vendorid = einfo.e_device_id;
+	dtab[0].imp.global_mem_sz = einfo.e_global_mem_size;
+	dtab[0].imp.local_mem_sz = einfo.e_core_local_mem_size;
+	dtab[0].imp.comp = (void*)compile_e32;
+	dtab[0].imp.v_cmdcall = cmdcall_e32pth;
 
-void __do_discover_devices_atigpu(
-	unsigned int* p_ndevices, 
-	struct _cl_device_id** p_dtab, 
-	struct _strtab_entry* p_dstrtab 
-)
-{
+#else
 
-	if (!__cal_init) return;
+	e_open(&e_epiphany);
 
-/* XXX need to connect p_dstrtab with dstrtab in the CPU stuff above */
+   e_opened = 1;
 
-	p_dstrtab->alloc_sz = 1024;
-	p_dstrtab->buf = (char*)malloc(p_dstrtab->alloc_sz);
-	p_dstrtab->buf[0] = '\0';
-	p_dstrtab->sz = 1;
+	printcl( CL_DEBUG "e_alloc using &e_dram %p", &e_dram);
 
-	unsigned int ncpu = sysconf(_SC_NPROCESSORS_ONLN);
+	err = e_alloc( &e_dram, 0, (8192*4096) );
 
-	/*
-	 * check for ATI GPUs
-	 */
+	if (err) 
+		printcl( CL_ERR "e_alloc returned %d", err);
+	else 
+		printcl( CL_DEBUG "e_alloc ok, returned %d", err);
 
-	CALuint ngpu;
-	calDeviceGetCount(&ngpu);
+	printcl( CL_DEBUG "dram alloc:" );
+	printcl( CL_DEBUG 
+		"map_size=%ld map_mask=0x%x phy_base=0x%x mapped_base=%p base=%p"
+		" memfd=%d", e_dram.map_size,e_dram.map_mask,e_dram.phy_base,
+		e_dram.mapped_base,e_dram.base,e_dram.memfd );
 
-	unsigned int devnum = *p_ndevices;
-	unsigned int ndev = *p_ndevices += (unsigned int)ngpu;
+#ifdef ENABLE_UVA	
+	e_dram.mapped_base = mremap(e_dram.mapped_base,(8192*4096),(8192*4096),
+		MREMAP_MAYMOVE|MREMAP_FIXED,(void*)0x8e000000 );
 
-	printcl( CL_DEBUG "found %d ATI GPUs",ngpu);
-
-	if (*p_dtab) {
-		*p_dtab = (struct _cl_device_id*)
-			realloc(*p_dtab,ndev*sizeof(struct _cl_device_id));
-	} else {	
-		*p_dtab = (struct _cl_device_id*)
-			malloc(ndev*sizeof(struct _cl_device_id));
+	if (e_dram.mapped_base == (void*)(-1) ) {
+		perror(0);
+		exit(-1);
+	} else {
+		e_dram.base = e_dram.mapped_base;
 	}
 
-	struct _cl_device_id* dtab = *p_dtab;
+	printcl( CL_DEBUG "dram alloc after mremap:" );
+	printcl( CL_DEBUG 
+		"map_size=%ld map_mask=0x%x phy_base=0x%x mapped_base=%p base=%p"
+		" memfd=%d", e_dram.map_size,e_dram.map_mask,e_dram.phy_base,
+		e_dram.mapped_base,e_dram.base,e_dram.memfd );
+#endif
 
-	// calGetVersion
+	
+	struct e_platform_info_struct einfo;
+	e_get_platform_info( &e_epiphany, &einfo );
 
-	int n;
-	for(n=0;n<ngpu;n++,devnum++) {
+	printcl( CL_DEBUG "epiphany platform info:");
+	printcl( CL_DEBUG "\tplatform_name '%s'",einfo.e_platform_name);
+	printcl( CL_DEBUG "\tdevice_id %d",einfo.e_device_id);
+	printcl( CL_DEBUG "\tglobal_mem_base %p",einfo.e_global_mem_base);
+	printcl( CL_DEBUG "\tglobal_mem_size %ld",einfo.e_global_mem_size);
+	printcl( CL_DEBUG "\tcore_local_mem_size %ld",einfo.e_core_local_mem_size);
+	printcl( CL_DEBUG "\tcore_base_addr %p",einfo.e_core_base_addr);
+	printcl( CL_DEBUG "\tarray_ncol %d",einfo.e_array_ncol);
+	printcl( CL_DEBUG "\tarray_nrow %d",einfo.e_array_nrow);
 
-		CALdevice dev = 0;
-		calDeviceOpen(&dev,n);
+	devmembase = einfo.e_global_mem_base;
+	devmemlo = devmembase + 0x4000;
+	devmemhi = devmemlo + einfo.e_global_mem_size;
 
-		CALdeviceinfo info;
-		calDeviceGetInfo(&info,n);
+	dmalloc_reset();
 
-		printcl( CL_DEBUG "[%d] ATI GPU target %d",
-			devnum,info.target);
-		printcl( CL_DEBUG 
-			"[%d] ATI GPU max res width1d, width2d, height2d %d %d %d",devnum,
-			info.maxResource1DWidth,
-			info.maxResource2DWidth,
-			info.maxResource2DHeight);
+	dtab[0].imp.max_compute_units = 16;
+	dtab[0].imp.max_freq = 1000;
 
-		CALdeviceattribs attr;
-		attr.struct_size = sizeof(CALdeviceattribs);
-		calDeviceGetAttribs(&attr,n);
+   sz = 1+strnlen(einfo.e_platform_name,__CLMAXSTR_LEN);
+   strncpy(dstrtab+dstrtab_sz,einfo.e_platform_name,sz);
+   dtab[0].imp.name = dstrtab+dstrtab_sz;
+   dstrtab_sz += sz;
 
-		printcl( CL_DEBUG "[%d] ATI GPU target %d",devnum,attr.target);
-		printcl( CL_DEBUG "[%d] ATI GPU local mem %d",devnum,attr.localRAM);
-		printcl( CL_DEBUG "[%d] ATI GPU uncached remote mem %d",
-			devnum,attr.uncachedRemoteRAM);
-		printcl( CL_DEBUG "[%d] ATI GPU cached remote mem %d",
-			devnum,attr.cachedRemoteRAM);
-		printcl( CL_DEBUG "[%d] ATI GPU engine clk %d",
-			devnum,attr.engineClock);
-		printcl( CL_DEBUG "[%d] ATI GPU mem clk %d",
-			devnum,attr.memoryClock);
-		printcl( CL_DEBUG "[%d] ATI GPU wavefront size %d",
-			devnum,attr.wavefrontSize);
-		printcl( CL_DEBUG "[%d] ATI GPU nsimd %d",devnum,attr.numberOfSIMD);
-		printcl( CL_DEBUG "[%d] ATI GPU double %d",
-			devnum,attr.doublePrecision);
-		printcl( CL_DEBUG "[%d] ATI GPU local data share %d",
-			devnum,attr.localDataShare);
-		printcl( CL_DEBUG "[%d] ATI GPU global data share %d",
-			devnum,attr.globalDataShare);
-		printcl( CL_DEBUG "[%d] ATI GPU global GPR %d",
-			devnum,attr.globalGPR);
-		printcl( CL_DEBUG "[%d] ATI GPU computeShader %d",
-			devnum,attr.computeShader);
-		printcl( CL_DEBUG "[%d] ATI GPU memExport %d",
-			devnum,attr.memExport);
-		printcl( CL_DEBUG "[%d] ATI GPU pitch align %d",
-			devnum,attr.pitch_alignment);
-		printcl( CL_DEBUG "[%d] ATI GPU nuav %d",
-			devnum,attr.numberOfUAVs);
-		printcl( CL_DEBUG "[%d] ATI GPU bUAVMemExport %d",
-			devnum,attr.bUAVMemExport);
-		printcl( CL_DEBUG "[%d] ATI GPU b3dProgramGrid %d",
-			devnum,attr.b3dProgramGrid);
-		printcl( CL_DEBUG "[%d] ATI GPU nshaderengines %d",
-			devnum,attr.numberOfShaderEngines);
-		printcl( CL_DEBUG "[%d] ATI GPU targetrev %d",
-			devnum,attr.targetRevision);
+	sz = 1+strnlen("Adapteva, Inc.",__CLMAXSTR_LEN);
+	strncpy(dstrtab+dstrtab_sz,"Adapteva, Inc.",sz);
+	dtab[0].imp.vendor = dstrtab+dstrtab_sz;
+	dstrtab_sz += sz;
 
-		dtab[devnum].imp = (struct _imp_device){
-			CL_DEVICE_TYPE_GPU,
-			0,				/* vendorid */
-			1,				/* max_compute_units */
-			3,1,1,1,0,	/* max_wi_dim,max_wi_sz[] */
-			1,				/* max_wg_sz */
-			8,4,2,1,2,1,	/* pref_char/short/int/long/float/double/n */
-			attr.engineClock,				/* max_freq */
-			64,			/* bits */
-			128*1024*1024,		/* max_mem_alloc_sz */
-			CL_FALSE,	/* supp_img */
-			0,0, 			/* img_max_narg_r, img_max_narg_w */
-			0,0,			/* img2d_max_width, img2d_max_height */
-			0,0,0,		/*  img3d_max_width, img3d_max_height, img3d_max_depth */
-			0, 			/* max_samplers */
-			256, 			/* max_param_sz */
-			64, 			/* mem_align_bits */
-			8, 			/* datatype_align_sz */
-			CL_FP_ROUND_TO_NEAREST|CL_FP_INF_NAN, /* single_fp_config */
-			CL_NONE, 	/* global_mem_cache_type */
-			0, 			/* global_mem_cacheline_sz */
-			0, 			/* global_mem_cache_sz */
-			0, 			/* global_mem_sz */
-			65536, 		/* cl_ulong max_const_buffer_sz */
-			8, 			/* max_const_narg */
-			CL_GLOBAL, 	/* local_mem_type */
-			0, 			/* local_mem_sz */
-			CL_FALSE,	/* supp_ec */
-			0, 			/* prof_timer_res */
-			CL_TRUE,		/* endian_little */
-			CL_FALSE, 	/* avail */
-			CL_FALSE,	/* compiler_avail */
-			CL_EXEC_KERNEL,	/* supp_exec_cap */
-			CL_QUEUE_PROFILING_ENABLE, /* cmdq_prop */
-			(cl_platform_id)(-1),	/* platformid */
-			0, 	/* name */
-			0, 	/* vendor */
-			0, 	/* drv_version */
-			0, 	/* profile */
-			0, 	/* version */
-			0,		/* extensions */
-			0,0 	/* dstrtab, dstrtab_sz */
-		};
+	dtab[0].imp.e32.core_local_mem_size = einfo.e_core_local_mem_size;
+	dtab[0].imp.e32.core_base_addr = einfo.e_core_base_addr;
+	dtab[0].imp.e32.array_ncol = einfo.e_array_ncol;
+	dtab[0].imp.e32.array_nrow = einfo.e_array_nrow;
+	dtab[0].imp.e32.ncore = (einfo.e_array_ncol)*(einfo.e_array_nrow);
 
-		char* dstrtab = (char*)malloc(4096);
-		size_t dstrtab_sz = 1;
-		dstrtab[devnum] = '\0';
-
-		dtab[devnum].imp.name = dstrtab;
-		dtab[devnum].imp.vendor = dstrtab;
-		dtab[devnum].imp.drv_version = dstrtab;
-		dtab[devnum].imp.profile = dstrtab;
-		dtab[devnum].imp.version = dstrtab;
-		dtab[devnum].imp.extensions = dstrtab;
-
-		dtab[devnum].imp.compiler_avail = CL_TRUE;
-		dtab[devnum].imp.comp = (void*)compile_atigpu;
-		dtab[devnum].imp.ilcomp = (void*)ilcompile_atigpu;
-		dtab[devnum].imp.link = 0;
-		dtab[devnum].imp.v_cmdcall = cmdcall_atigpu;
-
-		CPU_ZERO(&dtab[devnum].imp.cpumask);
-		CPU_SET(n%ncpu,&dtab[devnum].imp.cpumask);
-
-
-		/* XXX copy these into the dtab, alternative would be to initialize
-		 * XXX the dtab struct prior to the CAL open, get info calls -DAR */
-
-		memcpy(&dtab[devnum].imp.atigpu.caldev,&dev,sizeof(CALdevice));
-		memcpy(&dtab[devnum].imp.atigpu.calinfo,&info,sizeof(CALdeviceinfo));
-
-
-		printcl( CL_DEBUG "finished devnum %d",devnum);
-
-	}
-
-
-	printcl( CL_DEBUG "check again target %d",dtab[1].imp.atigpu.calinfo.target);
-
-}
+	dtab[0].imp.vendorid = einfo.e_device_id;
+	dtab[0].imp.global_mem_sz = einfo.e_global_mem_size;
+	dtab[0].imp.local_mem_sz = einfo.e_core_local_mem_size;
+	dtab[0].imp.comp = (void*)compile_e32_needham;
+	dtab[0].imp.v_cmdcall = cmdcall_e32pth_needham;
 
 #endif
+
+}
 
 
 void __do_release_devices(
@@ -759,8 +569,6 @@ void __do_get_devices(
 
 	if (devtype == CL_DEVICE_TYPE_DEFAULT) 
 		devtype = CL_DEVICE_TYPE_ACCELERATOR; /* XXX */
-
-//printf("devtype %d\n",devtype);
 
 	for(devnum=0;devnum<ndevices;devnum++) 
 		if (n<ndev && dtab[devnum].imp.devtype & devtype) 

@@ -24,8 +24,8 @@
 #define _VERSION_H
 
 
-#define COPRTHR_ALPHA	1	/* @ALPHA */
-#define COPRTHR_BETA		0	/* @BETA */
+#define COPRTHR_ALPHA	0	/* @ALPHA */
+#define COPRTHR_BETA		1	/* @BETA */
 
 
 #define __quote(x) #x
@@ -45,23 +45,25 @@
 #endif
 
 #ifndef COPRTHR_NAME
-#define COPRTHR_NAME "marathon"
+#define COPRTHR_NAME "Marathon"
 #endif
 
 
-#if (COPRTHR_ALPHA)
-#define COPRTHR_VERSION_STRING \
-	"coprthr-"__stringify(COPRTHR_VERSION)"."__stringify(COPRTHR_REVISION) \
-	"-CURRENT ("COPRTHR_NAME")"
-#elif (COPRTHR_BETA)
-#define COPRTHR_VERSION_STRING \
-	"coprthr-"__stringify(COPRTHR_VERSION)"."__stringify(COPRTHR_REVISION) \
-	"-RC ("COPRTHR_NAME")"
-#else
-#define COPRTHR_VERSION_STRING \
-	"coprthr-"__stringify(COPRTHR_VERSION)"."__stringify(COPRTHR_REVISION) \
-	"."__stringify(COPRTHR_RELEASE)" ("COPRTHR_NAME")"
-#endif
+//#if (COPRTHR_ALPHA)
+//#define COPRTHR_VERSION_STRING \
+//	"coprthr-"__stringify(COPRTHR_VERSION)"."__stringify(COPRTHR_REVISION) \
+//	"-CURRENT ("COPRTHR_NAME")"
+//#elif (COPRTHR_BETA)
+//#define COPRTHR_VERSION_STRING \
+//	"coprthr-"__stringify(COPRTHR_VERSION)"."__stringify(COPRTHR_REVISION) \
+//	"-RC ("COPRTHR_NAME")"
+//#else
+//#define COPRTHR_VERSION_STRING \
+//	"coprthr-"__stringify(COPRTHR_VERSION)"."__stringify(COPRTHR_REVISION) \
+//	"."__stringify(COPRTHR_RELEASE)" ("COPRTHR_NAME")"
+//#endif
+
+#define COPRTHR_VERSION_STRING "coprthr-1.5.0-RC1 (Marathon)"
 
 
 #define COPRTHR_VERSION_CODE \

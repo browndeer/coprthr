@@ -30,6 +30,12 @@
 extern "C" {
 #endif
 
+extern void* devmembase;
+extern void* devmemlo;
+extern void* devmemhi;
+
+void dmalloc_reset( void );
+
 void* getdbrk(int devnum); 
 
 void* dmalloc(int devnum, size_t size);

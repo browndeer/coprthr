@@ -24,8 +24,8 @@
 #define _VERSION_H
 
 
-#define COPRTHR_ALPHA	1	/* @ALPHA */
-#define COPRTHR_BETA		0	/* @BETA */
+#define COPRTHR_ALPHA	0	/* @ALPHA */
+#define COPRTHR_BETA		1	/* @BETA */
 
 
 #define __quote(x) #x
@@ -37,7 +37,7 @@
 #endif
 
 #ifndef COPRTHR_REVISION
-#define COPRTHR_REVISION 4 /* @REVISION */
+#define COPRTHR_REVISION 5 /* @REVISION */
 #endif
 
 #ifndef COPRTHR_RELEASE
@@ -66,7 +66,7 @@
 
 #endif
 /* XXX overriding version string with special designation -DAR */
-#define COPRTHR_VERSION_STRING "coprthr-1.4-e1.0-BETA"
+#define COPRTHR_VERSION_STRING "coprthr-1.5.0-RC1 (Marathon)"
 
 #define COPRTHR_VERSION_CODE \
 	((COPRTHR_VERSION<<16)|(COPRTHR_REVISION<<8)|(COPRTHR_RELEASE))

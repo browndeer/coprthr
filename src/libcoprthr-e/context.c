@@ -22,39 +22,44 @@
 
 #include <CL/cl.h>
 
-#ifdef ENABLE_ATIGPU
-#include "cal.h"
-#endif
+//#ifdef ENABLE_ATIGPU
+//#include "cal.h"
+//#endif
 
 #include "xcl_structs.h"
 #include "context.h"
+#include "dmalloc.h"
 
 void __do_create_context(cl_context ctx) 
 {
-#ifdef ENABLE_ATIGPU
-	int i,err;
-	ctx->imp.calctx = (CALcontext*)malloc(ctx->ndev*sizeof(CALcontext));
-	for(i=0;i<ctx->ndev;i++) {
-		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
-			err = calCtxCreate(&ctx->imp.calctx[i],
-				__resolve_devid(ctx->devices[i],atigpu.caldev));
-			DEBUG(__FILE__,__LINE__,"calCtxCreate returned %d",err);
-		} else ctx->imp.calctx[i] = 0;
-	}
-#endif
+//#ifdef ENABLE_ATIGPU
+//	int i,err;
+//	ctx->imp.calctx = (CALcontext*)malloc(ctx->ndev*sizeof(CALcontext));
+//	for(i=0;i<ctx->ndev;i++) {
+//		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+//			err = calCtxCreate(&ctx->imp.calctx[i],
+//				__resolve_devid(ctx->devices[i],atigpu.caldev));
+//			DEBUG(__FILE__,__LINE__,"calCtxCreate returned %d",err);
+//		} else ctx->imp.calctx[i] = 0;
+//	}
+//#endif
+
+	printcl( CL_DEBUG "call dmalloc_reset");
+	dmalloc_reset();
+
 }
 
 void __do_release_context(cl_context ctx) 
 {
-#ifdef ENABLE_ATIGPU
-	int i,err;
-	for(i=0;i<ctx->ndev;i++) {
-		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
-			err = calCtxDestroy(ctx->imp.calctx[i]);
-			DEBUG(__FILE__,__LINE__,"calCtxDestroy returned %d",err);
-		}
-	}
-#endif
+//#ifdef ENABLE_ATIGPU
+//	int i,err;
+//	for(i=0;i<ctx->ndev;i++) {
+//		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+//			err = calCtxDestroy(ctx->imp.calctx[i]);
+//			DEBUG(__FILE__,__LINE__,"calCtxDestroy returned %d",err);
+//		}
+//	}
+//#endif
 }
 
 void __do_get_max_buffer_size_in_context(cl_context ctx, size_t* sz)

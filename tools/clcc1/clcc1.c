@@ -37,7 +37,8 @@
 #include <CL/cl.h>
 #define CL_CONTEXT_OFFLINE_DEVICES_AMD 0x403F
 
-#include "util.h"
+//#include "util.h"
+#include "printcl.h"
 #include "../../src/libclelf/clelf.h"
 
 char* platform_name_string[] = {
@@ -278,6 +279,8 @@ int main(int argc, char** argv)
 
 	int quiet = 1;
 
+	int dump_bin = 0;
+
 	char* platform_select = 0;
 	char* platform_exclude = 0;
 	char* device_select = 0;
@@ -426,6 +429,10 @@ int main(int argc, char** argv)
 		} else if (str_match_exact(argv[n],"-v")) {
 
 			quiet = 0;
+
+		} else if (str_match_exact(argv[n],"--dump_bin")) {
+
+			dump_bin = 1;
 
 		} else if (str_match_exact(argv[n],"--help")) {
 
@@ -838,6 +845,21 @@ int main(int argc, char** argv)
 			DEBUG2("status %d",status);
 
 			if (status == CL_BUILD_SUCCESS && bins[j]) {
+
+fprintf(stderr,"HERE\n"); fflush(stderr);
+				if (dump_bin) {
+
+printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",
+	fname,platform_code,device_name,bin_sizes[j]);
+
+					char* tmp_filename = (char*)malloc(256);
+					snprintf(tmp_filename,256,"%sbin.%d.%s\0",
+						fname,platform_code,device_name);
+					int tmp_fd = open(tmp_filename,O_WRONLY|O_CREAT,644);
+					write(tmp_fd,bins[j],bin_sizes[j]);
+					close(tmp_fd);
+				}
+
 
 				++nbin_valid;
 				DEBUG2("nbin_valid %d",nbin_valid);

@@ -30,6 +30,8 @@
 #include <e_dma.h>
 #include <string.h>
 
+#include "e32pth_mem_if.h"
+
 #ifndef __always_inline
 #define __always_inline __inline __attribute__((__always_inline__))
 #endif
@@ -58,7 +60,7 @@ __corenum_to_coreid(unsigned int n)
 #define __restore_run() \
    do { e32_ctrl_run[core_local_data.corenum] = save_run; } while(0)
 
-extern struct core_local_data_struct core_local_data;
+volatile extern struct core_local_data_struct core_local_data;
 extern unsigned char coremap[];
 extern unsigned char threadmap[];
 volatile extern e32_workp_entry_t core_we;

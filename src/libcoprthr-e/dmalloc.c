@@ -157,13 +157,25 @@ static mutex_t thread_lock = MUTEX_INITIALIZER;
 #include <unistd.h>
 #include <stdint.h>
 
-#include "e32_config.h"
+//#include "e32_config.h"
 
 //#define DEVMEMLO 0x81004000 /* offset from DRAM base for system data -DAR */
 //#define DEVMEMHI 0x82000000 /* XXX is this correct? -DAR */
-#define DEVMEMLO E32_GLOBAL_MEM_BASE 
-#define DEVMEMHI E32_GLOBAL_MEM_HI
-void* devmem_break = (void*)DEVMEMLO;
+//#define DEVMEMLO E32_GLOBAL_MEM_BASE 
+//#define DEVMEMHI E32_GLOBAL_MEM_HI
+#define DEVMEMLO devmemlo
+#define DEVMEMHI devmemhi
+
+void* devmembase = 0;
+void* devmemlo = 0;
+void* devmemhi = 0;
+//void* devmem_break = (void*)DEVMEMLO;
+void* devmem_break = 0;
+
+void dmalloc_reset( void )
+{ 
+	devmem_break = devmemlo;
+}
 
 #define DEVICE	0
 #define HOST (~0)

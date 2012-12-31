@@ -37,7 +37,7 @@
 //#define E32_NCORES 16
 //#endif
 
-extern struct core_local_data_struct core_local_data;
+volatile extern struct core_local_data_struct core_local_data;
 
 //#define _ENABLE_BARRIER_TRACE 0 
 //#define _ENABLE_BARRIER_TRACE 1
@@ -114,7 +114,7 @@ struct thr_data_struct {
 
 #if defined(__xcl_kcall__) || defined(__xcl_kthr__)
 
-extern struct core_local_data_struct core_local_data;
+volatile extern struct core_local_data_struct core_local_data;
 volatile extern e32_workp_entry_t core_we;
 volatile extern struct thr_data_struct thr_data;
 

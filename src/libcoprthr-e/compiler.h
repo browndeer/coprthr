@@ -53,6 +53,14 @@ int compile_e32(
    char* opt, char** p_log
 );
 
+int compile_e32_needham(
+	cl_device_id devid,
+	unsigned char* src, size_t src_sz,
+	unsigned char** p_bin, size_t* p_bin_sz,
+	char* opt, char** p_log
+);
+
+
 /*
 void* compile_atigpu(
    cl_device_id,

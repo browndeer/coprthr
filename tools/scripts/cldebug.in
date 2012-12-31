@@ -24,6 +24,9 @@ done
 if [ -z "$tmpdir" ]; then
    export COPRTHR_CLMESG_LEVEL=$clmesg_level; $@;
 else
+	if [ ! -e "$tmpdir" ]; then
+		mkdir -p $tmpdir;
+	fi
    export COPRTHR_CLMESG_LEVEL=$clmesg_level; export COPRTHR_TMP=$tmpdir; $@;
 fi
 

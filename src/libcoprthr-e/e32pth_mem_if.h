@@ -32,6 +32,12 @@
 #define __host__
 #endif
 
+#ifdef __host__
+#warning compiling with __host__ defined
+#else 
+#warning compiling with __host__ undefined
+#endif
+
 #if !defined(__host__)
 #include <e_coreid.h>
 #include <e_common.h>

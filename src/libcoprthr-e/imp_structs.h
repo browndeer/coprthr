@@ -149,7 +149,15 @@ struct _imp_device {
 //			CALdeviceinfo calinfo;
 //		} atigpu;
 //#endif
-		
+
+		struct {
+			size_t core_local_mem_size;
+			void* core_base_addr;
+			int array_ncol;
+			int array_nrow;
+			int ncore;
+		} e32;
+
 	};
 
 };
