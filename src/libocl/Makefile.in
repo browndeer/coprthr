@@ -147,6 +147,7 @@ install:
 #ifeq ($(ENABLE_DEBUG_LIBCOPRTHR),1)
 #	ln -sf $(INSTALL_LIB_DIR)/libocl_d.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
 #endif
+	test -d /var/clproc || install -m 777 -d /var/clproc
 
 uninstall: 
 #	rm -f $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libocl_d.so
