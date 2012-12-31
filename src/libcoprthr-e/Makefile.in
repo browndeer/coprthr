@@ -1,6 +1,8 @@
 
 E32_DRAM_ZEROPAGE_LEXINGTON 	= 0x81000000
 E32_DRAM_ZEROPAGE_NEEDHAM 		= 0x8e000000
+E32_DRAM_ZEROPAGE_NEEDHAMPRO 	= 0x8e000000
+E32_DRAM_ZEROPAGE_BLANK 		= 0x8e000000
 
 ### 
 ### Makefile for libcoprthr-e
@@ -291,6 +293,26 @@ _e32pth_core_main_needham.o: _e32pth_core_main_needham.c
 		-I/usr/local/adapteva/elib \
 		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_NEEDHAM) \
 		-o _e32pth_core_main_needham.o _e32pth_core_main_needham.c
+
+_e32pth_core_main_needhampro.o: _e32pth_core_main_needhampro.c
+	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
+		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
+		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
+		-U_FORTIFY_SOURCE -fno-stack-protector \
+		-fstack-usage \
+		-I/usr/local/adapteva/elib \
+		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_NEEDHAMPRO) \
+		-o _e32pth_core_main_needhampro.o _e32pth_core_main_needhampro.c
+
+_e32pth_core_main_blank.o: _e32pth_core_main_blank.c
+	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
+		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
+		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
+		-U_FORTIFY_SOURCE -fno-stack-protector \
+		-fstack-usage \
+		-I/usr/local/adapteva/elib \
+		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_BLANK) \
+		-o _e32pth_core_main_blank.o _e32pth_core_main_blank.c
 
 
 debug:
