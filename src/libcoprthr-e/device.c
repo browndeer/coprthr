@@ -214,6 +214,7 @@ void __do_discover_devices(
 	strncpy(dstrtab+dstrtab_sz,bufp,sz);
 	dtab[0].imp.name = dstrtab+dstrtab_sz;
 	dstrtab_sz += sz;
+#endif
 
 
 #if defined(__x86_64__)	|| defined(__arm__)
