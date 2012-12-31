@@ -335,7 +335,7 @@ void __do_discover_devices(
 
 	} else {
 
-		printfcl( CL_ERR "platform '%s' unrecognized",einfo.e_platform_name);
+		printcl( CL_ERR "platform '%s' unrecognized",einfo.e_platform_name);
 		return(-1);
 
 	}
@@ -357,7 +357,7 @@ void __do_discover_devices(
 
 	} else {
 
-		printfcl( CL_ERR "platform '%s' unrecognized",einfo.e_platform_name);
+		printcl( CL_ERR "platform '%s' unrecognized",einfo.e_platform_name);
 		return(-1);
 
 	}
