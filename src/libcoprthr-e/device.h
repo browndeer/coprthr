@@ -45,6 +45,16 @@ void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
 
 #ifdef ENABLE_EMEK_BUILD
 
+#define xxx_e_read_dram( src, dst, len) do { \
+	printcl( CL_DEBUG "xxx_e_read_dram %p",src); \
+	e_read( src, dst, len); \
+	} while(0)
+
+#define xxx_e_write_dram( dst, src, len) do { \
+	printcl( CL_DEBUG "xxx_e_write_dram %p",dst); \
+	e_write( dst, src, len); \
+	} while(0)
+
 #else
 
 extern DRAM_t e_dram;

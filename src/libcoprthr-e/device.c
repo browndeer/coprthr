@@ -27,6 +27,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 
 #if defined(__FreeBSD__)
 #include <sys/types.h>
@@ -47,6 +48,8 @@
 #include "cmdcall_e32pth.h"
 #else
 #include "cmdcall_e32pth_needham.h"
+//#include "cmdcall_e32pth_needhampro.h"
+//#include "cmdcall_e32pth_blank.h"
 #endif
 #else
 #error unsupported architecture
@@ -386,46 +389,46 @@ void __do_discover_devices(
 //	e_get_platform_info( &e_epiphany, &einfo );
 	e_get_platform_info( 0, &einfo );
 
-	printcl( CL_DEBUG "epiphany platform info:");
-	printcl( CL_DEBUG "\tplatform_name '%s'",einfo.e_platform_name);
-	printcl( CL_DEBUG "\tdevice_id %d",einfo.e_device_id);
-	printcl( CL_DEBUG "\tglobal_mem_base %p",einfo.e_global_mem_base);
-	printcl( CL_DEBUG "\tglobal_mem_size %ld",einfo.e_global_mem_size);
-	printcl( CL_DEBUG "\tcore_local_mem_size %ld",einfo.e_core_local_mem_size);
-	printcl( CL_DEBUG "\tcore_base_addr %p",einfo.e_core_base_addr);
-	printcl( CL_DEBUG "\tarray_ncol %d",einfo.e_array_ncol);
-	printcl( CL_DEBUG "\tarray_nrow %d",einfo.e_array_nrow);
+//	printcl( CL_DEBUG "epiphany platform info:");
+//	printcl( CL_DEBUG "\tplatform_name '%s'",einfo.e_platform_name);
+//	printcl( CL_DEBUG "\tdevice_id %d",einfo.e_device_id);
+//	printcl( CL_DEBUG "\tglobal_mem_base %p",einfo.e_global_mem_base);
+//	printcl( CL_DEBUG "\tglobal_mem_size %ld",einfo.e_global_mem_size);
+//	printcl( CL_DEBUG "\tcore_local_mem_size %ld",einfo.e_core_local_mem_size);
+//	printcl( CL_DEBUG "\tcore_base_addr %p",einfo.e_core_base_addr);
+//	printcl( CL_DEBUG "\tarray_ncol %d",einfo.e_array_ncol);
+//	printcl( CL_DEBUG "\tarray_nrow %d",einfo.e_array_nrow);
 
-	devmembase = einfo.e_global_mem_base;
-	devmemlo = devmembase + 0x4000;
-	devmemhi = devmemlo + einfo.e_global_mem_size;
+//	devmembase = einfo.e_global_mem_base;
+//	devmemlo = devmembase + 0x4000;
+//	devmemhi = devmemlo + einfo.e_global_mem_size;
+//
+//	dmalloc_reset();
+//
+//	dtab[0].imp.max_compute_units = 16;
+//	dtab[0].imp.max_freq = 1000;
+//
+//   sz = 1+strnlen(einfo.e_platform_name,__CLMAXSTR_LEN);
+//   strncpy(dstrtab+dstrtab_sz,einfo.e_platform_name,sz);
+//   dtab[0].imp.name = dstrtab+dstrtab_sz;
+//   dstrtab_sz += sz;
+//
+//	sz = 1+strnlen("Adapteva, Inc.",__CLMAXSTR_LEN);
+//	strncpy(dstrtab+dstrtab_sz,"Adapteva, Inc.",sz);
+//	dtab[0].imp.vendor = dstrtab+dstrtab_sz;
+//	dstrtab_sz += sz;
 
-	dmalloc_reset();
+//	dtab[0].imp.e32.core_local_mem_size = einfo.e_core_local_mem_size;
+//	dtab[0].imp.e32.core_base_addr = einfo.e_core_base_addr;
+//	dtab[0].imp.e32.array_ncol = einfo.e_array_ncol;
+//	dtab[0].imp.e32.array_nrow = einfo.e_array_nrow;
+//	dtab[0].imp.e32.ncore = (einfo.e_array_ncol)*(einfo.e_array_nrow);
 
-	dtab[0].imp.max_compute_units = 16;
-	dtab[0].imp.max_freq = 1000;
-
-   sz = 1+strnlen(einfo.e_platform_name,__CLMAXSTR_LEN);
-   strncpy(dstrtab+dstrtab_sz,einfo.e_platform_name,sz);
-   dtab[0].imp.name = dstrtab+dstrtab_sz;
-   dstrtab_sz += sz;
-
-	sz = 1+strnlen("Adapteva, Inc.",__CLMAXSTR_LEN);
-	strncpy(dstrtab+dstrtab_sz,"Adapteva, Inc.",sz);
-	dtab[0].imp.vendor = dstrtab+dstrtab_sz;
-	dstrtab_sz += sz;
-
-	dtab[0].imp.e32.core_local_mem_size = einfo.e_core_local_mem_size;
-	dtab[0].imp.e32.core_base_addr = einfo.e_core_base_addr;
-	dtab[0].imp.e32.array_ncol = einfo.e_array_ncol;
-	dtab[0].imp.e32.array_nrow = einfo.e_array_nrow;
-	dtab[0].imp.e32.ncore = (einfo.e_array_ncol)*(einfo.e_array_nrow);
-
-	dtab[0].imp.vendorid = einfo.e_device_id;
-	dtab[0].imp.global_mem_sz = einfo.e_global_mem_size;
-	dtab[0].imp.local_mem_sz = einfo.e_core_local_mem_size;
-	dtab[0].imp.comp = (void*)compile_e32;
-	dtab[0].imp.v_cmdcall = cmdcall_e32pth;
+//	dtab[0].imp.vendorid = einfo.e_device_id;
+//	dtab[0].imp.global_mem_sz = einfo.e_global_mem_size;
+//	dtab[0].imp.local_mem_sz = einfo.e_core_local_mem_size;
+//	dtab[0].imp.comp = (void*)compile_e32;
+//	dtab[0].imp.v_cmdcall = cmdcall_e32pth;
 
 #else
 
@@ -470,6 +473,49 @@ void __do_discover_devices(
 	struct e_platform_info_struct einfo;
 	e_get_platform_info( &e_epiphany, &einfo );
 
+//	printcl( CL_DEBUG "epiphany platform info:");
+//	printcl( CL_DEBUG "\tplatform_name '%s'",einfo.e_platform_name);
+//	printcl( CL_DEBUG "\tdevice_id %d",einfo.e_device_id);
+//	printcl( CL_DEBUG "\tglobal_mem_base %p",einfo.e_global_mem_base);
+//	printcl( CL_DEBUG "\tglobal_mem_size %ld",einfo.e_global_mem_size);
+//	printcl( CL_DEBUG "\tcore_local_mem_size %ld",einfo.e_core_local_mem_size);
+//	printcl( CL_DEBUG "\tcore_base_addr %p",einfo.e_core_base_addr);
+//	printcl( CL_DEBUG "\tarray_ncol %d",einfo.e_array_ncol);
+//	printcl( CL_DEBUG "\tarray_nrow %d",einfo.e_array_nrow);
+
+//	devmembase = einfo.e_global_mem_base;
+//	devmemlo = devmembase + 0x4000;
+//	devmemhi = devmemlo + einfo.e_global_mem_size;
+//
+//	dmalloc_reset();
+//
+//	dtab[0].imp.max_compute_units = 16;
+//	dtab[0].imp.max_freq = 1000;
+//
+//   sz = 1+strnlen(einfo.e_platform_name,__CLMAXSTR_LEN);
+//   strncpy(dstrtab+dstrtab_sz,einfo.e_platform_name,sz);
+//   dtab[0].imp.name = dstrtab+dstrtab_sz;
+//   dstrtab_sz += sz;
+//
+//	sz = 1+strnlen("Adapteva, Inc.",__CLMAXSTR_LEN);
+//	strncpy(dstrtab+dstrtab_sz,"Adapteva, Inc.",sz);
+//	dtab[0].imp.vendor = dstrtab+dstrtab_sz;
+//	dstrtab_sz += sz;
+
+//	dtab[0].imp.e32.core_local_mem_size = einfo.e_core_local_mem_size;
+//	dtab[0].imp.e32.core_base_addr = einfo.e_core_base_addr;
+//	dtab[0].imp.e32.array_ncol = einfo.e_array_ncol;
+//	dtab[0].imp.e32.array_nrow = einfo.e_array_nrow;
+//	dtab[0].imp.e32.ncore = (einfo.e_array_ncol)*(einfo.e_array_nrow);
+
+//	dtab[0].imp.vendorid = einfo.e_device_id;
+//	dtab[0].imp.global_mem_sz = einfo.e_global_mem_size;
+//	dtab[0].imp.local_mem_sz = einfo.e_core_local_mem_size;
+//	dtab[0].imp.comp = (void*)compile_e32_needham;
+//	dtab[0].imp.v_cmdcall = cmdcall_e32pth_needham;
+
+#endif
+
 	printcl( CL_DEBUG "epiphany platform info:");
 	printcl( CL_DEBUG "\tplatform_name '%s'",einfo.e_platform_name);
 	printcl( CL_DEBUG "\tdevice_id %d",einfo.e_device_id);
@@ -508,9 +554,42 @@ void __do_discover_devices(
 	dtab[0].imp.vendorid = einfo.e_device_id;
 	dtab[0].imp.global_mem_sz = einfo.e_global_mem_size;
 	dtab[0].imp.local_mem_sz = einfo.e_core_local_mem_size;
-	dtab[0].imp.comp = (void*)compile_e32_needham;
-	dtab[0].imp.v_cmdcall = cmdcall_e32pth_needham;
 
+
+#ifdef ENABLE_EMEK_BUILD
+	if (!strncmp(einfo.e_platform_name,"E16G Lexington",32)) {
+
+		dtab[0].imp.comp = (void*)compile_e32;
+		dtab[0].imp.v_cmdcall = cmdcall_e32pth;
+
+	} else {
+
+		printfcl( CL_ERR "platform '%s' unrecognized",einfo.e_platform_name);
+		return(-1);
+
+	}
+#else 
+	if (!strncmp(einfo.e_platform_name,"E16G Needham",32)) {
+
+		dtab[0].imp.comp = (void*)compile_e32_needham;
+		dtab[0].imp.v_cmdcall = cmdcall_e32pth_needham;
+
+	} else if (!strncmp(einfo.e_platform_name,"E16G Needham Pro",32)) {
+
+		dtab[0].imp.comp = (void*)compile_e32_needhampro;
+		dtab[0].imp.v_cmdcall = cmdcall_e32pth_needhampro;
+
+	} else if (!strncmp(einfo.e_platform_name,"(blank)",32)) {
+
+		dtab[0].imp.comp = (void*)compile_e32_blank;
+		dtab[0].imp.v_cmdcall = cmdcall_e32pth_blank;
+
+	} else {
+
+		printfcl( CL_ERR "platform '%s' unrecognized",einfo.e_platform_name);
+		return(-1);
+
+	}
 #endif
 
 }

@@ -30,7 +30,7 @@
 #include <e_dma.h>
 #include <string.h>
 
-#include "e32pth_mem_if.h"
+//#include "e32pth_mem_if.h"
 
 #ifndef __always_inline
 #define __always_inline __inline __attribute__((__always_inline__))
