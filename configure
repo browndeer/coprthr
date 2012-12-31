@@ -3899,6 +3899,8 @@ if test x$enable_debug != xno; then
 ### Determine Epiphany SDK paths
 ###
 
+if test x$enable_epiphany = xyes; then
+
 
 # Check whether --with-esdk was given.
 if test "${with_esdk+set}" = set; then :
@@ -3921,6 +3923,7 @@ else
 
 fi
 
+fi;
 
 
 BASH=`which bash`

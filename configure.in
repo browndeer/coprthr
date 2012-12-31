@@ -639,6 +639,8 @@ SET_OPT($enable_debug, ENABLE_DEBUG, "debug build")
 ### Determine Epiphany SDK paths
 ###
 
+if test x$enable_epiphany = xyes; then
+
 AC_ARG_WITH(esdk,
   AC_HELP_STRING([--with-esdk=DIR],
   [set path for esdk]),
@@ -658,6 +660,7 @@ AC_ARG_WITH(esdk,
       AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
     fi;
   ])
+fi;
 
 
 BASH=`which bash`
