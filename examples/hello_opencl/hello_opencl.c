@@ -1,5 +1,6 @@
 /* hello_opencl.c */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <CL/cl.h>
 

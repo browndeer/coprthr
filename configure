@@ -3913,8 +3913,8 @@ else
 
     if test -e /opt/adapteva/esdk/tools/host/x86_64; then
       ESDK_PATH=/opt/adapteva/esdk/tools/host/x86_64;
-    elif test -e /usr/local/adapteva/include; then
-      ESDK_PATH=/usr/local/adapteva/include;
+    elif test -e /usr/local/adapteva; then
+      ESDK_PATH=/usr/local/adapteva;
     else
       as_fn_error $? "cannot find esdk, try --with-esdk=DIR" "$LINENO" 5
     fi;
