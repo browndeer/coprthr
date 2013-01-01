@@ -112,14 +112,17 @@ else
 
 IMP_OBJS += compiler_e32_needham.o compiler_e32_needhampro.o \
 	cmdcall_e32pth_needham.o cmdcall_e32pth_needhampro.o \
-	e32pth_engine_needham.o e32pth_engine_needhampro.o
+	e32pth_engine_needham.o e32pth_engine_needhampro.o \
+	compiler_e32_blank.o cmdcall_e32pth_blank.o e32pth_engine_blank.o
 
 RT_OBJS = _e32pth_core_main_needham.o _e32pth_core_needham.ldf \
-	_e32pth_core_main_needhampro.o _e32pth_core_needhampro.ldf
+	_e32pth_core_main_needhampro.o _e32pth_core_needhampro.ldf \
+	_e32pth_core_main_blank.o _e32pth_core_blank.ldf
 
 INSTALL_HDRS += \
 	e32pth_if_needham.h e32pth_mem_if_needham.h e32_config_needham.h \
-	e32pth_if_needhampro.h e32pth_mem_if_needhampro.h e32_config_needhampro.h
+	e32pth_if_needhampro.h e32pth_mem_if_needhampro.h e32_config_needhampro.h \
+	e32pth_if_blank.h e32pth_mem_if_blank.h e32_config_blank.h
 
 INSTALL_LIBS += libe_platform.so.needham libe_platform.so.needhampro \
 	libe_platform.so.blank
