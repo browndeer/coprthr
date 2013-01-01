@@ -500,6 +500,7 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 //	clGetProgramBuildInfo(txt->prg,cp->dev[0],CL_PROGRAM_BUILD_OPTIONS,256,&buf,0);
 //	printcl( CL_DEBUG "clbuild: log from clBuildProgram %s",buf);
 
+/* XXX THIS IS CAUSING/EXPOSING MEMORY CORRUPTION ISSUE -DAR
 	idev = 0;
 	for(ictx=0; ictx < cp->nctx; ictx++) {
 
@@ -525,6 +526,7 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 		if (buf) free(buf);
 
 	}
+*/
 
 
 	err = clCreateKernelsInProgram(txt->xxxprg[0],0,0,&txt->nkrn);
@@ -736,7 +738,7 @@ printcl( CL_DEBUG " cp ok ");
 		clgetdevinfo(cp,di);
 		char** dev_alias = (char**)malloc(cp->ndev * sizeof(char*));
 		for(m=0; m<cp->ndev; m++) {
-			dev_alias[m] = (char*)malloc(strlen(di[m].dev_name));
+			dev_alias[m] = (char*)malloc(1+strlen(di[m].dev_name));
 			strcpy(dev_alias[m],di[m].dev_name);
 			if ( clelf_device_name_alias(dev_alias[m]) ) {
 				printcl( CL_DEBUG "clopen: dev[%d] name |%s| (%s)",
