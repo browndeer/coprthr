@@ -42,12 +42,11 @@
 #include "program.h"
 #include "cmdcall.h"
 #include "workp.h"
-//#include "util.h"
 
 #include "e32_config.h"
 #include "e32pth_engine.h"
 
-#define __host__
+//#define __host__
 #include "e32pth_mem_if.h"
 #include "e32pth_if.h"
 

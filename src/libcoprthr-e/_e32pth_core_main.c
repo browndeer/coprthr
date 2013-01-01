@@ -59,7 +59,7 @@ int main(void)
 
 	status = 0;
 
-	e_coreid_t tmpcid;
+//	e_coreid_t tmpcid;
    core_local_data.coreID = e_get_coreid();
    core_local_data.corenum = core_num(core_local_data.coreID);
    e_coords_from_coreid(core_local_data.coreID, 

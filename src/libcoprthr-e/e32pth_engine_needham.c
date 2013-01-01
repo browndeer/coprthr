@@ -48,7 +48,7 @@
 #include "e32pth_engine_needham.h"
 #include "device.h"
 
-#define __host__
+//#define __host__
 #include "e32pth_mem_if_needham.h"
 #include "e32pth_if_needham.h"
 

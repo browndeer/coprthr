@@ -28,22 +28,14 @@
 
 #include "e32_config.h"
 
-#if defined(__x86_64__)
-#define __host__
-#endif
-
-#ifdef __host__
-#warning compiling with __host__ defined
-#else 
-#warning compiling with __host__ undefined
-#endif
-
-#if !defined(__host__)
+#if defined(__coprthr_host__)
+#elif defined(__coprthr_device__)
 #include <e_coreid.h>
 #include <e_common.h>
+#else
+#error must be compiled with either __coprthr_host__ or __coprthr_device__
 #endif
 
-//#define E32_NCORES 16
 #define E32_INT_SZ 4
 #define E32_PTR_SZ 4
 #define E32_CHAR_SZ 1
@@ -87,7 +79,6 @@
 
 #define E32_ADDR_THREADMAP (E32_ADDR_COREMAP + E32_SZ_COREMAP)
 
-//#define E32_ADDR_WE (E32_ADDR_CTRL + E32_SZ_CTRL)
 #define E32_ADDR_WE (E32_ADDR_THREADMAP + E32_SZ_THREADMAP)
 
 #define E32_ADDR_KDATA (E32_ADDR_WE + E32_NCORES * E32_SZ_WE)
@@ -99,25 +90,17 @@
 
 #define E32_ZERO_PAGE_FREE (E32_ADDR_KDATA + E32_SZ_KDATA)
 
-#if defined(__host__)
-typedef int32_t e32_int_t;
-typedef uint32_t e32_uint_t;
-typedef uint32_t e32_ptr_t;
-typedef unsigned char e32_uchar_t;
-#else
-typedef int e32_int_t;
-typedef unsigned int e32_uint_t;
-typedef void* e32_ptr_t;
-typedef unsigned char e32_uchar_t;
-#endif
-
-typedef e32_uint_t e32_workp_entry_t[19];
-
 
 __inline static unsigned int ncores() { return E32_NCORES; }
 
 
-#if defined(__host__)
+#if defined(__coprthr_host__)
+
+typedef int32_t e32_int_t;
+typedef uint32_t e32_uint_t;
+typedef uint32_t e32_ptr_t;
+typedef unsigned char e32_uchar_t;
+typedef e32_uint_t e32_workp_entry_t[19];
 
 #define  __SCALAR_BUILTINS(name,NAME,elem_t,elem_sz) \
 __inline static void e32_read_##name( elem_t* pval ) \
@@ -170,7 +153,13 @@ __SCALAR_BUILTINS(kdata_ptr_arg_buf,KDATA_PTR_ARG_BUF,e32_ptr_t,E32_PTR_SZ)
 		} \
 	} } while(0)
 
-#else
+#elif defined(__coprthr_device__)
+
+typedef int e32_int_t;
+typedef unsigned int e32_uint_t;
+typedef void* e32_ptr_t;
+typedef unsigned char e32_uchar_t;
+typedef e32_uint_t e32_workp_entry_t[19];
 
 #define __SCALAR(NAME,elem_t) (*(elem_t*)E32_ADDR_##NAME)
 #define __ARRAY(NAME,elem_t) ((elem_t*)E32_ADDR_##NAME)
@@ -203,7 +192,8 @@ __SCALAR_BUILTINS(kdata_ptr_arg_buf,KDATA_PTR_ARG_BUF,e32_ptr_t,E32_PTR_SZ)
 #define e32_dec_ctrl_run(n) \
 	do { --e32_ctrl_run[core_local_data.corenum] } while(0)
 
-
+#else
+#error must be compiled with either __coprthr_host__ or __coprthr_device__
 #endif
 
 #endif

@@ -57,6 +57,7 @@ endif
 
 ESDK_INC = -I@ESDK_PATH@/include
 ESDK_LIB = -L@ESDK_PATH@/lib 
+ESDK_EINC = -I@ESDK_PATH@/elib
 
 ifeq (@ENABLE_EMEK_BUILD@,1)
 ESDK_INC += -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
@@ -163,15 +164,6 @@ else
 LIBS += -ldl 
 endif
 
-#ifeq (@LIBCOPRTHR_MODEL@,template)
-#LIBCOPRTHR_HDR = __libcoprthr.h-template
-#else ifeq (@LIBCOPRTHR_MODEL@,no-template)
-#LIBCOPRTHR_HDR = __libcoprthr.h-no-template
-#else
-#LIBCOPRTHR_HDR = __libcoprthr.h
-#endif
-
-
 OBJS = $(OCL_OBJS) $(IMP_OBJS)
 
 OBJS_D = $(subst .o,_d.o,$(OBJS))
@@ -181,16 +173,26 @@ DEFS += \
 	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
 	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
 
+DEFS += -D__coprthr_host__
+
 DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
        -Wno-unused-result -Wno-format-security -Wno-format
 CCFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
-CCFLAGS_VCORE += -O0 -fPIC
-CCFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
 
 ifeq (arm,$(patsubst arm%,arm,@build_cpu@))
 CCFLAGS += -marm
-CCFLAGS_VCORE += -marm
 endif
+
+CCFLAGS_VCORE = FAIL
+CCFLAGS_VCORE_RT = FAIL
+
+ECCFLAGS = -Dasm=__asm__ -O0 -g -Wall -D__coprthr_device__\
+	-fmessage-length=0  -ffast-math \
+	-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
+	-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
+	-U_FORTIFY_SOURCE -fno-stack-protector -fstack-usage 
+	
+
 
 
 #YACC = yacc
@@ -276,46 +278,27 @@ libcoprthr-e.so: $(OBJS) libe_platform.so
 		-L./ -le_platform
 
 
-
 _e32pth_core_main.o: _e32pth_core_main.c
-	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
-		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
-		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
-		-U_FORTIFY_SOURCE -fno-stack-protector \
-		-fstack-usage \
-		-I/usr/local/adapteva/elib \
-		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_NEEDHAM) \
+	e-gcc -c $(ECCFLAGS) \
+		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_LEXINGTON) \
 		-o _e32pth_core_main.o _e32pth_core_main.c
 
+
 _e32pth_core_main_needham.o: _e32pth_core_main_needham.c
-	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
-		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
-		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
-		-U_FORTIFY_SOURCE -fno-stack-protector \
-		-fstack-usage \
-		-I/usr/local/adapteva/elib \
+	e-gcc -c $(ECCFLAGS) $(ESDK_EINC) \
 		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_NEEDHAM) \
 		-o _e32pth_core_main_needham.o _e32pth_core_main_needham.c
 
 _e32pth_core_main_needhampro.o: _e32pth_core_main_needhampro.c
-	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
-		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
-		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
-		-U_FORTIFY_SOURCE -fno-stack-protector \
-		-fstack-usage \
-		-I/usr/local/adapteva/elib \
+	e-gcc -c $(ECCFLAGS) $(ESDK_EINC) \
 		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_NEEDHAMPRO) \
 		-o _e32pth_core_main_needhampro.o _e32pth_core_main_needhampro.c
 
 _e32pth_core_main_blank.o: _e32pth_core_main_blank.c
-	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
-		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
-		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
-		-U_FORTIFY_SOURCE -fno-stack-protector \
-		-fstack-usage \
-		-I/usr/local/adapteva/elib \
+	e-gcc -c $(ECCFLAGS) $(ESDK_EINC) \
 		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_BLANK) \
 		-o _e32pth_core_main_blank.o _e32pth_core_main_blank.c
+
 
 
 debug:

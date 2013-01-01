@@ -40,15 +40,15 @@ volatile extern struct core_local_data_struct core_local_data;
 //#define _ENABLE_BARRIER_TRACE 2
 #define _ENABLE_BARRIER_TRACE 3 /* no halt */
 
-#if defined(__x86_64__)
-#define __host__
-#endif
 
-#if !defined(__host__)
+#if defined(__coprthr_host__)
+#elif defined(__coprthr_device__)
 #include <e_coreid.h>
 #include <e_common.h>
 #include <e_dma.h>
 #include <string.h>
+#else
+#error must be compiled with either __coprthr_host__ or __coprthr_device__
 #endif
 
 //typedef unsigned long size_t;
@@ -107,7 +107,7 @@ struct thr_data_struct {
 };
 
 
-#if defined(__xcl_kcall__) || defined(__xcl_kthr__)
+#if defined(__xcl_kcall__) || defined(__xcl_kthr__) || defined(__coprthr_device__)
 
 volatile extern struct core_local_data_struct core_local_data;
 volatile extern e32_workp_entry_t core_we;
@@ -147,7 +147,10 @@ static __inline size_t get_local_id(uint d)
 
 #endif
 
-#if !defined(__host__)
+
+#if defined(__coprthr_host__)
+
+#elif defined(__coprthr_device__)
 
 #ifdef _ENABLE_BARRIER_TRACE
 #define __save_run() \
@@ -197,6 +200,8 @@ __always_inline void barrier( int flags)
 	for(;;); \
 	} while(0)	
 
+#else
+#error must be compiled with either __coprthr_host__ or __coprthr_device__
 #endif
 
 

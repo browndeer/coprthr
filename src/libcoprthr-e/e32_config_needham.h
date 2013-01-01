@@ -24,12 +24,6 @@
 #ifndef _E32_CONFIG_NEEDHAM_H
 #define _E32_CONFIG_NEEDHAM_H
 
-#if defined(__x86_64__) || defined(__arm__)
-#define __host__
-#warning DEFINED __host__
-#endif
-
-
 /*** 
  *** IMPORTANT *** This header contains information about the e32 device.
  *** IMPORTANT *** This infortmation MUST be synchronized manually to match
@@ -42,7 +36,7 @@
 #define E32_NCORES (E32_COLS_IN_CHIP*E32_ROWS_IN_CHIP)
 
 
-#if defined(__host__)
+#if defined(__coprthr_host__)
 
 #include "printcl.h"
 #include "e_host.h"
@@ -57,6 +51,10 @@
 	e_mwrite_buf( &e_dram, (dst), src, len); \
 	} while(0)
 
+#elif defined(__coprthr_device__)
+
+#else
+#error must be compiled with either __coprthr_host__ or __coprthr_device__
 #endif
 
 
