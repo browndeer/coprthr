@@ -57,6 +57,7 @@
 	TYPE(C_PTR), bind(C,NAME="stddev") ::  stddev
 	TYPE(C_PTR), bind(C,NAME="stdcpu") ::  stdcpu
 	TYPE(C_PTR), bind(C,NAME="stdgpu") ::  stdgpu
+	TYPE(C_PTR), bind(C,NAME="stdacc") ::  stdacc
 	TYPE(C_PTR), bind(C,NAME="stdrpu") ::  stdrpu
 
 	type, bind(C) :: clndrange_struct
