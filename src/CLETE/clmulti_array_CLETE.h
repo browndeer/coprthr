@@ -77,6 +77,14 @@ using namespace std;
 
 #include <cmath>
 
+#if defined(__CLVECTOR_FULLAUTO_STDACC)
+#define __CLCONTEXT stdacc
+#define __WGSIZE 16
+#else
+#define __CLCONTEXT stdgpu
+#define __WGSIZE 64
+#endif
+
 //-----------------------------------------------------------------------------
 // We need to specialize CreateLeaf<T> for our class, so that operators
 // know what to stick in the leaves of the expression tree.
@@ -547,13 +555,13 @@ inline void evaluate(
 //		cout<<srcstr<<"\n";
 		log_kernel(srcstr);
 
-		void* clh = clsopen(stdgpu,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(stdgpu,clh,"kern",CLLD_NOW);
+		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
 	}
 
 	if (krn) {
 
-		clndrange_t ndr = clndrange_init1d(0,r,256);
+		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
 
 	int n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -565,26 +573,26 @@ inline void evaluate(
 
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
-			clmattach(stdgpu,(void*)(*it).memptr);
-			clmsync(stdgpu,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+			clmattach(__CLCONTEXT,(void*)(*it).memptr);
+			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(stdgpu,krn,n,(void*)(*it).memptr);
-//			(*it).ptr->clarg_set_global(stdgpu,krn,n);
+			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
+//			(*it).ptr->clarg_set_global(__CLCONTEXT,krn,n);
 
 		}
 	}
 
-	clarg_set(stdgpu,krn,n,size);
+	clarg_set(__CLCONTEXT,krn,n,size);
 
 
-		clfork(stdgpu,0,krn,&ndr,CL_EVENT_NOWAIT);
+		clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 
-		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
+		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -599,7 +607,7 @@ inline void evaluate(
 
 #elif defined(__CLMULTI_ARRAY_SEMIAUTO)
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT);
+		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT);
 
 #endif
 
@@ -708,13 +716,13 @@ inline void evaluate(
 //		cout<<srcstr<<"\n";
 		log_kernel(srcstr);
 
-		void* clh = clsopen(stdgpu,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(stdgpu,clh,"kern",CLLD_NOW);
+		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
 	}
 
 	if (krn) {
 
-		clndrange_t ndr = clndrange_init1d(0,r,256);
+		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
 
 	int n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -726,27 +734,27 @@ inline void evaluate(
 
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
-			clmattach(stdgpu,(void*)(*it).memptr);
-			clmsync(stdgpu,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+			clmattach(__CLCONTEXT,(void*)(*it).memptr);
+			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(stdgpu,krn,n,(void*)(*it).memptr);
-//			(*it).ptr->clarg_set_global(stdgpu,krn,n);
+			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
+//			(*it).ptr->clarg_set_global(__CLCONTEXT,krn,n);
 
 		}
 	}
 
-	clarg_set(stdgpu,krn,n,size);
-	clarg_set(stdgpu,krn,n+1,size2);
+	clarg_set(__CLCONTEXT,krn,n,size);
+	clarg_set(__CLCONTEXT,krn,n+1,size2);
 
 
-		clfork(stdgpu,0,krn,&ndr,CL_EVENT_NOWAIT);
+		clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 
-		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
+		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -761,7 +769,7 @@ inline void evaluate(
 
 #elif defined(__CLMULTI_ARRAY_SEMIAUTO)
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT);
+		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT);
 
 #endif
 
@@ -874,13 +882,13 @@ inline void evaluate(
 //		cout<<srcstr<<"\n";
 		log_kernel(srcstr);
 
-		void* clh = clsopen(stdgpu,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(stdgpu,clh,"kern",CLLD_NOW);
+		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
 	}
 
 	if (krn) {
 
-		clndrange_t ndr = clndrange_init1d(0,r,256);
+		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
 
 	int n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -892,28 +900,28 @@ inline void evaluate(
 
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
-			clmattach(stdgpu,(void*)(*it).memptr);
-			clmsync(stdgpu,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+			clmattach(__CLCONTEXT,(void*)(*it).memptr);
+			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(stdgpu,krn,n,(void*)(*it).memptr);
-//			(*it).ptr->clarg_set_global(stdgpu,krn,n);
+			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
+//			(*it).ptr->clarg_set_global(__CLCONTEXT,krn,n);
 
 		}
 	}
 
-	clarg_set(stdgpu,krn,n,size);
-	clarg_set(stdgpu,krn,n+1,size2);
-	clarg_set(stdgpu,krn,n+2,size3);
+	clarg_set(__CLCONTEXT,krn,n,size);
+	clarg_set(__CLCONTEXT,krn,n+1,size2);
+	clarg_set(__CLCONTEXT,krn,n+2,size3);
 
 
-		clfork(stdgpu,0,krn,&ndr,CL_EVENT_NOWAIT);
+		clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 
-		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
+		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -928,7 +936,7 @@ inline void evaluate(
 
 #elif defined(__CLMULTI_ARRAY_SEMIAUTO)
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT);
+		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT);
 
 #endif
 
@@ -1045,13 +1053,13 @@ inline void evaluate(
 //		cout<<srcstr<<"\n";
 		log_kernel(srcstr);
 
-		void* clh = clsopen(stdgpu,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(stdgpu,clh,"kern",CLLD_NOW);
+		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
 	}
 
 	if (krn) {
 
-		clndrange_t ndr = clndrange_init1d(0,r,256);
+		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
 
 	int n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -1063,29 +1071,29 @@ inline void evaluate(
 
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
-			clmattach(stdgpu,(void*)(*it).memptr);
-			clmsync(stdgpu,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+			clmattach(__CLCONTEXT,(void*)(*it).memptr);
+			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(stdgpu,krn,n,(void*)(*it).memptr);
-//			(*it).ptr->clarg_set_global(stdgpu,krn,n);
+			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
+//			(*it).ptr->clarg_set_global(__CLCONTEXT,krn,n);
 
 		}
 	}
 
-	clarg_set(stdgpu,krn,n,size);
-	clarg_set(stdgpu,krn,n+1,size2);
-	clarg_set(stdgpu,krn,n+2,size3);
-	clarg_set(stdgpu,krn,n+3,size4);
+	clarg_set(__CLCONTEXT,krn,n,size);
+	clarg_set(__CLCONTEXT,krn,n+1,size2);
+	clarg_set(__CLCONTEXT,krn,n+2,size3);
+	clarg_set(__CLCONTEXT,krn,n+3,size4);
 
 
-		clfork(stdgpu,0,krn,&ndr,CL_EVENT_NOWAIT);
+		clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 
-		clmsync(stdgpu,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
+		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -1100,7 +1108,7 @@ inline void evaluate(
 
 #elif defined(__CLMULTI_ARRAY_SEMIAUTO)
 
-		clwait(stdgpu,0,CL_KERNEL_EVENT);
+		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT);
 
 #endif
 
