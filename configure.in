@@ -80,8 +80,8 @@ AC_ARG_ENABLE(debug,
   enable_debug=no)
 
 AC_ARG_ENABLE(epiphany,
-	AC_HELP_STRING([--enable-epiphany],[enable epiphany support (default=yes)]),,
-	enable_epiphany=yes)
+	AC_HELP_STRING([--enable-epiphany],[enable epiphany support (default=no)]),,
+	enable_epiphany=no)
 
 AC_ARG_ENABLE(libocl-hook,
 	AC_HELP_STRING([--enable-libocl-hook],[enable libocl hook support (default=no)]),,
@@ -747,8 +747,6 @@ AC_CONFIG_FILES([examples/parallella/hello_stdcl/Makefile])
 AC_CONFIG_FILES([examples/parallella/clopen_example/Makefile])
 AC_CONFIG_FILES([examples/parallella/clmulti_array_example/Makefile])
 AC_CONFIG_FILES([examples/parallella/clvector_example/Makefile])
-AC_CONFIG_FILES([examples/parallella/clete_clmulti_array_example/Makefile])
-AC_CONFIG_FILES([examples/parallella/clete_clvector_example/Makefile])
 AC_CONFIG_FILES([examples/parallella/bdt_nbody/Makefile])
 
 AC_CONFIG_FILES([test/test_libcoprthr/scripts/run_tests.sh],[chmod +x test/test_libcoprthr/scripts/run_tests.sh])

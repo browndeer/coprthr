@@ -821,7 +821,7 @@ Optional Features:
   --enable-fortran        enable fortran bindings (default=no)
   --enable-silent         enable silent build (default=no)
   --enable-debug          enable debug messages (default=no)
-  --enable-epiphany       enable epiphany support (default=yes)
+  --enable-epiphany       enable epiphany support (default=no)
   --enable-libocl-hook    enable libocl hook support (default=no)
   --enable-emek-build     enable build for Epiphany EMEK (default=no)
 
@@ -2817,7 +2817,7 @@ if test "${enable_epiphany+set}" = set; then
   enableval="$enable_epiphany"
 
 else
-  enable_epiphany=yes
+  enable_epiphany=no
 fi;
 
 # Check whether --enable-libocl-hook or --disable-libocl-hook was given.
@@ -3750,10 +3750,6 @@ fi;
 
           ac_config_files="$ac_config_files examples/parallella/clvector_example/Makefile"
 
-          ac_config_files="$ac_config_files examples/parallella/clete_clmulti_array_example/Makefile"
-
-          ac_config_files="$ac_config_files examples/parallella/clete_clvector_example/Makefile"
-
           ac_config_files="$ac_config_files examples/parallella/bdt_nbody/Makefile"
 
 
@@ -4365,8 +4361,6 @@ do
   "examples/parallella/clopen_example/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/clopen_example/Makefile" ;;
   "examples/parallella/clmulti_array_example/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/clmulti_array_example/Makefile" ;;
   "examples/parallella/clvector_example/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/clvector_example/Makefile" ;;
-  "examples/parallella/clete_clmulti_array_example/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/clete_clmulti_array_example/Makefile" ;;
-  "examples/parallella/clete_clvector_example/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/clete_clvector_example/Makefile" ;;
   "examples/parallella/bdt_nbody/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/bdt_nbody/Makefile" ;;
   "test/test_libcoprthr/scripts/run_tests.sh" ) CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr/scripts/run_tests.sh" ;;
   "test/test_libcoprthr/scripts/run_quick_tests.sh" ) CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr/scripts/run_quick_tests.sh" ;;
