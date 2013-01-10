@@ -64,6 +64,7 @@
 #include <list>
 #include <string>
 #include <sstream>
+#include <cstdlib>
 #include <stdcl.h>
 using namespace std;
 
