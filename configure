@@ -3750,8 +3750,7 @@ fi;
 
           ac_config_files="$ac_config_files examples/parallella/clvector_example/Makefile"
 
-          ac_config_files="$ac_config_files examples/parallella/bdt_nbody/Makefile"
-
+#AC_CONFIG_FILES([examples/parallella/bdt_nbody/Makefile])
 
           ac_config_files="$ac_config_files test/test_libcoprthr/scripts/run_tests.sh"
 
@@ -4361,7 +4360,6 @@ do
   "examples/parallella/clopen_example/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/clopen_example/Makefile" ;;
   "examples/parallella/clmulti_array_example/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/clmulti_array_example/Makefile" ;;
   "examples/parallella/clvector_example/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/clvector_example/Makefile" ;;
-  "examples/parallella/bdt_nbody/Makefile" ) CONFIG_FILES="$CONFIG_FILES examples/parallella/bdt_nbody/Makefile" ;;
   "test/test_libcoprthr/scripts/run_tests.sh" ) CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr/scripts/run_tests.sh" ;;
   "test/test_libcoprthr/scripts/run_quick_tests.sh" ) CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr/scripts/run_quick_tests.sh" ;;
   "test/test_libcoprthr-e/scripts/run_tests.sh" ) CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr-e/scripts/run_tests.sh" ;;
