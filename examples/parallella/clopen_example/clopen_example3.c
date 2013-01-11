@@ -76,5 +76,4 @@ int main()
    clfree(b);
    clfree(c);
 
-   clclose(cp,clh);
 }
