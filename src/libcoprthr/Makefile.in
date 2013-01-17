@@ -45,16 +45,13 @@ XCL_OBJS = ocl_platform.o ocl_device.o ocl_context.o ocl_command_queue.o \
 IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	environment.o \
 	program.o kernel.o memobj.o \
-	cmdsched.o cmdcall.o cmdcall_x86_64.o cmdcall_arm.o \
+	cmdsched.o cmdcall.o \
 	elf_cl.o compiler_x86_64.o compiler_arm.o \
-	vcore.o \
 	watermark.o \
 	cmdcall_x86_64_sl.o sl_engine.o \
 	cmdcall_x86_64_ser.o ser_engine.o \
 	icd.o
 
-
-RT_OBJS = __vcore_rt.o
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
@@ -84,8 +81,6 @@ LIBS += -ldl
 endif
 
 OBJS = $(XCL_OBJS) $(IMP_OBJS)
-
-#OBJS_D = $(subst .o,_d.o,$(OBJS))
 
 DEFS += \
 	-DINSTALL_BIN_DIR=\"$(INSTALL_BIN_DIR)\" \
@@ -117,8 +112,7 @@ LEXFLAGS =
 
 XCLNM_YYPREFIX = __xclnm_
 
-TARGET = libcoprthr.so $(RT_OBJS) 
-#TARGET += libcoprthr_d.so
+TARGET = libcoprthr.so 
 TARGET += icd.c
 
 VPATH = ../coprthr-common/
@@ -140,9 +134,6 @@ all: $(TARGET)
 .S.o:
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
-#%_d.o:
-#	$(CC) $(CCFLAGS) $(DEFS) -DENABLE_REPORT $(INCS) -c $*.c -o $*_d.o
-
 icd.c:
 	perl $(SCRIPTS)/gen_ocl_call_vector.pl __icd_call_vector _ \
 		< $(OCLCALL_MASTER) > icd.c
@@ -150,17 +141,6 @@ icd.c:
 libcoprthr.so: $(OBJS) $(RT_OBJS)
 	$(CC) $(CCFLAGS) $(INCS) \
 		-shared -Wl,-soname,libcoprthr.so -o libcoprthr.so  $(OBJS) $(LIBS)
-
-#libcoprthr_d.so: $(OBJS_D) $(RT_OBJS)
-#	$(CC) $(CCFLAGS) $(INCS) \
-#		-shared -Wl,-soname,libcoprthr_d.so -o libcoprthr_d.so  $(OBJS_D) $(LIBS)
-
-vcore.o: vcore.c
-	$(CC) -c $(CCFLAGS_VCORE) $(DEFS) $(INCS) -o vcore.o vcore.c
-
-__vcore_rt.o: __vcore_rt.c
-	$(CC) -c $(CCFLAGS_VCORE_RT) $(DEFS) $(INCS) -o __vcore_rt.o __vcore_rt.c
-
 
 debug:
 	export ENABLE_DEBUG=1
@@ -172,23 +152,16 @@ install:
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
-#	install -m 755 libcoprthr_d.so $(INSTALL_LIB_DIR)
-	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
-#	install -m 755 vcore.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
-#	test -d /etc/OpenCL/vendors || install -m 755 -d /etc/OpenCL/vendors
-#	echo $(INSTALL_LIB_DIR)/libcoprthr.so > /etc/OpenCL/vendors/coprthr.icd
 	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
 	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(OPENCL_ICD_PATH)/coprthr.icd
 
 uninstall: 
-#	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr_d.so
 	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so 
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
-#	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,vcore.h)
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,sl_engine.h)
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,ser_engine.h)
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,workp.h)
