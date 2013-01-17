@@ -1,0 +1,32 @@
+> pthread_cancel
+redesign
+
+> pthread_yield
+#include <sched.h>
+int sched_yield(void) 
+
+>pthread_setaffinity_np(
+#define _GNU_SOURCE
+#include <sched.h>
+int sched_setaffinity(pid_t pid, size_t cpusetsize,
+  cpu_set_t *mask);
+int sched_getaffinity(pid_t pid, size_t cpusetsize,
+  cpu_set_t *mask);
+
+
+> CPU_ZERO
+> CPU_SET
+requires #define _GNU_SOURCE
+cpu_set_t  mask;
+CPU_ZERO(&mask);
+CPU_SET(0, &mask);
+CPU_SET(2, &mask);
+
+> posix_memalign
+if __ANDROID__ add this manually
+
+> I believe the last one can be easily substituted with memalign, right?
+
+> There is no link.h, but rather I use android's linker.h.
+use __ANDROID__ switch 
+
