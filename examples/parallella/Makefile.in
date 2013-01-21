@@ -1,7 +1,6 @@
 
 EXAMPLES = hello_stdcl clopen_example \
-	clvector_example clmulti_array_example \
-	bdt_nbody 
+	clvector_example clmulti_array_example 
 
 #	bdt_em3d_e32 bdt_nbody_e32 
 
