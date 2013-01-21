@@ -248,6 +248,7 @@ CLRPC_HEADER(clGetProgramInfo)
 CLRPC_HEADER(clRetainProgram)
 CLRPC_HEADER(clReleaseProgram)
 CLRPC_HEADER(clCreateKernel)
+CLRPC_HEADER(clCreateKernelsInProgram)
 CLRPC_HEADER(clGetKernelInfo)
 CLRPC_HEADER(clRetainKernel)
 CLRPC_HEADER(clReleaseKernel)
@@ -292,6 +293,7 @@ CLRPC_GENERATE(clGetProgramInfo)
 CLRPC_GENERATE(clRetainProgram)
 CLRPC_GENERATE(clReleaseProgram)
 CLRPC_GENERATE(clCreateKernel)
+CLRPC_GENERATE(clCreateKernelsInProgram)
 CLRPC_GENERATE(clGetKernelInfo)
 CLRPC_GENERATE(clRetainKernel)
 CLRPC_GENERATE(clReleaseKernel)
@@ -1786,6 +1788,80 @@ clrpc_clCreateKernel(
 
 
 /*
+ * clCreateKernelsInProgram
+ */
+
+CLRPC_UNBLOCK_CLICB(clCreateKernelsInProgram)
+
+cl_int clCreateKernelsInProgram( cl_program xprogram,
+   cl_uint nkernels, cl_kernel* kernels, cl_uint* nkernels_ret)
+	__alias(clrpc_clCreateKernelsInProgram);
+
+cl_int
+clrpc_clCreateKernelsInProgram( cl_program xprogram,
+	cl_uint nkernels, cl_kernel* kernels, cl_uint* nkernels_ret)
+{
+	int i;
+
+	cl_int retval = 0;
+	cl_uint tmp_nkernels_ret = 0;
+
+	printcl( CL_DEBUG "clrpc_clCreateKernelsInProgram called with %d %p %p",
+		nkernels,kernels,nkernels_ret);
+
+	CLRPC_INIT(clCreateKernelsInProgram);
+
+	clrpc_dptr* program = ((_xobject_t*)xprogram)->object;
+
+	CLRPC_ASSIGN_DPTR(request,program,program);
+
+	CLRPC_ASSIGN(request,uint,nkernels,nkernels);
+
+	CLRPC_ALLOC_DPTR_ARRAY(nkernels,kernels);
+	
+	CLRPC_ASSIGN_DPTR_ARRAY(request,nkernels,kernels);
+
+	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xprogram),
+		clCreateKernelsInProgram);
+
+	CLRPC_GET(reply,int,retval,&retval);
+	printcl( CL_DEBUG "clrpc_clCreateKernelsInProgram: retval = %d\n", retval);
+
+	CLRPC_GET(reply,uint,nkernels_ret,&tmp_nkernels_ret);
+	printcl( CL_DEBUG "clrpc_clCreateKernelsInProgram: *nkernels_ret = %d\n",
+		tmp_nkernels_ret);
+
+	printcl( CL_DEBUG 
+		"clrpc_clCreateKernelsInProgram: compare nkernels"
+		" *nkernels_ret ARRAY_LEN %d %d %d\n",
+		nkernels,tmp_nkernels_ret,EVTAG_ARRAY_LEN(reply, kernels));
+
+	nkernels = min(nkernels,tmp_nkernels_ret);
+
+	CLRPC_GET_DPTR_ARRAY(reply,nkernels,kernels);
+
+	for(i=0;i<nkernels;i++) {
+
+		_xobject_create(xkernel,kernels[i],_xobject_rpc_pool(xprogram));
+
+	}
+
+	for(i=0;i<nkernels;i++) {
+		printcl( CL_DEBUG "kernel pool values %d %p",i,
+			((_xobject_t*)kernels[i])->rpc_pool);
+	}
+
+	CLRPC_FINAL(clCreateKernelsInProgram);
+
+	if (nkernels_ret) *nkernels_ret = tmp_nkernels_ret;
+
+	return(retval);
+}
+
+
+
+
+/*
  * clGetKernelInfo
  */
 
@@ -2048,7 +2124,7 @@ void* clrpc_clRetainSampler = 0;
 void* clrpc_clReleaseSampler = 0;
 void* clrpc_clGetSamplerInfo = 0;
 void* clrpc_clGetProgramBuildInfo = 0;
-void* clrpc_clCreateKernelsInProgram = 0;
+//void* clrpc_clCreateKernelsInProgram = 0;
 void* clrpc_clGetKernelWorkGroupInfo = 0;
 void* clrpc_clEnqueueReadImage = 0;
 void* clrpc_clEnqueueWriteImage = 0;

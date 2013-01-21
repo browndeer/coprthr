@@ -205,6 +205,7 @@ CLRPC_HEADER(clGetProgramInfo)
 CLRPC_HEADER(clRetainProgram)
 CLRPC_HEADER(clReleaseProgram)
 CLRPC_HEADER(clCreateKernel)
+CLRPC_HEADER(clCreateKernelsInProgram)
 CLRPC_HEADER(clGetKernelInfo)
 CLRPC_HEADER(clRetainKernel)
 CLRPC_HEADER(clReleaseKernel)
@@ -249,6 +250,7 @@ CLRPC_GENERATE(clGetProgramInfo)
 CLRPC_GENERATE(clRetainProgram)
 CLRPC_GENERATE(clReleaseProgram)
 CLRPC_GENERATE(clCreateKernel)
+CLRPC_GENERATE(clCreateKernelsInProgram)
 CLRPC_GENERATE(clGetKernelInfo)
 CLRPC_GENERATE(clRetainKernel)
 CLRPC_GENERATE(clReleaseKernel)
@@ -373,8 +375,6 @@ _clrpc_clGetDeviceIDs_svrcb(
 
 	cl_int retval = clGetDeviceIDs(platform,devtype,
 		ndevices,devices,&ndevices_ret);
-
-retval = 7;
 
 	printcl( CL_DEBUG " retval = %d",retval);
 	printcl( CL_DEBUG " ndevices_ret = %d",ndevices_ret);
@@ -1494,6 +1494,59 @@ _clrpc_clCreateKernel_svrcb(
    EVRPC_REQUEST_DONE(rpc);
 }
 
+static void
+_clrpc_clCreateKernelsInProgram_svrcb(
+	EVRPC_STRUCT(_clrpc_clCreateKernelsInProgram)* rpc, void* arg)
+{
+	printcl( CL_DEBUG "_clrpc_clCreateKernelsInProgram_svrcb");
+
+	CLRPC_SVRCB_INIT(clCreateKernelsInProgram);
+
+	int i;
+
+	cl_program program;
+	cl_uint nkernels = 0;
+	cl_kernel* kernels = 0;
+	cl_uint nkernels_ret;
+
+	struct dual_ptr* d;
+   EVTAG_GET(request,program,&d);
+	EVTAG_GET(d,remote,(void*)&program);
+
+	CLRPC_GET(request,uint,nkernels,&nkernels);
+
+	if (nkernels) 
+		kernels = (cl_kernel*)calloc(nkernels,sizeof(cl_kernel));
+
+	printcl( CL_DEBUG " program = %p",program);
+
+	cl_int retval = clCreateKernelsInProgram(program,
+		nkernels,kernels,&nkernels_ret);
+
+	printcl( CL_DEBUG " retval = %d",retval);
+	printcl( CL_DEBUG " nkernels_ret = %d",nkernels_ret);
+
+	CLRPC_ASSIGN(reply, int, retval, retval );
+	CLRPC_ASSIGN(reply, uint, nkernels_ret, nkernels_ret );
+
+	cl_uint n = min(nkernels,nkernels_ret);
+
+	for(i=0;i<n;i++)
+		printcl( CL_DEBUG "real kernels[%d] = %p",i,kernels[i]);
+
+	printcl( CL_DEBUG "n kernels %d %p",n,kernels);
+
+	CLRPC_DPTR_ARRAY_COPY(request,reply,n,kernels);
+	CLRPC_DPTR_ARRAY_SET_REMOTE(reply,n,kernels,kernels);
+
+	if (kernels) 
+		free(kernels);
+
+   EVRPC_REQUEST_DONE(rpc);
+
+}
+
+
 CLRPC_GENERIC_GETINFO_SVRCB(clGetKernelInfo,kernel,kernel,kernel_info)
 
 CLRPC_GENERIC_RETAIN_SVRCB(clRetainKernel,cl_kernel,kernel)
@@ -1813,6 +1866,7 @@ clrpc_server( const char* address, ev_uint16_t port )
 	CLRPC_REGISTER(clRetainProgram);
 	CLRPC_REGISTER(clReleaseProgram);
 	CLRPC_REGISTER(clCreateKernel);
+	CLRPC_REGISTER(clCreateKernelsInProgram);
 	CLRPC_REGISTER(clGetKernelInfo);
 	CLRPC_REGISTER(clReleaseKernel);
 	CLRPC_REGISTER(clRetainKernel);
