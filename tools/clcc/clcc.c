@@ -39,7 +39,8 @@
 
 //#include "_version.h"
 #include "CL/cl.h"
-#include "util.h"
+//#include "util.h"
+#include "printcl.h"
 #include "../../src/libclelf/clelf.h"
 
 /***

@@ -9,6 +9,16 @@ datarootdir=@datarootdir@
 #DEFS = -DCLCC1_WARN -DCLCC1_DEBUG
 #DEFS = -DCLCC1_WARN
 
+ifeq (@ENABLE_SILENT@,1)
+DEFS += -DENABLE_SILENT
+endif
+ifneq (@MAX_CLMESG_LEVEL@,)
+DEFS += -DMAX_CLMESG_LEVEL=@MAX_CLMESG_LEVEL@
+endif
+ifneq (@DEFAULT_CLMESG_LEVEL@,)
+DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
+endif
+
 ######################################################################
 
 BIN_NAME = clcc1

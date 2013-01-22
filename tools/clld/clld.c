@@ -37,7 +37,8 @@
 
 //#include "_version.h"
 #include "CL/cl.h"
-#include "util.h"
+//#include "util.h"
+#include "printcl.h"
 #include "../../src/libclelf/clelf.h"
 
 
@@ -414,6 +415,7 @@ int main(int argc, char** argv)
 
 			if (tmp[0] != (char)0x7f || strncmp(tmp+1,"ELF",3)) {
 				fprintf(stderr,"clld: '%s' is not an ELF object file\n",fname);
+				fprintf(stderr,"clld: %d %d %d %d",(int)tmp[0],(int)tmp[1],(int)tmp[2],(int)tmp[3]);
 				exit(-1);
 			}
 

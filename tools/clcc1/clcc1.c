@@ -495,10 +495,10 @@ int main(int argc, char** argv)
   list_str_to_argv(device_select,&dselc,&dselv);
   list_str_to_argv(device_exclude,&dexclc,&dexclv);
 
-  for(i=0;i<pselc;i++) DEBUG2("platform select |%s|",pselv[i]);
-  for(i=0;i<pexclc;i++) DEBUG2("platform exclude |%s|",pexclv[i]);
-  for(i=0;i<dselc;i++) DEBUG2("device select |%s|",dselv[i]);
-  for(i=0;i<dexclc;i++) DEBUG2("device exclude |%s|",dexclv[i]);
+  for(i=0;i<pselc;i++) printcl( CL_DEBUG "platform select |%s|",pselv[i]);
+  for(i=0;i<pexclc;i++) printcl( CL_DEBUG "platform exclude |%s|",pexclv[i]);
+  for(i=0;i<dselc;i++) printcl( CL_DEBUG "device select |%s|",dselv[i]);
+  for(i=0;i<dexclc;i++) printcl( CL_DEBUG "device exclude |%s|",dexclv[i]);
 
   int* pselcode = (int*)malloc(pselc*sizeof(int));
   int* pexclcode = (int*)malloc(pexclc*sizeof(int));
@@ -685,7 +685,7 @@ int main(int argc, char** argv)
           if (pexclcode[l] == platform_code) pexclude = 1;
     }
 
-    DEBUG2("se (%d %d)", pselect,pexclude);
+    printcl( CL_DEBUG "se (%d %d)", pselect,pexclude);
 
 		if (!pselect || pexclude) continue;
 
@@ -701,7 +701,7 @@ int main(int argc, char** argv)
 				cprops[2] = CL_CONTEXT_OFFLINE_DEVICES_AMD;
 				cprops[3] = (cl_context_properties)1;
 				cprops[4] = (cl_context_properties)0;
-				DEBUG2("use amdapp offline");
+				printcl( CL_DEBUG "use amdapp offline");
 				break;
 
 			default:
@@ -721,7 +721,7 @@ int main(int argc, char** argv)
 			ndev0*sizeof(cl_device_id),devices0,0);
 //		clReleaseContext(tmpctx);
 
-		DEBUG2("number of supported devices %d",ndev0);
+		printcl( CL_DEBUG "number of supported devices %d",ndev0);
 
 		n = 0;
 		for(j=0;j<ndev0;j++) {
@@ -748,7 +748,7 @@ int main(int argc, char** argv)
             if (!strcasecmp(dexclv[l],devname)) dexclude = 1;
       }
 
-      DEBUG2("device |%s| se (%d %d)", devname,dselect,dexclude);
+      printcl( CL_DEBUG "device |%s| se (%d %d)", devname,dselect,dexclude);
 
 			if (dselect && !dexclude) devices0[n++] = devices0[j];
 				
@@ -767,7 +767,7 @@ int main(int argc, char** argv)
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_NUM_DEVICES,
 			sizeof(cl_uint), &ndev, 0 );
 
-		DEBUG2("ndev=%d",ndev);
+		printcl( CL_DEBUG "ndev=%d",ndev);
 
 		cl_device_id* devices = (cl_device_id*)malloc(ndev*sizeof(cl_device_id));
 
@@ -780,7 +780,7 @@ int main(int argc, char** argv)
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_BINARY_SIZES,
 			sizeof(size_t)*ndev, bin_sizes, 0 );
 
-		DEBUG2("bin size %d",bin_sizes[0]);
+		printcl( CL_DEBUG "bin size %d",bin_sizes[0]);
 
 		char** bins = (char**)malloc( sizeof(char*)*ndev );
 
@@ -792,10 +792,12 @@ int main(int argc, char** argv)
 			}	
 		}
 
+		printcl( CL_DEBUG "bin %p",bins[0]);
+
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_BINARIES,
 			sizeof(char*)*ndev, bins, 0 );
 
-		DEBUG2("bin %p",bins[0]);
+		printcl( CL_DEBUG "bin %p",bins[0]);
 
 		for( j=0; j < ndev; j++ ) {
 
@@ -804,7 +806,7 @@ int main(int argc, char** argv)
 			Elf32_Ehdr* ehdr32;
 			Elf64_Ehdr* ehdr64;
 
-			DEBUG2("platform code %d",platform_code);
+			printcl( CL_DEBUG "platform code %d",platform_code);
 
 			switch(platform_code) {
 
@@ -814,12 +816,12 @@ int main(int argc, char** argv)
 
 				case CLELF_PLATFORM_CODE_COPRTHR:
 					ehdr64 = (Elf64_Ehdr*)bins[j];
-					DEBUG2("ehdr64 %p",ehdr64);
+					printcl( CL_DEBUG "ehdr64 %p",ehdr64);
 					break;
 
 				case CLELF_PLATFORM_CODE_NVIDIA:
 				default:
-					DEBUG2("device code %d",0);
+					printcl( CL_DEBUG "device code %d",0);
 					break;
 
 			}
@@ -828,21 +830,24 @@ int main(int argc, char** argv)
 
 		}
 
+printcl( CL_DEBUG "HERE %d",ndev);
 
 		for( j=0; j < ndev; j++ ) {
 
 			char device_name[1024];
+			printcl( CL_DEBUG "before");
 			err = clGetDeviceInfo(devices[j],CL_DEVICE_NAME,1024,device_name,0);
+			printcl( CL_DEBUG "after");
 
-			DEBUG2("device name %s",device_name);
+			printcl( CL_DEBUG "device name %s",device_name);
 			clelf_device_name_alias(device_name);
-			DEBUG2("aliased device name %s",device_name);
+			printcl( CL_DEBUG "aliased device name %s",device_name);
 
 			cl_build_status status;
 			err = clGetProgramBuildInfo(programs[i],devices[j],
 				CL_PROGRAM_BUILD_STATUS,sizeof(cl_build_status),&status,0);
 
-			DEBUG2("status %d",status);
+			printcl( CL_DEBUG "status %d",status);
 
 			if (status == CL_BUILD_SUCCESS && bins[j]) {
 
@@ -862,7 +867,7 @@ printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",
 
 
 				++nbin_valid;
-				DEBUG2("nbin_valid %d",nbin_valid);
+				printcl( CL_DEBUG "nbin_valid %d",nbin_valid);
 
 				/***
 				 *** add clprgbin entry
@@ -959,7 +964,7 @@ printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",
 		cl_kernel* kernels = (cl_kernel*)malloc(nkrn*sizeof(cl_kernel));
 		err = clCreateKernelsInProgram (programs[i],nkrn,kernels,0);
 
-		DEBUG2("nkrn %d",nkrn);
+		printcl( CL_DEBUG "nkrn %d",nkrn);
 
 		for(j=0;j<nkrn;j++) {
 
@@ -1074,7 +1079,7 @@ printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",
 
 	system(cmd);
 
-	DEBUG2("removing temp file '%s'",tfname);
+	printcl( CL_DEBUG "removing temp file '%s'",tfname);
 	unlink(tfname);
 	
 	return(0);
