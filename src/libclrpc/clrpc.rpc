@@ -595,6 +595,32 @@ struct _clrpc_clGetProgramInfo_reply {
 	int64 retval = 1;
    optional bytes param_val = 2;
 	optional int64 param_sz_ret = 3;
+	optional bytes bin = 4;
+}
+
+
+/*** cl_int
+ *** clGetProgramBuildInfo(
+ ***   cl_program program,
+ ***   cl_device_id device,
+ ***   cl_program_build_info param_name,
+ ***   size_t param_sz,
+ ***   void* param_val,
+ ***   size_t* param_sz_ret)
+ ***/
+
+struct _clrpc_clGetProgramBuildInfo_request {
+	struct[dual_ptr] program = 1;
+	struct[dual_ptr] device = 2;
+	int64 param_name = 3;
+   int64 param_sz = 4;
+}
+
+struct _clrpc_clGetProgramBuildInfo_reply {
+	int64 retval = 1;
+   optional bytes param_val = 2;
+	optional int64 param_sz_ret = 3;
+	optional bytes bin = 4;
 }
 
 

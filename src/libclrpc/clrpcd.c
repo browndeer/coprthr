@@ -202,6 +202,7 @@ CLRPC_HEADER(clCreateProgramWithSource)
 CLRPC_HEADER(clCreateProgramWithBinary)
 CLRPC_HEADER(clBuildProgram)
 CLRPC_HEADER(clGetProgramInfo)
+CLRPC_HEADER(clGetProgramBuildInfo)
 CLRPC_HEADER(clRetainProgram)
 CLRPC_HEADER(clReleaseProgram)
 CLRPC_HEADER(clCreateKernel)
@@ -247,6 +248,7 @@ CLRPC_GENERATE(clCreateProgramWithSource)
 CLRPC_GENERATE(clCreateProgramWithBinary)
 CLRPC_GENERATE(clBuildProgram)
 CLRPC_GENERATE(clGetProgramInfo)
+CLRPC_GENERATE(clGetProgramBuildInfo)
 CLRPC_GENERATE(clRetainProgram)
 CLRPC_GENERATE(clReleaseProgram)
 CLRPC_GENERATE(clCreateKernel)
@@ -1411,7 +1413,7 @@ _clrpc_clBuildProgram_svrcb(
 
 	cl_program program;
 	cl_uint ndevices;
-	cl_device_id* devices;
+	cl_device_id* devices = 0;
 	char* options;
 	void* pfn_notify = 0;
 	void* user_data = 0;
@@ -1424,17 +1426,22 @@ _clrpc_clBuildProgram_svrcb(
 	CLRPC_GET(request,uint,ndevices,&ndevices);
 
 	size_t devices_len = EVTAG_ARRAY_LEN(request,devices);
+	printcl( CL_DEBUG "compare ndevices devices_len %d %d",devices,devices_len);
+
 	if (devices_len != ndevices) 
 		printcl( CL_ERR "devices_len not equal to ndevices");
-	devices = (cl_device_id*)calloc(ndevices,sizeof(cl_device_id));
-	for(i=0;i<ndevices;i++) {
-		struct dual_ptr* d;
-		clrpc_ptr local,remote;
-		EVTAG_ARRAY_GET(request, devices, i, &d);
-		EVTAG_GET(d,local,&local);
-		EVTAG_GET(d,remote,&remote);
-		devices[i] = (cl_device_id)remote;
-		printcl( CL_DEBUG "devices[] %p",devices[i]);
+
+	if (ndevices) {
+		devices = (cl_device_id*)calloc(ndevices,sizeof(cl_device_id));
+		for(i=0;i<ndevices;i++) {
+			struct dual_ptr* d;
+			clrpc_ptr local,remote;
+			EVTAG_ARRAY_GET(request, devices, i, &d);
+			EVTAG_GET(d,local,&local);
+			EVTAG_GET(d,remote,&remote);
+			devices[i] = (cl_device_id)remote;
+			printcl( CL_DEBUG "devices[] %p",devices[i]);
+		}
 	}
 
    unsigned int options_sz = 0;
@@ -1442,15 +1449,151 @@ _clrpc_clBuildProgram_svrcb(
 	if (options_sz == 0) options = 0;
 	printcl( CL_DEBUG "%d:|%s|",options_sz,options);
 
+   printcl( CL_DEBUG "program %p",program);
+   printcl( CL_DEBUG "ndevices %d",ndevices);
+   printcl( CL_DEBUG "devices %p",devices);
+   printcl( CL_DEBUG "options %p",options);
+   printcl( CL_DEBUG "pfn_notify %p",pfn_notify);
+   printcl( CL_DEBUG "user_data %p",user_data);
+
 	cl_int retval = clBuildProgram(program,ndevices,devices,options,
 		pfn_notify,user_data);
+
+	printcl( CL_DEBUG "retval %d",retval);
 
 	CLRPC_ASSIGN(reply, int64, retval, retval );
 
    EVRPC_REQUEST_DONE(rpc);
 }
 
-CLRPC_GENERIC_GETINFO_SVRCB(clGetProgramInfo,program,program,program_info)
+/* XXX this call is a mess as is the original -DAR */
+static void _clrpc_clGetProgramInfo_svrcb( 
+	EVRPC_STRUCT(_clrpc_clGetProgramInfo)* rpc, void* parg
+) 
+{ 
+	printcl( CL_DEBUG "_clrpc_clGetProgramInfo_svrcb"); 
+	CLRPC_SVRCB_INIT(clGetProgramInfo); 
+
+	int err;
+
+	cl_program program; 
+	cl_program_info param_name; 
+	size_t param_sz; 
+	void* param_val = 0; 
+	size_t param_sz_ret; 
+	CLRPC_GET_DPTR_REMOTE(request,program,program,&program); 
+	CLRPC_GET(request,program_info,param_name,&param_name); 
+
+//	if (param_name == CL_PROGRAM_NUM_DEVICES) 
+//		printcl( CL_DEBUG "CL_PROGRAM_NUM_DEVICES"); 
+//	else if (param_name == CL_PROGRAM_BINARY_SIZES) 
+//		printcl( CL_DEBUG "CL_PROGRAM_BINARY_SIZES"); 
+//	else if (param_name == CL_PROGRAM_BINARIES) 
+//		printcl( CL_DEBUG "CL_PROGRAM_BINARIES"); 
+
+	CLRPC_GET(request,uint,param_sz,&param_sz); 
+	printcl( CL_DEBUG "param_sz = %ld", param_sz ); 
+
+	if (param_name == CL_PROGRAM_BINARIES) {
+
+		param_val = (param_sz)? calloc(param_sz,1) : 0; 
+
+		printcl( CL_DEBUG "CL_PROGRAM_BINARIES requires special steps");
+	
+		cl_uint __ndev;
+		err = clGetProgramInfo( program, CL_PROGRAM_NUM_DEVICES,
+         sizeof(cl_uint), &__ndev, 0 );
+
+		size_t* __bin_sizes = (size_t*)malloc( sizeof(size_t)*__ndev );
+		err = clGetProgramInfo(program,CL_PROGRAM_BINARY_SIZES,
+			sizeof(size_t)*__ndev,__bin_sizes,0);
+
+		size_t __sz = 0;
+		int __i;
+		for(__i=0;__i<__ndev;__i++) __sz += __bin_sizes[__i];
+		void* __bin = calloc(__sz,1);
+		char** __bins = (char**)malloc( sizeof(char*)*__ndev );
+		__bins[0] = __bin;
+		for(__i=1;__i<__ndev;__i++) __bins[__i] = __bin + __bin_sizes[__i-1];
+
+		cl_int retval = clGetProgramInfo(program,CL_PROGRAM_BINARIES,param_sz,
+			__bins, &param_sz_ret);
+	
+		printcl( CL_DEBUG "retval %d", retval ); 
+		CLRPC_ASSIGN(reply, int, retval, retval ); 
+		CLRPC_ASSIGN(reply, uint64, param_sz_ret, param_sz_ret ); 
+		unsigned int len = min(param_sz,param_sz_ret); 
+
+//		EVTAG_ASSIGN_WITH_LEN(reply,param_val,param_val,len); 
+		printcl( CL_DEBUG "param_val assigned" ); 
+		EVTAG_ASSIGN_WITH_LEN(reply,param_val,((void*)__bin_sizes),len); 
+		printcl( CL_DEBUG "assign %p %d",__bin,__sz ); 
+		EVTAG_ASSIGN_WITH_LEN(reply,bin,__bin,(unsigned int)__sz);
+
+		printcl( CL_DEBUG "sending back %d bytes", __sz);
+
+		char* pc = (char*)__bins[0];
+		printcl( CL_DEBUG "tag: %d %d %d %d",(int)pc[0],(int)pc[1],(int)pc[2],(int)pc[3]);
+
+		free(__bins);
+		free(__bin);
+		free(__bin_sizes);
+
+	} else {
+
+		param_val = (param_sz)? calloc(param_sz,1) : 0; 
+
+		printcl( CL_DEBUG "calling '%s' ( %p, %d, %ld, %p, ...)", 
+		"clGetProgramInfo",program,param_name,param_sz,param_val ); 
+
+		cl_int retval = clGetProgramInfo(program,param_name,param_sz,param_val,
+			&param_sz_ret);
+
+		printcl( CL_DEBUG "retval %d", retval ); 
+		CLRPC_ASSIGN(reply, int, retval, retval ); 
+		CLRPC_ASSIGN(reply, uint64, param_sz_ret, param_sz_ret ); 
+		unsigned int len = min(param_sz,param_sz_ret); 
+		EVTAG_ASSIGN_WITH_LEN(reply,param_val,param_val,len); 
+		if (len) printcl( CL_DEBUG "%d:%s",len,(char*)param_val); 
+		if (param_val) free(param_val); 
+
+	}
+
+   EVRPC_REQUEST_DONE(rpc); 
+}
+
+
+static void _clrpc_clGetProgramBuildInfo_svrcb( 
+	EVRPC_STRUCT(_clrpc_clGetProgramBuildInfo)* rpc, void* parg) 
+{ 
+	printcl( CL_DEBUG "_clrpc_clGetProgramBuildInfo_svrcb"); 
+	CLRPC_SVRCB_INIT(clGetProgramBuildInfo);
+	cl_program program; 
+	cl_device_id device; 
+	cl_program_build_info param_name; 
+	size_t param_sz; 
+	void* param_val = 0; 
+	size_t param_sz_ret; 
+	CLRPC_GET_DPTR_REMOTE(request,program,program,&program); 
+	CLRPC_GET_DPTR_REMOTE(request,device,device,&device); 
+	CLRPC_GET(request,program_build_info,param_name,&param_name); 
+	CLRPC_GET(request,uint,param_sz,&param_sz); 
+	param_val = (param_sz)? calloc(param_sz,1) : 0; 
+	printcl( CL_DEBUG "param_sz = %ld", param_sz ); 
+	printcl( CL_DEBUG "calling '%s' ( %p, %d, %ld, %p, ...)", 
+		"clGetProgramBuildInfo",program,param_name,param_sz,param_val ); 
+	cl_int retval = clGetProgramBuildInfo(program,device,param_name,param_sz,
+		param_val,&param_sz_ret); 
+	printcl( CL_DEBUG "retval %d", retval ); 
+	CLRPC_ASSIGN(reply, int, retval, retval ); 
+	CLRPC_ASSIGN(reply, uint64, param_sz_ret, param_sz_ret ); 
+	unsigned int len = min(param_sz,param_sz_ret); 
+	EVTAG_ASSIGN_WITH_LEN(reply,param_val,param_val,len); 
+	if (len) printcl( CL_DEBUG "%d:%s",len,(char*)param_val); 
+	if (param_val) free(param_val); 
+   EVRPC_REQUEST_DONE(rpc); 
+}
+
 
 CLRPC_GENERIC_RETAIN_SVRCB(clRetainProgram,cl_program,program)
 
@@ -1863,6 +2006,7 @@ clrpc_server( const char* address, ev_uint16_t port )
 	CLRPC_REGISTER(clCreateProgramWithBinary);
 	CLRPC_REGISTER(clBuildProgram);
 	CLRPC_REGISTER(clGetProgramInfo);
+	CLRPC_REGISTER(clGetProgramBuildInfo);
 	CLRPC_REGISTER(clRetainProgram);
 	CLRPC_REGISTER(clReleaseProgram);
 	CLRPC_REGISTER(clCreateKernel);

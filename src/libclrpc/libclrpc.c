@@ -245,6 +245,7 @@ CLRPC_HEADER(clCreateProgramWithSource)
 CLRPC_HEADER(clCreateProgramWithBinary)
 CLRPC_HEADER(clBuildProgram)
 CLRPC_HEADER(clGetProgramInfo)
+CLRPC_HEADER(clGetProgramBuildInfo)
 CLRPC_HEADER(clRetainProgram)
 CLRPC_HEADER(clReleaseProgram)
 CLRPC_HEADER(clCreateKernel)
@@ -290,6 +291,7 @@ CLRPC_GENERATE(clCreateProgramWithSource)
 CLRPC_GENERATE(clCreateProgramWithBinary)
 CLRPC_GENERATE(clBuildProgram)
 CLRPC_GENERATE(clGetProgramInfo)
+CLRPC_GENERATE(clGetProgramBuildInfo)
 CLRPC_GENERATE(clRetainProgram)
 CLRPC_GENERATE(clReleaseProgram)
 CLRPC_GENERATE(clCreateKernel)
@@ -1714,7 +1716,131 @@ clrpc_clBuildProgram(
  * clGetProgramInfo
  */
 
-CLRPC_GENERIC_GETINFO3(clGetProgramInfo,program,program,program_info)
+//CLRPC_GENERIC_GETINFO3(clGetProgramInfo,program,program,program_info)
+//#define CLRPC_GENERIC_GETINFO3(name,type,arg,infotype) 
+CLRPC_UNBLOCK_CLICB(clGetProgramInfo) 
+cl_int clGetProgramInfo(cl_program program, cl_program_info param_name, 
+   size_t param_sz, void* param_val, size_t *param_sz_ret) 
+	__alias(clrpc_clGetProgramInfo); 
+cl_int clrpc_clGetProgramInfo(cl_program xprogram, cl_program_info param_name, 
+	size_t param_sz, void* param_val, size_t *param_sz_ret) 
+{ 
+	cl_int retval = 0; 
+	size_t tmp_param_sz_ret; 
+	CLRPC_INIT(clGetProgramInfo); 
+	clrpc_dptr* program = (clrpc_dptr*) (((_xobject_t*)xprogram)->object); 
+	printcl( CL_DEBUG "object local %p remote %p",program->local,
+		program->remote); 
+	CLRPC_ASSIGN_DPTR(request,program,program); 
+	CLRPC_ASSIGN(request,program_info,param_name,param_name); 
+	CLRPC_ASSIGN(request,uint,param_sz,param_sz); 
+	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xprogram),clGetProgramInfo); 
+	CLRPC_GET(reply,int,retval,&retval); 
+	CLRPC_GET(reply,uint,param_sz_ret,&tmp_param_sz_ret); 
+	printcl( CL_DEBUG "clrpc_clGetProgramInfo: *param_sz_ret %ld",
+		tmp_param_sz_ret); 
+	param_sz = min(param_sz,tmp_param_sz_ret); 
+	void* tmp_param_val = 0; 
+	unsigned int tmplen = 0; 
+	EVTAG_GET_WITH_LEN(reply,param_val,(unsigned char**)&tmp_param_val,&tmplen);
+	if (param_name == CL_PROGRAM_BINARIES) {
+		printcl( CL_DEBUG "special %d", ((size_t*)tmp_param_val)[0]);
+		int ndev = tmp_param_sz_ret/sizeof(size_t);
+		printcl( CL_DEBUG "ndev = %d",ndev);
+		size_t* bin_sz = (size_t*)tmp_param_val;
+		void* p = 0;
+		EVTAG_GET_WITH_LEN(reply,bin,(unsigned char**)&p,&tmplen);
+		int i;
+		for(i=0;i<ndev;i++) {
+			memcpy( ((void**)param_val)[i],p,bin_sz[i] );
+			p += bin_sz[i];
+		}
+	} else {
+		memcpy(param_val,tmp_param_val,param_sz); 
+	}
+	if (param_sz_ret) *param_sz_ret = tmp_param_sz_ret; 
+
+	/* XXX treat ill-conceived case where "param" is array of ptrs -DAR */
+	if (param_name==CL_PROGRAM_DEVICES) {
+		if (param_sz && param_val) {
+
+			cl_device_id* devices = (cl_device_id*)param_val;
+
+			cl_device_id* tmp_devices = (cl_device_id*)malloc(param_sz);
+			memcpy(tmp_devices,devices,param_sz);
+
+			int n = param_sz/sizeof(cl_device_id);
+
+			CLRPC_ALLOC_DPTR_ARRAY(n,devices);
+
+			int i;
+			for(i=0;i<n;i++) 
+				((clrpc_dptr*)devices[i])->remote = (clrpc_ptr)tmp_devices[i];
+
+			for(i=0;i<n;i++) 
+				printcl( CL_DEBUG "(%d) local %p remote %p",i,
+					((clrpc_dptr*)devices[i])->local,
+					((clrpc_dptr*)devices[i])->remote);
+
+			for(i=0;i<n;i++) {
+				_xobject_create(xdevice,devices[i], _xobject_rpc_pool(xprogram));
+			}
+
+			for(i=0;i<n;i++) {
+				clrpc_dptr* dptr = (clrpc_dptr*)(((_xobject_t*)devices[i])->object);
+				printcl( CL_DEBUG "(%d) local %p remote %p",i,dptr->local,dptr->remote);
+			}
+			
+		}
+	}
+	
+	return(retval); 
+}
+
+/*
+ * clGetProgramBuildInfo
+ */
+
+//CLRPC_GENERIC_GETINFO3(clGetProgramBuildInfo,program,program,program_info)
+//#define CLRPC_GENERIC_GETINFO3(name,type,arg,infotype) 
+CLRPC_UNBLOCK_CLICB(clGetProgramBuildInfo) 
+cl_int clGetProgramBuildInfo(cl_program program, cl_device_id device,
+	cl_program_build_info param_name, 
+   size_t param_sz, void* param_val, size_t *param_sz_ret) 
+	__alias(clrpc_clGetProgramBuildInfo); 
+cl_int clrpc_clGetProgramBuildInfo(cl_program xprogram, cl_device_id xdevice,
+	cl_program_build_info param_name, 
+	size_t param_sz, void* param_val, size_t *param_sz_ret) 
+{ 
+	cl_int retval = 0; 
+	size_t tmp_param_sz_ret; 
+	CLRPC_INIT(clGetProgramBuildInfo); 
+	clrpc_dptr* program = (clrpc_dptr*) (((_xobject_t*)xprogram)->object); 
+	clrpc_dptr* device = (clrpc_dptr*) (((_xobject_t*)xdevice)->object); 
+	printcl( CL_DEBUG "object local %p remote %p",
+		program->local, program->remote); 
+	printcl( CL_DEBUG "object local %p remote %p",
+		device->local, device->remote); 
+	CLRPC_ASSIGN_DPTR(request,program,program); 
+	CLRPC_ASSIGN_DPTR(request,device,device); 
+	CLRPC_ASSIGN(request,program_build_info,param_name,param_name); 
+	CLRPC_ASSIGN(request,uint,param_sz,param_sz); 
+	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xprogram),clGetProgramBuildInfo); 
+	CLRPC_GET(reply,int,retval,&retval); 
+	CLRPC_GET(reply,uint,param_sz_ret,&tmp_param_sz_ret); 
+	printcl( CL_DEBUG "clrpc_clGetProgramBuildInfo: *param_sz_ret %ld",
+		tmp_param_sz_ret); 
+	param_sz = min(param_sz,tmp_param_sz_ret); 
+	void* tmp_param_val = 0; 
+	unsigned int tmplen = 0; 
+	EVTAG_GET_WITH_LEN(reply,param_val,(unsigned char**)&tmp_param_val,&tmplen);
+	memcpy(param_val,tmp_param_val,param_sz); 
+	if (param_sz_ret) *param_sz_ret = tmp_param_sz_ret; 
+	return(retval); 
+}
+
+
+
 
 
 /*
@@ -2123,7 +2249,7 @@ void* clrpc_clCreateSampler = 0;
 void* clrpc_clRetainSampler = 0;
 void* clrpc_clReleaseSampler = 0;
 void* clrpc_clGetSamplerInfo = 0;
-void* clrpc_clGetProgramBuildInfo = 0;
+//void* clrpc_clGetProgramBuildInfo = 0;
 //void* clrpc_clCreateKernelsInProgram = 0;
 void* clrpc_clGetKernelWorkGroupInfo = 0;
 void* clrpc_clEnqueueReadImage = 0;

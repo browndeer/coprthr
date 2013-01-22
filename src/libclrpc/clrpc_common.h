@@ -55,6 +55,7 @@ typedef int64_t clrpc_mem_info;
 typedef int64_t clrpc_event_info;
 typedef int64_t clrpc_profiling_info;
 typedef int64_t clrpc_program_info;
+typedef int64_t clrpc_program_build_info;
 typedef int64_t clrpc_kernel_info;
 
 typedef clrpc_dptr _clrpc_device_id;
