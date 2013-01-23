@@ -1,0 +1,53 @@
+#!@BASH@
+
+args=`getopt m: $*`
+
+set -- $args
+
+amin=5
+
+for i
+do
+   case $i in
+	--) shift; break
+   ;;
+   -m) shift; amin=$1;
+   ;;
+   *) shift
+   esac
+done
+
+
+while :
+do
+
+pids=`ls /var/clproc`
+
+#echo $pids
+
+for p in $pids
+do
+
+ps -p $p > /dev/null 2>&1
+
+if ! [ $? -ne 0 ]; then
+#	echo "process " $p " is running";
+	test -e /proc/$p/cmdline && cp -f /proc/$p/cmdline /var/clproc/$p/cmdline
+fi
+
+if [ $(find /var/clproc/$p -amin +$amin -type f -name state ) ];then
+#	echo "$p is old"
+	test ! -e /var/clproc/$p/state ||unlink /var/clproc/$p/state
+	test ! -e /var/clproc/$p/cmdline ||unlink /var/clproc/$p/cmdline
+	rmdir /var/clproc/$p
+#else
+#	echo "$p is new"
+fi
+
+done
+
+sleep  2
+#echo tic
+
+done
+

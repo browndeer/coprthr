@@ -723,6 +723,7 @@ AC_CONFIG_FILES([tools/clld/Makefile])
 AC_CONFIG_FILES([tools/clcc/Makefile])
 AC_CONFIG_FILES([tools/clcc1/Makefile])
 AC_CONFIG_FILES([tools/clnm/Makefile])
+AC_CONFIG_FILES([tools/cltop/Makefile])
 AC_CONFIG_FILES([test/Makefile])
 AC_CONFIG_FILES([test/test_stdcl/Makefile])
 AC_CONFIG_FILES([test/test_libcoprthr/Makefile])
@@ -757,7 +758,11 @@ if test x$enable_epiphany = xyes; then
 fi;
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_tests.sh],[chmod +x test/test_stdcl/scripts/run_tests.sh])
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_quick_tests.sh],[chmod +x test/test_stdcl/scripts/run_quick_tests.sh])
+
 AC_CONFIG_FILES([tools/scripts/cldebug],[chmod +x tools/scripts/cldebug])
+AC_CONFIG_FILES([tools/scripts/clprocd],[chmod +x tools/scripts/clprocd])
+AC_CONFIG_FILES([tools/scripts/Makefile])
+AC_CONFIG_FILES([scripts/clprocd])
 
 AC_OUTPUT
 
