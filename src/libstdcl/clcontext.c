@@ -1308,115 +1308,6 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 				platforms[i],info);
 
 
-#if(0)
-	/* XXX assume no more than 8 platforms availabile, this is reality -DAR */
- 
-//	char* select_name[8] = { 0,0,0,0,0,0,0,0 };
-//	int select_code[8] = { 0,0,0,0,0,0,0,0 };
-//	cl_platform_id select_id[8] = { 0,0,0,0,0,0,0,0 };
-//	char buf[512];
-//	char* tmp_ptr;
-//	int nselect = 0;
-//	if (platform_select) {
-//		strncpy(buf,platform_select,512);
-//		char* tok = strtok_r(buf, ",", &tmp_ptr);
-//		if (tok) select_name[nselect++] = tok;
-//		while (tok && nselect < 8) { 
-//			tok = strtok_r(0, ",", &tmp_ptr); 
-//			if (tok) select_name[nselect++] = tok;
-//		}
-//		for(i=0; i< nselect; i++) {
-//			if (!select_name[i]) break;
-//			DEBUG(__FILE__,__LINE__,
-//				"clcontext_create: platform priority [%d] |%s|",
-//				i,select_name[i]);
-//		}
-//	}
-//
-//	for(i=0; i< nselect; i++) 
-//		select_code[i] = clelf_platform_code(select_name[i]);
-
-	cl_uint platform_devcount[8] = { 0,0,0,0,0,0,0,0 };
-
-   for(i=0;i<nplatforms;i++) {
-
-      char name[64];
-      clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,64,name,0);
-		int code = clelf_platform_code(name);
-
-		err = clGetDeviceIDs(platforms[i],devtyp,0,0,&platform_devcount[i]);
-		__set_oclerrno(err);
-
-		for(j=0; j< nselect; j++) {
-
-
-//			if (!strncasecmp(select_name[j],name,strnlen(select_name[j],64))) {
-			if (select_code[j]==code) {
-
-				printcl( CL_DEBUG "platform %d supports %d devices",
-					i,platform_devcount[i]);
-
-				if (platform_devcount[i] > 0) {
-					select_id[j] = platforms[i];
-					break;
-				}
-
-			}
-
-		}
-
-	}
-
-	if (nplatforms == 1) {
-
-		if (platform_devcount[0] == 0) {
-
-//      	printcl( CL_WARNING
-//				"clcontext_create: no platforms supporting device type (%d)!",
-//				devtyp);
-
-			return((CONTEXT*)0);
-
-		} else {
-
-			platformid = platforms[0];
-
-		}
-
-	} else {
-
-		for(i=0; i< nselect; i++) if (select_id[i]) { 
-
-			platformid = select_id[i];
-			printcl( CL_DEBUG "selecting platform %d",i);
-			break;
-
-		}
-
-		if (!platformid) {
-
-			int nmax = 0;
-			for(i=0; i< nplatforms; i++) if (platform_devcount[i] > nmax) {
-
-				nmax = platform_devcount[i];
-				platformid = platforms[i];
-
-			}
-
-		}
-
-	}
-
-	if (!platformid) {
-
-//     	WARN(__FILE__,__LINE__, 
-//			"clcontext_create: no platforms supporting device type!");
-
-		return((CONTEXT*)0);
-
-	}	
-#endif
-
 	platformid = 0;
 
 	/* get platform name and device count */
@@ -1461,57 +1352,6 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 	ctxprop[nctxprop-1] =  (cl_context_properties)0;
 	
 
-	/* XXX get platform info, temporarily disable this -DAR */
-/*
-	err = clGetPlatformInfo(platformid,CL_PLATFORM_PROFILE,0,0,&sz);
-	__set_oclerrno(err);
-
-	cp->platform_profile = (char*)malloc(sz);
-
-	err = clGetPlatformInfo(
-		platformid,CL_PLATFORM_PROFILE,sz,cp->platform_profile,0);
-	__set_oclerrno(err);
-
-	clGetPlatformInfo(platformid,CL_PLATFORM_VERSION,0,0,&sz);
-	__set_oclerrno(err);
-
-
-	cp->platform_version = (char*)malloc(sz);
-
-	err = clGetPlatformInfo(
-		platformid,CL_PLATFORM_VERSION,sz,cp->platform_version,0);
-	__set_oclerrno(err);
-
-
-	err = clGetPlatformInfo(platformid,CL_PLATFORM_NAME,0,0,&sz);
-	__set_oclerrno(err);
-
-	cp->platform_name = (char*)malloc(sz);
-
-	err = clGetPlatformInfo(platformid,CL_PLATFORM_NAME,sz,cp->platform_name,0);
-	__set_oclerrno(err);
-
-	err = clGetPlatformInfo(platformid,CL_PLATFORM_VENDOR,0,0,&sz);
-	__set_oclerrno(err);
-
-	cp->platform_vendor = (char*)malloc(sz);
-
-	err = clGetPlatformInfo(
-		platformid,CL_PLATFORM_VENDOR,sz,cp->platform_vendor,0);
-	__set_oclerrno(err);
-
-	err = clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,0,0,&sz);
-	__set_oclerrno(err);
-
-	cp->platform_extensions = (char*)malloc(sz);
-
-	err = clGetPlatformInfo(platformid,CL_PLATFORM_EXTENSIONS,sz,
-		cp->platform_extensions,0);
-	__set_oclerrno(err);
-
-	printcl( CL_DEBUG "clcontext_create: selected platform: |%s|",
-		cp->platform_name);	
-*/
 	cp->platform_profile = __unknown_string;
 	cp->platform_version = __unknown_string;
 	cp->platform_name = __unknown_string;
@@ -1522,11 +1362,6 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 
 #ifdef _WIN64
 
-//	cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
-//	cp->nctx = 1;
-//	cp->xxxctx = (cl_context*)malloc(cp->nctx * sizeof(cl_context));
-//	cp->xxxctx[0] = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
-//	__set_oclerrno(err);
 	ictx = (cp->nctx)++;
 	cp->xxxctx = (cl_context*)realloc(cp->xxxctx,cp->nctx * sizeof(cl_context));
 	cp->xxxctx[ictx] = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
@@ -1534,149 +1369,11 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 
 #else
 
-//	if (lock_key > 0) {
-//
-//		if (ndevmax == 0) ndevmax = 1;
-//
-//		cl_uint platform_ndev;
-//		err = clGetDeviceIDs(platformid,devtyp,0,0,&platform_ndev);
-//		 __set_oclerrno(err);
-//		cl_uint platform_vndev = platform_ndev;
-//
-//		cl_device_id* platform_dev 
-//			= (cl_device_id*)malloc(platform_ndev*sizeof(cl_device_id));
-//
-//		err = clGetDeviceIDs(platformid,devtyp,platform_ndev,platform_dev,0);
-//		__set_oclerrno(err);
-//
-//		printcl( CL_DEBUG "clcontext_create: lock_key=%d",lock_key);
-//
-//		pid_t pid = getpid();
-//
-//		size_t sz_page = getpagesize();
-//
-//		char shmobj[64];
-//		snprintf(shmobj,64,"/stdcl_ctx_lock%d.%d",devtyp,lock_key);
-//
-//		printcl( CL_DEBUG "clcontext_create: attempt master shm_open %s from %d",
-//			shmobj,pid);
-//
-//		int fd = shm_open(shmobj,O_RDWR|O_CREAT|O_EXCL,0);
-//		void* p0;
-//
-//		struct timeval t0,t1;
-//		int timeout = 0;
-//
-//		int noff = 0;
-//
-//		if (fd < 0) {
-//			
-//			printcl( CL_DEBUG
-//				"clcontext_create: master shm_open failed from %d (%d)",pid,fd);
-//
-//			printcl( CL_DEBUG
-//				"clcontext_create: attempt slave shm_open from %d",pid);
-//
-//			timeout = 0;
-//			gettimeofday(&t0,0);
-//			t0.tv_sec += 10;
-//
-//			do {
-//	
-//				fd = shm_open(shmobj,O_RDWR,0);
-//				gettimeofday(&t1,0);
-//
-//				if (t1.tv_sec > t0.tv_sec && t1.tv_usec > t0.tv_usec) timeout = 1;
-//
-//			} while (fd < 0 && !timeout);
-//
-//			if (timeout) {
-//
-//				printcl( CL_ERR "clcontext_create: shm_open timeout");
-//
-//			}
-//
-//			ftruncate(fd,sz_page);
-//
-//			p0 = mmap(0,sz_page,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-//
-//			if (!p0) return(0);
-//
-//			__ctx_lock = (struct __ctx_lock_struct*)p0;
-//
-//			pthread_mutex_lock(&__ctx_lock->mtx);
-//			if (__ctx_lock->refc < platform_vndev) {
-//				noff = __ctx_lock->refc;
-//				ndev = min(ndevmax,platform_vndev-noff);
-//				__ctx_lock->refc += ndev;
-//			}
-//			pthread_mutex_unlock(&__ctx_lock->mtx);
-//
-//			close(fd);
-//
-//		} else {
-//
-//			printcl( CL_DEBUG
-//				"clcontext_create: master shm_open succeeded from %d",pid);
-//
-//			ftruncate(fd,sz_page);
-//
-//			p0 = mmap(0,sz_page,PROT_READ|PROT_WRITE,MAP_SHARED,fd,0);
-//
-//			if (!p0) return(0);
-//
-//			__ctx_lock = (struct __ctx_lock_struct*)p0;
-//
-//			__ctx_lock->magic = 20110415;
-//			__ctx_lock->key = lock_key;
-//			pthread_mutex_init(&__ctx_lock->mtx,0);
-//			ndev = min(ndevmax,platform_vndev);
-//			printcl( CL_DEBUG "ndev=%d %d %d",ndev,ndevmax,platform_vndev);
-//			__ctx_lock->refc = ndev;
-//
-//			fchmod(fd,S_IRUSR|S_IWUSR);
-//
-//			close(fd);
-//
-//		}
-//
-//		printcl( CL_DEBUG "ndev=%d",ndev);
-//
-//		if (noff < platform_vndev) {
-//
-////			cp->ctx = clCreateContext(ctxprop,ndev,
-//			cp->nctx = 1;
-//			cp->xxxctx = (cl_context*)malloc(cp->nctx * sizeof(cl_context));
-//			cp->xxxctx[0] = clCreateContext(ctxprop,ndev,
-//				platform_dev + noff%platform_ndev,0,0,&err);
-//			__set_oclerrno(err);
-//
-//			printcl( CL_DEBUG
-//				"clcontext_create: platform_ndev=%d ndev=%d noffset=%d",
-//				platform_ndev,ndev,noff);
-//
-//			if (platform_dev) free(platform_dev);
-//
-//		} else {
-//
-////			cp->ctx = 0;
-//			cp->nctx = 0;
-//
-//		}
-//
-//	} else {
-
-//		cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
-//		cp->nctx = 1;
-//		cp->xxxctx = (cl_context*)malloc(cp->nctx * sizeof(cl_context));
-//		cp->xxxctx[0] = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
-//		__set_oclerrno(err);
 		ictx = (cp->nctx)++;
 		cp->xxxctx = (cl_context*)realloc(cp->xxxctx,cp->nctx*sizeof(cl_context));
 		cp->xxxctx[ictx] = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
 		__set_oclerrno(err);
 
-//	}
 #endif
 
 
@@ -1685,14 +1382,10 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 	 *** get devices from OCL context
 	 ***/
 
-//	if (cp->ctx) {
-//	if (cp->nctx && cp->xxxctx[0]) {
 	if (cp->nctx && cp->xxxctx[ictx]) {
 
 		cp->devtyp = devtyp;
 
-//		err = clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,0,0,&devlist_sz);
-//		err = clGetContextInfo(cp->xxxctx[0],CL_CONTEXT_DEVICES,0,0,&devlist_sz);
 		err = clGetContextInfo(cp->xxxctx[ictx],CL_CONTEXT_DEVICES,0,0,&devlist_sz);
 
 		__set_oclerrno(err);
@@ -1701,20 +1394,26 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 		cp->ndev += devlist_sz/sizeof(cl_device_id);
 		cp->dev = (cl_device_id*)realloc(cp->dev,cp->ndev*devlist_sz);
 
-//		err=clGetContextInfo(cp->ctx,CL_CONTEXT_DEVICES,devlist_sz,cp->dev,0);
-		err=clGetContextInfo(cp->xxxctx[0],CL_CONTEXT_DEVICES,devlist_sz,
+		err=clGetContextInfo(cp->xxxctx[ictx],CL_CONTEXT_DEVICES,devlist_sz,
 			cp->dev+idev,0);
 
 		__set_oclerrno(err);
 
 		/* XXX make copies of ctx for devctx */
+		printcl( CL_DEBUG "make copies of ctx for devctx");
 		cp->devctx = (cl_context*)realloc(cp->devctx,cp->ndev*sizeof(cl_context));
-		cp->devctxi = (cl_uint*)realloc(cp->devctx,cp->ndev*sizeof(cl_uint));
+		cp->devctxi = (cl_uint*)realloc(cp->devctxi,cp->ndev*sizeof(cl_uint));
 		for(j=idev;j<cp->ndev;j++) {
 			cp->devctx[j] = cp->xxxctx[ictx];
 			cp->devctxi[j] = ictx;
+			printcl( CL_DEBUG "j=%d cp->devctx[j]=%p cp->devctxi[j]=%d",
+				j,cp->devctx[j],cp->devctxi[j]);
 		}
 
+		for(j=idev;j<cp->ndev;j++) {
+			printcl( CL_DEBUG "j=%d cp->devctx[j]=%p cp->devctxi[j]=%d",
+				j,cp->devctx[j],cp->devctxi[j]);
+		}
 
 	} else {
 
@@ -1739,11 +1438,6 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 	printcl( CL_DEBUG "number of devices %d",cp->ndev);
 
 
-	/* XXX make copies of ctx for devctx */
-//	cp->devctx = (cl_context*)malloc(cp->ndev * sizeof(cl_context));
-//	for(i=0;i<cp->ndev;i++) cp->devctx[i] = cp->xxxctx[0];
-		
-
 	/***
 	 *** create command queues
 	 ***/
@@ -1758,12 +1452,13 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 #ifdef _WIN64
 			cp->cmdq[j] = 0; /* have to defer, dllmain limitations */
 #else
-//			cp->cmdq[i] = clCreateCommandQueue(cp->ctx,cp->dev[i],prop,&err);
+			printcl( CL_DEBUG "calling create cmdq ( %p %p %p )",
+				cp->devctx[j],cp->dev[j],prop);
 			cp->cmdq[j] = clCreateCommandQueue(cp->devctx[j],cp->dev[j],prop,&err);
 			__set_oclerrno(err);
 
 			printcl( CL_DEBUG 
-				"clcontext_create: error from create cmdq %d (%p)\n",
+				"clcontext_create: error from create cmdq [%d] %d (%p)\n",j,
 				err,cp->cmdq[j]);
 #endif
 		}
