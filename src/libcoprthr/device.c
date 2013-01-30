@@ -42,15 +42,15 @@
 #include "platform.h"
 #include "device.h"
 #include "cmdcall.h"
-#if defined(__x86_64__)
+//#if defined(__x86_64__)
 #include "cmdcall_x86_64.h"
 #include "cmdcall_x86_64_sl.h"
 #include "cmdcall_x86_64_ser.h"
-#elif defined(__arm__)
-#include "cmdcall_arm.h"
-#else
-#error unsupported architecture
-#endif
+//#elif defined(__arm__)
+//#include "cmdcall_arm.h"
+//#else
+//#error unsupported architecture
+//#endif
 //#include "cmdcall_atigpu.h"
 #include "compiler.h"
 #include "program.h"
@@ -353,15 +353,13 @@ void __do_discover_devices(
 	dtab[0].imp.ilcomp = 0;
 	dtab[0].imp.link = 0;
 	dtab[0].imp.bind_ksyms = bind_ksyms_default;
-//	dtab[0].imp.v_cmdcall = cmdcall_x86_64;
 	dtab[0].imp.v_cmdcall = cmdcall_x86_64_sl;
-//	dtab[0].imp.v_cmdcall = cmdcall_x86_64_ser;
 #elif defined(__arm__)
    dtab[0].imp.comp = (void*)compile_arm;
    dtab[0].imp.ilcomp = 0;
    dtab[0].imp.link = 0;
 	dtab[0].imp.bind_ksyms = bind_ksyms_default;
-   dtab[0].imp.v_cmdcall = cmdcall_arm;
+   dtab[0].imp.v_cmdcall = cmdcall_x86_64_sl; /* XXX fix naming -DAR */
 #else
 #error unsupported architecture
 #endif
