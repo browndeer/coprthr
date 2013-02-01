@@ -432,6 +432,8 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 //printf("opts |%s|\n",opts);
 
 
+/* XXX path returned by getcwd() is useless on Windows */
+#ifndef _WIN64
 //	char cwd[1024];
 	char* cwd = (char*)malloc(1024);
 	if ( getcwd(cwd,1024) ) {
@@ -449,6 +451,7 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 	}
 
 	if (cwd) free(cwd);
+#endif
 
 	if (uopts) {
 
