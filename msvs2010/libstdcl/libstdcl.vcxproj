@@ -93,7 +93,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>STDCL_DEBUG;WIN32;_DEBUG;_WINDOWS;_USRDLL;LIBSTDCL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\libstdcl;$(AMDAPPSDKROOT)\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\richie\Documents\bdt-code\coprthr\include;C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\libstdcl;$(AMDAPPSDKROOT)\include</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -127,7 +127,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;LIBSTDCL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\libstdcl;$(AMDAPPSDKROOT)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\richie\Documents\bdt-code\coprthr\include;C:\Users\richie\Documents\bdt-code\coprthr\msvs2010\libstdcl;$(AMDAPPSDKROOT)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <Link>
@@ -143,8 +143,11 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\include\printcl.h" />
     <ClInclude Include="..\..\src\libstdcl\clarg.h" />
     <ClInclude Include="..\..\src\libstdcl\clcontext.h" />
+    <ClInclude Include="..\..\src\libstdcl\clerrno.h" />
+    <ClInclude Include="..\..\src\libstdcl\clerror.h" />
     <ClInclude Include="..\..\src\libstdcl\clfcn.h" />
     <ClInclude Include="..\..\src\libstdcl\clinit.h" />
     <ClInclude Include="..\..\src\libstdcl\clmalloc.h" />
@@ -159,6 +162,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\libstdcl\clarg.c" />
     <ClCompile Include="..\..\src\libstdcl\clcontext.c" />
+    <ClCompile Include="..\..\src\libstdcl\clerror.c" />
     <ClCompile Include="..\..\src\libstdcl\clfcn.c" />
     <ClCompile Include="..\..\src\libstdcl\clinit.c" />
     <ClCompile Include="..\..\src\libstdcl\clmalloc.c" />
