@@ -560,7 +560,7 @@ int compile_e32(
 //				wd,wrappers[i],file_cl,wrappers[i],filebase);
 
 			__shell_command( "cd %s;"
-				" cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s "
+				" cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
 				" | awk -v prog=\\\"%s\\\" "
 				"'BEGIN { pr=0; }"
 				" { "
@@ -568,7 +568,7 @@ int compile_e32(
 				"   else if ($0~/^#/) pr=0;"
 				"   if ($0!~/^#/ && pr==1) print $0;"
 				" }' | xclnm --%s -d -c -o _%s_%s.c - 2>&1",
-				wd,file_cl,file_cl,wrappers[i],wrappers[i],filebase);
+				wd,file_cl,opt,file_cl,wrappers[i],wrappers[i],filebase);
 
 			printcl( CL_DEBUG "%s", buf1 );
 
@@ -725,14 +725,14 @@ int compile_e32(
 //		__command("cd %s; xclnm -n -d %s",wd,file_cl);
 
 		__command("cd %s;"
-			"cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s "
+			"cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
 			" | awk -v prog=\\\"%s\\\" "
 			"'BEGIN { pr=0; }"
             " { "
             "   if($0~/^#/ && $3==prog) pr=1;"
             "   else if ($0~/^#/) pr=0;"
             "   if ($0!~/^#/ && pr==1) print $0;"
-            " }' | xclnm -n -d - ",wd,file_cl,file_cl); 
+            " }' | xclnm -n -d - ",wd,file_cl,opt,file_cl); 
 
 		printcl( CL_DEBUG "%s", buf1);
 
@@ -764,14 +764,14 @@ int compile_e32(
 //		__command("cd %s; xclnm --clsymtab -d -c %s.cl",wd,filebase);
 
 		__command("cd %s; "
-			" cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s "
+			" cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
 			" | awk -v prog=\\\"%s\\\" "
 			"'BEGIN { pr=0; }"
             " { "
             "   if($0~/^#/ && $3==prog) pr=1;"
             "   else if ($0~/^#/) pr=0;"
             "   if ($0!~/^#/ && pr==1) print $0;"
-            " }' | xclnm --clsymtab -d -c - ",wd,file_cl,file_cl); 
+            " }' | xclnm --clsymtab -d -c - ",wd,file_cl,opt,file_cl); 
 
 		printcl( CL_DEBUG "%s", buf1 );
 
@@ -1002,14 +1002,14 @@ int compile_e32(
 //		__command("cd %s; xclnm --clargtab -d -c %s.cl",wd,filebase);
 
 		__command("cd %s;"
-				"cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s "
+				"cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
 				" | awk -v prog=\\\"%s\\\" "
 				"'BEGIN { pr=0; }"
             " { "
             "   if($0~/^#/ && $3==prog) pr=1;"
             "   else if ($0~/^#/) pr=0;"
             "   if ($0!~/^#/ && pr==1) print $0;"
-            " }' | xclnm --clargtab -d -c - ",wd,file_cl,file_cl); 
+            " }' | xclnm --clargtab -d -c - ",wd,file_cl,opt,file_cl); 
 
 		printcl( CL_DEBUG "%s",buf1);
 
