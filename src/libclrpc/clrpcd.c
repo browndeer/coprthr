@@ -4,6 +4,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <assert.h>
+#include <ifaddrs.h>
 
 #define min(a,b) ((a<b)?a:b)
 
@@ -2037,8 +2038,11 @@ main(int argc, const char **argv)
 {
 	cl_uint n;
 
-	char default_address[] = "127.0.0.1";
-	const char* address = default_address;
+	char default_address[NI_MAXHOST] = "127.0.0.1";
+	char if_address[NI_MAXHOST];
+//	const char* address = default_address;
+	const char* address = 0;
+	const char* ifname = 0;
 	ev_uint16_t port = 2112;
 
 	n = 1;
@@ -2048,17 +2052,66 @@ main(int argc, const char **argv)
 		
 		if (!strcmp(arg,"-a")) {
 			address = argv[n++];
+		} else if (!strcmp(arg,"-i")) {
+			ifname = argv[n++];
 		} else if (!strcmp(arg,"-p")) {
 			port = atoi(argv[n++]);
 		} else if (!strcmp(arg,"-d")) {
 			setenv("COPRTHR_CLMESG_LEVEL","7",1);
 		} else {
 			printcl( CL_ERR "unrecognized option '%s'\n",arg);
-			exit(1);
+			exit(-1);
 		}
 
 	}
 
+	if (ifname) {
+
+		if (address) {
+			printcl( CL_ERR "usage: cannot specify both -a and -i");
+			exit(-1);
+		}
+
+		struct ifaddrs* ifaddr;
+		struct ifaddrs* ifa;
+
+		if (getifaddrs(&ifaddr) == -1) {
+
+			printcl( CL_WARNING "getifaddrs() failed");
+
+		} else {
+
+			for ( ifa = ifaddr; ifa != 0; ifa = ifa->ifa_next) {
+
+				if (ifa->ifa_addr != 0
+					&& ifa->ifa_addr->sa_family == AF_INET 
+					&& !strncmp(ifa->ifa_name, ifname, NI_MAXHOST)
+				) {
+
+               int s = getnameinfo( ifa->ifa_addr,sizeof(struct sockaddr_in), 
+						if_address, NI_MAXHOST, NULL, 0, NI_NUMERICHOST );
+
+               if (s != 0) {
+
+                  printcl( CL_WARNING "getnameinfo() failed with error %s\n", 
+							gai_strerror(s));
+
+					} else {
+
+						address = if_address;
+
+					}
+
+					break;
+				
+				}
+
+				++n;
+			}
+		}
+	}
+
+	if (!address) address = default_address;
 
 	evthread_use_pthreads();
 
