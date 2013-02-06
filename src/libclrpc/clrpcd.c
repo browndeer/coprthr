@@ -1785,8 +1785,8 @@ _clrpc_clEnqueueNDRangeKernel_svrcb(
 			EVTAG_ARRAY_GET(request,global_work_offset,i,&tmp);
 			global_work_offset[i] = (size_t)tmp;
 		}
-	} else {
-		printcl( CL_ERR "array len != work_dim");
+	} else if (tmp != 0) {
+		printcl( CL_ERR "invalid array len for global_work_offset");
 	}
 	tmp = EVTAG_ARRAY_LEN(request,global_work_size);
 	if (tmp == work_dim) for(i=0;i<work_dim;i++) {
