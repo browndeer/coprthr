@@ -9,6 +9,16 @@ datarootdir=@datarootdir@
 #DEFS = -DSTDCL_WARN -DSTDCL_DEBUG
 #DEFS = -DSTDCL_WARN
 
+ifeq (@ENABLE_SILENT@,1)
+DEFS += -DENABLE_SILENT
+endif
+ifneq (@MAX_CLMESG_LEVEL@,)
+DEFS += -DMAX_CLMESG_LEVEL=@MAX_CLMESG_LEVEL@
+endif
+ifneq (@DEFAULT_CLMESG_LEVEL@,)
+DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
+endif
+
 ######################################################################
 
 BIN_NAME = clnm
@@ -21,6 +31,8 @@ INSTALL_MAN_DIR=@mandir@
 
 LIBELF_INC = @libelf_inc@
 LIBELF_LIB = @libelf_lib@
+
+INCS += -I../../include
 
 LIBS = $(LIBELF_LIB) 
 LIBS += -L../../src/libclelf -lclelf

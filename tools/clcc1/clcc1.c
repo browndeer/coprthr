@@ -966,6 +966,12 @@ printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",
 
 		printcl( CL_DEBUG "nkrn %d",nkrn);
 
+      while (data.clkrntab_n + nkrn >= data.clkrntab_nalloc) {
+         data.clkrntab_nalloc += DEFAULT_CLKRNTAB_NALLOC;
+         data.clkrntab = (struct clkrntab_entry*)
+            realloc(data.clkrntab,__clkrntab_entry_sz*data.clkrntab_nalloc);
+      }
+
 		for(j=0;j<nkrn;j++) {
 
 			char name[1024];

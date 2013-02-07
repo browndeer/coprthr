@@ -38,7 +38,8 @@
 
 //#include "_version.h"
 //#include "CL/cl.h"
-#include "util.h"
+//#include "util.h"
+#include "printcl.h"
 #include "../../src/libclelf/clelf.h"
 
 
@@ -325,6 +326,19 @@ int main(int argc, char** argv)
 
 
 		/* if we make it here, we have a good file to link */
+
+
+		printcl( CL_DEBUG "data.clprgtab_n sect.clprgtab_n %d %d",
+			data.clprgtab_n,sect.clprgtab_n);
+
+		printcl( CL_DEBUG "data.clkrntab_n sect.clkrntab_n %d %d",
+			data.clkrntab_n,sect.clkrntab_n);
+
+		printcl( CL_DEBUG "data.clprgsrc_n sect.clprgsrc_n %d %d",
+			data.clprgsrc_n,sect.clprgsrc_n);
+
+		printcl( CL_DEBUG "data.clprgbin_n sect.clprgbin_n %d %d",
+			data.clprgbin_n,sect.clprgbin_n);
 
 
 		/***
