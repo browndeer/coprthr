@@ -16,6 +16,7 @@ INSTALL_BIN_DIR=@bindir@
 INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
+INSTALL_ICD_DIR=@prefix@/icd/
 
 ### set custom path for ICD files
 ifneq (@OPENCL_ICD_PATH@,)
@@ -151,13 +152,16 @@ install:
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
+	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
 	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
 	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
+	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
+	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(INSTALL_ICD_DIR)/coprthr.icd
 	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
-	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(OPENCL_ICD_PATH)/coprthr.icd
+	install -m 644 $(INSTALL_ICD_DIR)/coprthr.icd $(OPENCL_ICD_PATH)/
 
 uninstall: 
 	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so 
@@ -166,6 +170,7 @@ uninstall:
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,ser_engine.h)
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,workp.h)
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,opencl_lift.h)
+	rm -f $(INSTALL_ICD_DIR)/coprthr.icd
 	rm -f $(OPENCL_ICD_PATH)/coprthr.icd
 
 clean:
