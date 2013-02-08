@@ -23,7 +23,7 @@ ifeq ($(BUILD_OS),Linux)
 OBJS += ocl_kernels.o
 endif
 
-all: $(NAME).x fortran
+all: $(NAME).x 
 
 $(NAME).x: $(NAME).o $(OBJS) 
 	$(CC) $(CCFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) $(LIBS) 
