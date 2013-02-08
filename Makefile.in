@@ -101,9 +101,11 @@ install: subdirs
 	@chmod -R a+rX $(prefix)
 	install -m 644 install-message.txt $(prefix)/install-message.txt
 	@cat install-message.txt
+	install -m 644 ./etc/ocl.conf /etc/ocl.conf
 
 uninstall: subdirs
 	rm -f /etc/init.d/clprocd
+	rm -f /etc/ocl.conf
 
 test: 
 	$(MAKE) -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)
