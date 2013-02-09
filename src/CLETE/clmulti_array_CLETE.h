@@ -81,6 +81,9 @@ using namespace std;
 #if defined(__CLVECTOR_FULLAUTO_STDACC)
 #define __CLCONTEXT stdacc
 #define __WGSIZE 16
+#elif defined(__CLVECTOR_FULLAUTO_STDCPU)
+#define __CLCONTEXT stdcpu
+#define __WGSIZE 16
 #else
 #define __CLCONTEXT stdgpu
 #define __WGSIZE 64
