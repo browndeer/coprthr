@@ -119,7 +119,7 @@ int elfcl_write(
 
 	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
 	ehdr->e_machine = EM_X86_64; 
-	ehdr->e_type = ET_NONE;
+	ehdr->e_type = ET_REL;
 	ehdr->e_shstrndx = 9; /* set section index of .shstrtab */
 
 #elif defined(__i386__) 
@@ -132,7 +132,7 @@ int elfcl_write(
 
 	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
 	ehdr->e_machine = EM_386; 
-	ehdr->e_type = ET_NONE;
+	ehdr->e_type = ET_REL;
 	ehdr->e_shstrndx = 9; /* set section index of .shstrtab */
 
 #elif defined(__arm__) 
@@ -145,7 +145,7 @@ int elfcl_write(
 
 	ehdr->e_ident[EI_DATA] = ELFDATA2LSB;
 	ehdr->e_machine = EM_ARM; 
-	ehdr->e_type = ET_NONE;
+	ehdr->e_type = ET_REL;
 	ehdr->e_shstrndx = 9; /* set section index of .shstrtab */
 
 #endif
