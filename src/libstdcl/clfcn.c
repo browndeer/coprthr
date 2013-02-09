@@ -780,12 +780,14 @@ printcl( CL_DEBUG " cp ok ");
 					for(nb=0; nb < p->e_nprgbin; nb++,pb++ ) {
 
 						printcl( CL_DEBUG "clopen: test %d:|%s| ? %d:|%s|",
-							platform_code,dev_alias[m],
+//							platform_code,dev_alias[m],
+							cp->dev_platform_code[m],dev_alias[m],
 							pb->e_platform,sect->clstrtab + pb->e_device);
 
 //						if (!strncmp(di[m].dev_name, sect->clstrtab+pb->e_device,256)
 						if (!strncmp(dev_alias[m], sect->clstrtab+pb->e_device,256)
-							&& platform_code == pb->e_platform ) {
+//							&& platform_code == pb->e_platform ) {
+							&& cp->dev_platform_code[m] == pb->e_platform ) {
 
 //continue;
 

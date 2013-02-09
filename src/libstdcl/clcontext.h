@@ -70,6 +70,7 @@ struct _clcontext_ptr_struct {
 	cl_device_id* dev;
 	cl_context* devctx;
 	cl_uint* devctxi;
+	cl_uint* dev_platform_code;
 	cl_command_queue* cmdq;
 	cl_uint nprg;
 	cl_program* prg;

@@ -622,9 +622,11 @@ printcl( CL_DEBUG "device_id %p",cp->dev[0]);
 	/* XXX make copies of ctx for devctx */
 	cp->devctx = (cl_context*)malloc(cp->ndev * sizeof(cl_context));
 	cp->devctxi = (cl_uint*)malloc(cp->ndev * sizeof(cl_uint));
+	cp->dev_platform_code = (cl_uint*)malloc(cp->ndev * sizeof(cl_uint));
 	for(i=0;i<cp->ndev;i++) {
 		cp->devctx[i] = cp->xxxctx[0];
 		cp->devctxi[i] = 0;
+		cp->dev_platform_code[i] = 0;
 	}
 		
 
@@ -758,6 +760,9 @@ clcontext_destroy(CONTEXT* cp)
 
 	if (cp->devctxi) free(cp->devctxi);
 	printcl( CL_DEBUG "clcontext_destroy: free'd devctxi\n");
+
+	if (cp->dev_platform_code) free(cp->dev_platform_code);
+	printcl( CL_DEBUG "clcontext_destroy: free'd dev_platform_code\n");
 
 	if (cp->xxxctx) free(cp->xxxctx);
 	printcl( CL_DEBUG "clcontext_destroy: free'd xxxctx\n");
@@ -1203,6 +1208,7 @@ clcontext_create_stdnpu(
 	cp->dev = 0;
 	cp->devctx = 0;
 	cp->devctxi = 0;
+	cp->dev_platform_code = 0;
 
 	int ictx = 0;
 	int idev = 0;
@@ -1401,11 +1407,16 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 
 		/* XXX make copies of ctx for devctx */
 		printcl( CL_DEBUG "make copies of ctx for devctx");
+
 		cp->devctx = (cl_context*)realloc(cp->devctx,cp->ndev*sizeof(cl_context));
 		cp->devctxi = (cl_uint*)realloc(cp->devctxi,cp->ndev*sizeof(cl_uint));
+		cp->dev_platform_code = (cl_uint*)realloc(cp->dev_platform_code,
+			cp->ndev*sizeof(cl_uint));
+
 		for(j=idev;j<cp->ndev;j++) {
 			cp->devctx[j] = cp->xxxctx[ictx];
 			cp->devctxi[j] = ictx;
+			cp->dev_platform_code[j] = code;
 			printcl( CL_DEBUG "j=%d cp->devctx[j]=%p cp->devctxi[j]=%d",
 				j,cp->devctx[j],cp->devctxi[j]);
 		}
