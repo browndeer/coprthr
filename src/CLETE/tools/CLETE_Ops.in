@@ -294,4 +294,4 @@ trinaryOps
   TAG = @FnWhere@
   FUNCTION = @where@
   EXPR = @if (a) return b; else return c;@
-  STREXPR = @ return "(" + a + ")?" + b + ":" + c ; @
+  STREXPR = @ return "((" + a + ")?(" + b + "):(" + c + "))"; @
