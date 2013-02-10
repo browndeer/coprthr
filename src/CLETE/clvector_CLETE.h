@@ -84,11 +84,15 @@ using namespace std;
 #elif defined(__CLVECTOR_FULLAUTO_STDCPU)
 #define __CLCONTEXT stdcpu
 #define __WGSIZE 16
+#elif defined(__CLVECTOR_FULLAUTO_STDGPU)
+#define __CLCONTEXT stdgpu
+#define __WGSIZE 64
 #else
 #define __CLCONTEXT stdgpu
 #define __WGSIZE 64
 #endif
 
+#define clete_expr auto
 
 //-----------------------------------------------------------------------------
 // This file contains several class definitions that are used to evaluate
