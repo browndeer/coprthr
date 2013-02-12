@@ -1,4 +1,8 @@
 
+ifneq (@MAKE@,)
+MAKE = @MAKE@
+endif
+
 E32_DRAM_ZEROPAGE_LEXINGTON 	= 0x81000000
 E32_DRAM_ZEROPAGE_NEEDHAM 		= 0x8e000000
 E32_DRAM_ZEROPAGE_NEEDHAMPRO 	= 0x8e000000
@@ -304,7 +308,7 @@ _e32pth_core_main_blank.o: _e32pth_core_main_blank.c
 
 debug:
 	export ENABLE_DEBUG=1
-	make -f Makefile all
+	$(MAKE) -f Makefile all
 
 
 install: 

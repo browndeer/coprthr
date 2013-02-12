@@ -1,4 +1,8 @@
 
+ifneq (@MAKE@,)
+MAKE = @MAKE@
+endif
+
 EXAMPLES = hello_stdcl clopen_example \
 	clvector_example clmulti_array_example 
 
@@ -19,7 +23,7 @@ subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
 	echo $(MAKECMDGOALS)
-	gmake -C $@ $(MAKECMDGOALS)
+	$(MAKE) -C $@ $(MAKECMDGOALS)
 
 clean: subdirs
 

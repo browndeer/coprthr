@@ -62,7 +62,7 @@ install:
 	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)
 
 uninstall:
-	rm -f $(INSTALL_BIN_DIR)/$(BIN_NAME)
+	rm -f $(addprefix $(INSTALL_BIN_DIR)/,$(BIN_NAME))
 
 clean:
 	rm -f *.o 

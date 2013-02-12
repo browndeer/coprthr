@@ -665,7 +665,10 @@ fi;
 
 BASH=`which bash`
 
+MAKE=make
+
 AC_SUBST(BASH)
+AC_SUBST(MAKE)
 AC_SUBST(F90)
 
 AC_SUBST(ENABLE_CLGL)

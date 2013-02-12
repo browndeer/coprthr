@@ -22,7 +22,7 @@ subdirs: $(SUBDIRS)
 
 $(SUBDIRS):
 	echo $(MAKECMDGOALS)
-	gmake -C $@ $(MAKECMDGOALS)
+	@MAKE@ -C $@ $(MAKECMDGOALS)
 
 clean: subdirs
 

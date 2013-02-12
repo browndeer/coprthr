@@ -69,11 +69,11 @@ test_%.x: ./scripts/gen_c_test_%.pl ./scripts/gen_cl_test_%.pl
 
 test: clean clinfo.x $(addsuffix .x,$(TESTS))
 	./clinfo.x
-	/usr/bin/time ./scripts/run_tests.sh $(PRG_TESTS)
+	./scripts/run_tests.sh $(PRG_TESTS)
 
 quicktest: clean clinfo.x $(addsuffix .x,$(TESTS))
 	./clinfo.x
-	/usr/bin/time ./scripts/run_quick_tests.sh $(PRG_TESTS)
+	./scripts/run_quick_tests.sh $(PRG_TESTS)
 
 
 clean:

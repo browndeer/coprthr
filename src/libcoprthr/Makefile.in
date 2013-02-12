@@ -2,6 +2,10 @@
 ### Makefile for libcoprthr
 ###
 
+ifneq (@MAKE@,)
+MAKE = @MAKE@
+endif
+
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
@@ -145,7 +149,7 @@ libcoprthr.so: $(OBJS) $(RT_OBJS)
 
 debug:
 	export ENABLE_DEBUG=1
-	make -f Makefile all
+	$(MAKE) -f Makefile all
 
 
 install: 

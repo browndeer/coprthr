@@ -1,5 +1,5 @@
 
-                 COPRTHR SDK v1.5-CURRENT (Marathon) release
+                 COPRTHR SDK v1.5-CURRENT (marathon) release
 
 
 *** IMPORTANT ***
@@ -17,10 +17,10 @@ For example:
 Please ensure that @prefix@/man is added to  MANPATH
 
 In order to test the installation, make a copy of the test/ directory and type:
-   gmake test
+   @MAKE@ test
 
 Testing can take several minutes, for a quick test type:
-   gmake quicktest
+   @MAKE@ quicktest
 
 When compiling programs that use libstcl include the following:
    INCS += -I@prefix@/include

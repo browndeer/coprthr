@@ -1,8 +1,11 @@
 
-ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
-MAKE = gmake
-else
-MAKE = make
+#ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+#MAKE = gmake
+#else
+#MAKE = make
+#endif
+ifneq (@MAKE@,)
+MAKE = @MAKE@
 endif
 
 prefix=@prefix@

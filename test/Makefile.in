@@ -1,6 +1,10 @@
 
 TESTS = test_stdcl 
 
+ifneq (@MAKE@,)
+MAKE = @MAKE@
+endif
+
 ifeq (@ENABLE_LIBCOPRTHR@,1)
 TESTS += test_libcoprthr
 endif
@@ -25,7 +29,7 @@ subdirs: $(SUBDIRS)
 $(SUBDIRS):
 	echo $(MAKECMDGOALS)
 #	make -C $@ $(MAKEFLAGS) $(MAKECMDGOALS)
-	gmake -C $@ $(MAKECMDGOALS)
+	$(MAKE) -C $@ $(MAKECMDGOALS)
 
 clean: subdirs
 #	make $(MAKEFLAGS) $(MAKECMDGOALS)
