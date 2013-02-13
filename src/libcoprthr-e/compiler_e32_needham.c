@@ -63,9 +63,11 @@
 #define EOBJCOPY " e-objcopy "
 
 //#define ECCFLAGS_OCL " -O3 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector "
-#define ECCFLAGS_OCL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=truncate -falign-loops=8 -falign-functions=8 -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/usr/local/adapteva/elib -fpermissive -D__coprthr_device__ "
+//#define ECCFLAGS_OCL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=truncate -falign-loops=8 -falign-functions=8 -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/usr/local/adapteva/elib -fpermissive -D__coprthr_device__ "
+#define ECCFLAGS_OCL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=truncate -falign-loops=8 -falign-functions=8 -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/sys-include -fpermissive -D__coprthr_device__ "
 
-#define ECCFLAGS_KCALL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/usr/local/adapteva/elib -fpermissive -D__coprthr_device__ "
+//#define ECCFLAGS_KCALL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/usr/local/adapteva/elib -fpermissive -D__coprthr_device__ "
+#define ECCFLAGS_KCALL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/sys-include -fpermissive -D__coprthr_device__ "
 
 #define ECCFLAGS_LINK -lm
 
@@ -616,7 +618,7 @@ int compile_e32_needham(
 			"cd %s;"
 			" e-ld -r -o e32.o"
 			" _e32pth_core_main_needham.o e32_%s.o e32_kcall3_%s.o"
-			" -L/usr/local/adapteva/elib -lelib"
+			" -L/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/lib -lelib"
 			" 2>&1",
 			wd,filebase,filebase);
 		__log(p2,"]%s\n",buf1); 

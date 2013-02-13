@@ -6,6 +6,7 @@
 
 #include "printcl.h"
 #include "e_host.h"
+//#include "e_hal.h"
 
 int e_get_platform_info( Epiphany_t* edev, 
 	struct e_platform_info_struct* info )

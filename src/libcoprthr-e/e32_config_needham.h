@@ -40,6 +40,7 @@
 
 #include "printcl.h"
 #include "e_host.h"
+//#include "e_hal.h"
 
 #define xxx_e_read_zeropage( src, dst, len) do { \
 	printcl( CL_DEBUG "xxx_e_read_zeropage %p - %x",src,E32_DRAM_ZEROPAGE); \

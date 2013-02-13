@@ -1,8 +1,4 @@
 
-ifneq (@MAKE@,)
-MAKE = @MAKE@
-endif
-
 E32_DRAM_ZEROPAGE_LEXINGTON 	= 0x81000000
 E32_DRAM_ZEROPAGE_NEEDHAM 		= 0x8e000000
 E32_DRAM_ZEROPAGE_NEEDHAMPRO 	= 0x8e000000
@@ -53,22 +49,25 @@ DEFS += -DENABLE_EMEK_BUILD
 endif
 
 
-//ESDK_INC = -I/opt/adapteva/esdk/tools/host/x86_64/include \
-//   -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
-//ESDK_LIB = -L/opt/adapteva/esdk/tools/host/x86_64/lib -le_host
+#ESDK_INC = -I/opt/adapteva/esdk/tools/host/x86_64/include \
+#   -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
+#ESDK_LIB = -L/opt/adapteva/esdk/tools/host/x86_64/lib -le_host
 
-//ESDK_INC = -I/usr/local/adapteva/include -I/usr/local/adapteva/elib
-//ESDK_LIB = -L/usr/local/adapteva/lib -le-host -le-loader
+#ESDK_INC = -I/usr/local/adapteva/include -I/usr/local/adapteva/elib
+#ESDK_LIB = -L/usr/local/adapteva/lib -le-host -le-loader
 
-ESDK_INC = -I@ESDK_PATH@/include
-ESDK_LIB = -L@ESDK_PATH@/lib 
+#ESDK_INC = -I@ESDK_PATH@/include
+#ESDK_LIB = -L@ESDK_PATH@/lib 
 ESDK_EINC = -I@ESDK_PATH@/elib
 
 ifeq (@ENABLE_EMEK_BUILD@,1)
 ESDK_INC += -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
 ESDK_LIB += -le_host
 else
-ESDK_LIB += -le-host -le-loader
+#ESDK_LIB += -le-host -le-loader
+ESDK_INC += -I@ESDK_PATH@/tools/host/armv71/include
+ESDK_INC += -I@ESDK_PATH@/tools/host/armv7l/include
+ESDK_LIB += -L@ESDK_PATH@/tools/host/armv7l/lib -lepiphany-hal -le-loader
 endif
 
 ############################################################################
@@ -308,7 +307,7 @@ _e32pth_core_main_blank.o: _e32pth_core_main_blank.c
 
 debug:
 	export ENABLE_DEBUG=1
-	$(MAKE) -f Makefile all
+	make -f Makefile all
 
 
 install: 

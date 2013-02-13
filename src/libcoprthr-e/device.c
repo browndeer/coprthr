@@ -61,6 +61,7 @@
 #include "dmalloc.h"
 
 #include <e_host.h>
+//#include <e_hal.h>
 #include "e_platform.h"
 
 //#define ENABLE_UVA

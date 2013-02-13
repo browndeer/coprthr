@@ -41,6 +41,7 @@ void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
  ***/
 
 #include "e_host.h"
+//#include "e_hal.h"
 
 
 #ifdef ENABLE_EMEK_BUILD
