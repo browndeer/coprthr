@@ -5,34 +5,40 @@
 *** IMPORTANT ***
 
 Please ensure that  @prefix@/bin  is added to PATH
-if it is not in the standard search path for executables.
-For example:
-   set path = (@prefix@/bin $path)
+if it is not in the standard search path for executables.  For example:
 
-Please ensure that @libdir@ is added to  LD_LIBRARY_PATH
-if it is not in the standard search path for libraries.
-For example:
-   setenv LD_LIBRARY_PATH @prefix@/lib:$LD_LIBRARY_PATH
+   export PATH=@prefix@/bin:$PATH
+
+Please ensure that @prefix@/lib is added to  LD_LIBRARY_PATH
+if it is not in the standard search path for libraries.  For example:
+
+   export LD_LIBRARY_PATH=@prefix@/lib:$LD_LIBRARY_PATH
+
+Note that you should also have already added /usr/local/lib after the
+installation of libelf-0.8.13.
 
 Please ensure that @prefix@/man is added to  MANPATH
 
 In order to test the installation, make a copy of the test/ directory and type:
-   @MAKE@ test
 
-Testing can take several minutes, for a quick test type:
-   @MAKE@ quicktest
+   make quicktest
 
 When compiling programs that use libstcl include the following:
+
    INCS += -I@prefix@/include
    LIBS += -L@prefix@/lib -lstdcl
 
 When compiling programs that use libocl include the following:
+
    INCS += -I@prefix@/include
    LIBS += -L@prefix@/lib -locl
 
 Further documentation can be found in the directory @prefix@/doc/
 
 Examples can be found in the directory @prefix@/examples/ 
+
+Examples specifically for Parallella can be found in the directory 
+@prefix@/examples/parallella/
 
 /* DAR */
 
