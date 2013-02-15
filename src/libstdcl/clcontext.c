@@ -619,6 +619,8 @@ printcl( CL_DEBUG "device_id %p",cp->dev[0]);
 	printcl( CL_DEBUG "number of devices %d",cp->ndev);
 
 
+	int code = clelf_platform_code(cp->platform_name);
+
 	/* XXX make copies of ctx for devctx */
 	cp->devctx = (cl_context*)malloc(cp->ndev * sizeof(cl_context));
 	cp->devctxi = (cl_uint*)malloc(cp->ndev * sizeof(cl_uint));
@@ -626,7 +628,7 @@ printcl( CL_DEBUG "device_id %p",cp->dev[0]);
 	for(i=0;i<cp->ndev;i++) {
 		cp->devctx[i] = cp->xxxctx[0];
 		cp->devctxi[i] = 0;
-		cp->dev_platform_code[i] = 0;
+		cp->dev_platform_code[i] = code;
 	}
 		
 
@@ -1209,6 +1211,7 @@ clcontext_create_stdnpu(
 	cp->devctx = 0;
 	cp->devctxi = 0;
 	cp->dev_platform_code = 0;
+	cp->cmdq = 0;
 
 	int ictx = 0;
 	int idev = 0;
@@ -1453,10 +1456,11 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 	 *** create command queues
 	 ***/
 
-	cp->cmdq = (cl_command_queue*)malloc(sizeof(cl_command_queue)*cp->ndev);
+	cp->cmdq = (cl_command_queue*)realloc(cp->cmdq,
+//	cp->cmdq = (cl_command_queue*)malloc(
+		sizeof(cl_command_queue)*cp->ndev);
 
 	printcl( CL_DEBUG "will try to create cmdq");
-
 	
 
 		for(j=idev;j<cp->ndev;j++) {
@@ -1476,7 +1480,7 @@ printcl( CL_DEBUG "nctxprop=%d ctxprop_ext %p",nctxprop,ctxprop_ext);
 
 
 
-	} // end platofrm loop
+	} // end platform loop
 
 
 

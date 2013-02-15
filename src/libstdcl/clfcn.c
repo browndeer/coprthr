@@ -52,7 +52,7 @@
 
 
 #define __inc_idev(cp,idev) \
-		while( idev < cp->ndev && cp->xxxctx[ictx] == cp->devctx[idev++])
+		while( idev < cp->ndev && cp->xxxctx[ictx] == cp->devctx[idev]) idev++
 
 LIBSTDCL_API void* 
 clload( CONTEXT* cp, void* ptr, size_t len, int flags )
@@ -191,7 +191,7 @@ clloadb( CONTEXT* cp, int nbin, char** bin, size_t* bin_sz, int flags )
 		int idev0 = idev;
 		__inc_idev(cp,idev);
 
-//		printcl( CL_DEBUG "%d %d %p",idev0,idev,cp->xxxctx[ictx]);
+		printcl( CL_DEBUG "%d %d %p",idev0,idev,cp->xxxctx[ictx]);
 
 		txt->xxxprg[ictx] = clCreateProgramWithBinary(cp->xxxctx[ictx],
 			idev-idev0,cp->dev+idev0,
@@ -793,6 +793,10 @@ printcl( CL_DEBUG " cp ok ");
 
 								bin[m] = sect->cltextbin + pb->e_offset;
 								bin_sz[m] = pb->e_size;
+
+						printcl( CL_DEBUG "clopen: set bin[m]=%p,bin_sz[m]=%ld %d",
+							bin[m],bin_sz[m],cp->devctxi[m]);
+
 								++nbin;
 								break;
 
