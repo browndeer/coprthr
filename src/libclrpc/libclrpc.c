@@ -1033,11 +1033,15 @@ clrpc_clCreateBuffer(
 
 	CLRPC_INIT(clCreateBuffer);
 
+	/* XXX clearing unsupported pointers - add support later -DAR */
+	flags &= ~CL_MEM_COPY_HOST_PTR;
+	flags &= ~CL_MEM_USE_HOST_PTR;
+
 	CLRPC_ASSIGN_DPTR_FROM_OBJECT(request,context,xcontext);
 	CLRPC_ASSIGN(request,mem_flags,flags,flags);
 	EVTAG_ASSIGN(request,size,size);
 
-	if (host_ptr)
+	if (host_ptr) 
 		printcl( CL_WARNING "host_ptr not supported, forced to null");
 
 	_xobject_t* retval = (_xobject_t*)buffer;
