@@ -3612,8 +3612,8 @@ echo "$as_me: error: usage: --with-esdk=DIR" >&2;}
 
 else
 
-    if test -e /opt/adapteva/esdk/tools/host/x86_64; then
-      ESDK_PATH=/opt/adapteva/esdk/tools/host/x86_64;
+    if test -e /opt/adapteva/esdk; then
+      ESDK_PATH=/opt/adapteva/esdk/;
     elif test -e /usr/local/adapteva; then
       ESDK_PATH=/usr/local/adapteva;
     else
