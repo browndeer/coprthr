@@ -67,7 +67,7 @@ else
 #ESDK_LIB += -le-host -le-loader
 ESDK_INC += -I@ESDK_PATH@/tools/host/armv71/include
 ESDK_INC += -I@ESDK_PATH@/tools/host/armv7l/include
-ESDK_LIB += -L@ESDK_PATH@/tools/host/armv7l/lib -lepiphany-hal -le-loader
+ESDK_LIB += -L@ESDK_PATH@/tools/host/armv7l/lib -le-loader -le-host
 endif
 
 ############################################################################
