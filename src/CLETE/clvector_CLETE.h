@@ -298,7 +298,7 @@ inline void evaluate(
 	rlista.unique(ref_is_equal);
 
 	int size = lhs.size();
-	int r = size;
+	size_t r = size;
 	if (r%256 > 0) r += 256 - r%256;
 
 	static cl_kernel krn = (cl_kernel)0;
