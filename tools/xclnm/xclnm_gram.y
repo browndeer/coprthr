@@ -74,6 +74,28 @@
 %token 	TYPE_FLOAT_VEC4
 %token	TYPE_DOUBLE_VEC4
 
+%token 	TYPE_INT8_VEC8
+%token 	TYPE_INT16_VEC8
+%token 	TYPE_INT32_VEC8
+%token 	TYPE_INT64_VEC8
+%token 	TYPE_UINT8_VEC8
+%token 	TYPE_UINT16_VEC8
+%token 	TYPE_UINT32_VEC8
+%token 	TYPE_UINT64_VEC8
+%token 	TYPE_FLOAT_VEC8
+%token	TYPE_DOUBLE_VEC8
+
+%token 	TYPE_INT8_VEC16
+%token 	TYPE_INT16_VEC16
+%token 	TYPE_INT32_VEC16
+%token 	TYPE_INT64_VEC16
+%token 	TYPE_UINT8_VEC16
+%token 	TYPE_UINT16_VEC16
+%token 	TYPE_UINT32_VEC16
+%token 	TYPE_UINT64_VEC16
+%token 	TYPE_FLOAT_VEC16
+%token	TYPE_DOUBLE_VEC16
+
 /* qualifiers */
 
 /* generic tokens */
@@ -142,6 +164,28 @@ void yyerror(const char*);
 %type <ival> TYPE_UINT64_VEC4
 %type <ival> TYPE_FLOAT_VEC4
 %type <ival> TYPE_DOUBLE_VEC4
+
+%type <ival> TYPE_INT8_VEC8
+%type <ival> TYPE_INT16_VEC8
+%type <ival> TYPE_INT32_VEC8
+%type <ival> TYPE_INT64_VEC8
+%type <ival> TYPE_UINT8_VEC8
+%type <ival> TYPE_UINT16_VEC8
+%type <ival> TYPE_UINT32_VEC8
+%type <ival> TYPE_UINT64_VEC8
+%type <ival> TYPE_FLOAT_VEC8
+%type <ival> TYPE_DOUBLE_VEC8
+
+%type <ival> TYPE_INT8_VEC16
+%type <ival> TYPE_INT16_VEC16
+%type <ival> TYPE_INT32_VEC16
+%type <ival> TYPE_INT64_VEC16
+%type <ival> TYPE_UINT8_VEC16
+%type <ival> TYPE_UINT16_VEC16
+%type <ival> TYPE_UINT32_VEC16
+%type <ival> TYPE_UINT64_VEC16
+%type <ival> TYPE_FLOAT_VEC16
+%type <ival> TYPE_DOUBLE_VEC16
 
 %type <ival> ICONST
 %type <ival> TYPE
@@ -233,6 +277,26 @@ type:	TYPE_VOID { $$ = node_create_type(1,1,TYPEID_VOID,0,0); }
 		| TYPE_UINT64_VEC4 { $$ = node_create_type(1,4,TYPEID_ULONG,0,0); } 
 		| TYPE_FLOAT_VEC4 { $$ = node_create_type(1,4,TYPEID_FLOAT,0,0); } 
 		| TYPE_DOUBLE_VEC4 { $$ = node_create_type(1,4,TYPEID_DOUBLE,0,0); } 
+		| TYPE_INT8_VEC8 { $$ = node_create_type(1,8,TYPEID_CHAR,0,0); } 
+		| TYPE_INT16_VEC8 { $$ = node_create_type(1,8,TYPEID_SHORT,0,0); } 
+		| TYPE_INT32_VEC8 { $$ = node_create_type(1,8,TYPEID_INT,0,0); } 
+		| TYPE_INT64_VEC8 { $$ = node_create_type(1,8,TYPEID_LONG,0,0); } 
+		| TYPE_UINT8_VEC8 { $$ = node_create_type(1,8,TYPEID_UCHAR,0,0); } 
+		| TYPE_UINT16_VEC8 { $$ = node_create_type(1,8,TYPEID_USHORT,0,0); } 
+		| TYPE_UINT32_VEC8 { $$ = node_create_type(1,8,TYPEID_UINT,0,0); } 
+		| TYPE_UINT64_VEC8 { $$ = node_create_type(1,8,TYPEID_ULONG,0,0); } 
+		| TYPE_FLOAT_VEC8 { $$ = node_create_type(1,8,TYPEID_FLOAT,0,0); } 
+		| TYPE_DOUBLE_VEC8 { $$ = node_create_type(1,8,TYPEID_DOUBLE,0,0); } 
+		| TYPE_INT8_VEC16 { $$ = node_create_type(1,16,TYPEID_CHAR,0,0); } 
+		| TYPE_INT16_VEC16 { $$ = node_create_type(1,16,TYPEID_SHORT,0,0); } 
+		| TYPE_INT32_VEC16 { $$ = node_create_type(1,16,TYPEID_INT,0,0); } 
+		| TYPE_INT64_VEC16 { $$ = node_create_type(1,16,TYPEID_LONG,0,0); } 
+		| TYPE_UINT8_VEC16 { $$ = node_create_type(1,16,TYPEID_UCHAR,0,0); } 
+		| TYPE_UINT16_VEC16 { $$ = node_create_type(1,16,TYPEID_USHORT,0,0); } 
+		| TYPE_UINT32_VEC16 { $$ = node_create_type(1,16,TYPEID_UINT,0,0); } 
+		| TYPE_UINT64_VEC16 { $$ = node_create_type(1,16,TYPEID_ULONG,0,0); } 
+		| TYPE_FLOAT_VEC16 { $$ = node_create_type(1,16,TYPEID_FLOAT,0,0); } 
+		| TYPE_DOUBLE_VEC16 { $$ = node_create_type(1,16,TYPEID_DOUBLE,0,0); } 
 		| ADDRSPACE_GLOBAL type { $$=node_set_addrspace($2,1); } 
 		| ADDRSPACE_LOCAL type { $$=node_set_addrspace($2,3); } 
 		| type ptrc { $$=node_set_ptrc($1,$2); } ;

@@ -133,53 +133,117 @@
 #ifdef __cplusplus
 
 inline static
-void __clarg_set(CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_int a)
-{ ::clarg_set(cp,krn,ia,(a)); }
-inline static
-void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_uint a)
-{ ::clarg_set(cp,krn,ia,(a)); }
-inline static
-void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_float a)
-{ ::clarg_set(cp,krn,ia,(a)); }
-inline static
-void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_int2 a)
-{ ::clarg_set(cp,krn,ia,(a)); }
-inline static
-void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_uint2 a)
-{ ::clarg_set(cp,krn,ia,(a)); }
-inline static
-void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_float2 a)
-{ ::clarg_set(cp,krn,ia,(a)); }
-inline static
-void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_int4 a)
-{ ::clarg_set(cp,krn,ia,(a)); }
-inline static
-void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_uint4 a)
-{ ::clarg_set(cp,krn,ia,(a)); }
-inline static
-void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_float4 a)
-{ ::clarg_set(cp,krn,ia,(a)); }
-inline static
 void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, void* a)
 { ::clarg_set_global(cp,krn,ia,(a)); }
+
+#define __cpp_clarg_set(t) \
+	inline static void __clarg_set(CLCONTEXT* cp, cl_kernel krn, unsigned int ia, t a){ :: clarg_set(cp,krn,ia, (a)); }
+
+__cpp_clarg_set(cl_char)
+__cpp_clarg_set(cl_uchar)
+__cpp_clarg_set(cl_short)
+__cpp_clarg_set(cl_ushort)
+__cpp_clarg_set(cl_int)
+__cpp_clarg_set(cl_uint)
+__cpp_clarg_set(cl_long)
+__cpp_clarg_set(cl_ulong)
+__cpp_clarg_set(cl_float)
+__cpp_clarg_set(cl_double)
+__cpp_clarg_set(cl_char2)
+__cpp_clarg_set(cl_uchar2)
+__cpp_clarg_set(cl_short2)
+__cpp_clarg_set(cl_ushort2)
+__cpp_clarg_set(cl_int2)
+__cpp_clarg_set(cl_uint2)
+__cpp_clarg_set(cl_long2)
+__cpp_clarg_set(cl_ulong2)
+__cpp_clarg_set(cl_float2)
+__cpp_clarg_set(cl_double2)
+__cpp_clarg_set(cl_char4)
+__cpp_clarg_set(cl_uchar4)
+__cpp_clarg_set(cl_short4)
+__cpp_clarg_set(cl_ushort4)
+__cpp_clarg_set(cl_int4)
+__cpp_clarg_set(cl_uint4)
+__cpp_clarg_set(cl_long4)
+__cpp_clarg_set(cl_ulong4)
+__cpp_clarg_set(cl_float4)
+__cpp_clarg_set(cl_double4)
+__cpp_clarg_set(cl_char8)
+__cpp_clarg_set(cl_uchar8)
+__cpp_clarg_set(cl_short8)
+__cpp_clarg_set(cl_ushort8)
+__cpp_clarg_set(cl_int8)
+__cpp_clarg_set(cl_uint8)
+__cpp_clarg_set(cl_long8)
+__cpp_clarg_set(cl_ulong8)
+__cpp_clarg_set(cl_float8)
+__cpp_clarg_set(cl_double8)
+__cpp_clarg_set(cl_char16)
+__cpp_clarg_set(cl_uchar16)
+__cpp_clarg_set(cl_short16)
+__cpp_clarg_set(cl_ushort16)
+__cpp_clarg_set(cl_int16)
+__cpp_clarg_set(cl_uint16)
+__cpp_clarg_set(cl_long16)
+__cpp_clarg_set(cl_ulong16)
+__cpp_clarg_set(cl_float16)
+__cpp_clarg_set(cl_double16)
 
 #else
 
 #define __clarg_set(cp,krn,ia,a) \
 ({ \
-__iftype_clarg_set(cp,krn,ia,a,cl_int) \
-else __iftype_clarg_set(cp,krn,ia,a,cl_char) \
+__iftype_clarg_set(cp,krn,ia,a,cl_char) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uchar) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_short) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ushort) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_int) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_long) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ulong) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_double) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_char2) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_uchar2) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_short2) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ushort2) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_int2) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint2) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_long2) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ulong2) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float2) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_double2) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_char4) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_uchar4) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_short4) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ushort4) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_int4) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint4) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_long4) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ulong4) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float4) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_double4) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_char8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_uchar8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_short8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ushort8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_int8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_uint8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_long8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ulong8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_float8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_double8) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_char16) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_uchar16) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_short16) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ushort16) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_int16) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_uint16) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_long16) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ulong16) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_float16) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_double16) \
 else { fprintf(stderr,"__clarg_set: unrecognized type\n"); exit(-1); } \
 })
 

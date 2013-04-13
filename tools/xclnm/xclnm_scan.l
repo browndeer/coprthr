@@ -127,10 +127,40 @@ FILE* __xclnm_yyin;
 "unsigned"{WS}+"short4" 	{ __plb(); ival_return(TYPE_UINT16_VEC4); }
 "uint4" 							{ __plb(); ival_return(TYPE_UINT32_VEC4); }
 "unsigned"{WS}+"int4" 		{ __plb(); ival_return(TYPE_UINT32_VEC4); }
-"ulong4" 						{ __plb(); ival_return(TYPE_UINT32_VEC4); }
-"unsigned"{WS}+"long4" 		{ __plb(); ival_return(TYPE_UINT32_VEC4); }
+"ulong4" 						{ __plb(); ival_return(TYPE_UINT64_VEC4); }
+"unsigned"{WS}+"long4" 		{ __plb(); ival_return(TYPE_UINT64_VEC4); }
 "float4" 						{ __plb(); ival_return(TYPE_FLOAT_VEC4); }
 "double4"						{ __plb(); ival_return(TYPE_DOUBLE_VEC4); }
+
+"char8"                                 { __plb(); ival_return(TYPE_INT8_VEC8); }
+"short8"                           { __plb(); ival_return(TYPE_INT16_VEC8); }
+"int8"                                  { __plb(); ival_return(TYPE_INT32_VEC8); }
+"long8"                                 { __plb(); ival_return(TYPE_INT32_VEC8); }
+"uchar8"                           { __plb(); ival_return(TYPE_UINT8_VEC8); }
+"unsigned"{WS}+"char8"        { __plb(); ival_return(TYPE_UINT8_VEC8); }
+"ushort8"                               { __plb(); ival_return(TYPE_UINT16_VEC8); }
+"unsigned"{WS}+"short8"  { __plb(); ival_return(TYPE_UINT16_VEC8); }
+"uint8"                                 { __plb(); ival_return(TYPE_UINT32_VEC8); }
+"unsigned"{WS}+"int8"         { __plb(); ival_return(TYPE_UINT32_VEC8); }
+"ulong8"                           { __plb(); ival_return(TYPE_UINT64_VEC8); }
+"unsigned"{WS}+"long8"        { __plb(); ival_return(TYPE_UINT64_VEC8); }
+"float8"                           { __plb(); ival_return(TYPE_FLOAT_VEC8); }
+"double8"                          { __plb(); ival_return(TYPE_DOUBLE_VEC8); }
+
+"char16"                                 { __plb(); ival_return(TYPE_INT8_VEC16); }
+"short16"                           { __plb(); ival_return(TYPE_INT16_VEC16); }
+"int16"                                  { __plb(); ival_return(TYPE_INT32_VEC16); }
+"long16"                                 { __plb(); ival_return(TYPE_INT32_VEC16); }
+"uchar16"                           { __plb(); ival_return(TYPE_UINT8_VEC16); }
+"unsigned"{WS}+"char16"        { __plb(); ival_return(TYPE_UINT8_VEC16); }
+"ushort16"                               { __plb(); ival_return(TYPE_UINT16_VEC16); }
+"unsigned"{WS}+"short16"  { __plb(); ival_return(TYPE_UINT16_VEC16); }
+"uint16"                                 { __plb(); ival_return(TYPE_UINT32_VEC16); }
+"unsigned"{WS}+"int16"         { __plb(); ival_return(TYPE_UINT32_VEC16); }
+"ulong16"                           { __plb(); ival_return(TYPE_UINT64_VEC16); }
+"unsigned"{WS}+"long16"        { __plb(); ival_return(TYPE_UINT64_VEC16); }
+"float16"                           { __plb(); ival_return(TYPE_FLOAT_VEC16); }
+"double16"                          { __plb(); ival_return(TYPE_DOUBLE_VEC16); }
 
 "..."			{ __plb(); return(VARG); }
 
