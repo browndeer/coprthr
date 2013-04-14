@@ -31,20 +31,48 @@
 /* XXX this brings in the vec types.  temporary soln. improve it. -DAR */
 #include <CL/cl.h>
 typedef unsigned char uchar;
+typedef unsigned short ushort;
 typedef unsigned int uint;
 typedef cl_char2 char2;
 typedef cl_char4 char4;
+typedef cl_char8 char8;
+typedef cl_char16 char16;
 typedef cl_uchar2 uchar2;
 typedef cl_uchar4 uchar4;
+typedef cl_uchar8 uchar8;
+typedef cl_uchar16 uchar16;
+typedef cl_short2 short2;
+typedef cl_short4 short4;
+typedef cl_short8 short8;
+typedef cl_short16 short16;
+typedef cl_ushort2 ushort2;
+typedef cl_ushort4 ushort4;
+typedef cl_ushort8 ushort8;
+typedef cl_ushort16 ushort16;
 typedef cl_int2 int2;
 typedef cl_int4 int4;
+typedef cl_int8 int8;
+typedef cl_int16 int16;
 typedef cl_uint2 uint2;
 typedef cl_uint4 uint4;
+typedef cl_uint8 uint8;
+typedef cl_uint16 uint16;
 typedef cl_long2 long2;
+typedef cl_long4 long4;
+typedef cl_long8 long8;
+typedef cl_long16 long16;
 typedef cl_ulong2 ulong2;
+typedef cl_ulong4 ulong4;
+typedef cl_ulong8 ulong8;
+typedef cl_ulong16 ulong16;
 typedef cl_float2 float2;
 typedef cl_float4 float4;
+typedef cl_float8 float8;
+typedef cl_float16 float16;
 typedef cl_double2 double2;
+typedef cl_double4 double4;
+typedef cl_double8 double8;
+typedef cl_double16 double16;
 #endif
 
 

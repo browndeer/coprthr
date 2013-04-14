@@ -1,0 +1,2 @@
+Move the contents of ./syntax to ~/.vim/syntax
+Copy the code in example.vimrc to your ~/.vimrc file
