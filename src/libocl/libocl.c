@@ -845,8 +845,8 @@ void __attribute__((__constructor__)) _libocl_init()
 		mmap( 0,sizeof(struct clproc_state_struct),PROT_WRITE,
 		MAP_NOSYNC|MAP_SHARED,fd,0);
 #else
-	printcl( CL_CRIT 
-		"Linux mmap does not support MAP_NOSYNC, demand a work-around");
+//	printcl( CL_CRIT 
+//		"Linux mmap does not support MAP_NOSYNC, demand a work-around");
 
 	_libocl_clproc_state = (struct clproc_state_struct*)
 		mmap( 0,sizeof(struct clproc_state_struct),PROT_WRITE|PROT_READ,
