@@ -436,6 +436,7 @@ void __attribute__((__destructor__)) _libstdcl_fini()
 	printcl( CL_DEBUG "_libstdcl_fini() called");
 
 	if (stdgpu) clcontext_destroy(stdgpu);
+	if (stdacc) clcontext_destroy(stdacc);
 
 #ifndef _WIN64
 	munmap(procelf,procelf_sz);
