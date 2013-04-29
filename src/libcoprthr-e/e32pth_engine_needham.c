@@ -306,77 +306,27 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	int corenum;
 	struct core_control_struct core_control_data;
 
-	printcl( CL_DEBUG "clear cores run state");
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-   	core_control_data.run[corenum] = 0;
-	e32_write_ctrl_run(core_control_data.run);
+//printcl( CL_CRIT "sleep");
+//sleep(1);
 
-
-	if (loaded_srec != argp->k.krn->prg->imp.v_kbin[0] ) {
-
-		printcl( CL_DEBUG "need to load srec");
-		printcl( CL_WARNING "hardcoded to devnum=0");
-
-
-		printcl( CL_DEBUG "will try to load the srec file '%s'",
-			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
-
-		printcl( CL_CRIT "XXX attempt e_loaad");
-
-		int err = e_load(argp->k.krn->prg->imp.v_kbin_tmpfile[0],1,1,1);
-
-		printcl( CL_CRIT "XXX e_loader returned %d",err);
- 
-		if (!err)
-			loaded_srec = argp->k.krn->prg->imp.v_kbin[0];
-
-		e_opened = 1;
-	
-
-	} else {
-	
-		printcl( CL_DEBUG "srec file '%s' already loaded",
-			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
-
-		printcl( CL_DEBUG "sending reset and ILAT only");
-		
-
-	}
+//	printcl( CL_DEBUG "clear cores run state");
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//   	core_control_data.run[corenum] = 0;
+//	e32_write_ctrl_run(core_control_data.run);
 
 
 	unsigned int addr;
 	size_t sz;
 
 
-	int* tmp_buf = (int*)calloc(1,4096);
-	memset(tmp_buf,7,4096);
+//	int* tmp_buf = (int*)calloc(1,4096);
+//	memset(tmp_buf,7,4096);
 	struct timeval t0,t1;
 
-	printcl( CL_DEBUG "clear cores run state");
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-   	core_control_data.run[corenum] = 0;
-	e32_write_ctrl_run(core_control_data.run);
-
-
-	printcl( CL_DEBUG "raise cores ready state");
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-   	core_control_data.ready[corenum] = 1;
-	e32_write_ctrl_ready(core_control_data.ready);
-
-
-	printcl( CL_DEBUG "wait until all cores are ready");
-	for (corenum=0; corenum<E32_NCORES;  corenum++) {
-		printcl( CL_CRIT "XXX check corenum %d",corenum);
-		e32_read_ctrl_ready_n(&(core_control_data.ready[corenum]),corenum);
-		gettimeofday(&t0, 0);
-		while (core_control_data.ready[corenum] != 2) {
-			printcl( CL_CRIT "XXX check corenum %d",corenum);
-			e32_read_ctrl_ready_n(&(core_control_data.ready[corenum]),corenum);
-			gettimeofday(&t1, 0);
-			if (t1.tv_sec > t0.tv_sec + 6) break;
-		}
-	}
-
+//	printcl( CL_DEBUG "clear cores run state");
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//   	core_control_data.run[corenum] = 0;
+//	e32_write_ctrl_run(core_control_data.run);
 
 
 	/***
@@ -412,8 +362,15 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 			{
 				int ltdsz0 = workp_get_entry(wp,0)->ndr_ltdsz[0];
 				int ltdsz1 = workp_get_entry(wp,0)->ndr_ltdsz[1];
-			
-				if ( ltdsz0 > E32_COLS_IN_CHIP || ltdsz1 > E32_ROWS_IN_CHIP ) {
+		
+				if ( ltdsz1 == 1 || ltdsz0 <= nthr ) { /* XXX added for testing -DAR */
+
+					int m;
+					for(m=0; m<nthr; m++) {
+						coremap[m] = threadmap[m] = (e32_uchar_t)m;
+					}
+	
+				} else if ( ltdsz0 > E32_COLS_IN_CHIP || ltdsz1 > E32_ROWS_IN_CHIP ) {
 
 					printcl( CL_ERR "unsupported thread block layout");
       			return(CL_INVALID_VALUE);
@@ -555,18 +512,140 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	e32_write_ctrl_callp(core_control_data.callp);
 
 
+//	printcl( CL_DEBUG "init giant lock");
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//   	core_control_data.ready[corenum] = 0;
+//	e32_write_ctrl_ready(core_control_data.ready);
+
+/*
+	printcl( CL_DEBUG "clear core ready state");
+	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+   	core_control_data.ready[corenum] = 0;
+	e32_write_ctrl_ready(core_control_data.ready); 
+
 	printcl( CL_DEBUG "clear core return values");
 	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-   	core_control_data.retval[corenum] = 0;
+   	core_control_data.retval[corenum] = 16;
+	e32_write_ctrl_retval(core_control_data.retval); 
+*/
+
+//	printcl( CL_DEBUG "set cores to run");
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//   	core_control_data.run[corenum] = 1;
+//	e32_write_ctrl_run(core_control_data.run);
+
+
+//printcl( CL_CRIT "sleep");
+//sleep(1);
+
+	int fail=0;
+	int retry_count=0;
+
+retry:
+
+	printcl( CL_DEBUG "clear core ready state");
+	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+   	core_control_data.ready[corenum] = 0;
+	e32_write_ctrl_ready(core_control_data.ready); 
+
+	printcl( CL_DEBUG "clear core return values");
+	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+   	core_control_data.retval[corenum] = 16;
 	e32_write_ctrl_retval(core_control_data.retval); 
 
+printf("BEFORE LOAD\n");
+
+///////////////////////////////////////////////////////////
+	if (1) {
+		printcl( CL_DEBUG "need to load srec");
+		printcl( CL_WARNING "hardcoded to devnum=0");
+
+
+		printcl( CL_DEBUG "will try to load the srec file '%s'",
+			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
+
+		printcl( CL_CRIT "XXX attempt e_loaad");
+
+		int err = e_load(argp->k.krn->prg->imp.v_kbin_tmpfile[0],1,1,1);
+
+		printcl( CL_CRIT "XXX e_loader returned %d",err);
+ 
+		if (!err)
+			loaded_srec = argp->k.krn->prg->imp.v_kbin[0];
+
+		e_opened = 1;
+	
+
+	} else {
+	
+		printcl( CL_DEBUG "srec file '%s' already loaded",
+			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
+
+		printcl( CL_DEBUG "sending reset and ILAT only");
+		
+
+	}
+//////////////////////////////////////////////////////
+
+printf("AFTER LOAD\n"); fflush(stdout);
+
+//printcl( CL_CRIT "sleep");
+//sleep(1);
+
+//	int fail=0;
+//	int retry_count=0;
+//
+//retry:
+
+	printcl( CL_DEBUG "wait until all cores are ready");
+	gettimeofday(&t0, 0);
+	e32_read_ctrl_ready(core_control_data.ready);
+	for (corenum=0; corenum<E32_NCORES;  corenum++) {
+		while (core_control_data.ready[corenum]==0) {
+			e32_read_ctrl_ready(core_control_data.ready);
+
+			printcl( CL_DEBUG 
+				"ready %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+				core_control_data.ready[0],
+				core_control_data.ready[1],
+				core_control_data.ready[2],
+				core_control_data.ready[3],
+				core_control_data.ready[4],
+				core_control_data.ready[5],
+				core_control_data.ready[6],
+				core_control_data.ready[7],
+				core_control_data.ready[8],
+				core_control_data.ready[9],
+				core_control_data.ready[10],
+				core_control_data.ready[11],
+				core_control_data.ready[12],
+				core_control_data.ready[13],
+				core_control_data.ready[14],
+				core_control_data.ready[15]);
+
+			gettimeofday(&t1, 0);
+			if (t1.tv_sec > t0.tv_sec + 10) { fail=1; break; }
+
+			if (core_control_data.ready[corenum] < 0) { fail=2; break; }
+		}
+
+//		gettimeofday(&t1, 0);
+//		if (t1.tv_sec > t0.tv_sec + 6) { fail=2; break; }
+		if (fail) break;
+
+	}
+
+	if (fail) {
+		printcl( CL_ERR "kernel ready failure code %d", fail);
+		if (retry_count++ < 10) { fail=0; goto retry; }
+	}
 
 	printcl( CL_DEBUG "set cores to run");
 	for (corenum=0; corenum<E32_NCORES;  corenum++) 
    	core_control_data.run[corenum] = 1;
 	e32_write_ctrl_run(core_control_data.run);
 
-
+	fail=0;
 	printcl( CL_DEBUG "wait until all cores are idle");
 	gettimeofday(&t0, 0);
 	e32_read_ctrl_run(core_control_data.run);
@@ -594,16 +673,21 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 				core_control_data.run[15]);
 
 			gettimeofday(&t1, 0);
-			if (t1.tv_sec > t0.tv_sec + 6) break;
+			if (t1.tv_sec > t0.tv_sec + 10) { fail=1; break; }
 
+			if (core_control_data.run[corenum] < 0) { fail=2; break; }
 		}
 
-		gettimeofday(&t1, 0);
-		if (t1.tv_sec > t0.tv_sec + 6) break;
+//		gettimeofday(&t1, 0);
+//		if (t1.tv_sec > t0.tv_sec + 6) { fail=2; break; }
+		if (fail) break;
 
 	}
 
-	e32_read_ctrl_run(tmp_buf);
+	if (fail) {
+		printcl( CL_ERR "kernel failure code %d", fail);
+	}
+
 	printcl( CL_DEBUG "read back core return values");
 	e32_read_ctrl_retval(core_control_data.retval);
    for(i=0;i<E32_NCORES;i++)

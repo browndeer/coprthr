@@ -288,6 +288,7 @@ static void* copy_buffer(cl_device_id devid, void* p)
 {
 	printcl( CL_DEBUG "copy_buffer");
 
+#if(0)
 	/* XXX need to add this with a call on device for perofrmance -DAR */
 	printcl( CL_ERR "not supported yet" );
 	return(-1);
@@ -308,6 +309,53 @@ static void* copy_buffer(cl_device_id devid, void* p)
 
 	if (dst+dst_offset == src+src_offset) return(0);
 	else memcpy(dst+dst_offset,src+src_offset,len);
+#endif
+
+	printcl( CL_WARNING 
+		"copy_buffer using malloc+read_buffer+write_buffer+free");
+
+	/* read_buffer */
+
+	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
+
+	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
+	unsigned int ndev = ctx->ndev;
+	cl_device_id* devices = ctx->devices;
+	unsigned int n = 0;
+	while (n < ndev && devices[n] != devid) ++n;
+
+//	void* dst = argp->m.dst;
+	void* src = ((cl_mem)argp->m.src)->imp.res[n];
+	size_t offset = argp->m.src_offset;
+	size_t len = argp->m.len;
+
+	void* tmp = malloc(len);
+//	xxx_e_read_dram(src+offset,dst,len);
+	xxx_e_read_dram(src+offset,tmp,len);
+
+
+	/* write_buffer */
+
+//	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
+
+//	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
+//	unsigned int ndev = ctx->ndev;
+//	cl_device_id* devices = ctx->devices;
+//	unsigned int n = 0;
+//	while (n < ndev && devices[n] != devid) ++n;
+
+	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
+//	void* src = argp->m.src;
+//	size_t offset = argp->m.dst_offset;
+//	size_t len = argp->m.len;
+
+	if (dst+offset == src) return(0);
+
+//	xxx_e_write_dram(dst+offset,src,len);
+	xxx_e_write_dram(dst+offset,tmp,len);
+	if(tmp) free(tmp);
+
+	/* free */
 
 	return(0); 
 }

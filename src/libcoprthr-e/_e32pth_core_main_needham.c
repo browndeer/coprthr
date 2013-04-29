@@ -30,6 +30,8 @@
 #include "e32pth_if_needham.h"
 #include "e32_opencl_ext.h"
 
+#define TIMEOUT 8000000
+
 typedef void (*callp_t)(void*);
 
 volatile struct core_local_data_struct core_local_data SECTION("section_core");
@@ -37,8 +39,11 @@ volatile e32_workp_entry_t core_we SECTION("section_core");
 volatile struct thr_data_struct thr_data SECTION("section_core");
 unsigned char coremap[E32_NCORES] SECTION("section_core");
 unsigned char threadmap[E32_NCORES] SECTION("section_core");
-int _local_mem_base SECTION("section_core"); /* just a marker, no used */
 
+int __giant SECTION("section_core") = 0;
+int __active SECTION("section_core") = 0;
+
+int _local_mem_base SECTION("section_core"); /* just a marker, no used */
 
 __inline 
 static unsigned core_num(e_coreid_t coreid)
@@ -55,9 +60,7 @@ extern func_t test_arg_1_1_kern;
 
 int main(void)
 {
-	int status;
-
-	status = 0;
+	int status = 0;
 
 	e_coreid_t tmpcid;
    core_local_data.coreID = e_get_coreid();
@@ -66,33 +69,32 @@ int main(void)
 		(unsigned*)&core_local_data.row, (unsigned*)&core_local_data.col);
    core_local_data.row = core_local_data.row - E_FIRST_CORE_ROW;
    core_local_data.col = core_local_data.col - E_FIRST_CORE_COL;
-   core_local_data.sigb = 0;
-   core_local_data.recvaddr = 0;
+   core_local_data.sigb;
+   core_local_data.recvaddr;
    core_local_data.thrs_self = (threadspec_t)e_address_from_coreid(
 		core_local_data.coreID, (void*)&core_local_data);
 
+	memcpy((void*)coremap,(void*)&e32_coremap[0],E32_NCORES);
+	memcpy((void*)threadmap,(void*)&e32_threadmap[0],E32_NCORES);
+	memcpy((void*)core_we,(void*)&e32_we[0],sizeof(e32_workp_entry_t));
+	callp_t callp = (callp_t)e32_ctrl_callp[core_local_data.corenum];
 
-	while(1) {
+	int timeout;
 
-		e32_ctrl_run[core_local_data.corenum] = 0;
-		e32_ctrl_ready[core_local_data.corenum] = 0;
-
-		while (e32_ctrl_ready[core_local_data.corenum] == 0) {};
-
-		e32_ctrl_ready[core_local_data.corenum] = 2;
-
+#if(0)
    	core_local_data.count = 0;
+		timeout = 0;
+      while (e32_ctrl_run[core_local_data.corenum] == 0 && timeout < TIMEOUT) {
+			timeout++;
+		}
+if (timeout == TIMEOUT) {
+	e32_ctrl_run[core_local_data.corenum] = -2;
+	e32_ctrl_retval[core_local_data.corenum] = -2;
+	exit(0);
+}
+#endif
 
-      while (e32_ctrl_run[core_local_data.corenum] == 0) {};
-
-		e32_ctrl_run[core_local_data.corenum] = 2;
-
-		memcpy((void*)coremap,(void*)&e32_coremap[0],E32_NCORES);
-		memcpy((void*)threadmap,(void*)&e32_threadmap[0],E32_NCORES);
-
-		memcpy((void*)core_we,(void*)&e32_we[0],sizeof(e32_workp_entry_t));
-
-		callp_t callp = (callp_t)e32_ctrl_callp[core_local_data.corenum];
+//		e32_ctrl_run[core_local_data.corenum] = 2;
 
 		int count = 0;
 
@@ -142,6 +144,7 @@ int main(void)
 
 		}
 
+
 		{
 			int mm = (m+nthr-1) % nthr;	
 			int n = (int)coremap[mm];
@@ -156,7 +159,51 @@ int main(void)
 				coreid, (void*)&core_local_data.sigb);
 		}
 
+
 		}
+
+#if(0)
+///// INTERCORE BARIER TO ENSURE ALL CORES HAVE REACHED THIS POINT /////
+{
+e_coreid_t zeroid = __corenum_to_coreid(0);
+mutex_t* giant = (mutex_t*)e_address_from_coreid(zeroid,(void*)&__giant);
+int* active = (int*)e_address_from_coreid(zeroid,(void*)&__active);
+
+e_mutex_lock(giant);
+*active = *active + 1;
+e_mutex_unlock(giant);
+
+timeout = 0;
+
+while (*active < 16 && timeout < TIMEOUT ) { timeout++; }
+
+if (timeout == TIMEOUT) {
+	e32_ctrl_run[core_local_data.corenum] = -1;
+	e32_ctrl_retval[core_local_data.corenum] = -1;
+	exit(0);
+}
+
+}
+#endif
+
+      e32_ctrl_run[core_local_data.corenum] = 0;
+
+      e32_ctrl_ready[core_local_data.corenum] = 1;
+
+   	core_local_data.count = 0;
+
+		timeout = 0;
+      while (e32_ctrl_run[core_local_data.corenum] == 0 && timeout < TIMEOUT) {
+			timeout++;
+		}
+		if (timeout == TIMEOUT) {
+			e32_ctrl_run[core_local_data.corenum] = -2;
+			e32_ctrl_retval[core_local_data.corenum] = -2;
+			exit(0);
+		}
+		e32_ctrl_run[core_local_data.corenum] = 2;
+
+///////////////////////////////////////////////////////////////////////
 
 
 //		if (callp && callp < (callp_t)0x7000) {
@@ -215,8 +262,14 @@ int main(void)
       e32_ctrl_run[core_local_data.corenum] = 0;
       core_local_data.count++;
 
-   }
+		__active = 0;
 
-	return status;
+//		break;
+
+//   }
+
+//	return status;
+	exit(0);
+
 }
 
