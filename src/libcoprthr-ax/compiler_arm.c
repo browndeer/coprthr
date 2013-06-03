@@ -62,7 +62,7 @@
 
 
 #define _GNU_SOURCE
-#include <link.h>
+//#include <link.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -76,6 +76,7 @@
 #include "elf_cl.h"
 #include "compiler.h"
 
+/*
 struct dummy { char* name; void* addr; };
 
 static int
@@ -89,6 +90,7 @@ callback(struct dl_phdr_info *info, size_t size, void *data)
 
    return 0;
 }
+*/
 
 
 /* XXX on certain failures, program is left in /tmp, the original fork
@@ -138,7 +140,7 @@ information necessary to build out the prg info.  this makes
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-#include <elf.h>
+//#include <elf.h>
 
 #include "xcl_structs.h"
 
