@@ -4,6 +4,11 @@
 #include <string.h>
 #include <pthread.h>
 #include <assert.h>
+
+#if defined(__FreeBSD__)
+#include <sys/types.h>
+#include <sys/socket.h>
+#endif
 #include <ifaddrs.h>
 
 #define min(a,b) ((a<b)?a:b)
@@ -2088,8 +2093,13 @@ main(int argc, const char **argv)
 					&& !strncmp(ifa->ifa_name, ifname, NI_MAXHOST)
 				) {
 
+#if defined(__FreeBSD__)
+               int s = getnameinfo( ifa->ifa_addr,sizeof(struct sockaddr), 
+						if_address, NI_MAXHOST, NULL, 0, NI_NUMERICHOST );
+#else
                int s = getnameinfo( ifa->ifa_addr,sizeof(struct sockaddr_in), 
 						if_address, NI_MAXHOST, NULL, 0, NI_NUMERICHOST );
+#endif
 
                if (s != 0) {
 
