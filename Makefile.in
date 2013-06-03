@@ -44,7 +44,9 @@ endif
 SUBDIRS += ./include ./src/libclelf ./src/libstdcl 
 
 ifeq (@ENABLE_CLLD@,1)
+ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 SUBDIRS += ./tools/clcc ./tools/clcc1 ./tools/clld ./tools/clnm
+endif
 endif
 
 #ifneq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
