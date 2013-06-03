@@ -4,8 +4,15 @@
 #else
 #MAKE = make
 #endif
+
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+MAKE = gmake
+else
 ifneq (@MAKE@,)
 MAKE = @MAKE@
+else
+MAKE = make
+endif
 endif
 
 prefix=@prefix@
@@ -100,14 +107,20 @@ install: subdirs
 	cp -Rf ./test $(prefix)
 	install -m 755 ./tools/scripts/cldebug $(INSTALL_BIN_DIR)
 	install -m 755 ./tools/scripts/clprocd $(INSTALL_BIN_DIR)
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+else
 	install -m 755 ./scripts/clprocd /etc/init.d/
+endif
 	@chmod -R a+rX $(prefix)
 	install -m 644 install-message.txt $(prefix)/install-message.txt
 	@cat install-message.txt
 	install -m 644 ./etc/ocl.conf /etc/ocl.conf
 
 uninstall: subdirs
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+else
 	rm -f /etc/init.d/clprocd
+endif
 	rm -f /etc/ocl.conf
 
 test: 
