@@ -1,5 +1,7 @@
 # Makefile for cltop
 
+CCFLAGS=@CFLAGS@
+
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 

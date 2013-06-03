@@ -400,7 +400,11 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 
 	shdr->sh_name = shstrtab_offset[7];
 	shdr->sh_type = SHT_STRTAB;
+#ifdef __ANDROID__
+	shdr->sh_flags = SHF_ALLOC;
+#else
 	shdr->sh_flags = SHF_STRINGS | SHF_ALLOC;
+#endif
 	shdr->sh_entsize = 0;
 
 
@@ -432,7 +436,11 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 
 	shdr->sh_name = shstrtab_offset[8];
 	shdr->sh_type = SHT_STRTAB;
+#ifdef __ANDROID__
+	shdr->sh_flags = SHF_ALLOC;
+#else 
 	shdr->sh_flags = SHF_STRINGS | SHF_ALLOC;
+#endif 
 	shdr->sh_entsize = 0;
 
 

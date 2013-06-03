@@ -52,6 +52,14 @@
 #include "printcl.h"
 #include "clerrno.h"
 
+#ifdef __ANDROID__
+
+#define posix_memalign(pp,dummy,sz) do { \
+	*pp = valloc(sz); \
+	} while(0)
+
+#endif
+
 #ifdef DEFAULT_OPENCL_PLATFORM
 #define DEFAULT_PLATFORM_NAME DEFAULT_OPENCL_PLATFORM
 #else
@@ -135,11 +143,13 @@ clcontext_create(
 	printcl( CL_DEBUG "clcontext_create: sizeof CONTEXT %d",sizeof(CONTEXT));
 
 	assert(sizeof(CONTEXT)<getpagesize());
-#ifdef _WIN64
+#if defined(_WIN64)
 	cp = (CONTEXT*)_aligned_malloc(sizeof(CONTEXT),getpagesize());
 	if (!cp) {
 		printcl( CL_WARNING "clcontext_create: memalign failed");
 	}
+#elif defined(__ANDROID__)
+	posix_memalign((void**)&cp,getpagesize(),sizeof(CONTEXT));
 #else
 	if (posix_memalign((void**)&cp,getpagesize(),sizeof(CONTEXT))) {
 		printcl( CL_WARNING "clcontext_create: posix_memalign failed");
@@ -413,13 +423,25 @@ clcontext_create(
 
 //exit(-9);
 
-#ifdef _WIN64
+#if defined(_WIN64)
 
-//	cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
 	cp->nctx = 1;
 	cp->xxxctx = (cl_context*)malloc(cp->nctx * sizeof(cl_context));
 	cp->xxxctx[0] = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
 	__set_oclerrno(err);
+
+#elif defined(__ANDROID__)
+
+printcl( CL_DEBUG "before");
+
+		cp->nctx = 1;
+		cp->xxxctx = (cl_context*)malloc(cp->nctx * sizeof(cl_context));
+		cp->xxxctx[0] = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
+		__set_oclerrno(err);
+
+		printcl( CL_DEBUG "cp->xxxctx[0] = %p",cp->xxxctx[0]);
+
+printcl( CL_DEBUG "after");
 
 #else
 
@@ -559,7 +581,6 @@ clcontext_create(
 
 printcl( CL_DEBUG "before");
 
-//		cp->ctx = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
 		cp->nctx = 1;
 		cp->xxxctx = (cl_context*)malloc(cp->nctx * sizeof(cl_context));
 		cp->xxxctx[0] = clCreateContextFromType(ctxprop,devtyp,0,0,&err);
@@ -569,10 +590,11 @@ printcl( CL_DEBUG "before");
 
 printcl( CL_DEBUG "after");
 
-//exit(-9);
 
 	}
+
 #endif
+
 
 //	if (cp->ctx) {
 	if (cp->nctx && cp->xxxctx[0]) {
@@ -775,7 +797,8 @@ clcontext_destroy(CONTEXT* cp)
 	if (cp->platform_vendor) free(cp->platform_vendor);
 	if (cp->platform_extensions) free(cp->platform_extensions);
 
-#ifndef _WIN64
+#ifdef !defined(_WIN64) && !defined(__ANDROID__)
+
 	if (__ctx_lock) {
 		printcl( CL_DEBUG "clcontext_destroy: ctx lock check refc");
 		pthread_mutex_lock(&__ctx_lock->mtx);
@@ -793,7 +816,9 @@ clcontext_destroy(CONTEXT* cp)
 		}
 		pthread_mutex_unlock(&__ctx_lock->mtx);
 	}
+
 #endif
+
 
 #ifdef _WIN64
 	_aligned_free(cp);
@@ -1181,12 +1206,14 @@ clcontext_create_stdnpu(
 	printcl( CL_DEBUG "clcontext_create: sizeof CONTEXT %d",sizeof(CONTEXT));
 
 	assert(sizeof(CONTEXT)<getpagesize());
-#ifdef _WIN64
+#if defined(_WIN64)
 	cp = (CONTEXT*)_aligned_malloc(sizeof(CONTEXT),getpagesize());
 	if (!cp) {
 		printcl( CL_WARNING "clcontext_create: memalign failed");
 	}
-#else
+#elif defined(__ANDROID__)
+	posix_memalign((void**)&cp,getpagesize(),sizeof(CONTEXT));
+#else 
 	if (posix_memalign((void**)&cp,getpagesize(),sizeof(CONTEXT))) {
 		printcl( CL_WARNING "clcontext_create: posix_memalign failed");
 	}

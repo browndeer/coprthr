@@ -2,6 +2,8 @@
 ### Makefile for libcoprthr
 ###
 
+CCFLAG += @CFLAGS@
+
 ifneq (@MAKE@,)
 MAKE = @MAKE@
 endif
@@ -72,6 +74,7 @@ SCRIPTS = ../scripts/
 OCLCALL_MASTER = ../libocl/oclcall.master
 
 INCS += -I. -I$(TOPDIR)/include 
+INCS += -I../coprthr-common
 
 INCS += $(LIBELF_INC)
 

@@ -1,0 +1,188 @@
+### 
+### Makefile for libcoprthr-ax
+###
+
+CCFLAGS=@CFLAGS@
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+### this useless define is needed to silence useless autoconf warning
+datarootdir=@datarootdir@
+
+LIBELF_INC=@libelf_inc@
+LIBELF_LIB=@libelf_lib@
+
+### select default install paths 
+INSTALL_BIN_DIR=@bindir@
+INSTALL_LIB_DIR=@libdir@
+INSTALL_INCLUDE_DIR=@includedir@
+INSTALL_MAN_DIR=@mandir@
+
+### set custom path for ICD files
+ifneq (@OPENCL_ICD_PATH@,)
+OPENCL_ICD_PATH=@OPENCL_ICD_PATH@
+else
+OPENCL_ICD_PATH=/etc/OpenCL/vendors/
+endif
+
+ifeq (@ENABLE_SILENT@,1)
+DEFS += -DENABLE_SILENT
+endif
+ifneq (@MAX_CLMESG_LEVEL@,)
+DEFS += -DMAX_CLMESG_LEVEL=@MAX_CLMESG_LEVEL@
+endif
+ifneq (@DEFAULT_CLMESG_LEVEL@,)
+DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
+endif
+
+############################################################################
+##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
+############################################################################
+
+XCL_OBJS = ocl_platform.o ocl_device.o ocl_context.o ocl_command_queue.o \
+	ocl_enqueue.o ocl_event.o ocl_program.o ocl_kernel.o ocl_memobj.o \
+	ocl_flush.o xcl_icd.o ocl_sampler.o ocl_profile.o ocl_clgl.o
+
+IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
+	environment.o \
+	program.o kernel.o memobj.o \
+	cmdsched.o cmdcall.o \
+	elf_cl.o compiler_x86_64.o compiler_arm.o \
+	watermark.o \
+	cmdcall_x86_64_sl.o sl_engine.o \
+	cmdcall_x86_64_ser.o ser_engine.o \
+	icd.o
+
+
+#RT_OBJS = __vcore_rt.o
+
+DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
+DEFS += -DENABLE_NCPU
+
+DEFS += -DLIBCOPRTHR_CC=\"@LIBCOPRTHR_CC@\"
+DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
+
+######################################################################
+
+TOPDIR ?= ../../
+
+SCRIPTS = ../scripts/
+OCLCALL_MASTER = ../libocl/oclcall.master
+
+INCS += -I. -I$(TOPDIR)/include 
+
+INCS += -I../coprthr-common
+
+INCS += $(LIBELF_INC)
+
+LIBS += $(LIBELF_LIB)
+
+#LIBS += -lfl  -lpthread -lrt
+ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
+LIBS += -lpthread -lrt
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+LIBS += -lc 
+else
+LIBS += -ldl 
+endif
+endif
+
+OBJS = $(XCL_OBJS) $(IMP_OBJS)
+
+#OBJS_D = $(subst .o,_d.o,$(OBJS))
+
+DEFS += \
+	-DINSTALL_BIN_DIR=\"$(INSTALL_BIN_DIR)\" \
+	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
+	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
+
+#DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
+#   -Wno-unused-result -Wno-format-security -Wno-format
+DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
+   -Wno-format-security -Wno-format
+
+CCFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
+CCFLAGS_VCORE += -O0 -fPIC 
+CCFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
+
+ifeq (arm,$(patsubst arm%,arm,@build_cpu@))
+CCFLAGS += -marm
+CCFLAGS_VCORE += -marm
+endif
+
+
+
+#YACC = yacc
+YACC = bison
+YACCCFLAGS =  -y -v 
+
+LEX = flex
+LEXFLAGS = 
+
+XCLNM_YYPREFIX = __xclnm_
+
+TARGET = libcoprthr-ax.so $(RT_OBJS) 
+TARGET += icd.c
+
+VPATH = ../coprthr-common/
+
+all: $(TARGET) 
+
+.PHONY: clean install uninstall
+
+.SUFFIXES:
+.SUFFIXES: .l .y .S .s .c .o
+
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+.s.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+.S.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+icd.c:
+	perl $(SCRIPTS)/gen_ocl_call_vector.pl __icd_call_vector _ \
+		< $(OCLCALL_MASTER) > icd.c
+
+libcoprthr-ax.so: $(OBJS) $(RT_OBJS)
+	$(CC) $(CCFLAGS) $(INCS) \
+		-shared -Wl,-soname,libcoprthr-ax.so -o libcoprthr-ax.so  $(OBJS) $(LIBS)
+
+
+debug:
+	export ENABLE_DEBUG=1
+	make -f Makefile all
+
+
+install: 
+	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
+	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
+	install -m 755 libcoprthr-ax.so $(INSTALL_LIB_DIR)
+	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
+	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
+	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
+	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
+	test -d $(prefix)/$(OPENCL_ICD_PATH) || install -m 755 -d $(prefix)/$(OPENCL_ICD_PATH)
+	echo $(INSTALL_LIB_DIR)/libcoprthr-ax.so > $(prefix)/$(OPENCL_ICD_PATH)/coprthr-ax.icd
+
+uninstall: 
+	rm -f $(INSTALL_LIB_DIR)/libcoprthr-ax.so 
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
+	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,sl_engine.h)
+	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,ser_engine.h)
+	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,workp.h)
+	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,opencl_lift.h)
+	rm -f $(prefix)/$(OPENCL_ICD_PATH)/coprthr-ax.icd
+
+clean:
+	rm -f *.o *.so
+	rm -f $(TARGET)
+
+distclean: clean
+
+

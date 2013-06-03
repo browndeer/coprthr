@@ -2,6 +2,8 @@
 # Makefile for libclelf
 #
 
+CCFLAGS=@CFLAGS@
+
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 

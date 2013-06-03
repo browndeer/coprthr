@@ -91,6 +91,10 @@ AC_ARG_ENABLE(emek-build,
 	AC_HELP_STRING([--enable-emek-build],[enable build for Epiphany EMEK (default=no)]),,
 	enable_emek_build=no)
 
+AC_ARG_ENABLE(android-cross-compile,
+	AC_HELP_STRING([--enable-android-cross-compile],[enable cross-compile for Android (default=no)]),,
+	enable_android_cross_compile=no)
+
 enable_libcoprthr_ncpu=enable_libcoprthr;
 
 echo enable_libcoprthr $enable_libcoprthr
@@ -111,6 +115,7 @@ SET_OPT($enable_libclrpc, ENABLE_LIBCLRPC, "building libclrpc")
 SET_OPT($enable_epiphany, ENABLE_EPIPHANY, "epiphany support")
 SET_OPT($enable_libocl_hook, ENABLE_LIBOCL_HOOK, "libocl hook support")
 SET_OPT($enable_emek_build, ENABLE_EMEK_BUILD, "Epiphany EMEK build")
+SET_OPT($enable_android_cross_compile, ENABLE_ANDROID_CROSS_COMPILE, "Android cross-compile")
 
 
 #OPENCL_INCLUDE=
@@ -453,6 +458,8 @@ echo $F90
 ### we will require a path for libelf and most importantly we will 
 ### reject attempts to use libelf.so.1 because its useless -DAR
 
+
+
 AC_ARG_WITH(libelf,
   AC_HELP_STRING([--with-libelf=DIR], [specify path to libelf]),
   [
@@ -471,12 +478,15 @@ AC_ARG_WITH(libelf,
     fi;
   ])
 
+
 echo $LIBELF_PATH
 
 # XXX this seems like a sledge hammer, but its all i could come up with -DAR
 tmp_test_libelf=`readelf -d $LIBELF_PATH/lib/libelf.so | grep 'Library soname' | awk '{print $5}'`
 
-if ! test x$tmp_test_libelf = x@<:@libelf.so.0@:>@; then
+if test -e $LIBELF_PATH/lib/libelf.a; then
+	echo "using static libelf"
+elif ! test x$tmp_test_libelf = x@<:@libelf.so.0@:>@; then
 	echo $tmp_test_libelf
 	AC_MSG_ERROR([incorrect version of libelf specified])
 fi;
@@ -567,7 +577,12 @@ AC_ARG_WITH(libevent,
 if ! test -e $LIBEVENT_PATH/include/event2; then
    AC_MSG_ERROR([cannot find libevent headers])
 fi;
-if ! test -e $LIBEVENT_PATH/lib/libevent.so; then
+	
+if test -e $LIBEVENT_PATH/lib/libevent.so; then
+	echo "found " $LIBEVENT_PATH/lib/libevent.so
+elif test -e $LIBEVENT_PATH/lib/libevent.a; then
+	echo "using static libevent"
+else
    AC_MSG_ERROR([cannot find libevent.so ])
 fi;
 
@@ -588,7 +603,11 @@ AC_ARG_WITH(libconfig,
 if ! test -e $LIBCONFIG_PATH/include/libconfig.h; then
    AC_MSG_ERROR([cannot find libconfig header])
 fi;
-if ! test -e $LIBCONFIG_PATH/lib/libconfig.so; then
+if test -e $LIBCONFIG_PATH/lib/libconfig.so; then
+	echo "found" $LIBCONFIG_PATH/lib/libconfig.so
+elif test -e $LIBCONFIG_PATH/lib/libconfig.a; then
+	echo "using static libconfig"
+else
    AC_MSG_ERROR([cannot find libconfig.so ])
 fi;
 
@@ -687,6 +706,7 @@ AC_SUBST(ENABLE_DEBUG)
 AC_SUBST(ENABLE_EPIPHANY)
 AC_SUBST(ENABLE_LIBOCL_HOOK)
 AC_SUBST(ENABLE_EMEK_BUILD)
+AC_SUBST(ENABLE_ANDROID_CROSS_COMPILE)
 
 AC_SUBST(MAX_CLMESG_LEVEL)
 AC_SUBST(DEFAULT_CLMESG_LEVEL)
@@ -713,7 +733,11 @@ AC_CONFIG_FILES([install-message.txt])
 AC_CONFIG_FILES([src/libstdcl/Makefile])
 AC_CONFIG_FILES([src/CLETE/Makefile])
 AC_CONFIG_FILES([src/libocl/Makefile])
-AC_CONFIG_FILES([src/libcoprthr/Makefile])
+if test x$enable_android_cross_compile = xyes; then
+	AC_CONFIG_FILES([src/libcoprthr-ax/Makefile])
+else
+	AC_CONFIG_FILES([src/libcoprthr/Makefile])
+fi;
 if test x$enable_epiphany = xyes; then
 	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
 	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])

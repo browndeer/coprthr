@@ -1,5 +1,7 @@
 # Makefile for clnm
 
+CCFLAGS=@CFLAGS@
+
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
@@ -33,8 +35,9 @@ LIBELF_INC = @libelf_inc@
 LIBELF_LIB = @libelf_lib@
 
 INCS += -I../../include
+INCS += $(LIBELF_INC)
 
-LIBS = $(LIBELF_LIB) 
+LIBS += $(LIBELF_LIB) 
 LIBS += -L../../src/libclelf -lclelf
 
 OBJS = clnm.o 

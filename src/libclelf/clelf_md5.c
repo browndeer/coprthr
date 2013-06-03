@@ -45,6 +45,7 @@
    prototypes) to maintain the tradition that Netfone will compile
    with Sun's original "cc". */
 
+#include <string.h>
 #include <memory.h>
 #include <stdint.h>
 

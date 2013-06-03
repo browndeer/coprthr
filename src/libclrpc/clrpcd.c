@@ -4,7 +4,10 @@
 #include <string.h>
 #include <pthread.h>
 #include <assert.h>
+
+#ifndef __ANDROID__
 #include <ifaddrs.h>
+#endif
 
 #define min(a,b) ((a<b)?a:b)
 
@@ -2052,8 +2055,10 @@ main(int argc, const char **argv)
 		
 		if (!strcmp(arg,"-a")) {
 			address = argv[n++];
+#ifndef __ANDROID__
 		} else if (!strcmp(arg,"-i")) {
 			ifname = argv[n++];
+#endif 
 		} else if (!strcmp(arg,"-p")) {
 			port = atoi(argv[n++]);
 		} else if (!strcmp(arg,"-d")) {
@@ -2065,6 +2070,7 @@ main(int argc, const char **argv)
 
 	}
 
+#ifndef __ANDROID__
 	if (ifname) {
 
 		if (address) {
@@ -2110,6 +2116,7 @@ main(int argc, const char **argv)
 			}
 		}
 	}
+#endif 
 
 	if (!address) address = default_address;
 

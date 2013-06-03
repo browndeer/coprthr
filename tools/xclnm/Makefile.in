@@ -1,5 +1,7 @@
 # Makefile for xclnm
 
+CFLAGS=@CFLAGS@
+
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
@@ -22,7 +24,7 @@ INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
 #INCS = -I. -I../../src/xcl
-INCS = -I. -I../../src/libcoprthr
+INCS = -I. -I../../src/coprthr-common
 
 #ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 #INCS += -I/usr/local/include
@@ -33,7 +35,9 @@ INCS += $(LIBELF_INC)
 
 
 #LIBS = -lfl -lelf 
+ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 LIBS += -lfl
+endif
 LIBS += $(LIBELF_LIB)
 
 OBJS = xclnm.o xclnm_scan.o xclnm_gram.o xclnm_node.o 

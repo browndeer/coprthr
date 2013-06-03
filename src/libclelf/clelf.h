@@ -25,6 +25,10 @@
 
 #include <elf.h>
 
+#ifdef __ANDROID__
+#define Elf32_Xword Elf32_Word
+#endif
+
 #if defined(__x86_64__)
 #define ELF_Word 		Elf64_Word
 #define ELF_Half 		Elf64_Half

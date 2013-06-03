@@ -2,6 +2,8 @@
 # Makefile for libclrpc
 #
 
+CCFLAGS=@CFLAGS@
+
 prefix=@prefix@
 exec_prefix=@exec_prefix@
 
@@ -56,10 +58,12 @@ LIBS += $(USE_OPENCL_LIBS)
 #INCS += $(LIBELF_INC)
 #LIBS += $(LIBELF_LIB)
 
+ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lpthread -lc -lrt 
 else
 LIBS += -lpthread -ldl -lrt 
+endif
 endif
 
 INCS += -I@LIBEVENT_PATH@/include

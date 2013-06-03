@@ -311,9 +311,24 @@ struct cb_struct {
 	int err;
 };
 
+#ifdef __ANDROID__
+
+int do_loop = 1;
+
 static void* loop( void* parg ) 
 {
-	printf("i am a loop\n");
+   while(do_loop) {
+      event_loop(EVLOOP_NONBLOCK);
+//      sleep(1);
+//      printf("loop\n");
+   };
+	return ((void*)0);
+}
+
+#else
+
+static void* loop( void* parg ) 
+{
    while(1) {
       event_loop(EVLOOP_NONBLOCK);
 //      sleep(1);
@@ -321,6 +336,8 @@ static void* loop( void* parg )
    };
 	return ((void*)0);
 }
+
+#endif
 
 int _clrpc_init = 0;
 ev_uint16_t clrpc_port = 0;
@@ -403,7 +420,12 @@ printcl( CL_DEBUG "clrpc_nservers %d",clrpc_nservers);
 /* XXX this sometimes hangs if no servers running -DAR */
 int clrpc_final( void )
 {
+
+#ifdef __ANDROID__
+	do_loop = 0;
+#else
 	pthread_cancel(clrpc_td);
+#endif 
 
 	void* status;
 	pthread_join(clrpc_td,&status);

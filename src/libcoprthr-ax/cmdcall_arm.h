@@ -1,6 +1,6 @@
-/* ocl_types.h
+/* cmdcall_arm.h
  *
- * Copyright (c) 2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,22 +20,14 @@
 
 /* DAR */
 
-#ifndef _ocl_types_h
-#define _ocl_types_h
+#ifndef _cmdcall_arm_h
+#define _cmdcall_arm_h
 
-#define TYPEID_VOID 		0
-#define TYPEID_CHAR		1
-#define TYPEID_SHORT		2
-#define TYPEID_INT		3
-#define TYPEID_LONG		4
-#define TYPEID_UCHAR		5
-#define TYPEID_USHORT	6
-#define TYPEID_UINT		7
-#define TYPEID_ULONG		8
-#define TYPEID_FLOAT		9
-#define TYPEID_DOUBLE	10
-#define TYPEID_OPAQUE	11
+#include <CL/cl.h>
+
+#include "cmdcall.h"
+
+extern cmdcall_t cmdcall_arm[];
 
 #endif
-
 
