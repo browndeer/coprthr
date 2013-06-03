@@ -797,7 +797,7 @@ clcontext_destroy(CONTEXT* cp)
 	if (cp->platform_vendor) free(cp->platform_vendor);
 	if (cp->platform_extensions) free(cp->platform_extensions);
 
-#ifdef !defined(_WIN64) && !defined(__ANDROID__)
+#if !defined(_WIN64) && !defined(__ANDROID__)
 
 	if (__ctx_lock) {
 		printcl( CL_DEBUG "clcontext_destroy: ctx lock check refc");
