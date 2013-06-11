@@ -42,6 +42,12 @@ SRC_TESTS = $(addsuffix .c,$(TESTS))
 CLSRC_TESTS = $(addsuffix .cl,$(TESTS))
 PRG_TESTS = $(addsuffix .x,$(TESTS))
 
+ifeq (@ENABLE_EMEK_BUILD@,1)
+EPIPHANY_PLATFORM="EMEK"
+else
+EPIPHANY_PLATFORM="Parallella"
+endif
+
 #all: $(addsuffix .x,$(TESTS))  
 all: $(PRG_TESTS)
 
@@ -73,7 +79,8 @@ test: clean clinfo.x $(addsuffix .x,$(TESTS))
 
 quicktest: clean clinfo.x $(addsuffix .x,$(TESTS))
 	./clinfo.x
-	./scripts/run_quick_tests.sh $(PRG_TESTS)
+	EPIPHANY_PLATFORM=$(EPIPHANY_PLATFORM) \
+		./scripts/run_quick_tests.sh $(PRG_TESTS)
 
 
 clean:
