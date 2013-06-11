@@ -5,11 +5,13 @@
 #include <string.h>
 
 #include "printcl.h"
-#include "e_host.h"
+//#include "e_host.h"
 //#include "e_hal.h"
 
 #ifdef ENABLE_EMEK_BUILD
 typedef void* Epiphany_t;
+#else
+#include "e_host.h"
 #endif
 
 

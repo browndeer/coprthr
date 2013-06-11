@@ -40,7 +40,7 @@ void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
  *** Epiphany stuff
  ***/
 
-#include "e_host.h"
+//#include "e_host.h"
 //#include "e_hal.h"
 
 
@@ -60,6 +60,7 @@ void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
 
 extern DRAM_t e_dram;
 
+#include "e_host.h"
 #include "dmalloc.h"
 
 #define xxx_e_read_dram( src, dst, len) do { \
