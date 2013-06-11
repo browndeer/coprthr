@@ -15,6 +15,8 @@ datarootdir=@datarootdir@
 LIBELF_INC=@libelf_inc@
 LIBELF_LIB=@libelf_lib@
 
+LIBEVENT_INC=@LIBEVENT_INC@
+
 #DEFS += -DOCL_DEBUG 
 #DEFS += -DOCL_WARN
 
@@ -64,7 +66,7 @@ endif
 TOPDIR ?= ../../
 
 INCS += -I. -I$(TOPDIR)/include  -I../libclrpc
-
+INCS += -I@LIBEVENT_PATH@/include
 INCS += $(LIBELF_INC)
 
  
@@ -79,7 +81,7 @@ else
 LIBS += -ldl 
 endif
 
-incs += -I@LIBCONFIG_PATH@/include
+INCS += -I@LIBCONFIG_PATH@/include 
 LIBS += -L@LIBCONFIG_PATH@/lib -lconfig
 
 #LIBS += -L../libclrpc -lclrpc
