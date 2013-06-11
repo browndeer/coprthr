@@ -66,7 +66,7 @@
 
 #endif
 /* XXX overriding version string with special designation -DAR */
-#define COPRTHR_VERSION_STRING "coprthr-1.5.0-RC1 (Marathon)"
+#define COPRTHR_VERSION_STRING "coprthr-1.5.0 (Marathon)"
 
 #define COPRTHR_VERSION_CODE \
 	((COPRTHR_VERSION<<16)|(COPRTHR_REVISION<<8)|(COPRTHR_RELEASE))
