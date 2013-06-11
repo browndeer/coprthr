@@ -60,7 +60,7 @@
 
 #include "dmalloc.h"
 
-#include <e_host.h>
+//#include <e_host.h>
 //#include <e_hal.h>
 #include "e_platform.h"
 
@@ -76,6 +76,8 @@ char servIP[] = "127.0.0.1";
 const unsigned short eServLoaderPort = 50999;
 
 #else
+
+#include <e_host.h>
 
 /* XXX zynq dram alloc and epiphany -DAR */
 DRAM_t e_dram;
