@@ -61,8 +61,10 @@ endif
 ESDK_EINC = -I@ESDK_PATH@/elib
 
 ifeq (@ENABLE_EMEK_BUILD@,1)
-ESDK_INC += -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
-ESDK_LIB += -le_host
+#ESDK_INC += -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
+#ESDK_LIB += -le_host
+ESDK_INC += -I@ESDK_PATH@/tools/host/x86_64/include
+ESDK_LIB += -L@ESDK_PATH@/tools/host/x86_64/lib -le_host
 else
 #ESDK_LIB += -le-host -le-loader
 ESDK_INC += -I@ESDK_PATH@/tools/host/armv71/include
