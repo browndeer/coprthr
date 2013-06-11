@@ -33,6 +33,7 @@ LIBELF_INC = @libelf_inc@
 LIBELF_LIB = @libelf_lib@
 
 INCS += -I../../include
+INCS += $(LIBELF_INC)
 
 LIBS = $(LIBELF_LIB) 
 LIBS += -L../../src/libclelf -lclelf
