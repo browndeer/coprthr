@@ -1,27 +1,30 @@
 #!@BASH@
 
-args=`getopt m: $*`
+args=`getopt m:d: $*`
 
 set -- $args
 
-amin=5
+cmin=5
+dir=/var/clproc
 
 for i
 do
    case $i in
 	--) shift; break
    ;;
-   -m) shift; amin=$1;
+   -m) shift; cmin=$1;
    ;;
+	-d) shift; dir=$1;
+	;;
    *) shift
    esac
 done
 
-
 while :
 do
 
-pids=`ls /var/clproc`
+#pids=`ls /var/clproc`
+pids=`ls $dir`
 
 #echo $pids
 
@@ -32,14 +35,14 @@ ps -p $p > /dev/null 2>&1
 
 if ! [ $? -ne 0 ]; then
 #	echo "process " $p " is running";
-	test -e /proc/$p/cmdline && cp -f /proc/$p/cmdline /var/clproc/$p/cmdline
+	test -e /proc/$p/cmdline && cp -f /proc/$p/cmdline $dir/$p/cmdline
 fi
 
-if [ $(find /var/clproc/$p -amin +$amin -type f -name state ) ];then
+if [ $(find $dir/$p -cmin +$cmin -type f -name state ) ];then
 #	echo "$p is old"
-	test ! -e /var/clproc/$p/state ||unlink /var/clproc/$p/state
-	test ! -e /var/clproc/$p/cmdline ||unlink /var/clproc/$p/cmdline
-	rmdir /var/clproc/$p
+	test ! -e $dir/$p/state ||unlink $dir/$p/state
+	test ! -e $dir/$p/cmdline ||unlink $dir/$p/cmdline
+	rmdir $dir/$p
 #else
 #	echo "$p is new"
 fi

@@ -54,6 +54,11 @@
 #define DEFAULT_OPENCL_ICD_PATH "/etc/OpenCL/vendors"
 #endif
 
+#ifndef VAR_CLPROC_PATH
+#warning VAR_CLPROC_PATH not defined
+#define VAR_CLPROC_PATH "/var/clproc"
+#endif
+
 #define min(a,b) ((a<b)?a:b)
 
 //static struct platform_struct _libocl_platforms[8] = { 0,0,0,0,0,0,0,0 };
@@ -820,11 +825,12 @@ void __attribute__((__constructor__)) _libocl_init()
 
 	pid_t pid = getpid();
 
-	snprintf(_libocl_clproc_dirname,64,"/var/clproc/%d",(int)pid);
+//	snprintf(_libocl_clproc_dirname,64,"/var/clproc/%d",(int)pid);
+	snprintf(_libocl_clproc_dirname,64,VAR_CLPROC_PATH "/%d",(int)pid);
 
 	mkdir(_libocl_clproc_dirname,S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
 
-	snprintf(_libocl_clproc_statename,64,"/var/clproc/%d/state",(int)pid);
+	snprintf(_libocl_clproc_statename,64,VAR_CLPROC_PATH "/%d/state",(int)pid);
 
 #ifdef __FreeBSD__
 	int fd = open(_libocl_clproc_statename,O_CREAT|O_WRONLY,
@@ -835,7 +841,7 @@ void __attribute__((__constructor__)) _libocl_init()
 #endif
 
 	if (fd == -1) {
-		printcl( CL_ERR "open /var/clproc/<pid> failed %d",errno);
+		printcl( CL_ERR "open "VAR_CLPROC_PATH"/<pid> failed %d",errno);
 	} else {
 		printcl( CL_DEBUG "fd %d",fd);
 	}
