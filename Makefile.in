@@ -110,12 +110,17 @@ install: subdirs
 	install -m 755 ./tools/scripts/clprocd $(INSTALL_BIN_DIR)
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 else
-	install -m 755 ./scripts/clprocd /etc/init.d/
+#	install -m 755 ./scripts/clprocd /etc/init.d/
 endif
 	@chmod -R a+rX $(prefix)
 	install -m 644 install-message.txt $(prefix)/install-message.txt
 	@cat install-message.txt
+ifeq (@ENABLE_USER_INSTALL@,1)
+	install -m 755 -d $(prefix)/etc
+	install -m 644 ./etc/ocl.conf $(prefix)/etc/ocl.conf
+else
 	install -m 644 ./etc/ocl.conf /etc/ocl.conf
+endif
 
 uninstall: subdirs
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))

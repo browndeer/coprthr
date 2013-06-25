@@ -61,6 +61,12 @@ DEFS += -DENABLE_LIBOCL_HOOK
 OBJS += oclcall_hook.o
 endif
 
+ifeq (@ENABLE_USER_INSTALL@,1)
+VAR_CLPROC_PATH=$(prefix)/var/clproc
+else
+VAR_CLPROC_PATH=/var/clproc
+endif
+
 ######################################################################
 
 TOPDIR ?= ../../
@@ -92,6 +98,8 @@ DEFS += \
 	-DINSTALL_BIN_DIR=\"$(INSTALL_BIN_DIR)\" \
 	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
 	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
+
+DEFS += -DVAR_CLPROC_PATH=\"$(VAR_CLPROC_PATH)\"
 
 #CCFLAGS += -O1 -fPIC -fbounds-check -g
 CCFLAGS += -O1 -fPIC 
@@ -153,7 +161,7 @@ install:
 #ifeq ($(ENABLE_DEBUG_LIBCOPRTHR),1)
 #	ln -sf $(INSTALL_LIB_DIR)/libocl_d.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
 #endif
-	test -d /var/clproc || install -m 777 -d /var/clproc
+	test -d $(VAR_CLPROC_PATH) || install -m 777 -d $(VAR_CLPROC_PATH)
 
 uninstall: 
 #	rm -f $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libocl_d.so

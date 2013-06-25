@@ -11,6 +11,10 @@
 
 #include "clproc.h"
 
+#ifndef VAR_CLPROC_PATH
+#define VAR_CLPROC_PATH "/var/clproc"
+#endif
+
 /*** brief
   PID|USERNAME|STATE| GMEM| NDEV|CMDS/Q  |KRNS/Q  |ERRS|ERR|TWAIT|COMMAND      |
     5        8     5     5     5    4/3      4/3      4/3       5 13
@@ -64,7 +68,8 @@ int main()
 
 		fprintf( stdout, TABLE_HEADER_BRIEF "\n" );
 	
-		DIR* dirp = opendir( "/var/clproc/" );
+//		DIR* dirp = opendir( "/var/clproc/" );
+		DIR* dirp = opendir( VAR_CLPROC_PATH );
 
 		struct dirent* dp;
 
@@ -74,7 +79,8 @@ int main()
 
 			if (!pid) continue;
 
-			snprintf(filename,64,"/var/clproc/%d/state",(int)pid);
+//			snprintf(filename,64,"/var/clproc/%d/state",(int)pid);
+			snprintf(filename,64,VAR_CLPROC_PATH"/%d/state",(int)pid);
 
 			struct stat fs;
 			struct passwd* pwd = (struct passwd*)malloc(sizeof(struct passwd));
@@ -110,7 +116,8 @@ int main()
 
 			char* str_cmdline = (char*)malloc(16);
 			//snprintf(filename,64,"/proc/%d/cmdline",(int)pid);
-			snprintf(filename,64,"/var/clproc/%d/cmdline",(int)pid);
+//			snprintf(filename,64,"/var/clproc/%d/cmdline",(int)pid);
+			snprintf(filename,64,VAR_CLPROC_PATH"/%d/cmdline",(int)pid);
 			fd = open(filename,O_RDONLY);
 			if ( !fstat(fd,&fs) )
 				read(fd,str_cmdline,16);

@@ -9,11 +9,19 @@ datarootdir=@datarootdir@
 ifeq (@ENABLE_SILENT@,1)
 DEFS += -DENABLE_SILENT
 endif
+
 ifneq (@MAX_CLMESG_LEVEL@,)
 DEFS += -DMAX_CLMESG_LEVEL=@MAX_CLMESG_LEVEL@
 endif
+
 ifneq (@DEFAULT_CLMESG_LEVEL@,)
 DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
+endif
+
+ifeq (@ENABLE_USER_INSTALL@,1)
+VAR_CLPROC_PATH=$(prefix)/var/clproc
+else
+VAR_CLPROC_PATH=/var/clproc
 endif
 
 ######################################################################
@@ -44,6 +52,8 @@ INCS += -I$(TOPDIR)/include
 OBJS = cltop.o 
 
 CCFLAGS += -O1 -fPIC 
+
+DEFS += -DVAR_CLPROC_PATH=\"$(VAR_CLPROC_PATH)\"
 
 all: $(BIN_NAME) 
 
