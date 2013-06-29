@@ -20,6 +20,10 @@
 
 /* DAR */
 
+#error need to set HDF macro
+
+#define EPIPHANY_HDF "/opt/adapteva/esdk/bsps/current/parallella.hdf"
+
 #define _GNU_SOURCE
 #include <sched.h>
 #include <sys/types.h>
@@ -60,11 +64,15 @@
 
 #include "dmalloc.h"
 
-//#include <e_host.h>
-//#include <e_hal.h>
+#ifdef USE_OLD_ESDK
+#include <e_host.h>
 #include "e_platform.h"
-
 //#define ENABLE_UVA
+#else
+#include "e-hal.h"
+#include "e_platform.h"
+#endif
+
 
 /***** temporary e32 stuff -DAR */
 void* loaded_srec = 0;
@@ -77,11 +85,15 @@ const unsigned short eServLoaderPort = 50999;
 
 #else
 
-#include <e_host.h>
-
+#ifdef USE_OLD_ESDK
 /* XXX zynq dram alloc and epiphany -DAR */
 DRAM_t e_dram;
 Epiphany_t e_epiphany;
+#else
+e_platform_t e_platform;
+e_epiphany_t e_epiphany;
+e_mem_t e_dram;
+#endif
 
 #endif
 
@@ -247,6 +259,8 @@ void __do_discover_devices(
 
 #else
 
+#ifdef USE_OLD_ESDK
+
 	e_open(&e_epiphany);
 
    e_opened = 1;
@@ -286,7 +300,35 @@ void __do_discover_devices(
 
 	
 	struct e_platform_info_struct einfo;
-	e_get_platform_info( &e_epiphany, &einfo );
+	old_e_get_platform_info( &e_epiphany, &einfo );
+
+#else
+
+	e_init(EPIPHANY_HDF);
+
+	struct e_platform_info_struct einfo;
+	old_e_get_platform_info( 0, &einfo );
+
+	e_open(&e_epiphany, 0, 0, einfo.e_array_nrow, einfo.e_array_ncol );
+
+   e_opened = 1;
+
+	printcl( CL_DEBUG "e_alloc using &e_dram %p", &e_dram);
+
+	err = e_alloc( &e_dram, 0, (8192*4096) );	
+
+	if (err) 
+		printcl( CL_ERR "e_alloc returned %d", err);
+	else 
+		printcl( CL_DEBUG "e_alloc ok, returned %d", err);
+
+	printcl( CL_DEBUG "dram alloc:" );
+	printcl( CL_DEBUG 
+		"map_size=%ld map_mask=0x%x phy_base=0x%x mapped_base=%p base=%p"
+		" memfd=%d", e_dram.map_size,e_dram.map_mask,e_dram.phy_base,
+		e_dram.mapped_base,e_dram.base,e_dram.memfd );
+
+#endif
 
 #endif
 

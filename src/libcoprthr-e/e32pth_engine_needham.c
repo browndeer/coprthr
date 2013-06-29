@@ -52,7 +52,13 @@
 #include "e32pth_mem_if_needham.h"
 #include "e32pth_if_needham.h"
 
+#ifdef USE_OLD_ESDK
 #include "e_loader.h"
+extern Epiphany_t e_epiphany;
+#else
+#include "e-hal.h"
+extern e_epiphany_t e_epiphany;
+#endif
 
 #include "xcl_structs.h"
 
@@ -61,7 +67,7 @@ extern int e_opened;
 extern char servIP[];
 extern const unsigned short eServLoaderPort;
 
-extern Epiphany_t e_epiphany;
+//extern Epiphany_t e_epiphany;
 
 /* 
  * Note: this code is a reduction of the explicit engines used to control
@@ -566,7 +572,11 @@ printf("BEFORE LOAD\n");
 
 		printcl( CL_CRIT "XXX attempt e_loaad");
 
+#ifdef USE_OLD_ESDK
 		int err = e_load(argp->k.krn->prg->imp.v_kbin_tmpfile[0],1,1,1);
+#else
+		int err = e_load(argp->k.krn->prg->imp.v_kbin_tmpfile[0],&e_epiphany,0,0,4,4,1);
+#endif
 
 		printcl( CL_CRIT "XXX e_loader returned %d",err);
  

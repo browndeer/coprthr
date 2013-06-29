@@ -7,11 +7,18 @@
 #include "printcl.h"
 
 #ifndef ENABLE_EMEK_BUILD
+
+#ifdef USE_OLD_ESDK
 #include "e_host.h"
-//#include "e_hal.h"
+#else
+#include "e-hal.h"
 #endif
 
-int e_get_platform_info( Epiphany_t* edev, 
+#endif
+
+
+int old_e_get_platform_info( 
+	Epiphany_t* edev, 
 	struct e_platform_info_struct* info )
 {
 

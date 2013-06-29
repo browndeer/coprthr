@@ -40,8 +40,11 @@ void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
  *** Epiphany stuff
  ***/
 
-//#include "e_host.h"
-//#include "e_hal.h"
+#ifdef USE_OLD_ESDK
+#include "e_host.h"
+#else
+#include "e-hal.h"
+#endif
 
 
 #ifdef ENABLE_EMEK_BUILD
@@ -58,6 +61,9 @@ void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
 
 #else
 
+
+#ifdef USE_OLD_ESDK
+
 extern DRAM_t e_dram;
 
 #include "e_host.h"
@@ -72,6 +78,25 @@ extern DRAM_t e_dram;
    printcl( CL_DEBUG "xxx_e_write_dram %p",dst); \
    e_mwrite_buf( &e_dram, (dst-devmembase), src, len); \
    } while(0)
+
+#else
+
+extern e_epiphany_t e_epiphany;
+extern e_mem_t e_dram;
+#include "dmalloc.h"
+
+#define xxx_e_read_dram( src, dst, len) do { \
+   printcl( CL_DEBUG "xxx_e_read_dram %p",src); \
+   e_read( &e_epiphany,0,0, &e_dram, (src-devmembase), dst, len); \
+   } while(0)
+
+#define xxx_e_write_dram( dst, src, len) do { \
+   printcl( CL_DEBUG "xxx_e_write_dram %p",dst); \
+   e_write( &e_epiphany,0,0, &e_dram, (dst-devmembase), src, len); \
+   } while(0)
+
+
+#endif
 
 #endif
 
