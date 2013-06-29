@@ -39,6 +39,9 @@
 #if defined(__coprthr_host__)
 
 #include "printcl.h"
+
+#ifdef USE_OLD_ESDK
+
 #include "e_host.h"
 //#include "e_hal.h"
 
@@ -51,6 +54,24 @@
 	printcl( CL_DEBUG "xxx_e_write_zeropage %p - %x",dst,E32_DRAM_ZEROPAGE); \
 	e_mwrite_buf( &e_dram, (dst), src, len); \
 	} while(0)
+
+#else
+
+#include "e-hal.h"
+
+extern e_epiphany_t e_epiphany;
+
+#define xxx_e_read_zeropage( src, dst, len) do { \
+	printcl( CL_DEBUG "xxx_e_read_zeropage %p - %x",src,E32_DRAM_ZEROPAGE); \
+	e_read( &e_epiphany, 0,0, &e_dram, (src), dst, len); \
+	} while(0)
+
+#define xxx_e_write_zeropage( dst, src, len) do { \
+	printcl( CL_DEBUG "xxx_e_write_zeropage %p - %x",dst,E32_DRAM_ZEROPAGE); \
+	e_write( &e_epiphany, 0,0, &e_dram, (dst), src, len); \
+	} while(0)
+
+#endif
 
 #elif defined(__coprthr_device__)
 

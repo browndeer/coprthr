@@ -5,8 +5,8 @@
 #include <string.h>
 
 #include "printcl.h"
-//#include "e_host.h"
-//#include "e_hal.h"
+
+#include "e-hal.h"
 
 #ifdef ENABLE_EMEK_BUILD
 typedef void* Epiphany_t;
@@ -27,7 +27,7 @@ struct e_platform_info_struct {
 };
 
 
-int e_get_platform_info( Epiphany_t* edev, 
+int old_e_get_platform_info( Epiphany_t* edev, 
 	struct e_platform_info_struct* info );
 
 
