@@ -41,7 +41,7 @@
 #endif
 
 #ifndef COPRTHR_RELEASE
-#define COPRTHR_RELEASE 0 /* @RELEASE */
+#define COPRTHR_RELEASE 1 /* @RELEASE */
 #endif
 
 #ifndef COPRTHR_NAME
@@ -66,7 +66,7 @@
 
 #endif
 /* XXX overriding version string with special designation -DAR */
-#define COPRTHR_VERSION_STRING "coprthr-1.5.0 (Marathon)"
+#define COPRTHR_VERSION_STRING "coprthr-1.5.1 (Marathon)"
 
 #define COPRTHR_VERSION_CODE \
 	((COPRTHR_VERSION<<16)|(COPRTHR_REVISION<<8)|(COPRTHR_RELEASE))

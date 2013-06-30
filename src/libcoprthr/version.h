@@ -63,7 +63,7 @@
 //	"."__stringify(COPRTHR_RELEASE)" ("COPRTHR_NAME")"
 //#endif
 
-#define COPRTHR_VERSION_STRING "coprthr-1.5.0 (Marathon)"
+#define COPRTHR_VERSION_STRING "coprthr-1.5.1 (Marathon)"
 
 
 #define COPRTHR_VERSION_CODE \
