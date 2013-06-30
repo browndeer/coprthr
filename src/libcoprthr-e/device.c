@@ -20,9 +20,9 @@
 
 /* DAR */
 
-#error need to set HDF macro
-
-#define EPIPHANY_HDF "/opt/adapteva/esdk/bsps/current/parallella.hdf"
+//#error need to set HDF macro
+//
+//#define EPIPHANY_HDF "/opt/adapteva/esdk/bsps/current/parallella.hdf"
 
 #define _GNU_SOURCE
 #include <sched.h>
@@ -64,36 +64,35 @@
 
 #include "dmalloc.h"
 
-#ifdef USE_OLD_ESDK
-#include <e_host.h>
-#include "e_platform.h"
-//#define ENABLE_UVA
-#else
-#include "e-hal.h"
-#include "e_platform.h"
-#endif
-
-
-/***** temporary e32 stuff -DAR */
 void* loaded_srec = 0;
 int e_opened = 0;
 
-#ifdef ENABLE_EMEK_BUILD
+#include "epiphany_api.h"
+#include "e_platform.h"
+
+#if defined(ENABLE_EMEK_BUILD)
 
 char servIP[] = "127.0.0.1";
 const unsigned short eServLoaderPort = 50999;
 
-#else
+//#include "e_platform.h"
 
-#ifdef USE_OLD_ESDK
+#elif defined(USE_OLD_ESDK)
+
+//#include <e_host.h>
+//#include "e_platform.h"
 /* XXX zynq dram alloc and epiphany -DAR */
 DRAM_t e_dram;
 Epiphany_t e_epiphany;
+
 #else
+
+//#define EPIPHANY_HDF "/opt/adapteva/esdk/bsps/current/parallella.hdf"
+//#include "e-hal.h"
+//#include "e_platform.h"
 e_platform_t e_platform;
 e_epiphany_t e_epiphany;
 e_mem_t e_dram;
-#endif
 
 #endif
 
@@ -243,7 +242,7 @@ void __do_discover_devices(
 #endif
 
 
-#ifdef ENABLE_EMEK_BUILD
+#if defined(ENABLE_EMEK_BUILD)
 
    if (e_open((char*)servIP, eServLoaderPort)) {
       printcl( CL_ERR "Cannot establish connection to E-SERVER!");
@@ -255,11 +254,9 @@ void __do_discover_devices(
 
 	struct e_platform_info_struct einfo;
 //	e_get_platform_info( &e_epiphany, &einfo );
-	e_get_platform_info( 0, &einfo );
+	old_e_get_platform_info( 0, &einfo );
 
-#else
-
-#ifdef USE_OLD_ESDK
+#elif defined(USE_OLD_ESDK)
 
 	e_open(&e_epiphany);
 
@@ -330,7 +327,6 @@ void __do_discover_devices(
 
 #endif
 
-#endif
 
 	printcl( CL_DEBUG "epiphany platform info:");
 	printcl( CL_DEBUG "\tplatform_name '%s'",einfo.e_platform_name);
