@@ -58,12 +58,18 @@ if test "x$test_lib_stdcli" = "xnot found"; then
 fi;
 
 
+if [ ${EPIPHANY_PLATFORM}x = "EMEKx" ]; then
+   TEST_SIZE=1024
+else
+   TEST_SIZE=65536
+fi
+
 
 echo -e "\nRUNNING TESTS ...";
 
 for t in $*; do
 
-run_test ./$t  65536  16
+run_test ./$t  ${TEST_SIZE}  16
 
 done
 

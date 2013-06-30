@@ -33,6 +33,12 @@ SRC_TESTS = $(addprefix test_stdcl_,$(addsuffix .c,$(TESTS)))
 #CLSRC = $(addprefix test_,$(addsuffix .cl,$(TESTS)))
 PRG_TESTS = $(addprefix test_stdcl_,$(addsuffix .x,$(TESTS)))
 
+ifeq (@ENABLE_EMEK_BUILD@,1)
+EPIPHANY_PLATFORM="EMEK"
+else
+EPIPHANY_PLATFORM="Parallella"
+endif
+
 all: getndev.x $(PRG_TESTS)
 
 #.PHONEY: $(PRG_TESTS)
@@ -67,7 +73,8 @@ test: clean getndev.x $(CLSRC) $(PRG_TESTS)
 	./scripts/run_tests.sh $(PRG_TESTS)
 
 quicktest: clean getndev.x $(CLSRC) $(PRG_TESTS)
-	./scripts/run_quick_tests.sh $(PRG_TESTS)
+	EPIPHANY_PLATFORM=$(EPIPHANY_PLATFORM) \
+		./scripts/run_quick_tests.sh $(PRG_TESTS)
 
 looptest: clean getndev.x $(CLSRC) $(PRG_TESTS)
 	./scripts/run_loop_tests.sh $(PRG_TESTS)
