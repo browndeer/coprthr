@@ -6,12 +6,14 @@
 
 #include "printcl.h"
 
-#include "e-hal.h"
+//#include "e-hal.h"
 
-#ifdef ENABLE_EMEK_BUILD
+#if defined(ENABLE_EMEK_BUILD)
 typedef void* Epiphany_t;
-#else
+#elif defined(USE_OLD_ESDK)
 #include "e_host.h"
+#else
+#include "e-hal.h"
 #endif
 
 

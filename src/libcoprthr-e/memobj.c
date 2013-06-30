@@ -104,25 +104,16 @@ void __do_create_buffer(cl_mem memobj)
 			}
 
 			if (memobj->flags&CL_MEM_COPY_HOST_PTR)
-//				memcpy(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
-//#if ENABLE_EMEK_BUILD
-//				e_write(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
-//#else
+
 				xxx_e_write_dram(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
-//#endif
 
 			if (memobj->flags&CL_MEM_USE_HOST_PTR) {
 				printcl( CL_WARNING 
 					"workaround: CL_MEM_USE_HOST_PTR => CL_MEM_COPY_HOST_PTR,"
 					" fix this");
-//				memcpy(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
 				printcl( CL_DEBUG "e_write %p %p %d",
 					memobj->imp.res[i],memobj->host_ptr,memobj->sz);
-//#if ENABLE_EMEK_BUILD
-//				e_write(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
-//#else
 				xxx_e_write_dram(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
-//#endif
 			}
 
 		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
