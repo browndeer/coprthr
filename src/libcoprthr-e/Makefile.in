@@ -48,6 +48,10 @@ ifeq (@ENABLE_EMEK_BUILD@,1)
 DEFS += -DENABLE_EMEK_BUILD
 endif
 
+ifeq (@ENABLE_OLD_ESDK@,1)
+DEFS += -DUSE_OLD_ESDK
+endif
+
 
 #ESDK_INC = -I/opt/adapteva/esdk/tools/host/x86_64/include \
 #   -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
