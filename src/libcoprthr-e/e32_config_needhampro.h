@@ -63,12 +63,12 @@ extern e_epiphany_t e_epiphany;
 
 #define xxx_e_read_zeropage( src, dst, len) do { \
 	printcl( CL_DEBUG "xxx_e_read_zeropage %p - %x",src,E32_DRAM_ZEROPAGE); \
-	e_read( &e_epiphany,0,0, &e_dram, (src), dst, len); \
+	e_read( &e_dram,0,0, (src), dst, len); \
 	} while(0)
 
 #define xxx_e_write_zeropage( dst, src, len) do { \
 	printcl( CL_DEBUG "xxx_e_write_zeropage %p - %x",dst,E32_DRAM_ZEROPAGE); \
-	e_write( &e_epiphany,0,0, &e_dram, (dst), src, len); \
+	e_write( &e_dram,0,0, (dst), src, len); \
 	} while(0)
 
 #endif
