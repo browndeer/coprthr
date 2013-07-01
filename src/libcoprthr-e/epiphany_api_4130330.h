@@ -1,4 +1,4 @@
-/* epiphany_api.h
+/* epiphany_api_4130330.h
  *
  * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -21,8 +21,8 @@
 /* DAR */
 
 
-#ifndef _epiphany_api_h
-#define _epiphany_api_h
+#ifndef _epiphany_api_4130330_h
+#define _epiphany_api_4130330_h
 
 #define EPIPHANY_HDF "/opt/adapteva/esdk/bsps/current/parallella.hdf"
 #include "e-hal.h"
@@ -30,6 +30,8 @@
 extern e_platform_t e_platform;
 extern e_epiphany_t e_epiphany;
 extern e_mem_t e_dram;
+
+typedef e_epiphany_t Epiphany_t; /* XXX legacy issue, eventually remove */
 
 #endif
 

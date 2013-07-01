@@ -88,14 +88,16 @@ void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
 //extern e_mem_t e_dram;
 //#include "dmalloc.h"
 
+#warning NEWAPI
+
 #define xxx_e_read_dram( src, dst, len) do { \
    printcl( CL_DEBUG "xxx_e_read_dram %p",src); \
-   e_read( &e_epiphany,0,0, &e_dram, (src-devmembase), dst, len); \
+   e_read( &e_dram,0,0, (src-devmembase), dst, len); \
    } while(0)
 
 #define xxx_e_write_dram( dst, src, len) do { \
    printcl( CL_DEBUG "xxx_e_write_dram %p",dst); \
-   e_write( &e_epiphany,0,0, &e_dram, (dst-devmembase), src, len); \
+   e_write( &e_dram,0,0, (dst-devmembase), src, len); \
    } while(0)
 
 
