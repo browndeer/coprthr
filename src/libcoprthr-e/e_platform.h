@@ -8,6 +8,7 @@
 
 //#include "e-hal.h"
 
+/*
 #if defined(ENABLE_EMEK_BUILD)
 typedef void* Epiphany_t;
 #elif defined(USE_OLD_ESDK)
@@ -15,6 +16,9 @@ typedef void* Epiphany_t;
 #else
 #include "e-hal.h"
 #endif
+*/
+
+#include "epiphany_api.h"
 
 
 struct e_platform_info_struct {

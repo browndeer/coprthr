@@ -69,11 +69,14 @@ ifeq (@ENABLE_EMEK_BUILD@,1)
 #ESDK_LIB += -le_host
 ESDK_INC += -I@ESDK_PATH@/tools/host/x86_64/include
 ESDK_LIB += -L@ESDK_PATH@/tools/host/x86_64/lib -le_host
-else
+else ifeq (@ENABLE_OLD_ESDK@,1)
 #ESDK_LIB += -le-host -le-loader
-ESDK_INC += -I@ESDK_PATH@/tools/host/armv71/include
+#ESDK_INC += -I@ESDK_PATH@/tools/host/armv71/include
 ESDK_INC += -I@ESDK_PATH@/tools/host/armv7l/include
 ESDK_LIB += -L@ESDK_PATH@/tools/host/armv7l/lib -le-loader -le-host
+else
+ESDK_INC += -I@ESDK_PATH@/tools/host/include
+ESDK_LIB += -L@ESDK_PATH@/tools/host/lib -le-hal 
 endif
 
 ############################################################################

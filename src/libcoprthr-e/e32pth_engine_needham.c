@@ -576,7 +576,9 @@ printf("BEFORE LOAD\n");
 #if defined(USE_OLD_ESDK) 
 		int err = e_load(argp->k.krn->prg->imp.v_kbin_tmpfile[0],1,1,1);
 #else
-		int err = e_load(argp->k.krn->prg->imp.v_kbin_tmpfile[0],&e_epiphany,0,0,4,4,1);
+		e_reset_system();
+		e_set_loader_verbosity(1);
+		int err = e_load_group(argp->k.krn->prg->imp.v_kbin_tmpfile[0],&e_epiphany,0,0,4,4,1);
 #endif
 
 		printcl( CL_CRIT "XXX e_loader returned %d",err);

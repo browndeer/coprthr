@@ -191,7 +191,9 @@ void* cmdqx0( void* argp )
 	__unlock_cmdq(cmdq);
 	
 	printcl( CL_INFO "cmdqx0: shutdown");
-	
-	pthread_exit((void*)0);
+
+/* XXX pthread broken on parallella so just return */	
+//	pthread_exit((void*)0);
+
 }
 
