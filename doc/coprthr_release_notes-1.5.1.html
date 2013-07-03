@@ -5,12 +5,12 @@
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
   <meta name="author" content="Copyright (c) 2013 Brown Deer Technology, LLC" />
-  <title>Release Notes for the COPRTHR SDK version 1.5.0 (Marathon)</title>
+  <title>Release Notes for the COPRTHR SDK version 1.5.1 (Marathon)</title>
 </head>
 <body>
 <img src="./bdt_logo.jpg">
 <div id="header">
-<h1 class="title">Release Notes for the COPRTHR SDK version 1.5.0 (Marathon)</h1>
+<h1 class="title">Release Notes for the COPRTHR SDK version 1.5.1 (Marathon)</h1>
 <h2 class="author">Copyright (c) 2013 Brown Deer Technology, LLC</h2>
 <h3 class="date"><em>Verbatim copying and distribution of this entire document is permitted in any medium, provided this notice is preserved.</em></h3>
 </div>
@@ -137,12 +137,6 @@
 <dt>--with-libelf=DIR</dt>
 <dd><p>specify path to libelf</p>
 </dd>
-<dt>--with-libcoprthr-cc=PROG</dt>
-<dd><p>specify the C compiler PROG to be used for the libcoprthr OCL implementation</p>
-</dd>
-<dt>--with-libcoprthr-cxx=PROG</dt>
-<dd><p>specify the C++ compiler to be used for the libcoprthr OCL implementation</p>
-</dd>
 <dt>--enable-clgl</dt>
 <dd><p>enable clgl support (enabled by default)</p>
 </dd>
@@ -163,6 +157,18 @@
 </dd>
 <dt>--enable-fortran</dt>
 <dd><p>enable fortran binding (disabled by default)</p>
+</dd>
+<dt>--enable-epiphany</dt>
+<dd><p>enable build for Epiphany co-processor (disabled by default)</p>
+</dd>
+<dt>--enable-EMEK-build</dt>
+<dd><p>enable build for EMEK platform (disabled by default)</p>
+</dd>
+<dt>--enable-old-esdk</dt>
+<dd><p>enable use of older eSDK 4.13.01.04 API</p>
+</dd>
+<dt>--enable-user-install</dt>
+<dd><p>enable a local install for users without root permission</p>
 </dd>
 </dl>
 <h2 id="suggested-system-specific-configurations"><a href="#suggested-system-specific-configurations"><span class="header-section-number">3.6</span> Suggested System-Specific Configurations</a></h2>
@@ -201,7 +207,7 @@
 <hr />
 <h1 id="important-notes"><a href="#important-notes"><span class="header-section-number">4</span> Important Notes</a></h1>
 <ul>
-<li><p>Release 1.5.0 must be used with the Epiphany SDK version 4.13.01.04 and is not compatible with the API used in version 4.13.03.30; support for the newer API will be provided in the next COPRTHR release (1.5.1).</p></li>
+<li><p>Release 1.5.1 must be used with the Epiphany SDK version 4.13.03.30. In order to use the older API in 4.13.01.04 use the configure option --enable-old-esdk .</p></li>
 <li><p>On Windows 7 platforms the function init_stdcl() must be called to initialize the STDCL API. This call is unnecessary for Linux and FreeBSD, but there is no harm in including it since it will default to an empty macro.</p></li>
 <li><p>The &quot;debug libraries&quot; have been eliminated with the new debug and reporting structure.</p></li>
 <li><p>The version of the boost library (1.47.0) used here for development unfortunately has a very minor bug that prevents it from working with MSVS 2010. A fix to the boost package is provided in this release. Just follow the instructions under the <code>msvs2010/boost_1_47_0-multi_array-iterator-fix/</code> directory. (All you need to do is copy over a replacement for iterator.hpp.)</p></li>
