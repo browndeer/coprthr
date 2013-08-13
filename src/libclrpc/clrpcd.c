@@ -864,8 +864,8 @@ _clrpc_clEnqueueWriteBuffer_svrcb(
 		command_queue,buffer,blocking_write,offset,cb,
 		ptr,num_events_in_wait_list,event_wait_list,&event);
 
-	int* iptr = (int*)ptr;
-	for(i=0;i<32;i++) printf("%d/",iptr[i]); printf("\n");
+//	int* iptr = (int*)ptr;
+//	for(i=0;i<32;i++) printf("%d/",iptr[i]); printf("\n");
 
 	cl_int retval = clEnqueueWriteBuffer(command_queue,buffer,blocking_write,
 		offset,cb,ptr,num_events_in_wait_list,event_wait_list,&event);
@@ -1943,9 +1943,9 @@ _clrpc_clWaitForEvents_svrcb(
 			if (xevents[i]->buf_sz > 0 && xevents[i]->buf_ptr) {
 				memcpy(tmp_ptr,xevents[i]->buf_ptr,xevents[i]->buf_sz);
 				int* ptmp = (int*)tmp_ptr;
-				printf("EVENT %d:",i);
+//				printf("EVENT %d:",i);
 				int ii; for(ii=0;ii<10;ii++) 
-				printf("*%d",ptmp[ii]); printf("\n"); fflush(stdout);
+//				printf("*%d",ptmp[ii]); printf("\n"); fflush(stdout);
 				tmp_ptr += xevents[i]->buf_sz;
 			}
 		}
