@@ -24,8 +24,8 @@
 #define _VERSION_H
 
 
-#define COPRTHR_ALPHA	0	/* @ALPHA */
-#define COPRTHR_BETA		1	/* @BETA */
+#define COPRTHR_ALPHA	1	/* @ALPHA */
+#define COPRTHR_BETA		0	/* @BETA */
 
 
 #define __quote(x) #x
@@ -37,15 +37,15 @@
 #endif
 
 #ifndef COPRTHR_REVISION
-#define COPRTHR_REVISION 5 /* @REVISION */
+#define COPRTHR_REVISION 6 /* @REVISION */
 #endif
 
 #ifndef COPRTHR_RELEASE
-#define COPRTHR_RELEASE 1 /* @RELEASE */
+#define COPRTHR_RELEASE 0 /* @RELEASE */
 #endif
 
 #ifndef COPRTHR_NAME
-#define COPRTHR_NAME "marathon"
+#define COPRTHR_NAME "Freewill"
 #endif
 
 #if(0)
@@ -66,7 +66,7 @@
 
 #endif
 /* XXX overriding version string with special designation -DAR */
-#define COPRTHR_VERSION_STRING "coprthr-1.5.1 (Marathon)"
+#define COPRTHR_VERSION_STRING "coprthr-1.6-CURRENT (Freewill)"
 
 #define COPRTHR_VERSION_CODE \
 	((COPRTHR_VERSION<<16)|(COPRTHR_REVISION<<8)|(COPRTHR_RELEASE))
