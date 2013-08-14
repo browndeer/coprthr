@@ -500,6 +500,18 @@ int main(int argc, char** argv)
 			version(); 
 			exit(0);
 
+		/* -j (wrap_clelf)*/
+    } else if (!strcmp(argv[n],"-j")) {
+
+			append_str(linker_opt_str,"-j"," ",0);
+
+
+		/* -k (gen_kv8_code)*/
+    } else if (!strcmp(argv[n],"-k")) {
+
+			append_str(linker_opt_str,"-k"," ",0);
+
+
 
 //		} else if (argv[n][0] == '-') {
 //

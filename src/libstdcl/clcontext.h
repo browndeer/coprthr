@@ -56,6 +56,7 @@ struct _event_list_struct {
 };
 
 struct _clcontext_ptr_struct {
+	unsigned int context_id;
 	char* platform_profile;
 	char* platform_version;
 	char* platform_name;

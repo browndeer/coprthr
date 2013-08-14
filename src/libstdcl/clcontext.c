@@ -157,6 +157,9 @@ clcontext_create(
 //	if (!cp) { errno=ENOMEM; return(0); }
 	if (!cp) { __set_clerrno(ENOMEM); return(0); }
 
+
+	/* default context id is zero, only special contexts will override */
+	cp->context_id = 0;
 	
 
    /***

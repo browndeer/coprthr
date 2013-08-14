@@ -275,10 +275,13 @@ int main(int argc, char** argv)
 	int en_src = 1;
 	int en_bin = 1;
 
-  int en_src_only = 0;
-  int en_bin_only = 0;
+	int en_src_only = 0;
+	int en_bin_only = 0;
 
-  int use_offline_devices = 0;
+	int wrap_clelf = 0;
+	int gen_kv8_code = 0;
+
+	int use_offline_devices = 0;
 
 	int quiet = 1;
 
@@ -388,6 +391,15 @@ int main(int argc, char** argv)
 
 			version(); 
 			exit(0);
+
+		} else if (!strcmp(argv[n],"-j")) {
+
+			wrap_clelf = 1;
+
+
+		} else if (!strcmp(argv[n],"-k")) {
+
+			gen_kv8_code = 1;
 
 
 //		} else if (argv[n][0] == '-') {
@@ -616,7 +628,6 @@ int main(int argc, char** argv)
 	}
 
 
-
 	/***
 	 *** begin loop over files
 	 ***/
@@ -709,7 +720,6 @@ int main(int argc, char** argv)
 
 
 		/* if we make it here, we have a good file to link */
-
 
 		/***
 		 *** add clprgtab,clkrntab,clprgbin,cltextbin entries - adjusting offsets
@@ -1056,6 +1066,83 @@ int main(int argc, char** argv)
 
 	DEBUG2("%s",cmd);
 	system(cmd);
+
+
+	/***
+	 *** scan for _clkv8 symbols
+	 ***/
+
+	if (gen_kv8_code) {
+		int fd = open(ofname,O_RDONLY);
+		struct stat st;
+		stat(ofname,&st);
+		size_t file_sz = st.st_size;
+		char* file_ptr = (char*)mmap(0,file_sz,PROT_READ,MAP_PRIVATE,fd,0);
+		close(fd);
+		struct clelf_sect_struct sect;
+		clelf_load_sections(file_ptr,&sect);
+		char kv8fname[] = "/tmp/clldXXXXXX";
+		fd = mkstemp(kv8fname);
+		printf("XXX %s\n",kv8fname);
+		FILE* fp = fdopen(fd,"w");
+		printf("XXX %d %p\n",fd,fp);
+		for(i=0; i<sect.clprgtab_n; i++) {
+        	for(j=0; j<sect.clprgtab[i].e_nkrn; j++) {
+           	int k = sect.clprgtab[i].e_krn + j;
+           	char* kname = sect.clstrtab + sect.clkrntab[k].e_name;
+				printf("XXX |%s|\n",kname);
+				fprintf(fp,"void* _CLkv8%s[8] = {0,0,0,0,0,0,0,0};\n",kname);
+        	}
+		}
+		fclose(fp);
+		close(fd);
+
+		snprintf( cmd, 1024, "cc -x c -O0 -c -o %s.o %s", kv8fname,kv8fname);
+		printf("%s\n",cmd);
+		system(cmd);
+
+		if (wrap_clelf) {
+
+			char* sym = (char*)malloc(strlen(ofname));
+			strcpy(sym,ofname);
+			for(i=0;i<strlen(sym);i++) {
+				if (sym[i]=='.') sym[i] = '_';
+				else if (sym[i]=='/') sym[i] = '_';
+			}		
+
+			snprintf(cmd,1024,"objcopy -I binary -O elf64-x86-64 -B i386"
+				" --redefine-sym _binary_%s_size=_clelf_size"
+				" --redefine-sym _binary_%s_start=_clelf_start"
+				" --redefine-sym _binary_%s_end=_clelf_end"
+				" %s %s", 
+				sym,sym,sym,
+				ofname,kv8fname);
+			system(cmd);
+
+			snprintf(cmd,1024,"ld -r -o %s" " %s %s.o",ofname,kv8fname,kv8fname);
+			system(cmd);
+		
+			free(sym);
+	
+		} else {
+
+			snprintf(cmd,1024,"mv %s %s", ofname,kv8fname);
+			system(cmd);
+
+			snprintf(cmd,1024,"ld -r -o %s" " %s %s.o"
+				" --defsym _clelf_start=0"
+				" --defsym _clelf_end=0"
+				" --defsym _clelf_size=0",
+				ofname,kv8fname,kv8fname);
+			system(cmd);
+
+//--defsym symbol=expression
+
+
+		}
+
+	}
+
 
 	DEBUG2("remove temp file '%s'",tfname);
 	unlink(tfname);

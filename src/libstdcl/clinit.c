@@ -38,6 +38,7 @@
 #include <assert.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <dlfcn.h>
 
 #include <CL/cl.h>
 
@@ -70,6 +71,18 @@ LIBSTDCL_API CONTEXT* stdnpu = 0;
 int procelf_fd = -1;
 void* procelf = 0;
 size_t procelf_sz = 0;
+
+extern void* _clelf_start;
+extern void* _clelf_end;
+extern void* _clelf_size;
+
+void* __attribute__((weak)) _clelf_start;
+void* __attribute__((weak)) _clelf_end;
+void* __attribute__((weak)) _clelf_size;
+
+void* clelf_start = 0;
+void* clelf_end = 0;
+size_t clelf_sz = 0;
 
 //struct _proc_cl_struct _proc_cl = { 0,0, 0,0, 0,0, 0,0, 0,0 };
 struct clelf_sect_struct* _proc_clelf_sect = 0;
@@ -133,6 +146,23 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 		printcl( CL_ERR "opening procexe failed");
 
+		clelf_start = &_clelf_start;
+		clelf_end = &_clelf_end;
+		clelf_sz = (size_t)&_clelf_size;
+
+		printcl( CL_DEBUG "clelf address %p",clelf_start);
+		printcl( CL_DEBUG "clelf address sz %p %d",clelf_start,clelf_sz);
+
+		procelf = clelf_start;
+		procelf_sz = clelf_sz;
+		
+		printcl( CL_DEBUG "_libstdcl_init: procelf size %d bytes\n", procelf_sz);
+
+		_proc_clelf_sect 
+			= (struct clelf_sect_struct*)malloc(sizeof(struct clelf_sect_struct));
+
+		clelf_load_sections(procelf,_proc_clelf_sect);
+		
 	} else {
 
 		procelf = mmap(0,st.st_size,PROT_READ,MAP_PRIVATE,procelf_fd,0);
@@ -202,6 +232,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 			lock_key = atoi(getenv("STDDEV_LOCK"));
 
 		stddev = clcontext_create(name,CL_DEVICE_TYPE_ALL,ndev,0,lock_key);
+		if (stddev) stddev->context_id = 1;
 
 	}
 
@@ -242,6 +273,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 			lock_key = atoi(getenv("STDCPU_LOCK"));
 
 		stdcpu = clcontext_create(name,CL_DEVICE_TYPE_CPU,ndev,0,lock_key);
+		if (stdcpu) stdcpu->context_id = 2;
 
 	}
 
@@ -282,6 +314,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 			lock_key = atoi(getenv("STDGPU_LOCK"));
 
 		stdgpu = clcontext_create(name,CL_DEVICE_TYPE_GPU,ndev,0,lock_key);
+		if (stdgpu) stdgpu->context_id = 3;
 
 	}
 
@@ -317,6 +350,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 			lock_key = atoi(getenv("STDRPU_LOCK"));
 
 		stdrpu = clcontext_create(name,CL_DEVICE_TYPE_RPU,ndev,0,lock_key);
+		if (stdrpu) stdrpu->context_id = 4;
 
 	}
 
@@ -358,6 +392,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 
 		stdacc = clcontext_create(name,CL_DEVICE_TYPE_ACCELERATOR,ndev,
 			0,lock_key);
+		if (stdacc) stdacc->context_id = 5;
 
 	}
 
@@ -401,6 +436,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 /* XXX right now testing networked GPUs -DAR */
 		stdnpu = clcontext_create_stdnpu(name,CL_DEVICE_TYPE_GPU,ndev,
 			0,lock_key);
+		if (stdnpu) stdnpu->context_id = 6;
 
 	}
 
@@ -439,8 +475,10 @@ void __attribute__((__destructor__)) _libstdcl_fini()
 	if (stdacc) clcontext_destroy(stdacc);
 
 #ifndef _WIN64
-	munmap(procelf,procelf_sz);
-	close(procelf_fd);
+	if (clelf_start==0) {
+		munmap(procelf,procelf_sz);
+		close(procelf_fd);
+	}
 #endif
 
 /* Dangerous, order of destructors not well-controled, just let them die -DAR 
