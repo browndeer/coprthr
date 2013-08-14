@@ -218,6 +218,7 @@ inline void clarg_set_local(cl_kernel krn, unsigned int argnum, size_t arg)
 #endif
 
 #include "clforka.h"
+#include "clexec.h"
 
 #endif
 
