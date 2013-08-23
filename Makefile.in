@@ -40,7 +40,9 @@ SUBDIRS += ./src/libclrpc
 endif
 
 ifeq (@ENABLE_LIBCOPRTHR@,1)
-SUBDIRS += ./src/libcoprthr ./tools/xclnm
+#SUBDIRS += ./src/libcoprthr ./tools/xclnm
+#SUBDIRS += ./src/libcoprthr2 ./src/libcoprthrcc ./tools/xclnm
+SUBDIRS += ./src/libcoprthr ./src/libcoprthrcc ./tools/xclnm
 endif
 
 SUBDIRS += ./include ./src/libclelf ./src/libstdcl 
@@ -68,7 +70,8 @@ endif
 
 SUBDIRS += ./tools/cltop ./tools/scripts
 
-DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts
+#DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts
+DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libcoprthrcc ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts
 
 ifeq (@ENABLE_EPIPHANY@,1)
 DISTCLEAN_DIRS += ./src/libcoprthr-e ./test/test_libcoprthr-e

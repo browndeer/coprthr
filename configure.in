@@ -732,6 +732,7 @@ AC_CONFIG_FILES([src/libstdcl/Makefile])
 AC_CONFIG_FILES([src/CLETE/Makefile])
 AC_CONFIG_FILES([src/libocl/Makefile])
 AC_CONFIG_FILES([src/libcoprthr/Makefile])
+AC_CONFIG_FILES([src/libcoprthrcc/Makefile])
 if test x$enable_epiphany = xyes; then
 	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
 	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])

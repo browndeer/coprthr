@@ -43,9 +43,6 @@ void __do_create_program(cl_program prg)
 	prg->imp.v_kbin = (void**)calloc(prg->ndev,sizeof(void*));
 	prg->imp.v_kbin_tmpfile = (char**)calloc(prg->ndev,sizeof(char*));
 
-//	prg->imp.v_ksym = (void***)calloc(prg->ndev,sizeof(void**));
-//	prg->imp.v_kcall = (void***)calloc(prg->ndev,sizeof(void**));
-
 	prg->imp.v_ksyms = (struct _imp_ksyms_struct**)
 		calloc(prg->ndev,sizeof(struct _imp_ksyms_struct*));
 
@@ -124,13 +121,6 @@ cl_int __do_build_program_from_binary(
 
 
 	char* ppp = (char*)cltextb;
-
-	#if defined(CL_DEBUG)
-	fprintf(stdout,"%p\n",shstrtab);
-	fprintb(stdout,shstrtab,100); printf("\n");
-	fprintf(stdout,"%p\n",clstrtab);
-	fprintb(stdout,clstrtab,100); printf("\n");
-	#endif
 
 	for(i=0;i<clsymtab_n;i++) {
 		printcl( CL_DEBUG 
@@ -286,9 +276,6 @@ cl_int __do_build_program_from_binary(
 	}
 
 
-//	prg->imp.v_ksym[devnum] = (void**)malloc(prg->imp.nkrn*sizeof(void*));
-//	prg->imp.v_kcall[devnum] = (void**)malloc(prg->imp.nkrn*sizeof(void*));
-
 	prg->imp.v_ksyms[devnum] = (struct _imp_ksyms_struct*)
 		malloc(prg->imp.nkrn*sizeof(struct _imp_ksyms_struct));
 
@@ -315,35 +302,6 @@ cl_int __do_build_program_from_binary(
 
 		printcl( CL_DEBUG "devnum knum %d %d",devnum,i);
 
-/*
-		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) {
-//		   prg->imp.v_ksym[devnum][i] = 0;
-//			prg->imp.v_ksym[devnum][i] = dlsym(h,name);
-			prg->imp.v_ksyms[devnum][i].kthr = dlsym(h,name);
-		} else { 
-//			prg->imp.v_ksym[devnum][i] = 0;
-			prg->imp.v_ksyms[devnum][i].kthr = 0;
-		}
-
-//		printcl( CL_DEBUG "ksym %s -> %p",name,prg->imp.v_ksym[devnum][i]);
-		printcl( CL_DEBUG "kthr %s -> %p",
-			name,prg->imp.v_ksyms[devnum][i].kthr);
-
-		strncpy(name,"__XCL_call_",1024);
-		strncat(name,prg->imp.kname[i],1024);
-
-		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) {
-//			prg->imp.v_kcall[devnum][i] = dlsym(h,name);
-			prg->imp.v_ksyms[devnum][i].kcall = dlsym(h,name);
-		} else {
-			prg->imp.v_ksyms[devnum][i].kcall = 0;
-		}
-
-		printcl( CL_DEBUG "kcall %s -> %p",
-//			name,prg->imp.v_kcall[devnum][i]);
-			name,prg->imp.v_ksyms[devnum][i].kcall);
-*/
-
 		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) 
 			__resolve_devid(devid,bind_ksyms)(
 				&(prg->imp.v_ksyms[devnum][i]), h, prg->imp.kname[i]);
@@ -351,11 +309,6 @@ cl_int __do_build_program_from_binary(
 			bzero(&prg->imp.v_ksyms[devnum][i],sizeof(struct _imp_ksyms_struct));
 
 	}
-
-/* XXX testing, could create problems -DAR */
-//	dlclose(h);
-//	DEBUG2("removing temp file '%s'",tmpfile);
-//	unlink(tmpfile);
 
 	return(CL_SUCCESS); 
 }
@@ -379,14 +332,9 @@ cl_int __do_build_program_from_source(
 	printcl( CL_DEBUG "build_options[%d] |%s|",
 		devnum,prg->build_options[devnum]);
 
-//	struct _elf_data* edata = (struct _elf_data*)comp(
 	int err = comp( devid, prg->src,prg->src_sz, &prg->bin[devnum],
 		&prg->bin_sz[devnum], prg->build_options[devnum],
 		&prg->build_log[devnum]);
-
-//	if ((void*)edata == (void*)-1) {
-//		return((cl_int)-1);
-//	}
 
 	if (!err) err = __do_build_program_from_binary(prg,devid,devnum);
 
@@ -402,36 +350,6 @@ int __do_check_compiler_available( cl_device_id devid )
 
 	return(1);
 }
-
-
-/* XXX is this even used? -DAR */
-/*
-void __do_compile_and_link( cl_program prg, cl_device_id devid, int devnum )
-{
-
-	void*(*comp)(void*) = __resolve_devid(devid,comp);
-
-	void*(*link)(void*) = __resolve_devid(devid,link);
-
-	char options[__CLMAXSTR_BUFSZ];
-
-	if (prg->build_options) {
-		strncpy(options,prg->build_options[devnum],__CLMAXSTR_BUFSZ);
-	} else {
-		options[0] = '\0';
-	}
-
-	char* comp_log;
-	char* link_log;
-
-//	void* obj = comp(argc,argv,prg->src,comp_log);
-
-//	void* bin = link(argc,argv,obj,link_log);
-
-//	prg->bin[devnum] = bin;
-	
-}
-*/
 
 
 int __do_find_kernel_in_program( cl_program prg, const char* kname )

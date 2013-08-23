@@ -381,21 +381,9 @@ struct _imp_context {
 
 };
 
-//#ifdef ENABLE_ATIGPU
-//#define __imp_init_context(imp) do { \
-//	imp.calctx = 0; \
-//	} while(0)
-//#else
 #define __imp_init_context(imp) do { } while(0)
-//#endif
 
-//#ifdef ENABLE_ATIGPU
-//#define __imp_free_context(imp) do { \
-//	__free(imp.calctx); \
-//	} while(0)
-//#else
 #define __imp_free_context(imp) do { } while(0)
-//#endif
 
 struct _elf_data {
 	char filename[256];

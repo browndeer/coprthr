@@ -27,6 +27,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <dlfcn.h>
 
 #if defined(__FreeBSD__)
 #include <sys/types.h>
@@ -60,6 +61,8 @@
 //#include "calcl.h"
 //#include "compiler_atigpu.h"
 //#endif
+
+void* dlh_compiler = 0;
 
 
 char* strnlen_ws( char* p, char* s, size_t maxlen)
@@ -347,15 +350,21 @@ void __do_discover_devices(
 
 #endif
 
+dlh_compiler = dlopen("libcoprthrcc.so",RTLD_LAZY);
+if (!dlh_compiler) 
+	printcl( CL_WARNING "no compiler,failed to load libcoprthrcc.so");
 
 #if defined(__x86_64__)	
-	dtab[0].imp.comp = (void*)compile_x86_64;
+//	dtab[0].imp.comp = (void*)compile_x86_64;
+	dtab[0].imp.comp = dlsym(dlh_compiler,"compile_x86_64");
 	dtab[0].imp.ilcomp = 0;
 	dtab[0].imp.link = 0;
 	dtab[0].imp.bind_ksyms = bind_ksyms_default;
 	dtab[0].imp.v_cmdcall = cmdcall_x86_64_sl;
 #elif defined(__arm__)
-   dtab[0].imp.comp = (void*)compile_arm;
+//   dtab[0].imp.comp = (void*)compile_arm;
+//   dtab[0].imp.comp = dlsym(dlh_compiler,"compile_arm");;
+   dtab[0].imp.comp = dlsym(dlh_compiler,"compile_arm32");;
    dtab[0].imp.ilcomp = 0;
    dtab[0].imp.link = 0;
 	dtab[0].imp.bind_ksyms = bind_ksyms_default;
@@ -363,6 +372,9 @@ void __do_discover_devices(
 #else
 #error unsupported architecture
 #endif
+
+if (!dtab[0].imp.comp)
+	printcl( CL_WARNING "no compiler, dlsym failure");
 
 
 //	int i;
@@ -377,8 +389,8 @@ void __do_discover_devices(
 
 	unsigned int ncore = sysconf(_SC_NPROCESSORS_ONLN);
 
-	if (getenv("COPRTHR_VCORE_NE"))
-		ncore = min(ncore,atoi(getenv("COPRTHR_VCORE_NE")));
+	if (getenv("COPRTHR_MAX_NUM_ENGINES"))
+		ncore = min(ncore,atoi(getenv("COPRTHR_MAX_NUM_ENGINES")));
 
 //ncore = 1;
 
@@ -435,7 +447,7 @@ void __do_discover_devices(
 
 
 //	printcl( CL_DEBUG "calling vcproc_startup");
-	printcl( CL_WARNING "vcproc_startup is disabled");
+//	printcl( CL_WARNING "vcproc_startup is disabled");
 //	vcproc_startup(0);
 
 

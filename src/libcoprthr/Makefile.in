@@ -51,7 +51,6 @@ IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	environment.o \
 	program.o kernel.o memobj.o \
 	cmdsched.o cmdcall.o \
-	elf_cl.o compiler_x86_64.o compiler_arm.o \
 	watermark.o \
 	cmdcall_x86_64_sl.o sl_engine.o \
 	cmdcall_x86_64_ser.o ser_engine.o \
@@ -71,7 +70,7 @@ TOPDIR ?= ../../
 SCRIPTS = ../scripts/
 OCLCALL_MASTER = ../libocl/oclcall.master
 
-INCS += -I. -I$(TOPDIR)/include 
+INCS += -I. -I$(TOPDIR)/include -I$(TOPDIR)/src/libcoprthrcc
 
 INCS += $(LIBELF_INC)
 

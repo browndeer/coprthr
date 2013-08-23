@@ -869,8 +869,8 @@ void __attribute__((__constructor__)) _libocl_init()
 
 	close(fd);
 
-	fprintf(stderr,"_libocl_clproc_state %p\n",_libocl_clproc_state);
-	fflush(stderr);
+//	fprintf(stderr,"_libocl_clproc_state %p\n",_libocl_clproc_state);
+//	fflush(stderr);
 
 //	memset(_libocl_clproc_state,0,sizeof(struct clproc_state_struct));
 	memcpy(_libocl_clproc_state,&_default_clproc_state,

@@ -1,4 +1,4 @@
-/* compiler_e32_needhampro.c 
+/* compiler_e32.c 
  *
  * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -21,7 +21,7 @@
 /* DAR */
 
 #include "xcl_config.h"
-//#include "e32_config.h"
+#include "e32_config.h"
 
 #ifdef LIBCOPRTHR_CC
 #define CC_COMPILER LIBCOPRTHR_CC
@@ -62,16 +62,15 @@
 #define ECC_COMPILER " e-gcc "
 #define EOBJCOPY " e-objcopy "
 
-//#define ECCFLAGS_OCL " -O3 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector "
-#define ECCFLAGS_OCL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=truncate -falign-loops=8 -falign-functions=8 -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/usr/local/adapteva/elib -fpermissive -D__coprthr_device__ "
+#define ECCFLAGS_OCL " -O3 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -D__coprthr_device__"
 
-#define ECCFLAGS_KCALL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/usr/local/adapteva/elib -fpermissive -D__coprthr_device__ "
+#define ECCFLAGS_KCALL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -D__coprthr_device__"
 
 #define ECCFLAGS_LINK -lm
 
 #define ECC_BLOCKED_FLAGS "-D_FORTIFY_SOURCE", "-fexceptions", \
 	"-fstack-protector-all" "-fstack-protector-all"
-
+	
 
 #define _GNU_SOURCE
 #include <link.h>
@@ -89,8 +88,6 @@
 #include "elf_cl.h"
 #include "printcl.h"
 #include "compiler.h"
-
-#include "dmalloc.h"
 
 struct dummy { char* name; void* addr; };
 
@@ -253,10 +250,10 @@ static char* logbuf = 0;
 
 /* XXX note that logbuf is not protected from overfull, fix this -DAR */
 #define __execshell(command,p) do { \
-	int c; \
+	char c; \
 	printcl( CL_DEBUG "__execshell: %s",command); \
 	FILE* fp = popen(command,"r"); \
-	while((c=fgetc(fp)) != EOF) *p++ = (char)c; \
+	while((c=fgetc(fp)) != EOF) *p++ = c; \
 	err = pclose(fp); \
 	} while(0);
 
@@ -327,8 +324,9 @@ static int __test_file( char* file )
 
 static char* ecc_block_flags[] = { ECC_BLOCKED_FLAGS };
 
+#if defined(__x86_64__)
 
-int compile_e32_needhampro(
+int compile_e32_emek(
 	cl_device_id devid,
 	unsigned char* src, size_t src_sz, 
 	unsigned char** p_bin, size_t* p_bin_sz, 
@@ -367,8 +365,13 @@ int compile_e32_needhampro(
 //#else
 
 	char* coprthr_tmp = getenv("COPRTHR_TMP");
+
+	printcl( CL_DEBUG "coprthr_tmp = '%s'",coprthr_tmp);
+
 	if (stat(coprthr_tmp,&fst) || !S_ISDIR(fst.st_mode) 
 		|| fst.st_mode & S_IRWXU != S_IRWXU) coprthr_tmp = 0;
+
+	printcl( CL_DEBUG "coprthr_tmp = '%s'",coprthr_tmp);
 
 	char* wdtemp;
 
@@ -450,15 +453,14 @@ int compile_e32_needhampro(
 #elif defined(USE_E32SL)
 		char* objs[] = { "_e32sl_core_main.o", "_e32sl_core.ldf" };
 #elif defined(USE_E32PTH)
-		char* objs[] = { "_e32pth_core_main_needhampro.o", 
-			"_e32pth_core_needhampro.ldf" };
+		char* objs[] = { "_e32pth_core_main.o", "_e32pth_core.ldf" };
 #else
 #error 
 #endif
 
 		for(i=0;i<sizeof(objs)/sizeof(char*);i++) {
 			__command(
-				"\\cp "INSTALL_LIB_DIR"/%s %s ",objs[i],wd);
+				"\\cp "INSTALL_LIB_DIR"/%s %s > /dev/null 2>&1",objs[i],wd);
 			__log(logp,"]%s\n",buf1);
 			__execshell(buf1,logp);
 			snprintf(fullpath,256,"%s/%s",wd,objs[i]);
@@ -492,16 +494,23 @@ int compile_e32_needhampro(
 			"cd %s; "
 			ECC_COMPILER ECCFLAGS_OCL 
 			" -I" INSTALL_INCLUDE_DIR 
-			" -D __xcl_kthr__ --include=e32pth_if_needhampro.h "
+#if defined(USE_E32SER)
+			" -D __xcl_kthr__ --include=e32ser_if.h "
+#elif defined(USE_E32SL)
+			" -D __xcl_kthr__ --include=e32sl_if.h "
+#elif defined(USE_E32PTH)
+			" -D __xcl_kthr__ --include=e32pth_if.h "
+#else
+#error no execution model selected
+#endif
 			" --include=opencl_lift.h "
 #ifdef USE_E32_OPENCL_EXT
 			" --include=e32_opencl_ext.h "
 #endif
 			" -D __STDCL_KERNEL_VERSION__=020000 -D__COPRTHR__"
-			" -D E32_DRAM_ZEROPAGE=0x%x "
 			" %s "
 			" -S %s.cpp 2>&1",
-			wd,devmembase,opt,filebase); 
+			wd,opt,filebase,filebase); 
 		__log(p2,"]%s\n",buf1);
 		p2_prev = p2;
 		__execshell(buf1,p2);
@@ -510,21 +519,26 @@ int compile_e32_needhampro(
 		__check_err(__test_file(fullpath),
 			"compiler_x86_64: error: kernel compilation failed.");
 
-
-
 		__command(
 			"cd %s; "
 			ECC_COMPILER ECCFLAGS_OCL 
 			" -I" INSTALL_INCLUDE_DIR 
-			" -D __xcl_kthr__ --include=e32pth_if_needhampro.h "
+#if defined(USE_E32SER)
+			" -D __xcl_kthr__ --include=e32ser_if.h "
+#elif defined(USE_E32SL)
+			" -D __xcl_kthr__ --include=e32sl_if.h "
+#elif defined(USE_E32PTH)
+			" -D __xcl_kthr__ --include=e32pth_if.h "
+#else
+#error no execution model selected
+#endif
 #ifdef USE_E32_OPENCL_EXT
 			" --include=e32_opencl_ext.h "
 #endif
 			" -D __STDCL_KERNEL_VERSION__=020000"
-			" -D E32_DRAM_ZEROPAGE=0x%x "
 			" %s "
 			" -c %s.cpp -o e32_%s.o 2>&1",
-			wd,devmembase,opt,filebase,filebase); 
+			wd,opt,filebase,filebase,filebase); 
 		__log(p2,"]%s\n",buf1);
 		p2_prev = p2;
 		__execshell(buf1,p2);
@@ -532,10 +546,6 @@ int compile_e32_needhampro(
 		snprintf(fullpath,256,"%s/e32_%s.o",wd,filebase);
 		__check_err(__test_file(fullpath),
 			"compiler_x86_64: error: kernel compilation failed.");
-
-		printcl( CL_DEBUG "devmembase = %x", devmembase);
-
-
 
 //		printcl( CL_WARNING "e-gcc has been silenced for all warnings" );
 
@@ -545,6 +555,9 @@ int compile_e32_needhampro(
 		char* wrappers[] = { "kcall", "kcall2", "kcall3" };
 
 		for(i=0;i<sizeof(wrappers)/sizeof(char*);i++) {
+
+//			__shell_command( "cd %s; xclnm --%s -d -c %s -o _%s_%s.c 2>&1",
+//				wd,wrappers[i],file_cl,wrappers[i],filebase);
 
 			__shell_command( "cd %s;"
 				" cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
@@ -566,14 +579,14 @@ int compile_e32_needhampro(
 
 #if defined(__FreeBSD__)
 		__command("cd %s; gcc -O0 -fPIC"
-			" -D__xcl_kcall__ -DE32_DRAM_ZEROPAGE=0x%x -I%s --include=sl_engine.h -c _kcall_%s.c 2>&1",
-			wd,devmembase,INSTALL_INCLUDE_DIR,filebase); 
+			" -D__xcl_kcall__ -I%s --include=sl_engine.h -c _kcall_%s.c 2>&1",
+			wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
 		__command(
 			"cd %s; "
 			CC_COMPILER CCFLAGS_KCALL " -fPIC"
-			" -D__xcl_kcall__ -DE32_DRAM_ZEROPAGE=0x%x -I%s --include=sl_engine.h -c _kcall_%s.c 2>&1",
-			wd,devmembase,INSTALL_INCLUDE_DIR,filebase); 
+			" -D__xcl_kcall__ -I%s --include=sl_engine.h -c _kcall_%s.c 2>&1",
+			wd,INSTALL_INCLUDE_DIR,filebase); 
 #endif
 		__log(logp,"]%s\n",buf1);
 		__execshell(buf1,logp);
@@ -583,14 +596,14 @@ int compile_e32_needhampro(
 
 #if defined(__FreeBSD__)
 		__command("cd %s; gcc -O0 -fPIC"
-			" -D__xcl_kcall__ -DE32_DRAM_ZEROPAGE=0x%x -I%s --include=ser_engine.h -c _kcall2_%s.c 2>&1",
-			wd,devmembase,INSTALL_INCLUDE_DIR,filebase); 
+			" -D__xcl_kcall__ -I%s --include=ser_engine.h -c _kcall2_%s.c 2>&1",
+			wd,INSTALL_INCLUDE_DIR,filebase); 
 #else
 		__command(
 			"cd %s; "
 			CC_COMPILER CCFLAGS_KCALL " -fPIC"
-			" -D__xcl_kcall__ -DE32_DRAM_ZEROPAGE=0x%x -I%s --include=ser_engine.h -c _kcall2_%s.c 2>&1",
-			wd,devmembase,INSTALL_INCLUDE_DIR,filebase); 
+			" -D__xcl_kcall__ -I%s --include=ser_engine.h -c _kcall2_%s.c 2>&1",
+			wd,INSTALL_INCLUDE_DIR,filebase); 
 #endif
 		__log(logp,"]%s\n",buf1);
 		__execshell(buf1,logp);
@@ -607,17 +620,32 @@ int compile_e32_needhampro(
 
 		__shell_command( "cd %s; " 
         	ECC_COMPILER ECCFLAGS_KCALL 
-			" -DE32_DRAM_ZEROPAGE=0x%x -I" INSTALL_INCLUDE_DIR
-        	" -D__xcl_kcall__ --include=e32pth_if_needhampro.h" 
+			" -I" INSTALL_INCLUDE_DIR
+#if defined(USE_E32SER)
+        	" -D__xcl_kcall__ --include=e32ser_if.h" 
+#elif defined(USE_E32SL)
+        	" -D__xcl_kcall__ --include=e32sl_if.h" 
+#elif defined(USE_E32PTH)
+        	" -D__xcl_kcall__ --include=e32pth_if.h" 
+#else
+#error
+#endif
 			" -c _kcall3_%s.c -o e32_kcall3_%s.o 2>&1",
-			wd,devmembase,filebase,filebase);
+			wd,filebase,filebase);
 		__assert_file( "%s/e32_kcall3_%s.o",wd,filebase );
 
 		__command(
 			"cd %s;"
 			" e-ld -r -o e32.o"
-			" _e32pth_core_main_needhampro.o e32_%s.o e32_kcall3_%s.o"
-			" -L/usr/local/adapteva/elib -lelib"
+#if defined(USE_E32SER)
+			" _e32ser_core_main.o e32_%s.o e32_kcall3_%s.o"
+#elif defined(USE_E32SL)
+			" _e32sl_core_main.o e32_%s.o e32_kcall3_%s.o"
+#elif defined(USE_E32PTH)
+			" _e32pth_core_main.o e32_%s.o e32_kcall3_%s.o"
+#else
+#error
+#endif
 			" 2>&1",
 			wd,filebase,filebase);
 		__log(p2,"]%s\n",buf1); 
@@ -628,24 +656,46 @@ int compile_e32_needhampro(
 		__check_err(__test_file(fullpath),
 			"compiler_x86_64: error: e32 prog link failed.");
 
-			printcl( CL_DEBUG "link core prog for all cores");
+		int ic,jc;
+//		for(ic=32;ic<36;ic++) for(jc=36;jc<40;jc++) {
+		for(ic=E32_ROW_FIRST;ic<E32_ROW_END;ic++) 
+		for(jc=E32_COL_FIRST;jc<E32_COL_END;jc++) {
+
+			int coreid = (ic << 6) | jc;
+
+			printcl( CL_DEBUG "link core prog for coreid %x", coreid);
 
 			__shell_command( "cd %s; " 
-         	ECC_COMPILER " -o e32.0.elf"
-				" "
+         	ECC_COMPILER " -o e32.%x.elf"
+				" -Wl,--defsym,__CORE_ROW_=%d,--defsym,__CORE_COL_=%d"
 				" e32.o "
-				" -T _e32pth_core_needhampro.ldf -lm;"
-				EOBJCOPY " --srec-forceS3 --output-target srec"
-				" e32.0.elf e32.0.srec", wd);
-			__assert_file( "%s/e32.0.srec",wd );
+#if defined(USE_E32SER)
+				" -T _e32ser_core.ldf -lm;"
+#elif defined(USE_E32SL)
+				" -T _e32sl_core.ldf -lm;"
+#elif defined(USE_E32PTH)
+				" -T _e32pth_core.ldf -lm;"
+#else
+#error
+#endif
+				EOBJCOPY " --coreid %x --srec-forceS3 --output-target srec"
+				" e32.%x.elf e32.%x.srec",
+				wd,coreid,ic,jc,coreid,coreid,coreid);
+			__assert_file( "%s/e32.%x.srec",wd,coreid );
+
+		}
+
 
 		size_t sz = DEFAULT_BUF1_SZ;
 		char* p = buf1 + snprintf(buf1,sz,"cd %s; cat ",wd);
 		sz -= (intptr_t)(p - buf1);
-
-			p += snprintf(p,sz," e32.0.srec");
+//		for(ic=32;ic<36;ic++) for(jc=36;jc<40;jc++) {
+		for(ic=E32_ROW_FIRST;ic<E32_ROW_END;ic++) 
+		for(jc=E32_COL_FIRST;jc<E32_COL_END;jc++) {
+			int coreid = (ic << 6) | jc;
+			p += snprintf(p,sz," e32.%x.srec",coreid);
 			sz -= (intptr_t)(p - buf1);
-
+		}
 		p += snprintf(p,sz," > e32.srec");
 		sz -= (intptr_t)(p - buf1);
 
@@ -671,6 +721,8 @@ int compile_e32_needhampro(
 		/* now extract sym arg data */
 
 		printcl( CL_DEBUG "extract sym and arg data");
+
+//		__command("cd %s; xclnm -n -d %s",wd,file_cl);
 
 		__command("cd %s;"
 			"cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
@@ -709,6 +761,8 @@ int compile_e32_needhampro(
 		int n;
 		int arg0;
 
+//		__command("cd %s; xclnm --clsymtab -d -c %s.cl",wd,filebase);
+
 		__command("cd %s; "
 			" cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
 			" | awk -v prog=\\\"%s\\\" "
@@ -736,10 +790,11 @@ int compile_e32_needhampro(
 					printcl( CL_DEBUG "removing work directory");
 					__remove_work_dir(wd);
 				}
+//				exit(-2);
 				return(CL_BUILD_PROGRAM_FAILURE);
 			}
 
-#if defined(__i386__) || defined(__arm__)
+#if defined(__i386__)
 			clsymtab[i] = (struct clsymtab_entry){
 				(Elf32_Half)clstrtab_sz,
 				(Elf32_Half)kind,
@@ -786,8 +841,13 @@ int compile_e32_needhampro(
 
 		unsigned int addr_core_local_data = 0;
 
+//		for(ic=32;ic<36;ic++) for(jc=36;jc<40;jc++) {
+		for(ic=E32_ROW_FIRST;ic<E32_ROW_END;ic++) 
+		for(jc=E32_COL_FIRST;jc<E32_COL_END;jc++) {
 
-			__command("cd %s; nm --defined-only e32.0.elf",wd);
+			int coreid = (ic << 6) | jc;
+
+			__command("cd %s; e-nm --defined-only e32.%x.elf",wd,coreid);
 			fp = popen(buf1,"r");
 			while (!feof(fp)) {
 				addr = ~0;
@@ -798,6 +858,8 @@ int compile_e32_needhampro(
 					printcl( CL_ERR "cannot parse output of xclnm");
 					__append_str(log, "compiler_x86_64: internal error:"
 						" cannot parse output of xclnm", 0,0);
+//					__remove_work_dir(wd);
+//					exit(-3);
 					if (!coprthr_tmp) {
 						printcl( CL_DEBUG "removing work directory");
 						__remove_work_dir(wd);
@@ -813,6 +875,9 @@ int compile_e32_needhampro(
 				}
 
 				for(i=0;i<nsym;i++) {
+
+//					printcl( CL_DEBUG "compare |%s|%s|",
+//						name,clstrtab + clsymtab[i].e_name);
 
 					char kcall3_name[1024];
 					strncpy(kcall3_name,"__XCL_call_",1024);
@@ -832,10 +897,12 @@ int compile_e32_needhampro(
 			} 
 			pclose(fp);
 
+		}
 
 		if (!addr_core_local_data) {
          printcl( CL_ERR "addr_core_local_data not found");
 			return(CL_BUILD_PROGRAM_FAILURE);
+//			exit(-1);
 		} else {
 			printcl( CL_DEBUG "addr_core_local_data = 0x%x",
 				addr_core_local_data);
@@ -932,6 +999,8 @@ int compile_e32_needhampro(
 		char aname[256];
 		int argn;
 
+//		__command("cd %s; xclnm --clargtab -d -c %s.cl",wd,filebase);
+
 		__command("cd %s;"
 				"cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
 				" | awk -v prog=\\\"%s\\\" "
@@ -961,6 +1030,7 @@ int compile_e32_needhampro(
 					"compiler_x86_64: internal error: cannot parse output of xclnm",
 					0,0);
 				__remove_work_dir(wd);
+//				exit(-2);
 				return(CL_BUILD_PROGRAM_FAILURE);
 				if (!coprthr_tmp) {
 					printcl( CL_DEBUG "removing work directory");
@@ -973,7 +1043,7 @@ int compile_e32_needhampro(
             datatype,vecn,arrn,addrspace,ptrc,
             argn,name);
 
-#if defined(__i386__) || defined(__arm__)
+#if defined(__i386__)
 			clargtab[i] = (struct clargtab_entry){
 				(Elf32_Half)0,
 				(Elf32_Half)datatype,
@@ -1010,6 +1080,7 @@ int compile_e32_needhampro(
 				"compiler_x86_64: internal error: cannot parse output of xclnm",
 				0,0);
 			__remove_work_dir(wd);
+//			exit(-1);
 			return(CL_BUILD_PROGRAM_FAILURE);
 				if (!coprthr_tmp) {
 					printcl( CL_DEBUG "removing work directory");
@@ -1038,8 +1109,7 @@ int compile_e32_needhampro(
 
 		__command(
 			"cd %s;"
-//			" objcopy -I binary -O elf64-x86-64 -B i386 e32.srec data_srec_e32.o"
-			" objcopy -I binary -O elf32-littlearm -B arm e32.srec data_srec_e32.o"
+			" objcopy -I binary -O elf64-x86-64 -B i386 e32.srec data_srec_e32.o"
 			" 2>&1",
 			wd,filebase,filebase);
 		__log(p2,"]%s\n",buf1); 
@@ -1087,6 +1157,7 @@ int compile_e32_needhampro(
 
 		WARN(__FILE__,__LINE__,"compile: no source");
 		__remove_work_dir(wd);
+//		return((void*)-1);
 		return(CL_INVALID_PROGRAM);
 
 	}
@@ -1130,6 +1201,22 @@ int compile_e32_needhampro(
 	return(0);
 
 }
+
+#else
+
+void* compile_x86_64(
+   cl_device_id devid,
+   unsigned char* src, size_t src_sz,
+   unsigned char** p_bin, size_t* p_bin_sz,
+   char* opt, char** log
+)
+{
+   printcl( CL_ERR "x86_64 cross-compiler not supported");
+   return(CL_COMPILER_NOT_AVAILABLE);
+}
+
+#endif
+
 
 
 

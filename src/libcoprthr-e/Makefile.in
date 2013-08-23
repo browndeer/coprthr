@@ -111,8 +111,8 @@ INSTALL_LIBS = libcoprthr-e.so
 
 ifeq (@ENABLE_EMEK_BUILD@,1)
 
-IMP_OBJS += compiler_e32.o cmdcall_e32pth.o \
-	e32pth_engine.o
+#IMP_OBJS += compiler_e32_emek.o cmdcall_e32pth.o e32pth_engine.o
+IMP_OBJS += cmdcall_e32pth.o e32pth_engine.o
 
 RT_OBJS = _e32pth_core_main.o _e32pth_core.ldf
 
@@ -124,10 +124,15 @@ DEFAULT_E_PLATFORM_LIB = libe_platform.so.lexington
 
 else
 
-IMP_OBJS += compiler_e32_needham.o compiler_e32_needhampro.o \
+#IMP_OBJS += compiler_e32_needham.o compiler_e32_needhampro.o \
 	cmdcall_e32pth_needham.o cmdcall_e32pth_needhampro.o \
 	e32pth_engine_needham.o e32pth_engine_needhampro.o \
 	compiler_e32_blank.o cmdcall_e32pth_blank.o e32pth_engine_blank.o
+
+IMP_OBJS += \
+	cmdcall_e32pth_needham.o cmdcall_e32pth_needhampro.o \
+	e32pth_engine_needham.o e32pth_engine_needhampro.o \
+	cmdcall_e32pth_blank.o e32pth_engine_blank.o
 
 RT_OBJS = _e32pth_core_main_needham.o _e32pth_core_needham.ldf \
 	_e32pth_core_main_needhampro.o _e32pth_core_needhampro.ldf \
@@ -255,6 +260,18 @@ all: $(TARGET)
 icd.c:
 	perl $(SCRIPTS)/gen_ocl_call_vector.pl __icd_call_vector _ \
 		< $(OCLCALL_MASTER) > icd.c
+
+compiler_e32_needham.o: compiler_e32.c
+	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_NEEDHAM__ \
+		$(INCS) -c compiler_e32.c -o $*.o
+
+compiler_e32_needhampro.o: compiler_e32.c
+	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_NEEDHAMPRO__ \
+		$(INCS) -c compiler_e32.c -o $*.o
+
+compiler_e32_blank.o: compiler_e32.c
+	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_BLANK__ \
+		$(INCS) -c compiler_e32.c -o $*.o
 
 
 libe_platform.so.lexington: 

@@ -630,7 +630,7 @@ int main(int argc, char** argv)
 		= (cl_platform_id*)malloc(nplatforms*sizeof(cl_platform_id));
 	clGetPlatformIDs(nplatforms,platforms,0);
 
-	printf("number of platforms %d\n",nplatforms);
+//	printf("number of platforms %d\n",nplatforms);
 
 	cl_context* contexts = (cl_context*)malloc(nplatforms*sizeof(cl_context));
 
@@ -830,7 +830,7 @@ int main(int argc, char** argv)
 
 		}
 
-printcl( CL_DEBUG "HERE %d",ndev);
+//printcl( CL_DEBUG "HERE %d",ndev);
 
 		for( j=0; j < ndev; j++ ) {
 
@@ -851,7 +851,7 @@ printcl( CL_DEBUG "HERE %d",ndev);
 
 			if (status == CL_BUILD_SUCCESS && bins[j]) {
 
-fprintf(stderr,"HERE\n"); fflush(stderr);
+//fprintf(stderr,"HERE\n"); fflush(stderr);
 				if (dump_bin) {
 
 printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",

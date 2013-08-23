@@ -212,7 +212,6 @@ _clBuildProgram(
 	 void* user_data
 )
 {
-	printcl( CL_WARNING "clBuildProgram: warning: unsupported");
 
 	if (__invalid_program(prg)) return(CL_INVALID_VALUE);
 
@@ -296,7 +295,6 @@ _clGetProgramInfo(
 	 size_t* param_sz_ret
 )
 {
-	printcl( CL_WARNING "clGetProgramInfo: warning: unsupported");
 
 	if (__invalid_program(prg)) return(CL_INVALID_PROGRAM);
 
@@ -366,7 +364,7 @@ _clGetProgramBuildInfo(
 	 size_t* param_sz_ret
 )
 {
-	printcl( CL_WARNING "clGetProgramBuildInfo: warning: unsupported");
+//	printcl( CL_WARNING "clGetProgramBuildInfo: warning: unsupported");
 
 	if (__invalid_program(prg)) return(CL_INVALID_PROGRAM);
 

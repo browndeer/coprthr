@@ -181,7 +181,6 @@ _clGetKernelInfo(
 	 size_t* param_sz_ret
 )
 {
-	printcl( CL_WARNING "clGetKernelInfo: warning: unsupported");
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 

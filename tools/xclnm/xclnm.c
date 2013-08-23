@@ -26,7 +26,7 @@
 #include <string.h>
 
 #include "version.h"
-#include "elf_cl.h"
+#include "elfcl.h"
 #include "xclnm.h"
 #include "xclnm_node.h"
 #include "xclnm_gram.h"

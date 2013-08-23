@@ -1,3 +1,9 @@
+
+E32_DRAM_ZEROPAGE_LEXINGTON 	= 0x81000000
+E32_DRAM_ZEROPAGE_NEEDHAM 		= 0x8e000000
+E32_DRAM_ZEROPAGE_NEEDHAMPRO 	= 0x8e000000
+E32_DRAM_ZEROPAGE_BLANK 		= 0x8e000000
+
 ### 
 ### Makefile for libcoprthr-e
 ###
@@ -16,6 +22,7 @@ INSTALL_BIN_DIR=@bindir@
 INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
+INSTALL_ICD_DIR=@prefix@/icd/
 
 ### set custom path for ICD files
 ifneq (@OPENCL_ICD_PATH@,)
@@ -37,10 +44,40 @@ ifneq (@DEFAULT_CLMESG_LEVEL@,)
 DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
 endif
 
+ifeq (@ENABLE_EMEK_BUILD@,1)
+DEFS += -DENABLE_EMEK_BUILD
+endif
 
-ESDK_INC = -I/opt/adapteva/esdk/tools/host/x86_64/include \
-   -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
-ESDK_LIB = -L/opt/adapteva/esdk/tools/host/x86_64/lib -le_host
+ifeq (@ENABLE_OLD_ESDK@,1)
+DEFS += -DUSE_OLD_ESDK
+endif
+
+
+#ESDK_INC = -I/opt/adapteva/esdk/tools/host/x86_64/include \
+#   -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
+#ESDK_LIB = -L/opt/adapteva/esdk/tools/host/x86_64/lib -le_host
+
+#ESDK_INC = -I/usr/local/adapteva/include -I/usr/local/adapteva/elib
+#ESDK_LIB = -L/usr/local/adapteva/lib -le-host -le-loader
+
+#ESDK_INC = -I@ESDK_PATH@/include
+#ESDK_LIB = -L@ESDK_PATH@/lib 
+ESDK_EINC = -I@ESDK_PATH@/elib
+
+ifeq (@ENABLE_EMEK_BUILD@,1)
+#ESDK_INC += -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
+#ESDK_LIB += -le_host
+ESDK_INC += -I@ESDK_PATH@/tools/host/x86_64/include
+ESDK_LIB += -L@ESDK_PATH@/tools/host/x86_64/lib -le_host
+else ifeq (@ENABLE_OLD_ESDK@,1)
+#ESDK_LIB += -le-host -le-loader
+#ESDK_INC += -I@ESDK_PATH@/tools/host/armv71/include
+ESDK_INC += -I@ESDK_PATH@/tools/host/armv7l/include
+ESDK_LIB += -L@ESDK_PATH@/tools/host/armv7l/lib -le-loader -le-host
+else
+ESDK_INC += -I@ESDK_PATH@/tools/host/include
+ESDK_LIB += -L@ESDK_PATH@/tools/host/lib -le-hal 
+endif
 
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
@@ -61,20 +98,54 @@ IMP_OBJS = platform.o device.o context.o command_queue.o event.o \
 	elf_cl.o \
 	watermark.o \
 	dmalloc.o \
-	compiler_e32.o cmdcall_e32ser.o e32ser_engine.o \
-	cmdcall_e32sl.o e32sl_engine.o \
-	cmdcall_e32pth.o e32pth_engine.o \
 	icd.o
 
-RT_OBJS = _e32ser_core_main.o _e32ser_core.ldf \
-	_e32sl_core_main.o _e32sl_core.ldf \
-	_e32pth_core_main.o _e32pth_core.ldf
+#RT_OBJS = _e32pth_core_main_needham.o _e32pth_core_needham.ldf \
+#	_e32pth_core_main_needhampro.o _e32pth_core_needhampro.ldf
 
-INSTALL_HDRS = \
-	e32ser_if.h e32ser_mem_if.h e32ser_engine.h \
-	e32sl_if.h e32sl_mem_if.h e32sl_engine.h \
-	e32pth_if.h e32pth_mem_if.h e32pth_engine.h \
-	workp.h opencl_lift.h e32_opencl_ext.h e32_config.h
+INSTALL_HDRS = workp.h opencl_lift.h e32_opencl_ext.h 
+
+INSTALL_LIBS = libcoprthr-e.so 
+
+
+
+ifeq (@ENABLE_EMEK_BUILD@,1)
+
+IMP_OBJS += compiler_e32_emek.o cmdcall_e32pth.o \
+	e32pth_engine.o
+
+RT_OBJS = _e32pth_core_main.o _e32pth_core.ldf
+
+INSTALL_HDRS += e32pth_if.h e32pth_mem_if.h e32_config.h
+
+INSTALL_LIBS += libe_platform.so.lexington
+
+DEFAULT_E_PLATFORM_LIB = libe_platform.so.lexington
+
+else
+
+IMP_OBJS += compiler_e32_needham.o compiler_e32_needhampro.o \
+	cmdcall_e32pth_needham.o cmdcall_e32pth_needhampro.o \
+	e32pth_engine_needham.o e32pth_engine_needhampro.o \
+	compiler_e32_blank.o cmdcall_e32pth_blank.o e32pth_engine_blank.o
+
+RT_OBJS = _e32pth_core_main_needham.o _e32pth_core_needham.ldf \
+	_e32pth_core_main_needhampro.o _e32pth_core_needhampro.ldf \
+	_e32pth_core_main_blank.o _e32pth_core_blank.ldf
+
+INSTALL_HDRS += \
+	e32pth_if_needham.h e32pth_mem_if_needham.h e32_config_needham.h \
+	e32pth_if_needhampro.h e32pth_mem_if_needhampro.h e32_config_needhampro.h \
+	e32pth_if_blank.h e32pth_mem_if_blank.h e32_config_blank.h
+
+INSTALL_LIBS += libe_platform.so.needham libe_platform.so.needhampro \
+	libe_platform.so.blank
+
+DEFAULT_E_PLATFORM_LIB = libe_platform.so.needham
+
+endif
+
+
 
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
@@ -106,15 +177,6 @@ else
 LIBS += -ldl 
 endif
 
-#ifeq (@LIBCOPRTHR_MODEL@,template)
-#LIBCOPRTHR_HDR = __libcoprthr.h-template
-#else ifeq (@LIBCOPRTHR_MODEL@,no-template)
-#LIBCOPRTHR_HDR = __libcoprthr.h-no-template
-#else
-#LIBCOPRTHR_HDR = __libcoprthr.h
-#endif
-
-
 OBJS = $(OCL_OBJS) $(IMP_OBJS)
 
 OBJS_D = $(subst .o,_d.o,$(OBJS))
@@ -124,11 +186,26 @@ DEFS += \
 	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
 	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
 
+DEFS += -D__coprthr_host__
+
 DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
        -Wno-unused-result -Wno-format-security -Wno-format
 CCFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
-CCFLAGS_VCORE += -O0 -fPIC 
-CCFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
+
+ifeq (arm,$(patsubst arm%,arm,@build_cpu@))
+CCFLAGS += -marm
+endif
+
+CCFLAGS_VCORE = FAIL
+CCFLAGS_VCORE_RT = FAIL
+
+ECCFLAGS = -Dasm=__asm__ -O0 -g -Wall -D__coprthr_device__\
+	-fmessage-length=0  -ffast-math \
+	-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
+	-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
+	-U_FORTIFY_SOURCE -fno-stack-protector -fstack-usage 
+	
+
 
 
 #YACC = yacc
@@ -143,6 +220,15 @@ XCLNM_YYPREFIX = __xclnm_
 TARGET = libcoprthr-e.so $(RT_OBJS) 
 #TARGET += libcoprthr-e_d.so
 TARGET += icd.c
+
+
+ifeq (@ENABLE_EMEK_BUILD@,1)
+TARGET += libe_platform.so.lexington
+else
+TARGET += libe_platform.so.needham
+TARGET += libe_platform.so.needhampro
+TARGET += libe_platform.so.blank
+endif
 
 VPATH = ../coprthr-common/
 
@@ -170,44 +256,74 @@ icd.c:
 	perl $(SCRIPTS)/gen_ocl_call_vector.pl __icd_call_vector _ \
 		< $(OCLCALL_MASTER) > icd.c
 
-#libcoprthr.so: $(OBJS) $(RT_OBJS)
-libcoprthr-e.so: $(OBJS) 
+compiler_e32_needham.o: compiler_e32.c
+	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_NEEDHAM__ \
+		$(INCS) -c compiler_e32.c -o $*.o
+
+compiler_e32_needhampro.o: compiler_e32.c
+	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_NEEDHAMPRO__ \
+		$(INCS) -c compiler_e32.c -o $*.o
+
+compiler_e32_blank.o: compiler_e32.c
+	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_BLANK__ \
+		$(INCS) -c compiler_e32.c -o $*.o
+
+
+libe_platform.so.lexington: 
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -DCOMPILE_FOR_LEXINGTON -c e_platform.c
+	$(CC) $(CCFLAGS) $(ESDK_INCS) \
+		-shared -Wl,-soname,libe_platform.so -o libe_platform.so.lexington  \
+		e_platform.o $(ESDK_LIBS)
+
+libe_platform.so.needham: 
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -DCOMPILE_FOR_NEEDHAM -c e_platform.c
+	$(CC) $(CCFLAGS) $(ESDK_INCS) \
+		-shared -Wl,-soname,libe_platform.so -o libe_platform.so.needham  \
+		e_platform.o $(ESDK_LIBS)
+
+libe_platform.so.needhampro: 
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -DCOMPILE_FOR_NEEDHAMPRO -c e_platform.c
+	$(CC) $(CCFLAGS) $(ESDK_INCS) \
+		-shared -Wl,-soname,libe_platform.so -o libe_platform.so.needhampro  \
+		e_platform.o $(ESDK_LIBS)
+
+libe_platform.so.blank: 
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -DCOMPILE_FOR_BLANK -c e_platform.c
+	$(CC) $(CCFLAGS) $(ESDK_INCS) \
+		-shared -Wl,-soname,libe_platform.so -o libe_platform.so.blank  \
+		e_platform.o $(ESDK_LIBS)
+
+libe_platform.so: $(DEFAULT_E_PLATFORM_LIB)
+	ln -s $(DEFAULT_E_PLATFORM_LIB) libe_platform.so
+
+
+libcoprthr-e.so: $(OBJS) libe_platform.so
 	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthr-e.so -o libcoprthr-e.so  $(OBJS) $(LIBS)
+		-shared -Wl,-soname,libcoprthr-e.so -o libcoprthr-e.so  $(OBJS) $(LIBS) \
+		-L./ -le_platform
 
-#libcoprthr_d.so: $(OBJS_D) $(RT_OBJS)
-libcoprthr-e_d.so: $(OBJS_D) 
-	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthr-e_d.so -o libcoprthr-e_d.so  $(OBJS_D) $(LIBS)
-
-vcore.o: vcore.c
-	$(CC) -c $(CCFLAGS_VCORE) $(DEFS) $(INCS) -o vcore.o vcore.c
-
-#__vcore_rt.o: __vcore_rt.c
-#	$(CC) -c $(CCFLAGS_VCORE_RT) $(DEFS) $(INCS) -o __vcore_rt.o __vcore_rt.c
-
-_e32ser_core_main.o: _e32ser_core_main.c
-	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
-		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
-		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
-		-fstack-usage \
-		-o _e32ser_core_main.o _e32ser_core_main.c
-
-_e32sl_core_main.o: _e32sl_core_main.c
-	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
-		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
-		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
-		-U_FORTIFY_SOURCE -fno-stack-protector \
-		-fstack-usage \
-		-o _e32sl_core_main.o _e32sl_core_main.c
 
 _e32pth_core_main.o: _e32pth_core_main.c
-	e-gcc -Dasm=__asm__ -O0 -g -Wall -c -fmessage-length=0  -ffast-math \
-		-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
-		-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
-		-U_FORTIFY_SOURCE -fno-stack-protector \
-		-fstack-usage \
+	e-gcc -c $(ECCFLAGS) \
+		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_LEXINGTON) \
 		-o _e32pth_core_main.o _e32pth_core_main.c
+
+
+_e32pth_core_main_needham.o: _e32pth_core_main_needham.c
+	e-gcc -c $(ECCFLAGS) $(ESDK_EINC) \
+		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_NEEDHAM) \
+		-o _e32pth_core_main_needham.o _e32pth_core_main_needham.c
+
+_e32pth_core_main_needhampro.o: _e32pth_core_main_needhampro.c
+	e-gcc -c $(ECCFLAGS) $(ESDK_EINC) \
+		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_NEEDHAMPRO) \
+		-o _e32pth_core_main_needhampro.o _e32pth_core_main_needhampro.c
+
+_e32pth_core_main_blank.o: _e32pth_core_main_blank.c
+	e-gcc -c $(ECCFLAGS) $(ESDK_EINC) \
+		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_BLANK) \
+		-o _e32pth_core_main_blank.o _e32pth_core_main_blank.c
+
 
 
 debug:
@@ -219,25 +335,26 @@ install:
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
-	install -m 755 libcoprthr-e.so $(INSTALL_LIB_DIR)
-#	ln -sf $(INSTALL_LIB_DIR)/libcoprthr.so $(INSTALL_LIB_DIR)/libcoprthr-e.so
-#	install -m 755 libcoprthr-e_d.so $(INSTALL_LIB_DIR)
-#	ln -sf $(INSTALL_LIB_DIR)/libcoprthr_d.so \
-#		$(INSTALL_LIB_DIR)/libcoprthr-e_d.so
+	install -m 755 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
+	ln -sf $(INSTALL_LIB_DIR)/$(DEFAULT_E_PLATFORM_LIB) \
+		$(INSTALL_LIB_DIR)/libe_platform.so 
 	install -m 755 $(RT_OBJS) $(INSTALL_LIB_DIR)
 	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
+	echo $(INSTALL_LIB_DIR)/libcoprthr-e.so > $(INSTALL_ICD_DIR)/coprthr-e.icd
 	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
-	echo $(INSTALL_LIB_DIR)/libcoprthr-e.so > $(OPENCL_ICD_PATH)/coprthr-e.icd
+	install -m 644 $(INSTALL_ICD_DIR)/coprthr-e.icd $(OPENCL_ICD_PATH)/
 
 uninstall: 
-#	rm -f $(INSTALL_LIB_DIR)/libcoprthr-e.so $(INSTALL_LIB_DIR)/libcoprthr-e_d.so
-	rm -f $(INSTALL_LIB_DIR)/libcoprthr-e.so 
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
+	rm -f $(INSTALL_LIB_DIR)/libe_platform.so
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,$(INSTALL_HDRS))
-	rm -f $(OPENCL_ICD_PATH)/coprthr.icd
+	rm -f $(INSTALL_ICD_PATH)/coprthr-e.icd
+	rm -f $(OPENCL_ICD_PATH)/coprthr-e.icd
 
 clean:
-	rm -f *.o *.so *.su
+	rm -f *.o *.so *.su libe_platform.so.*
 
 distclean: clean
 

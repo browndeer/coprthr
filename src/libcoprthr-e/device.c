@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+#include <dlfcn.h>
 
 #if defined(__FreeBSD__)
 #include <sys/types.h>
@@ -96,6 +97,7 @@ e_mem_t e_dram;
 
 #endif
 
+void* dlh_compiler = 0;
 
 char* strnlen_ws( char* p, char* s, size_t maxlen)
 {
@@ -368,10 +370,16 @@ void __do_discover_devices(
 	dtab[0].imp.local_mem_sz = einfo.e_core_local_mem_size;
 
 
+	dlh_compiler = dlopen("libcoprthrcc-e.so",RTLD_LAZY);
+	if (!dlh_compiler)
+		printcl( CL_WARNING "no compiler,failed to load libcoprthrcc-e.so");
+
 #ifdef ENABLE_EMEK_BUILD
 	if (!strncmp(einfo.e_platform_name,"E16G Lexington",32)) {
 
-		dtab[0].imp.comp = (void*)compile_e32;
+//		dtab[0].imp.comp = (void*)compile_e32;
+//		dtab[0].imp.comp = (void*)compile_e32_emek;
+		dtab[0].imp.comp = (void*)dlsym(dlh_compiler,"compile_e32_emek");
 		dtab[0].imp.v_cmdcall = cmdcall_e32pth;
 
 	} else {
@@ -383,17 +391,20 @@ void __do_discover_devices(
 #else 
 	if (!strncmp(einfo.e_platform_name,"E16G Needham",32)) {
 
-		dtab[0].imp.comp = (void*)compile_e32_needham;
+//		dtab[0].imp.comp = (void*)compile_e32_needham;
+		dtab[0].imp.comp = (void*)dlsym(dlh_compiler,"compile_e32_needham");
 		dtab[0].imp.v_cmdcall = cmdcall_e32pth_needham;
 
 	} else if (!strncmp(einfo.e_platform_name,"E16G Needham Pro",32)) {
 
-		dtab[0].imp.comp = (void*)compile_e32_needhampro;
+//		dtab[0].imp.comp = (void*)compile_e32_needhampro;
+		dtab[0].imp.comp = (void*)dlsym(dlh_compiler,"compile_e32_needhampro");
 		dtab[0].imp.v_cmdcall = cmdcall_e32pth_needhampro;
 
 	} else if (!strncmp(einfo.e_platform_name,"(blank)",32)) {
 
-		dtab[0].imp.comp = (void*)compile_e32_blank;
+//		dtab[0].imp.comp = (void*)compile_e32_blank;
+		dtab[0].imp.comp = (void*)dlsym(dlh_compiler,"compile_e32_blank");
 		dtab[0].imp.v_cmdcall = cmdcall_e32pth_blank;
 
 	} else {
