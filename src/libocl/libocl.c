@@ -31,7 +31,11 @@
 #include <dirent.h>
 
 #include <unistd.h>
+
+#ifndef __ANDROID__
 #include <wordexp.h>
+#endif
+
 #include <libconfig.h>
 
 #include <regex.h>
@@ -649,6 +653,15 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 
   config_init(&cfg);
 
+#ifdef __ANDROID__
+
+	char path[] = "./ocl.conf";
+
+	struct stat tmp_fs;
+	if (stat(path,&tmp_fs)) return(-1);
+	if (!S_ISREG(tmp_fs.st_mode)) return(-1);
+
+#else
 	char* search_paths[] = { "./ocl.conf", "./.ocl.conf", "$HOME/ocl.conf", 
 		"$HOME/.ocl.conf", "/etc/ocl.conf", "$COPRTHR_PATH/ocl.conf",
 		"/usr/local/browndeer/ocl.conf" };
@@ -668,6 +681,8 @@ int read_oclconf_info( struct oclconf_info_struct* info )
 	if (!path) return(-1);
 
 	printcl( CL_DEBUG "selected path is '%s'",path);
+
+#endif
 
 	if(! config_read_file(&cfg, path)) {
 		printcl( CL_ERR "%s:%d - %s", config_error_file(&cfg),
@@ -825,12 +840,19 @@ void __attribute__((__constructor__)) _libocl_init()
 
 	pid_t pid = getpid();
 
-//	snprintf(_libocl_clproc_dirname,64,"/var/clproc/%d",(int)pid);
+#ifdef __ANDROID__
+	snprintf(_libocl_clproc_dirname,64,"./%d",(int)pid);
+#else 
 	snprintf(_libocl_clproc_dirname,64,VAR_CLPROC_PATH "/%d",(int)pid);
+#endif 
 
 	mkdir(_libocl_clproc_dirname,S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH);
 
+#ifdef __ANDROID__
+	snprintf(_libocl_clproc_statename,64,"./%d/state",(int)pid);
+#else 
 	snprintf(_libocl_clproc_statename,64,VAR_CLPROC_PATH "/%d/state",(int)pid);
+#endif 
 
 #ifdef __FreeBSD__
 	int fd = open(_libocl_clproc_statename,O_CREAT|O_WRONLY,

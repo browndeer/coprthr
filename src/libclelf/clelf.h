@@ -23,7 +23,14 @@
 #ifndef _CLELF_H
 #define _CLELF_H
 
+//#include <elf.h>
+
+#ifdef __ANDROID__
+#include <libelf/libelf.h>
+#define Elf32_Xword Elf32_Word
+#else
 #include <elf.h>
+#endif
 
 #if defined(__x86_64__)
 #define ELF_Word 		Elf64_Word

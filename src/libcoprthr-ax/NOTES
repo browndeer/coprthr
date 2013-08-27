@@ -1,0 +1,43 @@
+
+Supported compilation workflows:
+
+	CPU/x86_64:
+		build_from_source: CL -> LL -> BIN
+		support: .compiler -> compiler()
+
+	GPU/ATI:
+		//build_from_source: CL -> LL -> IL -> BIN
+		build_from_binary: IL -> BIN
+		support: .compiler_il -> compiler_il_atigpu()
+
+	RPU/KA2_5T1:
+		build_from_binary: IL -> BIN
+		build_from_binary: BIN
+		support: .compiler_il -> compiler_il_ka25t1rpu()
+
+Implementation specific compiler support:
+.compiler (SRC)
+.compiler_il (IR)
+.compiler_ll (IR)
+
+--
+
+Usage of program struct for different workflows:
+
+*src					CL source [CL/x86_64]
+						0 [IL/ATIGPU]
+
+**bin					0 [CL/x86_64]
+						per device IL [IL/ATIGPU]
+
+**v_kbin				per device dlopen handle [CL/x86_64]
+						per device calmodule [IL/ATIGPU]
+
+***v_ksym			per device per sym dlsym lookup [CL/x86_64]
+						per device calmodule entry, "main" only [IL/ATIGPU] 
+
+***v_kcall			per device per sym dlsym lookup, call wrap [CL/x86_64]
+						0 [IL/ATIGPU]
+
+
+

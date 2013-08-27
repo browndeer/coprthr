@@ -28,7 +28,11 @@
 #else
 #include <unistd.h>
 #include <sys/mman.h>
+#if defined(__ANDROID__)
+#include <libelf/libelf.h>
+#else
 #include <elf.h>
+#endif
 #endif
 
 #include <sys/types.h>

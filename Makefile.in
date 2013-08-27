@@ -39,16 +39,21 @@ ifeq (@ENABLE_LIBCLRPC@,1)
 SUBDIRS += ./src/libclrpc
 endif
 
+
 ifeq (@ENABLE_LIBCOPRTHR@,1)
-#SUBDIRS += ./src/libcoprthr ./tools/xclnm
-#SUBDIRS += ./src/libcoprthr2 ./src/libcoprthrcc ./tools/xclnm
+ifeq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
+SUBDIRS += ./src/libcoprthr-ax ./tools/xclnm
+else
 SUBDIRS += ./src/libcoprthr ./src/libcoprthrcc ./tools/xclnm
+endif
 endif
 
 SUBDIRS += ./include ./src/libclelf ./src/libstdcl 
 
 ifeq (@ENABLE_CLLD@,1)
+ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 SUBDIRS += ./tools/clcc ./tools/clcc1 ./tools/clld ./tools/clnm
+endif
 endif
 
 #ifneq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
@@ -68,7 +73,9 @@ ifeq (@ENABLE_EPIPHANY@,1)
 SUBDIRS += ./src/libcoprthr-e
 endif
 
+ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 SUBDIRS += ./tools/cltop ./tools/scripts
+endif
 
 #DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts
 DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libcoprthrcc ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts

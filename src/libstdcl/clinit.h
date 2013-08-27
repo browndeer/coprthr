@@ -35,7 +35,11 @@
 #else
 #define LIBSTDCL_API 
 #include <sys/queue.h>
+#if defined(__ANDROID__)
+#include <libelf/libelf.h>
+#else
 #include <elf.h>
+#endif
 #endif
 
 
