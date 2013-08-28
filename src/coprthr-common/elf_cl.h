@@ -204,3 +204,5 @@ void* elfcl_get_cltextb( void* p );
 
 #endif
 
+#endif
+
