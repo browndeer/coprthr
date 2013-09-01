@@ -36,6 +36,7 @@
 
 #include <CL/cl.h>
 #define CL_CONTEXT_OFFLINE_DEVICES_AMD 0x403F
+#define CL_CONTEXT_OFFLINE_DEVICES_COPRTHR 0x403F
 
 //#include "util.h"
 #include "printcl.h"
@@ -698,10 +699,10 @@ int main(int argc, char** argv)
 		if (use_offline_devices) switch (platform_code) {
 
 			case CLELF_PLATFORM_CODE_AMDAPP:
+			case CLELF_PLATFORM_CODE_COPRTHR:
 				cprops[2] = CL_CONTEXT_OFFLINE_DEVICES_AMD;
 				cprops[3] = (cl_context_properties)1;
 				cprops[4] = (cl_context_properties)0;
-				printcl( CL_DEBUG "use amdapp offline");
 				break;
 
 			default:

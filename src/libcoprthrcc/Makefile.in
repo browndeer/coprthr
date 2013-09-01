@@ -56,6 +56,8 @@ OBJS_E = elfcl_x86_64.o elfcl_386.o elfcl_arm32.o \
 	compiler_e32_emek.o \
 	compiler_e32_needham.o compiler_e32_needhampro.o compiler_e32_blank.o
 
+OBJS_CROSS = compiler_android_arm32.o
+
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
 
@@ -144,9 +146,10 @@ all: $(TARGET)
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
 
-libcoprthrcc.so: $(OBJS) 
+libcoprthrcc.so: $(OBJS) $(OBJS_CROSS)
 	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthrcc.so -o libcoprthrcc.so  $(OBJS) $(LIBS)
+		-shared -Wl,-soname,libcoprthrcc.so -o libcoprthrcc.so  \
+		$(OBJS) $(OBJS_CROSS) $(LIBS)
 
 libcoprthrcc-e.so: $(OBJS_E) 
 	$(CC) $(CCFLAGS) $(INCS) \
@@ -182,6 +185,12 @@ compiler_e32_needhampro.o: compiler_e32.c
 compiler_e32_blank.o: compiler_e32.c
 	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_BLANK__ \
 		$(INCS) $(INCS_E) -c compiler_e32.c -o $*.o
+
+
+compiler_android_arm32.o: compiler_cross.c
+	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_arm32__ $(INCS) \
+		-c -o compiler_android_arm32.o $<
+
 
 
 
