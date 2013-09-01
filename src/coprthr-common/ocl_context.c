@@ -27,6 +27,7 @@
 #include "printcl.h"
 #include "context.h"
 
+#define CL_CONTEXT_OFFLINE_DEVICES_COPRTHR 0x403F
 
 #define MAXPROPLEN 10
 
@@ -131,6 +132,15 @@ _clCreateContextFromType(
 
 	}
 
+#ifdef ENABLE_OFFLINE_DEVICE
+	int offline;
+	if (__find_context_property(
+		prop,CL_CONTEXT_OFFLINE_DEVICES_COPRTHR,&offline)
+	) {
+
+		printcl( CL_DEBUG "clCreateContext: offline devices requested");
+	}
+#endif
 
 	cl_uint n;
 
