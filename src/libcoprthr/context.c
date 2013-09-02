@@ -63,6 +63,7 @@ void __do_get_max_buffer_size_in_context(cl_context ctx, size_t* sz)
 	int i;
 	size_t tmp = 0;
 	for(i=0;i<ctx->ndev;i++) 
-		tmp = max(tmp,__resolve_devid(ctx->devices[i],max_mem_alloc_sz));
+//		tmp = max(tmp,__resolve_devid(ctx->devices[i],max_mem_alloc_sz));
+		tmp = max(tmp,__resolve_devid_devinfo(ctx->devices[i],max_mem_alloc_sz));
 	*sz = tmp;
 }

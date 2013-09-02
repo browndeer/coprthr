@@ -114,7 +114,11 @@ struct coprthr_device {
 	struct coprthr_device_linker* devlink;
 };
 
+#define __resolve_devid_devinfo(d,m) ((d)->codev->devinfo->m)
+#define __resolve_devid_devstate(d,m) ((d)->codev->devstate->m)
+#define __resolve_devid_devops(d,m) ((d)->codev->devops->m)
 #define __resolve_devid_devcomp(d,m) ((d)->codev->devcomp->m)
+#define __resolve_devid_devlink(d,m) ((d)->codev->devlink->m)
 
 /*
 #define __imp_init_device(imp) do { \

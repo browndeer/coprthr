@@ -284,7 +284,8 @@ cl_int __do_build_program_from_binary(
 	char name[1024];
 	int err;
 
-	cl_device_type devtype = __resolve_devid(devid,devtype);
+//	cl_device_type devtype = __resolve_devid(devid,devtype);
+	cl_device_type devtype = __resolve_devid_devinfo(devid,devtype);
 
 	if (devtype == CL_DEVICE_TYPE_CPU) {
 
@@ -304,8 +305,10 @@ cl_int __do_build_program_from_binary(
 
 		printcl( CL_DEBUG "devnum knum %d %d",devnum,i);
 
-		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) 
-			__resolve_devid(devid,bind_ksyms)(
+//		if (__resolve_devid(devid,devtype)==CL_DEVICE_TYPE_CPU) 
+		if (__resolve_devid_devinfo(devid,devtype)==CL_DEVICE_TYPE_CPU) 
+//			__resolve_devid(devid,bind_ksyms)(
+			__resolve_devid_devlink(devid,bind_ksyms)(
 				&(prg->imp.v_ksyms[devnum][i]), h, prg->imp.kname[i]);
 		else
 			bzero(&prg->imp.v_ksyms[devnum][i],sizeof(struct _imp_ksyms_struct));

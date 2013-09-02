@@ -42,9 +42,9 @@
 #include "platform.h"
 #include "device.h"
 #include "cmdcall.h"
-#include "cmdcall_x86_64.h"
+//#include "cmdcall_x86_64.h"
 #include "cmdcall_x86_64_sl.h"
-#include "cmdcall_x86_64_ser.h"
+//#include "cmdcall_x86_64_ser.h"
 #include "compiler.h"
 #include "program.h"
 

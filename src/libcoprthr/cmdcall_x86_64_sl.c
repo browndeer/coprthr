@@ -73,8 +73,10 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 		argp->k.local_work_size[1],
 		argp->k.local_work_size[2]);
 
-	int base = __resolve_devid(devid,cpu.veid_base);
-	int nve = __resolve_devid(devid,cpu.nve);
+//	int base = __resolve_devid(devid,cpu.veid_base);
+//	int nve = __resolve_devid(devid,cpu.nve);
+	int base = __resolve_devid_devstate(devid,cpu.veid_base);
+	int nve = __resolve_devid_devstate(devid,cpu.nve);
 
 	printcl( CL_DEBUG "cpu.nve = %d", nve );
 

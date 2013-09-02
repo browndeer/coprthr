@@ -1,6 +1,6 @@
 /* memobj.c 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -38,11 +38,13 @@ void __do_release_memobj(cl_mem memobj)
 
 	for(i=0;i<ndev;i++) {
 
-		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
+//		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
+		if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
 
 			if (memobj->imp.res[i]) free(memobj->imp.res[i]);
 
-		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+//		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+		} else if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
 
 			printcl( CL_WARNING "device unsupported, how did you get here?");
 
@@ -68,7 +70,8 @@ void __do_create_buffer(cl_mem memobj)
 
 	for(i=0;i<ndev;i++) {
 
-		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
+//		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
+		if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
 
 			memobj->imp.res[i] = malloc(memobj->sz);
 
@@ -92,7 +95,8 @@ void __do_create_buffer(cl_mem memobj)
 				memcpy(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
 			}
 
-		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+//		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+		} else if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
 
 			printcl( CL_WARNING "device unsupported, how did you get here?");
 
@@ -136,7 +140,8 @@ void __do_create_image2d(cl_mem memobj)
 
 	for(i=0;i<ndev;i++) {
 
-		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
+//		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
+		if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
 
 			/* XXX the 128 would take too long to explain -DAR */
 //			void* ptri = malloc(128 + memobj->sz);
@@ -156,7 +161,8 @@ void __do_create_image2d(cl_mem memobj)
 
 			}
 
-		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+//		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+		} else if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
 
 			printcl( CL_WARNING "device unsupported, how did you get here?");
 

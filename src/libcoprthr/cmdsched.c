@@ -51,7 +51,8 @@ void* cmdqx0( void* argp )
 	/* XXX set cpu affinity of td based on device recommendation -DAR */
 	
 	pthread_setaffinity_np(pthread_self(),sizeof(cpu_set_t),
-		&__resolve_devid(devid,cpumask));
+//		&__resolve_devid(devid,cpumask));
+		&__resolve_devid_devstate(devid,cpumask));
 
 
 //	printcl( CL_DEBUG "cmdqx0: cmdq=%p devid=%p cpumask_count=%d",
@@ -63,7 +64,8 @@ void* cmdqx0( void* argp )
  */
 
 
-	cmdcall_t* cmdcall = __resolve_devid(cmdq->devid,v_cmdcall);
+//	cmdcall_t* cmdcall = __resolve_devid(cmdq->devid,v_cmdcall);
+	cmdcall_t* cmdcall = __resolve_devid_devops(cmdq->devid,v_cmdcall);
 
 	assert(CL_COMMAND_RELEASE_GL_OBJECTS - CLCMD_OFFSET == CLCMD_NUM);
 
