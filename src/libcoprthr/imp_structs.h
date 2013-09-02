@@ -143,24 +143,19 @@ struct _imp_device {
 			unsigned int nve;
 		} cpu;
 
-//#ifdef ENABLE_ATIGPU
-//		struct {
-//			CALdevice caldev;
-//			CALdeviceinfo calinfo;
-//		} atigpu;
-//#endif
-		
 	};
 
 };
 
 #define __imp_init_device(imp) do { \
-	bzero(&imp,sizeof(struct _imp_device)); \
+	imp = malloc(sizeof(struct _imp_device)); \
+	bzero(imp,sizeof(struct _imp_device)); \
 	} while(0)
 
-#define __imp_free_device(imp) do {} while(0)
+#define __imp_free_device(imp) do { if (imp) free(imp) } while(0)
 
-#define __resolve_devid(d,m) ((d)->imp.m)
+//#define __resolve_devid(d,m) ((d)->imp.m)
+#define __resolve_devid(d,m) ((d)->imp->m)
 
 
 /* platform */

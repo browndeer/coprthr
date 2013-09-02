@@ -114,20 +114,30 @@ void __do_discover_devices(
 	unsigned int ncpu = 1;
 	*p_ndevices = ncpu;
 
-#ifdef ENABLE_OFFLINE_DEVICES
+#ifdef ENABLE_OFFLINE_DEVICE
 	*p_ndevices += 1;
 #endif
 
 	struct _cl_device_id* dtab = *p_dtab = (struct _cl_device_id*)
 		malloc(*p_ndevices*sizeof(struct _cl_device_id));
 
+	printcl( CL_DEBUG "ndevices %d",*p_ndevices);
+
+	for(devnum=0; devnum<*p_ndevices;devnum++){
+		printcl( CL_DEBUG "devnum %d",devnum);
+		void* p = malloc(sizeof(struct _imp_device));
+		printcl( CL_DEBUG "p %p",p);
+		dtab[devnum].imp = p;
+		printcl( CL_DEBUG "dtab[%d].imp %p %p",devnum,p,dtab[devnum].imp);
+	}
+
 	__init_device_id(dtab); // XXX this only initializesfirst entry
 
-#ifdef ENABLE_OFFLINE_DEVICES
-	__init_device_id(dtab+1);
+#ifdef ENABLE_OFFLINE_DEVICE
+	__init_device_id((dtab+1));
 #endif
 
-	dtab[0].imp = (struct _imp_device){
+	*dtab[0].imp = (struct _imp_device){
 		CL_DEVICE_TYPE_CPU,
 		0,				/* vendorid */
 		1,				/* max_compute_units */
@@ -175,12 +185,12 @@ void __do_discover_devices(
 	size_t dstrtab_sz = 1;
 	dstrtab[0] = '\0';
 
-	dtab[0].imp.name = dstrtab;
-	dtab[0].imp.vendor = dstrtab;
-	dtab[0].imp.drv_version = dstrtab;
-	dtab[0].imp.profile = dstrtab;
-	dtab[0].imp.version = dstrtab;
-	dtab[0].imp.extensions = dstrtab;
+	dtab[0].imp->name = dstrtab;
+	dtab[0].imp->vendor = dstrtab;
+	dtab[0].imp->drv_version = dstrtab;
+	dtab[0].imp->profile = dstrtab;
+	dtab[0].imp->version = dstrtab;
+	dtab[0].imp->extensions = dstrtab;
 
 
 	FILE* fp;
@@ -199,7 +209,7 @@ void __do_discover_devices(
 	sz=4;
 	sysctlbyname("hw.clockrate",&val,&sz,0,0);
 	printf("clockrate %d %d\n",val,sz);
-	dtab[0].imp.max_freq = val;
+	dtab[0].imp->max_freq = val;
 
 	sz=1024;
 	sysctlbyname("hw.model",buf,&sz,0,0);
@@ -208,7 +218,7 @@ void __do_discover_devices(
 	char* bufp = truncate_ws(buf);
 	sz = 1+strnlen(bufp,__CLMAXSTR_LEN);
 	strncpy(dstrtab+dstrtab_sz,bufp,sz);
-	dtab[0].imp.name = dstrtab+dstrtab_sz;
+	dtab[0].imp->name = dstrtab+dstrtab_sz;
 	dstrtab_sz += sz;
 
 #elif defined(__x86_64__) || defined(__i386__)
@@ -232,18 +242,18 @@ void __do_discover_devices(
 
 		} else if (!strncasecmp(left,"cpu count",8)) {
 
-			dtab[0].imp.max_compute_units = atoi(right);
+			dtab[0].imp->max_compute_units = atoi(right);
 
 		} else if (!strncasecmp(left,"cpu MHz",7)) {
 
-			dtab[0].imp.max_freq = atoi(right);
+			dtab[0].imp->max_freq = atoi(right);
 
 		} else if (!strncasecmp(left,"model name",10)) {
 
 			right = truncate_ws(right);
 			sz = 1+strnlen(right,__CLMAXSTR_LEN);
 			strncpy(dstrtab+dstrtab_sz,right,sz);
-			dtab[0].imp.name = dstrtab+dstrtab_sz;
+			dtab[0].imp->name = dstrtab+dstrtab_sz;
 			dstrtab_sz += sz;
 
 		} else if (!strncasecmp(left,"vendor_id",9)) {
@@ -251,7 +261,7 @@ void __do_discover_devices(
 			right = truncate_ws(right);
 			sz = 1+strnlen(right,__CLMAXSTR_LEN);
 			strncpy(dstrtab+dstrtab_sz,right,sz);
-			dtab[0].imp.vendor = dstrtab+dstrtab_sz;
+			dtab[0].imp->vendor = dstrtab+dstrtab_sz;
 			dstrtab_sz += sz;
 
 		}
@@ -301,7 +311,7 @@ void __do_discover_devices(
 		if (!strncmp(left,"processor",9)) {
 
 //			if (atoi(right) > 0) break;
-			dtab[0].imp.max_compute_units = atoi(right) + 1;
+			dtab[0].imp->max_compute_units = atoi(right) + 1;
 
 //		} else if (!strncasecmp(left,"cpu count",8)) {
 //
@@ -317,7 +327,7 @@ void __do_discover_devices(
 			right = truncate_ws(right);
 			sz = 1+strnlen(right,__CLMAXSTR_LEN);
 			strncpy(dstrtab+dstrtab_sz,right,sz);
-			dtab[0].imp.name = dstrtab+dstrtab_sz;
+			dtab[0].imp->name = dstrtab+dstrtab_sz;
 			dstrtab_sz += sz;
 
 //		} else if (!strncasecmp(left,"vendor_id",9)) {
@@ -326,7 +336,7 @@ void __do_discover_devices(
 			right = truncate_ws(right);
 			sz = 1+strnlen(right,__CLMAXSTR_LEN);
 			strncpy(dstrtab+dstrtab_sz,right,sz);
-			dtab[0].imp.vendor = dstrtab+dstrtab_sz;
+			dtab[0].imp->vendor = dstrtab+dstrtab_sz;
 			dstrtab_sz += sz;
 
 		}
@@ -366,30 +376,31 @@ if (!dlh_compiler)
 
 #if defined(__x86_64__)	
 //	dtab[0].imp.comp = (void*)compile_x86_64;
-	dtab[0].imp.comp = dlsym(dlh_compiler,"compile_x86_64");
-	dtab[0].imp.ilcomp = 0;
-	dtab[0].imp.link = 0;
-	dtab[0].imp.bind_ksyms = bind_ksyms_default;
-	dtab[0].imp.v_cmdcall = cmdcall_x86_64_sl;
+	dtab[0].imp->comp = dlsym(dlh_compiler,"compile_x86_64");
+	dtab[0].imp->ilcomp = 0;
+	dtab[0].imp->link = 0;
+	dtab[0].imp->bind_ksyms = bind_ksyms_default;
+	dtab[0].imp->v_cmdcall = cmdcall_x86_64_sl;
 #elif defined(__arm__)
 //   dtab[0].imp.comp = (void*)compile_arm;
 //   dtab[0].imp.comp = dlsym(dlh_compiler,"compile_arm");;
-   dtab[0].imp.comp = dlsym(dlh_compiler,"compile_arm32");;
-   dtab[0].imp.ilcomp = 0;
-   dtab[0].imp.link = 0;
-	dtab[0].imp.bind_ksyms = bind_ksyms_default;
-   dtab[0].imp.v_cmdcall = cmdcall_x86_64_sl; /* XXX fix naming -DAR */
+   dtab[0].imp->comp = dlsym(dlh_compiler,"compile_arm32");;
+   dtab[0].imp->ilcomp = 0;
+   dtab[0].imp->link = 0;
+	dtab[0].imp->bind_ksyms = bind_ksyms_default;
+   dtab[0].imp->v_cmdcall = cmdcall_x86_64_sl; /* XXX fix naming -DAR */
 #else
 #error unsupported architecture
 #endif
 
-if (!dtab[0].imp.comp)
+if (!dtab[0].imp->comp)
 	printcl( CL_WARNING "no compiler, dlsym failure");
 
 
 #ifdef ENABLE_OFFLINE_DEVICE
-	dtab[1].imp.comp = dlsym(dlh_compiler,"compile_android_arm32");
-	if (!dtab[1].imp.comp)
+	printcl( CL_DEBUG "dtab[1].imp=%p",dtab[1].imp);
+	dtab[1].imp->comp = dlsym(dlh_compiler,"compile_android_arm32");
+	if (!dtab[1].imp->comp)
 		printcl( CL_WARNING "no offline compiler, dlsym failure");
 	else
 		printcl( CL_DEBUG "found offline compiler");
@@ -431,29 +442,29 @@ if (!dtab[0].imp.comp)
 
 		int cpd = ncore/ncpu;
 		for(devnum=0;devnum<ncpu;devnum++) {
-			CPU_ZERO(&dtab[devnum].imp.cpumask);
+			CPU_ZERO(&dtab[devnum].imp->cpumask);
 			for(i=devnum*cpd;i<(devnum+1)*cpd;i++) 
-				CPU_SET(i,&dtab[devnum].imp.cpumask);
-			dtab[devnum].imp.cpu.veid_base = devnum*cpd;
-			dtab[devnum].imp.cpu.nve = cpd;
+				CPU_SET(i,&dtab[devnum].imp->cpumask);
+			dtab[devnum].imp->cpu.veid_base = devnum*cpd;
+			dtab[devnum].imp->cpu.nve = cpd;
 			
 			printcl( CL_DEBUG "devnum base nve %d %d %d",
-				devnum,dtab[devnum].imp.cpu.veid_base,dtab[devnum].imp.cpu.nve);
+				devnum,dtab[devnum].imp->cpu.veid_base,dtab[devnum].imp->cpu.nve);
 		}
 
 		*p_ndevices = ncpu;
 
 	} else {
-		CPU_ZERO(&dtab[0].imp.cpumask);
-		for(i=0;i<ncore;i++) CPU_SET(i,&dtab[0].imp.cpumask);
-		dtab[0].imp.cpu.veid_base = 0;
-		dtab[0].imp.cpu.nve = ncore;
+		CPU_ZERO(&dtab[0].imp->cpumask);
+		for(i=0;i<ncore;i++) CPU_SET(i,&dtab[0].imp->cpumask);
+		dtab[0].imp->cpu.veid_base = 0;
+		dtab[0].imp->cpu.nve = ncore;
 	}
 #else
-	CPU_ZERO(&dtab[0].imp.cpumask);
-	for(i=0;i<ncore;i++) CPU_SET(i,&dtab[0].imp.cpumask);
-	dtab[0].imp.cpu.veid_base = 0;
-	dtab[0].imp.cpu.nve = ncore;
+	CPU_ZERO(&dtab[0].imp->cpumask);
+	for(i=0;i<ncore;i++) CPU_SET(i,&dtab[0].imp->cpumask);
+	dtab[0].imp->cpu.veid_base = 0;
+	dtab[0].imp->cpu.nve = ncore;
 #endif
 
 
@@ -487,9 +498,9 @@ void __do_get_ndevices(
 
 	for(devnum=0;devnum<ndevices;devnum++) {
 		printcl( CL_DEBUG "match devtype %d %d",
-			dtab[devnum].imp.devtype,devtype);
+			dtab[devnum].imp->devtype,devtype);
 //		if (dtab[devnum].imp.devtype == devtype) n++;
-		if (dtab[devnum].imp.devtype & devtype) n++;
+		if (dtab[devnum].imp->devtype & devtype) n++;
 	}
 
 	printcl( CL_DEBUG "n = %d",n);
@@ -513,7 +524,7 @@ void __do_get_devices(
 
 	for(devnum=0;devnum<ndevices;devnum++) 
 //		if (n<ndev && dtab[devnum].imp.devtype == devtype) 
-		if (n<ndev && dtab[devnum].imp.devtype & devtype) 
+		if (n<ndev && dtab[devnum].imp->devtype & devtype) 
 			devices[n++] = &__resolve_platformid(platformid,dtab[devnum]);
 
 }

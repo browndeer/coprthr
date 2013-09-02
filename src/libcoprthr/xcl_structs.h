@@ -89,7 +89,7 @@ struct _cl_platform_id {
 
 struct _cl_device_id {
 	void* _reserved;
-	struct _imp_device imp;
+	struct _imp_device* imp;
 };
 
 #define __init_device_id(devid) do { \

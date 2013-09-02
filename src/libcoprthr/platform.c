@@ -60,7 +60,8 @@ void __do_discover_platforms()
 	};
 
        for(i=0;i<__ndevices;i++)
-               __dtab[0].imp.platformid = __ptab; /* XXX this is new -DAR */
+//               __dtab[0].imp.platformid = __ptab; /* XXX this is new -DAR */
+               __dtab[0].imp->platformid = __ptab; /* XXX this is new -DAR */
 
 
 }
