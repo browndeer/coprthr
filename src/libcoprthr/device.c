@@ -67,7 +67,7 @@
 void* dlh_compiler = 0;
 
 
-char* strnlen_ws( char* p, char* s, size_t maxlen)
+static char* strnlen_ws( char* p, char* s, size_t maxlen)
 {
 	size_t sz = strnlen(s,maxlen);
 	char* p1 = s;
@@ -92,6 +92,12 @@ static char* truncate_ws(char* buf)
 //	struct _cl_device_id** p_dtab, 
 //	struct _strtab_entry* p_dstrtab 
 //);
+
+struct coprthr_device* __coprthr_do_discover_device_x86_64(
+	unsigned int* p_ndevices, 
+	struct _cl_device_id** p_dtab, 
+	struct _strtab_entry* p_dstrtab 
+);
 
 void __do_discover_devices(
 	unsigned int* p_ndevices, 
@@ -467,6 +473,12 @@ if (!dtab[0].imp->comp)
 	dtab[0].imp->cpu.nve = ncore;
 #endif
 
+
+	dtab[0].codev = __coprthr_do_discover_device_x86_64(
+		p_ndevices, 
+		p_dtab, 
+		p_dstrtab 
+	);
 
 }
 

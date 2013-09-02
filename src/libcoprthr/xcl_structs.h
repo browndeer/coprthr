@@ -30,6 +30,8 @@
 #include "printcl.h"
 
 #include "imp_structs.h"
+#include "coprthr_device.h"
+
 
 /* XXX temporarily put this here */
 void* __icd_call_vector;
@@ -90,14 +92,18 @@ struct _cl_platform_id {
 struct _cl_device_id {
 	void* _reserved;
 	struct _imp_device* imp;
+	struct coprthr_device* codev;
 };
 
 #define __init_device_id(devid) do { \
 	devid->_reserved = (void*)__icd_call_vector; \
 	__imp_init_device((devid)->imp); \
+	(devid)->codev = (struct coprthr_device*) \
+		malloc(sizeof(struct coprthr_device)); \
 	} while(0)
 
 #define __free_device_id(devid) do { \
+	if (devid->codev) free(devid->codev); \
 	__imp_free_device((devid)->imp); \
 	__free_device_id(devid); \
 	} while(0)

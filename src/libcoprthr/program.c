@@ -32,6 +32,8 @@
 #include "ocl_types.h"
 #include "printcl.h"
 
+#include "coprthr_device.h"
+
 #define _GNU_SOURCE
 #include <dlfcn.h>
 
@@ -320,7 +322,7 @@ cl_int __do_build_program_from_source(
 
 	printcl( CL_DEBUG "__do_build_program_from_source");
 
-	compiler_t comp = (compiler_t)__resolve_devid(devid,comp);
+	compiler_t comp = (compiler_t)__resolve_devid_devcomp(devid,comp);
 
 	if (!comp) return(CL_COMPILER_NOT_AVAILABLE);
 	
@@ -346,7 +348,7 @@ cl_int __do_build_program_from_source(
 int __do_check_compiler_available( cl_device_id devid )
 {
 
-	if (!__resolve_devid(devid,comp)) return(0);
+	if (!__resolve_devid_devcomp(devid,comp)) return(0);
 
 	return(1);
 }
