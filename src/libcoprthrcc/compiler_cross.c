@@ -177,7 +177,7 @@ static char* ecc_block_flags[] = { ECC_BLOCKED_FLAGS };
 #undef __compile
 #define __compile compile_android_arm32
 
-void* __compile(
+int __compile(
 	cl_device_id devid,
 	unsigned char* src, size_t src_sz, 
 	unsigned char** p_bin, size_t* p_bin_sz, 

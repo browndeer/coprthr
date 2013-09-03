@@ -59,7 +59,7 @@
 #define __elfcl_write elfcl_write_x86_64
 
 #define CCFLAGS_OCL \
-	" -fno-exceptions -O3 -msse -msse3 " \
+	" -fno-exceptions -O3 -m64 -msse -msse3 " \
 	" -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations " \
 	" -fschedule-insns -fschedule-insns2" \
 	" -U_FORTIFY_SOURCE"
@@ -74,7 +74,7 @@
 #define __elfcl_write elfcl_write_i386
 
 #define CCFLAGS_OCL \
-	" -fno-exceptions -O3 -msse -msse3 " \
+	" -fno-exceptions -O3 -m32 -msse -msse3 " \
 	" -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations " \
 	" -fschedule-insns -fschedule-insns2" \
 	" -U_FORTIFY_SOURCE"
@@ -164,7 +164,7 @@
 static char* ecc_block_flags[] = { ECC_BLOCKED_FLAGS };
 
 
-void* __compile(
+int __compile(
 	cl_device_id devid,
 	unsigned char* src, size_t src_sz, 
 	unsigned char** p_bin, size_t* p_bin_sz, 
