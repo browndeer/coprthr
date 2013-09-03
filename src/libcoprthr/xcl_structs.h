@@ -95,6 +95,7 @@ struct _cl_device_id {
 	struct coprthr_device* codev;
 };
 
+/*
 #define __init_device_id(devid) do { \
 	devid->_reserved = (void*)__icd_call_vector; \
 	__imp_init_device((devid)->imp); \
@@ -104,6 +105,16 @@ struct _cl_device_id {
 
 #define __free_device_id(devid) do { \
 	if (devid->codev) free(devid->codev); \
+	__imp_free_device((devid)->imp); \
+	__free_device_id(devid); \
+	} while(0)
+*/
+#define __init_device_id(devid) do { \
+	(devid)->_reserved = (void*)__icd_call_vector; \
+	__imp_init_device((devid)->imp); \
+	} while(0)
+
+#define __free_device_id(devid) do { \
 	__imp_free_device((devid)->imp); \
 	__free_device_id(devid); \
 	} while(0)

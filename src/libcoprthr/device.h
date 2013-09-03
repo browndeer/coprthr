@@ -28,7 +28,7 @@
 #include "xcl_structs.h"
 
 void __do_discover_devices( unsigned int* ndevices, 
-	struct _cl_device_id**, struct _strtab_entry* );
+	struct _cl_device_id**, struct _strtab_entry*, int flags );
 
 void __do_release_devices(struct _cl_device_id*, struct _strtab_entry*);
 

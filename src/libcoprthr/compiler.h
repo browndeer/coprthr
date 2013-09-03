@@ -28,11 +28,13 @@
 #include "xcl_structs.h"
 
 //typedef void*(*compiler_t)(cl_device_id,char*,size_t,char*,size_t,char*,char*);
-typedef void*(*compiler_t)(cl_device_id,char*,size_t,char**,size_t*,char*,char**);
+//typedef void*(*compiler_t)(cl_device_id,char*,size_t,char**,size_t*,char*,char**);
+typedef int(*compiler_t)(cl_device_id,char*,size_t,char**,size_t*,char*,char**);
 typedef void*(*ircompiler_t)(cl_device_id,char*,size_t,char*,size_t,char*,char*);
 
 
-void* compile_x86_64(
+//void* compile_x86_64(
+int compile_x86_64(
 	cl_device_id devid,
    unsigned char* src, size_t src_sz,
    unsigned char** p_bin, size_t* p_bin_sz,
@@ -40,29 +42,13 @@ void* compile_x86_64(
    char* opt, char** p_log
 );
 
-void* compile_arm(
+//void* compile_arm(
+int compile_arm(
 	cl_device_id devid,
    unsigned char* src, size_t src_sz,
    unsigned char** p_bin, size_t* p_bin_sz,
    char* opt, char** p_log
 );
-
-void* compile_atigpu(
-   cl_device_id,
-   unsigned char* src, size_t src_sz,
-   unsigned char* bin, size_t bin_sz,
-//   char** opt, char** log
-   char* opt, char* log
-);
-
-void* ilcompile_atigpu(
-   cl_device_id,
-   unsigned char* src, size_t src_sz,
-   unsigned char* bin, size_t bin_sz,
-//   char** opt, char** log
-   char* opt, char* log
-);
-
 
 #endif
 

@@ -43,7 +43,7 @@ void __do_discover_platforms()
 
 	if (__nplatforms > 0) return;
 
-	__do_discover_devices(&__ndevices,&__dtab,&__dstrtab);
+	__do_discover_devices(&__ndevices,&__dtab,&__dstrtab,0);
 
 	__nplatforms = 1;
 	__ptab = (struct _cl_platform_id*)malloc(sizeof(struct _cl_platform_id));

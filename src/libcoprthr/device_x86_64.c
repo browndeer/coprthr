@@ -42,9 +42,7 @@
 #include "platform.h"
 #include "device.h"
 #include "cmdcall.h"
-//#include "cmdcall_x86_64.h"
 #include "cmdcall_x86_64_sl.h"
-//#include "cmdcall_x86_64_ser.h"
 #include "compiler.h"
 #include "program.h"
 
@@ -72,11 +70,7 @@ static char* truncate_ws(char* buf)
 
 static void* dlh_compiler = 0;
 
-struct coprthr_device* __coprthr_do_discover_device_x86_64(
-	unsigned int* p_ndevices, 
-	struct _cl_device_id** p_dtab, 
-	struct _strtab_entry* p_dstrtab 
-)
+struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 {
 	printcl( CL_DEBUG "__coprthr_do_discover_device_x86_64");
 
@@ -137,15 +131,15 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(
 		.extensions = "cl_khr_icd",		/* extensions */
 	};
 
-	char* dstrtab = (char*)malloc(4096); /* XXX potential memory leak, fix it */
-	size_t dstrtab_sz = 1;
-	dstrtab[0] = '\0';
+//	char* dstrtab = (char*)malloc(4096); /* XXX potential memory leak, fix it */
+//	size_t dstrtab_sz = 1;
+//	dstrtab[0] = '\0';
 
-	codev->devinfo->name = dstrtab;
-	codev->devinfo->vendor = dstrtab;
-	codev->devinfo->drv_version = dstrtab;
-	codev->devinfo->profile = dstrtab;
-	codev->devinfo->version = dstrtab;
+	codev->devinfo->name = 0;
+	codev->devinfo->vendor = 0;
+	codev->devinfo->drv_version = 0;
+	codev->devinfo->profile = 0;
+	codev->devinfo->version = 0;
 
 	FILE* fp;
 	struct stat fs;
@@ -157,17 +151,14 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(
 	int val=0;
 	sz=4;
 	sysctlbyname("hw.ncpu",&val,&sz,0,0);
-//	printf("ncpu %d %d\n",val,sz);
 	codev->devinfo->max_compute_units = val;
 
 	sz=4;
 	sysctlbyname("hw.clockrate",&val,&sz,0,0);
-//	printf("clockrate %d %d\n",val,sz);
 	codev->devinfo->max_freq = val;
 
 	sz=1024;
 	sysctlbyname("hw.model",buf,&sz,0,0);
-//	printf("model %s %d\n",buf,sz);
 
 	char* bufp = truncate_ws(buf);
 	sz = 1+strnlen(bufp,__CLMAXSTR_LEN);
@@ -294,9 +285,17 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(
 
 #endif
 
-dlh_compiler = dlopen("libcoprthrcc.so",RTLD_LAZY);
-if (!dlh_compiler) 
-	printcl( CL_WARNING "no compiler,failed to load libcoprthrcc.so");
+	#define __terminate(p) do { if (!p) p = strdup("unknown"); } while(0)
+	__terminate(codev->devinfo->name);
+	__terminate(codev->devinfo->vendor);
+	__terminate(codev->devinfo->drv_version);
+	__terminate(codev->devinfo->profile);
+	__terminate(codev->devinfo->version);
+
+
+	dlh_compiler = dlopen("libcoprthrcc.so",RTLD_LAZY);
+	if (!dlh_compiler) 
+		printcl( CL_WARNING "no compiler,failed to load libcoprthrcc.so");
 
 #if defined(__x86_64__)	
 	codev->devcomp->comp = dlsym(dlh_compiler,"compile_x86_64");
@@ -305,17 +304,21 @@ if (!dlh_compiler)
 	codev->devlink->bind_ksyms = bind_ksyms_default;
 	codev->devops->v_cmdcall = cmdcall_x86_64_sl;
 #elif defined(__arm__)
-   codev->devcomp->comp = dlsym(dlh_compiler,"compile_arm32");;
-   codev->devcomp->ilcomp = 0;
-   codev->devlink->link = 0;
+	codev->devcomp->comp = dlsym(dlh_compiler,"compile_arm32");;
+	codev->devcomp->ilcomp = 0;
+	codev->devlink->link = 0;
 	codev->devlink->bind_ksyms = bind_ksyms_default;
-   codev->devops->v_cmdcall = cmdcall_x86_64_sl; /* XXX fix naming -DAR */
+	codev->devops->v_cmdcall = cmdcall_x86_64_sl; /* XXX fix naming -DAR */
 #else
 #error unsupported architecture
 #endif
 
-if (!codev->devcomp->comp)
-	printcl( CL_WARNING "no compiler, dlsym failure");
+	if (!codev->devcomp->comp) {
+		printcl( CL_WARNING "no compiler, dlsym failure");
+		codev->devstate->compiler_avail = CL_FALSE;
+	} else {
+		codev->devstate->compiler_avail = CL_TRUE;
+	}
 
 
 	int i;
@@ -325,120 +328,16 @@ if (!codev->devcomp->comp)
 	if (getenv("COPRTHR_MAX_NUM_ENGINES"))
 		ncore = min(ncore,atoi(getenv("COPRTHR_MAX_NUM_ENGINES")));
 
-//#ifdef ENABLE_NCPU
-//
-//	printcl( CL_DEBUG "checking for force_ncpu");
-//
-//	if (!getenv_token("COPRTHR_OCL","force_ncpu",buf,256)) ncpu = atoi(buf);
-//
-//	if (ncore%ncpu) {
-//		printcl( CL_WARNING "force_ncpu ignored, must be multiple of ncore");
-//		ncpu = 1;
-//	}
-//
-//	if (ncpu > 1) {
-//
-//		printcl( CL_WARNING "force_ncpu %d",ncpu);
-//
-//		printcl( CL_DEBUG "force_ncpu = %d",ncpu);
-//
-//		*p_dtab = (struct _cl_device_id*)
-//			realloc(*p_dtab,(ncpu-1)*sizeof(struct _cl_device_id));
-//
-//		for(devnum=1;devnum<ncpu;devnum++) 
-//			memcpy((*p_dtab)+devnum,(*p_dtab),sizeof(struct _cl_device_id));
-//
-//		int cpd = ncore/ncpu;
-//		for(devnum=0;devnum<ncpu;devnum++) {
-//			CPU_ZERO(&dtab[devnum].imp->cpumask);
-//			for(i=devnum*cpd;i<(devnum+1)*cpd;i++) 
-//				CPU_SET(i,&dtab[devnum].imp->cpumask);
-//			dtab[devnum].imp->cpu.veid_base = devnum*cpd;
-//			dtab[devnum].imp->cpu.nve = cpd;
-//			
-//			printcl( CL_DEBUG "devnum base nve %d %d %d",
-//				devnum,dtab[devnum].imp->cpu.veid_base,dtab[devnum].imp->cpu.nve);
-//		}
-//
-//		*p_ndevices = ncpu;
-//
-//	} else {
-//		CPU_ZERO(&dtab[0].imp->cpumask);
-//		for(i=0;i<ncore;i++) CPU_SET(i,&dtab[0].imp->cpumask);
-//		dtab[0].imp->cpu.veid_base = 0;
-//		dtab[0].imp->cpu.nve = ncore;
-//	}
-//#else
+	codev->devstate->avail = CL_TRUE;
 	CPU_ZERO(&(codev->devstate->cpumask));
 	for(i=0;i<ncore;i++) CPU_SET(i,&(codev->devstate->cpumask));
 	codev->devstate->cpu.veid_base = 0;
 	codev->devstate->cpu.nve = ncore;
-//#endif
-
 
 	printcl( CL_DEBUG "returning codev %p",codev);
 
 	return codev;
 
 }
-
-
-/*
-void __do_release_devices(
-	struct _cl_device_id* dtab,
-	struct _strtab_entry* dstrtab
-
-)
-{
-
-	if (dtab) free(dtab);
-	if (dstrtab->buf) free(dstrtab->buf);
-}
-*/
-
-
-/*
-void __do_get_ndevices(
-	cl_platform_id platformid, cl_device_type devtype, cl_uint* ndev 
-)
-{
-	unsigned int ndevices = __resolve_platformid(platformid,ndevices);
-	struct _cl_device_id* dtab = __resolve_platformid(platformid,dtab);
-
-	printcl( CL_DEBUG "ndevices = %d",ndevices);
-
-	int devnum;
-	unsigned int n = 0;
-
-	for(devnum=0;devnum<ndevices;devnum++) {
-		printcl( CL_DEBUG "match devtype %d %d",
-			dtab[devnum].imp->devtype,devtype);
-		if (dtab[devnum].imp->devtype & devtype) n++;
-	}
-
-	printcl( CL_DEBUG "n = %d",n);
-
-	*ndev = n;
-}
-*/
-
-
-/*
-void __do_get_devices(
-	cl_platform_id platformid, cl_device_type devtype, 
-	cl_uint ndev, cl_device_id* devices)
-{
-	unsigned int ndevices = __resolve_platformid(platformid,ndevices);
-	struct _cl_device_id* dtab = __resolve_platformid(platformid,dtab);
-	
-	int devnum;
-	int n = 0;
-
-	for(devnum=0;devnum<ndevices;devnum++) 
-		if (n<ndev && dtab[devnum].imp->devtype & devtype) 
-			devices[n++] = &__resolve_platformid(platformid,dtab[devnum]);
-
-}
-*/
 
 
