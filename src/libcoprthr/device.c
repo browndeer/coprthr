@@ -20,7 +20,7 @@
 
 /* DAR */
 
-#define ENABLE_OFFLINE_DEVICE
+//#define ENABLE_OFFLINE_DEVICE
 
 #define _GNU_SOURCE
 #include <sched.h>
@@ -120,9 +120,9 @@ void __do_discover_devices(
 	unsigned int ncpu = 1;
 	*p_ndevices = ncpu;
 
-#ifdef ENABLE_OFFLINE_DEVICE
-	*p_ndevices += 1;
-#endif
+//#ifdef ENABLE_OFFLINE_DEVICE
+//	*p_ndevices += 1;
+//#endif
 
 	struct _cl_device_id* dtab = *p_dtab = (struct _cl_device_id*)
 		malloc(*p_ndevices*sizeof(struct _cl_device_id));
@@ -139,10 +139,11 @@ void __do_discover_devices(
 
 	__init_device_id(dtab); // XXX this only initializesfirst entry
 
-#ifdef ENABLE_OFFLINE_DEVICE
-	__init_device_id((dtab+1));
-#endif
+//#ifdef ENABLE_OFFLINE_DEVICE
+//	__init_device_id((dtab+1));
+//#endif
 
+#if(0)
 	*dtab[0].imp = (struct _imp_device){
 		CL_DEVICE_TYPE_CPU,
 		0,				/* vendorid */
@@ -403,14 +404,14 @@ if (!dtab[0].imp->comp)
 	printcl( CL_WARNING "no compiler, dlsym failure");
 
 
-#ifdef ENABLE_OFFLINE_DEVICE
-	printcl( CL_DEBUG "dtab[1].imp=%p",dtab[1].imp);
-	dtab[1].imp->comp = dlsym(dlh_compiler,"compile_android_arm32");
-	if (!dtab[1].imp->comp)
-		printcl( CL_WARNING "no offline compiler, dlsym failure");
-	else
-		printcl( CL_DEBUG "found offline compiler");
-#endif
+//#ifdef ENABLE_OFFLINE_DEVICE
+//	printcl( CL_DEBUG "dtab[1].imp=%p",dtab[1].imp);
+//	dtab[1].imp->comp = dlsym(dlh_compiler,"compile_android_arm32");
+//	if (!dtab[1].imp->comp)
+//		printcl( CL_WARNING "no offline compiler, dlsym failure");
+//	else
+//		printcl( CL_DEBUG "found offline compiler");
+//#endif
 
 
 	int i;
@@ -473,6 +474,7 @@ if (!dtab[0].imp->comp)
 	dtab[0].imp->cpu.nve = ncore;
 #endif
 
+#endif // #if(0)
 
 	dtab[0].codev = __coprthr_do_discover_device_x86_64(
 		p_ndevices, 
@@ -510,9 +512,11 @@ void __do_get_ndevices(
 
 	for(devnum=0;devnum<ndevices;devnum++) {
 		printcl( CL_DEBUG "match devtype %d %d",
-			dtab[devnum].imp->devtype,devtype);
+//			dtab[devnum].imp->devtype,devtype);
+			dtab[devnum].codev->devinfo->devtype,devtype);
 //		if (dtab[devnum].imp.devtype == devtype) n++;
-		if (dtab[devnum].imp->devtype & devtype) n++;
+//		if (dtab[devnum].imp->devtype & devtype) n++;
+		if (dtab[devnum].codev->devinfo->devtype & devtype) n++;
 	}
 
 	printcl( CL_DEBUG "n = %d",n);
@@ -528,6 +532,8 @@ void __do_get_devices(
 {
 	unsigned int ndevices = __resolve_platformid(platformid,ndevices);
 	struct _cl_device_id* dtab = __resolve_platformid(platformid,dtab);
+
+//	printcl( CL_DEBUG "__do_get_devices %d %p",ndevices,dtab);
 	
 	int devnum;
 	int n = 0;
@@ -536,7 +542,8 @@ void __do_get_devices(
 
 	for(devnum=0;devnum<ndevices;devnum++) 
 //		if (n<ndev && dtab[devnum].imp.devtype == devtype) 
-		if (n<ndev && dtab[devnum].imp->devtype & devtype) 
+//		if (n<ndev && dtab[devnum].imp->devtype & devtype) 
+		if (n<ndev && dtab[devnum].codev->devinfo->devtype & devtype) 
 			devices[n++] = &__resolve_platformid(platformid,dtab[devnum]);
 
 }
