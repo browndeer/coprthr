@@ -46,8 +46,12 @@ _clCreateCommandQueue(
 	if (__invalid_context(ctx)) 
 		__error_return(CL_INVALID_CONTEXT,cl_command_queue);
 
+	printcl( CL_DEBUG "clCreateCommandQueue %p",devid);
+
 	if (__invalid_device_id(devid)) 
 		__error_return(CL_INVALID_DEVICE,cl_command_queue);
+
+	printcl( CL_DEBUG "clCreateCommandQueue");
 
 //		if () { /* XXX this needs to check prop -DAR */
 //			if (err) *err = CL_INVALID_VALUE;
