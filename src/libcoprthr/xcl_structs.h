@@ -26,7 +26,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include "util.h"
 #include "printcl.h"
 
 #include "imp_structs.h"
@@ -96,20 +95,6 @@ struct _cl_device_id {
 	struct coprthr_device* codev;
 };
 
-/*
-#define __init_device_id(devid) do { \
-	devid->_reserved = (void*)__icd_call_vector; \
-	__imp_init_device((devid)->imp); \
-	(devid)->codev = (struct coprthr_device*) \
-		malloc(sizeof(struct coprthr_device)); \
-	} while(0)
-
-#define __free_device_id(devid) do { \
-	if (devid->codev) free(devid->codev); \
-	__imp_free_device((devid)->imp); \
-	__free_device_id(devid); \
-	} while(0)
-*/
 #define __init_device_id(devid) do { \
 	(devid)->_reserved = (void*)__icd_call_vector; \
 	__imp_init_device((devid)->imp); \
@@ -175,22 +160,6 @@ struct _cl_command_queue {
 //	struct _imp_command_queue* ptr_imp;
 	struct coprthr_command_queue* ptr_imp;
 };
-
-/*
-#define __init_command_queue(cmdq) do { \
-	cmdq->_reserved = (void*)__icd_call_vector; \
-	cmdq->refc = 0; \
-	cmdq->ctx = (cl_context)0; \
-	cmdq->devid = (cl_device_id)0; \
-	cmdq->prop = (cl_command_queue_properties)0; \
-	__imp_init_command_queue(cmdq->ptr_imp); \
-	} while(0)
-
-#define __free_command_queue(cmdq) do { \
-	__imp_free_command_queue(cmdq->ptr_imp); \
-	__free(cmdq); \
-	} while(0)
-*/
 
 #define __init_command_queue(cmdq) do { \
 	cmdq->_reserved = (void*)__icd_call_vector; \
@@ -407,8 +376,7 @@ struct _cl_event {
 	cl_ulong tm_submit;
 	cl_ulong tm_start;
 	cl_ulong tm_end;
-	struct _imp_event imp;
-//	struct coprthr_event imp;
+	struct coprthr_event imp;
 };
 
 #define __init_event(ev) do { \
@@ -418,11 +386,11 @@ struct _cl_event {
 	ev->cmdq = (cl_command_queue)0; \
 	ev->cmd = (cl_command_type)0; \
 	ev->cmd_stat = 0; \
-	__imp_init_event(ev->imp); \
+	__coprthr_init_event(ev->imp); \
 	} while(0)
 
 #define __free_event(ev) do { \
-	__imp_free_event(ev->imp); \
+	__coprthr_free_event(ev->imp); \
 	__free(ev); \
 	} while(0)
 

@@ -61,8 +61,8 @@ struct coprthr_command_queue {
    unsigned int qstat;
    struct coprthr_event* cmd_submitted;
    struct coprthr_event* cmd_running;
-   TAILQ_HEAD(tailhead_cmds_queued,coprthr_event) cmds_queued;
-   TAILQ_HEAD(tailhead_cmds_complete,coprthr_event) cmds_complete;
+   TAILQ_HEAD(tailhead_cmds_queued,_cl_event) cmds_queued;
+   TAILQ_HEAD(tailhead_cmds_complete,_cl_event) cmds_complete;
 };
 
 #define __coprthr_init_command_queue(cmdq) do { \

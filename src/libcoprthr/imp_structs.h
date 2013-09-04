@@ -26,10 +26,6 @@
 #include <sys/queue.h>
 #include <pthread.h>
 
-//#ifdef ENABLE_ATIGPU
-//#include "cal.h"
-//#endif
-
 #include "cpuset_type.h"
 #include "cmdcall.h"
 
@@ -249,13 +245,7 @@ struct _imp_mem {
 
 /* event */
 
-struct _imp_event {
-	pthread_mutex_t mtx;
-	pthread_cond_t sig;
-	struct cmdcall_arg* cmd_argp;
-	TAILQ_ENTRY(_cl_event) cmds;
-};
-
+/*
 #if defined(__FreeBSD__)
 #define PTHREAD_MUTEX_ERRORCHECK_NP PTHREAD_MUTEX_ERRORCHECK
 #endif
@@ -276,40 +266,7 @@ struct _imp_event {
 	pthread_mutex_destroy(&imp.mtx); \
 	__free(imp.cmd_argp); \
 	} while(0)
-
-
-
-/* command_queue */
-
-/*
-struct _imp_command_queue {
-	pthread_t td;
-	pthread_mutex_t mtx;
-	pthread_cond_t sig;
-	unsigned int qstat;
-	struct _cl_event* cmd_submitted;
-	struct _cl_event* cmd_running;
-	TAILQ_HEAD(tailhead_cmds_queued,_cl_event) cmds_queued;
-	TAILQ_HEAD(tailhead_cmds_complete,_cl_event) cmds_complete;
-};
-
-#define __imp_init_command_queue(ptr_imp) do { \
-	pthread_mutex_init(&(ptr_imp)->mtx,0); \
-	pthread_cond_init(&(ptr_imp)->sig,0); \
-	(ptr_imp)->qstat = 0; \
-	(ptr_imp)->cmd_submitted = (struct _cl_event*)0; \
-	(ptr_imp)->cmd_running = (struct _cl_event*)0; \
-	TAILQ_INIT(&(ptr_imp)->cmds_queued); \
-	TAILQ_INIT(&(ptr_imp)->cmds_complete); \
-	} while(0)
-
-#define __imp_free_command_queue(ptr_imp) do { \
-	pthread_cond_destroy(&(ptr_imp)->sig); \
-	pthread_mutex_destroy(&(ptr_imp)->mtx); \
-	__free(ptr_imp); \
-	} while(0)
 */
-
 
 /* program */
 
@@ -329,8 +286,6 @@ struct _imp_program {
 
 	void** v_kbin;
 	char** v_kbin_tmpfile;
-//	void*** v_ksym;
-//	void*** v_kcall; 
 	struct _imp_ksyms_struct** v_ksyms;
 
 };
@@ -370,11 +325,7 @@ struct _imp_program {
 
 struct _imp_context {
 
-//#ifdef ENABLE_ATIGPU
-//	CALcontext* calctx;
-//#else
 	int dummy;
-//#endif
 
 };
 

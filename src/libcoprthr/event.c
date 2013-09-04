@@ -27,6 +27,7 @@
 #include "event.h"
 #include "command_queue.h"
 
+#include "coprthr_sched.h"
 
 void __do_release_event(cl_event ev) 
 {
