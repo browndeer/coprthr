@@ -281,6 +281,7 @@ struct _imp_event {
 
 /* command_queue */
 
+/*
 struct _imp_command_queue {
 	pthread_t td;
 	pthread_mutex_t mtx;
@@ -292,21 +293,22 @@ struct _imp_command_queue {
 	TAILQ_HEAD(tailhead_cmds_complete,_cl_event) cmds_complete;
 };
 
-#define __imp_init_command_queue(imp) do { \
-	pthread_mutex_init(&imp.mtx,0); \
-	pthread_cond_init(&imp.sig,0); \
-	imp.qstat = 0; \
-	imp.cmd_submitted = (struct _cl_event*)0; \
-	imp.cmd_running = (struct _cl_event*)0; \
-	TAILQ_INIT(&imp.cmds_queued); \
-	TAILQ_INIT(&imp.cmds_complete); \
+#define __imp_init_command_queue(ptr_imp) do { \
+	pthread_mutex_init(&(ptr_imp)->mtx,0); \
+	pthread_cond_init(&(ptr_imp)->sig,0); \
+	(ptr_imp)->qstat = 0; \
+	(ptr_imp)->cmd_submitted = (struct _cl_event*)0; \
+	(ptr_imp)->cmd_running = (struct _cl_event*)0; \
+	TAILQ_INIT(&(ptr_imp)->cmds_queued); \
+	TAILQ_INIT(&(ptr_imp)->cmds_complete); \
 	} while(0)
 
-#define __imp_free_command_queue(imp) do { \
-	pthread_cond_destroy(&imp.sig); \
-	pthread_mutex_destroy(&imp.mtx); \
+#define __imp_free_command_queue(ptr_imp) do { \
+	pthread_cond_destroy(&(ptr_imp)->sig); \
+	pthread_mutex_destroy(&(ptr_imp)->mtx); \
+	__free(ptr_imp); \
 	} while(0)
-
+*/
 
 
 /* program */

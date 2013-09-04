@@ -76,7 +76,7 @@ void* cmdqx0( void* argp )
 
 	printcl( CL_DEBUG "cmdqx0: idle");
 
-	while (cmdq->imp.qstat == 0) {
+	while (cmdq->ptr_imp->qstat == 0) {
 		printcl( CL_DEBUG "idle-sleep\n");
 		__wait_cmdq(cmdq);
 		printcl( CL_DEBUG "idle-wake\n");
@@ -89,12 +89,12 @@ void* cmdqx0( void* argp )
 
 	printcl( CL_INFO "cmdqx0: run");
 
-	while (cmdq->imp.qstat == 1) {
+	while (cmdq->ptr_imp->qstat == 1) {
 
 		printcl( CL_DEBUG "cmdqx0:"
-			" queued %p",cmdq->imp.cmds_queued.tqh_first);
+			" queued %p",cmdq->ptr_imp->cmds_queued.tqh_first);
 
-		while (ev = cmdq->imp.cmds_queued.tqh_first) {
+		while (ev = cmdq->ptr_imp->cmds_queued.tqh_first) {
 
 
 			printcl( CL_DEBUG "cmdqx0:"
@@ -110,8 +110,8 @@ void* cmdqx0( void* argp )
 			printcl( CL_DEBUG "cmdqx0: attempt __retain_event");
 			__retain_event(ev);
 
-			TAILQ_REMOVE(&cmdq->imp.cmds_queued,ev,imp.cmds);
-			cmdq->imp.cmd_submitted = ev;
+			TAILQ_REMOVE(&cmdq->ptr_imp->cmds_queued,ev,imp.cmds);
+			cmdq->ptr_imp->cmd_submitted = ev;
 			ev->cmd_stat = CL_SUBMITTED;
 			gettimeofday(&tv,0);
 			ev->tm_submit = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
@@ -140,9 +140,9 @@ void* cmdqx0( void* argp )
 
 			__lock_event(ev);
 
-			ev = cmdq->imp.cmd_submitted;
-			cmdq->imp.cmd_submitted = 0;
-			cmdq->imp.cmd_running = ev;
+			ev = cmdq->ptr_imp->cmd_submitted;
+			cmdq->ptr_imp->cmd_submitted = 0;
+			cmdq->ptr_imp->cmd_running = ev;
 			ev->cmd_stat = CL_RUNNING;
 
 			__unlock_cmdq(cmdq);
@@ -161,9 +161,9 @@ void* cmdqx0( void* argp )
 
 			__lock_event(ev);
 
-			ev = cmdq->imp.cmd_running;
-			cmdq->imp.cmd_running = 0;
-			TAILQ_INSERT_TAIL(&cmdq->imp.cmds_complete,ev,imp.cmds);
+			ev = cmdq->ptr_imp->cmd_running;
+			cmdq->ptr_imp->cmd_running = 0;
+			TAILQ_INSERT_TAIL(&cmdq->ptr_imp->cmds_complete,ev,imp.cmds);
 //			cmdq->imp.cmd_running = ev;
 			ev->cmd_stat = CL_COMPLETE;
 			gettimeofday(&tv,0);

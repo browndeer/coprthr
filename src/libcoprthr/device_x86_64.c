@@ -334,6 +334,8 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	codev->devstate->cpu.veid_base = 0;
 	codev->devstate->cpu.nve = ncore;
 
+	codev->devstate->cmdq = 0;
+
 	printcl( CL_DEBUG "returning codev %p",codev);
 
 	return codev;

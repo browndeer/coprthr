@@ -33,21 +33,27 @@
 
 void __do_create_command_queue( cl_command_queue cmdq ) 
 {
-	
+
+	if (!cmdq->devid->codev->devstate->cmdq)	
+		cmdq->devid->codev->devstate->cmdq = (struct coprthr_command_queue*)
+			malloc( sizeof(struct coprthr_command_queue));
+	__coprthr_init_command_queue(cmdq->devid->codev->devstate->cmdq);
+	cmdq->ptr_imp = cmdq->devid->codev->devstate->cmdq;
+
 	__lock_cmdq(cmdq);
-	cmdq->imp.qstat = 0;
+	cmdq->ptr_imp->qstat = 0;
 	__unlock_cmdq(cmdq);
 
 	/* fork cmdq sched thread */
 	int err; 
-	if (err = pthread_create(&cmdq->imp.td,0,cmdqx0,(void*)cmdq) ) {
+	if (err = pthread_create(&cmdq->ptr_imp->td,0,cmdqx0,(void*)cmdq) ) {
 		printcl( CL_ERR "__do_create_command_queue:"
 			" pthread_create failed");
 		exit(1);
 	}
 
 	__lock_cmdq(cmdq);
-	cmdq->imp.qstat = 1;
+	cmdq->ptr_imp->qstat = 1;
 	__sig_cmdq(cmdq);
 	__unlock_cmdq(cmdq);
 
@@ -60,17 +66,17 @@ void __do_release_command_queue( cl_command_queue cmdq )
 {
 	__lock_cmdq(cmdq);
 
-	cmdq->imp.qstat = 2;
+	cmdq->ptr_imp->qstat = 2;
 
 	/* check if the queue is empty and warn if its not */
 
-	if (cmdq->imp.cmds_queued.tqh_first) {
+	if (cmdq->ptr_imp->cmds_queued.tqh_first) {
 
 		printcl( CL_WARNING 
 			"__do_release_command_queue: cmds_queued not empty");
 
 		cl_event ev;
-		for(ev=cmdq->imp.cmds_queued.tqh_first; ev!=0; ev=ev->imp.cmds.tqe_next)
+		for(ev=cmdq->ptr_imp->cmds_queued.tqh_first; ev!=0; ev=ev->imp.cmds.tqe_next)
 			printcl( CL_DEBUG "cmds_queued: ev %p\n",ev);
 
 	}
@@ -83,7 +89,7 @@ void __do_release_command_queue( cl_command_queue cmdq )
 	/* now join the cmdq sched thread */
 	void* st;
 
-	pthread_join(cmdq->imp.td,&st);
+	pthread_join(cmdq->ptr_imp->td,&st);
 
 	printcl( CL_DEBUG "__do_release_command_queue:"
 		" cmdq->td joinied with status %d",st);	
@@ -104,7 +110,7 @@ void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev )
 
 	ev->cmd_stat = CL_QUEUED;
 
-	TAILQ_INSERT_TAIL(&cmdq->imp.cmds_queued,ev,imp.cmds);
+	TAILQ_INSERT_TAIL(&cmdq->ptr_imp->cmds_queued,ev,imp.cmds);
 
 	__sig_cmdq(cmdq);
 
@@ -161,13 +167,13 @@ void __do_finish( cl_command_queue cmdq )
 {
        __lock_cmdq(cmdq);
 
-       while ( !TAILQ_EMPTY(&cmdq->imp.cmds_queued)
-               || cmdq->imp.cmd_submitted || cmdq->imp.cmd_running
+       while ( !TAILQ_EMPTY(&cmdq->ptr_imp->cmds_queued)
+               || cmdq->ptr_imp->cmd_submitted || cmdq->ptr_imp->cmd_running
        ) {
 
                printcl( CL_DEBUG "empty %d submitted %p running %p",
-                       TAILQ_EMPTY(&cmdq->imp.cmds_queued),
-                       cmdq->imp.cmd_submitted,cmdq->imp.cmd_running);
+                       TAILQ_EMPTY(&cmdq->ptr_imp->cmds_queued),
+                       cmdq->ptr_imp->cmd_submitted,cmdq->ptr_imp->cmd_running);
 
                __wait_cmdq(cmdq);
 

@@ -23,6 +23,23 @@
 #ifndef _coprthr_device_h
 #define _coprthr_device_h
 
+#include "imp_structs.h"
+
+/* XXX temporarily put this here */
+
+/*
+struct coprthr_command_queue {
+   pthread_t td;
+   pthread_mutex_t mtx;
+   pthread_cond_t sig;
+   unsigned int qstat;
+   struct _cl_event* cmd_submitted;
+   struct _cl_event* cmd_running;
+   TAILQ_HEAD(tailhead_cmds_queued,_cl_event) cmds_queued;
+   TAILQ_HEAD(tailhead_cmds_complete,_cl_event) cmds_complete;
+};
+*/
+
 struct coprthr_device_info {
 
 	cl_device_type devtype;
@@ -79,6 +96,7 @@ struct coprthr_device_info {
 
 };
 
+struct coprthr_command_queue;
 struct coprthr_device_state {
 	cpu_set_t cpumask;
 	cl_bool avail;
@@ -89,6 +107,7 @@ struct coprthr_device_state {
 			unsigned int nve;
 		} cpu;
 	};
+	struct coprthr_command_queue* cmdq;
 };
 
 struct coprthr_device_operations {

@@ -25,13 +25,14 @@
 
 #include "xcl_structs.h"
 
-#define __lock_cmdq(cmdq) pthread_mutex_lock(&cmdq->imp.mtx)
+#define __lock_cmdq(cmdq) pthread_mutex_lock(&(cmdq)->ptr_imp->mtx)
 
-#define __unlock_cmdq(cmdq) pthread_mutex_unlock(&cmdq->imp.mtx)
+#define __unlock_cmdq(cmdq) pthread_mutex_unlock(&(cmdq)->ptr_imp->mtx)
 
-#define __wait_cmdq(cmdq) pthread_cond_wait(&cmdq->imp.sig,&cmdq->imp.mtx)
+#define __wait_cmdq(cmdq) \
+	pthread_cond_wait(&(cmdq)->ptr_imp->sig,&(cmdq)->ptr_imp->mtx)
 
-#define __sig_cmdq(cmdq) pthread_cond_signal(&cmdq->imp.sig)
+#define __sig_cmdq(cmdq) pthread_cond_signal(&(cmdq)->ptr_imp->sig)
 
 
 void __do_create_command_queue( cl_command_queue cmdq );

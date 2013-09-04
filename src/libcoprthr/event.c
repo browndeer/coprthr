@@ -39,7 +39,7 @@ void __do_release_event(cl_event ev)
 	printcl( CL_DEBUG "__do_release_event: locked cmdq");
 	printcl( CL_DEBUG "__do_release_event: remove ev from cmdq");
 	printcl( CL_DEBUG "__do_release_event: cmdq %p\n",ev->cmdq);
-	TAILQ_REMOVE(&ev->cmdq->imp.cmds_complete,ev,imp.cmds);
+	TAILQ_REMOVE(&ev->cmdq->ptr_imp->cmds_complete,ev,imp.cmds);
 	printcl( CL_DEBUG "__do_release_event: removed from cmdq");
 	__unlock_cmdq(ev->cmdq);
 	ev->cmdq = 0;
