@@ -239,7 +239,8 @@ static int get_nsym( const char* wd, const char* file_cl, const char* opt )
       "   if ($0!~/^#/ && pr==1) print $0;"
       " }' | xclnm -n -d - ",wd,file_cl,opt,file_cl);
 
-      printcl( CL_DEBUG "%s", buf1);
+//      printcl( CL_DEBUG "%s", buf1);
+      printcl( CL_DEBUG "%s", cmd);
 
 	FILE* fp = popen(cmd,"r");
 	fscanf(fp,"%d",&nsym);
