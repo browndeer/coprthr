@@ -119,10 +119,10 @@ struct coprthr_device_compiler {
 	void* (*ilcomp)(void*);
 };
 
-struct _imp_ksyms_struct;
+struct _coprthr_ksyms_struct;
 struct coprthr_device_linker {
 	void* (*link)(void*);
-	int (*bind_ksyms)(struct _imp_ksyms_struct*,void*,char*);
+	int (*bind_ksyms)(struct _coprthr_ksyms_struct*,void*,char*);
 };
 
 struct coprthr_device {

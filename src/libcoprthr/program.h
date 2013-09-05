@@ -1,6 +1,6 @@
 /* program.h
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -41,7 +41,7 @@ cl_int __do_build_program_from_binary(
 
 int __do_find_kernel_in_program( cl_program, const char* );
 
-int bind_ksyms_default( struct _imp_ksyms_struct* ksyms, void* h, char* kname );
+int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h, char* kname );
 
 #endif
 

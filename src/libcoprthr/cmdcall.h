@@ -31,7 +31,7 @@
 //typedef void*(*cmdcall_t)( void* );
 typedef void*(*cmdcall_t)(cl_device_id devid, void* cmd_argp);
 
-struct _imp_ksyms_struct;
+struct _coprthr_ksyms_struct;
 
 struct cmdcall_arg { 
 	
@@ -44,7 +44,7 @@ struct cmdcall_arg {
 
 			void* ksym;
 			void* kcall;
-			struct _imp_ksyms_struct* ksyms;
+			struct _coprthr_ksyms_struct* ksyms;
 			unsigned int narg;
 			size_t arg_buf_sz;
 			unsigned int* arg_kind;

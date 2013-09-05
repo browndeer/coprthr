@@ -36,44 +36,42 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 
 	printcl( CL_DEBUG "__do_create_kernel: knum=%d",k);
 
-	krn->name = prg->imp.kname[k];
+	krn->name = prg->imp->kname[k];
 
 	printcl( CL_DEBUG "__do_create_kernel: kname=%s",krn->name);
 
 /* XXX this is odd way of assigning kernel, fix it by contracting v_* -DAR */
 
-	krn->imp.v_kbin = prg->imp.v_kbin;
-//	krn->imp.v_ksym = prg->imp.v_ksym;
-//	krn->imp.v_kcall = prg->imp.v_kcall;
-	krn->imp.v_ksyms = prg->imp.v_ksyms;
-	krn->imp.knum = k;
+	krn->imp->v_kbin = prg->imp->v_kbin;
+	krn->imp->v_ksyms = prg->imp->v_ksyms;
+	krn->imp->knum = k;
 
-	cl_uint narg = krn->narg = prg->imp.knarg[k];
+	cl_uint narg = krn->narg = prg->imp->knarg[k];
 
 	printcl( CL_DEBUG "__do_create_kernel: narg=%d",narg);
 
 	if (narg == 0) return;
 
-	if (prg->imp.karg_kind[k]) 
-		__clone(krn->imp.arg_kind,prg->imp.karg_kind[k],narg,cl_uint);
-	else krn->imp.arg_kind = (cl_uint*)malloc(narg*sizeof(cl_uint));
+	if (prg->imp->karg_kind[k]) 
+		__clone(krn->imp->arg_kind,prg->imp->karg_kind[k],narg,cl_uint);
+	else krn->imp->arg_kind = (cl_uint*)malloc(narg*sizeof(cl_uint));
 
-	if (prg->imp.karg_sz[k]) 
-		__clone(krn->imp.arg_sz,prg->imp.karg_sz[k],narg,size_t);
-	else krn->imp.arg_sz = (size_t*)malloc(narg*sizeof(size_t));
+	if (prg->imp->karg_sz[k]) 
+		__clone(krn->imp->arg_sz,prg->imp->karg_sz[k],narg,size_t);
+	else krn->imp->arg_sz = (size_t*)malloc(narg*sizeof(size_t));
 
-	krn->imp.arg_off = malloc(narg*sizeof(uint32_t));
+	krn->imp->arg_off = malloc(narg*sizeof(uint32_t));
 		
-	size_t arg_buf_sz = krn->imp.arg_buf_sz = prg->imp.karg_buf_sz[k];
+	size_t arg_buf_sz = krn->imp->arg_buf_sz = prg->imp->karg_buf_sz[k];
 
-	if (arg_buf_sz > 0) krn->imp.arg_buf = malloc(arg_buf_sz);
+	if (arg_buf_sz > 0) krn->imp->arg_buf = malloc(arg_buf_sz);
 
 	size_t sz = 0;
 
 	for(i=0;i<narg;i++) {
-		krn->imp.arg_off[i] = sz;
-		sz += krn->imp.arg_sz[i];
-		printcl( CL_DEBUG "CHECKING arg_sz[%d] %d",i,krn->imp.arg_sz[i]);
+		krn->imp->arg_off[i] = sz;
+		sz += krn->imp->arg_sz[i];
+		printcl( CL_DEBUG "CHECKING arg_sz[%d] %d",i,krn->imp->arg_sz[i]);
 	}
 
 }
@@ -86,11 +84,11 @@ int __do_set_kernel_arg(
 )
 {
 
-//	if (arg_sz != krn->imp.arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+//	if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
 
-	void* p = krn->imp.arg_buf + krn->imp.arg_off[argn];
+	void* p = krn->imp->arg_buf + krn->imp->arg_off[argn];
 
-	cl_uint arg_kind = krn->imp.arg_kind[argn];
+	cl_uint arg_kind = krn->imp->arg_kind[argn];
 
 	/* XXX hack to allow user to strongly imply local address space -DAR */
 	if (arg_sz > 0 && arg_val == 0) arg_kind = CLARG_KIND_LOCAL;
@@ -106,9 +104,9 @@ int __do_set_kernel_arg(
 		case CLARG_KIND_DATA:
 
 			printcl( CL_DEBUG "CLARG_KIND_DATA compare sz %d %d",
-				arg_sz,krn->imp.arg_sz[argn]);
+				arg_sz,krn->imp->arg_sz[argn]);
 
-			if (arg_sz != krn->imp.arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+			if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
 
 			if (!arg_val) return (CL_INVALID_ARG_VALUE);
 
@@ -118,7 +116,7 @@ int __do_set_kernel_arg(
 
 		case CLARG_KIND_GLOBAL:
 
-			if (arg_sz != krn->imp.arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+			if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
 
 			if (!arg_val) return (CL_INVALID_ARG_VALUE);
 
@@ -150,7 +148,7 @@ int __do_set_kernel_arg(
 //
 //			break;
 
-			if (arg_sz != krn->imp.arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+			if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
 
 			if (!arg_val) return (CL_INVALID_ARG_VALUE);
 

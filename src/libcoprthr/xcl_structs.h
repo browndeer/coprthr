@@ -31,6 +31,7 @@
 #include "imp_structs.h"
 #include "coprthr_device.h"
 #include "coprthr_sched.h"
+#include "coprthr_program.h"
 
 
 /* XXX temporarily put this here */
@@ -91,17 +92,14 @@ struct _cl_platform_id {
 
 struct _cl_device_id {
 	void* _reserved;
-	struct _imp_device* imp;
 	struct coprthr_device* codev;
 };
 
 #define __init_device_id(devid) do { \
 	(devid)->_reserved = (void*)__icd_call_vector; \
-	__imp_init_device((devid)->imp); \
 	} while(0)
 
 #define __free_device_id(devid) do { \
-	__imp_free_device((devid)->imp); \
 	__free_device_id(devid); \
 	} while(0)
 
@@ -121,7 +119,6 @@ struct _cl_context {
 	cl_device_id* devices;
 	void (*pfn_notify)(const char*, const void*, size_t, void*);
 	void* user_data;
-	struct _imp_context imp;
 };
 
 #define __init_context(ctx) do { \
@@ -132,11 +129,9 @@ struct _cl_context {
 	ctx->devices = 0; \
 	ctx->pfn_notify = 0; \
 	ctx->user_data = 0; \
-	__imp_init_context(ctx->imp); \
 	} while(0)
 
 #define __free_context(ctx) do { \
-	__imp_free_context(ctx->imp); \
 	__free(ctx->prop); \
 	__free(ctx->devices); \
 	__free(ctx); \
@@ -157,7 +152,6 @@ struct _cl_command_queue {
 	cl_context ctx;
 	cl_device_id devid;
 	cl_command_queue_properties prop;
-//	struct _imp_command_queue* ptr_imp;
 	struct coprthr_command_queue* ptr_imp;
 };
 
@@ -264,7 +258,7 @@ struct _cl_program {
 	cl_build_status* build_stat;
 	char** build_options;
 	char** build_log;
-	struct _imp_program imp;
+	struct coprthr_program* imp;
 };
 
 #define __init_program(prg) do { \
@@ -281,11 +275,11 @@ struct _cl_program {
 	prg->build_stat = 0; \
 	prg->build_options = 0; \
 	prg->build_log = 0; \
-	__imp_init_program(prg->imp); \
+	__coprthr_init_program(prg->imp); \
 	} while(0)
 
 #define __free_program(prg) do { \
-	__imp_free_program(prg->imp); \
+	__coprthr_free_program(prg->imp); \
 	__free(prg->devices); \
 	__free(prg->src); \
 	__free(prg->bin_stat); \
@@ -325,7 +319,7 @@ struct _cl_kernel {
 	cl_program prg;
 	unsigned char* name;
 	cl_uint narg;
-	struct _imp_kernel imp;
+	struct coprthr_kernel* imp;
 };
 
 #define __init_kernel(krn) do { \
@@ -335,13 +329,14 @@ struct _cl_kernel {
 	krn->prg = (cl_program)0; \
 	krn->name = 0; \
 	krn->narg = 0; \
-	__imp_init_kernel(krn->imp); \
+	__coprthr_init_kernel(krn->imp); \
 	} while(0)
 
 #define __free_kernel(krn) do { \
-	__imp_free_kernel(krn->imp); \
+	__coprthr_free_kernel(krn->imp); \
 	__free(krn); \
 	} while(0)
+
 
 #define __invalid_kernel(krn) (!krn)
 
