@@ -171,7 +171,7 @@ static void* read_buffer_safe(cl_device_id devid, void* p)
 
 	void* dst = argp->m.dst;
 //	void* src = ((cl_mem)argp->m.src)->host_ptr;
-	void* src = ((cl_mem)argp->m.src)->imp.res[n];
+	void* src = ((cl_mem)argp->m.src)->imp->res[n];
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
@@ -199,7 +199,7 @@ static void* read_buffer(cl_device_id devid, void* p)
 
 	void* dst = argp->m.dst;
 //	void* src = ((cl_mem)argp->m.src)->host_ptr;
-	void* src = ((cl_mem)argp->m.src)->imp.res[n];
+	void* src = ((cl_mem)argp->m.src)->imp->res[n];
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
@@ -223,7 +223,7 @@ static void* write_buffer_safe(cl_device_id devid, void* p)
 	while (n < ndev && devices[n] != devid) ++n;
 
 //	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
+	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;
@@ -251,7 +251,7 @@ static void* write_buffer(cl_device_id devid, void* p)
 	while (n < ndev && devices[n] != devid) ++n;
 
 //	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
+	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;
@@ -277,8 +277,8 @@ static void* copy_buffer_safe(cl_device_id devid, void* p)
 
 //	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
 //	void* src = ((cl_mem)argp->m.src)->host_ptr;
-	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
-	void* src = ((cl_mem)argp->m.src)->imp.res[n];
+	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
+	void* src = ((cl_mem)argp->m.src)->imp->res[n];
 	size_t dst_offset = argp->m.dst_offset;
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
@@ -308,8 +308,8 @@ static void* copy_buffer(cl_device_id devid, void* p)
 
 //	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
 //	void* src = ((cl_mem)argp->m.src)->host_ptr;
-	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
-	void* src = ((cl_mem)argp->m.src)->imp.res[n];
+	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
+	void* src = ((cl_mem)argp->m.src)->imp->res[n];
 	size_t dst_offset = argp->m.dst_offset;
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
@@ -338,7 +338,7 @@ static void* read_image(cl_device_id devid, void* p)
 
 	void* dst = argp->m.dst;
 //	void* src = ((cl_mem)argp->m.src)->host_ptr;
-	void* src = ((cl_mem)argp->m.src)->imp.res[n];
+	void* src = ((cl_mem)argp->m.src)->imp->res[n];
 	size_t offset = argp->m.src_offset + 128;
 
 /*
@@ -386,7 +386,7 @@ static void* write_image(cl_device_id devid, void* p)
 	while (n < ndev && devices[n] != devid) ++n;
 
 //	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
+	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset + 128;
 
@@ -472,7 +472,7 @@ static void* map_buffer(cl_device_id devid, void* p)
    unsigned int n = 0;
    while (n < ndev && devices[n] != devid) ++n;
 
-   void* src = ((cl_mem)argp->m.src)->imp.res[n];
+   void* src = ((cl_mem)argp->m.src)->imp->res[n];
 
    if (ptr==src+offset) return(0);
    else memcpy(ptr,src+offset,len);
@@ -512,7 +512,7 @@ static void* unmap_mem_object(cl_device_id devid, void* p)
 		unsigned int n = 0;
 		while (n < ndev && devices[n] != devid) ++n;
 
-		void* src = ((cl_mem)argp->m.src)->imp.res[n];
+		void* src = ((cl_mem)argp->m.src)->imp->res[n];
 
 		size_t offset = ((size_t*)ptr0)[0] = offset;
 		size_t len = ((size_t*)ptr0)[1] = len;

@@ -41,7 +41,7 @@ void __do_release_memobj(cl_mem memobj)
 //		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
 		if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
 
-			if (memobj->imp.res[i]) free(memobj->imp.res[i]);
+			if (memobj->imp->res[i]) free(memobj->imp->res[i]);
 
 //		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
 		} else if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
@@ -63,8 +63,8 @@ void __do_create_buffer(cl_mem memobj)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = memobj->ctx->devices;
 
-	memobj->imp.res = (void**)calloc(ndev,sizeof(void*));
-	memobj->imp.resmap = (void**)calloc(ndev,sizeof(void*));
+	memobj->imp->res = (void**)calloc(ndev,sizeof(void*));
+	memobj->imp->resmap = (void**)calloc(ndev,sizeof(void*));
 
 	printcl( CL_DEBUG "using static resource allocation across devices");
 
@@ -73,9 +73,9 @@ void __do_create_buffer(cl_mem memobj)
 //		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
 		if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
 
-			memobj->imp.res[i] = malloc(memobj->sz);
+			memobj->imp->res[i] = malloc(memobj->sz);
 
-			if (memobj->sz > 0 && memobj->imp.res[i] == 0) {
+			if (memobj->sz > 0 && memobj->imp->res[i] == 0) {
 
 				printcl( CL_WARNING "malloc failed");
 
@@ -86,13 +86,13 @@ void __do_create_buffer(cl_mem memobj)
 			}
 
 			if (memobj->flags&CL_MEM_COPY_HOST_PTR)
-				memcpy(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
+				memcpy(memobj->imp->res[i],memobj->host_ptr,memobj->sz);
 
 			if (memobj->flags&CL_MEM_USE_HOST_PTR) {
 				printcl( CL_WARNING 
 					"workaround: CL_MEM_USE_HOST_PTR => CL_MEM_COPY_HOST_PTR,"
 					" fix this");
-				memcpy(memobj->imp.res[i],memobj->host_ptr,memobj->sz);
+				memcpy(memobj->imp->res[i],memobj->host_ptr,memobj->sz);
 			}
 
 //		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
@@ -116,8 +116,8 @@ void __do_create_image2d(cl_mem memobj)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = memobj->ctx->devices;
 
-	memobj->imp.res = (void**)calloc(ndev,sizeof(void*));
-	memobj->imp.resmap = (void**)calloc(ndev,sizeof(void*));
+	memobj->imp->res = (void**)calloc(ndev,sizeof(void*));
+	memobj->imp->resmap = (void**)calloc(ndev,sizeof(void*));
 
 	if (CL_MEM_READ_WRITE&memobj->flags) 
 		printcl( CL_DEBUG "CL_MEM_READ_WRITE set");
@@ -146,12 +146,12 @@ void __do_create_image2d(cl_mem memobj)
 			/* XXX the 128 would take too long to explain -DAR */
 //			void* ptri = malloc(128 + memobj->sz);
 //			memobj->imp.res[i] = (void**)((intptr_t)ptri + 128);
-			memobj->imp.res[i] = (void**)malloc(128 + memobj->sz);
-			size_t* p = (size_t*)memobj->imp.res[i];
+			memobj->imp->res[i] = (void**)malloc(128 + memobj->sz);
+			size_t* p = (size_t*)memobj->imp->res[i];
 			p[0] = memobj->width;
 			p[1] = memobj->height;
 
-			if (memobj->sz > 0 && memobj->imp.res[i] == 0) {
+			if (memobj->sz > 0 && memobj->imp->res[i] == 0) {
 
 				printcl( CL_WARNING "malloc failed");
 

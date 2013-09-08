@@ -1,6 +1,6 @@
-/* platform.h 
+/* coprthr_mem.h
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,29 +20,29 @@
 
 /* DAR */
 
-#ifndef _platform_h
-#define _platform_h
-
-#include "xcl_structs.h"
+#ifndef _coprthr_mem_h
+#define _coprthr_mem_h
 
 
-void __do_discover_platforms();
+struct coprthr_mem {
+	int devnum;
+	void** res;
+	void** resmap;
+	unsigned int host_cached;
+	void* cache_ptr;
+};
 
-void __do_get_nplatforms_avail(cl_uint* n);
+#define __coprthr_init_memobj(imp) do { \
+	(imp) = malloc(sizeof(struct coprthr_mem)); \
+	(imp)->res = 0; \
+	(imp)->resmap = 0; \
+	} while(0)
 
-void __do_get_platforms(cl_uint n, cl_platform_id* p_id);
-
-void __do_get_default_platformid( cl_platform_id* );
-
-void __do_get_platform_profile(cl_platform_id id, char** p_str);
-
-void __do_get_platform_version(cl_platform_id id, char** p_str);
-
-void __do_get_platform_name(cl_platform_id id, char** p_str);
-
-void __do_get_platform_vendor(cl_platform_id id, char** p_str);
-
-void __do_get_platform_extensions(cl_platform_id id, char** p_str);
+#define __coprthr_free_memobj(imp) do { \
+	__free((imp)->res); \
+	__free((imp)->resmap); \
+	__free((imp)); \
+	} while(0)
 
 #endif
 

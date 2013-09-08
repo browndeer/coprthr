@@ -49,7 +49,7 @@ XCL_OBJS = ocl_platform.o ocl_device.o ocl_context.o ocl_command_queue.o \
 	ocl_enqueue.o ocl_event.o ocl_program.o ocl_kernel.o ocl_memobj.o \
 	ocl_flush.o xcl_icd.o ocl_sampler.o ocl_profile.o ocl_clgl.o
 
-IMP_OBJS = platform.o device.o device_x86_64.o \
+IMP_OBJS = device.o device_x86_64.o \
 	context.o command_queue.o event.o \
 	environment.o \
 	program.o kernel.o memobj.o \

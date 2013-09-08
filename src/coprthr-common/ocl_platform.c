@@ -25,12 +25,30 @@
 
 #include "xcl_structs.h"
 #include "printcl.h"
-#include "platform.h"
+//#include "platform.h"
+#include "device.h"
+#include "version.h"
 
 #define min(a,b) ((a<b)?a:b)
 
 
 //void** __icd_call_vector;
+
+void __do_discover_platforms();
+static void __do_release_platforms();
+void __do_get_nplatforms_avail(cl_uint* n);
+void __do_get_platforms(cl_uint n, cl_platform_id* platformid);
+void __do_get_default_platformid( cl_platform_id* platformid );
+static void __do_get_platform_profile(cl_platform_id platformid, char** p_str);
+static void __do_get_platform_version(cl_platform_id platformid, char** p_str);
+static void __do_get_platform_name(cl_platform_id platformid, char** p_str);
+static void __do_get_platform_vendor(cl_platform_id platformid, char** p_str);
+
+static void __do_get_platform_extensions( 
+	cl_platform_id platformid, char** p_str);
+
+static void __do_get_platform_icd_suffix_khr(
+	cl_platform_id platformid, char** p_str);
 
 
 // Platform API Calls
@@ -154,4 +172,91 @@ clGetPlatformInfo( cl_platform_id platformid, cl_platform_info param_name,
    size_t param_sz, void* param_val, size_t* param_sz_ret)
 	__attribute__((alias("_clGetPlatformInfo")));
 
+
+
+// internal platform implementation calls
+
+static struct _cl_platform_id* __ptab = 0;
+static unsigned int __nplatforms = 0;
+
+static unsigned int __ndevices = 0;
+static struct _cl_device_id* __dtab = 0;
+static struct _strtab_entry __dstrtab;
+
+
+void __do_discover_platforms()
+{
+   int i;
+
+   if (__nplatforms > 0) return;
+
+   __do_discover_devices(&__ndevices,&__dtab,&__dstrtab,0);
+
+   __nplatforms = 1;
+   __ptab = (struct _cl_platform_id*)malloc(sizeof(struct _cl_platform_id));
+
+   __init_platform_id(__ptab);
+
+	
+//   __ptab[0].imp = (struct _imp_platform){
+   __ptab[0] = (struct _cl_platform_id){
+		(void*)__icd_call_vector,
+		"<profile>",
+      COPRTHR_VERSION_STRING,
+      "coprthr",
+      "Brown Deer Technology, LLC.",
+      "cl_khr_icd",
+      __ndevices,__dtab,&__dstrtab
+   };
+
+   __init_platform_id(__ptab);
+
+       for(i=0;i<__ndevices;i++)
+          __dtab[0].codev->devinfo->platformid = __ptab;
+
+}
+
+
+static void __do_release_platforms()
+{ __do_release_devices(__dtab,&__dstrtab); }
+
+
+void __do_get_nplatforms_avail(cl_uint* n)
+{ *n = __nplatforms; }
+
+
+void __do_get_platforms(cl_uint n, cl_platform_id* platformid)
+{
+   int i;
+   for(i=0;i<n;i++) platformid[i] = &__ptab[i];
+}
+
+
+void __do_get_default_platformid( cl_platform_id* platformid )
+{ *platformid = &__ptab[0]; }
+
+static void __do_get_platform_profile(cl_platform_id platformid, char** p_str)
+{ *p_str = __resolve_platformid(platformid,profile); }
+
+
+static void __do_get_platform_version(cl_platform_id platformid, char** p_str)
+{ *p_str = __resolve_platformid(platformid,version); }
+
+
+static void __do_get_platform_name(cl_platform_id platformid, char** p_str)
+{ *p_str = __resolve_platformid(platformid,name); }
+
+
+static void __do_get_platform_vendor(cl_platform_id platformid, char** p_str)
+{ *p_str = __resolve_platformid(platformid,vendor); }
+
+
+static void __do_get_platform_extensions(cl_platform_id platformid, char** p_str)
+{ *p_str = __resolve_platformid(platformid,extensions); }
+
+static char __vendor_icd_ext_suffix[] = "\0";
+
+static void __do_get_platform_icd_suffix_khr(
+	cl_platform_id platformid, char** p_str)
+{ *p_str = __vendor_icd_ext_suffix; }
 

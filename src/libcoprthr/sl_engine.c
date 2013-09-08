@@ -555,7 +555,7 @@ void* sl_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 				/* XXX this is a hack, redesign devnum/devid issue -DAR */
 
-				*(void**)p =(*(cl_mem*)p)->imp.res[n];
+				*(void**)p =(*(cl_mem*)p)->imp->res[n];
 
 				}
 

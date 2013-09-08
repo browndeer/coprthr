@@ -163,21 +163,6 @@ struct coprthr_program {
 
 #define __nkernels_in_program(prg) (prg->imp->nkrn)
 
-
-/*
-struct _elf_data {
-	char filename[256];
-	void* dlh;
-	void* map;
-};
-
-#define __init_elf_data(ed) do { \
-   (ed).filename[0] = '\0'; \
-   (ed).dlh = 0; \
-   (ed).map = 0; \
-   } while(0)
-*/
-
 //extern void* __icd_call_vector;
 
 #endif

@@ -32,10 +32,12 @@
 #include "coprthr_device.h"
 #include "coprthr_sched.h"
 #include "coprthr_program.h"
+#include "coprthr_mem.h"
 
 
 /* XXX temporarily put this here */
 void* __icd_call_vector;
+
 
 /* XXX this is a workaround to correct missing tags in cl.h -dar */
 #ifndef CL_COMMAND_BARRIER
@@ -69,20 +71,30 @@ void* __icd_call_vector;
 
 struct _cl_platform_id {
 	void* _reserved;
-	struct _imp_platform imp;
+//	struct _imp_platform imp;
+	char* profile;
+   char* version;
+   char* name;
+   char* vendor;
+   char* extensions;
+   unsigned int ndevices;
+   struct _cl_device_id* dtab;
+   struct _strtab_entry* dstrtab;
 };
 
 #define __init_platform_id(platformid) do { \
 	platformid->_reserved = (void*)__icd_call_vector; \
-	__imp_init_platform((platformid)->imp); \
 	} while(0)
 
 #define __free_platformid(platformid) do { \
-	__imp_free_platform((platformid)->imp); \
 	__free_platform_id(platformid); \
 	} while(0)
 
 #define __invalid_platform_id(platformid) (!platformid)
+
+#define __resolve_platformid(p,m) ((p)->m)
+
+//extern void* __icd_call_vector;
 
 
 
@@ -190,7 +202,7 @@ struct _cl_mem {
 	cl_mem_flags flags;
 	cl_uint refc;
 	cl_uint mapc;
-	struct _imp_mem imp;
+	struct coprthr_mem* imp;
 };
 
 struct _cl_mapped_ptr_info {
@@ -208,11 +220,11 @@ struct _cl_mapped_ptr_info {
 	memobj->flags = 0; \
 	memobj->refc = 0; \
 	memobj->mapc = 0; \
-	__imp_init_memobj(memobj->imp); \
+	__coprthr_init_memobj(memobj->imp); \
 	} while(0)
 
 #define __free_memobj(memobj) do { \
-	__imp_free_memobj(memobj->imp); \
+	__coprthr_free_memobj(memobj->imp); \
 	__free(memobj); \
 	} while(0) 
 
