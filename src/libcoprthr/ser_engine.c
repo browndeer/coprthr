@@ -39,8 +39,13 @@
 #include "cmdcall.h"
 #include "workp.h"
 //#include "util.h"
+#include "cpuset_type.h"
 
 #include "ser_engine.h"
+
+#ifndef min
+#define min(a,b) ((a<b)?a:b)
+#endif
 
 static unsigned int nengines = 0;
 

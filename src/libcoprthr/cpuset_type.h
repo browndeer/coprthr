@@ -24,6 +24,8 @@
 #ifndef _CPUSET_TYPE_H
 #define _CPUSET_TYPE_H
 
+#include <pthread.h>
+
 #if defined (__FreeBSD__)
 #include <sys/param.h>
 #include <sys/cpuset.h>

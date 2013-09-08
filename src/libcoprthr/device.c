@@ -197,7 +197,7 @@ void __do_discover_devices(
 
 }
 
-
+/*
 void __do_release_devices(
 	struct _cl_device_id* dtab,
 	struct _strtab_entry* dstrtab
@@ -208,7 +208,7 @@ void __do_release_devices(
 	if (dtab) free(dtab);
 	if (dstrtab->buf) free(dstrtab->buf);
 }
-
+*/
 
 
 void __do_get_ndevices(

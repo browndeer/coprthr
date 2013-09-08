@@ -39,10 +39,15 @@
 #include "cmdcall.h"
 #include "workp.h"
 //#include "util.h"
+#include "cpuset_type.h"
 
 #include "sl_engine.h"
 
 #include <setjmp.h>
+
+#ifndef min
+#define min(a,b) ((a<b)?a:b)
+#endif
 
 static unsigned int nengines = 0;
 

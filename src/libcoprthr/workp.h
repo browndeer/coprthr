@@ -25,6 +25,10 @@
 
 #include <stdint.h>
 
+#ifndef min
+#define min(a,b) ((a<b)?a:b)
+#endif
+
 struct workp_entry {
 	unsigned int ndr_dim;
 	unsigned int ndr_gtdoff[3];

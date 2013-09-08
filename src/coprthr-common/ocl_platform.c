@@ -28,6 +28,7 @@
 //#include "platform.h"
 #include "device.h"
 #include "version.h"
+#include "cmdcall.h"
 
 #define min(a,b) ((a<b)?a:b)
 
@@ -176,6 +177,17 @@ clGetPlatformInfo( cl_platform_id platformid, cl_platform_info param_name,
 
 // internal platform implementation calls
 
+struct _strtab_entry {
+   size_t alloc_sz;
+   size_t sz;
+   char* buf;
+};
+
+struct _clsymtab_entry {
+   cl_uint kind;
+   cl_uint type;
+};
+
 static struct _cl_platform_id* __ptab = 0;
 static unsigned int __nplatforms = 0;
 
@@ -218,7 +230,11 @@ void __do_discover_platforms()
 
 
 static void __do_release_platforms()
-{ __do_release_devices(__dtab,&__dstrtab); }
+{ 
+//	__do_release_devices(__dtab,&__dstrtab); 
+	if (__dtab) free(__dtab);
+   if (__dstrtab.buf) free(__dstrtab.buf);
+}
 
 
 void __do_get_nplatforms_avail(cl_uint* n)

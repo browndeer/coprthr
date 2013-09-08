@@ -23,6 +23,8 @@
 #ifndef _coprthr_sched_h
 #define _coprthr_sched_h
 
+#include <sys/queue.h>
+
 struct coprthr_event {
 	pthread_mutex_t mtx;
 	pthread_cond_t sig;

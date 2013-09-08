@@ -30,6 +30,10 @@
 #include "printcl.h"
 #include "context.h"
 
+#ifndef max
+#define max(a,b) ((a<b)?b:a)
+#endif
+
 void __do_create_context(cl_context ctx) 
 {
 //#ifdef ENABLE_ATIGPU

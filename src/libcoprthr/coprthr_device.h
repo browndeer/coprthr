@@ -23,7 +23,9 @@
 #ifndef _coprthr_device_h
 #define _coprthr_device_h
 
-#include "imp_structs.h"
+//#include "imp_structs.h"
+#include "cmdcall.h"
+#include "cpuset_type.h"
 
 /* XXX temporarily put this here */
 

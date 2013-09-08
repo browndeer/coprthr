@@ -48,6 +48,10 @@
 
 #include "coprthr_device.h"
 
+#ifndef min
+#define min(a,b) ((a<b)?a:b)
+#endif
+
 char* strnlen_ws( char* p, char* s, size_t maxlen)
 {
    size_t sz = strnlen(s,maxlen);

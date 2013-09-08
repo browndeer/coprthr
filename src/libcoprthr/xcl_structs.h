@@ -28,7 +28,7 @@
 #include <string.h>
 #include "printcl.h"
 
-#include "imp_structs.h"
+//#include "imp_structs.h"
 #include "coprthr_device.h"
 #include "coprthr_sched.h"
 #include "coprthr_program.h"
