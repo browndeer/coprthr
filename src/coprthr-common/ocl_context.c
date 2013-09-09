@@ -25,7 +25,7 @@
 
 #include "xcl_structs.h"
 #include "printcl.h"
-#include "context.h"
+//#include "context.h"
 
 #define CL_CONTEXT_OFFLINE_DEVICES_COPRTHR 0x403F
 
@@ -92,7 +92,7 @@ _clCreateContext(
 		ctx->pfn_notify = pfn_notify;
 		ctx->user_data = user_data;
 
-		__do_create_context(ctx);
+//		__do_create_context(ctx);
 
 		ctx->refc = 1;
 
@@ -195,7 +195,7 @@ _clCreateContextFromType(
 		ctx->pfn_notify = pfn_notify;
 		ctx->user_data = user_data;
 
-		__do_create_context(ctx);
+//		__do_create_context(ctx);
 
 		ctx->refc = 1;
 
@@ -235,7 +235,7 @@ _clReleaseContext(cl_context ctx )
 
 	if (--ctx->refc == 0) {
 
-		__do_release_context(ctx);
+//		__do_release_context(ctx);
 
 		__free_context(ctx);
 

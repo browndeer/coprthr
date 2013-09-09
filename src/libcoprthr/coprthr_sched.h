@@ -29,7 +29,6 @@ struct coprthr_event {
 	pthread_mutex_t mtx;
 	pthread_cond_t sig;
 	struct cmdcall_arg* cmd_argp;
-//	TAILQ_ENTRY(coprthr_event) cmds;
 	TAILQ_ENTRY(_cl_event) cmds;
 };
 

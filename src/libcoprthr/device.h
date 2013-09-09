@@ -30,8 +30,6 @@
 void __do_discover_devices( unsigned int* ndevices, 
 	struct _cl_device_id**, struct _strtab_entry*, int flags );
 
-//void __do_release_devices(struct _cl_device_id*, struct _strtab_entry*);
-
 void __do_get_ndevices(cl_platform_id, cl_device_type, cl_uint*);
 
 void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);

@@ -38,7 +38,6 @@
 #include "xcl_structs.h"
 #include "cmdcall.h"
 #include "workp.h"
-//#include "util.h"
 #include "cpuset_type.h"
 
 #include "sl_engine.h"

@@ -1,6 +1,6 @@
 /* ocl_platform.c 
  *
- * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -25,15 +25,12 @@
 
 #include "xcl_structs.h"
 #include "printcl.h"
-//#include "platform.h"
 #include "device.h"
 #include "version.h"
 #include "cmdcall.h"
 
 #define min(a,b) ((a<b)?a:b)
 
-
-//void** __icd_call_vector;
 
 void __do_discover_platforms();
 static void __do_release_platforms();
@@ -210,7 +207,6 @@ void __do_discover_platforms()
    __init_platform_id(__ptab);
 
 	
-//   __ptab[0].imp = (struct _imp_platform){
    __ptab[0] = (struct _cl_platform_id){
 		(void*)__icd_call_vector,
 		"<profile>",
@@ -231,7 +227,6 @@ void __do_discover_platforms()
 
 static void __do_release_platforms()
 { 
-//	__do_release_devices(__dtab,&__dstrtab); 
 	if (__dtab) free(__dtab);
    if (__dstrtab.buf) free(__dstrtab.buf);
 }

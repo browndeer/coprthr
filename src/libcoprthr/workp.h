@@ -43,7 +43,6 @@ struct workp_entry {
 #if !defined(__xcl_kcall__) && !defined(__xcl_kthr__)
 
 #include <pthread.h>
-//#include "util.h"
 
 #define mutex_t pthread_mutex_t
 #define mutex_init pthread_mutex_init

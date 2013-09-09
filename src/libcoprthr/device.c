@@ -40,7 +40,6 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
-//#include "platform.h"
 #include "device.h"
 #include "cmdcall.h"
 #include "cmdcall_x86_64_sl.h"

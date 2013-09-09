@@ -28,7 +28,6 @@
 #include <string.h>
 #include "printcl.h"
 
-//#include "imp_structs.h"
 #include "coprthr_device.h"
 #include "coprthr_sched.h"
 #include "coprthr_program.h"
@@ -54,7 +53,6 @@ void* __icd_call_vector;
 /* notice that __free() ensures the ptr is set null, failure to do this
  * can lead to lockups with bad CL code -DAR */
 
-//#define __free(p) do { if (p) free(p); } while(0)
 #define __free(p) do { if (p) { free(p); p=0; } } while(0)
 
 

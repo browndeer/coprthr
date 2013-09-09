@@ -26,9 +26,22 @@
 #include "xcl_structs.h"
 #include "printcl.h"
 
+#ifndef max
+#define max(a,b) ((a<b)?b:a)
+#endif
+
+static void __do_get_max_buffer_size_in_context(cl_context ctx, size_t* sz)
+{
+   int i;
+   size_t tmp = 0;
+   for(i=0;i<ctx->ndev;i++)
+      tmp = max(tmp,__resolve_devid_devinfo(ctx->devices[i],max_mem_alloc_sz));
+   *sz = tmp;
+}
+
+
 // Memory Object API Calls
 
- 
 cl_mem 
 _clCreateBuffer(
 	cl_context ctx,
@@ -381,4 +394,5 @@ cl_int
 clGetImageInfo( cl_mem image, cl_image_info param_name, size_t param_sz,
    void* param_val, size_t* param_sz_ret)
 	__attribute__((alias("_clGetImageInfo")));
+
 

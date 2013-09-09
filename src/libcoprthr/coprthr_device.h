@@ -23,24 +23,8 @@
 #ifndef _coprthr_device_h
 #define _coprthr_device_h
 
-//#include "imp_structs.h"
 #include "cmdcall.h"
 #include "cpuset_type.h"
-
-/* XXX temporarily put this here */
-
-/*
-struct coprthr_command_queue {
-   pthread_t td;
-   pthread_mutex_t mtx;
-   pthread_cond_t sig;
-   unsigned int qstat;
-   struct _cl_event* cmd_submitted;
-   struct _cl_event* cmd_running;
-   TAILQ_HEAD(tailhead_cmds_queued,_cl_event) cmds_queued;
-   TAILQ_HEAD(tailhead_cmds_complete,_cl_event) cmds_complete;
-};
-*/
 
 struct coprthr_device_info {
 
@@ -140,28 +124,6 @@ struct coprthr_device {
 #define __resolve_devid_devops(d,m) ((d)->codev->devops->m)
 #define __resolve_devid_devcomp(d,m) ((d)->codev->devcomp->m)
 #define __resolve_devid_devlink(d,m) ((d)->codev->devlink->m)
-
-/*
-#define __imp_init_device(imp) do { \
-	imp = malloc(sizeof(struct _imp_device)); \
-	bzero(imp,sizeof(struct _imp_device)); \
-	} while(0)
-
-#define __imp_free_device(imp) do { if (imp) free(imp) } while(0)
-
-#define __resolve_devid(d,m) ((d)->imp->m)
-*/
-
-/*
-void __do_discover_devices( unsigned int* ndevices, 
-	struct _cl_device_id**, struct _strtab_entry* );
-
-void __do_release_devices(struct _cl_device_id*, struct _strtab_entry*);
-
-void __do_get_ndevices(cl_platform_id, cl_device_type, cl_uint*);
-
-void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
-*/
 
 #endif
 

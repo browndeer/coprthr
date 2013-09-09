@@ -39,7 +39,6 @@
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
-//#include "platform.h"
 #include "device.h"
 #include "cmdcall.h"
 #include "cmdcall_x86_64_sl.h"
@@ -134,10 +133,6 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 		.platformid = (cl_platform_id)(-1),	/* platformid */
 		.extensions = "cl_khr_icd",		/* extensions */
 	};
-
-//	char* dstrtab = (char*)malloc(4096); /* XXX potential memory leak, fix it */
-//	size_t dstrtab_sz = 1;
-//	dstrtab[0] = '\0';
 
 	codev->devinfo->name = 0;
 	codev->devinfo->vendor = 0;

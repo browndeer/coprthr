@@ -31,14 +31,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-//#include <setjmp.h>
 
 #include <CL/cl.h>
 
 #include "xcl_structs.h"
 #include "cmdcall.h"
 #include "workp.h"
-//#include "util.h"
 #include "cpuset_type.h"
 
 #include "ser_engine.h"
