@@ -50,6 +50,9 @@ _clCreateProgramWithSource(
 	for(i=0;i<count;i++) 
 		if (!strings[i]) __error_return(CL_INVALID_VALUE,cl_program);
 
+
+	cl_uint ndev = ctx->ndev;
+
 	struct _cl_program* prg 
 		= (struct _cl_program*)malloc(sizeof(struct _cl_program));
 
@@ -57,7 +60,15 @@ _clCreateProgramWithSource(
 
 		__init_program(prg);
 
+		prg->prg1 = (struct coprthr1_program**)
+			calloc(ndev,sizeof(struct coprthr1_program*));
+
 		int i;
+		for(i=0;i<ndev;i++)
+			prg->prg1[i] = (struct coprthr1_program*)
+				calloc(1,sizeof(struct coprthr1_program));
+
+//		int i;
 
 		size_t sz = 0;
 
@@ -66,14 +77,14 @@ _clCreateProgramWithSource(
 		}
 		
 		prg->src_sz = sz;
-		prg->src = (unsigned char*)malloc((sz+1)*sizeof(unsigned char));
+		char* src = prg->src = (unsigned char*)malloc((sz+1)*sizeof(unsigned char));
 
-		if (!prg->src) {
+		if (!src) {
 			__free_program(prg);
 			__error_return(CL_OUT_OF_HOST_MEMORY,cl_program);
 		}
 
-		unsigned char* p = prg->src;	
+		unsigned char* p = src;	
 		for(i=0;i<count;i++) {
 			sz = (lens && lens[i] > 0)? lens[i] : strlen(strings[i]);
 			strncpy(p,strings[i],sz);
@@ -82,7 +93,7 @@ _clCreateProgramWithSource(
 
 		prg->ctx = ctx;
 
-		cl_uint ndev = ctx->ndev;
+//		cl_uint ndev = ctx->ndev;
 
 		prg->ndev = ndev;
 		__clone(prg->devices,ctx->devices,ndev,cl_device_id);
@@ -97,6 +108,14 @@ _clCreateProgramWithSource(
 		for(i=0; i<ndev; i++) prg->build_stat[i] = CL_BUILD_NONE;
 
 		__do_create_program(prg);
+
+		for(i=0;i<ndev;i++) {
+			prg->prg1[i]->src = src;
+			prg->prg1[i]->src_sz = sz;
+			prg->prg1[i]->bin_stat = 0;
+			prg->prg1[i]->bin = 0;
+			prg->prg1[i]->bin_sz = 0;
+		}
 
 		prg->refc = 1;
 
@@ -141,9 +160,19 @@ _clCreateProgramWithBinary(
 	struct _cl_program* prg 
 		= (struct _cl_program*)malloc(sizeof(struct _cl_program));
 
+	printcl( CL_DEBUG "here");
+
 	if (prg) {
 
 		__init_program(prg);
+
+		prg->prg1 = (struct coprthr1_program**)
+			calloc(ndev,sizeof(struct coprthr1_program*));
+
+		int i;
+		for(i=0;i<ndev;i++)
+			prg->prg1[i] = (struct coprthr1_program*)
+				calloc(1,sizeof(struct coprthr1_program));
 
 		prg->ctx = ctx;
 
@@ -165,6 +194,27 @@ _clCreateProgramWithBinary(
 				CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 
 		__do_create_program(prg);
+
+		for(i=0;i<ndev;i++) {
+
+			prg->prg1[i]->src = 0;
+			prg->prg1[i]->src_sz = 0;
+		
+			printcl( CL_DEBUG "is this ELF |%c%c%c|",
+				bins[i][1],
+				bins[i][2],
+				bins[i][3]);
+
+			prg->prg1[i]->bin = bins[i];
+			prg->prg1[i]->bin_sz = lens[i];
+
+			prg->prg1[i]->bin_stat 
+				= (prg->prg1[i]->bin && prg->prg1[i]->bin_sz > 0)?  
+					CL_BUILD_SUCCESS : CL_BUILD_ERROR;
+
+			prg->prg1[i]->build_opt = 0;
+			prg->prg1[i]->build_log = 0;
+		}
 
 		prg->refc = 1;
 
@@ -241,7 +291,8 @@ _clBuildProgram(
 
 		cl_device_id devid = devices[j];
 
-		if (prg->src) {
+//		if (prg->src) {
+		if (prg->prg1[i]->src) {
 
 			printcl( CL_DEBUG 
 				"compiler avail %d",__do_check_compiler_available(devices[j]));
@@ -256,14 +307,23 @@ _clBuildProgram(
 		} else {
 
 			printcl( CL_DEBUG "bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
+			printcl( CL_DEBUG "bin bin_sz %p %d",
+				prg->prg1[j]->bin, prg->prg1[j]->bin_sz);
 
-			if (!prg->bin[j] || prg->bin_sz[j] == 0) return(CL_INVALID_BINARY);
+			if (!prg->prg1[j]->bin || prg->prg1[j]->bin_sz == 0) 
+				return(CL_INVALID_BINARY);
 
+			printcl( CL_DEBUG "is this ELF |%c %c %c",
+				prg->prg1[j]->bin[1],
+				prg->prg1[j]->bin[2],
+				prg->prg1[j]->bin[3]);
+			
 			err = __do_build_program_from_binary(prg,devid,j);
 
 		}
 
 		prg->build_stat[j] = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
+		prg->prg1[j]->bin_stat = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 
 //		if (err != CL_SUCCESS) return(err);
 	}
@@ -328,20 +388,46 @@ _clGetProgramInfo(
 
 		case CL_PROGRAM_SOURCE:
 
-			__case_get_param(prg->src_sz,prg->src);
+//			__case_get_param(prg->src_sz,prg->src);
+			__case_get_param(prg->prg1[0]->src_sz,prg->prg1[0]->src);
 
 			break;
 
 		case CL_PROGRAM_BINARY_SIZES:
 
-			__case_get_param(prg->ndev*sizeof(size_t),prg->bin_sz);
-
+//			__case_get_param(prg->ndev*sizeof(size_t),prg->bin_sz);
+			{
+				sz = prg->ndev*sizeof(size_t);
+				if (param_sz_ret) *param_sz_ret = sz;
+				if (param_sz < sz && param_val) return(CL_INVALID_VALUE);
+				else if (param_val) {
+//					memcpy(param_val,p,sz);
+					int j;
+					for(j=0;j<prg->ndev;j++) 
+						((size_t*)param_val)[j] = prg->prg1[j]->bin_sz;
+				}
+			}
 			break;
 
 		case CL_PROGRAM_BINARIES:
 
-			__case_get_param(prg->ndev*sizeof(unsigned char*),prg->bin);
-
+//			__case_get_param(prg->ndev*sizeof(unsigned char*),prg->bin);
+			{
+				sz = prg->ndev*sizeof(char*);
+				if (param_sz_ret) *param_sz_ret = sz;
+				if (param_sz < sz && param_val) return(CL_INVALID_VALUE);
+				else if (param_val) {
+//					memcpy(param_val,p,sz);
+					int j;
+					for(j=0;j<prg->ndev;j++) {
+						((char**)param_val)[j] = prg->prg1[j]->bin;
+						printcl( CL_DEBUG "is this ELF |%c %c %c|",
+							prg->prg1[j]->bin[1],
+							prg->prg1[j]->bin[2],
+							prg->prg1[j]->bin[3]);
+					}
+				}
+			}
 			break;
 
 		default:
@@ -383,18 +469,22 @@ _clGetProgramBuildInfo(
 
 		case CL_PROGRAM_BUILD_OPTIONS:
 
-			sz = strnlen(prg->build_options[j],__CLMAXSTR_LEN);
+//			sz = strnlen(prg->build_options[j],__CLMAXSTR_LEN);
+			sz = strnlen(prg->prg1[j]->build_opt,__CLMAXSTR_LEN);
 //			__case_get_param(prg->build_options_sz,prg->build_options);
-			__case_get_param(sz,prg->build_options+j);
+//			__case_get_param(sz,prg->build_options+j);
+			__case_get_param(sz,prg->prg1[j]->build_opt);
 
 			break;
 
 		case CL_PROGRAM_BUILD_LOG:
 
-			sz = strnlen(prg->build_log[j],__CLMAXSTR_LEN);
+//			sz = strnlen(prg->build_log[j],__CLMAXSTR_LEN);
+			sz = strnlen(prg->prg1[j]->build_log,__CLMAXSTR_LEN);
 //			__case_get_param(prg->build_log_sz,prg->build_log);
 //fprintf(stderr,"    INTERNAL |%s|\n",*(prg->build_log+j));
-			__case_get_param(sz,prg->build_log[j]);
+//			__case_get_param(sz,prg->build_log[j]);
+			__case_get_param(sz,prg->prg1[j]->build_log);
 
 			break;
 

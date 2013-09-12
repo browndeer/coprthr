@@ -47,6 +47,13 @@
 #include "program.h"
 
 
+#ifndef min
+#define min(a,b) ((a<b)?a:b)
+#endif
+
+
+int getenv_token( const char* name, const char* token, char* value, size_t n );
+
 void* dlh_compiler = 0;
 
 
@@ -78,7 +85,6 @@ struct coprthr_device* __coprthr_do_discover_device_i386(void);
 void __do_discover_devices(
 	unsigned int* p_ndevices, 
 	struct _cl_device_id** p_dtab, 
-	struct _strtab_entry* p_dstrtab,
 	int flag
 )
 {
@@ -196,19 +202,6 @@ void __do_discover_devices(
 
 }
 
-/*
-void __do_release_devices(
-	struct _cl_device_id* dtab,
-	struct _strtab_entry* dstrtab
-
-)
-{
-
-	if (dtab) free(dtab);
-	if (dstrtab->buf) free(dstrtab->buf);
-}
-*/
-
 
 void __do_get_ndevices(
 	cl_platform_id platformid, cl_device_type devtype, cl_uint* ndev 
@@ -252,4 +245,74 @@ void __do_get_devices(
 }
 
 
+int getenv_token( const char* name, const char* token, char* value, size_t n )
+{
+   char* envstr = (char*)getenv(name);
+
+   *value  = '\0';
+
+   if (!envstr) return(1);
+
+   char* ptr;
+   char* clause = strtok_r(envstr,":",&ptr);
+
+   while (clause) {
+
+      char* sep = strchr(clause,'=');
+
+      if (sep) {
+
+         if (token && !strncasecmp(token,clause,strlen(token))) {
+
+            strncpy(value,sep+1,min(strlen(sep+1)+1,n));
+            return(0);
+
+         }
+
+      } else if (!token) {
+
+         strncpy(value,clause,min(strlen(clause)+1,n));
+         return(0);
+
+      }
+
+      clause = strtok_r(0,":",&ptr);
+   }
+
+   return(2);
+
+}
+
+#if(0)
+// XXX instead of static use default + env var and dynamically allocate
+// XXX on first call when a discover devices is also done
+struct coprthr_device* _devtab[256] = { [0 ... 255] = 0 };
+int _devtab_nxt = 0;
+
+int coprthr_devopen( const char* name, int flags )
+{
+	if (_devtab_nxt == 256) return -1; /* XXX out of resources */
+
+	_devtab[_devtab_nxt] = 
+
+	int rv = _devtab_nxt;
+
+	do {
+		++_devtab_nxt;
+	} while(_devtab_sz<256 && _devtab[_devtab_nxt]);
+
+	return rv;	
+}
+
+int coprthr_devclose(int dd)
+{
+	if (dd>=0 && dd<256) {
+		// XXX if last ref shutdown the device 
+		_devtab[dd] = 0;
+		return 0;
+	} else return -1;
+}
+
+
+#endif
 

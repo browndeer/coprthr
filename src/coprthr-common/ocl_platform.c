@@ -174,23 +174,26 @@ clGetPlatformInfo( cl_platform_id platformid, cl_platform_info param_name,
 
 // internal platform implementation calls
 
+/*
 struct _strtab_entry {
    size_t alloc_sz;
    size_t sz;
    char* buf;
 };
+*/
 
+/*
 struct _clsymtab_entry {
    cl_uint kind;
    cl_uint type;
 };
+*/
 
 static struct _cl_platform_id* __ptab = 0;
 static unsigned int __nplatforms = 0;
 
 static unsigned int __ndevices = 0;
 static struct _cl_device_id* __dtab = 0;
-static struct _strtab_entry __dstrtab;
 
 
 void __do_discover_platforms()
@@ -199,7 +202,7 @@ void __do_discover_platforms()
 
    if (__nplatforms > 0) return;
 
-   __do_discover_devices(&__ndevices,&__dtab,&__dstrtab,0);
+   __do_discover_devices(&__ndevices,&__dtab,0);
 
    __nplatforms = 1;
    __ptab = (struct _cl_platform_id*)malloc(sizeof(struct _cl_platform_id));
@@ -214,7 +217,7 @@ void __do_discover_platforms()
       "coprthr",
       "Brown Deer Technology, LLC.",
       "cl_khr_icd",
-      __ndevices,__dtab,&__dstrtab
+      __ndevices,__dtab
    };
 
    __init_platform_id(__ptab);
@@ -228,7 +231,6 @@ void __do_discover_platforms()
 static void __do_release_platforms()
 { 
 	if (__dtab) free(__dtab);
-   if (__dstrtab.buf) free(__dstrtab.buf);
 }
 
 

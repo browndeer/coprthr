@@ -49,6 +49,13 @@ void __do_create_program(cl_program prg)
 	prg->imp->v_ksyms = (struct _coprthr_ksyms_struct**)
 		calloc(prg->ndev,sizeof(struct _coprthr_ksyms_struct*));
 
+//	prg->prg1 = (struct coprthr1_program**)
+//		calloc(prg->ndev,sizeof(struct coprthr1_program*));
+//	int i;
+//	for(i=0;i<prg->ndev;i++) 
+//		prg->prg1[i] = (struct coprthr1_program*)
+//			calloc(1,sizeof(struct coprthr1_program));
+		
 }
 
 
@@ -62,6 +69,19 @@ void __do_release_program(cl_program prg)
 			free(prg->imp->v_kbin_tmpfile[i]);
 		}
 	}
+
+/*
+	for(i=0;i<prg->ndev;i++) {
+		if (prg->prg1->dlh) dlclose(prg->prg1->dlh);
+		if (prg->prg1->dlfile) {
+			unlink(prg->prg1->dlfile);
+			free(prg->prg1->dlfile);
+		}
+		if (prg->prg1[i]) free(prg->prg1[i]);
+		if (prg->prg1) free(prg->prg1);
+	}
+*/
+
 }
 
 cl_int __do_build_program_from_binary(
@@ -73,16 +93,25 @@ cl_int __do_build_program_from_binary(
 	int i,j;
 
 
-	DEBUG2("program: bin bin_sz %p %d",prg->bin[devnum],prg->bin_sz[devnum]);
+	printcl( CL_DEBUG "program: bin bin_sz %p %d",
+//		prg->bin[devnum],prg->bin_sz[devnum]);
+		prg->prg1[devnum]->bin,prg->prg1[devnum]->bin_sz);
 
    char tmpfile[] = "/tmp/xclXXXXXX";
    int fd = mkstemp(tmpfile);
-	write(fd,prg->bin[devnum],prg->bin_sz[devnum]);
+//	write(fd,prg->bin[devnum],prg->bin_sz[devnum]);
+	write(fd,prg->prg1[devnum]->bin,prg->prg1[devnum]->bin_sz);
 	close(fd);
 
 	void* h = dlopen(tmpfile,RTLD_LAZY);
 
-	Elf* e = (Elf*)prg->bin[devnum];
+//	Elf* e = (Elf*)prg->bin[devnum];
+	Elf* e = (Elf*)prg->prg1[devnum]->bin;
+
+	printcl( CL_DEBUG "is this elf? |%c %c %c %c",
+		prg->prg1[devnum]->bin[1],
+		prg->prg1[devnum]->bin[2],
+		prg->prg1[devnum]->bin[3]);
 
 #if defined(__x86_64__)
 	Elf64_Ehdr* ehdr = (Elf64_Ehdr*)e;
@@ -335,15 +364,19 @@ cl_int __do_build_program_from_source(
 	printcl( CL_DEBUG "build_options[%d] |%s|",
 		devnum,prg->build_options[devnum]);
 
-	int err = comp( devid, prg->src,prg->src_sz, &prg->bin[devnum],
-		&prg->bin_sz[devnum], prg->build_options[devnum],
-		&prg->build_log[devnum]);
+//	int err = comp( devid, prg->src,prg->src_sz, &prg->bin[devnum],
+	int err = comp( devid, prg->prg1[devnum]->src,prg->prg1[devnum]->src_sz, 
+//		&prg->bin[devnum],
+//		&prg->bin_sz[devnum], prg->build_options[devnum],
+//		&prg->build_log[devnum]);
+		&prg->prg1[devnum]->bin,
+		&prg->prg1[devnum]->bin_sz, prg->prg1[devnum]->build_opt,
+		&prg->prg1[devnum]->build_log);
 
 	if (!err) err = __do_build_program_from_binary(prg,devid,devnum);
 
 	return((cl_int)err);
 }
-
 
 
 int __do_check_compiler_available( cl_device_id devid )

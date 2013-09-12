@@ -38,13 +38,15 @@ void __do_release_memobj(cl_mem memobj)
 
 	for(i=0;i<ndev;i++) {
 
-//		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
-		if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
+		if (
+			__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU
+		) {
 
 			if (memobj->imp->res[i]) free(memobj->imp->res[i]);
 
-//		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
-		} else if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+		} else if (
+			__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU
+		) {
 
 			printcl( CL_WARNING "device unsupported, how did you get here?");
 
@@ -70,10 +72,14 @@ void __do_create_buffer(cl_mem memobj)
 
 	for(i=0;i<ndev;i++) {
 
-//		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
-		if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
+		if (
+			__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU
+		) {
 
-			memobj->imp->res[i] = malloc(memobj->sz);
+//			memobj->imp->res[i] = malloc(memobj->sz);
+			printcl("XXX memalloc %p",__resolve_devid_devops(ctx->devices[i],memalloc));
+			memobj->imp->res[i] 
+				= __resolve_devid_devops(ctx->devices[i],memalloc)(memobj->sz,0);
 
 			if (memobj->sz > 0 && memobj->imp->res[i] == 0) {
 
@@ -95,8 +101,9 @@ void __do_create_buffer(cl_mem memobj)
 				memcpy(memobj->imp->res[i],memobj->host_ptr,memobj->sz);
 			}
 
-//		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
-		} else if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+		} else if (
+			__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU
+		) {
 
 			printcl( CL_WARNING "device unsupported, how did you get here?");
 
@@ -140,12 +147,12 @@ void __do_create_image2d(cl_mem memobj)
 
 	for(i=0;i<ndev;i++) {
 
-//		if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
-		if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU) {
+		if (
+			__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU
+		) {
 
 			/* XXX the 128 would take too long to explain -DAR */
-//			void* ptri = malloc(128 + memobj->sz);
-//			memobj->imp.res[i] = (void**)((intptr_t)ptri + 128);
+
 			memobj->imp->res[i] = (void**)malloc(128 + memobj->sz);
 			size_t* p = (size_t*)memobj->imp->res[i];
 			p[0] = memobj->width;
@@ -161,8 +168,9 @@ void __do_create_image2d(cl_mem memobj)
 
 			}
 
-//		} else if (__resolve_devid(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
-		} else if (__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU) {
+		} else if (
+			__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU
+		) {
 
 			printcl( CL_WARNING "device unsupported, how did you get here?");
 
@@ -173,4 +181,25 @@ void __do_create_image2d(cl_mem memobj)
 	}
 
 }
+
+
+// device mem operations
+
+void* __coprthr_memalloc( size_t sz, int flags )
+{ return malloc(sz); }
+
+void* __coprthr_memrealloc( void** p_memptr, size_t sz, int flags)
+{ return realloc(p_memptr,sz); }
+
+void __coprthr_memfree( void* memptr, int flags )
+{ free(memptr); }
+
+size_t __coprthr_memread( void* memptr, void* buf, size_t sz )
+{ memcpy(memptr,buf,sz); return sz; }
+
+size_t __coprthr_memwrite( void* memptr, void* buf, size_t sz )
+{ memcpy(buf,memptr,sz); return sz; }
+
+size_t __coprthr_memcopy( void* memptr_src, void* memptr_dst, size_t sz)
+{ memcpy(memptr_dst,memptr_src,sz); return sz; }
 

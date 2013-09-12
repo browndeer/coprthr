@@ -46,7 +46,7 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 	krn->imp->v_ksyms = prg->imp->v_ksyms;
 	krn->imp->knum = k;
 
-	cl_uint narg = krn->narg = prg->imp->knarg[k];
+	cl_uint narg = krn->narg = krn->imp->narg = prg->imp->knarg[k];
 
 	printcl( CL_DEBUG "__do_create_kernel: narg=%d",narg);
 

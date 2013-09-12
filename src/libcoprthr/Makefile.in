@@ -51,7 +51,6 @@ XCL_OBJS = ocl_platform.o ocl_device.o ocl_context.o ocl_command_queue.o \
 
 IMP_OBJS = device.o device_x86_64.o \
 	command_queue.o event.o \
-	environment.o \
 	program.o kernel.o memobj.o \
 	cmdsched.o cmdcall.o \
 	watermark.o \

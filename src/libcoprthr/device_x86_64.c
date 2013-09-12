@@ -44,6 +44,7 @@
 #include "cmdcall_x86_64_sl.h"
 #include "compiler.h"
 #include "program.h"
+#include "memobj.h"
 
 #include "coprthr_device.h"
 
@@ -301,12 +302,22 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	codev->devcomp->ilcomp = 0;
 	codev->devlink->link = 0;
 	codev->devlink->bind_ksyms = bind_ksyms_default;
+	*(codev->devops) = (struct coprthr_device_operations){
+		0,
+		__coprthr_memalloc, __coprthr_memrealloc, __coprthr_memfree,
+		__coprthr_memread, __coprthr_memwrite, __coprthr_memcopy
+	};
 	codev->devops->v_cmdcall = cmdcall_x86_64_sl;
 #elif defined(__arm__)
 	codev->devcomp->comp = dlsym(dlh_compiler,"compile_arm32");;
 	codev->devcomp->ilcomp = 0;
 	codev->devlink->link = 0;
 	codev->devlink->bind_ksyms = bind_ksyms_default;
+	*(codev->devops) = (struct coprthr_device_operations){
+		0,
+		__coprthr_memalloc, __coprthr_memrealloc, __coprthr_memfree,
+		__coprthr_memread, __coprthr_memwrite, __coprthr_memcopy
+	};
 	codev->devops->v_cmdcall = cmdcall_x86_64_sl; /* XXX fix naming -DAR */
 #else
 #error unsupported architecture

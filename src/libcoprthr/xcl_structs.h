@@ -69,7 +69,6 @@ void* __icd_call_vector;
 
 struct _cl_platform_id {
 	void* _reserved;
-//	struct _imp_platform imp;
 	char* profile;
    char* version;
    char* name;
@@ -77,7 +76,6 @@ struct _cl_platform_id {
    char* extensions;
    unsigned int ndevices;
    struct _cl_device_id* dtab;
-   struct _strtab_entry* dstrtab;
 };
 
 #define __init_platform_id(platformid) do { \
@@ -92,9 +90,6 @@ struct _cl_platform_id {
 
 #define __resolve_platformid(p,m) ((p)->m)
 
-//extern void* __icd_call_vector;
-
-
 
 /* 
  * device 
@@ -103,10 +98,12 @@ struct _cl_platform_id {
 struct _cl_device_id {
 	void* _reserved;
 	struct coprthr_device* codev;
+	int dd;
 };
 
 #define __init_device_id(devid) do { \
 	(devid)->_reserved = (void*)__icd_call_vector; \
+	(devid)->dd = -1; \
 	} while(0)
 
 #define __free_device_id(devid) do { \
@@ -269,6 +266,7 @@ struct _cl_program {
 	char** build_options;
 	char** build_log;
 	struct coprthr_program* imp;
+	struct coprthr1_program** prg1;
 };
 
 #define __init_program(prg) do { \
@@ -277,22 +275,23 @@ struct _cl_program {
 	prg->ctx = (cl_context)0; \
 	prg->ndev = 0; \
 	prg->devices = 0; \
+	prg->bin_stat = 0; \
 	prg->src_sz = 0; \
 	prg->src = 0; \
-	prg->bin_stat = 0; \
 	prg->bin_sz = 0; \
 	prg->bin = 0; \
 	prg->build_stat = 0; \
 	prg->build_options = 0; \
 	prg->build_log = 0; \
 	__coprthr_init_program(prg->imp); \
+	prg->prg1 = 0; \
 	} while(0)
 
 #define __free_program(prg) do { \
 	__coprthr_free_program(prg->imp); \
 	__free(prg->devices); \
-	__free(prg->src); \
 	__free(prg->bin_stat); \
+	__free(prg->src); \
 	__free(prg->bin_sz); \
 	__free(prg->bin); \
 	__free(prg->build_stat); \
@@ -330,6 +329,7 @@ struct _cl_kernel {
 	unsigned char* name;
 	cl_uint narg;
 	struct coprthr_kernel* imp;
+	struct coprthr1_kernel* krn1;
 };
 
 #define __init_kernel(krn) do { \
@@ -340,6 +340,7 @@ struct _cl_kernel {
 	krn->name = 0; \
 	krn->narg = 0; \
 	__coprthr_init_kernel(krn->imp); \
+	krn->krn1 = 0; \
 	} while(0)
 
 #define __free_kernel(krn) do { \

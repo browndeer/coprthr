@@ -76,10 +76,6 @@ struct coprthr_device_info {
 	char* profile;
 	char* version;
 	char* extensions;
-
-	char* dstrtab;
-	size_t dstrtab_sz;
-
 };
 
 struct coprthr_command_queue;
@@ -96,8 +92,15 @@ struct coprthr_device_state {
 	struct coprthr_command_queue* cmdq;
 };
 
+
 struct coprthr_device_operations {
 	cmdcall_t* v_cmdcall;
+	void*(*memalloc)( size_t sz, int flags );
+	void*(*memrealloc)( void** p_memptr, size_t sz, int flags);
+	void (*memfree)( void* memptr, int flags );
+	size_t (*memread)( void* memptr, void* buf, size_t sz );
+	size_t (*memwrite)( void* memptr, void* buf, size_t sz );
+	size_t (*memcopy)( void* memptr_src, void* memptr_dst, size_t sz);
 };
 
 struct coprthr_device_compiler {

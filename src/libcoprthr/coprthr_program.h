@@ -48,19 +48,6 @@
 #define CLARG_KIND_IMAGE2D    0x040
 #define CLARG_KIND_IMAGE3D    0x080
 
-/*
-struct _coprthr_strtab_entry {
-   size_t alloc_sz;
-   size_t sz;
-   char* buf;
-};
-
-struct _coprthr_clsymtab_entry {
-	cl_uint kind;
-	cl_uint type;
-};
-*/
-
 #define CLSYM_KIND_
 
 
@@ -79,6 +66,8 @@ struct coprthr_kernel {
 	struct _coprthr_ksyms_struct** v_ksyms;
 	cl_uint knum;
 
+	unsigned int narg;
+
 	cl_uint* arg_kind;
 	size_t* arg_sz;
 	uint32_t* arg_off;
@@ -93,6 +82,7 @@ struct coprthr_kernel {
 	(imp)->v_kbin = 0; \
 	(imp)->v_ksyms = 0; \
 	(imp)->knum = -1; \
+	(imp)->narg = 0; \
 	(imp)->arg_kind = 0; \
 	(imp)->arg_sz = 0; \
 	(imp)->arg_off = 0; \
@@ -164,6 +154,40 @@ struct coprthr_program {
 #define __nkernels_in_program(prg) (prg->imp->nkrn)
 
 //extern void* __icd_call_vector;
+
+struct coprthr1_program {
+
+	size_t src_sz;
+	char* src;
+
+	size_t bin_sz;
+	char* bin;
+	int bin_stat;
+	char* build_opt;
+	char* build_log;
+
+	unsigned int nclsym;
+	struct clsymtab_entry* clsymtab;
+	struct clargtab_entry* clargtab;
+	char* clstrtab;
+
+	unsigned int nkrn;
+	char** kname;
+	unsigned int* knarg;
+	size_t* karg_buf_sz;
+	unsigned int** karg_kind;
+	size_t** karg_sz;
+
+	void* dlh;
+	char* dlfile;
+	struct _coprthr_ksyms_struct** v_ksyms;
+		
+};
+
+struct coprthr1_kernel {
+	struct coprthr1_progam* prg;
+	unsigned int knum;
+};
 
 #endif
 
