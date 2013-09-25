@@ -303,17 +303,11 @@ void __do_set_cmd_ndrange_kernel(
 
 	printcl( CL_DEBUG "devnum = %d",devnum);
 
-//	argp->k.ksym = ((void***)krn->imp->v_ksym)[devnum][krn->imp->knum];
-//	argp->k.kcall = ((void***)krn->imp->v_kcall)[devnum][krn->imp->knum];
-//	argp->k.ksym = krn->imp->v_ksyms[devnum][krn->imp->knum].kthr;
-//	argp->k.kcall = krn->imp->v_ksyms[devnum][krn->imp->knum].kcall;
-
-//	argp->k.ksyms = &krn->imp->v_ksyms[devnum][krn->imp->knum];
 	argp->k.ksyms = &krn->krn1[devnum]->prg1->v_ksyms[krn->krn1[devnum]->knum];
 	argp->k.narg = krn->narg;
 	argp->k.arg_buf_sz = krn->imp->arg_buf_sz;
 
-printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp->arg_kind);
+	printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp->arg_kind);
 	
 	argp->k.arg_kind = krn->imp->arg_kind;
 	argp->k.arg_sz = krn->imp->arg_sz;
@@ -363,17 +357,13 @@ void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 		exit(-1);
 	}
 
-//	argp->k.ksym = ((void***)krn->imp->v_ksym)[devnum][krn->imp->knum];
-//	argp->k.kcall = ((void***)krn->imp->v_kcall)[devnum][krn->imp->knum];
-
-//	argp->k.ksym = krn->imp->v_ksyms[devnum][krn->imp->knum].kthr;
-//	argp->k.kcall = krn->imp->v_ksyms[devnum][krn->imp->knum].kcall;
-
-	argp->k.ksym = krn->krn1[devnum]->prg1->v_ksyms[krn->krn1[devnum]->knum].kthr;
-	argp->k.kcall = krn->krn1[devnum]->prg1->v_ksyms[krn->krn1[devnum]->knum].kcall;
+	int knum = krn->krn1[devnum]->knum;
+	struct coprthr1_program* prg1 = krn->krn1[devnum]->prg1;
+	argp->k.ksym = prg1->v_ksyms[knum].kthr;
+	argp->k.kcall = prg1->v_ksyms[knum].kcall;
 	argp->k.narg = krn->narg;
 
-printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp->arg_kind);
+	printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp->arg_kind);
 	
 	argp->k.arg_kind = krn->imp->arg_kind;
 	argp->k.arg_sz = krn->imp->arg_sz;

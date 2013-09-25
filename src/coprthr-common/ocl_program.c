@@ -93,17 +93,8 @@ _clCreateProgramWithSource(
 
 		prg->ctx = ctx;
 
-//		cl_uint ndev = ctx->ndev;
-
 		prg->ndev = ndev;
 		__clone(prg->devices,ctx->devices,ndev,cl_device_id);
-
-//		prg->bin_stat = (cl_uint*)calloc(ndev,sizeof(cl_uint));
-//		prg->bin_sz = (size_t*)calloc(ndev,sizeof(size_t));
-//		prg->bin = (unsigned char**)calloc(ndev,sizeof(unsigned char*));
-//		prg->build_stat = (cl_build_status*)calloc(ndev,sizeof(cl_build_status));
-//		prg->build_options = (char**)calloc(ndev,sizeof(char*));
-//		prg->build_log = (char**)calloc(ndev,sizeof(char*));
 
 		for(i=0; i<ndev; i++) prg->prg1[i]->bin_stat = CL_BUILD_NONE;
 
@@ -178,20 +169,6 @@ _clCreateProgramWithBinary(
 
 		prg->ndev = ndev;
 		__clone(prg->devices,devices,ndev,cl_device_id);
-
-		/* XXX is this used for aything? -DAR */
-//		prg->bin_stat = (cl_uint*)calloc(ndev,sizeof(cl_uint));
-
-//		__clone(prg->bin,bins,ndev,unsigned char*);
-//		__clone(prg->bin_sz,lens,ndev,size_t);
-
-//		prg->build_stat = (cl_build_status*)malloc(ndev*sizeof(cl_build_status));
-//		prg->build_options = (char**)malloc(ndev*sizeof(char*));
-//		prg->build_log = (char**)malloc(ndev*sizeof(char*));
-
-//		for(i=0; i<ndev; i++) 
-//			prg->build_stat[i] = (prg->bin[i] && prg->bin_sz[i] > 0)? 
-//				CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 
 		__do_create_program(prg);
 
@@ -289,23 +266,17 @@ _clBuildProgram(
 
 		cl_device_id devid = devices[j];
 
-//		if (prg->src) {
 		if (prg->prg1[i]->src) {
 
 			printcl( CL_DEBUG 
 				"compiler avail %d",__do_check_compiler_available(devices[j]));
 
-//			if (options) prg->build_options[j] = options;
 			if (options) prg->prg1[i]->build_opt = options;
 
 			err = __do_build_program_from_source(prg,devid,j);
 
-//fprintf(stderr,"INTERNAL |%s|\n",prg->build_log[j]); 
-
-
 		} else {
 
-//			printcl( CL_DEBUG "bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
 			printcl( CL_DEBUG "bin bin_sz %p %d",
 				prg->prg1[i]->bin, prg->prg1[i]->bin_sz);
 
@@ -319,14 +290,10 @@ _clBuildProgram(
 
 		}
 
-//		prg->build_stat[i] = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 		prg->prg1[i]->bin_stat = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 
-//		if (err != CL_SUCCESS) return(err);
 	}
 	
-//	return(CL_SUCCESS);
-
 	if (err)
 		printcl( CL_WARNING "clBuildProgram failed with err %d",err);
 
@@ -334,8 +301,7 @@ _clBuildProgram(
 }
 
 
-cl_int 
-_clUnloadCompiler( void)
+cl_int _clUnloadCompiler( void)
 {
 	printcl( CL_WARNING "clUnloadCompiler: warning: unsupported");
 
@@ -385,20 +351,17 @@ _clGetProgramInfo(
 
 		case CL_PROGRAM_SOURCE:
 
-//			__case_get_param(prg->src_sz,prg->src);
 			__case_get_param(prg->prg1[0]->src_sz,prg->prg1[0]->src);
 
 			break;
 
 		case CL_PROGRAM_BINARY_SIZES:
 
-//			__case_get_param(prg->ndev*sizeof(size_t),prg->bin_sz);
 			{
 				sz = prg->ndev*sizeof(size_t);
 				if (param_sz_ret) *param_sz_ret = sz;
 				if (param_sz < sz && param_val) return(CL_INVALID_VALUE);
 				else if (param_val) {
-//					memcpy(param_val,p,sz);
 					int j;
 					for(j=0;j<prg->ndev;j++) 
 						((size_t*)param_val)[j] = prg->prg1[j]->bin_sz;
@@ -408,13 +371,11 @@ _clGetProgramInfo(
 
 		case CL_PROGRAM_BINARIES:
 
-//			__case_get_param(prg->ndev*sizeof(unsigned char*),prg->bin);
 			{
 				sz = prg->ndev*sizeof(char*);
 				if (param_sz_ret) *param_sz_ret = sz;
 				if (param_sz < sz && param_val) return(CL_INVALID_VALUE);
 				else if (param_val) {
-//					memcpy(param_val,p,sz);
 					int j;
 					for(j=0;j<prg->ndev;j++) {
 						((char**)param_val)[j] = prg->prg1[j]->bin;
@@ -447,7 +408,6 @@ _clGetProgramBuildInfo(
 	 size_t* param_sz_ret
 )
 {
-//	printcl( CL_WARNING "clGetProgramBuildInfo: warning: unsupported");
 
 	if (__invalid_program(prg)) return(CL_INVALID_PROGRAM);
 
@@ -461,26 +421,18 @@ _clGetProgramBuildInfo(
 		case CL_PROGRAM_BUILD_STATUS:
 
 			__case_get_param(sizeof(cl_build_status),&prg->prg1[j]->bin_stat);
-//printf("%d\n",(int)prg->build_stat[j]);
 			break;
 
 		case CL_PROGRAM_BUILD_OPTIONS:
 
-//			sz = strnlen(prg->build_options[j],__CLMAXSTR_LEN);
 			sz = strnlen(prg->prg1[j]->build_opt,__CLMAXSTR_LEN);
-//			__case_get_param(prg->build_options_sz,prg->build_options);
-//			__case_get_param(sz,prg->build_options+j);
 			__case_get_param(sz,prg->prg1[j]->build_opt);
 
 			break;
 
 		case CL_PROGRAM_BUILD_LOG:
 
-//			sz = strnlen(prg->build_log[j],__CLMAXSTR_LEN);
 			sz = strnlen(prg->prg1[j]->build_log,__CLMAXSTR_LEN);
-//			__case_get_param(prg->build_log_sz,prg->build_log);
-//fprintf(stderr,"    INTERNAL |%s|\n",*(prg->build_log+j));
-//			__case_get_param(sz,prg->build_log[j]);
 			__case_get_param(sz,prg->prg1[j]->build_log);
 
 			break;

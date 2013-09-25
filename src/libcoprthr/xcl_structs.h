@@ -266,7 +266,7 @@ struct _cl_program {
 //	cl_build_status* build_stat;
 //	char** build_options;
 //	char** build_log;
-	struct coprthr_program* imp;
+//	struct coprthr_program* imp;
 	struct coprthr1_program** prg1;
 };
 
@@ -279,12 +279,10 @@ struct _cl_program {
 	prg->src_sz = 0; \
 	prg->src = 0; \
 	prg->nkrn = 0; \
-	__coprthr_init_program(prg->imp); \
 	prg->prg1 = 0; \
 	} while(0)
 
 #define __free_program(prg) do { \
-	__coprthr_free_program(prg->imp); \
 	__free(prg->devices); \
 	__free(prg->src); \
 	__free(prg); \

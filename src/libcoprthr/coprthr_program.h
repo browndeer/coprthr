@@ -53,10 +53,6 @@ struct _coprthr_ksyms_struct {
 };
 
 struct coprthr_kernel {
-//	void* v_kbin;
-//	struct _coprthr_ksyms_struct** v_ksyms;
-//	cl_uint knum;
-
 	unsigned int narg;
 
 	cl_uint* arg_kind;
@@ -89,50 +85,28 @@ struct coprthr_kernel {
 
 /* program */
 
+/*
 struct coprthr_program {
 
-//	cl_uint nclsym;
-//	struct clsymtab_entry* clsymtab;
-//	struct clargtab_entry* clargtab;
-//	char* clstrtab;
-
-//	cl_uint nkrn;
-	char** kname;
-	cl_uint* knarg;
-	size_t* karg_buf_sz;
-	cl_uint** karg_kind;
-	size_t** karg_sz;
-
-//	void** v_kbin;
-//	char** v_kbin_tmpfile;
-//	struct _coprthr_ksyms_struct** v_ksyms;
+//	char** kname;
+//	cl_uint* knarg;
+//	size_t* karg_buf_sz;
+//	cl_uint** karg_kind;
+//	size_t** karg_sz;
 
 };
 
 #define __coprthr_init_program(imp) do { \
 	(imp) = (struct coprthr_program*)malloc(sizeof(struct coprthr_program)); \
-	(imp)->kname = 0; \
-	(imp)->knarg = 0; \
-	(imp)->karg_kind = 0; \
-	(imp)->karg_buf_sz = 0; \
-	(imp)->karg_sz = 0; \
 	} while(0)
 
-/* XXX does not yet deal with actual kbin and ksym -DAR */
 #define __coprthr_free_program(imp) do { \
 	int k; \
-	__free((imp)->kname); \
-	__free((imp)->knarg); \
-	__free((imp)->karg_buf_sz); \
-	__free((imp)->karg_kind); \
-	__free((imp)->karg_sz); \
 	__free((imp)); \
 	} while(0)
+*/
 
-//#define __nkernels_in_program(prg) (prg->imp->nkrn)
 #define __nkernels_in_program(prg) (prg->nkrn)
-
-//extern void* __icd_call_vector;
 
 struct coprthr1_program {
 

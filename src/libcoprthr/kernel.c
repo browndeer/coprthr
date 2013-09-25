@@ -30,21 +30,15 @@
 void __do_create_kernel(cl_kernel krn, cl_uint k) 
 {
 	int i;
-//	void* p;
 
 	cl_program prg = krn->prg;
 
 	printcl( CL_DEBUG "__do_create_kernel: knum=%d",k);
 
-	krn->name = prg->imp->kname[k];
+//	krn->name = prg->imp->kname[k];
+	krn->name = prg->prg1[0]->kname[k];
 
 	printcl( CL_DEBUG "__do_create_kernel: kname=%s",krn->name);
-
-/* XXX this is odd way of assigning kernel, fix it by contracting v_* -DAR */
-
-//	krn->imp->v_kbin = prg->imp->v_kbin;
-//	krn->imp->v_ksyms = prg->imp->v_ksyms;
-//	krn->imp->knum = k;
 
 	krn->krn1 = (struct coprthr1_kernel**)
 		malloc(prg->ndev * sizeof(struct coprthr1_kernel*));
@@ -56,23 +50,25 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 		krn->krn1[i]->knum = k;
 	}	
 
-	cl_uint narg = krn->narg = krn->imp->narg = prg->imp->knarg[k];
+//	cl_uint narg = krn->narg = krn->imp->narg = prg->imp->knarg[k];
+	cl_uint narg = krn->narg = krn->imp->narg = prg->prg1[0]->knarg[k];
 
 	printcl( CL_DEBUG "__do_create_kernel: narg=%d",narg);
 
 	if (narg == 0) return;
 
-	if (prg->imp->karg_kind[k]) 
-		__clone(krn->imp->arg_kind,prg->imp->karg_kind[k],narg,cl_uint);
+//	if (prg->imp->karg_kind[k]) 
+	if (prg->prg1[0]->karg_kind[k]) 
+		__clone(krn->imp->arg_kind,prg->prg1[0]->karg_kind[k],narg,cl_uint);
 	else krn->imp->arg_kind = (cl_uint*)malloc(narg*sizeof(cl_uint));
 
-	if (prg->imp->karg_sz[k]) 
-		__clone(krn->imp->arg_sz,prg->imp->karg_sz[k],narg,size_t);
+	if (prg->prg1[0]->karg_sz[k]) 
+		__clone(krn->imp->arg_sz,prg->prg1[0]->karg_sz[k],narg,size_t);
 	else krn->imp->arg_sz = (size_t*)malloc(narg*sizeof(size_t));
 
 	krn->imp->arg_off = malloc(narg*sizeof(uint32_t));
 		
-	size_t arg_buf_sz = krn->imp->arg_buf_sz = prg->imp->karg_buf_sz[k];
+	size_t arg_buf_sz = krn->imp->arg_buf_sz = prg->prg1[0]->karg_buf_sz[k];
 
 	if (arg_buf_sz > 0) krn->imp->arg_buf = malloc(arg_buf_sz);
 

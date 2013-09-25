@@ -43,19 +43,6 @@ void __do_create_program(cl_program prg)
 {
 	printcl( CL_DEBUG "__do_create_program with ndev = %d",prg->ndev);
 
-//	prg->imp->v_kbin = (void**)calloc(prg->ndev,sizeof(void*));
-//	prg->imp->v_kbin_tmpfile = (char**)calloc(prg->ndev,sizeof(char*));
-
-//	prg->imp->v_ksyms = (struct _coprthr_ksyms_struct**)
-//		calloc(prg->ndev,sizeof(struct _coprthr_ksyms_struct*));
-
-//	prg->prg1 = (struct coprthr1_program**)
-//		calloc(prg->ndev,sizeof(struct coprthr1_program*));
-//	int i;
-//	for(i=0;i<prg->ndev;i++) 
-//		prg->prg1[i] = (struct coprthr1_program*)
-//			calloc(1,sizeof(struct coprthr1_program));
-		
 }
 
 
@@ -63,28 +50,12 @@ void __do_release_program(cl_program prg)
 {
 	int i;
 	for(i=0;i<prg->ndev;i++) {
-//		if (prg->imp->v_kbin[i]) dlclose(prg->imp->v_kbin[i]);
 		if (prg->prg1[i]->dlh) dlclose(prg->prg1[i]->dlh);
-//		if (prg->imp->v_kbin_tmpfile[i]) {
-//			unlink(prg->imp->v_kbin_tmpfile[i]);
-//			free(prg->imp->v_kbin_tmpfile[i]);
 		if (prg->prg1[i]->dlfile) {
 			unlink(prg->prg1[i]->dlfile);
 			free(prg->prg1[i]->dlfile);
 		}
 	}
-
-/*
-	for(i=0;i<prg->ndev;i++) {
-		if (prg->prg1->dlh) dlclose(prg->prg1->dlh);
-		if (prg->prg1->dlfile) {
-			unlink(prg->prg1->dlfile);
-			free(prg->prg1->dlfile);
-		}
-		if (prg->prg1[i]) free(prg->prg1[i]);
-		if (prg->prg1) free(prg->prg1);
-	}
-*/
 
 }
 
@@ -98,18 +69,15 @@ cl_int __do_build_program_from_binary(
 
 
 	printcl( CL_DEBUG "program: bin bin_sz %p %d",
-//		prg->bin[devnum],prg->bin_sz[devnum]);
 		prg->prg1[devnum]->bin,prg->prg1[devnum]->bin_sz);
 
    char tmpfile[] = "/tmp/xclXXXXXX";
    int fd = mkstemp(tmpfile);
-//	write(fd,prg->bin[devnum],prg->bin_sz[devnum]);
 	write(fd,prg->prg1[devnum]->bin,prg->prg1[devnum]->bin_sz);
 	close(fd);
 
 	void* h = dlopen(tmpfile,RTLD_LAZY);
 
-//	Elf* e = (Elf*)prg->bin[devnum];
 	Elf* e = (Elf*)prg->prg1[devnum]->bin;
 
 	printcl( CL_DEBUG "is this elf? |%c %c %c %c",
@@ -176,53 +144,37 @@ cl_int __do_build_program_from_binary(
 	__clone(prg1->clargtab,clargtab,clargtab_n,struct clargtab_entry);
 	__clone(prg1->clstrtab,clstrtab,clstrtab_sz,char);
 
-//	if (prg->imp->clsymtab == 0) {
-	if (devnum == 0) {
 
-//		prg->imp->nclsym = clsymtab_n;
-//		__clone(prg->imp->clsymtab,clsymtab,clsymtab_n,struct clsymtab_entry);
-//		__clone(prg->imp->clargtab,clargtab,clargtab_n,struct clargtab_entry);
-//		__clone(prg->imp->clstrtab,clstrtab,clstrtab_sz,char);
+	/* XXX adding a section NOT conditional on devnum==0 */
+	{
+		prg1->nkrn = clsymtab_n; /* XXX assumed, revisit in future -DAR */
 
-//		prg->imp->nkrn = clsymtab_n; /* XXX assumed, revisit in future -DAR */
-		prg->nkrn = clsymtab_n; /* XXX assumed, revisit in future -DAR */
-
-//		prg->imp->kname = (char**)malloc(prg->imp->nkrn*sizeof(char*));
-//		prg->imp->knarg = (cl_uint*)malloc(prg->imp->nkrn*sizeof(cl_uint));
-//		prg->imp->karg_buf_sz = (size_t*)malloc(prg->imp->nkrn*sizeof(size_t));
-//		prg->imp->karg_kind = (cl_uint**)malloc(prg->imp->nkrn*sizeof(cl_uint*));
-//		prg->imp->karg_sz = (size_t**)malloc(prg->imp->nkrn*sizeof(size_t*));
-		prg->imp->kname = (char**)malloc(prg->nkrn*sizeof(char*));
-		prg->imp->knarg = (cl_uint*)malloc(prg->nkrn*sizeof(cl_uint));
-		prg->imp->karg_buf_sz = (size_t*)malloc(prg->nkrn*sizeof(size_t));
-		prg->imp->karg_kind = (cl_uint**)malloc(prg->nkrn*sizeof(cl_uint*));
-		prg->imp->karg_sz = (size_t**)malloc(prg->nkrn*sizeof(size_t*));
+		prg1->kname = (char**)malloc(prg1->nkrn*sizeof(char*));
+		prg1->knarg = (cl_uint*)malloc(prg1->nkrn*sizeof(cl_uint));
+		prg1->karg_buf_sz = (size_t*)malloc(prg1->nkrn*sizeof(size_t));
+		prg1->karg_kind = (cl_uint**)malloc(prg1->nkrn*sizeof(cl_uint*));
+		prg1->karg_sz = (size_t**)malloc(prg1->nkrn*sizeof(size_t*));
 
 
 		for(i=0;i<clsymtab_n;i++) {
 
-//			prg->imp->kname[i] = prg->imp->clstrtab + prg->imp->clsymtab[i].e_name;
-//			unsigned int arg0 = prg->imp->clsymtab[i].e_arg0;
-			prg->imp->kname[i] = prg1->clstrtab + prg1->clsymtab[i].e_name;
+			prg1->kname[i] = prg1->clstrtab + prg1->clsymtab[i].e_name;
 			unsigned int arg0 = prg1->clsymtab[i].e_arg0;
 			int narg = 0; 
 			int arg;
-//			for(arg=arg0;arg;arg=prg->imp->clargtab[arg].e_nxt,narg++);
 			for(arg=arg0;arg;arg=prg1->clargtab[arg].e_nxt,narg++);
-			printcl( CL_DEBUG "%s has %d args\n",prg->imp->kname[i],narg);
-			prg->imp->knarg[i] = narg;
-			prg->imp->karg_kind[i] = (cl_uint*)malloc(narg*sizeof(cl_uint));
-			prg->imp->karg_sz[i] = (size_t*)malloc(narg*sizeof(size_t));
+			printcl( CL_DEBUG "%s has %d args\n",prg1->kname[i],narg);
+			prg1->knarg[i] = narg;
+			prg1->karg_kind[i] = (cl_uint*)malloc(narg*sizeof(cl_uint));
+			prg1->karg_sz[i] = (size_t*)malloc(narg*sizeof(size_t));
 
 			j = 0;
 			size_t bufsz = 0;
-//			for(arg=arg0;arg;arg=prg->imp->clargtab[arg].e_nxt,j++) {
 			for(arg=arg0;arg;arg=prg1->clargtab[arg].e_nxt,j++) {
 
 				size_t sz;
 				size_t sz_ptr = sizeof(void*); /* XXX always true? -DAR */
 
-//				switch(prg->imp->clargtab[arg].e_datatype) {
 				switch(prg1->clargtab[arg].e_datatype) {
 
 					case TYPEID_CHAR:
@@ -265,8 +217,6 @@ cl_int __do_build_program_from_binary(
 
 				printcl( CL_DEBUG "base arg_sz[%d] %d",arg,sz);
 
-//				sz *= prg->imp->clargtab[arg].e_vecn;
-//				sz *= prg->imp->clargtab[arg].e_arrn;
 				sz *= prg1->clargtab[arg].e_vecn;
 				sz *= prg1->clargtab[arg].e_arrn;
 				
@@ -278,53 +228,188 @@ cl_int __do_build_program_from_binary(
 
 				if (prg1->clargtab[arg].e_ptrc == 0) {
 
-					prg->imp->karg_kind[i][j] = CLARG_KIND_DATA;
+					prg1->karg_kind[i][j] = CLARG_KIND_DATA;
 					sz = sz;
 
 				} else if (prg1->clargtab[arg].e_ptrc == 1) {
 
 					if (prg1->clargtab[arg].e_addrspace == 0) { /* XXX promote */
 
-						prg->imp->karg_kind[i][j] = CLARG_KIND_GLOBAL;
+						prg1->karg_kind[i][j] = CLARG_KIND_GLOBAL;
 						sz = sz_ptr;
 
 					} else if (prg1->clargtab[arg].e_addrspace == 1) {
 
-						prg->imp->karg_kind[i][j] = CLARG_KIND_GLOBAL;
+						prg1->karg_kind[i][j] = CLARG_KIND_GLOBAL;
 						sz = sz_ptr;
 
 					} else if (prg1->clargtab[arg].e_addrspace == 2) {
 
-						prg->imp->karg_kind[i][j] = CLARG_KIND_CONSTANT;
+						prg1->karg_kind[i][j] = CLARG_KIND_CONSTANT;
 						sz = sz_ptr;
 
 					} else if (prg1->clargtab[arg].e_addrspace == 3) {
 
-						prg->imp->karg_kind[i][j] = CLARG_KIND_LOCAL;
+						prg1->karg_kind[i][j] = CLARG_KIND_LOCAL;
 						sz = sz_ptr;
 
 					} else {
 
-						prg->imp->karg_kind[i][j] = CLARG_KIND_UNDEFINED;
+						prg1->karg_kind[i][j] = CLARG_KIND_UNDEFINED;
 						sz = 0;
 
 					}
 
 				} else {
 
-					prg->imp->karg_kind[i][j] = CLARG_KIND_UNDEFINED;
+					prg1->karg_kind[i][j] = CLARG_KIND_UNDEFINED;
 					sz = 0;
 
 				}
 
 				printcl( CL_DEBUG "after kind check arg_sz[%d] %d",arg,sz);
 
-				prg->imp->karg_sz[i][j] = sz;
+				prg1->karg_sz[i][j] = sz;
 				bufsz += sz;
 
 			}
 
-			prg->imp->karg_buf_sz[i] = bufsz;
+			prg1->karg_buf_sz[i] = bufsz;
+
+		}	
+
+	}
+
+	if (devnum == 0) { /* XXX convert into a per-device check -DAR */
+
+		prg->nkrn = clsymtab_n; /* XXX assumed, revisit in future -DAR */
+
+//		prg->imp->kname = (char**)malloc(prg->nkrn*sizeof(char*));
+//		prg->imp->knarg = (cl_uint*)malloc(prg->nkrn*sizeof(cl_uint));
+//		prg->imp->karg_buf_sz = (size_t*)malloc(prg->nkrn*sizeof(size_t));
+//		prg->imp->karg_kind = (cl_uint**)malloc(prg->nkrn*sizeof(cl_uint*));
+//		prg->imp->karg_sz = (size_t**)malloc(prg->nkrn*sizeof(size_t*));
+
+
+		for(i=0;i<clsymtab_n;i++) {
+
+//			prg->imp->kname[i] = prg1->clstrtab + prg1->clsymtab[i].e_name;
+			unsigned int arg0 = prg1->clsymtab[i].e_arg0;
+			int narg = 0; 
+			int arg;
+			for(arg=arg0;arg;arg=prg1->clargtab[arg].e_nxt,narg++);
+//			printcl( CL_DEBUG "%s has %d args\n",prg->imp->kname[i],narg);
+//			prg->imp->knarg[i] = narg;
+//			prg->imp->karg_kind[i] = (cl_uint*)malloc(narg*sizeof(cl_uint));
+//			prg->imp->karg_sz[i] = (size_t*)malloc(narg*sizeof(size_t));
+
+			j = 0;
+			size_t bufsz = 0;
+			for(arg=arg0;arg;arg=prg1->clargtab[arg].e_nxt,j++) {
+
+				size_t sz;
+				size_t sz_ptr = sizeof(void*); /* XXX always true? -DAR */
+
+				switch(prg1->clargtab[arg].e_datatype) {
+
+					case TYPEID_CHAR:
+					case TYPEID_UCHAR: 
+						sz=1; 
+						printcl( CL_DEBUG "arg type [%d] ~char",arg);
+						break;
+						
+					case TYPEID_SHORT:
+					case TYPEID_USHORT: 
+						sz=2; 
+						printcl( CL_DEBUG "arg type [%d] ~short",arg);
+						break;
+
+					case TYPEID_INT:
+					case TYPEID_UINT: 
+					case TYPEID_FLOAT:
+						sz=4; 
+						printcl( CL_DEBUG "arg type [%d] ~int",arg);
+						break;
+
+					case TYPEID_LONG: 
+					case TYPEID_ULONG: 
+					case TYPEID_DOUBLE:
+						sz=8; 
+						printcl( CL_DEBUG "arg type [%d] ~long",arg);
+						break;
+
+					case TYPEID_OPAQUE:
+						sz=0; 
+						printcl( CL_DEBUG "arg type [%d] ~opaque",arg);
+						break;
+
+					case TYPEID_VOID:
+					default: sz=0; 
+					printcl( CL_DEBUG "arg type [%d] ~void",arg);
+					break;
+
+				}
+
+				printcl( CL_DEBUG "base arg_sz[%d] %d",arg,sz);
+
+				sz *= prg1->clargtab[arg].e_vecn;
+				sz *= prg1->clargtab[arg].e_arrn;
+				
+				printcl( CL_DEBUG "w/multiplicity arg_sz[%d] %d",arg,sz);
+
+				printcl( CL_DEBUG "e_ptrc=%d e_addrspace=%d",
+					prg1->clargtab[arg].e_ptrc,
+					prg1->clargtab[arg].e_addrspace);
+
+				if (prg1->clargtab[arg].e_ptrc == 0) {
+
+//					prg->imp->karg_kind[i][j] = CLARG_KIND_DATA;
+					sz = sz;
+
+				} else if (prg1->clargtab[arg].e_ptrc == 1) {
+
+					if (prg1->clargtab[arg].e_addrspace == 0) { /* XXX promote */
+
+//						prg->imp->karg_kind[i][j] = CLARG_KIND_GLOBAL;
+						sz = sz_ptr;
+
+					} else if (prg1->clargtab[arg].e_addrspace == 1) {
+
+//						prg->imp->karg_kind[i][j] = CLARG_KIND_GLOBAL;
+						sz = sz_ptr;
+
+					} else if (prg1->clargtab[arg].e_addrspace == 2) {
+
+//						prg->imp->karg_kind[i][j] = CLARG_KIND_CONSTANT;
+						sz = sz_ptr;
+
+					} else if (prg1->clargtab[arg].e_addrspace == 3) {
+
+//						prg->imp->karg_kind[i][j] = CLARG_KIND_LOCAL;
+						sz = sz_ptr;
+
+					} else {
+
+//						prg->imp->karg_kind[i][j] = CLARG_KIND_UNDEFINED;
+						sz = 0;
+
+					}
+
+				} else {
+
+//					prg->imp->karg_kind[i][j] = CLARG_KIND_UNDEFINED;
+					sz = 0;
+
+				}
+
+				printcl( CL_DEBUG "after kind check arg_sz[%d] %d",arg,sz);
+
+//				prg->imp->karg_sz[i][j] = sz;
+				bufsz += sz;
+
+			}
+
+//			prg->imp->karg_buf_sz[i] = bufsz;
 
 		}	
 
@@ -332,12 +417,11 @@ cl_int __do_build_program_from_binary(
 	} else {
 
 		/* XXX should put in a check against devnum=0 here -DAR */
+		printcl( CL_WARNING 
+			"no binary check against device 0 for multiple devices");
 
 	}
 
-
-//	prg->imp->v_ksyms[devnum] = (struct _coprthr_ksyms_struct*)
-//		malloc(prg->nkrn*sizeof(struct _coprthr_ksyms_struct));
 
 	prg->prg1[devnum]->v_ksyms = (struct _coprthr_ksyms_struct*)
 		malloc(prg->nkrn*sizeof(struct _coprthr_ksyms_struct));
@@ -351,42 +435,34 @@ cl_int __do_build_program_from_binary(
 
 	if (devtype == CL_DEVICE_TYPE_CPU) {
 
-//		prg->imp->v_kbin[devnum] = h;
-//		prg->imp->v_kbin_tmpfile[devnum] = (char*)malloc(32); /* XXX */
-//		strncpy(prg->imp->v_kbin_tmpfile[devnum],tmpfile,32);
-
 		prg->prg1[devnum]->dlh = h;
 		prg->prg1[devnum]->dlfile = strdup(tmpfile);
 
 	} else {
 
-//		prg->imp->v_kbin[devnum] = 0;
 		prg->prg1[devnum]->dlh = 0;
 		prg->prg1[devnum]->dlfile = 0;
 
 	}
 
-//	printcl( CL_DEBUG "kbin[%d] = %p",devnum,prg->imp->v_kbin[devnum]);
 	printcl( CL_DEBUG "kbin[%d] = %p",devnum,prg->prg1[devnum]->dlh);
 
-//	for(i=0;i<prg->imp->nclsym;i++) {
 	for(i=0;i<prg->nkrn;i++) {
 
-		strncpy(name,prg->imp->kname[i],1024);
+//		strncpy(name,prg->imp->kname[i],1024);
+		strncpy(name,prg1->kname[i],1024);
 
 		printcl( CL_DEBUG "devnum knum %d %d",devnum,i);
 
 		if (__resolve_devid_devinfo(devid,devtype)==CL_DEVICE_TYPE_CPU) {
 
-//			__resolve_devid_devlink(devid,bind_ksyms)(
-//				&(prg->imp->v_ksyms[devnum][i]), h, prg->imp->kname[i]);
-
 			__resolve_devid_devlink(devid,bind_ksyms)(
-				&(prg->prg1[devnum]->v_ksyms[i]), h, prg->imp->kname[i]);
+//				&(prg->prg1[devnum]->v_ksyms[i]), h, prg->imp->kname[i]);
+				&(prg1->v_ksyms[i]), h, prg1->kname[i]);
 
 		} else {
-//			bzero(&prg->imp->v_ksyms[devnum][i],sizeof(struct _coprthr_ksyms_struct));
-			bzero(&prg->prg1[devnum]->v_ksyms[i],sizeof(struct _coprthr_ksyms_struct));
+			bzero(&prg->prg1[devnum]->v_ksyms[i],
+				sizeof(struct _coprthr_ksyms_struct));
 		}
 
 	}
@@ -413,11 +489,7 @@ cl_int __do_build_program_from_source(
 	printcl( CL_DEBUG "build_options[%d] |%s|",
 		devnum,prg->prg1[devnum]->build_opt);
 
-//	int err = comp( devid, prg->src,prg->src_sz, &prg->bin[devnum],
 	int err = comp( devid, prg->prg1[devnum]->src,prg->prg1[devnum]->src_sz, 
-//		&prg->bin[devnum],
-//		&prg->bin_sz[devnum], prg->build_options[devnum],
-//		&prg->build_log[devnum]);
 		&prg->prg1[devnum]->bin,
 		&prg->prg1[devnum]->bin_sz, prg->prg1[devnum]->build_opt,
 		&prg->prg1[devnum]->build_log);
@@ -441,19 +513,20 @@ int __do_find_kernel_in_program( cl_program prg, const char* kname )
 {
 	int k;
 
-//	for(k=0;k<prg->imp->nkrn;k++) {
 	for(k=0;k<prg->nkrn;k++) {
-		printcl( CL_DEBUG "compare |%s|%s\n",prg->imp->kname[k],kname);
-		if (!strncmp(prg->imp->kname[k],kname,__CLMAXSTR_LEN)) break;
+//		printcl( CL_DEBUG "compare |%s|%s\n",prg->imp->kname[k],kname);
+//		if (!strncmp(prg->imp->kname[k],kname,__CLMAXSTR_LEN)) break;
+		printcl( CL_DEBUG "compare |%s|%s\n",prg->prg1[0]->kname[k],kname);
+		if (!strncmp(prg->prg1[0]->kname[k],kname,__CLMAXSTR_LEN)) break;
 	}
 
-//	if (k==prg->imp->nkrn) return(-1);
 	if (k==prg->nkrn) return(-1);
 
 	return(k);
 }
 
-int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h, char* kname )
+int bind_ksyms_default( 
+	struct _coprthr_ksyms_struct* ksyms, void* h, char* kname )
 {
 
 	char name[1024];
