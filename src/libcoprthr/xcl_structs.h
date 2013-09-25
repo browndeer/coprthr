@@ -259,12 +259,13 @@ struct _cl_program {
 	cl_device_id* devices;
 	size_t src_sz;
 	char* src;
-	cl_uint* bin_stat;
-	size_t* bin_sz;
-	char** bin;
-	cl_build_status* build_stat;
-	char** build_options;
-	char** build_log;
+	unsigned int nkrn;
+//	cl_uint* bin_stat;
+//	size_t* bin_sz;
+//	char** bin;
+//	cl_build_status* build_stat;
+//	char** build_options;
+//	char** build_log;
 	struct coprthr_program* imp;
 	struct coprthr1_program** prg1;
 };
@@ -275,14 +276,9 @@ struct _cl_program {
 	prg->ctx = (cl_context)0; \
 	prg->ndev = 0; \
 	prg->devices = 0; \
-	prg->bin_stat = 0; \
 	prg->src_sz = 0; \
 	prg->src = 0; \
-	prg->bin_sz = 0; \
-	prg->bin = 0; \
-	prg->build_stat = 0; \
-	prg->build_options = 0; \
-	prg->build_log = 0; \
+	prg->nkrn = 0; \
 	__coprthr_init_program(prg->imp); \
 	prg->prg1 = 0; \
 	} while(0)
@@ -290,13 +286,7 @@ struct _cl_program {
 #define __free_program(prg) do { \
 	__coprthr_free_program(prg->imp); \
 	__free(prg->devices); \
-	__free(prg->bin_stat); \
 	__free(prg->src); \
-	__free(prg->bin_sz); \
-	__free(prg->bin); \
-	__free(prg->build_stat); \
-	__free(prg->build_options); \
-	__free(prg->build_log); \
 	__free(prg); \
 	} while(0)
 
@@ -329,7 +319,7 @@ struct _cl_kernel {
 	unsigned char* name;
 	cl_uint narg;
 	struct coprthr_kernel* imp;
-	struct coprthr1_kernel* krn1;
+	struct coprthr1_kernel** krn1;
 };
 
 #define __init_kernel(krn) do { \
@@ -347,7 +337,6 @@ struct _cl_kernel {
 	__coprthr_free_kernel(krn->imp); \
 	__free(krn); \
 	} while(0)
-
 
 #define __invalid_kernel(krn) (!krn)
 

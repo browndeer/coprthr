@@ -42,9 +42,19 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 
 /* XXX this is odd way of assigning kernel, fix it by contracting v_* -DAR */
 
-	krn->imp->v_kbin = prg->imp->v_kbin;
-	krn->imp->v_ksyms = prg->imp->v_ksyms;
-	krn->imp->knum = k;
+//	krn->imp->v_kbin = prg->imp->v_kbin;
+//	krn->imp->v_ksyms = prg->imp->v_ksyms;
+//	krn->imp->knum = k;
+
+	krn->krn1 = (struct coprthr1_kernel**)
+		malloc(prg->ndev * sizeof(struct coprthr1_kernel*));
+
+	for(i=0; i<prg->ndev; i++) {
+		krn->krn1[i] = (struct coprthr1_kernel*)
+			malloc(sizeof(struct coprthr1_kernel));
+		krn->krn1[i]->prg1 = prg->prg1[i];
+		krn->krn1[i]->knum = k;
+	}	
 
 	cl_uint narg = krn->narg = krn->imp->narg = prg->imp->knarg[k];
 

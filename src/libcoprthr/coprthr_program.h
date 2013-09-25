@@ -29,15 +29,6 @@
 #include "cpuset_type.h"
 #include "cmdcall.h"
 
-/*
-#ifndef min
-#define min(a,b) ((a<b)?a:b)
-#endif
-#ifndef max
-#define max(a,b) ((a>b)?a:b)
-#endif
-*/
-
 #define CLARG_KIND_UNDEFINED	0x000
 #define CLARG_KIND_VOID       0x001
 #define CLARG_KIND_DATA       0x002
@@ -62,9 +53,9 @@ struct _coprthr_ksyms_struct {
 };
 
 struct coprthr_kernel {
-	void* v_kbin;
-	struct _coprthr_ksyms_struct** v_ksyms;
-	cl_uint knum;
+//	void* v_kbin;
+//	struct _coprthr_ksyms_struct** v_ksyms;
+//	cl_uint knum;
 
 	unsigned int narg;
 
@@ -79,9 +70,6 @@ struct coprthr_kernel {
 /* XXX does not yet deal with actual kbin and ksym -DAR */
 #define __coprthr_init_kernel(imp) do { \
 	(imp) = (struct coprthr_kernel*)malloc(sizeof(struct coprthr_kernel)); \
-	(imp)->v_kbin = 0; \
-	(imp)->v_ksyms = 0; \
-	(imp)->knum = -1; \
 	(imp)->narg = 0; \
 	(imp)->arg_kind = 0; \
 	(imp)->arg_sz = 0; \
@@ -103,55 +91,46 @@ struct coprthr_kernel {
 
 struct coprthr_program {
 
-	cl_uint nclsym;
-	struct clsymtab_entry* clsymtab;
-	struct clargtab_entry* clargtab;
-	char* clstrtab;
+//	cl_uint nclsym;
+//	struct clsymtab_entry* clsymtab;
+//	struct clargtab_entry* clargtab;
+//	char* clstrtab;
 
-	cl_uint nkrn;
+//	cl_uint nkrn;
 	char** kname;
 	cl_uint* knarg;
 	size_t* karg_buf_sz;
 	cl_uint** karg_kind;
 	size_t** karg_sz;
 
-	void** v_kbin;
-	char** v_kbin_tmpfile;
-	struct _coprthr_ksyms_struct** v_ksyms;
+//	void** v_kbin;
+//	char** v_kbin_tmpfile;
+//	struct _coprthr_ksyms_struct** v_ksyms;
 
 };
 
 #define __coprthr_init_program(imp) do { \
 	(imp) = (struct coprthr_program*)malloc(sizeof(struct coprthr_program)); \
-	(imp)->nclsym = 0; \
-	(imp)->clsymtab = 0; \
-	(imp)->clstrtab = 0; \
-	(imp)->nkrn = 0; \
 	(imp)->kname = 0; \
 	(imp)->knarg = 0; \
 	(imp)->karg_kind = 0; \
 	(imp)->karg_buf_sz = 0; \
 	(imp)->karg_sz = 0; \
-	(imp)->v_kbin = 0; \
-	(imp)->v_kbin_tmpfile = 0; \
-	(imp)->v_ksyms = 0; \
 	} while(0)
 
 /* XXX does not yet deal with actual kbin and ksym -DAR */
 #define __coprthr_free_program(imp) do { \
 	int k; \
-	__free((imp)->clsymtab); \
-	__free((imp)->clstrtab); \
 	__free((imp)->kname); \
 	__free((imp)->knarg); \
 	__free((imp)->karg_buf_sz); \
-	for(k=0;k<(imp)->nkrn;k++) {__free((imp)->karg_kind[k]); __free((imp)->karg_sz[k]);} \
 	__free((imp)->karg_kind); \
 	__free((imp)->karg_sz); \
 	__free((imp)); \
 	} while(0)
 
-#define __nkernels_in_program(prg) (prg->imp->nkrn)
+//#define __nkernels_in_program(prg) (prg->imp->nkrn)
+#define __nkernels_in_program(prg) (prg->nkrn)
 
 //extern void* __icd_call_vector;
 
@@ -180,12 +159,12 @@ struct coprthr1_program {
 
 	void* dlh;
 	char* dlfile;
-	struct _coprthr_ksyms_struct** v_ksyms;
+	struct _coprthr_ksyms_struct* v_ksyms;
 		
 };
 
 struct coprthr1_kernel {
-	struct coprthr1_progam* prg;
+	struct coprthr1_program* prg1;
 	unsigned int knum;
 };
 

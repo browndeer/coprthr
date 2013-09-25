@@ -98,14 +98,14 @@ _clCreateProgramWithSource(
 		prg->ndev = ndev;
 		__clone(prg->devices,ctx->devices,ndev,cl_device_id);
 
-		prg->bin_stat = (cl_uint*)calloc(ndev,sizeof(cl_uint));
-		prg->bin_sz = (size_t*)calloc(ndev,sizeof(size_t));
-		prg->bin = (unsigned char**)calloc(ndev,sizeof(unsigned char*));
-		prg->build_stat = (cl_build_status*)calloc(ndev,sizeof(cl_build_status));
-		prg->build_options = (char**)calloc(ndev,sizeof(char*));
-		prg->build_log = (char**)calloc(ndev,sizeof(char*));
+//		prg->bin_stat = (cl_uint*)calloc(ndev,sizeof(cl_uint));
+//		prg->bin_sz = (size_t*)calloc(ndev,sizeof(size_t));
+//		prg->bin = (unsigned char**)calloc(ndev,sizeof(unsigned char*));
+//		prg->build_stat = (cl_build_status*)calloc(ndev,sizeof(cl_build_status));
+//		prg->build_options = (char**)calloc(ndev,sizeof(char*));
+//		prg->build_log = (char**)calloc(ndev,sizeof(char*));
 
-		for(i=0; i<ndev; i++) prg->build_stat[i] = CL_BUILD_NONE;
+		for(i=0; i<ndev; i++) prg->prg1[i]->bin_stat = CL_BUILD_NONE;
 
 		__do_create_program(prg);
 
@@ -180,18 +180,18 @@ _clCreateProgramWithBinary(
 		__clone(prg->devices,devices,ndev,cl_device_id);
 
 		/* XXX is this used for aything? -DAR */
-		prg->bin_stat = (cl_uint*)calloc(ndev,sizeof(cl_uint));
+//		prg->bin_stat = (cl_uint*)calloc(ndev,sizeof(cl_uint));
 
-		__clone(prg->bin,bins,ndev,unsigned char*);
-		__clone(prg->bin_sz,lens,ndev,size_t);
+//		__clone(prg->bin,bins,ndev,unsigned char*);
+//		__clone(prg->bin_sz,lens,ndev,size_t);
 
-		prg->build_stat = (cl_build_status*)malloc(ndev*sizeof(cl_build_status));
-		prg->build_options = (char**)malloc(ndev*sizeof(char*));
-		prg->build_log = (char**)malloc(ndev*sizeof(char*));
+//		prg->build_stat = (cl_build_status*)malloc(ndev*sizeof(cl_build_status));
+//		prg->build_options = (char**)malloc(ndev*sizeof(char*));
+//		prg->build_log = (char**)malloc(ndev*sizeof(char*));
 
-		for(i=0; i<ndev; i++) 
-			prg->build_stat[i] = (prg->bin[i] && prg->bin_sz[i] > 0)? 
-				CL_BUILD_SUCCESS : CL_BUILD_ERROR;
+//		for(i=0; i<ndev; i++) 
+//			prg->build_stat[i] = (prg->bin[i] && prg->bin_sz[i] > 0)? 
+//				CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 
 		__do_create_program(prg);
 
@@ -201,9 +201,7 @@ _clCreateProgramWithBinary(
 			prg->prg1[i]->src_sz = 0;
 		
 			printcl( CL_DEBUG "is this ELF |%c%c%c|",
-				bins[i][1],
-				bins[i][2],
-				bins[i][3]);
+				bins[i][1], bins[i][2], bins[i][3]);
 
 			prg->prg1[i]->bin = bins[i];
 			prg->prg1[i]->bin_sz = lens[i];
@@ -297,7 +295,8 @@ _clBuildProgram(
 			printcl( CL_DEBUG 
 				"compiler avail %d",__do_check_compiler_available(devices[j]));
 
-			if (options) prg->build_options[j] = options;
+//			if (options) prg->build_options[j] = options;
+			if (options) prg->prg1[i]->build_opt = options;
 
 			err = __do_build_program_from_source(prg,devid,j);
 
@@ -306,24 +305,22 @@ _clBuildProgram(
 
 		} else {
 
-			printcl( CL_DEBUG "bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
+//			printcl( CL_DEBUG "bin bin_sz %p %d",prg->bin[j],prg->bin_sz[j]);
 			printcl( CL_DEBUG "bin bin_sz %p %d",
-				prg->prg1[j]->bin, prg->prg1[j]->bin_sz);
+				prg->prg1[i]->bin, prg->prg1[i]->bin_sz);
 
-			if (!prg->prg1[j]->bin || prg->prg1[j]->bin_sz == 0) 
+			if (!prg->prg1[i]->bin || prg->prg1[i]->bin_sz == 0) 
 				return(CL_INVALID_BINARY);
 
 			printcl( CL_DEBUG "is this ELF |%c %c %c",
-				prg->prg1[j]->bin[1],
-				prg->prg1[j]->bin[2],
-				prg->prg1[j]->bin[3]);
+				prg->prg1[i]->bin[1], prg->prg1[i]->bin[2], prg->prg1[i]->bin[3]);
 			
 			err = __do_build_program_from_binary(prg,devid,j);
 
 		}
 
-		prg->build_stat[j] = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
-		prg->prg1[j]->bin_stat = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
+//		prg->build_stat[i] = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
+		prg->prg1[i]->bin_stat = (err==0)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
 
 //		if (err != CL_SUCCESS) return(err);
 	}
@@ -463,7 +460,7 @@ _clGetProgramBuildInfo(
 
 		case CL_PROGRAM_BUILD_STATUS:
 
-			__case_get_param(sizeof(cl_build_status),&prg->build_stat[j]);
+			__case_get_param(sizeof(cl_build_status),&prg->prg1[j]->bin_stat);
 //printf("%d\n",(int)prg->build_stat[j]);
 			break;
 
