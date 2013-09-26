@@ -26,8 +26,8 @@
 //#include <elf.h>
 #include <libelf/libelf.h>
 
-#define __ELFCL_TYPES_32
-#undef __ELFCL_TYPES_64
+#undef __ELFCL_TYPES_32
+#define __ELFCL_TYPES_64
 
 
 //#if defined(__i386__) || defined(__arm__)
