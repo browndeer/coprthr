@@ -51,33 +51,46 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 	}	
 
 //	cl_uint narg = krn->narg = krn->imp->narg = prg->imp->knarg[k];
-	cl_uint narg = krn->narg = krn->imp->narg = prg->prg1[0]->knarg[k];
+//	cl_uint narg = krn->narg = krn->imp->narg = prg->prg1[0]->knarg[k];
+	cl_uint narg = krn->narg = prg->prg1[0]->knarg[k];
 
 	printcl( CL_DEBUG "__do_create_kernel: narg=%d",narg);
 
 	if (narg == 0) return;
 
+/*
 //	if (prg->imp->karg_kind[k]) 
 	if (prg->prg1[0]->karg_kind[k]) 
 		__clone(krn->imp->arg_kind,prg->prg1[0]->karg_kind[k],narg,cl_uint);
-	else krn->imp->arg_kind = (cl_uint*)malloc(narg*sizeof(cl_uint));
+	else 
+		krn->imp->arg_kind = (cl_uint*)malloc(narg*sizeof(cl_uint));
+*/
 
+/*
 	if (prg->prg1[0]->karg_sz[k]) 
 		__clone(krn->imp->arg_sz,prg->prg1[0]->karg_sz[k],narg,size_t);
 	else krn->imp->arg_sz = (size_t*)malloc(narg*sizeof(size_t));
+*/
 
-	krn->imp->arg_off = malloc(narg*sizeof(uint32_t));
+//	krn->imp->arg_off = malloc(narg*sizeof(uint32_t));
+	krn->krn1[0]->arg_off = malloc(narg*sizeof(uint32_t));
 		
-	size_t arg_buf_sz = krn->imp->arg_buf_sz = prg->prg1[0]->karg_buf_sz[k];
+//	size_t arg_buf_sz = krn->imp->arg_buf_sz = prg->prg1[0]->karg_buf_sz[k];
+	size_t arg_buf_sz = krn->krn1[0]->arg_buf_sz = prg->prg1[0]->karg_buf_sz[k];
 
-	if (arg_buf_sz > 0) krn->imp->arg_buf = malloc(arg_buf_sz);
+//	if (arg_buf_sz > 0) krn->imp->arg_buf = malloc(arg_buf_sz);
+	if (arg_buf_sz > 0) krn->krn1[0]->arg_buf = malloc(arg_buf_sz);
 
 	size_t sz = 0;
 
 	for(i=0;i<narg;i++) {
-		krn->imp->arg_off[i] = sz;
-		sz += krn->imp->arg_sz[i];
-		printcl( CL_DEBUG "CHECKING arg_sz[%d] %d",i,krn->imp->arg_sz[i]);
+//		krn->imp->arg_off[i] = sz;
+		krn->krn1[0]->arg_off[i] = sz;
+//		sz += krn->imp->arg_sz[i];
+		sz += krn->krn1[0]->prg1->karg_sz[k][i];
+//		printcl( CL_DEBUG "CHECKING arg_sz[%d] %d",i,krn->imp->arg_sz[i]);
+		printcl( CL_DEBUG "CHECKING arg_sz[%d] %d",
+			i,krn->krn1[0]->prg1->karg_sz[k][i]);
 	}
 
 }
@@ -92,9 +105,21 @@ int __do_set_kernel_arg(
 
 //	if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
 
-	void* p = krn->imp->arg_buf + krn->imp->arg_off[argn];
+//	void* p = krn->imp->arg_buf + krn->imp->arg_off[argn];
+	void* p = krn->krn1[0]->arg_buf + krn->krn1[0]->arg_off[argn];
 
-	cl_uint arg_kind = krn->imp->arg_kind[argn];
+	int knum = krn->krn1[0]->knum;
+
+//	printcl( CL_DEBUG "XXX compare %d %d",
+//		krn->imp->arg_kind[argn], krn->krn1[0]->prg1->karg_kind[knum][argn]);
+
+//	cl_uint arg_kind = krn->imp->arg_kind[argn];
+//	cl_uint arg_kind = krn->krn1[0]->prg1->karg_kind[knum][argn];
+	cl_uint arg_kind = krn->krn1[0]->prg1->karg_kind[knum][argn];
+
+//	printcl( CL_DEBUG "XXX compare %d %d %d",
+//		krn->imp->arg_kind[argn], krn->krn1[0]->prg1->karg_kind[knum][argn],
+//		arg_kind);
 
 	/* XXX hack to allow user to strongly imply local address space -DAR */
 	if (arg_sz > 0 && arg_val == 0) arg_kind = CLARG_KIND_LOCAL;
@@ -110,9 +135,12 @@ int __do_set_kernel_arg(
 		case CLARG_KIND_DATA:
 
 			printcl( CL_DEBUG "CLARG_KIND_DATA compare sz %d %d",
-				arg_sz,krn->imp->arg_sz[argn]);
+//				arg_sz,krn->imp->arg_sz[argn]);
+				arg_sz,krn->krn1[0]->prg1->karg_sz[knum][argn]);
 
-			if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+//			if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+			if (arg_sz != krn->krn1[0]->prg1->karg_sz[knum][argn]) 
+				return(CL_INVALID_ARG_SIZE);
 
 			if (!arg_val) return (CL_INVALID_ARG_VALUE);
 
@@ -122,7 +150,9 @@ int __do_set_kernel_arg(
 
 		case CLARG_KIND_GLOBAL:
 
-			if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+//			if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+			if (arg_sz != krn->krn1[0]->prg1->karg_sz[knum][argn]) 
+				return(CL_INVALID_ARG_SIZE);
 
 			if (!arg_val) return (CL_INVALID_ARG_VALUE);
 
@@ -154,7 +184,9 @@ int __do_set_kernel_arg(
 //
 //			break;
 
-			if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+//			if (arg_sz != krn->imp->arg_sz[argn]) return(CL_INVALID_ARG_SIZE);
+			if (arg_sz != krn->krn1[0]->prg1->karg_sz[knum][argn]) 
+				return(CL_INVALID_ARG_SIZE);
 
 			if (!arg_val) return (CL_INVALID_ARG_VALUE);
 

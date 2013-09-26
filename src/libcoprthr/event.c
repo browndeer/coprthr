@@ -301,27 +301,38 @@ void __do_set_cmd_ndrange_kernel(
 		exit(-1);
 	}
 
-	printcl( CL_DEBUG "devnum = %d",devnum);
+	int knum = krn->krn1[devnum]->knum;
 
-	argp->k.ksyms = &krn->krn1[devnum]->prg1->v_ksyms[krn->krn1[devnum]->knum];
-	argp->k.narg = krn->narg;
-	argp->k.arg_buf_sz = krn->imp->arg_buf_sz;
-
-	printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp->arg_kind);
+	printcl( CL_DEBUG "devnum=%d knum=%d",devnum,knum);
 	
-	argp->k.arg_kind = krn->imp->arg_kind;
-	argp->k.arg_sz = krn->imp->arg_sz;
+	argp->k.ksyms = &krn->krn1[devnum]->prg1->v_ksyms[knum];
+	argp->k.narg = krn->narg;
+//	argp->k.arg_buf_sz = krn->imp->arg_buf_sz;
+	argp->k.arg_buf_sz = krn->krn1[0]->arg_buf_sz;
+
+//	printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp->arg_kind);
+	printcl( CL_DEBUG "setting argp->k.arg_kind %p",
+		krn->krn1[devnum]->prg1->karg_kind);
+	
+//	argp->k.arg_kind = krn->imp->arg_kind;
+	argp->k.arg_kind = krn->krn1[devnum]->prg1->karg_kind[knum];
+//	argp->k.arg_sz = krn->imp->arg_sz;
+	argp->k.arg_sz = krn->krn1[devnum]->prg1->karg_sz[knum];
 
 
 		
 	/* XXX simplest to copy args, later test copy-on-set -DAR */
 
-	__clone(argp->k.pr_arg_off,krn->imp->arg_off,krn->narg,uint32_t);
-	__clone(argp->k.pr_arg_buf,krn->imp->arg_buf,krn->imp->arg_buf_sz,void);
+//	__clone(argp->k.pr_arg_off,krn->imp->arg_off,krn->narg,uint32_t);
+	__clone(argp->k.pr_arg_off,krn->krn1[0]->arg_off,krn->narg,uint32_t);
+//	__clone(argp->k.pr_arg_buf,krn->imp->arg_buf,krn->imp->arg_buf_sz,void);
+	__clone(argp->k.pr_arg_buf,krn->krn1[0]->arg_buf,krn->krn1[0]->arg_buf_sz,void);
 
-	printcl( CL_DEBUG "arg_buf %p,%p",krn->imp->arg_buf,argp->k.pr_arg_buf);	
+//	printcl( CL_DEBUG "arg_buf %p,%p",krn->imp->arg_buf,argp->k.pr_arg_buf);	
+	printcl( CL_DEBUG "arg_buf %p,%p",krn->krn1[0]->arg_buf,argp->k.pr_arg_buf);	
 	intptr_t offset 
-		= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->imp->arg_buf;
+//		= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->imp->arg_buf;
+		= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->krn1[0]->arg_buf;
 
 	ev->imp.cmd_argp->k.work_dim = work_dim;
 
@@ -363,15 +374,21 @@ void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 	argp->k.kcall = prg1->v_ksyms[knum].kcall;
 	argp->k.narg = krn->narg;
 
-	printcl( CL_DEBUG "setting argp->k.arg_kind %p",krn->imp->arg_kind);
+	printcl( CL_DEBUG "setting argp->k.arg_kind %p",
+//		krn->imp->arg_kind);
+		krn->krn1[devnum]->prg1->karg_kind[knum]);
 	
-	argp->k.arg_kind = krn->imp->arg_kind;
-	argp->k.arg_sz = krn->imp->arg_sz;
+//	argp->k.arg_kind = krn->imp->arg_kind;
+	argp->k.arg_kind = krn->krn1[devnum]->prg1->karg_kind[knum];
+//	argp->k.arg_sz = krn->imp->arg_sz;
+	argp->k.arg_sz = krn->krn1[devnum]->prg1->karg_sz[knum];
 
 	/* XXX simplest to copy args, later test copy-on-set -DAR */
 
-	__clone(argp->k.pr_arg_off,krn->imp->arg_off,krn->narg,uint32_t);
-	__clone(argp->k.pr_arg_buf,krn->imp->arg_buf,krn->imp->arg_buf_sz,void);
+//	__clone(argp->k.pr_arg_off,krn->imp->arg_off,krn->narg,uint32_t);
+	__clone(argp->k.pr_arg_off,krn->krn1[0]->arg_off,krn->narg,uint32_t);
+//	__clone(argp->k.pr_arg_buf,krn->imp->arg_buf,krn->imp->arg_buf_sz,void);
+	__clone(argp->k.pr_arg_buf,krn->krn1[0]->arg_buf,krn->krn1[0]->arg_buf_sz,void);
 
 	ev->imp.cmd_argp->k.work_dim = 0;
 

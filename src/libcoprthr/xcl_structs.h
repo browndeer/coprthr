@@ -316,7 +316,7 @@ struct _cl_kernel {
 	cl_program prg;
 	unsigned char* name;
 	cl_uint narg;
-	struct coprthr_kernel* imp;
+//	struct coprthr_kernel* imp;
 	struct coprthr1_kernel** krn1;
 };
 

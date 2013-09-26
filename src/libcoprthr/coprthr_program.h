@@ -52,59 +52,28 @@ struct _coprthr_ksyms_struct {
 	void* kcall2;
 };
 
+/*
 struct coprthr_kernel {
-	unsigned int narg;
+//	unsigned int narg;
 
-	cl_uint* arg_kind;
-	size_t* arg_sz;
-	uint32_t* arg_off;
-
-	size_t arg_buf_sz;
-	void* arg_buf;
+//	cl_uint* arg_kind;
+//	size_t* arg_sz;
+//	uint32_t* arg_off;
+//	size_t arg_buf_sz;
+//	void* arg_buf;
 };
 
-/* XXX does not yet deal with actual kbin and ksym -DAR */
 #define __coprthr_init_kernel(imp) do { \
 	(imp) = (struct coprthr_kernel*)malloc(sizeof(struct coprthr_kernel)); \
-	(imp)->narg = 0; \
-	(imp)->arg_kind = 0; \
-	(imp)->arg_sz = 0; \
-	(imp)->arg_off = 0; \
-	(imp)->arg_buf_sz = 0; \
-	(imp)->arg_buf = 0; \
 	} while(0)
 
 #define __coprthr_free_kernel(imp) do { \
-	__free((imp)->arg_kind); \
-	__free((imp)->arg_sz); \
-	__free((imp)->arg_off); \
-	__free((imp)->arg_buf); \
-	__free((imp)); \
-	} while(0)
-
-
-/* program */
-
-/*
-struct coprthr_program {
-
-//	char** kname;
-//	cl_uint* knarg;
-//	size_t* karg_buf_sz;
-//	cl_uint** karg_kind;
-//	size_t** karg_sz;
-
-};
-
-#define __coprthr_init_program(imp) do { \
-	(imp) = (struct coprthr_program*)malloc(sizeof(struct coprthr_program)); \
-	} while(0)
-
-#define __coprthr_free_program(imp) do { \
-	int k; \
 	__free((imp)); \
 	} while(0)
 */
+
+
+/* program */
 
 #define __nkernels_in_program(prg) (prg->nkrn)
 
@@ -130,6 +99,7 @@ struct coprthr1_program {
 	size_t* karg_buf_sz;
 	unsigned int** karg_kind;
 	size_t** karg_sz;
+	uint32_t** karg_off;
 
 	void* dlh;
 	char* dlfile;
@@ -140,6 +110,10 @@ struct coprthr1_program {
 struct coprthr1_kernel {
 	struct coprthr1_program* prg1;
 	unsigned int knum;
+
+	uint32_t* arg_off;
+	size_t arg_buf_sz;
+	void* arg_buf;
 };
 
 #endif
