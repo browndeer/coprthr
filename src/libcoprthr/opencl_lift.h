@@ -1313,6 +1313,8 @@ static __always_inline int sign_T( int a )
 	{ return ((a > 0)? 1 : ((a < 0)? -1 : 0)); } 
 static __always_inline float sign_T( float a ); 
 static __always_inline float sign_T( float a ) { return copysignf(1.0f,a); } 
+static __always_inline float sign_T( double a ); 
+static __always_inline float sign_T( double a ) { return copysign(1.0,a); } 
 
 
 #define sqrt(a) sqrt_T(a)
