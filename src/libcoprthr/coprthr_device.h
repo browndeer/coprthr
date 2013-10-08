@@ -96,7 +96,7 @@ struct coprthr_device_state {
 struct coprthr_device_operations {
 	cmdcall_t* v_cmdcall;
 	void*(*memalloc)( size_t sz, int flags );
-	void*(*memrealloc)( void** p_memptr, size_t sz, int flags);
+	void*(*memrealloc)( void* ptr, size_t sz, int flags);
 	void (*memfree)( void* memptr, int flags );
 	size_t (*memread)( void* memptr, void* buf, size_t sz );
 	size_t (*memwrite)( void* memptr, void* buf, size_t sz );

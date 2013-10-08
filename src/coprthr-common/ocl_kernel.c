@@ -54,7 +54,7 @@ _clCreateKernel(
 
 	if (krn) {
 
-//		__init_kernel(krn);
+		__init_kernel(krn);
 
 		__retain_program(prg);
 
@@ -100,7 +100,7 @@ _clCreateKernelsInProgram(
 
 		if (krn) {
 
-//			__init_kernel(krn);
+			__init_kernel(krn);
 
 			__retain_program(prg);
 
@@ -141,7 +141,7 @@ _clReleaseKernel( cl_kernel krn )
 
 	if (__invalid_kernel(krn)) return(CL_INVALID_KERNEL);
 
-//	__release_kernel(krn);
+	__release_kernel(krn);
 
 	return(CL_SUCCESS);
 }

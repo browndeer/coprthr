@@ -52,7 +52,6 @@ struct _coprthr_ksyms_struct {
 	void* kcall2;
 };
 
-/*
 struct coprthr_kernel {
 //	unsigned int narg;
 
@@ -70,7 +69,6 @@ struct coprthr_kernel {
 #define __coprthr_free_kernel(imp) do { \
 	__free((imp)); \
 	} while(0)
-*/
 
 
 /* program */
