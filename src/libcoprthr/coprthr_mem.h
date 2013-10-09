@@ -25,24 +25,29 @@
 
 
 struct coprthr_mem {
-	int devnum;
-	void** res;
-	void** resmap;
+//	int devnum;
+//	void** res;
+//	void** resmap;
 	unsigned int host_cached;
 	void* cache_ptr;
 };
 
 #define __coprthr_init_memobj(imp) do { \
 	(imp) = malloc(sizeof(struct coprthr_mem)); \
-	(imp)->res = 0; \
-	(imp)->resmap = 0; \
 	} while(0)
 
 #define __coprthr_free_memobj(imp) do { \
-	__free((imp)->res); \
-	__free((imp)->resmap); \
 	__free((imp)); \
 	} while(0)
+
+struct coprthr1_mem {
+//	int devnum;
+	size_t sz;
+	void* res;
+	void* resmap;
+	unsigned int host_cached;
+	void* cache_ptr;
+};
 
 #endif
 

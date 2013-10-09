@@ -82,15 +82,17 @@ static char* truncate_ws(char* buf)
 struct coprthr_device* __coprthr_do_discover_device_x86_64(void);
 struct coprthr_device* __coprthr_do_discover_device_i386(void);
 
-void __do_discover_devices(
+void __do_discover_devices_1(
 	unsigned int* p_ndevices, 
-	struct _cl_device_id** p_dtab, 
+	struct coprthr_device*** p_devtab, 
 	int flag
 )
 {
 	int i;
 
-	if (*p_dtab) return;
+	printcl( CL_DEBUG "__do_discover_devices_1 %p",*p_devtab);
+
+	if (*p_devtab) return;
 
 	int nsupp = 0;
 	struct coprthr_device** codevtab = (struct coprthr_device**)
@@ -115,8 +117,8 @@ void __do_discover_devices(
 
 	*p_ndevices = ndev;
 
-	struct _cl_device_id* dtab = *p_dtab = (struct _cl_device_id*)
-		malloc(*p_ndevices*sizeof(struct _cl_device_id));
+	struct coprthr_device** devtab = *p_devtab = (struct coprthr_device**)
+		malloc(*p_ndevices*sizeof(struct coprthr_device*));
 
 	printcl( CL_DEBUG "ndevices %d",*p_ndevices);
 
@@ -125,20 +127,107 @@ void __do_discover_devices(
 	for(i = 0; i<nsupp; i++) {
 		struct coprthr_device* codev = codevtab[i];
 		if (codev && codev->devstate->avail) {
-			__init_device_id(dtab+devnum);
-			dtab[devnum++].codev = codevtab[i];
-			codevtab[i] = 0;
+			devtab[devnum++] = codevtab[i];
 		}
 	}
 
 	for(i = 0; i<nsupp; i++) {
 		struct coprthr_device* codev = codevtab[i];
 		if (codev && codev->devstate->compiler_avail) {
-			__init_device_id(dtab+devnum);
-			dtab[devnum++].codev = codevtab[i];
-			codevtab[i] = 0;
+			devtab[devnum++] = codevtab[i];
 		}
 	}
+
+	printcl( CL_DEBUG "__do_discover_devices_1 ndevices %d",*p_ndevices);
+
+//	int i;
+//
+//	unsigned int ncore = sysconf(_SC_NPROCESSORS_ONLN);
+//
+//	if (getenv("COPRTHR_MAX_NUM_ENGINES"))
+//		ncore = min(ncore,atoi(getenv("COPRTHR_MAX_NUM_ENGINES")));
+//
+//#ifdef ENABLE_NCPU
+//
+//	printcl( CL_DEBUG "checking for force_ncpu");
+//
+//	if (!getenv_token("COPRTHR_OCL","force_ncpu",buf,256)) ncpu = atoi(buf);
+//
+//	if (ncore%ncpu) {
+//		printcl( CL_WARNING "force_ncpu ignored, must be multiple of ncore");
+//		ncpu = 1;
+//	}
+//
+//	if (ncpu > 1) {
+//
+//		printcl( CL_WARNING "force_ncpu %d",ncpu);
+//
+//		printcl( CL_DEBUG "force_ncpu = %d",ncpu);
+//
+//		*p_dtab = (struct _cl_device_id*)
+//			realloc(*p_dtab,(ncpu-1)*sizeof(struct _cl_device_id));
+//
+//		for(devnum=1;devnum<ncpu;devnum++) 
+//			memcpy((*p_dtab)+devnum,(*p_dtab),sizeof(struct _cl_device_id));
+//
+//		int cpd = ncore/ncpu;
+//		for(devnum=0;devnum<ncpu;devnum++) {
+//			CPU_ZERO(&dtab[devnum].imp->cpumask);
+//			for(i=devnum*cpd;i<(devnum+1)*cpd;i++) 
+//				CPU_SET(i,&dtab[devnum].imp->cpumask);
+//			dtab[devnum].imp->cpu.veid_base = devnum*cpd;
+//			dtab[devnum].imp->cpu.nve = cpd;
+//			
+//			printcl( CL_DEBUG "devnum base nve %d %d %d",
+//				devnum,dtab[devnum].imp->cpu.veid_base,dtab[devnum].imp->cpu.nve);
+//		}
+//
+//		*p_ndevices = ncpu;
+//
+//	} else {
+//		CPU_ZERO(&dtab[0].imp->cpumask);
+//		for(i=0;i<ncore;i++) CPU_SET(i,&dtab[0].imp->cpumask);
+//		dtab[0].imp->cpu.veid_base = 0;
+//		dtab[0].imp->cpu.nve = ncore;
+//	}
+//#else
+//	CPU_ZERO(&dtab[0].imp->cpumask);
+//	for(i=0;i<ncore;i++) CPU_SET(i,&dtab[0].imp->cpumask);
+//	dtab[0].imp->cpu.veid_base = 0;
+//	dtab[0].imp->cpu.nve = ncore;
+//#endif
+//
+
+//	dtab[0].codev = __coprthr_do_discover_device_x86_64();
+
+}
+
+
+void __do_discover_devices(
+	unsigned int* p_ndevices, 
+	struct _cl_device_id** p_dtab, 
+	int flag
+)
+{
+	int i;
+
+	printcl( CL_DEBUG "__do_discover_devices %p",*p_dtab);
+
+	if (*p_dtab) return;
+
+	struct coprthr_device** devtab = 0;
+
+	__do_discover_devices_1(p_ndevices,&devtab,flag);
+
+	struct _cl_device_id* dtab = *p_dtab = (struct _cl_device_id*)
+      malloc(*p_ndevices*sizeof(struct _cl_device_id));
+
+	for(i = 0; i<(*p_ndevices); i++) {
+		__init_device_id(dtab+i);
+		dtab[i].codev = devtab[i];
+	}
+
+	printcl( CL_DEBUG "__do_discover_devices ndevices %d",*p_ndevices);
 
 //	int i;
 //
@@ -286,20 +375,19 @@ int getenv_token( const char* name, const char* token, char* value, size_t n )
 // XXX instead of static use default + env var and dynamically allocate
 // XXX on first call when a discover devices is also done
 
-struct coprthr_device* __devtab = 0;
+struct coprthr_device** __devtab = 0;
 unsigned int __ndev = 0;
 struct coprthr_device* __ddtab[256] = { [0 ... 255] = 0 };
 int __ddtab_nxt = 0;
 
-#if(0)
 int coprthr_dopen( const char* name, int flags )
 {
 
 	if (!__devtab) {
-		__do_discover_devices(&__ndev,&__devtab,1);
+		__do_discover_devices_1(&__ndev,&__devtab,1);
 	}
 
-	if (_ddtab_nxt == 256) return -1; /* XXX out of resources */
+	if (__ddtab_nxt == 256) return -1; /* XXX out of resources */
 
 	int idev = -1;
 
@@ -308,13 +396,13 @@ int coprthr_dopen( const char* name, int flags )
 	if (iname < 256 && iname < __ndev)
 		idev = (int)iname;
 
-	_ddtab[_ddtab_nxt] = __devtab[idev];
+	__ddtab[__ddtab_nxt] = __devtab[idev];
 
-	int dd = _ddtab_nxt;
+	int dd = __ddtab_nxt;
 
 	do {
-		++_ddtab_nxt;
-	} while(_ddtab_sz<256 && _ddtab[_ddtab_nxt]);
+		++__ddtab_nxt;
+	} while(__ddtab_nxt<256 && __ddtab[__ddtab_nxt]);
 
 	return dd;	
 }
@@ -323,12 +411,11 @@ int coprthr_dclose(int dd)
 {
 	if (dd>=0 && dd<256) {
 		// XXX if last ref shutdown the device 
-		_ddtab[dd] = 0;
-		if (dd<_ddtab_nxt) _ddtab_nxt = dd;
+		__ddtab[dd] = 0;
+		if (dd<__ddtab_nxt) __ddtab_nxt = dd;
 		return 0;
 	} else return -1;
 }
 
 
-#endif
 

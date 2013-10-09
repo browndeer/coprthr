@@ -34,7 +34,7 @@ void __do_create_buffer(cl_mem memobj);
 void __do_create_image2d(cl_mem memobj);
 
 void* __coprthr_memalloc( size_t sz, int flags );
-void* __coprthr_memrealloc( void** p_memptr, size_t sz, int flags);
+void* __coprthr_memrealloc( void* ptr, size_t sz, int flags);
 void __coprthr_memfree( void* memptr, int flags );
 size_t __coprthr_memread( void* memptr, void* buf, size_t sz );
 size_t __coprthr_memwrite( void* memptr, void* buf, size_t sz );

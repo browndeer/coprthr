@@ -198,6 +198,7 @@ struct _cl_mem {
 	cl_uint refc;
 	cl_uint mapc;
 	struct coprthr_mem* imp;
+	struct coprthr1_mem** mem1;
 };
 
 struct _cl_mapped_ptr_info {

@@ -90,6 +90,8 @@ void __do_discover_devices(
 {
 	int i;
 
+	printcl( CL_DEBUG "__do_discover_devices %p",*p_dtab);
+
 	if (*p_dtab) return;
 
 	int nsupp = 0;

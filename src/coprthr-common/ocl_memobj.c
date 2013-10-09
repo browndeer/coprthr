@@ -91,6 +91,8 @@ _clCreateBuffer(
 	if (membuf) {
 
 		__init_memobj(membuf);
+		membuf->mem1 = (struct coprthr1_mem**)
+			malloc(ctx->ndev*sizeof(struct coprthr1_mem*));
 
 		membuf->ctx = ctx;
 		membuf->sz = size;
@@ -174,6 +176,8 @@ _clCreateImage2D(
 	if (membuf) {
 
 		__init_memobj(membuf);
+		membuf->mem1 = (struct coprthr1_mem**)
+			malloc(ctx->ndev*sizeof(struct coprthr1_mem*));
 
 		membuf->ctx = ctx;
 		/* XXX for now hardcoded to int4/float4 datatype -DAR */
