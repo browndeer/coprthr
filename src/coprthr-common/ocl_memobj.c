@@ -125,10 +125,6 @@ _clCreateImage2D(
 	cl_int* err_ret
 ) 
 {
-//	printcl( CL_WARNING "clCreateImage2D: warning: unsupported");
-//	__error(CL_ENOTSUP);
-//	return((cl_mem)0);
-
 	printcl( CL_DEBUG "clCreateImage2D");
 
 	if (__invalid_context(ctx)) __error_return(CL_INVALID_CONTEXT,cl_mem);
@@ -221,8 +217,6 @@ _clCreateImage3D(
 	printcl( CL_WARNING "clCreateImage3D: warning: unsupported");
 
 	__error_return(CL_ENOTSUP,cl_mem);
-
-//	return((cl_mem)0);
 }
 
                         

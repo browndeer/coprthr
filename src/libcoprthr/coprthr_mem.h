@@ -23,25 +23,7 @@
 #ifndef _coprthr_mem_h
 #define _coprthr_mem_h
 
-
-struct coprthr_mem {
-//	int devnum;
-//	void** res;
-//	void** resmap;
-	unsigned int host_cached;
-	void* cache_ptr;
-};
-
-#define __coprthr_init_memobj(imp) do { \
-	(imp) = malloc(sizeof(struct coprthr_mem)); \
-	} while(0)
-
-#define __coprthr_free_memobj(imp) do { \
-	__free((imp)); \
-	} while(0)
-
 struct coprthr1_mem {
-//	int devnum;
 	size_t sz;
 	void* res;
 	void* resmap;

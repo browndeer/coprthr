@@ -197,7 +197,7 @@ struct _cl_mem {
 	cl_mem_flags flags;
 	cl_uint refc;
 	cl_uint mapc;
-	struct coprthr_mem* imp;
+//	struct coprthr_mem* imp;
 	struct coprthr1_mem** mem1;
 };
 
@@ -216,11 +216,9 @@ struct _cl_mapped_ptr_info {
 	memobj->flags = 0; \
 	memobj->refc = 0; \
 	memobj->mapc = 0; \
-	__coprthr_init_memobj(memobj->imp); \
 	} while(0)
 
 #define __free_memobj(memobj) do { \
-	__coprthr_free_memobj(memobj->imp); \
 	__free(memobj); \
 	} while(0) 
 
