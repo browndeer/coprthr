@@ -1,6 +1,6 @@
-/* command_queue.c
+/* xcommand_queue.c
  *
- * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -28,12 +28,49 @@
 #include "xcl_structs.h"
 #include "printcl.h"
 #include "command_queue.h"
-#include "cmdsched.h"
+#include "xcmdsched.h"
 
+
+
+void __do_create_command_queue_1( struct coprthr_device* dev ) 
+{
+	struct coprthr_command_queue* cmdq1 = dev->devstate->cmdq;
+
+	if (!cmdq1)	/* XXX is this check necessary? -DAR */
+		cmdq1 = (struct coprthr_command_queue*)
+			malloc( sizeof(struct coprthr_command_queue));
+
+	__coprthr_init_command_queue(cmdq1);
+
+	__lock_cmdq1(cmdq1);
+	cmdq1->qstat = 0;
+	__unlock_cmdq1(cmdq1);
+
+	/* fork cmdq sched thread */
+	int err; 
+	if (err = pthread_create(&(cmdq1->td),0,cmdqx1,(void*)dev) ) {
+		printcl( CL_ERR "__do_create_command_queue_1:"
+			" pthread_create failed");
+		exit(1);
+	}
+
+	__lock_cmdq1(cmdq1);
+	cmdq1->qstat = 1;
+	__sig_cmdq1(cmdq1);
+	__unlock_cmdq1(cmdq1);
+
+	dev->devstate->cmdq = cmdq1;
+
+	printcl( CL_DEBUG "signaled cmdq1 with qstat ->1\n");
+}
 
 void __do_create_command_queue( cl_command_queue cmdq ) 
 {
 
+	__do_create_command_queue_1( cmdq->devid->codev );
+	cmdq->ptr_imp = cmdq->devid->codev->devstate->cmdq;
+
+#if(0)
 	if (!cmdq->devid->codev->devstate->cmdq)	
 		cmdq->devid->codev->devstate->cmdq = (struct coprthr_command_queue*)
 			malloc( sizeof(struct coprthr_command_queue));
@@ -58,6 +95,8 @@ void __do_create_command_queue( cl_command_queue cmdq )
 	__unlock_cmdq(cmdq);
 
 	printcl( CL_DEBUG "signaled cmdq with qstat ->1\n");
+#endif
+
 }
 
 
@@ -103,6 +142,8 @@ void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev )
 	struct timeval tv;
 
 	printcl( CL_DEBUG "__do_enqueue_cmd: ev %p",ev);
+
+	printcl( CL_DEBUG "cmdq1 %p", cmdq->ptr_imp);
 
 	__lock_cmdq(cmdq);
 

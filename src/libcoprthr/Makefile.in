@@ -50,9 +50,9 @@ XCL_OBJS = ocl_platform.o ocl_device.o ocl_context.o ocl_command_queue.o \
 	ocl_flush.o xcl_icd.o ocl_sampler.o ocl_profile.o ocl_clgl.o
 
 IMP_OBJS = xdevice.o device_x86_64.o \
-	command_queue.o event.o \
+	xcommand_queue.o event.o \
 	xprogram.o kernel.o xmemobj.o \
-	cmdsched.o cmdcall.o \
+	cmdsched.o xcmdsched.o cmdcall.o \
 	watermark.o \
 	cmdcall_x86_64_sl.o sl_engine.o \
 	icd.o

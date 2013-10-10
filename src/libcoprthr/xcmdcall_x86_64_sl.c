@@ -1,4 +1,4 @@
-/* cmdcall_x86_64_sl.c 
+/* xcmdcall_x86_64_sl.c 
  *
  * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -41,10 +41,10 @@
 #include "sl_engine.h"
 
 //#include <setjmp.h>
-
+#include "coprthr_device.h"
 
 static void* 
-exec_ndrange_kernel(cl_device_id devid, void* p)
+exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 {
 	printcl( CL_DEBUG "cmdcall_x86_64:exec_ndrange_kernel");
 
@@ -73,10 +73,10 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 		argp->k.local_work_size[1],
 		argp->k.local_work_size[2]);
 
-//	int base = __resolve_devid(devid,cpu.veid_base);
-//	int nve = __resolve_devid(devid,cpu.nve);
-	int base = __resolve_devid_devstate(devid,cpu.veid_base);
-	int nve = __resolve_devid_devstate(devid,cpu.nve);
+//	int base = __resolve_devid_devstate(devid,cpu.veid_base);
+//	int nve = __resolve_devid_devstate(devid,cpu.nve);
+	int base = dev->devstate->cpu.veid_base;
+	int nve = dev->devstate->cpu.nve;
 
 	printcl( CL_DEBUG "cpu.nve = %d", nve );
 
@@ -143,21 +143,21 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 
 /********************************************************************/
 
-static void* task(cl_device_id devid, void* argp)
+static void* task( struct coprthr_device* dev, void* argp)
 {
 	printcl( CL_WARNING "cmdcall_x86_64:task: unsupported");
 	return(0); 
 }
 
 
-static void* native_kernel(cl_device_id devid, void* argp) 
+static void* native_kernel( struct coprthr_device* dev, void* argp) 
 {
 	printcl( CL_WARNING "cmdcall_x86_64:native_kernel: unsupported");
 	return(0); 
 }
 
 
-static void* read_buffer_safe(cl_device_id devid, void* p) 
+static void* read_buffer_safe(struct coprthr_device* dev, void* p) 
 {
 	printcl( CL_DEBUG "cmdcall_x86_64:read_buffer");
 
@@ -167,7 +167,8 @@ static void* read_buffer_safe(cl_device_id devid, void* p)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
-	while (n < ndev && devices[n] != devid) ++n;
+//	while (n < ndev && devices[n] != devid) ++n;
+	while (n < ndev && devices[n]->codev != dev) ++n;
 
 	void* dst = argp->m.dst;
 //	void* src = ((cl_mem)argp->m.src)->host_ptr;
@@ -185,7 +186,7 @@ static void* read_buffer_safe(cl_device_id devid, void* p)
 	return(0);
 }
 
-static void* read_buffer(cl_device_id devid, void* p) 
+static void* read_buffer( struct coprthr_device* dev, void* p) 
 {
 	printcl( CL_DEBUG "cmdcall_x86_64:read_buffer");
 
@@ -195,7 +196,8 @@ static void* read_buffer(cl_device_id devid, void* p)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
-	while (n < ndev && devices[n] != devid) ++n;
+//	while (n < ndev && devices[n] != devid) ++n;
+	while (n < ndev && devices[n]->codev != dev) ++n;
 
 	void* dst = argp->m.dst;
 //	void* src = ((cl_mem)argp->m.src)->host_ptr;
@@ -211,7 +213,7 @@ static void* read_buffer(cl_device_id devid, void* p)
 }
 
 
-static void* write_buffer_safe(cl_device_id devid, void* p) 
+static void* write_buffer_safe(struct coprthr_device* dev, void* p) 
 {
 	printcl( CL_DEBUG "cmdcall_x86_64:write_buffer");
 
@@ -221,10 +223,9 @@ static void* write_buffer_safe(cl_device_id devid, void* p)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
-	while (n < ndev && devices[n] != devid) ++n;
+//	while (n < ndev && devices[n] != devid) ++n;
+	while (n < ndev && devices[n]->codev != dev) ++n;
 
-//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-//	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
 	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
@@ -240,7 +241,7 @@ static void* write_buffer_safe(cl_device_id devid, void* p)
 	return(0); 
 }
 
-static void* write_buffer(cl_device_id devid, void* p) 
+static void* write_buffer(struct coprthr_device* dev, void* p) 
 {
 	printcl( CL_DEBUG "cmdcall_x86_64:write_buffer");
 
@@ -250,10 +251,9 @@ static void* write_buffer(cl_device_id devid, void* p)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
-	while (n < ndev && devices[n] != devid) ++n;
+//	while (n < ndev && devices[n] != devid) ++n;
+	while (n < ndev && devices[n]->codev != dev) ++n;
 
-//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-//	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
 	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
@@ -266,7 +266,7 @@ static void* write_buffer(cl_device_id devid, void* p)
 }
 
 
-static void* copy_buffer_safe(cl_device_id devid, void* p)
+static void* copy_buffer_safe(struct coprthr_device* dev, void* p)
 {
 	printcl( CL_DEBUG "cmdcall_x86_64:copy_buffer");
 
@@ -276,12 +276,9 @@ static void* copy_buffer_safe(cl_device_id devid, void* p)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
-	while (n < ndev && devices[n] != devid) ++n;
+//	while (n < ndev && devices[n] != devid) ++n;
+	while (n < ndev && devices[n]->codev != dev) ++n;
 
-//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-//	void* src = ((cl_mem)argp->m.src)->host_ptr;
-//	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
-//	void* src = ((cl_mem)argp->m.src)->imp->res[n];
 	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
 	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 	size_t dst_offset = argp->m.dst_offset;
@@ -299,7 +296,7 @@ static void* copy_buffer_safe(cl_device_id devid, void* p)
 	return(0); 
 }
 
-static void* copy_buffer(cl_device_id devid, void* p)
+static void* copy_buffer(struct coprthr_device* dev, void* p)
 {
 	printcl( CL_DEBUG "cmdcall_x86_64:copy_buffer");
 
@@ -309,12 +306,9 @@ static void* copy_buffer(cl_device_id devid, void* p)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
-	while (n < ndev && devices[n] != devid) ++n;
+//	while (n < ndev && devices[n] != devid) ++n;
+	while (n < ndev && devices[n]->codev != dev) ++n;
 
-//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-//	void* src = ((cl_mem)argp->m.src)->host_ptr;
-//	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
-//	void* src = ((cl_mem)argp->m.src)->imp->res[n];
 	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
 	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 	size_t dst_offset = argp->m.dst_offset;
@@ -328,11 +322,8 @@ static void* copy_buffer(cl_device_id devid, void* p)
 }
 
 
-static void* read_image(cl_device_id devid, void* p) 
+static void* read_image(struct coprthr_device* dev, void* p) 
 {
-//	printcl( CL_WARNING "cmdcall_x86_64:read_image: unsupported");
-//	return(0); 
-
 	printcl( CL_DEBUG "cmdcall_x86_64:read_image");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
@@ -341,11 +332,10 @@ static void* read_image(cl_device_id devid, void* p)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
-	while (n < ndev && devices[n] != devid) ++n;
+//	while (n < ndev && devices[n] != devid) ++n;
+	while (n < ndev && devices[n]->codev != dev) ++n;
 
 	void* dst = argp->m.dst;
-//	void* src = ((cl_mem)argp->m.src)->host_ptr;
-//	void* src = ((cl_mem)argp->m.src)->imp->res[n];
 	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 	size_t offset = argp->m.src_offset + 128;
 
@@ -378,11 +368,8 @@ static void* read_image(cl_device_id devid, void* p)
 }
 
 
-static void* write_image(cl_device_id devid, void* p) 
+static void* write_image(struct coprthr_device* dev, void* p) 
 {
-//	printcl( CL_WARNING "cmdcall_x86_64:write_image: unsupported");
-//	return(0); 
-
 	printcl( CL_DEBUG "cmdcall_x86_64:write_image");
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
@@ -391,10 +378,9 @@ static void* write_image(cl_device_id devid, void* p)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
-	while (n < ndev && devices[n] != devid) ++n;
+//	while (n < ndev && devices[n] != devid) ++n;
+	while (n < ndev && devices[n]->codev != dev) ++n;
 
-//	void* dst = ((cl_mem)argp->m.dst)->host_ptr;
-//	void* dst = ((cl_mem)argp->m.dst)->imp->res[n];
 	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset + 128;
@@ -433,28 +419,28 @@ printcl( CL_DEBUG "cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],sp[16])
 }
 
 
-static void* copy_image(cl_device_id devid, void* argp) 
+static void* copy_image(struct coprthr_device* dev, void* argp) 
 {
 	printcl( CL_WARNING "cmdcall_x86_64:copy_image: unsupported");
 	return(0); 
 }
 
 
-static void* copy_image_to_buffer(cl_device_id devid, void* argp) 
+static void* copy_image_to_buffer(struct coprthr_device* dev, void* argp) 
 {
 	printcl( CL_WARNING "cmdcall_x86_64:copy_image_to_buffer: unsupported");
 	return(0); 
 }
 
 
-static void* copy_buffer_to_image(cl_device_id devid, void* argp)
+static void* copy_buffer_to_image(struct coprthr_device* dev, void* argp)
 {
 	printcl( CL_WARNING "cmdcall_x86_64:copy_buffer_to_image: unsupported");
 	return(0); 
 }
 
 
-static void* map_buffer(cl_device_id devid, void* p) 
+static void* map_buffer(struct coprthr_device* dev, void* p) 
 {
 	printcl( CL_DEBUG "cmdcall_x86_64:map_buffer");
 
@@ -479,9 +465,9 @@ static void* map_buffer(cl_device_id devid, void* p)
    unsigned int ndev = ctx->ndev;
    cl_device_id* devices = ctx->devices;
    unsigned int n = 0;
-   while (n < ndev && devices[n] != devid) ++n;
+//   while (n < ndev && devices[n] != devid) ++n;
+   while (n < ndev && devices[n]->codev != dev) ++n;
 
-//   void* src = ((cl_mem)argp->m.src)->imp->res[n];
    void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 
    if (ptr==src+offset) return(0);
@@ -493,14 +479,14 @@ static void* map_buffer(cl_device_id devid, void* p)
 }
 
 
-static void* map_image(cl_device_id devid, void* argp) 
+static void* map_image(struct coprthr_device* dev, void* argp) 
 {
 	printcl( CL_WARNING "cmdcall_x86_64:map_image: unsupported");
 	return(0); 
 }
 
 
-static void* unmap_mem_object(cl_device_id devid, void* p) 
+static void* unmap_mem_object(struct coprthr_device* dev, void* p) 
 {
 
 	printcl( CL_DEBUG "cmdcall_x86_64:unmap_mem_object");
@@ -520,9 +506,9 @@ static void* unmap_mem_object(cl_device_id devid, void* p)
 		unsigned int ndev = ctx->ndev;
 		cl_device_id* devices = ctx->devices;
 		unsigned int n = 0;
-		while (n < ndev && devices[n] != devid) ++n;
+//		while (n < ndev && devices[n] != devid) ++n;
+		while (n < ndev && devices[n]->codev != dev) ++n;
 
-//		void* src = ((cl_mem)argp->m.src)->imp->res[n];
 		void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 
 		size_t offset = ((size_t*)ptr0)[0] = offset;
@@ -539,21 +525,21 @@ static void* unmap_mem_object(cl_device_id devid, void* p)
 }
 
 
-static void* marker(cl_device_id devid, void* p) 
+static void* marker(struct coprthr_device* dev, void* p) 
 {
 	printcl( CL_DEBUG "cmdcall_x86_64:marker");
 	return(0); 
 }
 
 
-static void* acquire_gl_objects(cl_device_id devid, void* argp)
+static void* acquire_gl_objects(struct coprthr_device* dev, void* argp)
 {
 	printcl( CL_WARNING "cmdcall_x86_64:acquire_gl_objects: unsupported");
 	return(0); 
 }
 
 
-static void* release_gl_objects(cl_device_id devid, void* argp) 
+static void* release_gl_objects(struct coprthr_device* dev, void* argp) 
 {
 	printcl( CL_WARNING "cmdcall_x86_64:acquire_gl_objects: unsupported");
 	return(0); 

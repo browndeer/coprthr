@@ -28,8 +28,9 @@
 #define CLCMD_OFFSET (CL_COMMAND_NDRANGE_KERNEL - 1)
 #define CLCMD_NUM 17
 
-//typedef void*(*cmdcall_t)( void* );
-typedef void*(*cmdcall_t)(cl_device_id devid, void* cmd_argp);
+//typedef void*(*cmdcall_t)(cl_device_id devid, void* cmd_argp);
+struct coprthr_device;
+typedef void*(*cmdcall_t)(struct coprthr_device* dev, void* cmd_argp);
 
 struct _coprthr_ksyms_struct;
 
