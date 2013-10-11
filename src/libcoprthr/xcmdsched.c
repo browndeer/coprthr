@@ -73,7 +73,8 @@ void* cmdqx1( void* argp )
 
 	assert(CL_COMMAND_RELEASE_GL_OBJECTS - CLCMD_OFFSET == CLCMD_NUM);
 
-	cl_event ev;
+//	cl_event ev;
+	struct coprthr_event* ev1;
 
 	__lock_cmdq1(cmdq1);
 
@@ -96,38 +97,42 @@ void* cmdqx1( void* argp )
 
 		printcl( CL_DEBUG "cmdqx1:" " queued %p",cmdq1->cmds_queued.tqh_first);
 
-		while (ev = cmdq1->cmds_queued.tqh_first) {
+		while (ev1 = cmdq1->cmds_queued.tqh_first) {
 
 
-			printcl( CL_DEBUG "cmdqx1:" " submit cmd ev %p",ev);
+			printcl( CL_DEBUG "cmdqx1:" " submit cmd ev1 %p",ev1);
 
 			/* 
 			 * submit cmd 
 			 */
 
-			printcl( CL_DEBUG "cmdqx1: attempt __lock_event");
-			__lock_event(ev);
+			printcl( CL_DEBUG "cmdqx1: attempt __lock_event1");
+			__lock_event1(ev1);
 
-			printcl( CL_DEBUG "cmdqx1: attempt __retain_event");
-			__retain_event(ev);
+//			printcl( CL_DEBUG "cmdqx1: attempt __retain_event1");
+//			__retain_event1(ev1);
+			/* XXX this is moved to when the event is enqueued */
 
-			TAILQ_REMOVE(&(cmdq1->cmds_queued),ev,imp.cmds);
-			cmdq1->cmd_submitted = ev;
-			ev->cmd_stat = CL_SUBMITTED;
+//			TAILQ_REMOVE(&(cmdq1->cmds_queued),ev,imp.cmds);
+//			TAILQ_REMOVE(&(cmdq1->cmds_queued),ev,ev1->cmds);
+			TAILQ_REMOVE(&(cmdq1->cmds_queued),ev1,cmds);
+//			cmdq1->cmd_submitted = ev;
+			cmdq1->cmd_submitted = ev1;
+			ev1->cmd_stat = CL_SUBMITTED;
 			gettimeofday(&tv,0);
-			ev->tm_submit = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
-			ev->tm_start = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
+			ev1->tm_submit = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
+			ev1->tm_start = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 
 			__unlock_cmdq1(cmdq1);
-			printcl( CL_DEBUG "%p: submitted %x\n",ev,ev->cmd);
-//			cmdcall[ev->cmd-CLCMD_OFFSET](ev->imp.cmd_argp);
-//			cmdcall[ev->cmd-CLCMD_OFFSET](devid,ev->imp.cmd_argp);
-			cmdcall[ev->cmd-CLCMD_OFFSET](dev,ev->imp.cmd_argp);
+//			printcl( CL_DEBUG "%p: submitted %x\n",ev,ev->cmd);
+//			cmdcall[ev->cmd-CLCMD_OFFSET](dev,ev->ev1->cmd_argp);
+			printcl( CL_DEBUG "%p: submitted %x\n",ev1,ev1->cmd);
+			cmdcall[ev1->cmd-CLCMD_OFFSET](dev,ev1->cmd_argp);
 			__lock_cmdq1(cmdq1);
 
-			__sig_event(ev);
+			__sig_event1(ev1);
 
-			__unlock_event(ev);
+			__unlock_event1(ev1);
 
 
 			/* XXX cmdcall should either be moved down to running, OR the call
@@ -140,20 +145,20 @@ void* cmdqx1( void* argp )
 			 * cmd running 
 			 */
 
-			__lock_event(ev);
+			__lock_event1(ev1);
 
-			ev = cmdq1->cmd_submitted;
+			ev1 = cmdq1->cmd_submitted;
 			cmdq1->cmd_submitted = 0;
-			cmdq1->cmd_running = ev;
-			ev->cmd_stat = CL_RUNNING;
+			cmdq1->cmd_running = ev1;
+			ev1->cmd_stat = CL_RUNNING;
 
 			__unlock_cmdq1(cmdq1);
-			printcl( CL_DEBUG "%p: running %x\n",ev,ev->cmd);
+			printcl( CL_DEBUG "%p: running %x\n",ev1,ev1->cmd);
 			__lock_cmdq1(cmdq1);
 
-			__sig_event(ev);
+			__sig_event1(ev1);
 
-			__unlock_event(ev);
+			__unlock_event1(ev1);
 
 
 
@@ -161,22 +166,25 @@ void* cmdqx1( void* argp )
 			 * cmd complete 
 			 */
 
-			__lock_event(ev);
+			__lock_event1(ev1);
 
-			ev = cmdq1->cmd_running;
+			ev1 = cmdq1->cmd_running;
 			cmdq1->cmd_running = 0;
-			TAILQ_INSERT_TAIL(&(cmdq1->cmds_complete),ev,imp.cmds);
+//			TAILQ_INSERT_TAIL(&(cmdq1->cmds_complete),ev,imp.cmds);
+//			TAILQ_INSERT_TAIL(&(cmdq1->cmds_complete),ev,ev1->cmds);
+			TAILQ_INSERT_TAIL(&(cmdq1->cmds_complete),ev1,cmds);
 //			cmdq->imp.cmd_running = ev;
-			ev->cmd_stat = CL_COMPLETE;
+			ev1->cmd_stat = CL_COMPLETE;
 			gettimeofday(&tv,0);
-			ev->tm_end = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
+			ev1->tm_end = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 
-			__sig_event(ev);
+			__sig_event1(ev1);
 
-			__release_event(ev);
+//			__release_event1(ev1);
 			/* unlock implicit in release -DAR */
+			__unlock_event1(ev1);
 
-			printcl( CL_DEBUG "%p: complete %x\n",ev,ev->cmd);
+			printcl( CL_DEBUG "%p: complete %x\n",ev1,ev1->cmd);
 			
 		}
 

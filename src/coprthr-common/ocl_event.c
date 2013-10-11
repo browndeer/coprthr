@@ -51,7 +51,7 @@ _clWaitForEvents(
 	__do_wait_for_events(nev,evlist);
 
 	for(i=0;i<nev;i++)
-		if (evlist[i]->cmd_stat < 0) {
+		if (evlist[i]->ev1->cmd_stat < 0) {
 			printcl( CL_ERR "event execution status error");
 			return(CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST);
 		}
@@ -91,7 +91,7 @@ _clGetEventInfo(
 
 		case CL_EVENT_COMMAND_EXECUTION_STATUS:
 
-			__case_get_param(sizeof(cl_int),&ev->cmd_stat);
+			__case_get_param(sizeof(cl_int),&ev->ev1->cmd_stat);
 
 			break;
 
@@ -131,6 +131,9 @@ _clReleaseEvent( cl_event ev )
 	printcl( CL_DEBUG "clReleaseEvent");
 
 	if (__invalid_event(ev)) return(CL_INVALID_EVENT);
+
+	/* added to prevent release before completion, that is programmer error */
+	if (ev->ev1->cmd_stat != CL_COMPLETE) return -1;
 
 	__lock_event(ev);
 	__release_event(ev);

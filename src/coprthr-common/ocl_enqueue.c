@@ -32,7 +32,7 @@
 #define __wait(ev) do { \
 		printcl( CL_DEBUG "blocking on event %p",ev); \
 		__lock_event(ev); \
-      while (ev->cmd_stat != CL_COMPLETE) { \
+      while (ev->ev1->cmd_stat != CL_COMPLETE) { \
          printcl( CL_DEBUG "wait-sleep on event %p\n",ev); \
          __wait_event(ev); \
          printcl( CL_DEBUG "wait-wake on event %p",ev); \

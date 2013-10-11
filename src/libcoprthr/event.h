@@ -37,6 +37,7 @@ void __do_release_event(cl_event ev);
  * lock and sig
  */
 
+/*
 #define __lock_event(ev) do { \
 	printcl( CL_DEBUG "__lock_event: attempt %p",ev); \
 	pthread_mutex_lock(&ev->imp.mtx); \
@@ -58,7 +59,52 @@ void __do_release_event(cl_event ev);
 	printcl( CL_DEBUG "__sig_event: %p",ev); \
 	pthread_cond_signal(&ev->imp.sig); \
 	} while(0)
+*/
+#define __lock_event(ev) do { \
+	printcl( CL_DEBUG "__lock_event: attempt %p",ev); \
+	pthread_mutex_lock(&(ev->ev1->mtx)); \
+	printcl( CL_DEBUG "__lock_event: locked %p",ev); \
+	} while(0)
 
+#define __unlock_event(ev) do { \
+	pthread_mutex_unlock(&(ev->ev1->mtx)); \
+	printcl( CL_DEBUG "__unlock_event: unlocked %p",ev); \
+	} while(0)
+
+#define __wait_event(ev) do { \
+	printcl( CL_DEBUG "__wait_event: sleep%p",ev); \
+	pthread_cond_wait(&(ev->ev1->sig),&(ev->ev1->mtx)); \
+	printcl( CL_DEBUG "__wait_event: wake%p",ev); \
+	} while(0)
+
+#define __sig_event(ev) do { \
+	printcl( CL_DEBUG "__sig_event: %p",ev); \
+	pthread_cond_signal(&(ev->ev1->sig)); \
+	} while(0)
+
+
+
+#define __lock_event1(ev1) do { \
+	printcl( CL_DEBUG "__lock_event1: attempt %p",ev1); \
+	pthread_mutex_lock(&(ev1->mtx)); \
+	printcl( CL_DEBUG "__lock_event1: locked %p",ev1); \
+	} while(0)
+
+#define __unlock_event1(ev1) do { \
+	pthread_mutex_unlock(&(ev1->mtx)); \
+	printcl( CL_DEBUG "__unlock_event1: unlocked %p",ev1); \
+	} while(0)
+
+#define __wait_event1(ev1) do { \
+	printcl( CL_DEBUG "__wait_event1: sleep%p",ev1); \
+	pthread_cond_wait(&(ev1->sig),&(ev1->mtx)); \
+	printcl( CL_DEBUG "__wait_event1: wake%p",ev1); \
+	} while(0)
+
+#define __sig_event1(ev1) do { \
+	printcl( CL_DEBUG "__sig_event1: %p",ev1); \
+	pthread_cond_signal(&(ev1->sig)); \
+	} while(0)
 
 
 

@@ -29,22 +29,48 @@
 
 #include "coprthr_sched.h"
 
-void __do_release_event(cl_event ev) 
+void __do_release_event_1(struct coprthr_event* ev1) 
 {
 	/* XXX may need to check state of event for controlled release -DAR */
 
 	/* XXX this assumes the ev is on cmds_complete, check this first! -DAR */
 
 	printcl( CL_DEBUG "__do_release_event: attempt lock cmdq");
-	__lock_cmdq(ev->cmdq);
+	__lock_cmdq1(ev1->dev->devstate->cmdq);
 	printcl( CL_DEBUG "__do_release_event: locked cmdq");
 	printcl( CL_DEBUG "__do_release_event: remove ev from cmdq");
-	printcl( CL_DEBUG "__do_release_event: cmdq %p\n",ev->cmdq);
-	TAILQ_REMOVE(&ev->cmdq->ptr_imp->cmds_complete,ev,imp.cmds);
+	printcl( CL_DEBUG "__do_release_event: dev %p\n",ev1->dev);
+	TAILQ_REMOVE(&(ev1->dev->devstate->cmdq->cmds_complete),ev1,cmds);
 	printcl( CL_DEBUG "__do_release_event: removed from cmdq");
-	__unlock_cmdq(ev->cmdq);
+	__unlock_cmdq1(ev1->dev->devstate->cmdq);
+//	ev->cmdq = 0;
+	ev1->dev = 0;
+	printcl( CL_DEBUG "__do_release_event_1: success");
+}
+
+void __do_release_event(cl_event ev) 
+{
+	/* XXX may need to check state of event for controlled release -DAR */
+
+	/* XXX this assumes the ev is on cmds_complete, check this first! -DAR */
+
+	__do_release_event_1(ev->ev1);
 	ev->cmdq = 0;
+	ev->dev = 0;
+
+/*
+	printcl( CL_DEBUG "__do_release_event: attempt lock cmdq");
+	__lock_cmdq1(ev->dev->devstate->cmdq);
+	printcl( CL_DEBUG "__do_release_event: locked cmdq");
+	printcl( CL_DEBUG "__do_release_event: remove ev from cmdq");
+	printcl( CL_DEBUG "__do_release_event: dev %p\n",ev->dev);
+	TAILQ_REMOVE(&(ev->dev->devstate->cmdq->cmds_complete),ev,ev1->cmds);
+	printcl( CL_DEBUG "__do_release_event: removed from cmdq");
+	__unlock_cmdq1(ev->dev->devstate->cmdq);
+	ev->cmdq = 0;
+	ev->dev = 0;
 	printcl( CL_DEBUG "__do_release_event: success");
+*/
 }
 
 
@@ -64,14 +90,14 @@ void __do_set_cmd_read_buffer(
 	void* dst
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->m.dst = dst;
-	ev->imp.cmd_argp->m.src = (void*)src;
-	ev->imp.cmd_argp->m.src_offset = src_offset;
-	ev->imp.cmd_argp->m.len = len;
+	ev->ev1->cmd_argp->m.dst = dst;
+	ev->ev1->cmd_argp->m.src = (void*)src;
+	ev->ev1->cmd_argp->m.src_offset = src_offset;
+	ev->ev1->cmd_argp->m.len = len;
 }
 
 
@@ -81,14 +107,14 @@ void __do_set_cmd_write_buffer(
 	const void* src
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->m.dst = (void*)dst;
-	ev->imp.cmd_argp->m.src = (void*)src;
-	ev->imp.cmd_argp->m.dst_offset = dst_offset;
-	ev->imp.cmd_argp->m.len = len;
+	ev->ev1->cmd_argp->m.dst = (void*)dst;
+	ev->ev1->cmd_argp->m.src = (void*)src;
+	ev->ev1->cmd_argp->m.dst_offset = dst_offset;
+	ev->ev1->cmd_argp->m.len = len;
 }
 
 
@@ -98,15 +124,15 @@ void __do_set_cmd_copy_buffer(
 	size_t src_offset, size_t dst_offset, size_t len 
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->m.dst = (void*)dst;
-	ev->imp.cmd_argp->m.src = (void*)src;
-	ev->imp.cmd_argp->m.dst_offset = dst_offset;
-	ev->imp.cmd_argp->m.src_offset = src_offset;
-	ev->imp.cmd_argp->m.len = len;
+	ev->ev1->cmd_argp->m.dst = (void*)dst;
+	ev->ev1->cmd_argp->m.src = (void*)src;
+	ev->ev1->cmd_argp->m.dst_offset = dst_offset;
+	ev->ev1->cmd_argp->m.src_offset = src_offset;
+	ev->ev1->cmd_argp->m.len = len;
 }
 
 
@@ -118,21 +144,21 @@ void __do_set_cmd_read_image(
 	void* dst
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->m.dst = dst;
-	ev->imp.cmd_argp->m.src = (void*)src;
+	ev->ev1->cmd_argp->m.dst = dst;
+	ev->ev1->cmd_argp->m.src = (void*)src;
 
-	if (src_origin) __copy3(ev->imp.cmd_argp->m.src_origin,src_origin); 
+	if (src_origin) __copy3(ev->ev1->cmd_argp->m.src_origin,src_origin); 
 	else printcl( CL_ERR "fix this");
 
-	if (region) __copy3(ev->imp.cmd_argp->m.region,region);
+	if (region) __copy3(ev->ev1->cmd_argp->m.region,region);
 	else printcl( CL_ERR "fix this");
 
-	ev->imp.cmd_argp->m.row_pitch = (void*)row_pitch;
-	ev->imp.cmd_argp->m.slice_pitch = (void*)slice_pitch;
+	ev->ev1->cmd_argp->m.row_pitch = (void*)row_pitch;
+	ev->ev1->cmd_argp->m.slice_pitch = (void*)slice_pitch;
 }
 
 
@@ -144,16 +170,16 @@ void __do_set_cmd_write_image(
 	const void* src
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->m.dst = dst;
-	ev->imp.cmd_argp->m.src = (void*)src;
-	__copy3(ev->imp.cmd_argp->m.dst_origin,dst_origin);
-	__copy3(ev->imp.cmd_argp->m.region,region);
-	ev->imp.cmd_argp->m.row_pitch = (void*)row_pitch;
-	ev->imp.cmd_argp->m.slice_pitch = (void*)slice_pitch;
+	ev->ev1->cmd_argp->m.dst = dst;
+	ev->ev1->cmd_argp->m.src = (void*)src;
+	__copy3(ev->ev1->cmd_argp->m.dst_origin,dst_origin);
+	__copy3(ev->ev1->cmd_argp->m.region,region);
+	ev->ev1->cmd_argp->m.row_pitch = (void*)row_pitch;
+	ev->ev1->cmd_argp->m.slice_pitch = (void*)slice_pitch;
 }
 
 
@@ -164,15 +190,15 @@ void __do_set_cmd_copy_image(
 	const size_t* dst_origin, const size_t* region
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->m.dst = (void*)dst;
-	ev->imp.cmd_argp->m.src = (void*)src;
-	__copy3(ev->imp.cmd_argp->m.dst_origin,dst_origin);
-	__copy3(ev->imp.cmd_argp->m.src_origin,src_origin);
-	__copy3(ev->imp.cmd_argp->m.region,region);
+	ev->ev1->cmd_argp->m.dst = (void*)dst;
+	ev->ev1->cmd_argp->m.src = (void*)src;
+	__copy3(ev->ev1->cmd_argp->m.dst_origin,dst_origin);
+	__copy3(ev->ev1->cmd_argp->m.src_origin,src_origin);
+	__copy3(ev->ev1->cmd_argp->m.region,region);
 }
 
 
@@ -183,15 +209,15 @@ void __do_set_cmd_copy_image_to_buffer(
 	size_t dst_offset
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->m.dst = (void*)dst;
-	ev->imp.cmd_argp->m.src = (void*)src;
-	ev->imp.cmd_argp->m.dst_offset = dst_offset;
-	__copy3(ev->imp.cmd_argp->m.src_origin,src_origin);
-	__copy3(ev->imp.cmd_argp->m.region,region);
+	ev->ev1->cmd_argp->m.dst = (void*)dst;
+	ev->ev1->cmd_argp->m.src = (void*)src;
+	ev->ev1->cmd_argp->m.dst_offset = dst_offset;
+	__copy3(ev->ev1->cmd_argp->m.src_origin,src_origin);
+	__copy3(ev->ev1->cmd_argp->m.region,region);
 }
 
 
@@ -202,15 +228,15 @@ void __do_set_cmd_copy_buffer_to_image(
 	const size_t* dst_origin, const size_t* region
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->m.dst = (void*)dst;
-	ev->imp.cmd_argp->m.src = (void*)src;
-	ev->imp.cmd_argp->m.src_offset = src_offset;
-	__copy3(ev->imp.cmd_argp->m.dst_origin,dst_origin);
-	__copy3(ev->imp.cmd_argp->m.region,region);
+	ev->ev1->cmd_argp->m.dst = (void*)dst;
+	ev->ev1->cmd_argp->m.src = (void*)src;
+	ev->ev1->cmd_argp->m.src_offset = src_offset;
+	__copy3(ev->ev1->cmd_argp->m.dst_origin,dst_origin);
+	__copy3(ev->ev1->cmd_argp->m.region,region);
 }
 
 
@@ -221,15 +247,15 @@ void __do_set_cmd_map_buffer(
 	void* pp
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->flags = flags;
-	ev->imp.cmd_argp->m.dst = (void*)pp;
-	ev->imp.cmd_argp->m.src = (void*)membuf;
-	ev->imp.cmd_argp->m.src_offset = offset;
-	ev->imp.cmd_argp->m.len = len;
+	ev->ev1->cmd_argp->flags = flags;
+	ev->ev1->cmd_argp->m.dst = (void*)pp;
+	ev->ev1->cmd_argp->m.src = (void*)membuf;
+	ev->ev1->cmd_argp->m.src_offset = offset;
+	ev->ev1->cmd_argp->m.len = len;
 }
 
 
@@ -241,17 +267,17 @@ void __do_set_cmd_map_image(
 	void* p
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->flags = flags;
-	ev->imp.cmd_argp->m.dst = (void*)p;
-	ev->imp.cmd_argp->m.src = (void*)image;
-	__copy3(ev->imp.cmd_argp->m.src_origin,origin);
-	__copy3(ev->imp.cmd_argp->m.region,region);
-	ev->imp.cmd_argp->m.row_pitch = (void*)row_pitch;
-	ev->imp.cmd_argp->m.slice_pitch = (void*)slice_pitch;
+	ev->ev1->cmd_argp->flags = flags;
+	ev->ev1->cmd_argp->m.dst = (void*)p;
+	ev->ev1->cmd_argp->m.src = (void*)image;
+	__copy3(ev->ev1->cmd_argp->m.src_origin,origin);
+	__copy3(ev->ev1->cmd_argp->m.region,region);
+	ev->ev1->cmd_argp->m.row_pitch = (void*)row_pitch;
+	ev->ev1->cmd_argp->m.slice_pitch = (void*)slice_pitch;
 }
 
 
@@ -260,12 +286,12 @@ void __do_set_cmd_unmap_memobj(
 	cl_mem memobj, void* p
 )
 {
-	ev->imp.cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
+	ev->ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	__init_cmdcall_arg(ev->imp.cmd_argp);
+	__init_cmdcall_arg(ev->ev1->cmd_argp);
 
-	ev->imp.cmd_argp->m.dst = (void*)p;
-	ev->imp.cmd_argp->m.src = (void*)memobj;
+	ev->ev1->cmd_argp->m.dst = (void*)p;
+	ev->ev1->cmd_argp->m.src = (void*)memobj;
 }
 
 
@@ -281,7 +307,7 @@ void __do_set_cmd_ndrange_kernel(
 {
 	int i;
 
-	struct cmdcall_arg* argp = ev->imp.cmd_argp 
+	struct cmdcall_arg* argp = ev->ev1->cmd_argp 
 		= (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
 	__init_cmdcall_arg(argp);
@@ -334,13 +360,13 @@ void __do_set_cmd_ndrange_kernel(
 //		= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->imp->arg_buf;
 		= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->krn1[0]->arg_buf;
 
-	ev->imp.cmd_argp->k.work_dim = work_dim;
+	ev->ev1->cmd_argp->k.work_dim = work_dim;
 
 	for(i=0;i<work_dim;i++) {
 		if (global_work_offset)
-			ev->imp.cmd_argp->k.global_work_offset[i] = global_work_offset[i];
-		ev->imp.cmd_argp->k.global_work_size[i] = global_work_size[i];
-		ev->imp.cmd_argp->k.local_work_size[i] = local_work_size[i];
+			ev->ev1->cmd_argp->k.global_work_offset[i] = global_work_offset[i];
+		ev->ev1->cmd_argp->k.global_work_size[i] = global_work_size[i];
+		ev->ev1->cmd_argp->k.local_work_size[i] = local_work_size[i];
 	}
 
 }
@@ -350,7 +376,7 @@ void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 {
 	int i;
 
-	struct cmdcall_arg* argp = ev->imp.cmd_argp 
+	struct cmdcall_arg* argp = ev->ev1->cmd_argp 
 		= (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
 	__init_cmdcall_arg(argp);
@@ -361,7 +387,8 @@ void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 
 	int devnum;
 	for(devnum=0;devnum<krn->prg->ndev;devnum++) 
-		if (ev->cmdq->devid == krn->prg->devices[devnum]) break;
+//		if (ev->cmdq->devid == krn->prg->devices[devnum]) break;
+		if (ev->dev == krn->prg->devices[devnum]->codev) break;
 
 	if (devnum == krn->prg->ndev) {
 		printcl( CL_ERR "internal error");
@@ -390,7 +417,7 @@ void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 //	__clone(argp->k.pr_arg_buf,krn->imp->arg_buf,krn->imp->arg_buf_sz,void);
 	__clone(argp->k.pr_arg_buf,krn->krn1[0]->arg_buf,krn->krn1[0]->arg_buf_sz,void);
 
-	ev->imp.cmd_argp->k.work_dim = 0;
+	ev->ev1->cmd_argp->k.work_dim = 0;
 
 }
 
@@ -408,11 +435,11 @@ void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 
 		ev = evlist[i];
 
-		printcl( CL_DEBUG "wait for event %p %d\n",ev,ev->cmd_stat);
+		printcl( CL_DEBUG "wait for event %p %d\n",ev,ev->ev1->cmd_stat);
 
 		__lock_event(ev);
 
-		while (ev->cmd_stat != CL_COMPLETE) {
+		while (ev->ev1->cmd_stat != CL_COMPLETE) {
 			printcl( CL_DEBUG "__do_wait_for_events: wait-sleep\n");
 			__wait_event(ev);
 			printcl( CL_DEBUG "__do_wait_for_events: wait-wake\n");

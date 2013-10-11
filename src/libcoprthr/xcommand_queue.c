@@ -66,162 +66,123 @@ void __do_create_command_queue_1( struct coprthr_device* dev )
 
 void __do_create_command_queue( cl_command_queue cmdq ) 
 {
-
 	__do_create_command_queue_1( cmdq->devid->codev );
 	cmdq->ptr_imp = cmdq->devid->codev->devstate->cmdq;
-
-#if(0)
-	if (!cmdq->devid->codev->devstate->cmdq)	
-		cmdq->devid->codev->devstate->cmdq = (struct coprthr_command_queue*)
-			malloc( sizeof(struct coprthr_command_queue));
-	__coprthr_init_command_queue(cmdq->devid->codev->devstate->cmdq);
-	cmdq->ptr_imp = cmdq->devid->codev->devstate->cmdq;
-
-	__lock_cmdq(cmdq);
-	cmdq->ptr_imp->qstat = 0;
-	__unlock_cmdq(cmdq);
-
-	/* fork cmdq sched thread */
-	int err; 
-	if (err = pthread_create(&cmdq->ptr_imp->td,0,cmdqx0,(void*)cmdq) ) {
-		printcl( CL_ERR "__do_create_command_queue:"
-			" pthread_create failed");
-		exit(1);
-	}
-
-	__lock_cmdq(cmdq);
-	cmdq->ptr_imp->qstat = 1;
-	__sig_cmdq(cmdq);
-	__unlock_cmdq(cmdq);
-
-	printcl( CL_DEBUG "signaled cmdq with qstat ->1\n");
-#endif
-
 }
 
 
 
-void __do_release_command_queue( cl_command_queue cmdq ) 
+void __do_release_command_queue_1( struct coprthr_device* dev ) 
 {
-	__lock_cmdq(cmdq);
+	struct coprthr_command_queue* cmdq1 = dev->devstate->cmdq;
+	
+	__lock_cmdq1(cmdq1);
 
-	cmdq->ptr_imp->qstat = 2;
+	cmdq1->qstat = 2;
 
 	/* check if the queue is empty and warn if its not */
 
-	if (cmdq->ptr_imp->cmds_queued.tqh_first) {
+	if (cmdq1->cmds_queued.tqh_first) {
 
 		printcl( CL_WARNING 
-			"__do_release_command_queue: cmds_queued not empty");
+			"__do_release_command_queue_1: cmds_queued not empty");
 
-		cl_event ev;
-		for(ev=cmdq->ptr_imp->cmds_queued.tqh_first; ev!=0; ev=ev->imp.cmds.tqe_next)
-			printcl( CL_DEBUG "cmds_queued: ev %p\n",ev);
+//		cl_event ev;
+		struct coprthr_event* ev1;
+		for(ev1=cmdq1->cmds_queued.tqh_first; ev1!=0; ev1=ev1->cmds.tqe_next)
+			printcl( CL_DEBUG "cmds_queued: ev %p\n",ev1);
 
 	}
 
-	__sig_cmdq(cmdq);
+	__sig_cmdq1(cmdq1);
 
-	__unlock_cmdq(cmdq);
+	__unlock_cmdq1(cmdq1);
 
 		
 	/* now join the cmdq sched thread */
 	void* st;
 
-	pthread_join(cmdq->ptr_imp->td,&st);
+	pthread_join(cmdq1->td,&st);
 
-	printcl( CL_DEBUG "__do_release_command_queue:"
+	printcl( CL_DEBUG "__do_release_command_queue_1:"
 		" cmdq->td joinied with status %d",st);	
 
 }
 
-
-
-void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev ) 
+void __do_release_command_queue( cl_command_queue cmdq ) 
 {
+	__do_release_command_queue_1(cmdq->devid->codev);
+}
+
+
+
+void __do_enqueue_cmd_1( struct coprthr_device* dev, 
+	struct coprthr_event* ev1 ) 
+{
+	struct coprthr_command_queue* cmdq1 = dev->devstate->cmdq;
+	
 	struct timeval tv;
 
-	printcl( CL_DEBUG "__do_enqueue_cmd: ev %p",ev);
+	printcl( CL_DEBUG "__do_enqueue_cmd_1: ev %p",ev1);
 
-	printcl( CL_DEBUG "cmdq1 %p", cmdq->ptr_imp);
+	printcl( CL_DEBUG "cmdq1 %p", cmdq1);
 
-	__lock_cmdq(cmdq);
+	__lock_cmdq1(cmdq1);
 
-	ev->cmdq = cmdq;
+//	ev->cmdq = 0;
+//	ev->dev = dev;
+	ev1->dev = dev;
 
-	ev->cmd_stat = CL_QUEUED;
+	ev1->cmd_stat = CL_QUEUED;
 
-	TAILQ_INSERT_TAIL(&cmdq->ptr_imp->cmds_queued,ev,imp.cmds);
+//	TAILQ_INSERT_TAIL(&cmdq1->cmds_queued,ev,imp.cmds);
+	TAILQ_INSERT_TAIL(&cmdq1->cmds_queued,ev1,cmds);
 
-	__sig_cmdq(cmdq);
+	__sig_cmdq1(cmdq1);
 
-	__unlock_cmdq(cmdq);
+	__unlock_cmdq1(cmdq1);
 
 	gettimeofday(&tv,0);
 
-	ev->tm_queued = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
+	ev1->tm_queued = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 
 }
 
-/*
-void __do_set_cmd_submitted( cl_event ev ) 
+void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev ) 
 {
-	__lock_cmdq(ev->cmdq);
-
-	TAILQ_REMOVE(&ev->cmdq->imp.cmds_queued,ev,imp.cmds);
-
-	ev->cmdq->imp.cmd_submitted = ev;
-
-	ev->cmd_stat = CL_SUBMITTED;
-
-	__unlock_cmdq(ev->cmdq);
+	ev->ev1->cmd = ev->cmd;
+	__do_enqueue_cmd_1( cmdq->devid->codev, ev->ev1);
+	ev->cmdq = cmdq;
+	ev->dev = cmdq->devid->codev;
+	__retain_event(ev);
 }
 
-void __do_cmd_set_running( cl_event ev ) 
+
+void __do_finish_1( struct coprthr_device* dev )
 {
-	__lock_cmdq(ev->cmdq);
+	struct coprthr_command_queue* cmdq1 = dev->devstate->cmdq;
 
-	ev->cmdq->imp.cmd_submitted = (cl_event)0;
+       __lock_cmdq1(cmdq1);
 
-	ev->cmdq->imp.cmd_running = ev;
-
-	ev->cmd_stat = CL_RUNNING;
-
-	__unlock_cmdq(ev->cmdq);
-}
-
-void __do_cmd_set_complete( cl_event ev ) 
-{
-	__lock_cmdq(ev->cmdq);
-
-	ev->cmdq->imp.cmd_running = (cl_event)0;
-
-	ev->cmd_stat = CL_COMPLETE;
-
-	TAILQ_INSERT_TAIL(&ev->cmdq->imp.cmds_complete,ev,imp.cmds);
-
-	__unlock_cmdq(ev->cmdq);
-}
-*/
-
-void __do_finish( cl_command_queue cmdq )
-{
-       __lock_cmdq(cmdq);
-
-       while ( !TAILQ_EMPTY(&cmdq->ptr_imp->cmds_queued)
-               || cmdq->ptr_imp->cmd_submitted || cmdq->ptr_imp->cmd_running
+       while ( !TAILQ_EMPTY(&cmdq1->cmds_queued)
+               || cmdq1->cmd_submitted || cmdq1->cmd_running
        ) {
 
                printcl( CL_DEBUG "empty %d submitted %p running %p",
-                       TAILQ_EMPTY(&cmdq->ptr_imp->cmds_queued),
-                       cmdq->ptr_imp->cmd_submitted,cmdq->ptr_imp->cmd_running);
+                       TAILQ_EMPTY(&cmdq1->cmds_queued),
+                       cmdq1->cmd_submitted,cmdq1->cmd_running);
 
-               __wait_cmdq(cmdq);
+               __wait_cmdq1(cmdq1);
 
 
        }
 
-       __unlock_cmdq(cmdq);
+       __unlock_cmdq1(cmdq1);
 
+}
+
+void __do_finish( cl_command_queue cmdq )
+{
+	__do_finish_1( cmdq->devid->codev );
 }
 

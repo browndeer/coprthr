@@ -26,10 +26,18 @@
 #include <sys/queue.h>
 
 struct coprthr_event {
+	struct coprthr_device* dev;
 	pthread_mutex_t mtx;
 	pthread_cond_t sig;
 	struct cmdcall_arg* cmd_argp;
-	TAILQ_ENTRY(_cl_event) cmds;
+//	TAILQ_ENTRY(_cl_event) cmds;
+	TAILQ_ENTRY(coprthr_event) cmds;
+	int cmd;
+	int cmd_stat;
+   unsigned long tm_queued;
+   unsigned long tm_submit;
+   unsigned long tm_start;
+   unsigned long tm_end;
 };
 
 #if defined(__FreeBSD__)
@@ -37,20 +45,21 @@ struct coprthr_event {
 #endif
 
 #define __coprthr_init_event(ev) do { \
+	ev = (struct coprthr_event*)malloc(sizeof(struct coprthr_event)); \
 	pthread_mutexattr_t attr; \
 	int attrtype = PTHREAD_MUTEX_ERRORCHECK_NP; \
 	pthread_mutexattr_init(&attr); \
 	pthread_mutexattr_settype(&attr,attrtype); \
-	pthread_mutex_init(&(ev).mtx,&attr); \
-	pthread_cond_init(&(ev).sig,0); \
-	pthread_mutex_unlock(&(ev).mtx); \
-	(ev).cmd_argp = 0; \
+	pthread_mutex_init(&((ev)->mtx),&attr); \
+	pthread_cond_init(&((ev)->sig),0); \
+	pthread_mutex_unlock(&((ev)->mtx)); \
+	(ev)->cmd_argp = 0; \
 	} while(0)
 
 #define __coprthr_free_event(ev) do { \
-	pthread_cond_destroy(&(ev).sig); \
-	pthread_mutex_destroy(&(ev).mtx); \
-	__free((ev).cmd_argp); \
+	pthread_cond_destroy(&((ev)->sig)); \
+	pthread_mutex_destroy(&((ev)->mtx)); \
+	__free((ev)->cmd_argp); \
 	} while(0)
 
 
@@ -62,8 +71,10 @@ struct coprthr_command_queue {
    unsigned int qstat;
    struct coprthr_event* cmd_submitted;
    struct coprthr_event* cmd_running;
-   TAILQ_HEAD(tailhead_cmds_queued,_cl_event) cmds_queued;
-   TAILQ_HEAD(tailhead_cmds_complete,_cl_event) cmds_complete;
+//   TAILQ_HEAD(tailhead_cmds_queued,_cl_event) cmds_queued;
+//   TAILQ_HEAD(tailhead_cmds_complete,_cl_event) cmds_complete;
+   TAILQ_HEAD(tailhead_cmds_queued,coprthr_event) cmds_queued;
+   TAILQ_HEAD(tailhead_cmds_complete,coprthr_event) cmds_complete;
 };
 
 #define __coprthr_init_command_queue(cmdq) do { \

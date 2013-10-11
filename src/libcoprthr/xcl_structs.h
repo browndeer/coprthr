@@ -363,12 +363,14 @@ struct _cl_event {
 	cl_context ctx;
 	cl_command_queue cmdq;
 	cl_command_type cmd;
-	cl_int cmd_stat;
-	cl_ulong tm_queued;
-	cl_ulong tm_submit;
-	cl_ulong tm_start;
-	cl_ulong tm_end;
-	struct coprthr_event imp;
+//	cl_int cmd_stat;
+//	cl_ulong tm_queued;
+//	cl_ulong tm_submit;
+//	cl_ulong tm_start;
+//	cl_ulong tm_end;
+//	struct coprthr_event imp;
+	struct coprthr_device* dev;
+	struct coprthr_event* ev1;
 };
 
 #define __init_event(ev) do { \
@@ -377,12 +379,11 @@ struct _cl_event {
 	ev->ctx = (cl_context)0; \
 	ev->cmdq = (cl_command_queue)0; \
 	ev->cmd = (cl_command_type)0; \
-	ev->cmd_stat = 0; \
-	__coprthr_init_event(ev->imp); \
+	__coprthr_init_event(ev->ev1); \
 	} while(0)
 
 #define __free_event(ev) do { \
-	__coprthr_free_event(ev->imp); \
+	__coprthr_free_event(ev->ev1); \
 	__free(ev); \
 	} while(0)
 

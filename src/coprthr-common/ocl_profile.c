@@ -42,7 +42,8 @@ _clGetEventProfilingInfo(
 
 	if (__invalid_event(event)) return(CL_INVALID_EVENT); 
 
-	if (event->cmd_stat != CL_COMPLETE) return(CL_PROFILING_INFO_NOT_AVAILABLE);
+	if (event->ev1->cmd_stat != CL_COMPLETE) 
+		return(CL_PROFILING_INFO_NOT_AVAILABLE);
 
 	size_t sz;
 
@@ -50,25 +51,25 @@ _clGetEventProfilingInfo(
 
 		case CL_PROFILING_COMMAND_QUEUED:
 
-			__case_get_param(sizeof(cl_ulong),&event->tm_queued);
+			__case_get_param(sizeof(cl_ulong),&event->ev1->tm_queued);
 
 			break;
 			
 		case CL_PROFILING_COMMAND_SUBMIT:
 
-			__case_get_param(sizeof(cl_ulong),&event->tm_submit);
+			__case_get_param(sizeof(cl_ulong),&event->ev1->tm_submit);
 
 			break;
 			
 		case CL_PROFILING_COMMAND_START:
 
-			__case_get_param(sizeof(cl_ulong),&event->tm_start);
+			__case_get_param(sizeof(cl_ulong),&event->ev1->tm_start);
 
 			break;
 			
 		case CL_PROFILING_COMMAND_END:
 
-			__case_get_param(sizeof(cl_ulong),&event->tm_end);
+			__case_get_param(sizeof(cl_ulong),&event->ev1->tm_end);
 
 			break;
 
