@@ -159,6 +159,7 @@ struct _cl_command_queue {
 	cl_context ctx;
 	cl_device_id devid;
 	cl_command_queue_properties prop;
+	unsigned int devnum;
 	struct coprthr_command_queue* ptr_imp;
 };
 

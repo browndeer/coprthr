@@ -89,6 +89,7 @@ _clEnqueueReadBuffer(
 		__lock_event(ev);
 		__unlock_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_read_buffer(ev);
 
 		__do_set_cmd_read_buffer(ev,membuf,offset,cb,ptr);
@@ -166,6 +167,7 @@ _clEnqueueWriteBuffer(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_write_buffer(ev);
 
 		__do_set_cmd_write_buffer(ev,membuf,offset,cb,ptr);
@@ -256,6 +258,7 @@ _clEnqueueCopyBuffer(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_copy_buffer(ev);
 
 		__do_set_cmd_copy_buffer(ev,
@@ -314,6 +317,7 @@ _clEnqueueReadImage(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_read_image(ev);
 
 		__do_set_cmd_read_image(ev,image,origin,region,row_pitch,slice_pitch,ptr);
@@ -376,6 +380,7 @@ _clEnqueueWriteImage(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_write_image(ev);
 
 		__do_set_cmd_write_image(ev,image,origin,region,
@@ -442,6 +447,7 @@ _clEnqueueCopyImage(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_copy_image(ev);
 
 		__do_set_cmd_copy_image(ev,src_image,dst_image,
@@ -505,6 +511,7 @@ _clEnqueueCopyImageToBuffer(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_copy_image_to_buffer(ev);
 
 		__do_set_cmd_copy_image_to_buffer(ev,src_image,dst_membuf,
@@ -569,6 +576,7 @@ _clEnqueueCopyBufferToImage(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_copy_buffer_to_image(ev);
 
 		__do_set_cmd_copy_buffer_to_image(ev,src_membuf,dst_image,
@@ -631,6 +639,7 @@ _clEnqueueMapBuffer(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_map_buffer(ev);
 
 		printcl( CL_DEBUG "calling __do_set_cmd_map_buffer");
@@ -723,6 +732,7 @@ _clEnqueueMapImage(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_map_image(ev);
 
 		__do_set_cmd_map_image(ev,image,map_flags,origin,region,
@@ -780,6 +790,7 @@ _clEnqueueUnmapMemObject(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_unmap_mem_object(ev);
 
 		__do_set_cmd_unmap_memobj(ev,memobj,mapped_ptr);
@@ -860,6 +871,7 @@ _clEnqueueNDRangeKernel(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_ndrange_kernel(ev);
 
 		__do_set_cmd_ndrange_kernel(cmdq,ev,krn,work_dim,
@@ -914,6 +926,7 @@ _clEnqueueTask(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_task(ev);
 
 		__do_set_cmd_task(ev,krn);
@@ -996,6 +1009,7 @@ _clEnqueueMarker(
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_marker(ev);
 
 		__do_enqueue_cmd(cmdq,ev);
@@ -1069,6 +1083,7 @@ _clEnqueueBarrier( cl_command_queue cmdq )
 
 		__init_event(ev);
 
+		ev->cmdq = cmdq;
 		__set_cmd_barrier(ev);
 
 		__do_enqueue_cmd(ev);

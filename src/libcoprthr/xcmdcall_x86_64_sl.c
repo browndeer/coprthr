@@ -42,6 +42,7 @@
 
 //#include <setjmp.h>
 #include "coprthr_device.h"
+#include "coprthr_mem.h"
 
 static void* 
 exec_ndrange_kernel(struct coprthr_device* dev, void* p)
@@ -163,16 +164,19 @@ static void* read_buffer_safe(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+/*
 	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
 //	while (n < ndev && devices[n] != devid) ++n;
 	while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
 	void* dst = argp->m.dst;
 //	void* src = ((cl_mem)argp->m.src)->host_ptr;
-	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
@@ -192,19 +196,24 @@ static void* read_buffer( struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+/*
 	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
 //	while (n < ndev && devices[n] != devid) ++n;
 	while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
 	void* dst = argp->m.dst;
 //	void* src = ((cl_mem)argp->m.src)->host_ptr;
 //	void* src = ((cl_mem)argp->m.src)->imp->res[n];
-	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
+
+	printcl( CL_DEBUG "%p %p %ld",dst,src,offset);
 
 	if (dst==src+offset) return(0);
 	else memcpy(dst,src+offset,len);
@@ -219,14 +228,17 @@ static void* write_buffer_safe(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+/*
 	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
 //	while (n < ndev && devices[n] != devid) ++n;
 	while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
-	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
+//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
+	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;
@@ -247,14 +259,17 @@ static void* write_buffer(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+/*
 	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
 //	while (n < ndev && devices[n] != devid) ++n;
 	while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
-	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
+//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
+	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;
@@ -272,15 +287,19 @@ static void* copy_buffer_safe(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+/*
 	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
 //	while (n < ndev && devices[n] != devid) ++n;
 	while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
-	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
-	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
+//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
+	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t dst_offset = argp->m.dst_offset;
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
@@ -302,15 +321,19 @@ static void* copy_buffer(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+/*
 	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
 //	while (n < ndev && devices[n] != devid) ++n;
 	while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
-	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
-	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
+//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
+	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t dst_offset = argp->m.dst_offset;
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
@@ -328,15 +351,18 @@ static void* read_image(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+/*
 	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
 //	while (n < ndev && devices[n] != devid) ++n;
 	while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
 	void* dst = argp->m.dst;
-	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t offset = argp->m.src_offset + 128;
 
 /*
@@ -358,6 +384,7 @@ static void* read_image(struct coprthr_device* dev, void* p)
 
 	} else {
 
+		int n;
 		size_t len = argp->m.region[0] * esz;
 		for(n=0;n<argp->m.region[1];n++) memcpy(dst+n*w,src+offset+n*w,len);
 
@@ -374,14 +401,17 @@ static void* write_image(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+/*
 	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = ctx->devices;
 	unsigned int n = 0;
 //	while (n < ndev && devices[n] != devid) ++n;
 	while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
-	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
+//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
+	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset + 128;
 
@@ -409,6 +439,7 @@ printcl( CL_DEBUG "cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],sp[16])
 
 	} else {
 
+		int n;
 		size_t len = argp->m.region[0] * esz;
 		for(n=0;n<argp->m.region[1];n++) memcpy(dst+offset+n*w,src+n*w,len);
 
@@ -461,14 +492,17 @@ static void* map_buffer(struct coprthr_device* dev, void* p)
 /* XXX need to add the 1.2 flag -DAR */
 //	if ( !__test_flags(argp->flags,CL_MAP_WRITE_INVALIDATE_REGION) ) {
 
+/*
    cl_context ctx = ((cl_mem)argp->m.src)->ctx;
    unsigned int ndev = ctx->ndev;
    cl_device_id* devices = ctx->devices;
    unsigned int n = 0;
 //   while (n < ndev && devices[n] != devid) ++n;
    while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
-   void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+//   void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+   void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 
    if (ptr==src+offset) return(0);
    else memcpy(ptr,src+offset,len);
@@ -502,14 +536,16 @@ static void* unmap_mem_object(struct coprthr_device* dev, void* p)
 //	if (__test_flags(argp->flags,CL_MAP_WRITE|CL_MAP_WRITE_INVALIDATE_REGION)) {
 //		write_buffer_safe( devid, p );
 
+/*
 		cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
 		unsigned int ndev = ctx->ndev;
 		cl_device_id* devices = ctx->devices;
 		unsigned int n = 0;
 //		while (n < ndev && devices[n] != devid) ++n;
 		while (n < ndev && devices[n]->codev != dev) ++n;
+*/
 
-		void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
+		void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 
 		size_t offset = ((size_t*)ptr0)[0] = offset;
 		size_t len = ((size_t*)ptr0)[1] = len;

@@ -68,6 +68,15 @@ void __do_create_command_queue( cl_command_queue cmdq )
 {
 	__do_create_command_queue_1( cmdq->devid->codev );
 	cmdq->ptr_imp = cmdq->devid->codev->devstate->cmdq;
+	
+   cl_context ctx = cmdq->ctx;
+   unsigned int ndev = ctx->ndev;
+   cl_device_id* devices = ctx->devices;
+   unsigned int n = 0;
+   while (n < ndev && devices[n]->codev != cmdq->devid->codev) ++n;
+	cmdq->devnum = n;
+
+	printcl( CL_DEBUG "__do_create_command_queue: devnum=%d",n);
 }
 
 
