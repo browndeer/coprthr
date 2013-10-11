@@ -363,12 +363,6 @@ struct _cl_event {
 	cl_context ctx;
 	cl_command_queue cmdq;
 	cl_command_type cmd;
-//	cl_int cmd_stat;
-//	cl_ulong tm_queued;
-//	cl_ulong tm_submit;
-//	cl_ulong tm_start;
-//	cl_ulong tm_end;
-//	struct coprthr_event imp;
 	struct coprthr_device* dev;
 	struct coprthr_event* ev1;
 };

@@ -30,7 +30,6 @@ struct coprthr_event {
 	pthread_mutex_t mtx;
 	pthread_cond_t sig;
 	struct cmdcall_arg* cmd_argp;
-//	TAILQ_ENTRY(_cl_event) cmds;
 	TAILQ_ENTRY(coprthr_event) cmds;
 	int cmd;
 	int cmd_stat;
@@ -71,8 +70,6 @@ struct coprthr_command_queue {
    unsigned int qstat;
    struct coprthr_event* cmd_submitted;
    struct coprthr_event* cmd_running;
-//   TAILQ_HEAD(tailhead_cmds_queued,_cl_event) cmds_queued;
-//   TAILQ_HEAD(tailhead_cmds_complete,_cl_event) cmds_complete;
    TAILQ_HEAD(tailhead_cmds_queued,coprthr_event) cmds_queued;
    TAILQ_HEAD(tailhead_cmds_complete,coprthr_event) cmds_complete;
 };

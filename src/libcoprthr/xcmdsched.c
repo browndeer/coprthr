@@ -43,37 +43,28 @@ void* cmdqx1( void* argp )
 
 	struct timeval tv;
 
-//	cl_command_queue cmdq = (cl_command_queue)argp;
 	struct coprthr_device* dev = (struct coprthr_device*)argp;
 	struct coprthr_command_queue* cmdq1 = dev->devstate->cmdq;
-
-//	cl_device_id devid = cmdq->devid;
 
 
 	/* XXX set cpu affinity of td based on device recommendation -DAR */
 	
 	pthread_setaffinity_np(pthread_self(),sizeof(cpu_set_t),
-//		&__resolve_devid(devid,cpumask));
-//		&__resolve_devid_devstate(devid,cpumask));
 		&(dev->devstate->cpumask));
 
 
-//	printcl( CL_DEBUG "cmdqx0: cmdq=%p devid=%p cpumask_count=%d",
-//		cmdq,devid,CPU_COUNT(&__resolve_devid(devid,cpumask)));
 	printcl( CL_DEBUG "cmdqx1: cmdq1=%p dev=%p cpumask_count=?",
 		dev->devstate->cmdq,dev);
+
 /* XXX most of the useful cpu_set macros are missing from rhel/centos 
  * maybe they will get to that after they upgrade to a modern GCC version -DAR
  */
 
 
-//	cmdcall_t* cmdcall = __resolve_devid(cmdq->devid,v_cmdcall);
-//	cmdcall_t* cmdcall = __resolve_devid_devops(cmdq->devid,v_cmdcall);
 	cmdcall_t* cmdcall = dev->devops->v_cmdcall;
 
 	assert(CL_COMMAND_RELEASE_GL_OBJECTS - CLCMD_OFFSET == CLCMD_NUM);
 
-//	cl_event ev;
 	struct coprthr_event* ev1;
 
 	__lock_cmdq1(cmdq1);
@@ -109,14 +100,7 @@ void* cmdqx1( void* argp )
 			printcl( CL_DEBUG "cmdqx1: attempt __lock_event1");
 			__lock_event1(ev1);
 
-//			printcl( CL_DEBUG "cmdqx1: attempt __retain_event1");
-//			__retain_event1(ev1);
-			/* XXX this is moved to when the event is enqueued */
-
-//			TAILQ_REMOVE(&(cmdq1->cmds_queued),ev,imp.cmds);
-//			TAILQ_REMOVE(&(cmdq1->cmds_queued),ev,ev1->cmds);
 			TAILQ_REMOVE(&(cmdq1->cmds_queued),ev1,cmds);
-//			cmdq1->cmd_submitted = ev;
 			cmdq1->cmd_submitted = ev1;
 			ev1->cmd_stat = CL_SUBMITTED;
 			gettimeofday(&tv,0);
@@ -124,8 +108,6 @@ void* cmdqx1( void* argp )
 			ev1->tm_start = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 
 			__unlock_cmdq1(cmdq1);
-//			printcl( CL_DEBUG "%p: submitted %x\n",ev,ev->cmd);
-//			cmdcall[ev->cmd-CLCMD_OFFSET](dev,ev->ev1->cmd_argp);
 			printcl( CL_DEBUG "%p: submitted %x\n",ev1,ev1->cmd);
 			cmdcall[ev1->cmd-CLCMD_OFFSET](dev,ev1->cmd_argp);
 			__lock_cmdq1(cmdq1);
@@ -170,18 +152,13 @@ void* cmdqx1( void* argp )
 
 			ev1 = cmdq1->cmd_running;
 			cmdq1->cmd_running = 0;
-//			TAILQ_INSERT_TAIL(&(cmdq1->cmds_complete),ev,imp.cmds);
-//			TAILQ_INSERT_TAIL(&(cmdq1->cmds_complete),ev,ev1->cmds);
 			TAILQ_INSERT_TAIL(&(cmdq1->cmds_complete),ev1,cmds);
-//			cmdq->imp.cmd_running = ev;
 			ev1->cmd_stat = CL_COMPLETE;
 			gettimeofday(&tv,0);
 			ev1->tm_end = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 
 			__sig_event1(ev1);
 
-//			__release_event1(ev1);
-			/* unlock implicit in release -DAR */
 			__unlock_event1(ev1);
 
 			printcl( CL_DEBUG "%p: complete %x\n",ev1,ev1->cmd);

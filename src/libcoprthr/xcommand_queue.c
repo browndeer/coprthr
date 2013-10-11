@@ -87,7 +87,6 @@ void __do_release_command_queue_1( struct coprthr_device* dev )
 		printcl( CL_WARNING 
 			"__do_release_command_queue_1: cmds_queued not empty");
 
-//		cl_event ev;
 		struct coprthr_event* ev1;
 		for(ev1=cmdq1->cmds_queued.tqh_first; ev1!=0; ev1=ev1->cmds.tqe_next)
 			printcl( CL_DEBUG "cmds_queued: ev %p\n",ev1);
@@ -129,13 +128,10 @@ void __do_enqueue_cmd_1( struct coprthr_device* dev,
 
 	__lock_cmdq1(cmdq1);
 
-//	ev->cmdq = 0;
-//	ev->dev = dev;
 	ev1->dev = dev;
 
 	ev1->cmd_stat = CL_QUEUED;
 
-//	TAILQ_INSERT_TAIL(&cmdq1->cmds_queued,ev,imp.cmds);
 	TAILQ_INSERT_TAIL(&cmdq1->cmds_queued,ev1,cmds);
 
 	__sig_cmdq1(cmdq1);
