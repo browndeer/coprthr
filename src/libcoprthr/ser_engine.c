@@ -452,6 +452,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 				printcl( CL_DEBUG  "argp->k.pr_arg_off[%d]=%p",
 					i,argp->k.pr_arg_off[i]);
 
+/*
 				printcl( CL_DEBUG  "*cl_mem=%p",
 					(*(cl_mem*)p));
 
@@ -460,9 +461,11 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 				devices = ctx->devices;
 				n = 0;
 
-				/* XXX this is a hack, redesign devnum/devid issue -DAR */
-
 				*(void**)p =(*(cl_mem*)p)->imp.res[n];
+*/
+				struct coprthr1_mem* mem1 = *(struct coprthr1_mem**)p;
+				printcl( CL_DEBUG  "mem1=%p",mem1);
+				*(void**)p =mem1->res;
 
 				}
 

@@ -41,7 +41,8 @@ struct cmdcall_arg {
 	union {
 
 		struct {
-			cl_kernel krn;
+//			cl_kernel krn;
+			struct coprthr1_kernel* krn;
 
 			void* ksym;
 			void* kcall;

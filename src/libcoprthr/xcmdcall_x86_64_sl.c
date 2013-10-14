@@ -56,8 +56,8 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 
 	printcl( CL_DEBUG "argp->flags %x\n",argp->flags);
 	printcl( CL_DEBUG "argp->k.krn %p\n",argp->k.krn);
-	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
-	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
+//	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
+//	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
 	
 
 	printcl( CL_DEBUG "argp->k.word_dim %d\n",argp->k.work_dim);
@@ -74,8 +74,6 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 		argp->k.local_work_size[1],
 		argp->k.local_work_size[2]);
 
-//	int base = __resolve_devid_devstate(devid,cpu.veid_base);
-//	int nve = __resolve_devid_devstate(devid,cpu.nve);
 	int base = dev->devstate->cpu.veid_base;
 	int nve = dev->devstate->cpu.nve;
 
@@ -164,18 +162,7 @@ static void* read_buffer_safe(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-/*
-	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
-	unsigned int ndev = ctx->ndev;
-	cl_device_id* devices = ctx->devices;
-	unsigned int n = 0;
-//	while (n < ndev && devices[n] != devid) ++n;
-	while (n < ndev && devices[n]->codev != dev) ++n;
-*/
-
 	void* dst = argp->m.dst;
-//	void* src = ((cl_mem)argp->m.src)->host_ptr;
-//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
@@ -196,20 +183,9 @@ static void* read_buffer( struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-/*
-	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
-	unsigned int ndev = ctx->ndev;
-	cl_device_id* devices = ctx->devices;
-	unsigned int n = 0;
-//	while (n < ndev && devices[n] != devid) ++n;
-	while (n < ndev && devices[n]->codev != dev) ++n;
-*/
-
 	void* dst = argp->m.dst;
-//	void* src = ((cl_mem)argp->m.src)->host_ptr;
-//	void* src = ((cl_mem)argp->m.src)->imp->res[n];
-//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
+	printcl( CL_DEBUG "cmdcall_x86_64:read_buffer m.src %p",argp->m.src);
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
@@ -228,16 +204,6 @@ static void* write_buffer_safe(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-/*
-	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
-	unsigned int ndev = ctx->ndev;
-	cl_device_id* devices = ctx->devices;
-	unsigned int n = 0;
-//	while (n < ndev && devices[n] != devid) ++n;
-	while (n < ndev && devices[n]->codev != dev) ++n;
-*/
-
-//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
 	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
@@ -259,16 +225,6 @@ static void* write_buffer(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-/*
-	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
-	unsigned int ndev = ctx->ndev;
-	cl_device_id* devices = ctx->devices;
-	unsigned int n = 0;
-//	while (n < ndev && devices[n] != devid) ++n;
-	while (n < ndev && devices[n]->codev != dev) ++n;
-*/
-
-//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
 	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
@@ -287,17 +243,6 @@ static void* copy_buffer_safe(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-/*
-	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
-	unsigned int ndev = ctx->ndev;
-	cl_device_id* devices = ctx->devices;
-	unsigned int n = 0;
-//	while (n < ndev && devices[n] != devid) ++n;
-	while (n < ndev && devices[n]->codev != dev) ++n;
-*/
-
-//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
-//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
 	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t dst_offset = argp->m.dst_offset;
@@ -321,17 +266,6 @@ static void* copy_buffer(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-/*
-	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
-	unsigned int ndev = ctx->ndev;
-	cl_device_id* devices = ctx->devices;
-	unsigned int n = 0;
-//	while (n < ndev && devices[n] != devid) ++n;
-	while (n < ndev && devices[n]->codev != dev) ++n;
-*/
-
-//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
-//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
 	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t dst_offset = argp->m.dst_offset;
@@ -351,17 +285,7 @@ static void* read_image(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-/*
-	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
-	unsigned int ndev = ctx->ndev;
-	cl_device_id* devices = ctx->devices;
-	unsigned int n = 0;
-//	while (n < ndev && devices[n] != devid) ++n;
-	while (n < ndev && devices[n]->codev != dev) ++n;
-*/
-
 	void* dst = argp->m.dst;
-//	void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
 	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t offset = argp->m.src_offset + 128;
 
@@ -401,16 +325,6 @@ static void* write_image(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-/*
-	cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
-	unsigned int ndev = ctx->ndev;
-	cl_device_id* devices = ctx->devices;
-	unsigned int n = 0;
-//	while (n < ndev && devices[n] != devid) ++n;
-	while (n < ndev && devices[n]->codev != dev) ++n;
-*/
-
-//	void* dst = ((cl_mem)argp->m.dst)->mem1[n]->res;
 	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset + 128;
@@ -492,16 +406,6 @@ static void* map_buffer(struct coprthr_device* dev, void* p)
 /* XXX need to add the 1.2 flag -DAR */
 //	if ( !__test_flags(argp->flags,CL_MAP_WRITE_INVALIDATE_REGION) ) {
 
-/*
-   cl_context ctx = ((cl_mem)argp->m.src)->ctx;
-   unsigned int ndev = ctx->ndev;
-   cl_device_id* devices = ctx->devices;
-   unsigned int n = 0;
-//   while (n < ndev && devices[n] != devid) ++n;
-   while (n < ndev && devices[n]->codev != dev) ++n;
-*/
-
-//   void* src = ((cl_mem)argp->m.src)->mem1[n]->res;
    void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 
    if (ptr==src+offset) return(0);
@@ -535,15 +439,6 @@ static void* unmap_mem_object(struct coprthr_device* dev, void* p)
 	if ( __test_flags(argp->flags,CL_MAP_WRITE) ) {
 //	if (__test_flags(argp->flags,CL_MAP_WRITE|CL_MAP_WRITE_INVALIDATE_REGION)) {
 //		write_buffer_safe( devid, p );
-
-/*
-		cl_context ctx = ((cl_mem)argp->m.dst)->ctx;
-		unsigned int ndev = ctx->ndev;
-		cl_device_id* devices = ctx->devices;
-		unsigned int n = 0;
-//		while (n < ndev && devices[n] != devid) ++n;
-		while (n < ndev && devices[n]->codev != dev) ++n;
-*/
 
 		void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 

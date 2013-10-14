@@ -175,8 +175,9 @@ cl_int __do_build_program_from_binary_1(
 			int narg = 0; 
 			int arg;
 			for(arg=arg0;arg;arg=prg1->clargtab[arg].e_nxt,narg++);
-			printcl( CL_DEBUG "%s has %d args\n",prg1->kname[i],narg);
+			printcl( CL_DEBUG "%s has %d args",prg1->kname[i],narg);
 			prg1->knarg[i] = narg;
+			printcl( CL_DEBUG "narg set %d %d",i,prg1->knarg[i] );
 			prg1->karg_kind[i] = (cl_uint*)malloc(narg*sizeof(cl_uint));
 			prg1->karg_sz[i] = (size_t*)malloc(narg*sizeof(size_t));
 
@@ -613,6 +614,18 @@ void* coprthr_link( int dd, struct coprthr1_program* prg1, const char* kname )
 
 	if (k==prg1->nkrn) return((void*)-1);
 
-	return((void*)(intptr_t)k);
+	struct coprthr1_kernel* krn1 = (struct coprthr1_kernel*)
+		malloc(sizeof(struct coprthr1_kernel));
+
+	printcl( CL_DEBUG "coprthr_link: krn1 %p",krn1);
+
+	krn1->prg1 = prg1;
+	krn1->knum= k;
+	printcl( CL_DEBUG "HERE %d",krn1->prg1->knarg[0]);
+	__do_create_kernel_1(krn1);
+
+	printcl( CL_DEBUG "HERE %p",krn1->arg_buf);
+
+	return(krn1);
 }
 

@@ -44,6 +44,9 @@ void __do_release_memobj(cl_mem memobj)
 			__resolve_devid_devinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU
 		) {
 
+			printcl( CL_DEBUG "__do_release_memobj: %p",memobj->mem1[i]);
+			printcl( CL_DEBUG "__do_release_memobj: %p",memobj->mem1[i]->res);
+
 			if (memobj->mem1[i]->res) free(memobj->mem1[i]->res);
 
 		} else if (
@@ -80,10 +83,14 @@ void __do_create_buffer(cl_mem memobj)
 
 			printcl("XXX memalloc %p",
 				__resolve_devid_devops(ctx->devices[i],memalloc));
+/*
 			memobj->mem1[i] = (struct coprthr1_mem*)
 				malloc(sizeof(struct coprthr1_mem));
 			memobj->mem1[i]->res 
 				= __resolve_devid_devops(ctx->devices[i],memalloc)(memobj->sz,0);
+*/
+			memobj->mem1[i] = (struct coprthr1_mem*)
+				__resolve_devid_devops(ctx->devices[i],memalloc)(memobj->sz,0);
 			memobj->mem1[i]->sz = memobj->sz;
 
 			if (memobj->sz > 0 && memobj->mem1[i]->res == 0) {
@@ -189,13 +196,25 @@ void __do_create_image2d(cl_mem memobj)
 // device mem operations
 
 void* __coprthr_memalloc( size_t sz, int flags )
-{ return malloc(sz); }
+//{ return malloc(sz); }
+{
+	struct coprthr1_mem* mem1 = (struct coprthr1_mem*)
+		malloc(sizeof(struct coprthr1_mem));
+	mem1->res = malloc(sz);
+	return(mem1); 
+}
 
 void* __coprthr_memrealloc( void* ptr, size_t sz, int flags)
 { return realloc(ptr,sz); }
 
-void __coprthr_memfree( void* memptr, int flags )
-{ free(memptr); }
+void __coprthr_memfree( void* dptr, int flags )
+{
+	struct coprthr1_mem* mem1 = (struct coprthr1_mem*)dptr; 
+	if (mem1) {
+		if (mem1->res) free(mem1->res);
+		free(mem1);
+	}
+}
 
 size_t __coprthr_memread( void* memptr, void* buf, size_t sz )
 { memcpy(memptr,buf,sz); return sz; }
@@ -230,6 +249,7 @@ void* coprthr_drealloc( int dd, void* dptr, size_t sizeb, int flags )
 		return(0);
 }
 
+/*
 size_t coprthr_dmwrite( int dd, void* dptr, void* buf, size_t sizeb)
 {
 	if (dd < 256 && __ddtab[dd]) 
@@ -237,7 +257,9 @@ size_t coprthr_dmwrite( int dd, void* dptr, void* buf, size_t sizeb)
 	else 
 		return(0);
 }
+*/
 
+/*
 size_t coprthr_dmread( int dd, void* dptr, void* buf, size_t sizeb)
 {
 	if (dd < 256 && __ddtab[dd]) 
@@ -245,6 +267,7 @@ size_t coprthr_dmread( int dd, void* dptr, void* buf, size_t sizeb)
 	else 
 		return(0);
 }
+*/
 
 void* coprthr_dmmap( int dd, void* dptr, size_t sizeb, int flags, void* ptr )
 {

@@ -404,6 +404,13 @@ int coprthr_dopen( const char* name, int flags )
 		++__ddtab_nxt;
 	} while(__ddtab_nxt<256 && __ddtab[__ddtab_nxt]);
 
+	struct coprthr_device* dev = __ddtab[dd];
+	printcl( CL_DEBUG "coprthr_dopen: dev->devstate->cmdq %p",
+		dev->devstate->cmdq);
+	__do_create_command_queue_1(dev);
+	printcl( CL_DEBUG "coprthr_dopen: dev->devstate->cmdq %p",
+		dev->devstate->cmdq);
+
 	return dd;	
 }
 
