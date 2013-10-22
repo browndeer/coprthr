@@ -39,27 +39,41 @@
 #define _GNU_SOURCE
 #include <dlfcn.h>
 
-
+/*
 void __do_create_program(cl_program prg) 
 {
 	printcl( CL_DEBUG "__do_create_program with ndev = %d",prg->ndev);
 
 }
+*/
 
 
+void __do_release_program_1(struct coprthr1_program* prg1) 
+{
+		if (prg1->dlh) dlclose(prg1->dlh);
+		if (prg1->dlfile) {
+			unlink(prg1->dlfile);
+			free(prg1->dlfile);
+		}
+}
+
+/*
 void __do_release_program(cl_program prg) 
 {
 	int i;
 	for(i=0;i<prg->ndev;i++) {
-		if (prg->prg1[i]->dlh) dlclose(prg->prg1[i]->dlh);
-		if (prg->prg1[i]->dlfile) {
-			unlink(prg->prg1[i]->dlfile);
-			free(prg->prg1[i]->dlfile);
-		}
+		__do_release_prgram_1(prg->prg1[i]);
+//		if (prg->prg1[i]->dlh) dlclose(prg->prg1[i]->dlh);
+//		if (prg->prg1[i]->dlfile) {
+//			unlink(prg->prg1[i]->dlfile);
+//			free(prg->prg1[i]->dlfile);
+//		}
 	}
 
 }
+*/
 
+/*
 cl_int __do_build_program_from_binary(
 	cl_program prg,cl_device_id devid, cl_uint devnum
 ){ 
@@ -68,10 +82,11 @@ cl_int __do_build_program_from_binary(
 	prg->nkrn = prg->prg1[0]->nkrn;
 	return(retval);
 }
+*/
 
 int bind_ksyms_default(struct _coprthr_ksyms_struct* ksyms,void* h,char* kname);
 
-cl_int __do_build_program_from_binary_1(
+unsigned int __do_build_program_from_binary_1(
 	struct coprthr1_program* prg1
 ){ 
 
@@ -482,10 +497,10 @@ cl_int __do_build_program_from_binary_1(
 
 	}
 
-	return(CL_SUCCESS); 
+	return(0); 
 }
 
-
+#if(0)
 cl_int __do_build_program_from_source(
 	cl_program prg,cl_device_id devid, cl_uint devnum
 ){ 
@@ -513,8 +528,9 @@ cl_int __do_build_program_from_source(
 
 	return((cl_int)err);
 }
+#endif
 
-
+/*
 int __do_check_compiler_available( cl_device_id devid )
 {
 
@@ -522,8 +538,9 @@ int __do_check_compiler_available( cl_device_id devid )
 
 	return(1);
 }
+*/
 
-
+#if(0)
 /* XXX this routine uses devnum 0 as a hack, fix it -DAR */
 int __do_find_kernel_in_program( cl_program prg, const char* kname )
 {
@@ -540,6 +557,7 @@ int __do_find_kernel_in_program( cl_program prg, const char* kname )
 
 	return(k);
 }
+#endif
 
 int bind_ksyms_default( 
 	struct _coprthr_ksyms_struct* ksyms, void* h, char* kname )

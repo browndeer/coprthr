@@ -23,12 +23,11 @@
 #ifndef _cmdcall
 #define _cmdcall
 
-#include <CL/cl.h>
+//#include <CL/cl.h>
 
 #define CLCMD_OFFSET (CL_COMMAND_NDRANGE_KERNEL - 1)
 #define CLCMD_NUM 17
 
-//typedef void*(*cmdcall_t)(cl_device_id devid, void* cmd_argp);
 struct coprthr_device;
 typedef void*(*cmdcall_t)(struct coprthr_device* dev, void* cmd_argp);
 
@@ -41,7 +40,6 @@ struct cmdcall_arg {
 	union {
 
 		struct {
-//			cl_kernel krn;
 			struct coprthr1_kernel* krn;
 
 			void* ksym;
@@ -97,7 +95,7 @@ struct cmdcall_arg {
 	} while(0)
 
 
-unsigned int __get_global_id(cl_uint dim);
+unsigned int __get_global_id(unsigned int dim);
 
 
 #endif
