@@ -73,7 +73,7 @@ SCRIPTS = ../scripts/
 OCLCALL_MASTER = ../libocl/oclcall.master
 
 INCS += -I. -I$(TOPDIR)/include -I$(TOPDIR)/src/libcoprthrcc
-INCS += -I../coprthr-common
+INCS += -I../libcoprthr_opencl
 
 INCS += $(LIBELF_INC)
 
@@ -122,7 +122,7 @@ XCLNM_YYPREFIX = __xclnm_
 TARGET = libcoprthr.so 
 TARGET += icd.c
 
-VPATH = ../coprthr-common/
+VPATH = ../libcoprthr_opencl/
 
 all: $(TARGET) 
 

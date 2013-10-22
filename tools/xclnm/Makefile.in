@@ -25,7 +25,7 @@ INSTALL_MAN_DIR=@mandir@
 
 #INCS = -I. -I../../src/xcl
 INCS = -I. -I../../src/libcoprthr -I../../src/libcoprthrcc -I../../include
-INCS += -I../../src/coprthr-common
+INCS += -I../../src/libcoprthr_opencl
 
 #ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 #INCS += -I/usr/local/include

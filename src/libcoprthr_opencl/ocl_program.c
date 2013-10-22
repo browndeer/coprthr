@@ -25,10 +25,22 @@
 
 #include "xcl_structs.h"
 #include "printcl.h"
+#include "compiler.h"
+
+void __do_create_program(cl_program prg);
+void __do_release_program(cl_program prg);
+
+cl_int __do_build_program_from_binary( cl_program prg,cl_device_id devid, 
+	cl_uint devnum);
+
+cl_int __do_build_program_from_source( cl_program prg,cl_device_id devid, 
+	cl_uint devnum);
+
+int __do_find_kernel_in_program( cl_program prg, const char* kname );
+int __do_check_compiler_available( cl_device_id devid );
 
 
 // Program Object APIs
-
 
 cl_program 
 _clCreateProgramWithSource(
@@ -489,4 +501,86 @@ clGetProgramBuildInfo( cl_program prg, cl_device_id devid,
     size_t* param_sz_ret)
 	__attribute__((alias("_clGetProgramBuildInfo")));
 
+
+/*
+ * Internal program implementation calls
+ */
+
+void __do_create_program(cl_program prg)
+{
+   printcl( CL_DEBUG "__do_create_program with ndev = %d",prg->ndev);
+
+}
+
+
+void __do_release_program(cl_program prg)
+{
+   int i;
+   for(i=0;i<prg->ndev;i++) {
+      __do_release_program_1(prg->prg1[i]);
+   }
+
+}
+
+cl_int __do_build_program_from_binary(
+   cl_program prg,cl_device_id devid, cl_uint devnum
+){
+   printcl( CL_DEBUG "__do_build_program_from_binary");
+   int retval = __do_build_program_from_binary_1(prg->prg1[devnum]);
+   prg->nkrn = prg->prg1[0]->nkrn;
+   return(retval);
+}
+
+cl_int __do_build_program_from_source(
+   cl_program prg,cl_device_id devid, cl_uint devnum
+){
+
+   printcl( CL_DEBUG "__do_build_program_from_source");
+
+   compiler_t comp = (compiler_t)__resolve_devid_devcomp(devid,comp);
+
+   if (!comp) return(CL_COMPILER_NOT_AVAILABLE);
+
+   printcl( CL_DEBUG
+      "__do_build_program_from_source: compiler=%p",comp);
+
+   /* XXX should optimize JIT by checking for device equivalence -DAR */
+
+   printcl( CL_DEBUG "build_options[%d] |%s|",
+      devnum,prg->prg1[devnum]->build_opt);
+
+   int err = comp( devid, prg->prg1[devnum]->src,prg->prg1[devnum]->src_sz,
+      &prg->prg1[devnum]->bin,
+      &prg->prg1[devnum]->bin_sz, prg->prg1[devnum]->build_opt,
+      &prg->prg1[devnum]->build_log);
+
+   if (!err) err = __do_build_program_from_binary(prg,devid,devnum);
+
+   return((cl_int)err);
+}
+
+/* XXX this routine uses devnum 0 as a hack, fix it -DAR */
+int __do_find_kernel_in_program( cl_program prg, const char* kname )
+{
+   int k;
+
+   printcl( CL_DEBUG "nkrn %d",prg->prg1[0]->nkrn);
+
+   for(k=0;k<prg->prg1[0]->nkrn;k++) {
+      printcl( CL_DEBUG "compare |%s|%s\n",prg->prg1[0]->kname[k],kname);
+      if (!strncmp(prg->prg1[0]->kname[k],kname,__CLMAXSTR_LEN)) break;
+   }
+
+   if (k==prg->prg1[0]->nkrn) return(-1);
+
+   return(k);
+}
+
+int __do_check_compiler_available( cl_device_id devid )
+{
+
+   if (!__resolve_devid_devcomp(devid,comp)) return(0);
+
+   return(1);
+}
 
