@@ -23,6 +23,8 @@
 #ifndef _coprthr_device_h
 #define _coprthr_device_h
 
+#include <CL/cl.h>
+
 #include "cmdcall.h"
 #include "cpuset_type.h"
 

@@ -25,11 +25,11 @@
 
 #include "xcl_structs.h"
 
-void __do_create_kernel(cl_kernel, cl_uint knum);
 
-void __do_release_kernel(cl_kernel);
- 
-int __do_set_kernel_arg(cl_kernel, cl_uint, size_t arg_sz, const void* arg_val);
+void __do_create_kernel_1(struct coprthr1_kernel* krn1 );
+int __do_set_kernel_arg_1( struct coprthr1_kernel* krn1, unsigned int argn, 
+	size_t arg_sz, const void* arg_val);
+
 
 #endif
 

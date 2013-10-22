@@ -39,15 +39,6 @@
 #define _GNU_SOURCE
 #include <dlfcn.h>
 
-/*
-void __do_create_program(cl_program prg) 
-{
-	printcl( CL_DEBUG "__do_create_program with ndev = %d",prg->ndev);
-
-}
-*/
-
-
 void __do_release_program_1(struct coprthr1_program* prg1) 
 {
 		if (prg1->dlh) dlclose(prg1->dlh);
@@ -56,33 +47,6 @@ void __do_release_program_1(struct coprthr1_program* prg1)
 			free(prg1->dlfile);
 		}
 }
-
-/*
-void __do_release_program(cl_program prg) 
-{
-	int i;
-	for(i=0;i<prg->ndev;i++) {
-		__do_release_prgram_1(prg->prg1[i]);
-//		if (prg->prg1[i]->dlh) dlclose(prg->prg1[i]->dlh);
-//		if (prg->prg1[i]->dlfile) {
-//			unlink(prg->prg1[i]->dlfile);
-//			free(prg->prg1[i]->dlfile);
-//		}
-	}
-
-}
-*/
-
-/*
-cl_int __do_build_program_from_binary(
-	cl_program prg,cl_device_id devid, cl_uint devnum
-){ 
-	printcl( CL_DEBUG "__do_build_program_from_binary");
-	int retval = __do_build_program_from_binary_1(prg->prg1[devnum]);
-	prg->nkrn = prg->prg1[0]->nkrn;
-	return(retval);
-}
-*/
 
 int bind_ksyms_default(struct _coprthr_ksyms_struct* ksyms,void* h,char* kname);
 
@@ -500,65 +464,6 @@ unsigned int __do_build_program_from_binary_1(
 	return(0); 
 }
 
-#if(0)
-cl_int __do_build_program_from_source(
-	cl_program prg,cl_device_id devid, cl_uint devnum
-){ 
-
-	printcl( CL_DEBUG "__do_build_program_from_source");
-
-	compiler_t comp = (compiler_t)__resolve_devid_devcomp(devid,comp);
-
-	if (!comp) return(CL_COMPILER_NOT_AVAILABLE);
-	
-	printcl( CL_DEBUG 
-		"__do_build_program_from_source: compiler=%p",comp);	
-
-	/* XXX should optimize JIT by checking for device equivalence -DAR */
-
-	printcl( CL_DEBUG "build_options[%d] |%s|",
-		devnum,prg->prg1[devnum]->build_opt);
-
-	int err = comp( devid, prg->prg1[devnum]->src,prg->prg1[devnum]->src_sz, 
-		&prg->prg1[devnum]->bin,
-		&prg->prg1[devnum]->bin_sz, prg->prg1[devnum]->build_opt,
-		&prg->prg1[devnum]->build_log);
-
-	if (!err) err = __do_build_program_from_binary(prg,devid,devnum);
-
-	return((cl_int)err);
-}
-#endif
-
-/*
-int __do_check_compiler_available( cl_device_id devid )
-{
-
-	if (!__resolve_devid_devcomp(devid,comp)) return(0);
-
-	return(1);
-}
-*/
-
-#if(0)
-/* XXX this routine uses devnum 0 as a hack, fix it -DAR */
-int __do_find_kernel_in_program( cl_program prg, const char* kname )
-{
-	int k;
-
-	printcl( CL_DEBUG "nkrn %d",prg->prg1[0]->nkrn);
-
-	for(k=0;k<prg->prg1[0]->nkrn;k++) {
-		printcl( CL_DEBUG "compare |%s|%s\n",prg->prg1[0]->kname[k],kname);
-		if (!strncmp(prg->prg1[0]->kname[k],kname,__CLMAXSTR_LEN)) break;
-	}
-
-	if (k==prg->prg1[0]->nkrn) return(-1);
-
-	return(k);
-}
-#endif
-
 int bind_ksyms_default( 
 	struct _coprthr_ksyms_struct* ksyms, void* h, char* kname )
 {
@@ -628,33 +533,6 @@ void* coprthr_compile( int dd, char* src, size_t len, char* opt, char** log )
 		return coprthr_devcompile(__ddtab[dd],src,len,opt,log);
 	else
 		return 0;
-
-/*
-		compiler_t comp = (compiler_t)__ddtab[dd]->devcomp->comp;
-		
-		if (!comp) return(0);
-	
-		printcl( CL_DEBUG "coprthr_compile: compiler=%p",comp);	
-
-		printcl( CL_DEBUG "build_opt |%s|", opt);
-
-		struct coprthr1_program* prg1
-			= (struct coprthr1_program*)malloc(sizeof(struct coprthr1_program));
-
-		prg1->src = src;
-		prg1->src_sz = len;
-		prg1->build_opt = opt;
-
-		int err = comp( 0, prg1->src,prg1->src_sz, 
-			&prg1->bin, &prg1->bin_sz, prg1->build_opt, &prg1->build_log);
-
-		if (!err) err = __do_build_program_from_binary_1(prg1);
-
-		return(prg1);
-
-	} else return(0);
-*/
-
 }
 
 
@@ -690,30 +568,5 @@ void* coprthr_link( int dd, struct coprthr1_program* prg1, const char* kname )
 		return coprthr_devlink(__ddtab[dd],prg1,kname);
 	else
 		return 0;
-
-/*
-	int k;
-
-	for(k=0;k<prg1->nkrn;k++) {
-		printcl( CL_DEBUG "compare |%s|%s\n",prg1->kname[k],kname);
-		if (!strncmp(prg1->kname[k],kname,__CLMAXSTR_LEN)) break;
-	}
-
-	if (k==prg1->nkrn) return((void*)-1);
-
-	struct coprthr1_kernel* krn1 = (struct coprthr1_kernel*)
-		malloc(sizeof(struct coprthr1_kernel));
-
-	printcl( CL_DEBUG "coprthr_link: krn1 %p",krn1);
-
-	krn1->prg1 = prg1;
-	krn1->knum= k;
-	printcl( CL_DEBUG "HERE %d",krn1->prg1->knarg[0]);
-	__do_create_kernel_1(krn1);
-
-	printcl( CL_DEBUG "HERE %p",krn1->arg_buf);
-
-	return(krn1);
-*/
 }
 
