@@ -1,6 +1,6 @@
 /* ocl_command_queue.c 
  *
- * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -31,8 +31,14 @@
 #include "xcl_structs.h"
 #include "printcl.h"
 
-// Command Queue API Calls
 
+void __do_create_command_queue( cl_command_queue cmdq );
+void __do_release_command_queue( cl_command_queue cmdq );
+void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev );
+void __do_finish( cl_command_queue cmdq );
+
+
+// Command Queue API Calls
 	 
 cl_command_queue 
 _clCreateCommandQueue(
@@ -224,5 +230,50 @@ cl_int
 clSetCommandQueueProperty( cl_command_queue, cl_command_queue_properties,
    cl_bool, cl_command_queue_properties*)
    __attribute__((alias("_clSetCommandQueueProperty")));
+
+
+/*
+ * Internal command queueu implementation calls
+ */
+
+
+void __do_create_command_queue( cl_command_queue cmdq ) 
+{
+	__do_create_command_queue_1( cmdq->devid->codev );
+	cmdq->ptr_imp = cmdq->devid->codev->devstate->cmdq;
+	
+   cl_context ctx = cmdq->ctx;
+   unsigned int ndev = ctx->ndev;
+   cl_device_id* devices = ctx->devices;
+   unsigned int n = 0;
+   while (n < ndev && devices[n]->codev != cmdq->devid->codev) ++n;
+	cmdq->devnum = n;
+
+	printcl( CL_DEBUG "__do_create_command_queue: devnum=%d",n);
+}
+
+
+
+void __do_release_command_queue( cl_command_queue cmdq ) 
+{
+	__do_release_command_queue_1(cmdq->devid->codev);
+}
+
+
+
+void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev ) 
+{
+	ev->ev1->cmd = ev->cmd;
+	__do_enqueue_cmd_1( cmdq->devid->codev, ev->ev1);
+	ev->cmdq = cmdq;
+	ev->dev = cmdq->devid->codev;
+	__retain_event(ev);
+}
+
+
+void __do_finish( cl_command_queue cmdq )
+{
+	__do_finish_1( cmdq->devid->codev );
+}
 
 

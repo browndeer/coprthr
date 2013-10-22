@@ -29,7 +29,7 @@
 #include "printcl.h"
 
 
-void __do_release_event(cl_event ev);
+//void __do_release_event(cl_event ev);
 
 
 
@@ -114,6 +114,7 @@ void __do_release_event(cl_event ev);
  * set cmd 
  */
 
+/*
 void __do_set_cmd_read_buffer( 
 	cl_event ev, 
 	cl_mem src, size_t src_offset, size_t len, 
@@ -204,15 +205,69 @@ void __do_set_cmd_task(
 	cl_event ev,
 	cl_kernel krn
 );
+*/
 
 
 /*
  *	wait
  */
 
-void __do_wait_for_events(cl_uint nev, const cl_event* evlist );
+//void __do_wait_for_events(cl_uint nev, const cl_event* evlist );
 
 
+void __do_release_event_1(struct coprthr_event* ev1) ;
+
+void __do_set_cmd_read_buffer_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* src1, size_t src_offset, size_t len, void* dst);
+
+void __do_set_cmd_write_buffer_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* dst1, size_t dst_offset, size_t len, const void* src);
+
+void __do_set_cmd_copy_buffer_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* src1, struct coprthr1_mem* dst1, size_t src_offset, 
+	size_t dst_offset, size_t len );
+
+
+void __do_set_cmd_read_image_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* src1, const size_t* src_origin, const size_t* region, 
+	size_t row_pitch, size_t slice_pitch, void* dst);
+
+void __do_set_cmd_write_image_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* dst1, const size_t* dst_origin, const size_t* region, 
+	size_t row_pitch, size_t slice_pitch, const void* src);
+
+void __do_set_cmd_copy_image_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* src1, struct coprthr1_mem* dst1, 
+	const size_t* src_origin, const size_t* dst_origin, const size_t* region);
+
+void __do_set_cmd_copy_image_to_buffer_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* src1, struct coprthr1_mem* dst1, 
+	const size_t* src_origin, const size_t* region, size_t dst_offset);
+
+void __do_set_cmd_copy_buffer_to_image_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* src1, struct coprthr1_mem* dst1, size_t src_offset, 
+	const size_t* dst_origin, const size_t* region);
+
+void __do_set_cmd_map_buffer_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* membuf1, cl_map_flags flags, size_t offset, size_t len,
+	void* pp);
+
+void __do_set_cmd_map_image_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* image1, cl_map_flags flags, const size_t* origin, 
+	const size_t* region, size_t* row_pitch, size_t* slice_pitch, void* p);
+
+void __do_set_cmd_unmap_memobj_1( struct coprthr_event* ev1, 
+	struct coprthr1_mem* memobj1, void* p);
+
+void __do_set_cmd_ndrange_kernel_1( struct coprthr_event* ev1,
+	struct coprthr1_kernel* krn1, unsigned int work_dim, 
+	const size_t* global_work_offset, const size_t* global_work_size,
+	const size_t* local_work_size);
+
+void __do_set_cmd_task_1( struct coprthr_event* ev1, 
+	struct coprthr1_kernel* krn1);
+
+void __do_wait_1( struct coprthr_event* ev1 );
 
 #endif
 
