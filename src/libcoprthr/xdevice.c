@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <dlfcn.h>
+#include <errno.h>
 
 #if defined(__FreeBSD__)
 #include <sys/types.h>
@@ -45,6 +46,8 @@
 #include "cmdcall_x86_64_sl.h"
 #include "compiler.h"
 #include "program.h"
+
+#include "coprthr.h"
 
 
 #ifndef min
@@ -380,6 +383,34 @@ unsigned int __ndev = 0;
 struct coprthr_device* __ddtab[256] = { [0 ... 255] = 0 };
 int __ddtab_nxt = 0;
 
+void* coprthr_getdev( const char* name, int flags )
+{
+
+	if (!__devtab) {
+		__do_discover_devices_1(&__ndev,&__devtab,1);
+	}
+
+	int idev = -1;
+
+	intptr_t iname = (intptr_t)name;
+
+	if (iname < 256 && iname < __ndev)
+		idev = (int)iname;
+
+	struct coprthr_device* dev = __devtab[idev];
+
+	printcl( CL_DEBUG "coprthr_devget: dev->devstate->cmdq %p",
+		dev->devstate->cmdq);
+
+	__do_create_command_queue_1(dev);
+
+	printcl( CL_DEBUG "coprthr_devget: dev->devstate->cmdq %p",
+		dev->devstate->cmdq);
+
+	return dev;
+}
+
+
 int coprthr_dopen( const char* name, int flags )
 {
 
@@ -421,8 +452,60 @@ int coprthr_dclose(int dd)
 		__ddtab[dd] = 0;
 		if (dd<__ddtab_nxt) __ddtab_nxt = dd;
 		return 0;
-	} else return -1;
+	} else return EBADF;
 }
 
 
+#define __coprthr_is_locked(dev) 0
+#define __coprthr_lock(dev) do {} while(0)
+#define __coprthr_device_init(dev) do {} while(0)
+
+pid_t __coprthr_lock_pid = 0;
+
+#define __return_errno(e) do { errno = e; return e; } while(0)
+
+int coprthr_devlock( struct coprthr_device* dev, int flags )
+{
+	if (!dev)
+//		return EINVAL;
+		__return_errno(EINVAL);
+
+	if (__coprthr_is_locked(dev) || (flags&COPRTHR_DEVLOCK_NOWAIT) )
+//		return EAGAIN;
+		__return_errno(EAGAIN);
+
+	while( __coprthr_is_locked(dev) );
+
+	__coprthr_lock(dev);
+
+	dev->devstate->locked_pid = getpid();
+
+	if (!(flags&COPRTHR_DEVLOCK_NOINIT))
+		__coprthr_device_init(dev);
+
+	return 0;
+
+}
+
+
+int coprthr_devunlock( struct coprthr_device* dev, int flags )
+{
+	if (!dev)
+//		return EINVAL;
+		__return_errno(EINVAL);
+
+	if (!__coprthr_is_locked(dev))
+//		return EPERM;
+		__return_errno(EPERM);
+
+	if (dev->devstate->locked_pid != getpid())
+//		return EACCES;
+		__return_errno(EACCES);
+
+	dev->devstate->locked_pid = 0;
+
+	__coprthr_unlock(dev);
+
+	return 0;
+}
 

@@ -186,8 +186,38 @@ void __do_finish_1( struct coprthr_device* dev )
 
 }
 
+
 void __do_finish( cl_command_queue cmdq )
 {
 	__do_finish_1( cmdq->devid->codev );
+}
+
+
+void __do_exec_cmd_1( struct coprthr_device* dev, 
+	struct coprthr_event* ev1 ) 
+{
+	cmdcall_t* cmdcall = dev->devops->v_cmdcall;
+
+	struct timeval tv;
+
+	printcl( CL_DEBUG "__do_exec_cmd_1: ev %p",ev1);
+
+	ev1->dev = dev;
+
+	ev1->tm_submit = 0;
+	ev1->tm_queued = 0;
+
+	ev1->cmd_stat = CL_RUNNING;
+
+	gettimeofday(&tv,0);
+	ev1->tm_start = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
+
+	cmdcall[ev1->cmd-CLCMD_OFFSET](dev,ev1->cmd_argp);
+
+	gettimeofday(&tv,0);
+	ev1->tm_end = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
+
+	ev1->cmd_stat = CL_COMPLETE;
+
 }
 

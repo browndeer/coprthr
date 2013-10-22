@@ -91,6 +91,7 @@ void __do_release_event(cl_event ev);
 	} while(0)
 
 #define __unlock_event1(ev1) do { \
+	printcl( CL_DEBUG "__unlock_event1: attempt unlock %p",ev1); \
 	pthread_mutex_unlock(&(ev1->mtx)); \
 	printcl( CL_DEBUG "__unlock_event1: unlocked %p",ev1); \
 	} while(0)
@@ -102,8 +103,9 @@ void __do_release_event(cl_event ev);
 	} while(0)
 
 #define __sig_event1(ev1) do { \
-	printcl( CL_DEBUG "__sig_event1: %p",ev1); \
+	printcl( CL_DEBUG "__sig_event1: attempt signal %p",ev1); \
 	pthread_cond_signal(&(ev1->sig)); \
+	printcl( CL_DEBUG "__sig_event1: signaled %p",ev1); \
 	} while(0)
 
 

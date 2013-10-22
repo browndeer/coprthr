@@ -27,6 +27,7 @@
 #include "memobj.h"
 
 #include "xdevice.h"
+#include "coprthr.h"
 
 void __do_create_memobj(cl_mem memobj) {}
 
@@ -226,19 +227,40 @@ size_t __coprthr_memcopy( void* memptr_src, void* memptr_dst, size_t sz)
 { memcpy(memptr_dst,memptr_src,sz); return sz; }
 
 
+void* coprthr_devmemalloc( 
+	struct coprthr_device* dev,
+	void* addr, size_t nmemb, size_t size,
+	int flags
+)
+{
+	if ( flags & COPRTHR_DEVMEM_TYPEMASK & dev->devinfo->memsup )
+		return dev->devops->memalloc(nmemb*size,flags);
+	else
+		return 0;
+}
 
 void* coprthr_dmalloc( int dd, size_t sizeb, int flags )
 {
 	if (dd < 256 && __ddtab[dd]) 
-		return(__ddtab[dd]->devops->memalloc(sizeb,flags));
+//		return(__ddtab[dd]->devops->memalloc(sizeb,flags));
+		return
+			coprthr_devmemalloc(__ddtab[dd],0,sizeb,1,COPRTHR_DEVMEM_TYPE_BUFFER);
 	else 
 		return(0);
 }
 
+void coprthr_devmemfree( struct coprthr_device* dev, struct coprthr1_mem* mem1 )
+{
+	if (dev) 
+		dev->devops->memfree(mem1,0);
+}
+
+
 void coprthr_dfree( int dd, void* ptr )
 {
 	if (dd < 256 && __ddtab[dd]) 
-		__ddtab[dd]->devops->memfree(ptr,0);
+//		__ddtab[dd]->devops->memfree(ptr,0);
+		coprthr_devmemfree(__ddtab[dd],ptr);
 }
 
 void* coprthr_drealloc( int dd, void* dptr, size_t sizeb, int flags )

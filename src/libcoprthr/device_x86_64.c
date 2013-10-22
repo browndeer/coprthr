@@ -47,6 +47,7 @@
 #include "memobj.h"
 
 #include "coprthr_device.h"
+#include "coprthr.h"
 
 #ifndef min
 #define min(a,b) ((a<b)?a:b)
@@ -133,6 +134,7 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 		.cmdq_prop = CL_QUEUE_PROFILING_ENABLE, /* cmdq_prop */
 		.platformid = (cl_platform_id)(-1),	/* platformid */
 		.extensions = "cl_khr_icd",		/* extensions */
+		.memsup = COPRTHR_DEVMEM_TYPE_BUFFER
 	};
 
 	codev->devinfo->name = 0;
@@ -345,6 +347,8 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	codev->devstate->cpu.nve = ncore;
 
 	codev->devstate->cmdq = 0;
+
+	codev->devstate->locked_pid = 0;
 
 	printcl( CL_DEBUG "returning codev %p",codev);
 

@@ -606,14 +606,37 @@ void* coprthr_dmread(
 	printcl( CL_DEBUG "coprthr_dmread: dptr %p",dptr);
 	printcl( CL_DEBUG "coprthr_dmread: dptr->res %p",dptr->res);
 
-	struct coprthr_event* ev1 = (struct coprthr_event*)
-		malloc(sizeof(struct coprthr_event));
+//	struct coprthr_event* ev1 = (struct coprthr_event*)
+//		malloc(sizeof(struct coprthr_event));
+	struct coprthr_event* ev1 = 0;
+	__coprthr_init_event(ev1);
 
 	__do_set_cmd_read_buffer_1( ev1, dptr, 0, len, buf );
 
 	struct coprthr_device* dev = __ddtab[dd];
 
 	__do_enqueue_cmd_1( dev,ev1);
+
+	return ev1;
+
+}
+
+void* coprthr_devread( 
+	struct coprthr_device* dev, struct coprthr1_mem* dptr, void* buf,
+	size_t len, int flags
+)
+{
+	printcl( CL_DEBUG "coprthr_devread: dptr %p",dptr);
+	printcl( CL_DEBUG "coprthr_devread: dptr->res %p",dptr->res);
+
+//	struct coprthr_event* ev1 = (struct coprthr_event*)
+//		malloc(sizeof(struct coprthr_event));
+	struct coprthr_event* ev1 = 0;
+	__coprthr_init_event(ev1);
+
+	__do_set_cmd_read_buffer_1( ev1, dptr, 0, len, buf );
+
+	__do_exec_cmd_1( dev,ev1);
 
 	return ev1;
 
@@ -626,8 +649,10 @@ void* coprthr_dmwrite(
 	printcl( CL_DEBUG "coprthr_dmwrite: dptr %p",dptr);
 	printcl( CL_DEBUG "coprthr_dmwrite: dptr->res %p",dptr->res);
 
-	struct coprthr_event* ev1 = (struct coprthr_event*)
-		malloc(sizeof(struct coprthr_event));
+//	struct coprthr_event* ev1 = (struct coprthr_event*)
+//		malloc(sizeof(struct coprthr_event));
+	struct coprthr_event* ev1 = 0;
+	__coprthr_init_event(ev1);
 
 	__do_set_cmd_write_buffer_1( ev1, dptr, 0, len, buf );
 
@@ -639,7 +664,28 @@ void* coprthr_dmwrite(
 
 }
 
-void coprthr_dwaitev( struct coprthr_event* ev1)
+void* coprthr_devwrite( 
+	struct coprthr_device* dev, struct coprthr1_mem* dptr, void* buf, 
+	size_t len, int flags
+)
+{
+	printcl( CL_DEBUG "coprthr_devwrite: dptr %p",dptr);
+	printcl( CL_DEBUG "coprthr_devwrite: dptr->res %p",dptr->res);
+
+//	struct coprthr_event* ev1 = (struct coprthr_event*)
+//		malloc(sizeof(struct coprthr_event));
+	struct coprthr_event* ev1 = 0;
+	__coprthr_init_event(ev1);
+
+	__do_set_cmd_write_buffer_1( ev1, dptr, 0, len, buf );
+
+	__do_exec_cmd_1( dev,ev1);
+
+	return ev1;
+
+}
+
+void coprthr_dwaitev( int dd, struct coprthr_event* ev1)
 { __do_wait_1(ev1); }
 
 
@@ -655,8 +701,10 @@ void* coprthr_dexec(
 		__do_set_kernel_arg_1(krn1,iarg,0,args[iarg]);
 	}
 
-	struct coprthr_event* ev1 = (struct coprthr_event*)
-		malloc(sizeof(struct coprthr_event));
+//	struct coprthr_event* ev1 = (struct coprthr_event*)
+//		malloc(sizeof(struct coprthr_event));
+	struct coprthr_event* ev1 = 0;
+	__coprthr_init_event(ev1);
 
 	size_t gwo = 0;
 	size_t gws = nthr;
@@ -667,6 +715,32 @@ void* coprthr_dexec(
 	struct coprthr_device* dev = __ddtab[dd];
 
 	__do_enqueue_cmd_1( dev,ev1);
+
+	return ev1;
+}
+
+void* coprthr_devexec( 
+	struct coprthr_device* dev, int nthr, struct coprthr1_kernel* krn1, 
+	unsigned int narg, void** args 
+)
+{
+	printcl( CL_DEBUG "coprthr_devexec");
+
+	int iarg;
+	for(iarg=0;iarg<narg;iarg++) {
+		__do_set_kernel_arg_1(krn1,iarg,0,args[iarg]);
+	}
+
+	struct coprthr_event* ev1 = (struct coprthr_event*)
+		malloc(sizeof(struct coprthr_event));
+
+	size_t gwo = 0;
+	size_t gws = nthr;
+	size_t lws = 1;
+
+	__do_set_cmd_ndrange_kernel_1( ev1, krn1, 1, &gwo, &gws, &lws);
+
+	__do_exec_cmd_1( dev,ev1);
 
 	return ev1;
 }

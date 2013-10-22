@@ -76,6 +76,7 @@ struct coprthr_device_info {
 	char* profile;
 	char* version;
 	char* extensions;
+	int memsup;
 };
 
 struct coprthr_command_queue;
@@ -90,6 +91,7 @@ struct coprthr_device_state {
 		} cpu;
 	};
 	struct coprthr_command_queue* cmdq;
+	pid_t locked_pid;
 };
 
 

@@ -54,7 +54,7 @@ struct cmdcall_arg {
 			uint32_t* pr_arg_off;
 			void* pr_arg_buf;
 
-			cl_uint work_dim;
+			unsigned int work_dim;
 			size_t global_work_offset[3];
 			size_t global_work_size[3];
 			size_t local_work_size[3];
@@ -97,7 +97,7 @@ struct cmdcall_arg {
 	} while(0)
 
 
-cl_uint __get_global_id(cl_uint dim);
+unsigned int __get_global_id(cl_uint dim);
 
 
 #endif
