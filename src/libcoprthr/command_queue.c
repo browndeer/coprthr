@@ -64,6 +64,7 @@ void __do_create_command_queue_1( struct coprthr_device* dev )
 	printcl( CL_DEBUG "signaled cmdq1 with qstat ->1\n");
 }
 
+/*
 void __do_create_command_queue( cl_command_queue cmdq ) 
 {
 	__do_create_command_queue_1( cmdq->devid->codev );
@@ -78,7 +79,7 @@ void __do_create_command_queue( cl_command_queue cmdq )
 
 	printcl( CL_DEBUG "__do_create_command_queue: devnum=%d",n);
 }
-
+*/
 
 
 void __do_release_command_queue_1( struct coprthr_device* dev ) 
@@ -117,11 +118,12 @@ void __do_release_command_queue_1( struct coprthr_device* dev )
 
 }
 
+/*
 void __do_release_command_queue( cl_command_queue cmdq ) 
 {
 	__do_release_command_queue_1(cmdq->devid->codev);
 }
-
+*/
 
 
 void __do_enqueue_cmd_1( struct coprthr_device* dev, 
@@ -153,6 +155,8 @@ void __do_enqueue_cmd_1( struct coprthr_device* dev,
 
 }
 
+
+/*
 void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev ) 
 {
 	ev->ev1->cmd = ev->cmd;
@@ -161,6 +165,7 @@ void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev )
 	ev->dev = cmdq->devid->codev;
 	__retain_event(ev);
 }
+*/
 
 
 void __do_finish_1( struct coprthr_device* dev )
@@ -186,11 +191,12 @@ void __do_finish_1( struct coprthr_device* dev )
 
 }
 
-
+/*
 void __do_finish( cl_command_queue cmdq )
 {
 	__do_finish_1( cmdq->devid->codev );
 }
+*/
 
 
 void __do_exec_cmd_1( struct coprthr_device* dev, 

@@ -47,17 +47,15 @@ void __do_release_event_1(struct coprthr_event* ev1)
 	printcl( CL_DEBUG "__do_release_event_1: success");
 }
 
+/*
 void __do_release_event(cl_event ev) 
 {
-	/* XXX may need to check state of event for controlled release -DAR */
-
-	/* XXX this assumes the ev is on cmds_complete, check this first! -DAR */
 
 	__do_release_event_1(ev->ev1);
 	ev->cmdq = 0;
 	ev->dev = 0;
 }
-
+*/
 
 
 #define __copy3(dst,src) do { \
@@ -103,6 +101,7 @@ void __do_set_cmd_read_buffer_1(
 	ev1->cmd_argp->m.len = len;
 }
 
+/*
 void __do_set_cmd_read_buffer( 
 	cl_event ev, cl_mem src, size_t src_offset, size_t len, void* dst
 )
@@ -111,6 +110,7 @@ void __do_set_cmd_read_buffer(
 	__do_set_cmd_read_buffer_1( ev->ev1, src->mem1[n], src_offset, len, dst); 
 }
 
+*/
 
 void __do_set_cmd_write_buffer_1( 
 	struct coprthr_event* ev1, 
@@ -130,6 +130,7 @@ void __do_set_cmd_write_buffer_1(
 	ev1->cmd_argp->m.len = len;
 }
 
+/*
 void __do_set_cmd_write_buffer( 
 	cl_event ev, cl_mem dst, size_t dst_offset, size_t len, const void* src
 )
@@ -137,6 +138,7 @@ void __do_set_cmd_write_buffer(
 	unsigned int n = ev->cmdq->devnum;
 	__do_set_cmd_write_buffer_1( ev->ev1, dst->mem1[n], dst_offset, len, src); 
 }
+*/
 
 
 void __do_set_cmd_copy_buffer_1( 
@@ -156,6 +158,7 @@ void __do_set_cmd_copy_buffer_1(
 	ev1->cmd_argp->m.len = len;
 }
 
+/*
 void __do_set_cmd_copy_buffer( 
 	cl_event ev, cl_mem src, cl_mem dst, 
 	size_t src_offset, size_t dst_offset, size_t len 
@@ -165,7 +168,7 @@ void __do_set_cmd_copy_buffer(
 	__do_set_cmd_copy_buffer_1( ev->ev1, src->mem1[n], dst->mem1[n], 
 		src_offset, dst_offset, len);
 }
-
+*/
 
 void __do_set_cmd_read_image_1( 
 	struct coprthr_event* ev1, 
@@ -192,6 +195,7 @@ void __do_set_cmd_read_image_1(
 	ev1->cmd_argp->m.slice_pitch = (void*)slice_pitch;
 }
 
+/*
 void __do_set_cmd_read_image( 
 	cl_event ev, cl_mem src, const size_t* src_origin, const size_t* region, 
 	size_t row_pitch, size_t slice_pitch, void* dst
@@ -201,7 +205,7 @@ void __do_set_cmd_read_image(
 	__do_set_cmd_read_image_1( ev->ev1, src->mem1[n], src_origin, region, 
 		row_pitch, slice_pitch, dst);
 }
-
+*/
 
 void __do_set_cmd_write_image_1( 
 	struct coprthr_event* ev1, 
@@ -223,6 +227,7 @@ void __do_set_cmd_write_image_1(
 	ev1->cmd_argp->m.slice_pitch = (void*)slice_pitch;
 }
 
+/*
 void __do_set_cmd_write_image( 
 	cl_event ev, 
 	cl_mem dst, 
@@ -235,7 +240,7 @@ void __do_set_cmd_write_image(
 	__do_set_cmd_write_image_1( ev->ev1, dst->mem1[n], dst_origin, 
 		region, row_pitch, slice_pitch, src);
 }
-
+*/
 
 void __do_set_cmd_copy_image_1( 
 	struct coprthr_event* ev1, 
@@ -255,6 +260,7 @@ void __do_set_cmd_copy_image_1(
 	__copy3(ev1->cmd_argp->m.region,region);
 }
 
+/*
 void __do_set_cmd_copy_image( 
 	cl_event ev, 
 	cl_mem src, cl_mem dst, 
@@ -266,6 +272,7 @@ void __do_set_cmd_copy_image(
 	__do_set_cmd_copy_image_1(ev->ev1,src->mem1[n],dst->mem1[n],src_origin,
 		dst_origin,region);
 }
+*/
 
 
 void __do_set_cmd_copy_image_to_buffer_1( 
@@ -286,6 +293,7 @@ void __do_set_cmd_copy_image_to_buffer_1(
 	__copy3(ev1->cmd_argp->m.region,region);
 }
 
+/*
 void __do_set_cmd_copy_image_to_buffer( 
 	cl_event ev, 
 	cl_mem src, cl_mem dst, 
@@ -297,7 +305,7 @@ void __do_set_cmd_copy_image_to_buffer(
 	__do_set_cmd_copy_image_to_buffer_1( ev->ev1, src->mem1[n], dst->mem1[n], 
 		src_origin, region, dst_offset);
 }
-
+*/
 
 void __do_set_cmd_copy_buffer_to_image_1( 
 	struct coprthr_event* ev1, 
@@ -317,6 +325,7 @@ void __do_set_cmd_copy_buffer_to_image_1(
 	__copy3(ev1->cmd_argp->m.region,region);
 }
 
+/*
 void __do_set_cmd_copy_buffer_to_image( 
 	cl_event ev, 
 	cl_mem src, cl_mem dst, 
@@ -328,7 +337,7 @@ void __do_set_cmd_copy_buffer_to_image(
 	__do_set_cmd_copy_buffer_to_image_1( ev->ev1, src->mem1[n], dst->mem1[n],
 		src_offset, dst_origin, region);
 }
-
+*/
 
 void __do_set_cmd_map_buffer_1( 
 	struct coprthr_event* ev1, 
@@ -348,6 +357,7 @@ void __do_set_cmd_map_buffer_1(
 	ev1->cmd_argp->m.len = len;
 }
 
+/*
 void __do_set_cmd_map_buffer( 
 	cl_event ev, 
 	cl_mem membuf,
@@ -358,7 +368,7 @@ void __do_set_cmd_map_buffer(
 	unsigned int n = ev->cmdq->devnum;
 	__do_set_cmd_map_buffer_1(ev->ev1, membuf->mem1[n], flags, offset, len, pp); 
 }
-
+*/
 
 void __do_set_cmd_map_image_1( 
 	struct coprthr_event* ev1, 
@@ -381,6 +391,7 @@ void __do_set_cmd_map_image_1(
 	ev1->cmd_argp->m.slice_pitch = (void*)slice_pitch;
 }
 
+/*
 void __do_set_cmd_map_image( 
 	cl_event ev, 
 	cl_mem image,
@@ -393,7 +404,7 @@ void __do_set_cmd_map_image(
 	__do_set_cmd_map_image_1( ev->ev1, image->mem1[n], flags, origin, region, 
 		row_pitch, slice_pitch, p);
 }
-
+*/
 
 void __do_set_cmd_unmap_memobj_1( 
 	struct coprthr_event* ev1, 
@@ -408,6 +419,7 @@ void __do_set_cmd_unmap_memobj_1(
 	ev1->cmd_argp->m.src = (void*)memobj1;
 }
 
+/*
 void __do_set_cmd_unmap_memobj( 
 	cl_event ev, 
 	cl_mem memobj, void* p
@@ -416,6 +428,7 @@ void __do_set_cmd_unmap_memobj(
 	unsigned int n = ev->cmdq->devnum;
 	__do_set_cmd_unmap_memobj_1( ev->ev1, memobj->mem1[n], p); 
 }
+*/
 
 
 void __do_set_cmd_ndrange_kernel_1(
@@ -494,6 +507,7 @@ void __do_set_cmd_ndrange_kernel_1(
 
 }
 
+/*
 void __do_set_cmd_ndrange_kernel(
 	cl_command_queue cmdq,
 	cl_event ev,
@@ -509,6 +523,8 @@ void __do_set_cmd_ndrange_kernel(
 	__do_set_cmd_ndrange_kernel_1( ev->ev1, krn->krn1[n], work_dim, 
 		global_work_offset, global_work_size, local_work_size);
 }
+*/
+
 
 //void __do_set_cmd_task_1( struct coprthr_event* ev1, cl_kernel krn)
 void __do_set_cmd_task_1( 
@@ -557,11 +573,13 @@ void __do_set_cmd_task_1(
 #endif
 }
 
+/*
 void __do_set_cmd_task( cl_event ev, cl_kernel krn)
 { 
 	unsigned int n = ev->cmdq->devnum;
 	__do_set_cmd_task_1( ev->ev1, krn->krn1[n]); 
 }
+*/
 
 
 /*
@@ -586,6 +604,7 @@ void __do_wait_1( struct coprthr_event* ev1 )
 		__unlock_event1(ev1);
 }
 
+/*
 void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 {
 	int i;
@@ -595,6 +614,7 @@ void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 		__do_wait_1(evlist[i]->ev1);
 
 }
+*/
 
 
 #include "xdevice.h"
