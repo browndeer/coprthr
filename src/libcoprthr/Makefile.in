@@ -56,7 +56,8 @@ IMP_OBJS = device.o device_x86_64.o \
 	watermark.o \
 	cmdcall_x86_64_sl.o sl_engine.o 
 
-INSTALL_HDRS = sl_engine.h ser_engine.h workp.h opencl_lift.h coprthr.h
+#INSTALL_HDRS = sl_engine.h ser_engine.h workp.h opencl_lift.h coprthr.h
+INSTALL_HDRS = sl_engine.h ser_engine.h workp.h coprthr.h
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
@@ -173,6 +174,7 @@ install:
 	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
+	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
 #	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
 #	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
 #	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(INSTALL_ICD_DIR)/coprthr.icd
@@ -181,11 +183,12 @@ install:
 
 uninstall: 
 	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so 
-	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
-	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,sl_engine.h)
-	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,ser_engine.h)
-	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,workp.h)
-	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,opencl_lift.h)
+#	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
+#	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,sl_engine.h)
+#	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,ser_engine.h)
+#	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,workp.h)
+#	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,opencl_lift.h)
+	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,$(INSTALL_HDRS))
 #	rm -f $(INSTALL_ICD_DIR)/coprthr.icd
 #	rm -f $(OPENCL_ICD_PATH)/coprthr.icd
 
