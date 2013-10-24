@@ -1,6 +1,6 @@
 /* memobj.h
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -23,15 +23,10 @@
 #ifndef _memobj_h
 #define _memobj_h
 
-#include "xcl_structs.h"
-
-void __do_create_memobj(cl_mem memobj);
-
-void __do_release_memobj(cl_mem memobj);
-
-void __do_create_buffer(cl_mem memobj);
-
-void __do_create_image2d(cl_mem memobj);
+//void __do_create_memobj(cl_mem memobj);
+//void __do_release_memobj(cl_mem memobj);
+//void __do_create_buffer(cl_mem memobj);
+//void __do_create_image2d(cl_mem memobj);
 
 void* __coprthr_memalloc( size_t sz, int flags );
 void* __coprthr_memrealloc( void* ptr, size_t sz, int flags);

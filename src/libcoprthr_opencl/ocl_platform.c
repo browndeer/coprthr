@@ -223,7 +223,7 @@ void __do_discover_platforms()
    __init_platform_id(__ptab);
 
        for(i=0;i<__ndevices;i++)
-          __dtab[0].codev->devinfo->platformid = __ptab;
+          __dtab[0].ocldevinfo->platformid = __ptab;
 
 }
 

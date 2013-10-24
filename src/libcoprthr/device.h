@@ -23,16 +23,18 @@
 #ifndef _device_h
 #define _device_h
 
-#include <CL/cl.h>
+typedef struct coprthr_device* (*__coprthr_device_discover_t) (void);
 
-#include "xcl_structs.h"
+void __do_discover_devices_1(
+   unsigned int* p_ndevices,
+   struct coprthr_device*** p_devtab,
+   int flag
+);
 
-void __do_discover_devices( unsigned int* ndevices, 
-	struct _cl_device_id**, int flags );
-
-void __do_get_ndevices(cl_platform_id, cl_device_type, cl_uint*);
-
-void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
+extern struct coprthr_device** __devtab;
+extern unsigned int __ndev;
+extern struct coprthr_device* __ddtab[256];
+extern int __ddtab_nxt0;
 
 #endif
 

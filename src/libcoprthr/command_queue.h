@@ -23,7 +23,8 @@
 #ifndef _command_queue_h
 #define _command_queue_h
 
-#include "xcl_structs.h"
+#include "coprthr_device.h"
+#include "coprthr_sched.h"
 
 //#define __lock_cmdq(cmdq) pthread_mutex_lock(&((cmdq)->ptr_imp->mtx))
 #define __lock_cmdq1(cmdq1) pthread_mutex_lock( &((cmdq1)->mtx) )

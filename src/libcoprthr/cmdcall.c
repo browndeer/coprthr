@@ -21,13 +21,11 @@
 /* DAR */
 
 
-#include <CL/cl.h>
-
 #include "cmdcall.h"
 
-cl_uint __global_id[3] = { 0,0,0 };
+unsigned int __global_id[3] = { 0,0,0 };
 
-cl_uint __get_global_id(cl_uint dim)
+unsigned int __get_global_id(unsigned int dim)
 { return(__global_id[dim]); }
 
 

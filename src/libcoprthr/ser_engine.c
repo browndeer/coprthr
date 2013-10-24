@@ -32,9 +32,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <CL/cl.h>
-
-#include "xcl_structs.h"
 #include "cmdcall.h"
 #include "workp.h"
 #include "cpuset_type.h"

@@ -29,6 +29,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 #include <dlfcn.h>
 
 #if defined(__FreeBSD__)
@@ -36,9 +37,6 @@
 #include <sys/sysctl.h>
 #endif
 
-#include <CL/cl.h>
-
-#include "xcl_structs.h"
 #include "device.h"
 #include "cmdcall.h"
 #include "cmdcall_x86_64_sl.h"
@@ -46,12 +44,16 @@
 #include "program.h"
 #include "memobj.h"
 
+#include "coprthr_arch.h"
 #include "coprthr_device.h"
 #include "coprthr.h"
 
 #ifndef min
 #define min(a,b) ((a<b)?a:b)
 #endif
+
+#define __CLMAXSTR_LEN 1023
+#define __CLMAXSTR_BUFSZ (__CLMAXSTR_LEN+1)
 
 char* strnlen_ws( char* p, char* s, size_t maxlen)
 {
@@ -91,50 +93,52 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	unsigned int ncpu = 1;
 
 	*codev->devinfo = (struct coprthr_device_info){
-		.devtype = CL_DEVICE_TYPE_CPU,
-		.vendorid = 0,				/* vendorid */
-		.max_compute_units = 1,				/* max_compute_units */
-		.max_wi_dim = 3,
-		.max_wi_sz = {1,1,1,0},	/* max_wi_dim,max_wi_sz[] */
-		.max_wg_sz = 64,				/* max_wg_sz */
-		.pref_charn = 8,
-		.pref_shortn = 4,
-		.pref_intn = 2,
-		.pref_longn = 1,
-		.pref_floatn = 2,
-		.pref_doublen = 1,	/* pref_char/short/int/long/float/double/n */
-		.max_freq = 0,				/* max_freq */
-		.addr_bits = 64,			/* bits */
-		.max_mem_alloc_sz = 1024*1024*1024,		/* max_mem_alloc_sz */
-		.supp_img = CL_FALSE,	/* supp_img */
-		.img_max_narg_r = 0, 
-		.img_max_narg_w = 0, 			/* img_max_narg_r, img_max_narg_w */
-		.img2d_max_width = 0,
-		.img2d_max_height = 0,			/* img2d_max_width, img2d_max_height */
-		.img3d_max_width = 0,
-		.img3d_max_height = 0,
-		.img3d_max_depth = 0,/* img3d_max_width,img3d_max_height,img3d_max_depth*/
-		.max_samplers = 0, 			/* max_samplers */
-		.max_param_sz = 256, 			/* max_param_sz */
-		.mem_align_bits = 64, 			/* mem_align_bits */
-		.datatype_align_sz = 8, 			/* datatype_align_sz */
-		.single_fp_config = CL_FP_ROUND_TO_NEAREST|CL_FP_INF_NAN, /* single_fp_config */
-		.global_mem_cache_type = CL_NONE, 	/* global_mem_cache_type */
-		.global_mem_cacheline_sz = 0, 			/* global_mem_cacheline_sz */
-		.global_mem_cache_sz = 0, 			/* global_mem_cache_sz */
-		.global_mem_sz = 0, 			/* global_mem_sz */
-		.max_const_buffer_sz = 65536, 		/* cl_ulong max_const_buffer_sz */
-		.max_const_narg = 8, 			/* max_const_narg */
-		.local_mem_type = CL_GLOBAL, 	/* local_mem_type */
-		.local_mem_sz = 0, 			/* local_mem_sz */
-		.supp_ec = CL_FALSE,	/* supp_ec */
-		.prof_timer_res = 0, 			/* prof_timer_res */
-		.endian_little = CL_TRUE,		/* endian_little */
-		.supp_exec_cap = CL_EXEC_KERNEL,	/* supp_exec_cap */
-		.cmdq_prop = CL_QUEUE_PROFILING_ENABLE, /* cmdq_prop */
-		.platformid = (cl_platform_id)(-1),	/* platformid */
-		.extensions = "cl_khr_icd",		/* extensions */
-		.memsup = COPRTHR_DEVMEM_TYPE_BUFFER
+//		.devtype = CL_DEVICE_TYPE_CPU,
+//		.vendorid = 0,				/* vendorid */
+//		.max_compute_units = 1,				/* max_compute_units */
+//		.max_wi_dim = 3,
+//		.max_wi_sz = {1,1,1,0},	/* max_wi_dim,max_wi_sz[] */
+//		.max_wg_sz = 64,				/* max_wg_sz */
+//		.pref_charn = 8,
+//		.pref_shortn = 4,
+//		.pref_intn = 2,
+//		.pref_longn = 1,
+//		.pref_floatn = 2,
+//		.pref_doublen = 1,	/* pref_char/short/int/long/float/double/n */
+//		.max_freq = 0,				/* max_freq */
+//		.addr_bits = 64,			/* bits */
+//		.max_mem_alloc_sz = 1024*1024*1024,		/* max_mem_alloc_sz */
+//		.supp_img = CL_FALSE,	/* supp_img */
+//		.img_max_narg_r = 0, 
+//		.img_max_narg_w = 0, 			/* img_max_narg_r, img_max_narg_w */
+//		.img2d_max_width = 0,
+//		.img2d_max_height = 0,			/* img2d_max_width, img2d_max_height */
+//		.img3d_max_width = 0,
+//		.img3d_max_height = 0,
+//		.img3d_max_depth = 0,/* img3d_max_width,img3d_max_height,img3d_max_depth*/
+//		.max_samplers = 0, 			/* max_samplers */
+//		.max_param_sz = 256, 			/* max_param_sz */
+//		.mem_align_bits = 64, 			/* mem_align_bits */
+//		.datatype_align_sz = 8, 			/* datatype_align_sz */
+//		.single_fp_config = CL_FP_ROUND_TO_NEAREST|CL_FP_INF_NAN, /* single_fp_config */
+//		.global_mem_cache_type = CL_NONE, 	/* global_mem_cache_type */
+//		.global_mem_cacheline_sz = 0, 			/* global_mem_cacheline_sz */
+//		.global_mem_cache_sz = 0, 			/* global_mem_cache_sz */
+//		.global_mem_sz = 0, 			/* global_mem_sz */
+//		.max_const_buffer_sz = 65536, 		/* cl_ulong max_const_buffer_sz */
+//		.max_const_narg = 8, 			/* max_const_narg */
+//		.local_mem_type = CL_GLOBAL, 	/* local_mem_type */
+//		.local_mem_sz = 0, 			/* local_mem_sz */
+//		.supp_ec = CL_FALSE,	/* supp_ec */
+//		.prof_timer_res = 0, 			/* prof_timer_res */
+//		.endian_little = CL_TRUE,		/* endian_little */
+//		.supp_exec_cap = CL_EXEC_KERNEL,	/* supp_exec_cap */
+//		.cmdq_prop = CL_QUEUE_PROFILING_ENABLE, /* cmdq_prop */
+//		.platformid = (cl_platform_id)(-1),	/* platformid */
+//		.extensions = "cl_khr_icd",		/* extensions */
+
+		.memsup = COPRTHR_DEVMEM_TYPE_BUFFER,
+		.arch_id = COPRTHR_ARCH_ID_X86_64
 	};
 
 	codev->devinfo->name = 0;
@@ -327,9 +331,9 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 
 	if (!codev->devcomp->comp) {
 		printcl( CL_WARNING "no compiler, dlsym failure");
-		codev->devstate->compiler_avail = CL_FALSE;
+		codev->devstate->compiler_avail = 0;
 	} else {
-		codev->devstate->compiler_avail = CL_TRUE;
+		codev->devstate->compiler_avail = 1;
 	}
 
 
@@ -340,7 +344,7 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	if (getenv("COPRTHR_MAX_NUM_ENGINES"))
 		ncore = min(ncore,atoi(getenv("COPRTHR_MAX_NUM_ENGINES")));
 
-	codev->devstate->avail = CL_TRUE;
+	codev->devstate->avail = 1;
 	CPU_ZERO(&(codev->devstate->cpumask));
 	for(i=0;i<ncore;i++) CPU_SET(i,&(codev->devstate->cpumask));
 	codev->devstate->cpu.veid_base = 0;

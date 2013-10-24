@@ -29,7 +29,7 @@
 
 #ifdef __xcl_kcall__
 /* XXX this brings in the vec types.  temporary soln. improve it. -DAR */
-#include <CL/cl.h>
+/*
 typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef cl_char2 char2;
@@ -45,6 +45,22 @@ typedef cl_ulong2 ulong2;
 typedef cl_float2 float2;
 typedef cl_float4 float4;
 typedef cl_double2 double2;
+*/
+typedef unsigned char uchar;
+typedef unsigned int uint;
+typedef char char2[2];
+typedef char char4[4];
+typedef uchar uchar2[2];
+typedef uchar uchar4[4];
+typedef int int2[2];
+typedef int int4[4];
+typedef uint uint2[2];
+typedef uint uint4[4];
+typedef long long2[2];
+typedef ulong ulong2[2];
+typedef float float2[2];
+typedef float float4[4];
+typedef double double2[2];
 #endif
 
 

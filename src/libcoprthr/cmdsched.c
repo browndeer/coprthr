@@ -25,7 +25,6 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-#include <CL/cl.h>
 #include <assert.h>
 
 #include "printcl.h"
@@ -35,8 +34,9 @@
 #include "cmdcall.h"
 #include "event.h"
 
+#include "coprthr_sched.h"
 
-#define __CL_COMMAND_OFFSET (CL_COMMAND_NDRANGE_KERNEL-1)
+#define __CL_COMMAND_OFFSET (__CL_COMMAND_NDRANGE_KERNEL-1)
 
 void* cmdqx1( void* argp )
 {
@@ -63,7 +63,7 @@ void* cmdqx1( void* argp )
 
 	cmdcall_t* cmdcall = dev->devops->v_cmdcall;
 
-	assert(CL_COMMAND_RELEASE_GL_OBJECTS - CLCMD_OFFSET == CLCMD_NUM);
+	assert(__CL_COMMAND_RELEASE_GL_OBJECTS - CLCMD_OFFSET == CLCMD_NUM);
 
 	struct coprthr_event* ev1;
 
@@ -102,7 +102,7 @@ void* cmdqx1( void* argp )
 
 			TAILQ_REMOVE(&(cmdq1->cmds_queued),ev1,cmds);
 			cmdq1->cmd_submitted = ev1;
-			ev1->cmd_stat = CL_SUBMITTED;
+			ev1->cmd_stat = __CL_SUBMITTED;
 			gettimeofday(&tv,0);
 			ev1->tm_submit = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 			ev1->tm_start = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
@@ -132,7 +132,7 @@ void* cmdqx1( void* argp )
 			ev1 = cmdq1->cmd_submitted;
 			cmdq1->cmd_submitted = 0;
 			cmdq1->cmd_running = ev1;
-			ev1->cmd_stat = CL_RUNNING;
+			ev1->cmd_stat = __CL_RUNNING;
 
 			__unlock_cmdq1(cmdq1);
 			printcl( CL_DEBUG "%p: running %x\n",ev1,ev1->cmd);
@@ -153,7 +153,7 @@ void* cmdqx1( void* argp )
 			ev1 = cmdq1->cmd_running;
 			cmdq1->cmd_running = 0;
 			TAILQ_INSERT_TAIL(&(cmdq1->cmds_complete),ev1,cmds);
-			ev1->cmd_stat = CL_COMPLETE;
+			ev1->cmd_stat = __CL_COMPLETE;
 			gettimeofday(&tv,0);
 			ev1->tm_end = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 

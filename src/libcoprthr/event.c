@@ -1,6 +1,6 @@
 /* event.c
  *
- * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,11 +20,9 @@
 
 /* DAR */
 
-#include <CL/cl.h>
-
-#include "xcl_structs.h"
 #include "printcl.h"
 #include "event.h"
+#include "device.h"
 #include "command_queue.h"
 
 #include "coprthr_sched.h"
@@ -89,7 +87,7 @@ void __do_set_cmd_read_buffer_1(
 {
 	printcl( CL_DEBUG "__do_set_cmd_read_buffer_1: src1=%p",src1);
 
-	ev1->cmd = CL_COMMAND_READ_BUFFER;
+	ev1->cmd = __CL_COMMAND_READ_BUFFER;
 
 	ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
@@ -118,7 +116,7 @@ void __do_set_cmd_write_buffer_1(
 	const void* src
 )
 {
-	ev1->cmd = CL_COMMAND_WRITE_BUFFER;
+	ev1->cmd = __CL_COMMAND_WRITE_BUFFER;
 
 	ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
@@ -342,7 +340,8 @@ void __do_set_cmd_copy_buffer_to_image(
 void __do_set_cmd_map_buffer_1( 
 	struct coprthr_event* ev1, 
 	struct coprthr1_mem* membuf1,
-	cl_map_flags flags, size_t offset, size_t len,
+//	cl_map_flags flags, size_t offset, size_t len,
+	int flags, size_t offset, size_t len,
 	void* pp
 )
 {
@@ -373,7 +372,8 @@ void __do_set_cmd_map_buffer(
 void __do_set_cmd_map_image_1( 
 	struct coprthr_event* ev1, 
 	struct coprthr1_mem* image1,
-	cl_map_flags flags, const size_t* origin, const size_t* region,
+//	cl_map_flags flags, const size_t* origin, const size_t* region,
+	int flags, const size_t* origin, const size_t* region,
 	size_t* row_pitch, size_t* slice_pitch,
 	void* p
 )
@@ -447,7 +447,7 @@ void __do_set_cmd_ndrange_kernel_1(
 	struct cmdcall_arg* argp = ev1->cmd_argp 
 		= (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
-	ev1->cmd = CL_COMMAND_NDRANGE_KERNEL;
+	ev1->cmd = __CL_COMMAND_NDRANGE_KERNEL;
 
 	__init_cmdcall_arg(argp);
 
@@ -593,7 +593,7 @@ void __do_wait_1( struct coprthr_event* ev1 )
 
 		__lock_event1(ev1);
 
-		while (ev1->cmd_stat != CL_COMPLETE) {
+		while (ev1->cmd_stat != __CL_COMPLETE) {
 			printcl( CL_DEBUG "__do_wait_1: wait-sleep\n");
 			__wait_event1(ev1);
 			printcl( CL_DEBUG "__do_wait_1: wait-wake\n");
@@ -617,7 +617,7 @@ void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 */
 
 
-#include "xdevice.h"
+//#include "device.h"
 
 void* coprthr_dmread( 
 	int dd, struct coprthr1_mem* dptr, void* buf, size_t len, int flags

@@ -31,5 +31,7 @@ struct coprthr1_mem {
 	void* cache_ptr;
 };
 
+#define __CL_MAP_WRITE 0x0400 /* XXX temporary hack -DAR */
+
 #endif
 

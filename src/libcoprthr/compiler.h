@@ -25,17 +25,19 @@
 #define _COMPILER_H
 
 #include <stddef.h>
-#include "xcl_structs.h"
 
 //typedef void*(*compiler_t)(cl_device_id,char*,size_t,char*,size_t,char*,char*);
 //typedef void*(*compiler_t)(cl_device_id,char*,size_t,char**,size_t*,char*,char**);
-typedef int(*compiler_t)(cl_device_id,char*,size_t,char**,size_t*,char*,char**);
-typedef void*(*ircompiler_t)(cl_device_id,char*,size_t,char*,size_t,char*,char*);
 
+//typedef int(*compiler_t)(cl_device_id,char*,size_t,char**,size_t*,char*,char**);
+//typedef void*(*ircompiler_t)(cl_device_id,char*,size_t,char*,size_t,char*,char*);
+
+typedef int(*compiler_t)(void*,char*,size_t,char**,size_t*,char*,char**);
+typedef void*(*ircompiler_t)(void*,char*,size_t,char*,size_t,char*,char*);
 
 //void* compile_x86_64(
 int compile_x86_64(
-	cl_device_id devid,
+	void* __deprecated_devid,
    unsigned char* src, size_t src_sz,
    unsigned char** p_bin, size_t* p_bin_sz,
 //   char** opt, char** log
@@ -44,7 +46,7 @@ int compile_x86_64(
 
 //void* compile_arm(
 int compile_arm(
-	cl_device_id devid,
+	void* __deprecated_devid,
    unsigned char* src, size_t src_sz,
    unsigned char** p_bin, size_t* p_bin_sz,
    char* opt, char** p_log

@@ -23,9 +23,13 @@
 #ifndef _cmdcall
 #define _cmdcall
 
-//#include <CL/cl.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include "printcl.h"
 
-#define CLCMD_OFFSET (CL_COMMAND_NDRANGE_KERNEL - 1)
+#include "coprthr_sched.h"
+
+#define CLCMD_OFFSET (__CL_COMMAND_NDRANGE_KERNEL - 1)
 #define CLCMD_NUM 17
 
 struct coprthr_device;
@@ -94,6 +98,12 @@ struct cmdcall_arg {
 	} \
 	} while(0)
 
+#define __clone(dst,src,n,typ) do { \
+   dst = (typ*)malloc(n*sizeof(typ)); \
+   memcpy(dst,src,n*sizeof(typ)); \
+   } while(0)
+
+#define __test_flags(f,g) ( (f) & (g) )
 
 unsigned int __get_global_id(unsigned int dim);
 

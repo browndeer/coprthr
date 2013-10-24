@@ -161,11 +161,9 @@ _clCreateContextFromType(
 
 		printcl( CL_DEBUG 
 			"clCreateContextFromType: compare %x %x",
-//			__resolve_devid(devices[i],devtype),devtype);
-			__resolve_devid_devinfo(devices[i],devtype),devtype);
+			__resolve_devid_ocldevinfo(devices[i],devtype),devtype);
 
-//		if (__resolve_devid(devices[i],devtype)&devtype) 
-		if (__resolve_devid_devinfo(devices[i],devtype)&devtype) 
+		if (__resolve_devid_ocldevinfo(devices[i],devtype)&devtype) 
 			memcpy(devices+(ndev++),devices+i,sizeof(cl_device_id));
 
 	}

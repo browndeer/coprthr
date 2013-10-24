@@ -1,6 +1,6 @@
 /* kernel.c
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,12 +20,15 @@
 
 /* DAR */
 
-#include <CL/cl.h>
+#include <string.h>
+#include <errno.h>
 
-#include "xcl_structs.h"
 #include "printcl.h"
 #include "kernel.h"
 
+#include "coprthr_program.h"
+
+#define __invalid_memobj(memobj) (!memobj)
 
 void __do_create_kernel_1(struct coprthr1_kernel* krn1 )
 {
@@ -98,9 +101,9 @@ int __do_set_kernel_arg_1(
 				arg_sz,krn1->prg1->karg_sz[knum][argn]);
 
 			if (arg_sz != krn1->prg1->karg_sz[knum][argn]) 
-				return(CL_INVALID_ARG_SIZE);
+				return(__CL_INVALID_ARG_SIZE);
 
-			if (!arg_val) return (CL_INVALID_ARG_VALUE);
+			if (!arg_val) return (__CL_INVALID_ARG_VALUE);
 
 			memcpy(p,arg_val,arg_sz);
 
@@ -109,16 +112,18 @@ int __do_set_kernel_arg_1(
 		case CLARG_KIND_GLOBAL:
 
 			if (arg_sz != krn1->prg1->karg_sz[knum][argn]) 
-				return(CL_INVALID_ARG_SIZE);
+				return(__CL_INVALID_ARG_SIZE);
 
-			if (!arg_val) return (CL_INVALID_ARG_VALUE);
+			if (!arg_val) return (__CL_INVALID_ARG_VALUE);
 
-			if (__invalid_memobj(arg_val)) return(CL_INVALID_MEM_OBJECT);
+			if (__invalid_memobj(arg_val)) return(__CL_INVALID_MEM_OBJECT);
 
-			if (arg_sz != sizeof(cl_mem)) return(CL_INVALID_ARG_SIZE);
+//			if (arg_sz != sizeof(cl_mem)) return(__CL_INVALID_ARG_SIZE);
+			if (arg_sz != sizeof(struct coprthr1_mem*)) return(__CL_INVALID_ARG_SIZE);
 
 			printcl( CL_DEBUG "from set arg %p %p",
-				arg_val,*(cl_mem*)arg_val);
+//				arg_val,*(cl_mem*)arg_val);
+				arg_val,*(struct coprthr1_mem**)arg_val);
 
 			memcpy(p,arg_val,arg_sz);
 
@@ -126,9 +131,9 @@ int __do_set_kernel_arg_1(
 
 		case CLARG_KIND_LOCAL:
 
-			if (arg_val) return (CL_INVALID_ARG_VALUE);
+			if (arg_val) return (__CL_INVALID_ARG_VALUE);
 
-			if (arg_sz == 0) return(CL_INVALID_ARG_SIZE);
+			if (arg_sz == 0) return(__CL_INVALID_ARG_SIZE);
 
 			*(size_t*)p = arg_sz;
 
@@ -137,16 +142,18 @@ int __do_set_kernel_arg_1(
 		case CLARG_KIND_CONSTANT:
 
 			if (arg_sz != krn1->prg1->karg_sz[knum][argn]) 
-				return(CL_INVALID_ARG_SIZE);
+				return(__CL_INVALID_ARG_SIZE);
 
-			if (!arg_val) return (CL_INVALID_ARG_VALUE);
+			if (!arg_val) return (__CL_INVALID_ARG_VALUE);
 
-			if (__invalid_memobj(arg_val)) return(CL_INVALID_MEM_OBJECT);
+			if (__invalid_memobj(arg_val)) return(__CL_INVALID_MEM_OBJECT);
 
-			if (arg_sz != sizeof(cl_mem)) return(CL_INVALID_ARG_SIZE);
+//			if (arg_sz != sizeof(cl_mem)) return(__CL_INVALID_ARG_SIZE);
+			if (arg_sz != sizeof(struct coprthr1_mem*)) return(__CL_INVALID_ARG_SIZE);
 
 			printcl( CL_DEBUG "from set arg %p %p",
-				arg_val,*(cl_mem*)arg_val);
+//				arg_val,*(cl_mem*)arg_val);
+				arg_val,*(struct coprthr1_mem**)arg_val);
 
 			memcpy(p,arg_val,arg_sz);
 
@@ -154,24 +161,25 @@ int __do_set_kernel_arg_1(
 
 		case CLARG_KIND_SAMPLER:
 
-			if (arg_sz != sizeof(cl_sampler)) return(CL_INVALID_ARG_SIZE);
+//			if (arg_sz != sizeof(cl_sampler)) return(__CL_INVALID_ARG_SIZE);
+			if (arg_sz != sizeof(void*)) return(__CL_INVALID_ARG_SIZE);
 
 			printcl( CL_ERR "sampler arg not supported");
-			return(CL_ENOTSUP);
+			return(ENOTSUP);
 
 			break;
 
 		case CLARG_KIND_IMAGE2D:
 
 			printcl( CL_ERR "image2d arg not supported");
-			return(CL_ENOTSUP);
+			return(ENOTSUP);
 
 			break;
 
 		case CLARG_KIND_IMAGE3D:
 
 			printcl( CL_ERR "image3d arg not supported");
-			return(CL_ENOTSUP);
+			return(ENOTSUP);
 
 			break;
 
@@ -179,7 +187,7 @@ int __do_set_kernel_arg_1(
 			break;
 	}
 
-	return(CL_SUCCESS);
+	return(0);
 
 }
 

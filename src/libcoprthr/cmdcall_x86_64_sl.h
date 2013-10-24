@@ -1,6 +1,6 @@
 /* cmdcall_x86_64_sl.h
  *
- * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -22,8 +22,6 @@
 
 #ifndef _cmdcall_x86_64_sl_h
 #define _cmdcall_x86_64_sl_h
-
-#include <CL/cl.h>
 
 #include "cmdcall.h"
 

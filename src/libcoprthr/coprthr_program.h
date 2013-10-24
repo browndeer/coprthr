@@ -114,5 +114,10 @@ struct coprthr1_kernel {
 	void* arg_buf;
 };
 
+/* XXX temp hack -DAR */
+#define __CL_INVALID_MEM_OBJECT                       -38
+#define __CL_INVALID_ARG_VALUE                        -50
+#define __CL_INVALID_ARG_SIZE                         -51
+
 #endif
 

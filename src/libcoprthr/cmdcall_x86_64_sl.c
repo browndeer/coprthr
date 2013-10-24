@@ -32,15 +32,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-//#include <CL/cl.h>
-
-#include "xcl_structs.h"
 #include "cmdcall.h"
 #include "workp.h"
-//#include "util.h"
 #include "sl_engine.h"
 
-//#include <setjmp.h>
 #include "coprthr_device.h"
 #include "coprthr_mem.h"
 
@@ -56,8 +51,6 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 
 	printcl( CL_DEBUG "argp->flags %x\n",argp->flags);
 	printcl( CL_DEBUG "argp->k.krn %p\n",argp->k.krn);
-//	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
-//	printcl( CL_DEBUG "argp->k.krn->narg %d\n",argp->k.krn->narg);
 	
 
 	printcl( CL_DEBUG "argp->k.word_dim %d\n",argp->k.work_dim);
@@ -108,7 +101,6 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 
 	};
 
-//	if (!engine_td) engine_startup(0);
 	if (!sl_engine_ready()) sl_engine_startup(0);
 	
 	struct workp* wp = workp_alloc( nve );
@@ -125,13 +117,9 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 	while (e = workp_nxt_entry(wp)) 
 		report_workp_entry(CL_DEBUG,e);
 
-//	common_engine_workp = wp;
-
 	sl_engine_klaunch(base,nve,wp,argp);
 
 	workp_free(wp);
-
-//	common_engine_workp = 0;
 
 	return(0); 
 
@@ -403,9 +391,6 @@ static void* map_buffer(struct coprthr_device* dev, void* p)
 
 	*(void**)argp->m.dst = ptr;
 
-/* XXX need to add the 1.2 flag -DAR */
-//	if ( !__test_flags(argp->flags,CL_MAP_WRITE_INVALIDATE_REGION) ) {
-
    void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 
    if (ptr==src+offset) return(0);
@@ -436,9 +421,8 @@ static void* unmap_mem_object(struct coprthr_device* dev, void* p)
 	void* ptr0 = ptr - 2*sizeof(size_t);
 
 	/* XXX need to add the 1.2 flag -DAR */
-	if ( __test_flags(argp->flags,CL_MAP_WRITE) ) {
-//	if (__test_flags(argp->flags,CL_MAP_WRITE|CL_MAP_WRITE_INVALIDATE_REGION)) {
-//		write_buffer_safe( devid, p );
+
+	if ( __test_flags(argp->flags,__CL_MAP_WRITE) ) {
 
 		void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 

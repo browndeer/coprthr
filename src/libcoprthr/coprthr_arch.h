@@ -1,4 +1,4 @@
-/* xcmdsched.h 
+/* coprthr_arch.h
  *
  * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -20,12 +20,14 @@
 
 /* DAR */
 
-#ifndef _xcmdsched_h
-#define _xcmdsched_h
+#ifndef _coprthr_arch_h
+#define _coprthr_arch_h
 
-//#include <CL/cl.h>
-
-void* cmdqx1( void* p_arg );
+#define COPRTHR_ARCH_ID_X86_64	1
+#define COPRTHR_ARCH_ID_I386		2
+#define COPRTHR_ARCH_ID_ARM32		3
+#define COPRTHR_ARCH_ID_E32_EMEK	4
+#define COPRTHR_ARCH_ID_E32		5
 
 #endif
 

@@ -20,24 +20,25 @@
 
 /* DAR */
 
+#include <string.h>
 #include <dlfcn.h>
 
-#include <CL/cl.h>
-
-#include "xcl_structs.h"
 #include "program.h"
 #include "compiler.h"
 #include "elf_cl.h"
-#include "cmdcall.h" /* XXX this is only used for backdoor -DAR */
+//#include "cmdcall.h" /* XXX this is only used for backdoor -DAR */
 #include "ocl_types.h"
 #include "printcl.h"
 
 #include "coprthr_device.h"
 #include "coprthr_program.h"
-#include "xdevice.h"
+#include "device.h"
 
 #define _GNU_SOURCE
 #include <dlfcn.h>
+
+#define __CLMAXSTR_LEN 1023
+#define __CLMAXSTR_BUFSZ (__CLMAXSTR_LEN+1)
 
 void __do_release_program_1(struct coprthr1_program* prg1) 
 {
@@ -141,9 +142,10 @@ unsigned int __do_build_program_from_binary_1(
 		prg1->nkrn = clsymtab_n; /* XXX assumed, revisit in future -DAR */
 
 		prg1->kname = (char**)malloc(prg1->nkrn*sizeof(char*));
-		prg1->knarg = (cl_uint*)malloc(prg1->nkrn*sizeof(cl_uint));
+		prg1->knarg = (unsigned int*)malloc(prg1->nkrn*sizeof(unsigned int));
 		prg1->karg_buf_sz = (size_t*)malloc(prg1->nkrn*sizeof(size_t));
-		prg1->karg_kind = (cl_uint**)malloc(prg1->nkrn*sizeof(cl_uint*));
+		prg1->karg_kind 
+			= (unsigned int**)malloc(prg1->nkrn*sizeof(unsigned int*));
 		prg1->karg_sz = (size_t**)malloc(prg1->nkrn*sizeof(size_t*));
 
 
@@ -157,7 +159,7 @@ unsigned int __do_build_program_from_binary_1(
 			printcl( CL_DEBUG "%s has %d args",prg1->kname[i],narg);
 			prg1->knarg[i] = narg;
 			printcl( CL_DEBUG "narg set %d %d",i,prg1->knarg[i] );
-			prg1->karg_kind[i] = (cl_uint*)malloc(narg*sizeof(cl_uint));
+			prg1->karg_kind[i] = (unsigned int*)malloc(narg*sizeof(unsigned int));
 			prg1->karg_sz[i] = (size_t*)malloc(narg*sizeof(size_t));
 
 			j = 0;

@@ -1,6 +1,6 @@
-/* cmdsched.h 
+/* xcmdsched.h 
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,12 +20,10 @@
 
 /* DAR */
 
-#ifndef _cmdsched_h
-#define _cmdsched_h
+#ifndef _xcmdsched_h
+#define _xcmdsched_h
 
-#include <CL/cl.h>
-
-void* cmdqx0( void* p_arg );
+void* cmdqx1( void* p_arg );
 
 #endif
 

@@ -23,13 +23,11 @@
 #include <sys/time.h>
 #include <pthread.h>
 
-#include <CL/cl.h>
-
-#include "xcl_structs.h"
 #include "printcl.h"
 #include "command_queue.h"
-#include "xcmdsched.h"
+#include "cmdsched.h"
 
+#include "coprthr_sched.h"
 
 
 void __do_create_command_queue_1( struct coprthr_device* dev ) 
@@ -141,7 +139,7 @@ void __do_enqueue_cmd_1( struct coprthr_device* dev,
 
 	ev1->dev = dev;
 
-	ev1->cmd_stat = CL_QUEUED;
+	ev1->cmd_stat = __CL_QUEUED;
 
 	TAILQ_INSERT_TAIL(&cmdq1->cmds_queued,ev1,cmds);
 
@@ -213,7 +211,7 @@ void __do_exec_cmd_1( struct coprthr_device* dev,
 	ev1->tm_submit = 0;
 	ev1->tm_queued = 0;
 
-	ev1->cmd_stat = CL_RUNNING;
+	ev1->cmd_stat = __CL_RUNNING;
 
 	gettimeofday(&tv,0);
 	ev1->tm_start = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
@@ -223,7 +221,7 @@ void __do_exec_cmd_1( struct coprthr_device* dev,
 	gettimeofday(&tv,0);
 	ev1->tm_end = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 
-	ev1->cmd_stat = CL_COMPLETE;
+	ev1->cmd_stat = __CL_COMPLETE;
 
 }
 

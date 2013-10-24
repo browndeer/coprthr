@@ -32,10 +32,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <setjmp.h>
+#include <stdint.h>
 
-#include <CL/cl.h>
+#include "coprthr_device.h"
+#include "coprthr_sched.h"
+#include "coprthr_program.h"
+#include "coprthr_mem.h"
 
-#include "xcl_structs.h"
 #include "cmdcall.h"
 #include "workp.h"
 #include "cpuset_type.h"
@@ -528,9 +531,9 @@ void* sl_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 		printcl( CL_DEBUG "arg_kind=%d", argp->k.arg_kind[i]);
 
-   cl_context ctx;
+//   cl_context ctx;
    unsigned int ndev;
-   cl_device_id* devices;
+//   cl_device_id* devices;
    unsigned int n;
 
 		void* p = (void*)(argp->k.pr_arg_buf + argp->k.pr_arg_off[i]);

@@ -1,6 +1,6 @@
 /* kernel.h
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -23,7 +23,7 @@
 #ifndef _kernel_h
 #define _kernel_h
 
-#include "xcl_structs.h"
+#include "coprthr_program.h"
 
 
 void __do_create_kernel_1(struct coprthr1_kernel* krn1 );
