@@ -336,11 +336,9 @@ pid_t __coprthr_lock_pid = 0;
 int coprthr_devlock( struct coprthr_device* dev, int flags )
 {
 	if (!dev)
-//		return EINVAL;
 		__return_errno(EINVAL);
 
 	if (__coprthr_is_locked(dev) || (flags&COPRTHR_DEVLOCK_NOWAIT) )
-//		return EAGAIN;
 		__return_errno(EAGAIN);
 
 	while( __coprthr_is_locked(dev) );
@@ -360,15 +358,12 @@ int coprthr_devlock( struct coprthr_device* dev, int flags )
 int coprthr_devunlock( struct coprthr_device* dev, int flags )
 {
 	if (!dev)
-//		return EINVAL;
 		__return_errno(EINVAL);
 
 	if (!__coprthr_is_locked(dev))
-//		return EPERM;
 		__return_errno(EPERM);
 
 	if (dev->devstate->locked_pid != getpid())
-//		return EACCES;
 		__return_errno(EACCES);
 
 	dev->devstate->locked_pid = 0;

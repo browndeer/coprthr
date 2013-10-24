@@ -427,9 +427,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 		printcl( CL_DEBUG "arg_kind=%d", argp->k.arg_kind[i]);
 
-   cl_context ctx;
    unsigned int ndev;
-   cl_device_id* devices;
    unsigned int n;
 
 		void* p = (void*)(argp->k.pr_arg_buf + argp->k.pr_arg_off[i]);
@@ -449,17 +447,6 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 				printcl( CL_DEBUG  "argp->k.pr_arg_off[%d]=%p",
 					i,argp->k.pr_arg_off[i]);
 
-/*
-				printcl( CL_DEBUG  "*cl_mem=%p",
-					(*(cl_mem*)p));
-
-				ctx = (*(cl_mem*)p)->ctx;
-				ndev = ctx->ndev;
-				devices = ctx->devices;
-				n = 0;
-
-				*(void**)p =(*(cl_mem*)p)->imp.res[n];
-*/
 				struct coprthr1_mem* mem1 = *(struct coprthr1_mem**)p;
 				printcl( CL_DEBUG  "mem1=%p",mem1);
 				*(void**)p =mem1->res;

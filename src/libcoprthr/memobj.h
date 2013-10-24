@@ -23,11 +23,6 @@
 #ifndef _memobj_h
 #define _memobj_h
 
-//void __do_create_memobj(cl_mem memobj);
-//void __do_release_memobj(cl_mem memobj);
-//void __do_create_buffer(cl_mem memobj);
-//void __do_create_image2d(cl_mem memobj);
-
 void* __coprthr_memalloc( size_t sz, int flags );
 void* __coprthr_memrealloc( void* ptr, size_t sz, int flags);
 void __coprthr_memfree( void* memptr, int flags );

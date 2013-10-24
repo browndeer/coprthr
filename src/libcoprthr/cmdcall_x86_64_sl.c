@@ -1,6 +1,6 @@
-/* xcmdcall_x86_64_sl.c 
+/* cmdcall_x86_64_sl.c 
  *
- * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -277,15 +277,6 @@ static void* read_image(struct coprthr_device* dev, void* p)
 	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
 	size_t offset = argp->m.src_offset + 128;
 
-/*
-	size_t len = argp->m.len;
-
-	if (dst==src+offset) return(0);
-	else memcpy(dst,src+offset,len);
-*/
-
-	/* XXX here we should check for 3D image, ignore for now -DAR */
-
 	size_t esz = 4 * sizeof(float);
 	size_t w = *(size_t*)src;
 
@@ -316,20 +307,6 @@ static void* write_image(struct coprthr_device* dev, void* p)
 	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset + 128;
-
-/*
-	size_t len = argp->m.len;
-
-	printcl( CL_DEBUG "cmdcall_x86_64:write_image: XXX %p %p %d",dst+offset,src,len);
-
-	if (dst+offset == src) return(0);
-	else memcpy(dst+offset,src,len);
-
-	size_t* sp = (size_t*)dst;
-printcl( CL_DEBUG "cmdcall_x86_64:write_image: XXX %d %d %d",sp[0],sp[1],sp[16]);
-*/
-
-	/* XXX here we should check for 3D image, ignore for now -DAR */
 
 	size_t esz = 4 * sizeof(float);
 	size_t w = *(size_t*)dst;
@@ -396,8 +373,6 @@ static void* map_buffer(struct coprthr_device* dev, void* p)
    if (ptr==src+offset) return(0);
    else memcpy(ptr,src+offset,len);
 
-//	}
-
 	return(0);
 }
 
@@ -419,8 +394,6 @@ static void* unmap_mem_object(struct coprthr_device* dev, void* p)
 	void* ptr = argp->m.dst;
 
 	void* ptr0 = ptr - 2*sizeof(size_t);
-
-	/* XXX need to add the 1.2 flag -DAR */
 
 	if ( __test_flags(argp->flags,__CL_MAP_WRITE) ) {
 

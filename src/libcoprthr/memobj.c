@@ -74,7 +74,6 @@ void* coprthr_devmemalloc(
 void* coprthr_dmalloc( int dd, size_t sizeb, int flags )
 {
 	if (dd < 256 && __ddtab[dd]) 
-//		return(__ddtab[dd]->devops->memalloc(sizeb,flags));
 		return
 			coprthr_devmemalloc(__ddtab[dd],0,sizeb,1,COPRTHR_DEVMEM_TYPE_BUFFER);
 	else 
@@ -91,7 +90,6 @@ void coprthr_devmemfree( struct coprthr_device* dev, struct coprthr1_mem* mem1 )
 void coprthr_dfree( int dd, void* ptr )
 {
 	if (dd < 256 && __ddtab[dd]) 
-//		__ddtab[dd]->devops->memfree(ptr,0);
 		coprthr_devmemfree(__ddtab[dd],ptr);
 }
 
@@ -102,26 +100,6 @@ void* coprthr_drealloc( int dd, void* dptr, size_t sizeb, int flags )
 	else 
 		return(0);
 }
-
-/*
-size_t coprthr_dmwrite( int dd, void* dptr, void* buf, size_t sizeb)
-{
-	if (dd < 256 && __ddtab[dd]) 
-		return(__ddtab[dd]->devops->memwrite(dptr,buf,sizeb));
-	else 
-		return(0);
-}
-*/
-
-/*
-size_t coprthr_dmread( int dd, void* dptr, void* buf, size_t sizeb)
-{
-	if (dd < 256 && __ddtab[dd]) 
-		return(__ddtab[dd]->devops->memread(dptr,buf,sizeb));
-	else 
-		return(0);
-}
-*/
 
 void* coprthr_dmmap( int dd, void* dptr, size_t sizeb, int flags, void* ptr )
 {

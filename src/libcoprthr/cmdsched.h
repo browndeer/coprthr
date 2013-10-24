@@ -1,4 +1,4 @@
-/* xcmdsched.h 
+/* cmdsched.h 
  *
  * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *

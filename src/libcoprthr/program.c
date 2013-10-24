@@ -26,7 +26,6 @@
 #include "program.h"
 #include "compiler.h"
 #include "elf_cl.h"
-//#include "cmdcall.h" /* XXX this is only used for backdoor -DAR */
 #include "ocl_types.h"
 #include "printcl.h"
 
@@ -279,24 +278,12 @@ unsigned int __do_build_program_from_binary_1(
 
 		prg->nkrn = clsymtab_n; /* XXX assumed, revisit in future -DAR */
 
-//		prg->imp->kname = (char**)malloc(prg->nkrn*sizeof(char*));
-//		prg->imp->knarg = (cl_uint*)malloc(prg->nkrn*sizeof(cl_uint));
-//		prg->imp->karg_buf_sz = (size_t*)malloc(prg->nkrn*sizeof(size_t));
-//		prg->imp->karg_kind = (cl_uint**)malloc(prg->nkrn*sizeof(cl_uint*));
-//		prg->imp->karg_sz = (size_t**)malloc(prg->nkrn*sizeof(size_t*));
-
-
 		for(i=0;i<clsymtab_n;i++) {
 
-//			prg->imp->kname[i] = prg1->clstrtab + prg1->clsymtab[i].e_name;
 			unsigned int arg0 = prg1->clsymtab[i].e_arg0;
 			int narg = 0; 
 			int arg;
 			for(arg=arg0;arg;arg=prg1->clargtab[arg].e_nxt,narg++);
-//			printcl( CL_DEBUG "%s has %d args\n",prg->imp->kname[i],narg);
-//			prg->imp->knarg[i] = narg;
-//			prg->imp->karg_kind[i] = (cl_uint*)malloc(narg*sizeof(cl_uint));
-//			prg->imp->karg_sz[i] = (size_t*)malloc(narg*sizeof(size_t));
 
 			j = 0;
 			size_t bufsz = 0;
@@ -358,53 +345,43 @@ unsigned int __do_build_program_from_binary_1(
 
 				if (prg1->clargtab[arg].e_ptrc == 0) {
 
-//					prg->imp->karg_kind[i][j] = CLARG_KIND_DATA;
 					sz = sz;
 
 				} else if (prg1->clargtab[arg].e_ptrc == 1) {
 
 					if (prg1->clargtab[arg].e_addrspace == 0) { /* XXX promote */
 
-//						prg->imp->karg_kind[i][j] = CLARG_KIND_GLOBAL;
 						sz = sz_ptr;
 
 					} else if (prg1->clargtab[arg].e_addrspace == 1) {
 
-//						prg->imp->karg_kind[i][j] = CLARG_KIND_GLOBAL;
 						sz = sz_ptr;
 
 					} else if (prg1->clargtab[arg].e_addrspace == 2) {
 
-//						prg->imp->karg_kind[i][j] = CLARG_KIND_CONSTANT;
 						sz = sz_ptr;
 
 					} else if (prg1->clargtab[arg].e_addrspace == 3) {
 
-//						prg->imp->karg_kind[i][j] = CLARG_KIND_LOCAL;
 						sz = sz_ptr;
 
 					} else {
 
-//						prg->imp->karg_kind[i][j] = CLARG_KIND_UNDEFINED;
 						sz = 0;
 
 					}
 
 				} else {
 
-//					prg->imp->karg_kind[i][j] = CLARG_KIND_UNDEFINED;
 					sz = 0;
 
 				}
 
 				printcl( CL_DEBUG "after kind check arg_sz[%d] %d",arg,sz);
 
-//				prg->imp->karg_sz[i][j] = sz;
 				bufsz += sz;
 
 			}
-
-//			prg->imp->karg_buf_sz[i] = bufsz;
 
 		}	
 
@@ -427,39 +404,18 @@ unsigned int __do_build_program_from_binary_1(
 	char name[1024];
 	int err;
 
-//	cl_device_type devtype = __resolve_devid_devinfo(devid,devtype);
-//
-//	if (devtype == CL_DEVICE_TYPE_CPU) {
-
 		prg1->dlh = h;
 		prg1->dlfile = strdup(tmpfile);
-
-//	} else {
-
-//		prg1->dlh = 0;
-//		prg1->dlfile = 0;
-
-//	}
 
 	printcl( CL_DEBUG "kbin = %p",prg1->dlh);
 
 	for(i=0;i<prg1->nkrn;i++) {
 
-//		strncpy(name,prg->imp->kname[i],1024);
 		strncpy(name,prg1->kname[i],1024);
 
 		printcl( CL_DEBUG "devnum knum %d",i);
 
-//		if (__resolve_devid_devinfo(devid,devtype)==CL_DEVICE_TYPE_CPU) {
-
-//			__resolve_devid_devlink(devid,bind_ksyms)(
-//				&(prg1->v_ksyms[i]), h, prg1->kname[i]);
 			bind_ksyms_default( &(prg1->v_ksyms[i]), h, prg1->kname[i]);
-
-//		} else {
-//			bzero(&prg1]->v_ksyms[i],
-//				sizeof(struct _coprthr_ksyms_struct));
-//		}
 
 	}
 

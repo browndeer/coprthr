@@ -72,6 +72,7 @@ TOPDIR ?= ../../
 #OCLCALL_MASTER = ../libocl/oclcall.master
 
 INCS += -I. -I$(TOPDIR)/include -I$(TOPDIR)/src/libcoprthr
+INCS += -I$(TOPDIR)/src/libcoprthr_opencl
 
 INCS += $(LIBELF_INC)
 

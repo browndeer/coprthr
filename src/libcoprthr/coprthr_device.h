@@ -28,48 +28,8 @@
 
 struct coprthr_device_info {
 
-//	cl_device_type devtype;
-//	cl_uint vendorid;
 	unsigned int max_compute_units;
-//	cl_uint max_wi_dim;
-//	size_t max_wi_sz[4];
-//	size_t max_wg_sz;
-//	cl_uint pref_charn;
-//	cl_uint pref_shortn;
-//	cl_uint pref_intn;
-//	cl_uint pref_longn;
-//	cl_uint pref_floatn;
-//	cl_uint pref_doublen;
 	unsigned int max_freq;
-//	cl_uint addr_bits;
-//	cl_ulong max_mem_alloc_sz;
-//	cl_bool supp_img;
-//	cl_uint img_max_narg_r;
-//	cl_uint img_max_narg_w;
-//	size_t img2d_max_width;
-//	size_t img2d_max_height;
-//	size_t img3d_max_width;
-//	size_t img3d_max_height;
-//	size_t img3d_max_depth;
-//	cl_uint max_samplers;
-//	size_t max_param_sz;
-//	cl_uint mem_align_bits;
-//	cl_uint datatype_align_sz;
-//	cl_device_fp_config single_fp_config;
-//	cl_device_mem_cache_type global_mem_cache_type;
-//	cl_uint global_mem_cacheline_sz;
-//	cl_ulong global_mem_cache_sz;
-//	cl_ulong global_mem_sz;
-//	cl_ulong max_const_buffer_sz;
-//	cl_uint max_const_narg;
-//	cl_device_local_mem_type local_mem_type;
-//	cl_ulong local_mem_sz;
-//	cl_bool supp_ec;
-//	size_t prof_timer_res;
-//	cl_bool endian_little;
-//	cl_device_exec_capabilities supp_exec_cap;
-//	cl_command_queue_properties cmdq_prop;
-//	cl_platform_id platformid;
 	char* name;
 	char* vendor;
 	char* drv_version;

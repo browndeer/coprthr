@@ -1,6 +1,6 @@
 /* compiler.h
  *
- * Copyright (c) 2009-2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -26,31 +26,24 @@
 
 #include <stddef.h>
 
-//typedef void*(*compiler_t)(cl_device_id,char*,size_t,char*,size_t,char*,char*);
-//typedef void*(*compiler_t)(cl_device_id,char*,size_t,char**,size_t*,char*,char**);
-
-//typedef int(*compiler_t)(cl_device_id,char*,size_t,char**,size_t*,char*,char**);
-//typedef void*(*ircompiler_t)(cl_device_id,char*,size_t,char*,size_t,char*,char*);
-
 typedef int(*compiler_t)(void*,char*,size_t,char**,size_t*,char*,char**);
 typedef void*(*ircompiler_t)(void*,char*,size_t,char*,size_t,char*,char*);
 
-//void* compile_x86_64(
+/*
 int compile_x86_64(
 	void* __deprecated_devid,
    unsigned char* src, size_t src_sz,
    unsigned char** p_bin, size_t* p_bin_sz,
-//   char** opt, char** log
    char* opt, char** p_log
 );
 
-//void* compile_arm(
 int compile_arm(
 	void* __deprecated_devid,
    unsigned char* src, size_t src_sz,
    unsigned char** p_bin, size_t* p_bin_sz,
    char* opt, char** p_log
 );
+*/
 
 #endif
 

@@ -47,15 +47,14 @@ endif
 
 XCL_OBJS = ocl_platform.o ocl_device.o ocl_context.o ocl_command_queue.o \
 	ocl_enqueue.o ocl_event.o ocl_program.o ocl_kernel.o ocl_memobj.o \
-	ocl_flush.o xcl_icd.o ocl_sampler.o ocl_profile.o ocl_clgl.o
+	ocl_flush.o xcl_icd.o ocl_sampler.o ocl_profile.o ocl_clgl.o icd.o
 
 IMP_OBJS = device.o device_x86_64.o \
 	command_queue.o event.o \
 	program.o kernel.o memobj.o \
 	cmdsched.o cmdcall.o \
 	watermark.o \
-	cmdcall_x86_64_sl.o sl_engine.o \
-	icd.o
+	cmdcall_x86_64_sl.o sl_engine.o 
 
 INSTALL_HDRS = sl_engine.h ser_engine.h workp.h opencl_lift.h coprthr.h
 

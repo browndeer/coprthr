@@ -1,4 +1,4 @@
-/* xcommand_queue.c
+/* command_queue.c
  *
  * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -62,23 +62,6 @@ void __do_create_command_queue_1( struct coprthr_device* dev )
 	printcl( CL_DEBUG "signaled cmdq1 with qstat ->1\n");
 }
 
-/*
-void __do_create_command_queue( cl_command_queue cmdq ) 
-{
-	__do_create_command_queue_1( cmdq->devid->codev );
-	cmdq->ptr_imp = cmdq->devid->codev->devstate->cmdq;
-	
-   cl_context ctx = cmdq->ctx;
-   unsigned int ndev = ctx->ndev;
-   cl_device_id* devices = ctx->devices;
-   unsigned int n = 0;
-   while (n < ndev && devices[n]->codev != cmdq->devid->codev) ++n;
-	cmdq->devnum = n;
-
-	printcl( CL_DEBUG "__do_create_command_queue: devnum=%d",n);
-}
-*/
-
 
 void __do_release_command_queue_1( struct coprthr_device* dev ) 
 {
@@ -116,13 +99,6 @@ void __do_release_command_queue_1( struct coprthr_device* dev )
 
 }
 
-/*
-void __do_release_command_queue( cl_command_queue cmdq ) 
-{
-	__do_release_command_queue_1(cmdq->devid->codev);
-}
-*/
-
 
 void __do_enqueue_cmd_1( struct coprthr_device* dev, 
 	struct coprthr_event* ev1 ) 
@@ -154,18 +130,6 @@ void __do_enqueue_cmd_1( struct coprthr_device* dev,
 }
 
 
-/*
-void __do_enqueue_cmd( cl_command_queue cmdq, cl_event ev ) 
-{
-	ev->ev1->cmd = ev->cmd;
-	__do_enqueue_cmd_1( cmdq->devid->codev, ev->ev1);
-	ev->cmdq = cmdq;
-	ev->dev = cmdq->devid->codev;
-	__retain_event(ev);
-}
-*/
-
-
 void __do_finish_1( struct coprthr_device* dev )
 {
 	struct coprthr_command_queue* cmdq1 = dev->devstate->cmdq;
@@ -188,13 +152,6 @@ void __do_finish_1( struct coprthr_device* dev )
        __unlock_cmdq1(cmdq1);
 
 }
-
-/*
-void __do_finish( cl_command_queue cmdq )
-{
-	__do_finish_1( cmdq->devid->codev );
-}
-*/
 
 
 void __do_exec_cmd_1( struct coprthr_device* dev, 

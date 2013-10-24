@@ -1,6 +1,6 @@
 /* event.h
  *
- * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -27,9 +27,6 @@
 #include "coprthr_sched.h"
 #include "coprthr_mem.h"
 #include "coprthr_program.h"
-
-
-//void __do_release_event(cl_event ev);
 
 
 
@@ -86,111 +83,6 @@
 
 
 
-/* 
- * set cmd 
- */
-
-/*
-void __do_set_cmd_read_buffer( 
-	cl_event ev, 
-	cl_mem src, size_t src_offset, size_t len, 
-	void* dst 
-);
-
-void __do_set_cmd_write_buffer( 
-	cl_event ev, 
-	cl_mem dst, size_t dst_offset, size_t len, 
-	const void* src 
-);
-
-void __do_set_cmd_copy_buffer( 
-	cl_event ev, 
-	cl_mem src, cl_mem dst, 
-	size_t src_offset, size_t dst_offset, size_t len 
-);
-
-void __do_set_cmd_read_image( 
-	cl_event ev, 
-	cl_mem src, 
-	const size_t* src_origin, const size_t* region, 
-	size_t row_pitch, size_t slice_pitch, 
-	void* dst
-);
-
-void __do_set_cmd_write_image( 
-	cl_event ev, 
-	cl_mem dst, 
-	const size_t* dst_origin, const size_t* region, 
-	size_t row_pitch, size_t slice_pitch, 
-	const void* src
-);
-
-void __do_set_cmd_copy_image( 
-	cl_event ev, 
-	cl_mem src, cl_mem dst, 
-	const size_t* src_origin, 
-	const size_t* dst_origin, const size_t* region
-);
-
-void __do_set_cmd_copy_image_to_buffer( 
-	cl_event ev, 
-	cl_mem src, cl_mem dst, 
-	const size_t* src_origin, const size_t* region, 
-	size_t dst_offset
-);
-
-void __do_set_cmd_copy_buffer_to_image( 
-	cl_event ev, 
-	cl_mem src, cl_mem dst, 
-	size_t src_offset, 
-	const size_t* dst_origin, const size_t* region
-);
-
-void __do_set_cmd_map_buffer( 
-	cl_event ev, 
-	cl_mem membuf, 
-	cl_map_flags flags, size_t offset, size_t len,
-	void* p
-);
-
-void __do_set_cmd_map_image( 
-	cl_event ev, 
-	cl_mem image, 
-	cl_map_flags flags, 
-	const size_t* origin, const size_t* region, 
-	size_t* row_pitch, size_t* slice_pitch,
-	void* p
-);
-
-void __do_set_cmd_unmap_memobj( 
-	cl_event ev, 
-	cl_mem memobj, void* mapped_ptr
-);
-
-void __do_set_cmd_ndrange_kernel(
-	cl_command_queue cmdq,
-	cl_event ev,
-	cl_kernel krn,
-	cl_uint work_dim,
-	const size_t* global_work_offset,
-	const size_t* global_work_size,
-	const size_t* local_work_size
-);
-
-void __do_set_cmd_task(
-	cl_event ev,
-	cl_kernel krn
-);
-*/
-
-
-/*
- *	wait
- */
-
-//void __do_wait_for_events(cl_uint nev, const cl_event* evlist );
-
-
 void __do_release_event_1(struct coprthr_event* ev1) ;
 
 void __do_set_cmd_read_buffer_1( struct coprthr_event* ev1, 
@@ -225,12 +117,10 @@ void __do_set_cmd_copy_buffer_to_image_1( struct coprthr_event* ev1,
 	const size_t* dst_origin, const size_t* region);
 
 void __do_set_cmd_map_buffer_1( struct coprthr_event* ev1, 
-//	struct coprthr1_mem* membuf1, cl_map_flags flags, size_t offset, size_t len,
 	struct coprthr1_mem* membuf1, int flags, size_t offset, size_t len,
 	void* pp);
 
 void __do_set_cmd_map_image_1( struct coprthr_event* ev1, 
-//	struct coprthr1_mem* image1, cl_map_flags flags, const size_t* origin, 
 	struct coprthr1_mem* image1, int flags, const size_t* origin, 
 	const size_t* region, size_t* row_pitch, size_t* slice_pitch, void* p);
 

@@ -1,6 +1,6 @@
 /* sl_engine.c 
  *
- * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -255,8 +255,6 @@ static void* sl_engine( void* p )
 			/* propagate info so that vcore() can execute specified kernel */
 
 			printcl( CL_DEBUG "vcengine[%d]: krn %p",engid,cmd_argp->k.krn);
-//			edata->funcp = cmd_argp->k.ksym;
-//			edata->callp = cmd_argp->k.kcall;
 			edata->funcp = cmd_argp->k.ksyms->kthr;
 			edata->callp = cmd_argp->k.ksyms->kcall;
 			edata->pr_arg_buf = cmd_argp->k.pr_arg_buf;
@@ -524,16 +522,13 @@ void* sl_engine_klaunch( int engid_base, int ne, struct workp* wp,
 	printcl( CL_DEBUG "cmdcall_x86_64:ndrange_kernel: fix global ptrs %p",
 		argp->k.arg_kind);
 
-//	for(i=0;i<argp->k.krn->narg;i++) {
 	for(i=0;i<argp->k.krn->prg1->knarg[argp->k.krn->knum];i++) {
 
 		printcl( CL_DEBUG  "fix global ptrs %d",i);
 
 		printcl( CL_DEBUG "arg_kind=%d", argp->k.arg_kind[i]);
 
-//   cl_context ctx;
    unsigned int ndev;
-//   cl_device_id* devices;
    unsigned int n;
 
 		void* p = (void*)(argp->k.pr_arg_buf + argp->k.pr_arg_off[i]);
@@ -553,17 +548,6 @@ void* sl_engine_klaunch( int engid_base, int ne, struct workp* wp,
 				printcl( CL_DEBUG  "argp->k.pr_arg_off[%d]=%p",
 					i,argp->k.pr_arg_off[i]);
 
-/*
-				printcl( CL_DEBUG  "*cl_mem=%p",
-					(*(cl_mem*)p));
-
-				ctx = (*(cl_mem*)p)->ctx;
-				ndev = ctx->ndev;
-				devices = ctx->devices;
-				n = 0;
-
-				*(void**)p =(*(cl_mem*)p)->mem1[n]->res;
-*/
 				struct coprthr1_mem* mem1 = *(struct coprthr1_mem**)p;
 
 				printcl( CL_DEBUG  "mem1=%p",mem1);
@@ -615,9 +599,6 @@ void* sl_engine_klaunch( int engid_base, int ne, struct workp* wp,
 
 	for(e=engid_base,i=0;e<engid_end;e++,i++) {
 
-//		printcl( CL_DEBUG "%p",&subcmd_argp[i].k.krn->narg);
-
-//		for(j=0;j<subcmd_argp[i].k.krn->narg;j++) {
 		for(j=0;j<subcmd_argp[i].k.krn->prg1->knarg[subcmd_argp[i].k.krn->knum];j++) {
 
 			void* p = (intptr_t)subcmd_argp[i].k.pr_arg_buf

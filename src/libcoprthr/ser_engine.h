@@ -28,24 +28,6 @@
 #include <setjmp.h>
 
 #ifdef __xcl_kcall__
-/* XXX this brings in the vec types.  temporary soln. improve it. -DAR */
-/*
-typedef unsigned char uchar;
-typedef unsigned int uint;
-typedef cl_char2 char2;
-typedef cl_char4 char4;
-typedef cl_uchar2 uchar2;
-typedef cl_uchar4 uchar4;
-typedef cl_int2 int2;
-typedef cl_int4 int4;
-typedef cl_uint2 uint2;
-typedef cl_uint4 uint4;
-typedef cl_long2 long2;
-typedef cl_ulong2 ulong2;
-typedef cl_float2 float2;
-typedef cl_float4 float4;
-typedef cl_double2 double2;
-*/
 typedef unsigned char uchar;
 typedef unsigned int uint;
 typedef char char2[2];
@@ -75,10 +57,6 @@ typedef double double2[2];
 #define __get_thr_data() (struct thr_data*)(((intptr_t)__fp())&THR_STACK_MASK)
 
 struct thr_data {
-//   int vcid;
-//   jmp_buf* engine_jbufp;
-//   jmp_buf* this_jbufp;
-//   jmp_buf* next_jbufp;
    struct workp_entry* we;
    uint32_t blkidx[3];
    uint32_t gtdidx[3];
@@ -127,8 +105,6 @@ static __inline size_t get_local_id(uint d)
 #endif
 
 #if !defined(__xcl_kcall__) && !defined(__xcl_kthr__)
-
-//static void* ser_engine( void* p );
 
 void* ser_engine_startup( void* p );
 
