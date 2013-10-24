@@ -4071,6 +4071,8 @@ if test x$enable_android_cross_compile = xyes; then
 else
 	ac_config_files="$ac_config_files src/libcoprthr/Makefile"
 
+	ac_config_files="$ac_config_files src/libcoprthr_opencl/Makefile"
+
 	ac_config_files="$ac_config_files src/libcoprthrcc/Makefile"
 
 fi;
@@ -4885,6 +4887,7 @@ do
     "src/libocl/Makefile") CONFIG_FILES="$CONFIG_FILES src/libocl/Makefile" ;;
     "src/libcoprthr-ax/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr-ax/Makefile" ;;
     "src/libcoprthr/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr/Makefile" ;;
+    "src/libcoprthr_opencl/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr_opencl/Makefile" ;;
     "src/libcoprthrcc/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthrcc/Makefile" ;;
     "src/libcoprthr-e/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr-e/Makefile" ;;
     "test/test_libcoprthr-e/Makefile") CONFIG_FILES="$CONFIG_FILES test/test_libcoprthr-e/Makefile" ;;

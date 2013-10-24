@@ -207,7 +207,7 @@ install:
 #	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
 #	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
 #	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
-#	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
+	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
 #	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
 #	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(INSTALL_ICD_DIR)/coprthr.icd
 #	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)

@@ -45,9 +45,9 @@ endif
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
-XCL_OBJS = ocl_platform.o ocl_device.o ocl_context.o ocl_command_queue.o \
-	ocl_enqueue.o ocl_event.o ocl_program.o ocl_kernel.o ocl_memobj.o \
-	ocl_flush.o xcl_icd.o ocl_sampler.o ocl_profile.o ocl_clgl.o icd.o
+#XCL_OBJS = ocl_platform.o ocl_device.o ocl_context.o ocl_command_queue.o \
+#	ocl_enqueue.o ocl_event.o ocl_program.o ocl_kernel.o ocl_memobj.o \
+#	ocl_flush.o xcl_icd.o ocl_sampler.o ocl_profile.o ocl_clgl.o icd.o
 
 IMP_OBJS = device.o device_x86_64.o \
 	command_queue.o event.o \
@@ -72,7 +72,7 @@ SCRIPTS = ../scripts/
 OCLCALL_MASTER = ../libocl/oclcall.master
 
 INCS += -I. -I$(TOPDIR)/include -I$(TOPDIR)/src/libcoprthrcc
-INCS += -I../libcoprthr_opencl
+#INCS += -I../libcoprthr_opencl
 
 INCS += $(LIBELF_INC)
 
@@ -119,10 +119,10 @@ LEXFLAGS =
 XCLNM_YYPREFIX = __xclnm_
 
 TARGET = libcoprthr.so 
-TARGET += libcoprthr_opencl.so 
-TARGET += icd.c
+#TARGET += libcoprthr_opencl.so 
+#TARGET += icd.c
 
-VPATH = ../libcoprthr_opencl/
+#VPATH = ../libcoprthr_opencl/
 
 all: $(TARGET) 
 
@@ -141,9 +141,9 @@ all: $(TARGET)
 .S.o:
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
-icd.c:
-	perl $(SCRIPTS)/gen_ocl_call_vector.pl __icd_call_vector _ \
-		< $(OCLCALL_MASTER) > icd.c
+#icd.c:
+#	perl $(SCRIPTS)/gen_ocl_call_vector.pl __icd_call_vector _ \
+#		< $(OCLCALL_MASTER) > icd.c
 
 #libcoprthr.so: $(OBJS) $(RT_OBJS)
 #	$(CC) $(CCFLAGS) $(INCS) \
@@ -153,9 +153,9 @@ libcoprthr.so: $(IMP_OBJS)
 	$(CC) $(CCFLAGS) $(INCS) \
 		-shared -Wl,-soname,libcoprthr.so -o libcoprthr.so  $(IMP_OBJS) $(LIBS)
 
-libcoprthr_opencl.so: $(XCL_OBJS) 
-	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthr_opencl.so -o libcoprthr_opencl.so  $(XCL_OBJS) $(LIBS) -L. -lcoprthr
+#libcoprthr_opencl.so: $(XCL_OBJS) 
+#	$(CC) $(CCFLAGS) $(INCS) \
+#		-shared -Wl,-soname,libcoprthr_opencl.so -o libcoprthr_opencl.so  $(XCL_OBJS) $(LIBS) -L. -lcoprthr
 
 debug:
 	export ENABLE_DEBUG=1
@@ -168,15 +168,16 @@ install:
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
 	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
-	install -m 755 libcoprthr_opencl.so $(INSTALL_LIB_DIR)
+#	install -m 755 libcoprthr_opencl.so $(INSTALL_LIB_DIR)
+	install -m 755 coprthr.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
-	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
-	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
-	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(INSTALL_ICD_DIR)/coprthr.icd
-	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
-	install -m 644 $(INSTALL_ICD_DIR)/coprthr.icd $(OPENCL_ICD_PATH)/
+#	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
+#	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
+#	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(INSTALL_ICD_DIR)/coprthr.icd
+#	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
+#	install -m 644 $(INSTALL_ICD_DIR)/coprthr.icd $(OPENCL_ICD_PATH)/
 
 uninstall: 
 	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so 
@@ -185,8 +186,8 @@ uninstall:
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,ser_engine.h)
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,workp.h)
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,opencl_lift.h)
-	rm -f $(INSTALL_ICD_DIR)/coprthr.icd
-	rm -f $(OPENCL_ICD_PATH)/coprthr.icd
+#	rm -f $(INSTALL_ICD_DIR)/coprthr.icd
+#	rm -f $(OPENCL_ICD_PATH)/coprthr.icd
 
 clean:
 	rm -f *.o *.so

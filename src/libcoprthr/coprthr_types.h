@@ -1,4 +1,4 @@
-/* ocl_types.h
+/* coprthr_types.h
  *
  * Copyright (c) 2011 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -20,8 +20,8 @@
 
 /* DAR */
 
-#ifndef _ocl_types_h
-#define _ocl_types_h
+#ifndef _coprthr_types_h
+#define _coprthr_types_h
 
 #define TYPEID_VOID 		0
 #define TYPEID_CHAR		1

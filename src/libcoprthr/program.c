@@ -26,7 +26,8 @@
 #include "program.h"
 #include "compiler.h"
 #include "elf_cl.h"
-#include "ocl_types.h"
+//#include "ocl_types.h"
+#include "coprthr_types.h"
 #include "printcl.h"
 
 #include "coprthr_device.h"
