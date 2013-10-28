@@ -264,23 +264,39 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	codev->devcomp->ilcomp = 0;
 	codev->devlink->link = 0;
 	codev->devlink->bind_ksyms = bind_ksyms_default;
+/*
 	*(codev->devops) = (struct coprthr_device_operations){
 		0,
 		__coprthr_memalloc, __coprthr_memrealloc, __coprthr_memfree,
 		__coprthr_memread, __coprthr_memwrite, __coprthr_memcopy
 	};
-	codev->devops->v_cmdcall = cmdcall_x86_64_sl;
+*/
+	codev->devops = &devops_x86_64_sl;
+//	codev->devops->v_cmdcall = cmdcall_x86_64_sl;
+//	codev->v_cmdcall = cmdcall_x86_64_sl;
+	codev->devcmds = &devcmds_x86_64_sl; /* XXX fix naming -DAR */
 #elif defined(__arm__)
 	codev->devcomp->comp = dlsym(dlh_compiler,"compile_arm32");;
 	codev->devcomp->ilcomp = 0;
 	codev->devlink->link = 0;
 	codev->devlink->bind_ksyms = bind_ksyms_default;
+/*
 	*(codev->devops) = (struct coprthr_device_operations){
-		0,
-		__coprthr_memalloc, __coprthr_memrealloc, __coprthr_memfree,
-		__coprthr_memread, __coprthr_memwrite, __coprthr_memcopy
+//		0,
+//		__coprthr_memalloc, __coprthr_memrealloc, __coprthr_memfree,
+//		__coprthr_memread, __coprthr_memwrite, __coprthr_memcopy
+		.memalloc = __coprthr_memalloc,
+		.memrealloc = __coprthr_memrealloc,
+		.memfree = __coprthr_memfree,
+		.memread = __coprthr_memread,
+		.memwrite = __coprthr_memwrite,
+		.memcopy = __coprthr_memcopy
 	};
-	codev->devops->v_cmdcall = cmdcall_x86_64_sl; /* XXX fix naming -DAR */
+*/
+	codev->devops = &devops_x86_64_sl;
+//	codev->devops->v_cmdcall = cmdcall_x86_64_sl; /* XXX fix naming -DAR */
+//	codev->v_cmdcall = cmdcall_x86_64_sl; /* XXX fix naming -DAR */
+	codev->devcmds = &devcmds_x86_64_sl; /* XXX fix naming -DAR */
 #else
 #error unsupported architecture
 #endif

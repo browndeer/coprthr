@@ -157,7 +157,8 @@ void __do_finish_1( struct coprthr_device* dev )
 void __do_exec_cmd_1( struct coprthr_device* dev, 
 	struct coprthr_event* ev1 ) 
 {
-	cmdcall_t* cmdcall = dev->devops->v_cmdcall;
+//	cmdcall_t* cmdcall = dev->devops->v_cmdcall;
+	cmdcall_t* cmdcall = dev->v_cmdcall;
 
 	struct timeval tv;
 

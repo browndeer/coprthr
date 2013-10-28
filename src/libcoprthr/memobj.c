@@ -20,6 +20,8 @@
 
 /* DAR */
 
+#include <string.h>
+
 #include "printcl.h"
 #include "memobj.h"
 
@@ -29,6 +31,7 @@
 
 // device mem operations
 
+/*
 void* __coprthr_memalloc( size_t sz, int flags )
 {
 	struct coprthr1_mem* mem1 = (struct coprthr1_mem*)
@@ -57,6 +60,7 @@ size_t __coprthr_memwrite( void* memptr, void* buf, size_t sz )
 
 size_t __coprthr_memcopy( void* memptr_src, void* memptr_dst, size_t sz)
 { memcpy(memptr_dst,memptr_src,sz); return sz; }
+*/
 
 
 void* coprthr_devmemalloc( 

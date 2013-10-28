@@ -14,9 +14,6 @@ exec_prefix=@exec_prefix@
 ### this useless define is needed to silence useless autoconf warning
 datarootdir=@datarootdir@
 
-LIBELF_INC=@libelf_inc@
-LIBELF_LIB=@libelf_lib@
-
 ### select default install paths 
 INSTALL_BIN_DIR=@bindir@
 INSTALL_LIB_DIR=@libdir@
@@ -25,11 +22,11 @@ INSTALL_MAN_DIR=@mandir@
 INSTALL_ICD_DIR=@prefix@/icd/
 
 ### set custom path for ICD files
-ifneq (@OPENCL_ICD_PATH@,)
-OPENCL_ICD_PATH=@OPENCL_ICD_PATH@
-else
-OPENCL_ICD_PATH=/etc/OpenCL/vendors/
-endif
+#ifneq (@OPENCL_ICD_PATH@,)
+#OPENCL_ICD_PATH=@OPENCL_ICD_PATH@
+#else
+#OPENCL_ICD_PATH=/etc/OpenCL/vendors/
+#endif
 
 ifeq (@ENABLE_SILENT@,1)
 DEFS += -DENABLE_SILENT
@@ -43,23 +40,15 @@ endif
 
 #VPATH := arch/x86_64
 
-SUBDIRS = arch/x86_64
 
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
-IMP_OBJS = device.o \
-	command_queue.o event.o \
-	program.o kernel.o memobj.o \
-	cmdsched.o cmdcall.o \
-	watermark.o \
+IMP_OBJS = device_x86_64.o \
+	cmdcall_x86_64_sl.o sl_engine.o 
 
-#IMP_OBJS += cmdcall_x86_64_sl.o sl_engine.o device_x86_64.o
-
-#INSTALL_HDRS = sl_engine.h ser_engine.h workp.h opencl_lift.h coprthr.h
-#INSTALL_HDRS = sl_engine.h ser_engine.h workp.h coprthr.h
-INSTALL_HDRS = workp.h coprthr.h
+INSTALL_HDRS = sl_engine.h 
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
@@ -69,19 +58,19 @@ DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
 
 ######################################################################
 
-TOPDIR ?= ../../
+TOPDIR ?= ../../../../
 
 SCRIPTS = ../scripts/
 OCLCALL_MASTER = ../libocl/oclcall.master
 
 INCS += -I. -I$(TOPDIR)/include -I$(TOPDIR)/src/libcoprthrcc
-#INCS += -I../libcoprthr_opencl
 
 INCS += $(LIBELF_INC)
 
+INCS += -I../..
+
 LIBS += $(LIBELF_LIB)
 
-#LIBS += -lfl  -lpthread -lrt
 LIBS += -lpthread -lrt
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
@@ -89,17 +78,13 @@ else
 LIBS += -ldl 
 endif
 
-LIBS += -Larch/x86_64 -lcoprthr_arch_x86_64
-
-OBJS = $(XCL_OBJS) $(IMP_OBJS)
+OBJS = $(IMP_OBJS)
 
 DEFS += \
 	-DINSTALL_BIN_DIR=\"$(INSTALL_BIN_DIR)\" \
 	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
 	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
 
-#DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
-#   -Wno-unused-result -Wno-format-security -Wno-format
 DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
    -Wno-format-security -Wno-format
 
@@ -113,27 +98,14 @@ CCFLAGS_VCORE += -marm
 endif
 
 
+TARGET = libcoprthr_arch_x86_64.so 
 
-#YACC = yacc
-YACC = bison
-YACCCFLAGS =  -y -v 
+all: $(TARGET)
 
-LEX = flex
-LEXFLAGS = 
-
-XCLNM_YYPREFIX = __xclnm_
-
-TARGET = libcoprthr.so 
-
-all: $(SUBDIRS) $(TARGET)
-
-.PHONY: clean install uninstall $(SUBDIRS)
+.PHONY: clean install uninstall 
 
 .SUFFIXES:
 .SUFFIXES: .l .y .S .s .c .o
-
-$(SUBDIRS):
-	$(MAKE) -C $@ $(MAKEFLAG) $(MAKECMDGOALS)
 
 .c.o:
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
@@ -144,35 +116,27 @@ $(SUBDIRS):
 .S.o:
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
-libcoprthr.so: $(IMP_OBJS) 
+libcoprthr_arch_x86_64.so: $(IMP_OBJS) 
 	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthr.so -o libcoprthr.so  $(IMP_OBJS) $(LIBS)
+		-shared -Wl,-soname,libcoprthr_arch_x86_64.so \
+		-o libcoprthr_arch_x86_64.so  $(IMP_OBJS) $(LIBS)
 
-#debug:
-#	export ENABLE_DEBUG=1
-#	$(MAKE) -f Makefile all
-
-
-install: $(SUBDIRS)
+install: 
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
-	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
-	install -m 755 coprthr.h $(INSTALL_INCLUDE_DIR)
-#	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
-#	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
-	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
+	install -m 755 libcoprthr_arch_x86_64.so $(INSTALL_LIB_DIR)
 	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
 
-uninstall: $(SUBDIRS)
-	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so 
+uninstall: 
+	rm -f $(INSTALL_LIB_DIR)/libcoprthr_arch_x86_64.so 
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,$(INSTALL_HDRS))
 
-clean: $(SUBDIRS)
+clean: 
 	rm -f *.o *.so
 	rm -f $(TARGET)
 
 distclean: clean 
-
+	rm -f Makefile
 

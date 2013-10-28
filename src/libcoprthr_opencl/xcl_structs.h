@@ -42,9 +42,9 @@ void* __icd_call_vector;
 
 
 /* XXX this is a workaround to correct missing tags in cl.h -dar */
-#ifndef CL_COMMAND_BARRIER
-#define CL_COMMAND_BARRIER	0x1201
-#endif
+//#ifndef CL_COMMAND_BARRIER
+//#define CL_COMMAND_BARRIER	0x1201
+//#endif
 
 
 #define CL_ENOTSUP	-255
@@ -523,89 +523,88 @@ struct _cl_sampler {
 
 #define __set_cmd_read_buffer(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_READ_BUFFER; \
+	ev->cmd = __CL_COMMAND_READ_BUFFER; \
 	} while(0)
 
 #define __set_cmd_write_buffer(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_WRITE_BUFFER; \
+	ev->cmd = __CL_COMMAND_WRITE_BUFFER; \
 	} while(0)
 
 #define __set_cmd_copy_buffer(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_COPY_BUFFER; \
+	ev->cmd = __CL_COMMAND_COPY_BUFFER; \
 	} while(0)
 
 #define __set_cmd_read_image(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_READ_IMAGE; \
+	ev->cmd = __CL_COMMAND_READ_IMAGE; \
 	} while(0)
 
 #define __set_cmd_write_image(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_WRITE_IMAGE; \
+	ev->cmd = __CL_COMMAND_WRITE_IMAGE; \
 	} while(0)
 
 #define __set_cmd_copy_image(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_COPY_IMAGE; \
+	ev->cmd = __CL_COMMAND_COPY_IMAGE; \
 	} while(0)
 
 #define __set_cmd_copy_image_to_buffer(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_COPY_IMAGE_TO_BUFFER; \
+	ev->cmd = __CL_COMMAND_COPY_IMAGE_TO_BUFFER; \
 	} while(0)
 
 #define __set_cmd_copy_buffer_to_image(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_COPY_BUFFER_TO_IMAGE; \
+	ev->cmd = __CL_COMMAND_COPY_BUFFER_TO_IMAGE; \
 	} while(0)
 
 #define __set_cmd_map_buffer(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_MAP_BUFFER; \
+	ev->cmd = __CL_COMMAND_MAP_BUFFER; \
 	} while(0)
 
 #define __set_cmd_map_image(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_MAP_IMAGE; \
+	ev->cmd = __CL_COMMAND_MAP_IMAGE; \
 	} while(0)
 
 #define __set_cmd_unmap_mem_object(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_UNMAP_MEM_OBJECT; \
+	ev->cmd = __CL_COMMAND_UNMAP_MEM_OBJECT; \
 	} while(0)
 
 #define __set_cmd_ndrange_kernel(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_NDRANGE_KERNEL; \
+	ev->cmd = __CL_COMMAND_NDRANGE_KERNEL; \
 	} while(0)
 
 #define __set_cmd_task(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_TASK; \
+	ev->cmd = __CL_COMMAND_TASK; \
 	} while(0)
 
 #define __set_cmd_native_kernel(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_NATIVE_KERNEL; \
+	ev->cmd = __CL_COMMAND_NATIVE_KERNEL; \
 	} while(0)
 
 #define __set_cmd_marker(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_MARKER; \
+	ev->cmd = __CL_COMMAND_MARKER; \
 	} while(0)
 
 #define __set_cmd_wait_for_events(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_WAIT_FOR_EVENTS; \
+	ev->cmd = __CL_COMMAND_WAIT_FOR_EVENTS; \
 	} while(0)
 
 #define __set_cmd_barrier(ev) do { \
 	ev->refc = 1; \
-	ev->cmd = CL_COMMAND_BARRIER; \
+	ev->cmd = __CL_COMMAND_BARRIER; \
 	} while(0)
-
 
 /* 
  * locators

@@ -20,6 +20,8 @@
 
 /* DAR */
 
+#include <string.h>
+
 #include "printcl.h"
 #include "event.h"
 #include "device.h"

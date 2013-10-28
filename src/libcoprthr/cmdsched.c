@@ -61,7 +61,8 @@ void* cmdqx1( void* argp )
  */
 
 
-	cmdcall_t* cmdcall = dev->devops->v_cmdcall;
+//	cmdcall_t* cmdcall = dev->devops->v_cmdcall;
+	cmdcall_t* cmdcall = dev->v_cmdcall;
 
 	assert(__CL_COMMAND_RELEASE_GL_OBJECTS - CLCMD_OFFSET == CLCMD_NUM);
 

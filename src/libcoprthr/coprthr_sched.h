@@ -92,6 +92,7 @@ struct coprthr_command_queue {
 
 
 /* cl_command_type */
+/*
 #define __CL_COMMAND_NDRANGE_KERNEL                   0x11F0
 #define __CL_COMMAND_TASK                             0x11F1
 #define __CL_COMMAND_NATIVE_KERNEL                    0x11F2
@@ -113,6 +114,8 @@ struct coprthr_command_queue {
 #define __CL_COMMAND_WRITE_BUFFER_RECT                0x1202
 #define __CL_COMMAND_COPY_BUFFER_RECT                 0x1203
 #define __CL_COMMAND_USER                             0x1204
+*/
+
 
 /* command execution status */
 #define __CL_COMPLETE                                 0x0

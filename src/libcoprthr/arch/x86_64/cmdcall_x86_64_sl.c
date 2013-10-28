@@ -39,6 +39,53 @@
 #include "coprthr_device.h"
 #include "coprthr_mem.h"
 
+
+/***
+ *** low-level device memory operations
+ ***/
+
+void* __coprthr_memalloc( size_t sz, int flags )
+{
+   struct coprthr1_mem* mem1 = (struct coprthr1_mem*)
+      malloc(sizeof(struct coprthr1_mem));
+   mem1->res = malloc(sz);
+   return(mem1);
+}
+
+void* __coprthr_memrealloc( void* ptr, size_t sz, int flags)
+{ return realloc(ptr,sz); }
+
+void __coprthr_memfree( void* dptr, int flags )
+{
+   struct coprthr1_mem* mem1 = (struct coprthr1_mem*)dptr;
+   if (mem1) {
+      if (mem1->res) free(mem1->res);
+      free(mem1);
+   }
+}
+
+size_t __coprthr_memread( void* memptr, void* buf, size_t sz )
+{ memcpy(memptr,buf,sz); return sz; }
+
+size_t __coprthr_memwrite( void* memptr, void* buf, size_t sz )
+{ memcpy(buf,memptr,sz); return sz; }
+
+size_t __coprthr_memcopy( void* memptr_src, void* memptr_dst, size_t sz)
+{ memcpy(memptr_dst,memptr_src,sz); return sz; }
+
+struct coprthr_device_operations devops_x86_64_sl = {
+	.memalloc = __coprthr_memalloc,
+   .memrealloc = __coprthr_memrealloc,
+   .memfree = __coprthr_memfree,
+   .memread = __coprthr_memread,
+   .memwrite = __coprthr_memwrite,
+   .memcopy = __coprthr_memcopy
+};
+
+/***
+ *** direct device cmd operations
+ ***/
+
 static void* 
 exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 {
@@ -441,6 +488,7 @@ static void* release_gl_objects(struct coprthr_device* dev, void* argp)
  * XXX a runtime option that simply modifies the cmdcall table. -DAR
  */
 
+/*
 cmdcall_t cmdcall_x86_64_sl[] = {
 	0,
 	exec_ndrange_kernel,
@@ -460,6 +508,27 @@ cmdcall_t cmdcall_x86_64_sl[] = {
 	marker,
 	acquire_gl_objects,
 	release_gl_objects
+};
+*/
+
+struct coprthr_device_commands devcmds_x86_64_sl = {
+   .cmd_ndrange_kernel = exec_ndrange_kernel,
+   .cmd_task = task,
+   .cmd_native_kernel = native_kernel,
+   .cmd_read_buffer = read_buffer,
+   .cmd_write_buffer = write_buffer,
+   .cmd_copy_buffer = copy_buffer,
+   .cmd_read_image = read_image,
+   .cmd_write_image = write_image,
+   .cmd_copy_image = copy_image,
+   .cmd_copy_image_to_buffer = copy_image_to_buffer,
+   .cmd_copy_buffer_to_image = copy_buffer_to_image,
+   .cmd_map_buffer = map_buffer,
+   .cmd_map_image = map_image,
+   .cmd_unmap_mem_object = unmap_mem_object,
+   .cmd_marker = marker,
+   .cmd_acquire_gl_objects = acquire_gl_objects,
+   .cmd_release_gl_objects = release_gl_objects
 };
 
 

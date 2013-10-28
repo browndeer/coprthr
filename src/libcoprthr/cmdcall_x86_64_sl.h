@@ -26,6 +26,8 @@
 #include "cmdcall.h"
 
 extern cmdcall_t cmdcall_x86_64_sl[];
+extern struct coprthr_device_commands devcmds_x86_64_sl;
+extern struct coprthr_device_operations devops_x86_64_sl;
 
 #endif
 
