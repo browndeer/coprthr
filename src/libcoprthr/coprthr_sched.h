@@ -91,32 +91,6 @@ struct coprthr_command_queue {
    } while(0)
 
 
-/* cl_command_type */
-/*
-#define __CL_COMMAND_NDRANGE_KERNEL                   0x11F0
-#define __CL_COMMAND_TASK                             0x11F1
-#define __CL_COMMAND_NATIVE_KERNEL                    0x11F2
-#define __CL_COMMAND_READ_BUFFER                      0x11F3
-#define __CL_COMMAND_WRITE_BUFFER                     0x11F4
-#define __CL_COMMAND_COPY_BUFFER                      0x11F5
-#define __CL_COMMAND_READ_IMAGE                       0x11F6
-#define __CL_COMMAND_WRITE_IMAGE                      0x11F7
-#define __CL_COMMAND_COPY_IMAGE                       0x11F8
-#define __CL_COMMAND_COPY_IMAGE_TO_BUFFER             0x11F9
-#define __CL_COMMAND_COPY_BUFFER_TO_IMAGE             0x11FA
-#define __CL_COMMAND_MAP_BUFFER                       0x11FB
-#define __CL_COMMAND_MAP_IMAGE                        0x11FC
-#define __CL_COMMAND_UNMAP_MEM_OBJECT                 0x11FD
-#define __CL_COMMAND_MARKER                           0x11FE
-#define __CL_COMMAND_ACQUIRE_GL_OBJECTS               0x11FF
-#define __CL_COMMAND_RELEASE_GL_OBJECTS               0x1200
-#define __CL_COMMAND_READ_BUFFER_RECT                 0x1201
-#define __CL_COMMAND_WRITE_BUFFER_RECT                0x1202
-#define __CL_COMMAND_COPY_BUFFER_RECT                 0x1203
-#define __CL_COMMAND_USER                             0x1204
-*/
-
-
 /* command execution status */
 #define __CL_COMPLETE                                 0x0
 #define __CL_RUNNING                                  0x1

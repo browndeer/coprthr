@@ -114,11 +114,6 @@ struct coprthr_device_commands {
 
 
 struct coprthr_device_operations {
-//	cmdcall_t* v_cmdcall;
-//	union {
-//		struct coprthr_device_commands* devcmds;
-//		cmdcall_t* v_cmdcall;
-//	};
 	void* _dummy;
 	void*(*memalloc)( size_t sz, int flags );
 	void*(*memrealloc)( void* ptr, size_t sz, int flags);
@@ -143,7 +138,6 @@ struct coprthr_device {
 	struct coprthr_device_info* devinfo;
 	struct coprthr_device_state* devstate;
 	struct coprthr_device_operations* devops;
-	/* struct coprthr_device_commands* devcmds; */
 	union {
 		struct coprthr_device_commands* devcmds;
 		cmdcall_t* v_cmdcall;

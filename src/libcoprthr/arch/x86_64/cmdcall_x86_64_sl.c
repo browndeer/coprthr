@@ -82,6 +82,7 @@ struct coprthr_device_operations devops_x86_64_sl = {
    .memcopy = __coprthr_memcopy
 };
 
+
 /***
  *** direct device cmd operations
  ***/
@@ -172,10 +173,6 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 
 }
 
-
-
-
-/********************************************************************/
 
 static void* task( struct coprthr_device* dev, void* argp)
 {
@@ -488,28 +485,6 @@ static void* release_gl_objects(struct coprthr_device* dev, void* argp)
  * XXX a runtime option that simply modifies the cmdcall table. -DAR
  */
 
-/*
-cmdcall_t cmdcall_x86_64_sl[] = {
-	0,
-	exec_ndrange_kernel,
-	task,
-	native_kernel,
-	read_buffer,	
-	write_buffer,	
-	copy_buffer,	
-	read_image,
-	write_image,
-	copy_image,
-	copy_image_to_buffer,
-	copy_buffer_to_image,
-	map_buffer,
-	map_image,
-	unmap_mem_object,
-	marker,
-	acquire_gl_objects,
-	release_gl_objects
-};
-*/
 
 struct coprthr_device_commands devcmds_x86_64_sl = {
    .cmd_ndrange_kernel = exec_ndrange_kernel,
