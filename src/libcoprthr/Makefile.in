@@ -89,7 +89,7 @@ else
 LIBS += -ldl 
 endif
 
-LIBS += -Larch/x86_64 -lcoprthr_arch_x86_64
+#LIBS += -Larch/x86_64 -lcoprthr_arch_x86_64
 
 OBJS = $(XCL_OBJS) $(IMP_OBJS)
 
@@ -146,7 +146,8 @@ $(SUBDIRS):
 
 libcoprthr.so: $(IMP_OBJS) 
 	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthr.so -o libcoprthr.so  $(IMP_OBJS) $(LIBS)
+		-shared -Wl,-soname,libcoprthr.so -Wl,--export-dynamic \
+		-o libcoprthr.so  $(IMP_OBJS) $(LIBS)
 
 #debug:
 #	export ENABLE_DEBUG=1

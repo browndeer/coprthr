@@ -55,6 +55,10 @@
 #define __CLMAXSTR_LEN 1023
 #define __CLMAXSTR_BUFSZ (__CLMAXSTR_LEN+1)
 
+int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h,
+   char* kname );
+
+
 //char* strnlen_ws( char* p, char* s, size_t maxlen)
 //{
 //   size_t sz = strnlen(s,maxlen);

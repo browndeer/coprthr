@@ -42,14 +42,14 @@
 #include "coprthr_arch.h"
 #include "device.h"
 #include "cmdcall.h"
-#include "cmdcall_x86_64_sl.h"
+//#include "cmdcall_x86_64_sl.h"
 #include "compiler.h"
 #include "program.h"
 
 #include "coprthr.h"
 
-struct coprthr_device* __coprthr_do_discover_device_x86_64(void);
-struct coprthr_device* __coprthr_do_discover_device_i386(void);
+//struct coprthr_device* __coprthr_do_discover_device_x86_64(void);
+//struct coprthr_device* __coprthr_do_discover_device_i386(void);
 
 #ifndef min
 #define min(a,b) ((a<b)?a:b)
@@ -58,7 +58,8 @@ struct coprthr_device* __coprthr_do_discover_device_i386(void);
 struct __coprthr_supptab_entry {
 	int id;
 	const char* name;
-	__coprthr_device_discover_t discover;
+//	__coprthr_device_discover_t discover;
+	const char* libname;
 };
 
 /*
@@ -69,7 +70,8 @@ struct __coprthr_supptab_entry {
  * e32
  */
 struct __coprthr_supptab_entry __coprthr_supptab[] = {
-	{ COPRTHR_ARCH_ID_X86_64, "x86_64", __coprthr_do_discover_device_x86_64 },
+//	{ COPRTHR_ARCH_ID_X86_64, "x86_64", __coprthr_do_discover_device_x86_64 },
+	{ COPRTHR_ARCH_ID_X86_64, "x86_64", "libcoprthr_arch_x86_64.so" },
 	{ COPRTHR_ARCH_ID_I386, "i386", 0 },
 	{ COPRTHR_ARCH_ID_ARM32, "ARM (32-bit)", 0 },
 	{ COPRTHR_ARCH_ID_E32_EMEK, "Epiphany EMEK (32-bit)", 0 },
@@ -102,7 +104,15 @@ void __do_discover_devices_1(
 	struct coprthr_device** codevtab = (struct coprthr_device**)
 		malloc(COPRTHR_DEVICE_NSUPP_MAX*sizeof(struct coprthr_device*));
 
-	codevtab[nsupp++] = __coprthr_do_discover_device_x86_64();
+	void* h0 = dlopen("libcoprthr.so",RTLD_NOW|RTLD_GLOBAL);
+
+	void* h = dlopen(__coprthr_supptab[0].libname,RTLD_LAZY);
+	if (!h) printcl( CL_WARNING "%s", dlerror() );
+	__coprthr_device_discover_t discover = dlsym(h,
+		"__coprthr_do_discover_device_x86_64");
+	printcl( CL_DEBUG "h=%p discover=%p",h,discover);
+//	codevtab[nsupp++] = __coprthr_do_discover_device_x86_64();
+	codevtab[nsupp++] = discover();
 	codevtab[nsupp++] = 0; // __coprthr_do_discover_device_i386();
 
 	int navail = 0;
