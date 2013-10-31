@@ -29,7 +29,7 @@ void snprintf_units( char* buf, size_t n, unsigned int val)
 {
 	if (val >= 1000000)
 		snprintf(buf,n,"%3dM",val/1000000);
-	if (val >= 1000)
+	else if (val >= 1000)
 		snprintf(buf,n,"%3dK",val/1000);
 	else
 		snprintf(buf,n,"%3d",val);
