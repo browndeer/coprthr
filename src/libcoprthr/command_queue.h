@@ -26,7 +26,11 @@
 #include "coprthr_device.h"
 #include "coprthr_sched.h"
 
-#define __lock_cmdq1(cmdq1) pthread_mutex_lock( &((cmdq1)->mtx) )
+#define __lock_cmdq1(cmdq1) do { \
+	if (!cmdq1) { printcl( CL_ERR "null cmdq"); \
+	exit(1); } \
+	pthread_mutex_lock( &((cmdq1)->mtx) ); \
+	} while(0)
 
 #define __unlock_cmdq1(cmdq1) pthread_mutex_unlock( &((cmdq1)->mtx) )
 

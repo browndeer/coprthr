@@ -34,8 +34,13 @@ void __do_create_command_queue_1( struct coprthr_device* dev )
 {
 	struct coprthr_command_queue* cmdq1 = dev->devstate->cmdq;
 
-	if (!cmdq1)	/* XXX is this check necessary? -DAR */
-		cmdq1 = (struct coprthr_command_queue*)
+//	if (!cmdq1)	/* XXX is this check necessary? -DAR */
+	if (cmdq1) {
+		printcl( CL_WARNING "__do_create_command_queue_1: cmdq exists" );
+		return;
+	}
+
+	dev->devstate->cmdq = cmdq1 = (struct coprthr_command_queue*)
 			malloc( sizeof(struct coprthr_command_queue));
 
 	__coprthr_init_command_queue(cmdq1);
@@ -57,7 +62,7 @@ void __do_create_command_queue_1( struct coprthr_device* dev )
 	__sig_cmdq1(cmdq1);
 	__unlock_cmdq1(cmdq1);
 
-	dev->devstate->cmdq = cmdq1;
+//	dev->devstate->cmdq = cmdq1;
 
 	printcl( CL_DEBUG "signaled cmdq1 with qstat ->1\n");
 }

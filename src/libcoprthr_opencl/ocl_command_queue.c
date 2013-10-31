@@ -239,6 +239,8 @@ clSetCommandQueueProperty( cl_command_queue, cl_command_queue_properties,
 
 void __do_create_command_queue( cl_command_queue cmdq ) 
 {
+	printcl( CL_DEBUG "__do_create_command_queue: dev=%p",cmdq->devid->codev);
+
 	__do_create_command_queue_1( cmdq->devid->codev );
 	cmdq->ptr_imp = cmdq->devid->codev->devstate->cmdq;
 	
