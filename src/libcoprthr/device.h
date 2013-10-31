@@ -23,7 +23,17 @@
 #ifndef _device_h
 #define _device_h
 
-typedef struct coprthr_device* (*__coprthr_device_discover_t) (void);
+#include "coprthr_device.h"
+
+typedef int (*coprthr_init_device_call_t) (void);
+
+#define coprthr_device_init(initfn) \
+static inline coprthr_init_device_call_t __init_device_call_test(void) \
+{ return initfn; } \
+int coprthr_init_device(void) __attribute__((alias(#initfn)));
+
+int coprthr_register_device( struct coprthr_device* dev );
+
 
 void __do_discover_devices_1(
    unsigned int* p_ndevices,

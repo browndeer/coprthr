@@ -39,7 +39,7 @@
 
 #include "device.h"
 #include "cmdcall.h"
-#include "cmdcall_x86_64_sl.h"
+//#include "cmdcall_x86_64_sl.h"
 #include "compiler.h"
 #include "program.h"
 #include "memobj.h"
@@ -55,9 +55,11 @@
 #define __CLMAXSTR_LEN 1023
 #define __CLMAXSTR_BUFSZ (__CLMAXSTR_LEN+1)
 
+struct coprthr_device_commands devcmds_x86_64;
+struct coprthr_device_operations devops_x86_64;
+
 int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h,
    char* kname );
-
 
 //char* strnlen_ws( char* p, char* s, size_t maxlen)
 //{
@@ -81,9 +83,9 @@ static char* truncate_ws(char* buf)
 
 static void* dlh_compiler = 0;
 
-struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
+static int init_device_x86_64(void)
 {
-	printcl( CL_DEBUG "__coprthr_do_discover_device_x86_64");
+	printcl( CL_DEBUG "init_device_x86_64");
 
 	struct coprthr_device* codev = malloc(sizeof(struct coprthr_device));
 	codev->devinfo = malloc(sizeof(struct coprthr_device_info));
@@ -91,6 +93,11 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	codev->devops = malloc(sizeof(struct coprthr_device_operations));
 	codev->devcomp = malloc(sizeof(struct coprthr_device_compiler));
 	codev->devlink = malloc(sizeof(struct coprthr_device_linker));
+
+
+	/***
+	 *** set devinfo
+	 ***/
 
 	/* assume we have at least one multicore CPU device */
 
@@ -259,6 +266,10 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	__terminate(codev->devinfo->version);
 
 
+	/***
+	 *** set devcomp, devlink, devops, devcmds
+	 ***/
+
 	dlh_compiler = dlopen("libcoprthrcc.so",RTLD_LAZY);
 	if (!dlh_compiler) 
 		printcl( CL_WARNING "no compiler,failed to load libcoprthrcc.so");
@@ -268,18 +279,23 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	codev->devcomp->ilcomp = 0;
 	codev->devlink->link = 0;
 	codev->devlink->bind_ksyms = bind_ksyms_default;
-	codev->devops = &devops_x86_64_sl;
-	codev->devcmds = &devcmds_x86_64_sl; /* XXX fix naming -DAR */
+	codev->devops = &devops_x86_64;
+	codev->devcmds = &devcmds_x86_64;
 #elif defined(__arm__)
 	codev->devcomp->comp = dlsym(dlh_compiler,"compile_arm32");;
 	codev->devcomp->ilcomp = 0;
 	codev->devlink->link = 0;
 	codev->devlink->bind_ksyms = bind_ksyms_default;
-	codev->devops = &devops_x86_64_sl;
-	codev->devcmds = &devcmds_x86_64_sl; /* XXX fix naming -DAR */
+	codev->devops = &devops_x86_64;
+	codev->devcmds = &devcmds_x86_64; 
 #else
 #error unsupported architecture
 #endif
+
+
+	/***
+	 *** set devstate
+	 ***/
 
 	if (!codev->devcomp->comp) {
 		printcl( CL_WARNING "no compiler, dlsym failure");
@@ -288,7 +304,6 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 		codev->devstate->compiler_avail = 1;
 	}
 
-
 	int i;
 
 	unsigned int ncore = sysconf(_SC_NPROCESSORS_ONLN);
@@ -296,7 +311,7 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 	if (getenv("COPRTHR_MAX_NUM_ENGINES"))
 		ncore = min(ncore,atoi(getenv("COPRTHR_MAX_NUM_ENGINES")));
 
-	codev->devstate->avail = 1;
+	codev->devstate->avail = 1; /* device is available */
 	CPU_ZERO(&(codev->devstate->cpumask));
 	for(i=0;i<ncore;i++) CPU_SET(i,&(codev->devstate->cpumask));
 	codev->devstate->cpu.veid_base = 0;
@@ -306,10 +321,15 @@ struct coprthr_device* __coprthr_do_discover_device_x86_64(void)
 
 	codev->devstate->locked_pid = 0;
 
-	printcl( CL_DEBUG "returning codev %p",codev);
 
-	return codev;
+//	printcl( CL_DEBUG "returning codev %p",codev);
+
+	coprthr_register_device(codev);
+
+//	return codev;
+	return 0;
 
 }
 
+coprthr_device_init(init_device_x86_64);
 

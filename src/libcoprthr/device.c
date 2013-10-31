@@ -42,14 +42,10 @@
 #include "coprthr_arch.h"
 #include "device.h"
 #include "cmdcall.h"
-//#include "cmdcall_x86_64_sl.h"
 #include "compiler.h"
 #include "program.h"
 
 #include "coprthr.h"
-
-//struct coprthr_device* __coprthr_do_discover_device_x86_64(void);
-//struct coprthr_device* __coprthr_do_discover_device_i386(void);
 
 #ifndef min
 #define min(a,b) ((a<b)?a:b)
@@ -58,7 +54,6 @@
 struct __coprthr_supptab_entry {
 	int id;
 	const char* name;
-//	__coprthr_device_discover_t discover;
 	const char* libname;
 };
 
@@ -70,12 +65,11 @@ struct __coprthr_supptab_entry {
  * e32
  */
 struct __coprthr_supptab_entry __coprthr_supptab[] = {
-//	{ COPRTHR_ARCH_ID_X86_64, "x86_64", __coprthr_do_discover_device_x86_64 },
 	{ COPRTHR_ARCH_ID_X86_64, "x86_64", "libcoprthr_arch_x86_64.so" },
 	{ COPRTHR_ARCH_ID_I386, "i386", 0 },
 	{ COPRTHR_ARCH_ID_ARM32, "ARM (32-bit)", 0 },
 	{ COPRTHR_ARCH_ID_E32_EMEK, "Epiphany EMEK (32-bit)", 0 },
-	{ COPRTHR_ARCH_ID_E32, "Epiphany (32-bit)", 0 }
+	{ COPRTHR_ARCH_ID_E32, "Epiphany (32-bit)", "libcoprthr_arch_e32.so" }
 };
 
 
@@ -85,8 +79,14 @@ void* dlh_compiler = 0;
 
 #define COPRTHR_DEVICE_NSUPP_MAX 16
 
-//struct coprthr_device* __coprthr_do_discover_device_x86_64(void);
-//struct coprthr_device* __coprthr_do_discover_device_i386(void);
+static int nsupp = 0;
+static struct coprthr_device** codevtab = 0;
+
+int coprthr_register_device( struct coprthr_device* dev ) 
+{
+	codevtab[nsupp++] = dev;
+	return 0;
+}
 
 void __do_discover_devices_1(
 	unsigned int* p_ndevices, 
@@ -100,19 +100,22 @@ void __do_discover_devices_1(
 
 	if (*p_devtab) return;
 
-	int nsupp = 0;
-	struct coprthr_device** codevtab = (struct coprthr_device**)
+	codevtab = (struct coprthr_device**)
 		malloc(COPRTHR_DEVICE_NSUPP_MAX*sizeof(struct coprthr_device*));
 
 	void* h0 = dlopen("libcoprthr.so",RTLD_NOW|RTLD_GLOBAL);
 
-	void* h = dlopen(__coprthr_supptab[0].libname,RTLD_LAZY);
-	if (!h) printcl( CL_WARNING "%s", dlerror() );
-	__coprthr_device_discover_t discover = dlsym(h,
-		"__coprthr_do_discover_device_x86_64");
-	printcl( CL_DEBUG "h=%p discover=%p",h,discover);
-//	codevtab[nsupp++] = __coprthr_do_discover_device_x86_64();
-	codevtab[nsupp++] = discover();
+	/* for each supported device */
+	{
+		void* h = dlopen(__coprthr_supptab[0].libname,RTLD_LAZY);
+		if (!h) printcl( CL_WARNING "%s", dlerror() );
+
+		coprthr_init_device_call_t init_device = dlsym(h,
+			"coprthr_init_device");
+		printcl( CL_DEBUG "h=%p init_device=%p",h,init_device);
+
+		init_device();
+	}
 	codevtab[nsupp++] = 0; // __coprthr_do_discover_device_i386();
 
 	int navail = 0;

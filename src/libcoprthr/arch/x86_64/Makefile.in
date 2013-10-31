@@ -45,8 +45,7 @@ endif
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
 ############################################################################
 
-IMP_OBJS = device_x86_64.o \
-	cmdcall_x86_64_sl.o sl_engine.o 
+IMP_OBJS = device_x86_64.o devops_x86_64.o devcmds_x86_64.o sl_engine.o 
 
 INSTALL_HDRS = sl_engine.h 
 
