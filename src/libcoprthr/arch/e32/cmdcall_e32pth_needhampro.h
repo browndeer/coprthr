@@ -1,6 +1,6 @@
-/* program.h
+/* cmdcall_e32pth_needhampro.h
  *
- * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,23 +20,14 @@
 
 /* DAR */
 
-#ifndef _program_h
-#define _program_h
+#ifndef _CMDCALL_E32PTH_NEEDHAMPRO_H
+#define _CMDCALL_E32PTH_NEEDHAMPRO_H
 
-#include "coprthr_program.h"
+#include <CL/cl.h>
 
-void __do_release_program_1(struct coprthr1_program* prg1);
+#include "cmdcall.h"
 
-unsigned int __do_build_program_from_binary_1( struct coprthr1_program* prg1 );
-
-int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h, 
-	char* kname );
-
-struct program_info_struct {
-   unsigned int core_local_data;
-   unsigned int stack_size;
-};
+extern cmdcall_t cmdcall_e32pth_needhampro[];
 
 #endif
-
 

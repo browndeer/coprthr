@@ -42,27 +42,27 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 
-#define DEFAULT_BUF1_SZ 16384
-#define DEFAULT_BUF2_SZ 16384
-#define DEFAULT_BUILD_LOG_SZ 256
+#define DEFAULT_BUF1_SZ 163840
+#define DEFAULT_BUF2_SZ 163840
+#define DEFAULT_BUILD_LOG_SZ 25600
 
-#define DEFAULT_CMD_SZ 16384
+#define DEFAULT_CMD_SZ 163840
+
+
+#define __asprintf(pstr,fmt,...) do { \
+   if (*pstr) free(*pstr); \
+   asprintf(pstr,fmt,##__VA_ARGS__); \
+   } while(0)
+
+#define __append_asprintf(pstr,FMT,...) do { \
+   char* ptmp = 0; \
+   if (*pstr) { asprintf(&ptmp,"%s" FMT,*pstr,##__VA_ARGS__); free(*pstr); } \
+   else { asprintf(&ptmp,FMT,##__VA_ARGS__); } \
+   *pstr = ptmp; \
+   } while(0)
 
 
 //static char* buf1 = 0;
-
-#define __asprintf(pstr, fmt ,...) do { \
-	if (*pstr) free(*pstr); \
-	asprintf(pstr,fmt,##__VA_ARGS__); \
-	} while(0)
-
-#define __append_asprintf(pstr,FMT,...) do { \
-	char* ptmp = 0; \
-	if (*pstr) { asprintf(&ptmp,"%s" FMT,*pstr,##__VA_ARGS__); free(*pstr); } \
-	else { asprintf(&ptmp,FMT,##__VA_ARGS__); } \
-	*pstr = ptmp; \
-	} while(0)
-
 
 
 #define CLERROR_BUILD_FAILED -1
@@ -152,9 +152,12 @@ static int mapfile( char* file, size_t* pfilesz, char** ppfile)
 static void remove_work_dir(char* wd)
 {
 	char fullpath[256];
+	printcl( CL_DEBUG "try to open dir %s",wd);
 	DIR* dirp = opendir(wd);
+	printcl( CL_DEBUG "dirp=%p",dirp);
 	struct dirent* dp;
 	while ( (dp=readdir(dirp)) ) {
+		printcl( CL_DEBUG "d_name=%s",dp->d_name);
 		if (strncmp(dp->d_name,".",2) || strncmp(dp->d_name,"..",3)) {
 			strncpy(fullpath,wd,256);
 			strncat(fullpath,"/",256);
@@ -191,16 +194,6 @@ static void append_str( char** pstr1, char* str2, char* sep, size_t n )
 } }while(0)
 
 /*
-static int __test_file( char* file ) 
-{
-	struct stat s;
-	int err = stat(file,&s);
-	printcl( CL_DEBUG "__test_file %d", err);
-	return (stat(file,&s));
-}
-*/
-
-/*
 #define __shell_command( fmt, ... ) do { \
    __command(fmt,##__VA_ARGS__); \
    __log(logp,"]%s\n",buf1); \
@@ -218,21 +211,31 @@ static int copy_file_to_mem(
 	const char* path, unsigned char** p_buf, size_t* p_sz )
 {
 
+	printcl(CL_DEBUG "path=%s",path);
+
 	struct stat fst;
 	stat(path,&fst);
 
 	if (S_ISREG(fst.st_mode) && fst.st_size > 0) {
 
 		int fd = open(path,O_RDONLY,0);
+		printcl( CL_DEBUG "fd=%d",fd);
 		if (fd < 0) return(-1);
 
 		size_t fsz = fst.st_size;
+		printcl( CL_DEBUG "p_sz=%p",p_sz);
+		printcl( CL_DEBUG "p_buf=%p",p_buf);
+
 		*p_sz = fsz;
       *p_buf = (unsigned char*)malloc(fsz);
-      void* p = mmap(0,fsz,PROT_READ,MAP_PRIVATE,fd,0);
-      memcpy(*p_buf,p,fsz);
-      munmap(p,fsz);
+		printcl( CL_DEBUG "*p_buf=%p",*p_buf);
+
+		size_t n = read(fd,*p_buf,fsz);
+		printcl( CL_DEBUG "n=%ld",n);
+
 		close(fd);
+
+		printcl( CL_DEBUG "returning");
 
 		return(0);
 
@@ -256,7 +259,6 @@ static int get_nsym( const char* wd, const char* file_cl, const char* opt )
       "   if ($0!~/^#/ && pr==1) print $0;"
       " }' | xclnm -n -d - ",wd,file_cl,opt,file_cl);
 
-//      printcl( CL_DEBUG "%s", buf1);
       printcl( CL_DEBUG "%s", cmd);
 
 	FILE* fp = popen(cmd,"r");
@@ -480,8 +482,14 @@ static int build_clargtab(
 	size_t* p_clstrtab_alloc_sz, size_t* p_clstrtab_sz, char** p_clstrtab
 ) 
 {
+	printcl( CL_DEBUG "build_clargtab" );
+
+	printcl( CL_DEBUG "p_clargtab=%p",p_clargtab );
+
 	*p_clargtab = (struct clargtab_entry*)
          calloc(narg,sizeof(struct clargtab_entry));
+
+	printcl( CL_DEBUG "*p_clargtab=%p",*p_clargtab );
 
 	int i=0;
 	
@@ -509,14 +517,19 @@ static int build_clargtab(
 		"   if ($0!~/^#/ && pr==1) print $0;"
 		" }' | xclnm --clargtab -d -c - ",wd,file_cl,opt,file_cl);
 		
+	printcl( CL_DEBUG "cmd=%s",cmd );
+
 	FILE* fp = popen(cmd,"r");
+	printcl( CL_DEBUG "fp=%p",fp );
 	while (!feof(fp)) {
 
 		if (fscanf(fp,"%d %s %d %d %d %d %d %d %s ",
 			&ii, aname,
 			&datatype,&vecn,&arrn,&addrspace,&ptrc,
 			&argn,name)==EOF) { break; }
-		
+	
+		printcl( CL_DEBUG "%d %s %d %d %d %d %d %d %s ",ii,aname,datatype,vecn,arrn,addrspace,ptrc,argn,name);
+	
 		if (ii!=i) return(-2);
 
 		(*p_clargtab)[i] = init_clargtab_entry(0,datatype,vecn,arrn,addrspace,
@@ -528,6 +541,7 @@ static int build_clargtab(
 		++i;
 	}
 	pclose(fp);
+	printcl( CL_DEBUG "after pclose" );
 	free(name);
 	free(aname);
 	return(0);
@@ -541,16 +555,15 @@ static int exec_shell(char* cmd, char** log)
 	char* p = tmplog;
 	*(p++) = '\0';
 
-   printcl( CL_DEBUG "before __append_asprintf");
 	__append_asprintf(log,"execshell> %s\n",cmd);
+
    printcl( CL_DEBUG "execshell> %s",cmd);
 
    FILE* fp = popen(cmd,"r"); 
 	char c;
-	printcl( CL_DEBUG "fp=%p", fp);
    while(!feof(fp) && !ferror(fp)) {
 		c=fgetc(fp);
-		if (feof(fp)) { printcl( CL_DEBUG "feof"); break; }
+		if (feof(fp)) break;
 		if (p-tmplog > tmplog_alloc_sz-1) {
 			size_t offset = (size_t)(p-tmplog);
 			tmplog_alloc_sz += 128;
@@ -558,15 +571,10 @@ static int exec_shell(char* cmd, char** log)
 			p = tmplog + offset;
 		}
 		*(p++) = c;
-		printcl( CL_DEBUG "exec_shell |%c|%s|", c,tmplog);
 	}
    pclose(fp);
 
-	printcl( CL_DEBUG "tmplog(%ld)|%s|",strlen(tmplog),tmplog);
-
 	__append_asprintf(log,"\n%s",tmplog);
-
-	printcl( CL_DEBUG "log|%s|",*log);
 
 	return(0);
 }

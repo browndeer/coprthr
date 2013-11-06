@@ -82,10 +82,12 @@ static char* truncate_ws(char* buf)
 }
 
 static void* dlh_compiler = 0;
+static int called = 0;
 
 static int init_device_x86_64(void)
 {
 	printcl( CL_DEBUG "init_device_x86_64");
+//	if (called) return 0;
 
 	struct coprthr_device* codev = malloc(sizeof(struct coprthr_device));
 	codev->devinfo = malloc(sizeof(struct coprthr_device_info));
@@ -94,6 +96,7 @@ static int init_device_x86_64(void)
 	codev->devcomp = malloc(sizeof(struct coprthr_device_compiler));
 	codev->devlink = malloc(sizeof(struct coprthr_device_linker));
 
+//	if (called) return 0;
 
 	/***
 	 *** set devinfo
@@ -116,10 +119,14 @@ static int init_device_x86_64(void)
 
 	FILE* fp;
 	struct stat fs;
-	char buf[1024];
+//	char buf[1024];
+	char* buf = malloc(1024);
 	size_t sz;
 
+//	if (called) return 0;
+
 #if defined(__FreeBSD__)
+
 
 	int val=0;
 	sz=4;
@@ -137,7 +144,9 @@ static int init_device_x86_64(void)
 	sz = 1+strnlen(bufp,__CLMAXSTR_LEN);
 	codev->devinfo->name = strndup(bufp,sz);
 
+
 #elif defined(__x86_64__) || defined(__i386__)
+
 
 	if (stat("/proc/cpuinfo",&fs)) {
 		printcl( CL_WARNING "stat failed on /proc/cpuinfo");
@@ -201,6 +210,7 @@ static int init_device_x86_64(void)
 
 	fclose(fp);
 
+
 #elif defined(__arm__) 
 
 	if (stat("/proc/cpuinfo",&fs)) {
@@ -208,9 +218,15 @@ static int init_device_x86_64(void)
 		return;
 	}
 
-	fp = fopen("/proc/cpuinfo","r");
+//	fp = fopen("/proc/cpuinfo","r");
+//	fp = popen("cat /proc/cpuinfo","r");
 
+//	printcl( CL_DEBUG "fp=%p",fp);
+
+/*
 	while (fgets(buf,1024,fp)) {
+
+printcl( CL_DEBUG "fgets |%s|",buf);
 
 		char* savptr;
 		char* left = (char*)strtok_r(buf,":",&savptr);
@@ -222,23 +238,30 @@ static int init_device_x86_64(void)
 
 		} else if (!strncmp(left,"Processor",9)) {
 
-			right = truncate_ws(right);
-			sz = 1+strnlen(right,__CLMAXSTR_LEN);
-			codev->devinfo->name = strndup(right,sz);
+//			right = truncate_ws(right);
+//			sz = 1+strnlen(right,__CLMAXSTR_LEN);
+//			codev->devinfo->name = strndup(right,sz);
 
 		} else if (!strncasecmp(left,"CPU implementer",15)) {
 
-			right = truncate_ws(right);
-			sz = 1+strnlen(right,__CLMAXSTR_LEN);
-			codev->devinfo->vendor = strndup(right,sz);
-
+//			right = truncate_ws(right);
+//			sz = 1+strnlen(right,__CLMAXSTR_LEN);
+//			codev->devinfo->vendor = strndup(right,sz);
+//			codev->devinfo->vendor = strndup("foo",5);
+//			codev->devinfo->vendor = strdup("foo");
+//printcl( CL_DEBUG "%ld|%s|",sz,right);
 		}
 
 	}
+*/
 
-	fclose(fp);
+//codev->devinfo->vendor = strdup("foo");
+//char* pfoo = malloc(10);
+//strncpy(pfoo,"foo",10);
+//	fclose(fp);
+//codev->devinfo->vendor = pfoo;
 
-
+/*
 	if (stat("/proc/meminfo",&fs)) {
 		printcl( CL_WARNING "stat failed on /proc/meminfo");
 		return;
@@ -255,8 +278,15 @@ static int init_device_x86_64(void)
 	}
 
 	fclose(fp);
+*/
+
+codev->devinfo->max_compute_units = 2;
+codev->devinfo->name = strdup("ARMv7 Processor rev 0 (v7l)");
+codev->devinfo->vendor = strdup("Xilinx");
+
 
 #endif
+
 
 	#define __terminate(p) do { if (!p) p = strdup("unknown"); } while(0)
 	__terminate(codev->devinfo->name);
@@ -265,6 +295,9 @@ static int init_device_x86_64(void)
 	__terminate(codev->devinfo->profile);
 	__terminate(codev->devinfo->version);
 
+
+
+//	if (called) return 0;
 
 	/***
 	 *** set devcomp, devlink, devops, devcmds
@@ -292,6 +325,7 @@ static int init_device_x86_64(void)
 #error unsupported architecture
 #endif
 
+//	if (called) return 0;
 
 	/***
 	 *** set devstate
@@ -324,9 +358,14 @@ static int init_device_x86_64(void)
 
 //	printcl( CL_DEBUG "returning codev %p",codev);
 
+//	if (called) return 0;
+
 	coprthr_register_device(codev);
 
+	if (called) return 0;
+
 //	return codev;
+	called = 1;
 	return 0;
 
 }

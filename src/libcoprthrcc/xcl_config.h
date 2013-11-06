@@ -1,6 +1,6 @@
-/* program.h
+/* xcl_config.h
  *
- * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,22 +20,28 @@
 
 /* DAR */
 
-#ifndef _program_h
-#define _program_h
+/* Implementation configuration settings should be collected here -DAR */
 
-#include "coprthr_program.h"
+#ifndef _XCL_CONFIG_H
+#define _XCL_CONFIG_H
 
-void __do_release_program_1(struct coprthr1_program* prg1);
 
-unsigned int __do_build_program_from_binary_1( struct coprthr1_program* prg1 );
+/* select one and only one execution model */
+//#define USE_E32SER /* select serialized execution model */
+//#define USE_E32SL /* select SJ/LJ threads execution model */
+#define USE_E32PTH /* select parallel threads execution model */
 
-int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h, 
-	char* kname );
 
-struct program_info_struct {
-   unsigned int core_local_data;
-   unsigned int stack_size;
-};
+#if !defined(USE_E32SER) && !defined(USE_E32SL) && !defined(USE_E32PTH)
+#error no execution model selected
+#endif
+
+
+/* enable e32 OpenCL extensions */
+#ifdef USE_E32PTH /* XXX developed for PTH model */
+#define USE_E32_OPENCL_EXT
+#endif
+
 
 #endif
 

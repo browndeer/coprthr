@@ -568,6 +568,8 @@ void* coprthr_devread(
 
 //	struct coprthr_event* ev1 = (struct coprthr_event*)
 //		malloc(sizeof(struct coprthr_event));
+
+/*
 	struct coprthr_event* ev1 = 0;
 	__coprthr_init_event(ev1);
 
@@ -576,7 +578,10 @@ void* coprthr_devread(
 	__do_exec_cmd_1( dev,ev1);
 
 	return ev1;
+*/
 
+	dev->devops->memread(dptr,buf,len);
+	return 0;
 }
 
 void* coprthr_dmwrite( 
@@ -588,6 +593,7 @@ void* coprthr_dmwrite(
 
 //	struct coprthr_event* ev1 = (struct coprthr_event*)
 //		malloc(sizeof(struct coprthr_event));
+
 	struct coprthr_event* ev1 = 0;
 	__coprthr_init_event(ev1);
 
@@ -598,7 +604,9 @@ void* coprthr_dmwrite(
 	__do_enqueue_cmd_1( dev,ev1);
 
 	return ev1;
-
+	
+	dev->devops->memwrite(dptr,buf,len);
+	return 0;
 }
 
 void* coprthr_devwrite( 
@@ -611,6 +619,8 @@ void* coprthr_devwrite(
 
 //	struct coprthr_event* ev1 = (struct coprthr_event*)
 //		malloc(sizeof(struct coprthr_event));
+
+/*
 	struct coprthr_event* ev1 = 0;
 	__coprthr_init_event(ev1);
 
@@ -619,7 +629,10 @@ void* coprthr_devwrite(
 	__do_exec_cmd_1( dev,ev1);
 
 	return ev1;
+*/
 
+	dev->devops->memwrite(dptr,buf,len);
+	return 0;
 }
 
 void coprthr_dwaitev( int dd, struct coprthr_event* ev1)
@@ -673,7 +686,7 @@ void* coprthr_devexec(
 
 	size_t gwo = 0;
 	size_t gws = nthr;
-	size_t lws = 1;
+	size_t lws = 16;
 
 	__do_set_cmd_ndrange_kernel_1( ev1, krn1, 1, &gwo, &gws, &lws);
 

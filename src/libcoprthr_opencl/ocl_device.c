@@ -41,6 +41,10 @@ void __do_discover_opencl_device_info_x86_64(
 	struct coprthr_device* dev,
 	struct opencl_device_info* ocldevinfo );
 
+void __do_discover_opencl_device_info_e32(
+	struct coprthr_device* dev,
+	struct opencl_device_info* ocldevinfo );
+
 #define min(a,b) ((a<b)?a:b)
 
 // Device API Calls
@@ -529,6 +533,9 @@ void __do_discover_devices(
 
 	__do_discover_devices_1(p_ndevices,&devtab,flag);
 
+/* XXX HACK */
+//*p_ndevices = 1;
+
 	struct _cl_device_id* dtab = *p_dtab = (struct _cl_device_id*)
       malloc(*p_ndevices*sizeof(struct _cl_device_id));
 
@@ -547,6 +554,12 @@ void __do_discover_devices(
 			case COPRTHR_ARCH_ID_X86_64:
 				printcl( CL_DEBUG "DEVICE %d is arch x86_64",i);
 				__do_discover_opencl_device_info_x86_64(dtab[i].codev,
+					dtab[i].ocldevinfo);
+				break;
+
+			case COPRTHR_ARCH_ID_E32:
+				printcl( CL_DEBUG "DEVICE %d is arch e32",i);
+				__do_discover_opencl_device_info_e32(dtab[i].codev,
 					dtab[i].ocldevinfo);
 				break;
 
@@ -717,4 +730,59 @@ void __do_discover_opencl_device_info_x86_64(
 		= (dev->devstate->compiler_avail==0)? CL_FALSE : CL_TRUE;
 }
 
+
+void __do_discover_opencl_device_info_e32(
+	struct coprthr_device* dev, struct opencl_device_info* ocldevinfo )
+{
+	*ocldevinfo = (struct opencl_device_info){
+		.devtype = CL_DEVICE_TYPE_ACCELERATOR,
+		.vendorid = 0,
+      .max_compute_units = 1,          /* max_compute_units */
+      .max_wi_dim = 3,
+      .max_wi_sz = {1,1,1,0}, /* max_wi_dim,max_wi_sz[] */
+      .max_wg_sz = 16,           /* max_wg_sz */
+      .pref_charn = 4,
+      .pref_shortn = 2,
+      .pref_intn = 1,
+      .pref_longn = 1,
+      .pref_floatn = 1,
+      .pref_doublen = 1,   /* pref_char/short/int/long/float/double/n */
+      .max_freq = 0,          /* max_freq */
+      .addr_bits = 32,        /* bits */
+      .max_mem_alloc_sz = 1024*1024*1024,    /* max_mem_alloc_sz */
+      .supp_img = CL_FALSE,   /* supp_img */
+      .img_max_narg_r = 0,
+      .img_max_narg_w = 0,          /* img_max_narg_r, img_max_narg_w */
+		.img2d_max_width = 0,
+      .img2d_max_height = 0,        /* img2d_max_width, img2d_max_height */
+      .img3d_max_width = 0,
+      .img3d_max_height = 0,
+      .img3d_max_depth = 0,/* img3d_max_width,img3d_max_height,img3d_max_depth*/
+      .max_samplers = 0,         /* max_samplers */
+      .max_param_sz = 256,          /* max_param_sz */
+      .mem_align_bits = 32,         /* mem_align_bits */
+      .datatype_align_sz = 8,          /* datatype_align_sz */
+      .single_fp_config = CL_FP_ROUND_TO_NEAREST|CL_FP_INF_NAN, /* single_fp_config */
+      .global_mem_cache_type = CL_NONE,   /* global_mem_cache_type */
+      .global_mem_cacheline_sz = 0,          /* global_mem_cacheline_sz */
+      .global_mem_cache_sz = 0,        /* global_mem_cache_sz */
+      .global_mem_sz = dev->devinfo->global_mem_sz,  /* global_mem_sz */
+      .max_const_buffer_sz = 0,       /* cl_ulong max_const_buffer_sz */
+      .max_const_narg = 0,          /* max_const_narg */
+      .local_mem_type = CL_GLOBAL,  /* local_mem_type */
+      .local_mem_sz = dev->devinfo->local_mem_sz,     /* local_mem_sz */
+      .supp_ec = CL_FALSE, /* supp_ec */
+      .prof_timer_res = 0,          /* prof_timer_res */
+      .endian_little = CL_TRUE,     /* endian_little */
+      .supp_exec_cap = CL_EXEC_KERNEL, /* supp_exec_cap */
+      .cmdq_prop = CL_QUEUE_PROFILING_ENABLE, /* cmdq_prop */
+      .platformid = (cl_platform_id)(-1), /* platformid */
+//      .extensions = "cl_khr_icd"      /* extensions */
+	};
+
+	ocldevinfo->avail = (dev->devstate->avail==0)? CL_FALSE : CL_TRUE;
+
+	ocldevinfo->compiler_avail 
+		= (dev->devstate->compiler_avail==0)? CL_FALSE : CL_TRUE;
+}
 

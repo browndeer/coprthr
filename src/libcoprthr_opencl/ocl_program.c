@@ -118,6 +118,8 @@ _clCreateProgramWithSource(
 			prg->prg1[i]->bin_stat = 0;
 			prg->prg1[i]->bin = 0;
 			prg->prg1[i]->bin_sz = 0;
+			prg->prg1[i]->build_opt = 0;
+			prg->prg1[i]->build_log = 0;
 		}
 
 		prg->refc = 1;
@@ -444,6 +446,9 @@ _clGetProgramBuildInfo(
 
 		case CL_PROGRAM_BUILD_LOG:
 
+			printcl( CL_DEBUG "CL_PROGRAM_BUILD_LOG: build_log=%p", 
+				prg->prg1[j]->build_log);
+
 			sz = strnlen(prg->prg1[j]->build_log,__CLMAXSTR_LEN);
 			__case_get_param(sz,prg->prg1[j]->build_log);
 
@@ -548,6 +553,8 @@ cl_int __do_build_program_from_source(
 
    printcl( CL_DEBUG "build_options[%d] |%s|",
       devnum,prg->prg1[devnum]->build_opt);
+
+	printcl( CL_DEBUG "calling compiler : [%d] %p %p",devnum,&prg->prg1[devnum]->bin,&prg->prg1[devnum]->bin_sz);
 
    int err = comp( devid, prg->prg1[devnum]->src,prg->prg1[devnum]->src_sz,
       &prg->prg1[devnum]->bin,

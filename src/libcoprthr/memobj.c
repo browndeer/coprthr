@@ -69,6 +69,9 @@ void* coprthr_devmemalloc(
 	int flags
 )
 {
+	printcl( CL_DEBUG "dev->devops=%p",dev->devops);
+	printcl( CL_DEBUG "dev->devops->memalloc=%p",dev->devops->memalloc);
+
 	if ( flags & COPRTHR_DEVMEM_TYPEMASK & dev->devinfo->memsup )
 		return dev->devops->memalloc(nmemb*size,flags);
 	else

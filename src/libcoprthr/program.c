@@ -47,6 +47,7 @@ void __do_release_program_1(struct coprthr1_program* prg1)
 			unlink(prg1->dlfile);
 			free(prg1->dlfile);
 		}
+		if (prg1->info) free(prg1->info);
 }
 
 int bind_ksyms_default(struct _coprthr_ksyms_struct* ksyms,void* h,char* kname);
@@ -59,6 +60,7 @@ unsigned int __do_build_program_from_binary_1(
 
 	int i,j;
 
+//void* dummy = malloc(16384); printcl( CL_DEBUG "dummy=%p",dummy);
 
 	printcl( CL_DEBUG "program: bin bin_sz %p %d",
 		prg1->bin,prg1->bin_sz);
@@ -137,6 +139,8 @@ unsigned int __do_build_program_from_binary_1(
 	__clone(prg1->clstrtab,clstrtab,clstrtab_sz,char);
 
 
+//void* dummy = malloc(16384); printcl( CL_DEBUG "dummy=%p",dummy);
+
 	/* XXX adding a section NOT conditional on devnum==0 */
 	{
 		prg1->nkrn = clsymtab_n; /* XXX assumed, revisit in future -DAR */
@@ -148,6 +152,8 @@ unsigned int __do_build_program_from_binary_1(
 			= (unsigned int**)malloc(prg1->nkrn*sizeof(unsigned int*));
 		prg1->karg_sz = (size_t**)malloc(prg1->nkrn*sizeof(size_t*));
 
+		prg1->info = malloc(sizeof(struct program_info_struct));
+		prg1->ksu = (size_t*)malloc(prg1->nkrn*sizeof(size_t));
 
 		for(i=0;i<clsymtab_n;i++) {
 
@@ -161,6 +167,10 @@ unsigned int __do_build_program_from_binary_1(
 			printcl( CL_DEBUG "narg set %d %d",i,prg1->knarg[i] );
 			prg1->karg_kind[i] = (unsigned int*)malloc(narg*sizeof(unsigned int));
 			prg1->karg_sz[i] = (size_t*)malloc(narg*sizeof(size_t));
+
+			prg1->ksu[i] = prg1->clsymtab[i].e_su;
+
+			printcl( CL_DEBUG "ksu[%d]=%ld",i,prg1->ksu[i]);
 
 			j = 0;
 			size_t bufsz = 0;
@@ -273,6 +283,31 @@ unsigned int __do_build_program_from_binary_1(
 		}	
 
 	}
+
+//void* dummy = malloc(16384); printcl( CL_DEBUG "dummy=%p",dummy);
+
+	void* proginfo = dlsym(h,"_program_info");
+
+	if (proginfo) {
+		printcl( CL_DEBUG "_program_info found");
+		memcpy( prg1->info,proginfo,sizeof(struct program_info_struct));
+	}
+
+	unsigned char* srec = dlsym(h,"_binary_e32_srec_start");
+	unsigned char* srec_end = dlsym(h,"_binary_e32_srec_end");
+	size_t srec_sz = srec_end-srec;
+
+	printcl( CL_DEBUG "srec srec_end srec_sz %p %p %ld",srec,srec_end,srec_sz);
+
+//void* dummy = malloc(16384); printcl( CL_DEBUG "dummy=%p",dummy);
+
+	char srectmpfile[] = "/tmp/xclXXXXXX";	
+	{
+	int fd = mkstemp(srectmpfile);
+	write(fd,srec,srec_sz);
+	close(fd);
+	}
+
 
 #if(0)
 	if (devnum == 0) { /* XXX convert into a per-device check -DAR */
@@ -396,19 +431,26 @@ unsigned int __do_build_program_from_binary_1(
 	}
 #endif
 
+//void* dummy = malloc(16384); printcl( CL_DEBUG "dummy=%p",dummy);
 
 	prg1->v_ksyms = (struct _coprthr_ksyms_struct*)
 		malloc(prg1->nkrn*sizeof(struct _coprthr_ksyms_struct));
 
+	printcl( CL_DEBUG "prg1->v_ksyms=%p",prg1->v_ksyms);
 
+//void* dummy = malloc(16384);
 
 	char name[1024];
 	int err;
 
 		prg1->dlh = h;
 		prg1->dlfile = strdup(tmpfile);
+		printcl( CL_DEBUG "kbin = %p",prg1->dlh);
 
-	printcl( CL_DEBUG "kbin = %p",prg1->dlh);
+		prg1->kbin = srec;
+		prg1->kbinfile = strdup(srectmpfile);
+
+//void* dummy = malloc(16384);
 
 	for(i=0;i<prg1->nkrn;i++) {
 
@@ -418,7 +460,14 @@ unsigned int __do_build_program_from_binary_1(
 
 			bind_ksyms_default( &(prg1->v_ksyms[i]), h, prg1->kname[i]);
 
+		prg1->v_ksyms[i].kcall3 = prg1->clsymtab[i].e_sym;
+
+		printcl( CL_DEBUG "kcall3 %s -> %p",prg1->kname[i],
+			prg1->v_ksyms[i].kcall3);
+
 	}
+
+	printcl( CL_DEBUG "build_log=%p",prg1->build_log);
 
 	return(0); 
 }
@@ -454,6 +503,7 @@ int bind_ksyms_default(
 void* coprthr_devcompile( struct coprthr_device* dev, char* src, size_t len, char* opt, char** log )
 {
 	printcl( CL_DEBUG "coprthr_devcompile");
+void* dummy = malloc(16384); printcl( CL_DEBUG "dummy=%p",dummy);
 
 	if (dev) {
 
@@ -472,14 +522,21 @@ void* coprthr_devcompile( struct coprthr_device* dev, char* src, size_t len, cha
 		prg1->src_sz = len;
 		prg1->build_opt = opt;
 
+
+		printcl( CL_DEBUG "calling compiler : %p %p",&prg1->bin, &prg1->bin_sz);
 		int err = comp( 0, prg1->src,prg1->src_sz, 
 			&prg1->bin, &prg1->bin_sz, prg1->build_opt, &prg1->build_log);
 
+
 		if (!err) err = __do_build_program_from_binary_1(prg1);
+		else printcl( CL_DEBUG "compiler returned error code %d",err);
 
 		return(prg1);
 
-	} else return(0);
+	}  else return(0);
+
+void* dummy2 = malloc(16384); printcl( CL_DEBUG "dummy2=%p",dummy2);
+//return 0;
 
 }
 

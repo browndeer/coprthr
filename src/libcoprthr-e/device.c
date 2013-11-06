@@ -370,9 +370,12 @@ void __do_discover_devices(
 	dtab[0].imp.local_mem_sz = einfo.e_core_local_mem_size;
 
 
+	void* h0 = dlopen("libcoprthr-e.so",RTLD_NOW|RTLD_GLOBAL);
+
 	dlh_compiler = dlopen("libcoprthrcc-e.so",RTLD_LAZY);
-	if (!dlh_compiler)
-		printcl( CL_WARNING "no compiler,failed to load libcoprthrcc-e.so");
+	if (!dlh_compiler) {
+		printcl( CL_WARNING "no compiler,failed to load libcoprthrcc-e.so: %s",dlerror());
+	}
 
 #ifdef ENABLE_EMEK_BUILD
 	if (!strncmp(einfo.e_platform_name,"E16G Lexington",32)) {

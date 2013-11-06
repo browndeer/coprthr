@@ -70,6 +70,7 @@ struct __coprthr_supptab_entry __coprthr_supptab[] = {
 	{ COPRTHR_ARCH_ID_ARM32, "ARM (32-bit)", 0 },
 	{ COPRTHR_ARCH_ID_E32_EMEK, "Epiphany EMEK (32-bit)", 0 },
 	{ COPRTHR_ARCH_ID_E32, "Epiphany (32-bit)", "libcoprthr_arch_e32.so" }
+//	{ COPRTHR_ARCH_ID_X86_64, "x86_64", "libcoprthr_arch_x86_64.so" }
 };
 
 
@@ -105,18 +106,38 @@ void __do_discover_devices_1(
 
 	void* h0 = dlopen("libcoprthr.so",RTLD_NOW|RTLD_GLOBAL);
 
+	void* hh[COPRTHR_DEVICE_NSUPP_MAX];
+
 	/* for each supported device */
 	{
-		void* h = dlopen(__coprthr_supptab[0].libname,RTLD_LAZY);
-		if (!h) printcl( CL_WARNING "%s", dlerror() );
+		hh[0] = dlopen(__coprthr_supptab[0].libname,RTLD_LAZY);
+		if (!hh[0]) printcl( CL_WARNING "%s", dlerror() );
 
-		coprthr_init_device_call_t init_device = dlsym(h,
+		coprthr_init_device_call_t init_device = dlsym(hh[0],
 			"coprthr_init_device");
-		printcl( CL_DEBUG "h=%p init_device=%p",h,init_device);
+		printcl( CL_DEBUG "h=%p init_device=%p",hh[0],init_device);
 
 		init_device();
 	}
-	codevtab[nsupp++] = 0; // __coprthr_do_discover_device_i386();
+//	codevtab[nsupp++] = 0; // __coprthr_do_discover_device_i386();
+
+	if (1) {
+		hh[4] = dlopen(__coprthr_supptab[4].libname,RTLD_LAZY);
+		if (hh[4]) {
+			coprthr_init_device_call_t init_device = dlsym(hh[4],
+				"coprthr_init_device");
+			printcl( CL_DEBUG "h=%p init_device=%p",hh[4],init_device);
+			init_device();
+		} else {
+			printcl( CL_WARNING "%s", dlerror() );
+		}
+	}
+
+/* XXX HACK */
+//nsupp=1;
+
+	printcl( CL_DEBUG "codevtab[0]=%p", codevtab[0] );
+	printcl( CL_DEBUG "codevtab[1]=%p", codevtab[1] );
 
 	int navail = 0;
 	int nall = 0;
@@ -126,6 +147,7 @@ void __do_discover_devices_1(
 			if (codev->devstate->avail) ++navail;
 			if (codev->devstate->compiler_avail) ++nall;
 		}
+		printcl( CL_DEBUG "%d %d",navail,nall);
 	}
 
 	printcl( CL_DEBUG "navail nall %d %d",navail,nall);
@@ -144,16 +166,28 @@ void __do_discover_devices_1(
 	for(i = 0; i<nsupp; i++) {
 		struct coprthr_device* codev = codevtab[i];
 		if (codev && codev->devstate->avail) {
+			printcl( CL_DEBUG "devtab add %p", codevtab[i] );
 			devtab[devnum++] = codevtab[i];
 		}
 	}
 
 	for(i = 0; i<nsupp; i++) {
 		struct coprthr_device* codev = codevtab[i];
+		if (codev && codev->devstate->compiler_avail
+			&& !codev->devstate->avail ) {
+				printcl( CL_DEBUG "devtab add %p", codevtab[i] );
+				devtab[devnum++] = codevtab[i];
+		}
+	}
+
+/*
+	for(i = 0; i<nsupp; i++) {
+		struct coprthr_device* codev = codevtab[i];
 		if (codev && codev->devstate->compiler_avail) {
 			devtab[devnum++] = codevtab[i];
 		}
 	}
+*/
 
 	printcl( CL_DEBUG "__do_discover_devices_1 ndevices %d",*p_ndevices);
 
@@ -276,6 +310,8 @@ void* coprthr_getdev( const char* name, int flags )
 	int idev = -1;
 
 	intptr_t iname = (intptr_t)name;
+
+	printcl( CL_DEBUG "iname %d", iname );
 
 	if (iname < 256 && iname < __ndev)
 		idev = (int)iname;

@@ -1,6 +1,6 @@
-/* program.h
+/* dmalloc.h
  *
- * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,22 +20,39 @@
 
 /* DAR */
 
-#ifndef _program_h
-#define _program_h
 
-#include "coprthr_program.h"
+#ifndef _dmalloc_h
+#define _dmalloc_h
 
-void __do_release_program_1(struct coprthr1_program* prg1);
+#include <sys/types.h>
 
-unsigned int __do_build_program_from_binary_1( struct coprthr1_program* prg1 );
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h, 
-	char* kname );
+//extern void* devmembase;
+//extern void* devmemlo;
+//extern void* devmemhi;
 
-struct program_info_struct {
-   unsigned int core_local_data;
-   unsigned int stack_size;
-};
+void dmalloc_init( void* lo, void* hi );
+
+void dmalloc_reset( void );
+
+void* getdbrk(int devnum); 
+
+void* dmalloc(int devnum, size_t size);
+
+int dposix_memalign(int devnum, void** memptr, size_t alignment, size_t size);
+
+void* dcalloc(int devnum, size_t num, size_t size);
+
+void dfree(int devnum, void* ptr);
+
+void* drealloc(int devnum, void* ptr, size_t size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

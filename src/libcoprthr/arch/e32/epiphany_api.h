@@ -1,4 +1,4 @@
-/* program.h
+/* epiphany_api.h
  *
  * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -20,23 +20,17 @@
 
 /* DAR */
 
-#ifndef _program_h
-#define _program_h
 
-#include "coprthr_program.h"
+#ifndef _epiphany_api_h
+#define _epiphany_api_h
 
-void __do_release_program_1(struct coprthr1_program* prg1);
-
-unsigned int __do_build_program_from_binary_1( struct coprthr1_program* prg1 );
-
-int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h, 
-	char* kname );
-
-struct program_info_struct {
-   unsigned int core_local_data;
-   unsigned int stack_size;
-};
-
+#if defined(ENABLE_EMEK_BUILD)
+#include "epiphany_api_emek.h"
+#elif defined(USE_OLD_ESDK)
+#include "epiphany_api_4130104.h"
+#else
+#include "epiphany_api_4130330.h"
 #endif
 
+#endif
 

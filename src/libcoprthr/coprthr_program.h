@@ -50,6 +50,7 @@ struct _coprthr_ksyms_struct {
 	void* kthr2;
 	void* kcall;
 	void* kcall2;
+	void* kcall3;
 };
 
 struct coprthr_kernel {
@@ -102,7 +103,11 @@ struct coprthr1_program {
 	void* dlh;
 	char* dlfile;
 	struct _coprthr_ksyms_struct* v_ksyms;
-		
+
+	void* info;
+	size_t* ksu;
+	void* kbin;
+	char* kbinfile;
 };
 
 struct coprthr1_kernel {

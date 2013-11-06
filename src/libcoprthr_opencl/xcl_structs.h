@@ -228,7 +228,9 @@ struct _cl_command_queue {
 	} while(0)
 
 #define __free_command_queue(cmdq) do { \
+	printcl( CL_DEBUG "before __coprthr_free_command_queue"); \
 	__coprthr_free_command_queue(cmdq->devid->codev->devstate->cmdq); \
+	printcl( CL_DEBUG "after __coprthr_free_command_queue"); \
 	cmdq->ptr_imp = 0; \
 	__free(cmdq); \
 	} while(0)

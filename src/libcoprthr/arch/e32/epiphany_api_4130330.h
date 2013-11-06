@@ -1,4 +1,4 @@
-/* program.h
+/* epiphany_api_4130330.h
  *
  * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -20,23 +20,18 @@
 
 /* DAR */
 
-#ifndef _program_h
-#define _program_h
 
-#include "coprthr_program.h"
+#ifndef _epiphany_api_4130330_h
+#define _epiphany_api_4130330_h
 
-void __do_release_program_1(struct coprthr1_program* prg1);
+#define EPIPHANY_HDF "/opt/adapteva/esdk/bsps/current/parallella.hdf"
+#include "e-hal.h"
 
-unsigned int __do_build_program_from_binary_1( struct coprthr1_program* prg1 );
+extern e_platform_t e_platform;
+extern e_epiphany_t e_epiphany;
+extern e_mem_t e_dram;
 
-int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h, 
-	char* kname );
-
-struct program_info_struct {
-   unsigned int core_local_data;
-   unsigned int stack_size;
-};
+typedef e_epiphany_t Epiphany_t; /* XXX legacy issue, eventually remove */
 
 #endif
-
 

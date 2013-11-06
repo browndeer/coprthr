@@ -757,11 +757,12 @@ if test x$enable_android_cross_compile = xyes; then
 else
 	AC_CONFIG_FILES([src/libcoprthr/Makefile])
 	AC_CONFIG_FILES([src/libcoprthr/arch/x86_64/Makefile])
+	AC_CONFIG_FILES([src/libcoprthr/arch/e32/Makefile])
 	AC_CONFIG_FILES([src/libcoprthr_opencl/Makefile])
 	AC_CONFIG_FILES([src/libcoprthrcc/Makefile])
 fi;
 if test x$enable_epiphany = xyes; then
-	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
+#	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
 	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])
 fi;
 AC_CONFIG_FILES([src/libclelf/Makefile])

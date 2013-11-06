@@ -117,7 +117,9 @@ _clReleaseCommandQueue( cl_command_queue cmdq )
 	
 		__do_release_command_queue(cmdq);	
 
+//printcl( CL_DEBUG "before __free_command_queue");
 		__free_command_queue(cmdq);
+//printcl( CL_DEBUG "after __free_command_queue");
 
 	}
 

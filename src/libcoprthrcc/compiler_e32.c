@@ -68,8 +68,9 @@
 #include "compiler.h"
 #include "computil_e32.h"
 
-#include "dmalloc.h"
+//#include "dmalloc.h"
 
+void* devmembase = 0x8e000000;
 
 #ifndef INSTALL_INCLUDE_DIR
 #define INSTALL_INCLUDE_DIR "/usr/local/browndeer/include"
@@ -88,9 +89,9 @@
 
 #include "xcl_structs.h"
 
-#define DEFAULT_BUF1_SZ 16384
-#define DEFAULT_BUF2_SZ 16384
-#define DEFAULT_BUILD_LOG_SZ 256
+#define DEFAULT_BUF1_SZ 163840
+#define DEFAULT_BUF2_SZ 163840
+#define DEFAULT_BUILD_LOG_SZ 25600
 
 
 static char* buf2 = 0;
@@ -269,7 +270,11 @@ int __compile_e32(
 )
 {
 
-	if (!buf1) buf1 = (char*)malloc(16384); //// XXX TEMPORARY XXXX
+	printcl( CL_DEBUG "__compile_e32");
+
+//	if (!buf1) buf1 = (char*)malloc(16384); //// XXX TEMPORARY XXXX
+	char* buf1 = (char*)malloc(16384); //// XXX TEMPORARY XXXX
+	printcl( CL_DEBUG "buf1=%p",buf1);
 
 	int i;
 	int err;
@@ -293,8 +298,12 @@ int __compile_e32(
 	printcl( CL_DEBUG "opt after filter |%s|",opt);
 
 	char* coprthr_tmp = getenv("COPRTHR_TMP");
-	if (stat(coprthr_tmp,&fst) || !S_ISDIR(fst.st_mode) 
-		|| (fst.st_mode & S_IRWXU) != S_IRWXU) coprthr_tmp = 0;
+//	char* coprthr_tmp = (p_coprthr_tmp)? strdup(p_coprthr_tmp) : 0;
+//	char* coprthr_tmp = (p_coprthr_tmp)? strdup(p_coprthr_tmp) : strdup("/tmp");
+//	char* coprthr_tmp = strdup("/tmp");
+
+	if (coprthr_tmp && (stat(coprthr_tmp,&fst) || !S_ISDIR(fst.st_mode) 
+		|| (fst.st_mode & S_IRWXU) != S_IRWXU) ) coprthr_tmp = 0;
 
 	char* wdtemp;
 
@@ -302,13 +311,20 @@ int __compile_e32(
 		wdtemp = (char*)malloc(strlen(coprthr_tmp) +11);
 		sprintf(wdtemp,"%s/xclXXXXXX",coprthr_tmp);
 	} else {
-		wdtemp = strdup("/tmp/xclXXXXXX");
+//		wdtemp = strdup("/tmp/xclXXXXXX");
+//		wdtemp = (char*)malloc(256);
+//		sprintf(wdtemp,"/tmp/xclXXXXXX");
+		wdtemp = (char*)malloc(strlen("/tmp") +11);
+		sprintf(wdtemp,"%s/xclXXXXXX","/tmp");
 	}
 
+	printcl( CL_DEBUG "wdtemp %p|%s|", wdtemp,wdtemp);
 
 	char filebase[] 	= "XXXXXX";
 	char* wd = mkdtemp(wdtemp);
 	mktemp(filebase);
+
+	printcl( CL_DEBUG "wd %p|%s|", wd,wd);
 
 	char file_cl[256];
 	char file_cpp[256];
@@ -329,7 +345,14 @@ int __compile_e32(
 	bzero(logbuf,DEFAULT_BUF2_SZ);
 
 	*log = (char*)malloc(DEFAULT_BUF2_SZ);
-   (*log)[0] = '\0';
+//   (*log)[0] = '\0';
+	strcpy(*log,"compiler_e32:build_log:\n");
+
+	printcl( CL_DEBUG "PRE log size %ld",strnlen(*log,32768) );
+	printcl( CL_DEBUG "----- log ------");
+	printcl( CL_DEBUG "%s",*log);
+	printcl( CL_DEBUG "----- log ------");
+
 
 	unsigned int nsym;
 	unsigned int narg;
@@ -345,6 +368,8 @@ int __compile_e32(
 	/* with cltrace LD_PRELOAD env var is problem so just prevent intercepts */
 	unsetenv("LD_PRELOAD");
 
+	printcl( CL_DEBUG "wd |%s|", wd);
+
 	if (src) {
 
 		printcl( CL_DEBUG "compile: build from source");
@@ -356,7 +381,7 @@ int __compile_e32(
 		char* objs[] = { E32PTH_CORE_MAIN_OBJ, E32PTH_LDF };
 
 		for(i=0;i<sizeof(objs)/sizeof(char*);i++) {
-			asprintf(&cmd,"\\cp "INSTALL_LIB_DIR"/%s %s ",objs[i],wd);
+			__asprintf(&cmd,"\\cp "INSTALL_LIB_DIR"/%s %s ",objs[i],wd);
 			err = exec_shell(cmd,log);
 			__check_err( err, "obj copy failed" );
 		}
@@ -373,11 +398,11 @@ int __compile_e32(
 
 		/* assemble to native object */
 
-		asprintf(&cmd,SHELLCMD_KTHR_COMPILE_S,wd,devmembase,opt,filebase);
+		__asprintf(&cmd,SHELLCMD_KTHR_COMPILE_S,wd,devmembase,opt,filebase);
 		err = exec_shell(cmd,log);
 		__check_err( err, "error: kernel compilation failed");
 
-		asprintf(&cmd,SHELLCMD_KTHR_COMPILE,wd,devmembase,opt,filebase,filebase);
+		__asprintf(&cmd,SHELLCMD_KTHR_COMPILE,wd,devmembase,opt,filebase,filebase);
 		err = exec_shell(cmd,log);
 		__check_err( err, "error: kernel compilation failed");
 
@@ -391,7 +416,7 @@ int __compile_e32(
 
 		for(i=0;i<sizeof(wrappers)/sizeof(char*);i++) {
 
-        asprintf(&cmd,SHELLCMD_KCALL_GEN_WRAPPER,
+        __asprintf(&cmd,SHELLCMD_KCALL_GEN_WRAPPER,
             wd,file_cl,opt,file_cl,wrappers[i],wrappers[i],filebase);
          err = exec_shell(cmd,log);
          __check_err( err, "error: gen kcall wrappers failed");
@@ -400,13 +425,13 @@ int __compile_e32(
 
 		/* gcc compile kcall wrappers */
 
-		asprintf(&cmd,SHELLCMD_KCALL_COMPILE,
+		__asprintf(&cmd,SHELLCMD_KCALL_COMPILE,
 			wd,devmembase,INSTALL_INCLUDE_DIR,filebase);
 		err = exec_shell(cmd,log);
 		__check_err( err, "kcall wrapper compilation failed" );
 
 
-		asprintf(&cmd,SHELLCMD_KCALL2_COMPILE,
+		__asprintf(&cmd,SHELLCMD_KCALL2_COMPILE,
 			wd,devmembase,INSTALL_INCLUDE_DIR,filebase);
 		err = exec_shell(cmd,log);
 		__check_err( err, "kcall wrapper compilation failed" );
@@ -414,24 +439,24 @@ int __compile_e32(
 		
 		printcl( CL_DEBUG "compile kcall wrapper");
 
-		asprintf(&cmd,SHELLCMD_KCALL3_COMPILE, wd,devmembase,filebase,filebase);
+		__asprintf(&cmd,SHELLCMD_KCALL3_COMPILE, wd,devmembase,filebase,filebase);
 		err = exec_shell(cmd,log);
 		__check_err( err, "kcall wrapper compilation failed" );
 
 
 		printcl( CL_DEBUG "link core prog for all cores");
 
-		asprintf(&cmd,SHELLCMD_LINK_CORE_PROG, wd,filebase,filebase);
+		__asprintf(&cmd,SHELLCMD_LINK_CORE_PROG, wd,filebase,filebase);
 		err = exec_shell(cmd,log);
 		__check_err( err, "error: e32 prog link failed" );
 
 
-		asprintf(&cmd,SHELLCMD_GEN_SREC, wd);
+		__asprintf(&cmd,SHELLCMD_GEN_SREC, wd);
 		err = exec_shell(cmd,log);
 		__check_err( err, "create srec failed" );
 
 
-		asprintf(&cmd,"cd %s; cat e32.0.srec > e32.srec",wd);
+		__asprintf(&cmd,"cd %s; cat e32.0.srec > e32.srec",wd);
 		err = exec_shell(cmd,log);
 		__check_err( err, "create srec failed" );
 			
@@ -460,20 +485,25 @@ int __compile_e32(
 
 
 		err = scan_for_su_e32(wd,filebase,nsym,clsymtab,clstrtab, log);
+		printcl( CL_DEBUG "A");
 		__check_err( err, "scan for su failed");
+		printcl( CL_DEBUG "B");
 
 
 		/*** build clargtab ***/
 
+		printcl( CL_DEBUG "C");
 		err = build_clargtab(wd,file_cl,opt,nsym,narg,
 			&clargtab,&clstrtab_alloc_sz,&clstrtab_sz,&clstrtab);
+		printcl( CL_DEBUG "D");
 		__check_err(err,
          "internal err: build_clargtab failed: cannot parse xclnm output");
 
 		printcl( CL_DEBUG "i=%d narg=%d\n",i,narg);
 
-
 		/* now build elf/cl object */
+
+	printcl( CL_DEBUG "wd |%s|", wd);
 
 		printcl( CL_DEBUG "/* now build elf/cl object */");
 
@@ -493,23 +523,25 @@ int __compile_e32(
 
 		/* now build .so that will be used for link */
 
+	printcl( CL_DEBUG "wd |%s|", wd);
+
 		printcl( CL_DEBUG "SHELLCMD_OBJCOPY_STEP");
 
-      asprintf(&cmd,SHELLCMD_OBJCOPY_STEP, wd);
+      __asprintf(&cmd,SHELLCMD_OBJCOPY_STEP, wd);
       err = exec_shell(cmd,log);
       __check_err( err, "e32.srec prog embedding failed" );
 
 
 		printcl( CL_DEBUG "SHELLCMD_GEN_PROGINFO_OBJ");
 
-      asprintf(&cmd,SHELLCMD_GEN_PROGINFO_OBJ, wd,addr_core_local_data,256);
+      __asprintf(&cmd,SHELLCMD_GEN_PROGINFO_OBJ, wd,addr_core_local_data,256);
       err = exec_shell(cmd,log);
       __check_err( err, "generate _program_info.o failed" );
 
 
 		printcl( CL_DEBUG "SHELLCMD_CXXLINK_LIB");
 
-      asprintf(&cmd,SHELLCMD_CXXLINK_LIB, wd,filebase);
+      __asprintf(&cmd,SHELLCMD_CXXLINK_LIB, wd,filebase);
       err = exec_shell(cmd,log);
       __check_err( err, "error: kernel link failed");
 
@@ -520,6 +552,7 @@ int __compile_e32(
 
 	}
 
+	printcl( CL_DEBUG "wd |%s|", wd);
 
 	char ofname[256];
 	
@@ -529,12 +562,25 @@ int __compile_e32(
 
 	printcl( CL_DEBUG "copy_file_to_mem");
 
-   err = copy_file_to_mem(ofname,p_bin,p_bin_sz);
-   __check_err( err, "internal error");
+	printcl( CL_DEBUG "wd %p|%s|", wd,wd);
 
+   err = copy_file_to_mem(ofname,p_bin,p_bin_sz);
+	printcl( CL_DEBUG "wd %p|%s|", wd,wd);
+	printcl( CL_DEBUG "back from copy_file_to_mem");
+   __check_err( err, "internal error");
+	printcl( CL_DEBUG "after check err");
+
+	printcl( CL_DEBUG "wd |%s|", wd);
+printcl( CL_DEBUG "conditional remove work dir: before |%s|",wd);
 	if (!coprthr_tmp) remove_work_dir(wd);
+printcl( CL_DEBUG "conditional remove work dir: after");
 
 	if (wdtemp) free(wdtemp);
+
+	printcl( CL_DEBUG "log size %ld",strnlen(*log,32768) );
+	printcl( CL_DEBUG "----- log ------");
+	printcl( CL_DEBUG "%s",*log);
+	printcl( CL_DEBUG "----- log ------");
 
 	return(0);
 

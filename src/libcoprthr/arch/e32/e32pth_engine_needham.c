@@ -34,19 +34,27 @@
 #include <stdint.h>
 #include <sys/time.h>
 
-#include <CL/cl.h>
+//#include <CL/cl.h>
+#define __CL_MEM_OBJECT_ALLOCATION_FAILURE -4
+#define __CL_INVALID_VALUE -30
+#define __CL_OUT_OF_RESOURCES -5
 
 #include "xcl_config.h"
 
-#include "xcl_structs.h"
+//#include "xcl_structs.h"
 #include "printcl.h"
 #include "program.h"
 #include "cmdcall.h"
 #include "workp.h"
 
+#include "coprthr_mem.h"
+
 #include "e32_config_needham.h"
 #include "e32pth_engine_needham.h"
 #include "device.h"
+#include "xxx.h"
+
+#include "epiphany_api.h"
 
 //#define __host__
 #include "e32pth_mem_if_needham.h"
@@ -61,7 +69,7 @@
 //#endif
 #include "epiphany_api.h"
 
-#include "xcl_structs.h"
+//#include "xcl_structs.h"
 
 extern void* loaded_srec;
 extern int e_opened;
@@ -78,7 +86,8 @@ extern int e_opened;
 
 static nengines = 0;
 static engine_is_started = 0;
-static cl_device_id devid = 0;
+//static cl_device_id devid = 0;
+static struct coprthr_device* dev = 0;
 static size_t core_local_mem_size = 0;
 static void* core_base_addr = 0;
 
@@ -98,16 +107,25 @@ void* e32pth_engine_startup_needham( void* p )
 
 	engine_is_started = 1;
 
-	devid = (cl_device_id)p;
-	core_local_mem_size = __resolve_devid(devid,e32.core_local_mem_size);
-	core_base_addr = __resolve_devid(devid,e32.core_base_addr);
+//	devid = (cl_device_id)p;
+//	core_local_mem_size = __resolve_devid(devid,e32.core_local_mem_size);
+//	core_base_addr = __resolve_devid(devid,e32.core_base_addr);	
+	dev = (struct coprthr_device*)p;
+	core_local_mem_size = dev->devstate->e32.core_local_mem_size;
+	core_base_addr = dev->devstate->e32.core_base_addr;
 
 	printcl( CL_DEBUG "core_local_mem_size = %ld",core_local_mem_size);
 	printcl( CL_DEBUG "core_base_addr = %p",core_base_addr);
 
-	if (__resolve_devid(devid,e32.array_ncol) != E32_COLS_IN_CHIP
-		|| __resolve_devid(devid,e32.array_nrow) != E32_ROWS_IN_CHIP) {
+//	if (__resolve_devid(devid,e32.array_ncol) != E32_COLS_IN_CHIP
+//		|| __resolve_devid(devid,e32.array_nrow) != E32_ROWS_IN_CHIP) {
+	if (dev->devstate->e32.array_ncol != E32_COLS_IN_CHIP
+		|| dev->devstate->e32.array_nrow != E32_ROWS_IN_CHIP) {
 
+		printcl( CL_ERR "compare %d %d",dev->devstate->e32.array_ncol,
+			E32_COLS_IN_CHIP);
+		printcl( CL_ERR "compare %d %d",dev->devstate->e32.array_nrow,
+			E32_ROWS_IN_CHIP);
 		printcl( CL_ERR "e32 array layout mismatch, this is a fatal error");
 		return((void*)(-1));
 
@@ -124,7 +142,12 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	int i;
 
    struct program_info_struct* proginfo
-      = (struct program_info_struct*)(argp->k.krn->prg->imp.info);
+//      = (struct program_info_struct*)(argp->k.krn->prg->imp.info);
+      = (struct program_info_struct*)(argp->k.krn->prg1->info);
+
+	int knum = argp->k.krn->knum;
+
+	printcl( CL_DEBUG "knum=%d",knum);
 
    int nthr = 1;
    switch(workp_get_entry(wp,0)->ndr_dim) {
@@ -138,29 +161,32 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
    /* XXX hardcoded protection, fix to return insufficient resources -DAR */
    if (nthr > E32_NCORES) {
       printcl( CL_ERR "exceeded maximum thread block size");
-      return(CL_OUT_OF_RESOURCES);
+      return(__CL_OUT_OF_RESOURCES);
    }
 
-	printcl( CL_DEBUG "kernel su %d",argp->k.krn->imp.ksu);
+	printcl( CL_DEBUG "kernel su %d",argp->k.krn->prg1->ksu[knum]);
 
 	size_t core_local_mem_hi = core_local_mem_size - 0x200;
 
-	if (argp->k.krn->imp.ksu > core_local_mem_hi ) {
-		printcl( CL_DEBUG "ksu=%d > core_local_mem_hi=%d",argp->k.krn->imp.ksu,core_local_mem_hi);
+	if (argp->k.krn->prg1->ksu[knum] > core_local_mem_hi ) {
+		printcl( CL_DEBUG "ksu=%d > core_local_mem_hi=%d",argp->k.krn->prg1->ksu[knum],core_local_mem_hi);
 		printcl( CL_ERR "exceeded maximum stack size");
-		return(CL_OUT_OF_RESOURCES);
+		return(__CL_OUT_OF_RESOURCES);
 	}
 
-	size_t stack_base = core_local_mem_hi - argp->k.krn->imp.ksu;
+	size_t stack_base = core_local_mem_hi - argp->k.krn->prg1->ksu[knum];
 
 	if ( stack_base < proginfo->core_local_data + 0xb0 ) {
+		printcl( CL_ERR "compare %ld %ld",stack_base,
+			proginfo->core_local_data+0xb0);
 		printcl( CL_ERR "exceeded maximum stack size");
-		return(CL_OUT_OF_RESOURCES);
+		return(__CL_OUT_OF_RESOURCES);
 	}
 
 	size_t repacked_arg_buf_sz = 0;
 
-   unsigned int narg =  argp->k.krn->narg;
+//   unsigned int narg =  argp->k.krn->narg;
+   unsigned int narg =  argp->k.krn->prg1->knarg[knum];
 
    for(i=0;i<narg;i++) {
 
@@ -185,8 +211,8 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 
    }
 
-	e32_ptr_t device_mem_lo = devmemlo;
-	e32_ptr_t device_mem_hi = getdbrk(0);
+	e32_ptr_t device_mem_lo = (e32_ptr_t)devmemlo;
+	e32_ptr_t device_mem_hi = (e32_ptr_t)getdbrk(0);
 	int device_mem_fault = 0;
 
    printcl( CL_DEBUG "fix global ptrs %p", argp->k.arg_kind);
@@ -197,7 +223,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 
 	if (local_mem_free > stack_base) {
 		printcl( CL_ERR "insufficient core-local memory");
-		return(CL_OUT_OF_RESOURCES);
+		return(__CL_OUT_OF_RESOURCES);
 	}
 
 	size_t local_mem_sz =  stack_base - local_mem_free;
@@ -205,16 +231,17 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	printcl( CL_DEBUG "local_mem_base = %p local_mem_sz = %p",
       local_mem_free,local_mem_sz);
 
-  	for(i=0;i<argp->k.krn->narg;i++) {
+//  	for(i=0;i<argp->k.krn->narg;i++) {
+  	for(i=0;i<argp->k.krn->prg1->knarg[knum];i++) {
 
       printcl( CL_DEBUG  "fix global ptrs %d",i);
 
       printcl( CL_DEBUG "arg_kind=%d", argp->k.arg_kind[i]);
 
-   	cl_context ctx;
-   	unsigned int ndev;
-   	cl_device_id* devices;
-   	unsigned int n;
+//   	cl_context ctx;
+//   	unsigned int ndev;
+//   	cl_device_id* devices;
+//   	unsigned int n;
 
       void* p = (void*)(argp->k.pr_arg_buf + argp->k.pr_arg_off[i]);
 
@@ -233,16 +260,20 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
             printcl( CL_DEBUG  "argp->k.pr_arg_off[%d]=%p",
                i,argp->k.pr_arg_off[i]);
 
-            printcl( CL_DEBUG  "*cl_mem=%p", (*(cl_mem*)p));
+				struct coprthr1_mem* mem1 = *(struct coprthr1_mem**)p;
 
-            ctx = (*(cl_mem*)p)->ctx;
-            ndev = ctx->ndev;
-            devices = ctx->devices;
-            n = 0;
+            printcl( CL_DEBUG  "mem1=%p", mem1);
+
+//            ctx = (*(cl_mem*)p)->ctx;
+//            ndev = ctx->ndev;
+//            devices = ctx->devices;
+//            n = 0;
 
             /* XXX this is a hack, redesign devnum/devid issue -DAR */
 
-            e32_ptr_t ptr = *(void**)p = (*(cl_mem*)p)->imp.res[n];
+//            e32_ptr_t ptr = *(void**)p = (*(cl_mem*)p)->imp.res[n];
+            *(void**)p = mem1->res;
+            e32_ptr_t ptr = (e32_ptr_t)mem1->res;
 
             printcl( CL_DEBUG  "*(void**)p=%p", *(void**)p );
 
@@ -274,7 +305,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 
                *(void**)p = 0;
                printcl( CL_ERR "insuficient local memory");
-               return(CL_OUT_OF_RESOURCES);
+               return(__CL_OUT_OF_RESOURCES);
 
             } else { /* XXX local mem allocated from core0 -DAR */
 
@@ -303,7 +334,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 
 	if (device_mem_fault) {
 		printcl( CL_ERR "device memory fault");
-		return(CL_MEM_OBJECT_ALLOCATION_FAILURE);
+		return(__CL_MEM_OBJECT_ALLOCATION_FAILURE);
 	}
 
 	e_set_host_verbosity(1);
@@ -381,7 +412,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 				} else if ( ltdsz0 > E32_COLS_IN_CHIP || ltdsz1 > E32_ROWS_IN_CHIP ) {
 
 					printcl( CL_ERR "unsupported thread block layout");
-      			return(CL_INVALID_VALUE);
+      			return(__CL_INVALID_VALUE);
 
 				} else { /* thread block layout conforms to chip */
 
@@ -407,7 +438,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 		case 3:
 		default:
 			printcl( CL_ERR "invalid thread block dim");
-      	return(CL_INVALID_VALUE);
+      	return(__CL_INVALID_VALUE);
 			break;
 
 	} 
@@ -570,12 +601,14 @@ printf("BEFORE LOAD\n");
 
 
 		printcl( CL_DEBUG "will try to load the srec file '%s'",
-			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
+//			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
+			argp->k.krn->prg1->kbinfile);
 
 		printcl( CL_CRIT "XXX attempt e_loaad");
 
 #if defined(USE_OLD_ESDK) 
-		int err = e_load(argp->k.krn->prg->imp.v_kbin_tmpfile[0],1,1,1);
+//		int err = e_load(argp->k.krn->prg->imp.v_kbin_tmpfile[0],1,1,1);
+		int err = e_load(argp->k.krn->prg1->kbinfile,1,1,1);
 #else
 		e_reset_system();
 		e_set_loader_verbosity(1);
@@ -585,7 +618,8 @@ printf("BEFORE LOAD\n");
 		printcl( CL_CRIT "XXX e_loader returned %d",err);
  
 		if (!err)
-			loaded_srec = argp->k.krn->prg->imp.v_kbin[0];
+//			loaded_srec = argp->k.krn->prg->imp.v_kbin[0];
+			loaded_srec = argp->k.krn->prg1->kbin;
 
 		e_opened = 1;
 	
@@ -593,7 +627,8 @@ printf("BEFORE LOAD\n");
 	} else {
 	
 		printcl( CL_DEBUG "srec file '%s' already loaded",
-			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
+//			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
+			argp->k.krn->prg1->kbinfile);
 
 		printcl( CL_DEBUG "sending reset and ILAT only");
 		

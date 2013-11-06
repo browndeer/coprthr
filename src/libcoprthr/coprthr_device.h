@@ -34,6 +34,7 @@ struct coprthr_device_info {
 	unsigned int max_freq;
 	char* name;
 	char* vendor;
+	unsigned int vendorid;
 	char* drv_version;
 	char* profile;
 	char* version;
@@ -41,6 +42,10 @@ struct coprthr_device_info {
 
 	int arch_id;
 	int memsup;
+	
+	size_t global_mem_sz;
+	size_t local_mem_sz;
+
 };
 
 struct coprthr_command_queue;
@@ -53,6 +58,14 @@ struct coprthr_device_state {
 			unsigned int veid_base;
 			unsigned int nve;
 		} cpu;
+
+      struct {
+         size_t core_local_mem_size;
+         void* core_base_addr;
+         int array_ncol;
+         int array_nrow;
+         int ncore;
+      } e32;
 	};
 	struct coprthr_command_queue* cmdq;
 	pid_t locked_pid;

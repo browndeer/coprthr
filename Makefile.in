@@ -71,7 +71,7 @@ endif
 #SUBDIRS += $(addprefix ./tools/,$(BUILD_TOOLS)) 
 
 ifeq (@ENABLE_EPIPHANY@,1)
-SUBDIRS += ./src/libcoprthr-e
+#SUBDIRS += ./src/libcoprthr-e
 endif
 
 ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
@@ -82,7 +82,7 @@ endif
 DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libcoprthrcc ./src/libcoprthr_opencl ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts
 
 ifeq (@ENABLE_EPIPHANY@,1)
-DISTCLEAN_DIRS += ./src/libcoprthr-e ./test/test_libcoprthr-e
+#DISTCLEAN_DIRS += ./src/libcoprthr-e ./test/test_libcoprthr-e
 endif
 
 export TOPDIR = $(CURDIR)

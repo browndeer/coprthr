@@ -54,7 +54,7 @@ OBJS = elfcl_x86_64.o elfcl_386.o elfcl_arm32.o \
 
 OBJS_E = elfcl_x86_64.o elfcl_386.o elfcl_arm32.o \
 	compiler_e32_emek.o \
-	compiler_e32_needham.o compiler_e32_needhampro.o compiler_e32_blank.o
+	compiler_e32_needham.o 
 
 OBJS_CROSS = compiler_android_arm32.o
 
@@ -122,7 +122,7 @@ TARGET = libcoprthrcc.so
 #TARGET += icd.c
 ifeq (@ENABLE_EPIPHANY@,1)
 TARGET += libcoprthrcc-e.so
-INCS_E += -I$(TOPDIR)/src/libcoprthr-e
+#INCS_E += -I$(TOPDIR)/src/libcoprthr-e
 endif
 
 INSTALL_LIBS = $(TARGET)

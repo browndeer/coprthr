@@ -207,7 +207,6 @@ int __compile(
       wdtemp = strdup("/tmp/xclXXXXXX");
    }
 
-
 	char filebase[] 	= "XXXXXX";
 	char* wd = mkdtemp(wdtemp);
 	mktemp(filebase);
@@ -223,10 +222,17 @@ int __compile(
 	printcl( CL_DEBUG "compile: work dir %s",wd);
 	printcl( CL_DEBUG "compile: filebase %s",filebase);
 
-	if (!buf1) buf1 = malloc(DEFAULT_BUF1_SZ);
+//	if (!buf1) buf1 = malloc(DEFAULT_BUF1_SZ);
+	char* buf1 = malloc(DEFAULT_BUF1_SZ);
 
 	*log = (char*)malloc(DEFAULT_BUF2_SZ);
-   (*log)[0] = '\0';
+//   (*log)[0] = '\0';
+   strcpy(*log,"compiler_native:build_log:\n");
+
+	printcl( CL_DEBUG "PRE ---x86 log size %ld",strlen(*log) );
+	printcl( CL_DEBUG "---x86 log ---");
+	printcl( CL_DEBUG "%s" ,*log);
+	printcl( CL_DEBUG "---x86 log ---");
 
 	unsigned int nsym;
 	unsigned int narg;
@@ -263,7 +269,7 @@ int __compile(
 
 		char* cmd = 0;
 
-		asprintf(&cmd,SHELLCMD_KTHR_COMPILE,wd,opt,filebase);
+		__asprintf(&cmd,SHELLCMD_KTHR_COMPILE,wd,opt,filebase);
 		printcl( CL_DEBUG "before compile");
 		err = exec_shell(cmd,log);
 		printcl( CL_DEBUG "after compile");
@@ -273,7 +279,7 @@ int __compile(
 		 *** generate kcall wrapper 
 		 ***/
 
-			asprintf(&cmd,SHELLCMD_KCALL_GEN_WRAPPER,
+			__asprintf(&cmd,SHELLCMD_KCALL_GEN_WRAPPER,
 				wd,file_cl,opt,file_cl,filebase);
 			err = exec_shell(cmd,log);
 			__check_err( err, "error: gen kcall wrappers failed");
@@ -281,7 +287,7 @@ int __compile(
 
 		/* gcc compile kcall wrapper */
 
-		asprintf(&cmd,SHELLCMD_KCALL_COMPILE,wd,"\0",filebase);
+		__asprintf(&cmd,SHELLCMD_KCALL_COMPILE,wd,"\0",filebase);
 		err = exec_shell(cmd,log);
 		__check_err( err, "kcall wrapper compilation failed" );
 
@@ -323,7 +329,7 @@ int __compile(
 
 		/* now build .so that will be used for link */
 
-		asprintf(&cmd,SHELLCMD_CXXLINK_LIB,
+		__asprintf(&cmd,SHELLCMD_CXXLINK_LIB,
 			wd,filebase,filebase,filebase,filebase,filebase,filebase);
 		err = exec_shell(cmd,log);
 		__check_err( err, "error: kernel link failed");
@@ -346,6 +352,11 @@ int __compile(
 
 
 	if (!coprthr_tmp) remove_work_dir(wd);
+
+	printcl( CL_DEBUG "---x86 log size %ld",strlen(*log) );
+	printcl( CL_DEBUG "---x86 log ---");
+	printcl( CL_DEBUG "%s" ,*log);
+	printcl( CL_DEBUG "---x86 log ---");
 
 	return(0);
 
