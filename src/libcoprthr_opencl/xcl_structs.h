@@ -423,6 +423,7 @@ struct _cl_event {
 	ev->ctx = (cl_context)0; \
 	ev->cmdq = (cl_command_queue)0; \
 	ev->cmd = (cl_command_type)0; \
+	ev->ev1 = (struct coprthr_event*)malloc(sizeof(struct coprthr_event));\
 	__coprthr_init_event(ev->ev1); \
 	} while(0)
 
