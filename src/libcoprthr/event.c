@@ -29,6 +29,8 @@
 
 #include "coprthr_sched.h"
 
+#define __malloc_struct(t) (struct t*)malloc(sizeof(struct t))
+
 void __do_release_event_1(struct coprthr_event* ev1) 
 {
 	/* XXX may need to check state of event for controlled release -DAR */
@@ -545,7 +547,7 @@ void* coprthr_dmread(
 
 //	struct coprthr_event* ev1 = (struct coprthr_event*)
 //		malloc(sizeof(struct coprthr_event));
-	struct coprthr_event* ev1 = 0;
+	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
 
 	__do_set_cmd_read_buffer_1( ev1, dptr, 0, len, buf );
@@ -570,7 +572,7 @@ void* coprthr_devread(
 //		malloc(sizeof(struct coprthr_event));
 
 /*
-	struct coprthr_event* ev1 = 0;
+	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
 
 	__do_set_cmd_read_buffer_1( ev1, dptr, 0, len, buf );
@@ -594,7 +596,7 @@ void* coprthr_dmwrite(
 //	struct coprthr_event* ev1 = (struct coprthr_event*)
 //		malloc(sizeof(struct coprthr_event));
 
-	struct coprthr_event* ev1 = 0;
+	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
 
 	__do_set_cmd_write_buffer_1( ev1, dptr, 0, len, buf );
@@ -621,7 +623,7 @@ void* coprthr_devwrite(
 //		malloc(sizeof(struct coprthr_event));
 
 /*
-	struct coprthr_event* ev1 = 0;
+	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
 
 	__do_set_cmd_write_buffer_1( ev1, dptr, 0, len, buf );
@@ -653,7 +655,7 @@ void* coprthr_dexec(
 
 //	struct coprthr_event* ev1 = (struct coprthr_event*)
 //		malloc(sizeof(struct coprthr_event));
-	struct coprthr_event* ev1 = 0;
+	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
 
 	size_t gwo = 0;
