@@ -78,6 +78,10 @@ struct coprthr_kernel {
 
 struct coprthr1_program {
 
+	/* these could use a custom allocator that kept prg contiguous */
+	size_t prg_sz;
+	size_t prg_alloc_sz;
+
 	size_t src_sz;
 	char* src;
 
@@ -108,7 +112,19 @@ struct coprthr1_program {
 	size_t* ksu;
 	void* kbin;
 	char* kbinfile;
+
 };
+
+//coprthr_program_t __coprthr_prg_pack( coprthr_program_t prg, size_t sz )
+//{
+//	/* pack into continugous memory allocation */
+//}
+//
+//coprthr_program_t coprthr_ld( const char* path, int flags );
+//
+//int coprthr_prg_write( const char* path, coprthr_program_t prg, int flags );
+
+
 
 struct coprthr1_kernel {
 	struct coprthr1_program* prg1;
