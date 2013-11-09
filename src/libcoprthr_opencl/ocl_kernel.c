@@ -357,7 +357,7 @@ clGetKernelWorkGroupInfo( cl_kernel krn, cl_device_id devid,
 
 void __do_create_kernel(cl_kernel krn, cl_uint k) 
 {
-	int i;
+	int i,idev;
 
 	cl_program prg = krn->prg;
 
@@ -383,6 +383,7 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 
 	if (narg == 0) return;
 
+/*
 	krn->krn1[0]->arg_off = malloc(narg*sizeof(uint32_t));
 		
 	size_t arg_buf_sz = krn->krn1[0]->arg_buf_sz = prg->prg1[0]->karg_buf_sz[k];
@@ -397,6 +398,29 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 		printcl( CL_DEBUG "CHECKING arg_sz[%d] %d",
 			i,krn->krn1[0]->prg1->karg_sz[k][i]);
 	}
+*/
+
+/* XXX need multiple buffers for each device */
+
+	for(idev=0; idev<prg->ndev; idev++) {
+
+	krn->krn1[idev]->arg_off = malloc(narg*sizeof(uint32_t));
+		
+	size_t arg_buf_sz = krn->krn1[idev]->arg_buf_sz 
+		= prg->prg1[idev]->karg_buf_sz[k];
+
+	if (arg_buf_sz > 0) krn->krn1[idev]->arg_buf = malloc(arg_buf_sz);
+
+	size_t sz = 0;
+
+	for(i=0;i<narg;i++) {
+		krn->krn1[idev]->arg_off[i] = sz;
+		sz += krn->krn1[idev]->prg1->karg_sz[k][i];
+		printcl( CL_DEBUG "CHECKING arg_sz[%d] %d",
+			i,krn->krn1[idev]->prg1->karg_sz[k][i]);
+	}
+
+	}
 
 }
 
@@ -407,7 +431,7 @@ int __do_set_kernel_arg(
 	cl_kernel krn, cl_uint argn, size_t arg_sz, const void* arg_val 
 )
 {
-	__do_set_kernel_arg_1( krn->krn1[0], argn, arg_sz, arg_val );
+//	__do_set_kernel_arg_1( krn->krn1[0], argn, arg_sz, arg_val );
 
 	struct coprthr1_mem* mem1;
 
@@ -420,6 +444,8 @@ int __do_set_kernel_arg(
 	for(idev=0;idev<ndev;idev++) {
 
 		int knum = krn->krn1[idev]->knum;
+
+		printcl( CL_DEBUG "__do_set_kernel_arg: %d/%d knum=%d",idev,ndev,knum);
 
 		cl_uint arg_kind = krn->krn1[idev]->prg1->karg_kind[knum][argn];
 

@@ -26,6 +26,8 @@
 #include "xcl_structs.h"
 #include "printcl.h"
 
+#include "coprthr.h"
+
 #ifndef max
 #define max(a,b) ((a<b)?b:a)
 #endif
@@ -449,11 +451,11 @@ void __do_create_buffer(cl_mem memobj)
 
 	for(i=0;i<ndev;i++) {
 
-		if (
-			__resolve_devid_ocldevinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU
-		) {
+//		if (
+//			__resolve_devid_ocldevinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_CPU
+//		) {
 
-			printcl("XXX memalloc %p",
+			printcl( CL_DEBUG "XXX memalloc %p",
 				__resolve_devid_devops(ctx->devices[i],memalloc));
 /*
 			memobj->mem1[i] = (struct coprthr1_mem*)
@@ -462,8 +464,14 @@ void __do_create_buffer(cl_mem memobj)
 				= __resolve_devid_devops(ctx->devices[i],memalloc)(memobj->sz,0);
 */
 			memobj->mem1[i] = (struct coprthr1_mem*)
-				__resolve_devid_devops(ctx->devices[i],memalloc)(memobj->sz,0);
+//				__resolve_devid_devops(ctx->devices[i],memalloc)(memobj->sz,0);
+				__resolve_devid_devops(ctx->devices[i],memalloc)
+					(memobj->sz,COPRTHR_DEVMEM_TYPE_BUFFER);
+
 			memobj->mem1[i]->sz = memobj->sz;
+
+			printcl( CL_DEBUG "__do_create_buffer: mem1[%d]=%p (%ld)",
+				i,memobj->mem1[i],memobj->mem1[i]->sz);
 
 			if (memobj->sz > 0 && memobj->mem1[i]->res == 0) {
 
@@ -475,27 +483,39 @@ void __do_create_buffer(cl_mem memobj)
 
 			}
 
-			if (memobj->flags&CL_MEM_COPY_HOST_PTR)
-				memcpy(memobj->mem1[i]->res,memobj->host_ptr,memobj->sz);
+			if (memobj->flags&CL_MEM_COPY_HOST_PTR) {
+				printcl( CL_DEBUG "CL_MEM_COPY_HOST_PTR");
+//				memcpy(memobj->mem1[i]->res,memobj->host_ptr,memobj->sz);
+				__resolve_devid_devops(ctx->devices[i],memwrite)
+					(memobj->mem1[i],memobj->host_ptr,memobj->sz);
+			}
 
 			if (memobj->flags&CL_MEM_USE_HOST_PTR) {
 				printcl( CL_WARNING 
 					"workaround: CL_MEM_USE_HOST_PTR => CL_MEM_COPY_HOST_PTR,"
 					" fix this");
-				memcpy(memobj->mem1[i]->res,memobj->host_ptr,memobj->sz);
+//				memcpy(memobj->mem1[i]->res,memobj->host_ptr,memobj->sz);
+				__resolve_devid_devops(ctx->devices[i],memwrite)
+					(memobj->mem1[i],memobj->host_ptr,memobj->sz);
+				
 			}
 
-		} else if (
-			__resolve_devid_ocldevinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU
-		) {
+			printcl( CL_DEBUG "past");
 
-			printcl( CL_WARNING "device unsupported, how did you get here?");
-
-		} else {
-
-		}
+//		} else if (
+//			__resolve_devid_ocldevinfo(ctx->devices[i],devtype)==CL_DEVICE_TYPE_GPU
+//		) {
+//
+//			printcl( CL_WARNING "device unsupported, how did you get here?");
+//
+//		} else {
+//
+//		}
 
 	}
+
+	printcl( CL_DEBUG "__do_create_buffer return");
+
 
 }
 

@@ -181,7 +181,14 @@ static void* read_buffer( struct coprthr_device* dev, void* p)
 	printcl( CL_DEBUG "%p %p %ld",dst,src,offset);
 
 	if (dst==src+offset) return(0);
-	else memcpy(dst,src+offset,len);
+	else {
+		printcl( CL_DEBUG "memcpy(%p,%p,%ld)",dst,src+offset,len);
+		memcpy(dst,src+offset,len);
+//      float* xxx = (float*)(dst);
+//      int i;
+//      for(i=0;i<10;i++) printcl( CL_DEBUG "xxx [%d] %f",i,xxx[i]);
+
+	}
 
 	return(0);
 }
@@ -220,7 +227,13 @@ static void* write_buffer(struct coprthr_device* dev, void* p)
 	size_t len = argp->m.len;
 
 	if (dst+offset == src) return(0);
-	else memcpy(dst+offset,src,len);
+	else {
+		printcl( CL_DEBUG "memcpy(%p,%p,%ld)",dst+offset,src,len);
+		memcpy(dst+offset,src,len);
+//		float* xxx = (float*)(dst+offset);
+//		int i;
+//		for(i=0;i<10;i++) printcl( CL_DEBUG "xxx [%d] %f",i,xxx[i]);
+	}
 
 	return(0); 
 }

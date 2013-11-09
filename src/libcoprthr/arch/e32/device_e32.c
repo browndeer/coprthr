@@ -203,7 +203,9 @@ static int init_device_e32(void)
       e_dram.mapped_base,e_dram.base,e_dram.memfd );
 #endif
    struct e_platform_info_struct einfo;
+printcl(CL_DEBUG "calling old_e_get_platform_info");
    old_e_get_platform_info( &e_epiphany, &einfo );
+printcl(CL_DEBUG "back from old_e_get_platform_info");
 
 #else
 

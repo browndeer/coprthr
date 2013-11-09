@@ -26,6 +26,7 @@
 #include "printcl.h"
 #include "kernel.h"
 
+#include "coprthr_mem.h"
 #include "coprthr_program.h"
 
 #define __invalid_memobj(memobj) (!memobj)
@@ -121,9 +122,9 @@ int __do_set_kernel_arg_1(
 //			if (arg_sz != sizeof(cl_mem)) return(__CL_INVALID_ARG_SIZE);
 			if (arg_sz != sizeof(struct coprthr1_mem*)) return(__CL_INVALID_ARG_SIZE);
 
-			printcl( CL_DEBUG "from set arg %p %p",
+			printcl( CL_DEBUG "from set arg %p %p (res=%p)",
 //				arg_val,*(cl_mem*)arg_val);
-				arg_val,*(struct coprthr1_mem**)arg_val);
+				arg_val,*(struct coprthr1_mem**)arg_val,(*(struct coprthr1_mem**)arg_val)->res);
 
 			memcpy(p,arg_val,arg_sz);
 

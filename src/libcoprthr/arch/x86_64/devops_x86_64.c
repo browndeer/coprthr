@@ -49,6 +49,7 @@ static void* memalloc( size_t sz, int flags )
    struct coprthr1_mem* mem1 = (struct coprthr1_mem*)
       malloc(sizeof(struct coprthr1_mem));
    mem1->res = malloc(sz);
+	printcl( CL_DEBUG "memalloc res=%p", mem1->res);
    return(mem1);
 }
 
@@ -64,14 +65,30 @@ static void memfree( void* dptr, int flags )
    }
 }
 
-static size_t memread( void* memptr, void* buf, size_t sz )
-{ memcpy(memptr,buf,sz); return sz; }
+static size_t memread( void* dptr, void* buf, size_t sz )
+//{ memcpy(memptr,buf,sz); return sz; }
+{ 
+	struct coprthr1_mem* mem1 = (struct coprthr1_mem*)dptr;
+	memcpy(buf,mem1->res,sz); 
+	printcl( CL_DEBUG "memread res=%p",mem1->res);
+	return sz; 
+}
 
-static size_t memwrite( void* memptr, void* buf, size_t sz )
-{ memcpy(buf,memptr,sz); return sz; }
+static size_t memwrite( void* dptr, void* buf, size_t sz )
+{ 
+	struct coprthr1_mem* mem1 = (struct coprthr1_mem*)dptr;
+	memcpy(mem1->res,buf,sz); 
+	printcl( CL_DEBUG "memwrite res=%p",mem1->res);
+	return sz; 
+}
 
-static size_t memcopy( void* memptr_src, void* memptr_dst, size_t sz)
-{ memcpy(memptr_dst,memptr_src,sz); return sz; }
+static size_t memcopy( void* dptr_src, void* dptr_dst, size_t sz)
+{ 
+	struct coprthr1_mem* mem1_src = (struct coprthr1_mem*)dptr_src;
+	struct coprthr1_mem* mem1_dst = (struct coprthr1_mem*)dptr_dst;
+	memcpy(mem1_dst->res,mem1_src->res,sz); 
+	return sz; 
+}
 
 struct coprthr_device_operations devops_x86_64 = {
 	.memalloc = memalloc,
