@@ -14,6 +14,9 @@
 
 /* DAR */
 
+#define DEVICE_TYPE	CL_DEVICE_TYPE_CPU
+//#define DEVICE_TYPE	CL_DEVICE_TYPE_ACCELERATOR
+
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -38,7 +41,7 @@ int main()
    for(i=0; i<nplatforms; i++) {
       platform = platforms[i];
       clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,256,buffer,0);
-      if (!strcmp(buffer,"coprthr-e")) break;
+      if (!strcmp(buffer,"coprthr")) break;
    }
 
    if (i<nplatforms) platform = platforms[i];
@@ -48,9 +51,9 @@ int main()
    cl_device_id* devices;
    cl_device_id dev;
 
-   clGetDeviceIDs(platform,CL_DEVICE_TYPE_ACCELERATOR,0,0,&ndevices);
+   clGetDeviceIDs(platform,DEVICE_TYPE,0,0,&ndevices);
    devices = (cl_device_id*)malloc(ndevices*sizeof(cl_device_id));
-   clGetDeviceIDs(platform, CL_DEVICE_TYPE_ACCELERATOR,ndevices,devices,0);
+   clGetDeviceIDs(platform, DEVICE_TYPE,ndevices,devices,0);
 
    if (ndevices) dev = devices[0];
    else exit(1);
@@ -71,6 +74,8 @@ int main()
    float* b = (float*)malloc(n*sizeof(float));
    float* c = (float*)malloc(n*sizeof(float));
 
+	printf("XXX aa b c %p %p %p\n",aa,b,c);
+
    for(i=0;i<n;i++) for(j=0;j<n;j++) aa[i*n+j] = 1.1f*i*j;
    for(i=0;i<n;i++) b[i] = 2.2f*i;
    for(i=0;i<n;i++) c[i] = 0.0f;
@@ -78,6 +83,9 @@ int main()
    cl_mem aa_buf = clCreateBuffer(ctx,CL_MEM_USE_HOST_PTR,aa_sz,aa,&err);
    cl_mem b_buf = clCreateBuffer(ctx,CL_MEM_USE_HOST_PTR,b_sz,b,&err);
    cl_mem c_buf = clCreateBuffer(ctx,CL_MEM_USE_HOST_PTR,c_sz,c,&err);
+
+//	clEnqueueWriteBuffer(cmdq,aa_buf,CL_TRUE,0,aa_sz,aa,0,0,0);
+//	clEnqueueWriteBuffer(cmdq,b_buf,CL_TRUE,0,b_sz,b,0,0,0);
 
    const char kernel_code[] = 
       "__kernel void matvecmult_kern(\n"
