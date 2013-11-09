@@ -5,7 +5,7 @@
 
 int main()
 {
-   cl_uint n = 64;
+   cl_uint n = 16;
 
 	/* use default contexts, if no GPU use CPU */
    CLCONTEXT* cp = (stdgpu)? stdgpu : stdcpu;
@@ -21,6 +21,8 @@ int main()
    cl_kernel krn = clsym(cp,0,"matvecmult_kern",0);
 #endif
 
+	if (!krn) fprintf(stderr,"error: krn=%p\n",krn);
+
    /* allocate OpenCL device-sharable memory */
    cl_float* aa = (float*)clmalloc(cp,n*n*sizeof(cl_float),0);
    cl_float* b = (float*)clmalloc(cp,n*sizeof(cl_float),0);
@@ -33,7 +35,7 @@ int main()
    for(i=0;i<n;i++) c[i] = 0.0f;
 
    /* define the computational domain and workgroup size */
-   clndrange_t ndr = clndrange_init1d( 0, n, 64);
+   clndrange_t ndr = clndrange_init1d( 0, n, 16);
 
    /* non-blocking sync vectors a and b to device memory (copy to GPU)*/
    clmsync(cp,devnum,aa,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
