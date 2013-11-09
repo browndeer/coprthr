@@ -20,6 +20,8 @@
 
 # DAR #
 
+$nargmax = 4;
+
 $size = 128;
 $bsize = 4;
 $clfile = 'test_arg_float4.cl';
@@ -93,7 +95,7 @@ printf "if (devnum >= clgetndev(cp)) exit(__LINE__);\n";
 
 printf "size_t size4 = size/4;\n";
 
-for($c=0;$c<10-2;++$c) {
+for($c=0;$c<$nargmax-2;++$c) {
 printf "float* aa$c = (float*)clmalloc(cp,size*sizeof(float),0);\n";
 printf "if (!aa$c) exit(__LINE__);\n";
 printf "float* bb$c = (float*)clmalloc(cp,size*sizeof(float),0);\n";
@@ -102,7 +104,7 @@ printf "if (!bb$c) exit(__LINE__);\n";
 
 
 printf "for(i=0;i<size;i++) { \n";
-for($c=0;$c<10-2;++$c) {
+for($c=0;$c<$nargmax-2;++$c) {
 printf "aa".$c."[i] = i*1.1f+13.1f*".$c."; bb".$c."[i] = 0; \n";
 }
 printf "}\n";
@@ -116,7 +118,7 @@ printf "cl_event ev[10];\n";
 printf "float sum,sum_correct;\n";
 printf "float tol = pow(10.0,-8+log10((float)size));\n";
 
-for($c=0;$c<10;++$c) {
+for($c=0;$c<$nargmax;++$c) {
    for($a=1;$a<$c;++$a) {
       $b=$c-$a;
 
