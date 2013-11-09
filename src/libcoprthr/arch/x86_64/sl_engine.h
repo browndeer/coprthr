@@ -30,6 +30,7 @@
 #ifdef __xcl_kcall__
 typedef unsigned char uchar;
 typedef unsigned int uint;
+typedef unsigned int ulong;
 typedef char char2[2];
 typedef char char4[4];
 typedef uchar uchar2[2];
