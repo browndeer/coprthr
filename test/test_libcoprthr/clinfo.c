@@ -139,12 +139,12 @@ int main()
 
 			cl_command_queue* cmdq = (cl_command_queue*)calloc(ndev,sizeof(cl_command_queue));
 			for(j=0;j<ndev;j++) {
-				cmdq[i] = clCreateCommandQueue(ctx,devices[i],0,&err);
-				printf("[%d] clinfo: clCreateCommandQueue [%d] %p (%d)\n",pid,i,cmdq[i],err);
+				cmdq[j] = clCreateCommandQueue(ctx,devices[j],0,&err);
+				printf("[%d] clinfo: clCreateCommandQueue [%d] %p (%d)\n",pid,j,cmdq[j],err);
 			}
 
 			for(j=0;j<ndev;j++) 
-				clReleaseCommandQueue(cmdq[i]);
+				clReleaseCommandQueue(cmdq[j]);
 
 			clReleaseContext(ctx);
 
