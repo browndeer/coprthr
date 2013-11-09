@@ -19,7 +19,7 @@
 
 int main()
 {
-   cl_uint n = 64;
+   cl_uint n = 16;
 
 	/* use default contexts, if no ACCELERATOR use CPU */
    CLCONTEXT* cp = (stdacc)? stdacc : stdcpu;
