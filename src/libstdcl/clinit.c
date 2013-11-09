@@ -145,11 +145,15 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	if (stat(procexe,&st)) printcl( CL_ERR "stat procexe failed");
 
 	procelf_fd = open(procexe,O_RDONLY);
+	printcl( CL_DEBUG "procelf_fd=%d",procelf_fd);
 
 	clelf_start = &_clelf_start;
 	clelf_end = &_clelf_end;
 //	clelf_sz = (size_t)&_clelf_size;
-	clelf_sz = (size_t)( (intptr_t)clelf_end - (intptr_t)clelf_start );
+	long int tmp = (long int)((intptr_t)clelf_end - (intptr_t)clelf_start);
+//	clelf_sz = (size_t)( (intptr_t)clelf_end - (intptr_t)clelf_start );
+	clelf_sz = (size_t)((tmp<0)? 0 : tmp);
+	printcl( CL_DEBUG "clelf_sz=%d",clelf_sz);
 
 	if (procelf_fd < 0 || clelf_sz > 8) { 
 
@@ -159,7 +163,7 @@ void __attribute__((__constructor__)) _libstdcl_init()
 //		clelf_end = &_clelf_end;
 //		clelf_sz = (size_t)&_clelf_size;
 
-		printcl( CL_DEBUG "clelf address %p",clelf_start);
+		printcl( CL_DEBUG "clelf address %p %p",clelf_start,clelf_end);
 		printcl( CL_DEBUG "clelf address sz %p %d",clelf_start,clelf_sz);
 
 		procelf = clelf_start;
