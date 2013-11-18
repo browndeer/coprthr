@@ -175,7 +175,8 @@ int clelf_write_file( int fd, struct clelf_data_struct* cldata )
 	ehdr->e_machine = EM_ARM;
 #endif
 
-	ehdr->e_type = ET_NONE;
+//	ehdr->e_type = ET_NONE;
+	ehdr->e_type = ET_REL;
 	ehdr->e_version = EV_CURRENT;
 	ehdr->e_shstrndx = 8; /* set section index of .shstrtab */
 
