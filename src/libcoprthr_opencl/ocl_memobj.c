@@ -468,10 +468,10 @@ void __do_create_buffer(cl_mem memobj)
 				__resolve_devid_devops(ctx->devices[i],memalloc)
 					(memobj->sz,COPRTHR_DEVMEM_TYPE_BUFFER);
 
-			memobj->mem1[i]->sz = memobj->sz;
+			memobj->mem1[i]->size = memobj->sz;
 
 			printcl( CL_DEBUG "__do_create_buffer: mem1[%d]=%p (%ld)",
-				i,memobj->mem1[i],memobj->mem1[i]->sz);
+				i,memobj->mem1[i],memobj->mem1[i]->size);
 
 			if (memobj->sz > 0 && memobj->mem1[i]->res == 0) {
 
@@ -558,7 +558,7 @@ void __do_create_image2d(cl_mem memobj)
 			size_t* p = (size_t*)memobj->mem1[i]->res;
 			p[0] = memobj->width;
 			p[1] = memobj->height;
-			memobj->mem1[i]->sz = memobj->sz + 128;
+			memobj->mem1[i]->size = memobj->sz + 128;
 
 			if (memobj->sz > 0 && memobj->mem1[i]->res == 0) {
 
