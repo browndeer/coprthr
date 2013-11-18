@@ -30,6 +30,8 @@
 #include "coprthr_mem.h"
 #include "coprthr_program.h"
 
+#include "coprthr.h"
+
 #define __malloc_struct(t) (struct t*)malloc(sizeof(struct t))
 
 int coprthr_attr_init( coprthr_td_attr_t* attr ) 
@@ -113,6 +115,10 @@ int coprthr_create( coprthr_td_t* td, coprthr_td_attr_t* attr,
 	if ( (*td = __malloc_struct(coprthr_td)) == 0) 
 		return ENOMEM;
 
+	(*td)->detachstate = (*attr)->detachstate;
+	(*td)->initstate = (*attr)->initstate;
+	(*td)->dd = (*attr)->dd;
+
 	__do_set_kernel_arg_1( thr, 0, 0, pargs );
 
 	__coprthr_init_event( &((*td)->ev) );
@@ -123,9 +129,9 @@ int coprthr_create( coprthr_td_t* td, coprthr_td_attr_t* attr,
 
 	__do_set_cmd_ndrange_kernel_1(*td,thr,1,&gwo,&gws,&lws);
 
-	struct coprthr_device* dev = __ddtab[(*attr)->dd];
+	struct coprthr_device* dev = __ddtab[(*td)->dd];
 
-	if ((*attr)->initstate == COPRTHR_A_CREATE_EXECUTE) 
+	if ((*td)->initstate == COPRTHR_A_CREATE_EXECUTE) 
 		__do_enqueue_cmd_1(dev,&((*td)->ev));
 	
 	return 0;	
@@ -215,6 +221,7 @@ int coprthr_sched( coprthr_td_t* td, int action, int flags )
 	} else return EINVAL;
 
 }
+#endif
 
 
 /***
@@ -233,7 +240,7 @@ int coprthr_mutex_attr_init( coprthr_mutex_attr_t* mtxattr)
 }
 
 
-int coprthr_mutex_attr_destroy( coprthr_mutext_attr_t* mtxattr)
+int coprthr_mutex_attr_destroy( coprthr_mutex_attr_t* mtxattr)
 {
 	if (mtxattr==0)
 		return EFAULT;
@@ -247,7 +254,7 @@ int coprthr_mutex_attr_destroy( coprthr_mutext_attr_t* mtxattr)
 }
 
 
-int coprthr_mutex_attr_setdevice( coprthr_mutext_attr_t* mtxattr, int dd )
+int coprthr_mutex_attr_setdevice( coprthr_mutex_attr_t* mtxattr, int dd )
 {
 	if (mtxattr==0) 
 		return EFAULT;
@@ -255,13 +262,13 @@ int coprthr_mutex_attr_setdevice( coprthr_mutext_attr_t* mtxattr, int dd )
 	if (*mtxattr==0 || dd<0)
 		return EINVAL;
 
-	*mtxattr->dd = dd;
+	(*mtxattr)->dd = dd;
 
 	return 0;
 }
 
 
-int coprthr_mutex_init( coprthr_mutex_t* mtx, coprthr_mutext_attr_t* mtxattr )
+int coprthr_mutex_init( coprthr_mutex_t* mtx, coprthr_mutex_attr_t* mtxattr )
 {
 	if (!mtx || !mtxattr)
 		return EINVAL;
@@ -269,15 +276,22 @@ int coprthr_mutex_init( coprthr_mutex_t* mtx, coprthr_mutext_attr_t* mtxattr )
 	if ( (*mtx = __malloc_struct(coprthr_mutex)) == 0) 
 		return ENOMEM;
 
-	struct coprthr_device* dev = __ddtab[mtxattr->dd];
+	struct coprthr_device* dev = __ddtab[(*mtxattr)->dd];
 
-	coprthr_mem_t mem 
+	struct coprthr1_mem* mem 
 		= coprthr_devmemalloc(dev,0,1,0,COPRTHR_DEVMEM_TYPE_MUTEX);
 
 	if (!mem)
 		return ENOMEM;
 
-	/* XXX it is possible that error shold be ENOSUP
+	/* need to promote mem to mtx */
+//	(*mtx)->mem = mem;
+	memcpy(*mtx,mem,sizeof(struct coprthr1_mem));
+	free(mem);
+	
+	(*mtx)->dd = (*mtxattr)->dd;
+
+	/* XXX it is possible that error shold be ENOSUP */
 	return 0;
 }
 
@@ -287,7 +301,10 @@ int coprthr_mutex_destroy( coprthr_mutex_t* mtx )
 	if (mtx==0)
 		return EFAULT;
 
-	coprthr_devmemfree(mem);
+	struct coprthr_device* dev = __ddtab[(*mtx)->dd];
+
+//	coprthr_devmemfree(dev,(*mtx)->mem);
+	coprthr_devmemfree(dev,(coprthr_mem_t)*mtx);
 
 	free(*mtx);
 
@@ -300,11 +317,14 @@ int coprthr_mutex_lock( coprthr_mutex_t* mtx)
 	if (!mtx)
 		return EINVAL;
 
-	__do_mutex_lock_1(mtx);
+	int dd = (*mtx)->dd;
 
-	/* from mtx, get dev, and then perform the device-specific lock
-	 * using call from devops
-	 */
+	struct coprthr_device* dev = __ddtab[dd];
+
+	int err = dev->devops->mtxlock( (coprthr_mem_t)*mtx );
+
+	if (err) 
+		return -1;
 
 	return 0;
 }
@@ -315,9 +335,20 @@ int coprthr_mutex_unlock( coprthr_mutex_t* mtx)
 	if (!mtx)
 		return EINVAL;
 
+	int dd = (*mtx)->dd;
+
+	struct coprthr_device* dev = __ddtab[dd];
+
+	int err = dev->devops->mtxunlock( (coprthr_mem_t)*mtx );
+
+	if (err) 
+		return -1;
+
 	return 0;
 }
 
+
+#if(0)
 
 /***
  *** cond variable

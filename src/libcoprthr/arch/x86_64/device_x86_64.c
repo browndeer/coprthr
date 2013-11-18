@@ -107,7 +107,8 @@ static int init_device_x86_64(void)
 	unsigned int ncpu = 1;
 
 	*codev->devinfo = (struct coprthr_device_info){
-		.memsup = COPRTHR_DEVMEM_TYPE_BUFFER,
+		.memsup = COPRTHR_DEVMEM_TYPE_BUFFER
+			|COPRTHR_DEVMEM_TYPE_MUTEX,
 		.arch_id = COPRTHR_ARCH_ID_X86_64
 	};
 

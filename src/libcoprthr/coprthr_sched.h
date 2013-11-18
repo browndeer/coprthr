@@ -25,6 +25,11 @@
 
 #include <sys/queue.h>
 
+#define COPRTHR_E_WAIT          0x0001
+#define COPRTHR_E_NOWAIT        0x0002
+#define COPRTHR_E_NOW           0x0004
+
+
 struct coprthr_event {
 	struct coprthr_device* dev;
 	pthread_mutex_t mtx;

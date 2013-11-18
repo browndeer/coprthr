@@ -23,6 +23,7 @@
 #ifndef _coprthr_h
 #define _coprthr_h
 
+#include "coprthr_arch.h"
 #include "coprthr_device.h"
 #include "coprthr_mem.h"
 #include "coprthr_program.h"
@@ -47,28 +48,33 @@ typedef struct coprthr_event* coprthr_event_t;
 #define COPRTHR_DEVMEM_TYPE_BUFFER		0x0001
 #define COPRTHR_DEVMEM_TYPE_MUTEX		0x0002
 #define COPRTHR_DEVMEM_TYPE_SIGNAL		0x0004
-#define COPRTHR_DEVMEM_TYPE_REGISTER	0x0008
-#define COPRTHR_DEVMEM_TYPE_FIFO			0x0010
+#define COPRTHR_DEVMEM_TYPE_REGISTER		0x0008
+#define COPRTHR_DEVMEM_TYPE_FIFO		0x0010
 #define COPRTHR_DEVMEM_TYPE_STACK		0x0020
 
 #define COPRTHR_DEVMEM_PROT_ENABLED		0x0800
-#define COPRTHR_DEVMEM_PROT_READ			(0x0100|COPRTHR_DEVMEM_PROT_ENABLED)
+#define COPRTHR_DEVMEM_PROT_READ		(0x0100|COPRTHR_DEVMEM_PROT_ENABLED)
 #define COPRTHR_DEVMEM_PROT_WRITE		(0x0200|COPRTHR_DEVMEM_PROT_ENABLED)
 
 #define COPRTHR_DEVMEM_TYPEMASK			0x0ff
 #define COPRTHR_DEVMEM_PROTMASK			0xf00
 
-#define COPRTHR_DEVMEM_FIXED				0x1000
+#define COPRTHR_DEVMEM_FIXED			0x1000
 
 void* coprthr_devmemalloc( coprthr_dev_t dev, void* addr, size_t nmemb, 
 	size_t size, int flags );
 
 void coprthr_devmemfree( struct coprthr_device* dev, struct coprthr1_mem* mem );
 
+size_t coprthr_devmemsize( struct coprthr1_mem* mem );
+void* coprthr_devmemptr( struct coprthr1_mem* mem );
+
 void* coprthr_devread( coprthr_dev_t dev, coprthr_mem_t dptr, void* buf,
 	size_t len, int flags);
 void* coprthr_devwrite( coprthr_dev_t dev, coprthr_mem_t dptr, void* buf,
 	size_t len, int flags);
+void* coprthr_devcopy( coprthr_dev_t dev, coprthr_mem_t dptr_src,
+	coprthr_mem_t dptr_dst, size_t len, int flags);
 void* coprthr_devexec( coprthr_dev_t dev, int nthr, 
 	struct coprthr1_kernel* krn1, unsigned int narg, void** args);
 
@@ -91,7 +97,18 @@ void* coprthr_devlink( struct coprthr_device* dev, struct coprthr1_program* prg1
  *** coprthr API (direct)
  ***/
 
-#define COPRTHR_O_DEFAULT 0
+#define COPRTHR_DEVICE_X86_64 	((char*)COPRTHR_ARCH_ID_X86_64)
+#define COPRTHR_DEVICE_I386 	((char*)COPRTHR_ARCH_ID_I386)
+#define COPRTHR_DEVICE_ARM32 	((char*)COPRTHR_ARCH_ID_ARM32)
+#define COPRTHR_DEVICE_E32_EMEK	((char*)COPRTHR_ARCH_ID_E32_EMEK)
+#define COPRTHR_DEVICE_E32 	((char*)COPRTHR_ARCH_ID_E32)
+
+#define COPRTHR_O_NONBLOCK	0x0001
+#define COPRTHR_O_STREAM 	0x0010
+#define COPRTHR_O_THREAD 	0x0020
+#define COPRTHR_O_EXCLUSIVE 	0x0040
+
+#define COPRTHR_O_DEFAULT COPRTHR_O_STREAM
 
 int coprthr_dopen( const char* path, int flags);
 int coprthr_dclose(int dd);
@@ -99,19 +116,44 @@ int coprthr_dclose(int dd);
 void* coprthr_compile( int dd, char* src, size_t len, char* opt, char** log );
 void* coprthr_link( int dd, struct coprthr1_program* prg1, const char* kname);
 
+//#define COPRTHR_E_WAIT 		0x0001
+//#define COPRTHR_E_NOWAIT 	0x0002
+//#define COPRTHR_E_NOW 		0x0004
+
+#define COPRTHR_E_DEFAULT COPRTHR_E_NOWAIT
+
 void* coprthr_dmalloc( int dd, size_t size, int flags );
 void* coprthr_drealloc( int dd, void* dptr, size_t size, int flags );
 void coprthr_dfree( int dd, void* dptr );
-void* coprthr_dmwrite(int dd, void* dptr, void* ptr, size_t len, int flags);
-void* coprthr_dmread(int dd, void* dptr, void* ptr, size_t len, int flags);
+void* coprthr_dwrite(int dd, void* dptr, void* ptr, size_t len, int flags);
+void* coprthr_dread(int dd, void* dptr, void* ptr, size_t len, int flags);
+void* coprthr_dcopy(int dd, void* dptr_src, void* dptr_dst, size_t len, 
+	int flags);
 
 void coprthr_dwaitev( int dd, struct coprthr_event* ev );
 
-void* coprthr_dexec( int dd, unsigned int nthr, struct coprthr1_kernel* krn, 
-	unsigned int nargs, void** p_args);
+coprthr_event_t coprthr_dexec( int dd, 
+	coprthr_kernel_t krn, unsigned int nargs, void** args,
+	unsigned int nthr, int flags );
+
+coprthr_event_t coprthr_dnexec( int dd, unsigned int nkrn, 
+	coprthr_kernel_t* v_krn, unsigned int* v_nargs, void*** v_args,
+	unsigned int* v_nthr, int flags );
 
 //int coprthr_kill( int dd, coprthr_event_t ev, int sig, int flags );
+
+#define COPRTHR_S_EXECUTE	0x0001
+#define COPRTHR_S_YIELD		0x0002
+#define COPRTHR_S_SUSPEND	0x0004
+#define COPRTHR_S_EXIT		0x0008
+
+#define COPRTHR_S_PREEMPT	0x0100
+#define COPRTHR_S_NOPREEMPT	0x0200
+#define COPRTHR_S_CLEANUP	0x0400
+
 //int coprthr_sched( int dd, coprthr_event_t ev, int action, ... );
+
+#define COPRTHR_CTL_TESTSUPP	10
 
 #endif
 

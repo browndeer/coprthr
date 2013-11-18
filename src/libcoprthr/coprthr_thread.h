@@ -24,6 +24,7 @@
 #define _coprthr_thread_h
 
 #include "coprthr_program.h"
+#include "coprthr_mem.h"
 #include "coprthr_sched.h"
 
 /* XXX the typedefs should be gathered up somewhere */
@@ -39,6 +40,9 @@ typedef struct coprthr_td_attr* coprthr_attr_t;
 
 struct coprthr_td {
 	struct coprthr_event ev;
+	int detachstate;
+	int initstate;
+	int dd;
 };
 typedef struct coprthr_td* coprthr_td_t;
 typedef struct coprthr_td* coprthr_t;
@@ -49,6 +53,8 @@ struct coprthr_mutex_attr {
 typedef struct coprthr_mutex_attr* coprthr_mutex_attr_t;
 
 struct coprthr_mutex {
+	struct coprthr1_mem mem;
+	int dd;
 };
 typedef struct coprthr_mutex* coprthr_mutex_t;
 

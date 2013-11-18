@@ -100,6 +100,8 @@ void __do_set_cmd_copy_buffer_1(
 	size_t src_offset, size_t dst_offset, size_t len 
 )
 {
+	ev1->cmd = __CL_COMMAND_COPY_BUFFER;
+
 	ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
 
 	__init_cmdcall_arg(ev1->cmd_argp);
@@ -523,6 +525,29 @@ void __do_wait_1( struct coprthr_event* ev1 )
 		__unlock_event1(ev1);
 }
 
+
+__attribute__((noinline))
+int __qnotempty( struct coprthr_command_queue* cmdq1  ) 
+{
+	if (cmdq1->cmds_queued.tqh_first || cmdq1->cmd_submitted 
+		|| cmdq1->cmd_running) 
+			return 1;
+
+	else
+		return 0;
+}
+
+void __do_waitq_1( struct coprthr_command_queue* cmdq1 )
+{
+	printcl( CL_DEBUG "waitq %p\n",cmdq1);
+
+	while ( __qnotempty(cmdq1) );
+//			printcl( CL_DEBUG "spinning");
+
+	return;
+}
+
+
 /*
 void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 {
@@ -538,12 +563,12 @@ void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 
 //#include "device.h"
 
-void* coprthr_dmread( 
+void* coprthr_dread( 
 	int dd, struct coprthr1_mem* dptr, void* buf, size_t len, int flags
 )
 {
-	printcl( CL_DEBUG "coprthr_dmread: dptr %p",dptr);
-	printcl( CL_DEBUG "coprthr_dmread: dptr->res %p",dptr->res);
+	printcl( CL_DEBUG "coprthr_dread: dptr %p",dptr);
+	printcl( CL_DEBUG "coprthr_dread: dptr->res %p",dptr->res);
 
 //	struct coprthr_event* ev1 = (struct coprthr_event*)
 //		malloc(sizeof(struct coprthr_event));
@@ -554,7 +579,13 @@ void* coprthr_dmread(
 
 	struct coprthr_device* dev = __ddtab[dd];
 
-	__do_enqueue_cmd_1( dev,ev1);
+	if (flags & COPRTHR_E_NOW) {
+		__do_exec_cmd_1( dev,ev1);
+	} else {
+		__do_enqueue_cmd_1( dev,ev1);
+		if (flags & COPRTHR_E_WAIT)
+			__do_wait_1(ev1);
+	}
 
 	return ev1;
 
@@ -586,12 +617,12 @@ void* coprthr_devread(
 	return 0;
 }
 
-void* coprthr_dmwrite( 
+void* coprthr_dwrite( 
 	int dd, struct coprthr1_mem* dptr, void* buf, size_t len, int flags
 )
 {
-	printcl( CL_DEBUG "coprthr_dmwrite: dptr %p",dptr);
-	printcl( CL_DEBUG "coprthr_dmwrite: dptr->res %p",dptr->res);
+	printcl( CL_DEBUG "coprthr_dwrite: dptr %p",dptr);
+	printcl( CL_DEBUG "coprthr_dwrite: dptr->res %p",dptr->res);
 
 //	struct coprthr_event* ev1 = (struct coprthr_event*)
 //		malloc(sizeof(struct coprthr_event));
@@ -603,11 +634,18 @@ void* coprthr_dmwrite(
 
 	struct coprthr_device* dev = __ddtab[dd];
 
-	__do_enqueue_cmd_1( dev,ev1);
+	if (flags & COPRTHR_E_NOW) {
+		__do_exec_cmd_1( dev,ev1);
+	} else {
+		__do_enqueue_cmd_1( dev,ev1);
+		if (flags & COPRTHR_E_WAIT)
+			__do_wait_1(ev1);
+	}
+
 
 	return ev1;
 	
-	dev->devops->memwrite(dptr,buf,len);
+//	dev->devops->memwrite(dptr,buf,len);
 	return 0;
 }
 
@@ -637,25 +675,92 @@ void* coprthr_devwrite(
 	return 0;
 }
 
+
+void* coprthr_dcopy( 
+	int dd, struct coprthr1_mem* dptr_src, struct coprthr1_mem* dptr_dst,
+	size_t len, int flags
+)
+{
+	printcl( CL_DEBUG "coprthr_dcopy: dptr_src %p",dptr_src);
+	printcl( CL_DEBUG "coprthr_dcopy: dptr_src->res %p",dptr_src->res);
+
+	printcl( CL_DEBUG "coprthr_dcopy: dptr_dst %p",dptr_dst);
+	printcl( CL_DEBUG "coprthr_dcopy: dptr_dst->res %p",dptr_dst->res);
+
+	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
+	__coprthr_init_event(ev1);
+
+	__do_set_cmd_copy_buffer_1( ev1, dptr_src, dptr_dst, 0, 0, len );
+
+	struct coprthr_device* dev = __ddtab[dd];
+
+	if (flags & COPRTHR_E_NOW) {
+		__do_exec_cmd_1( dev,ev1);
+	} else {
+		__do_enqueue_cmd_1( dev,ev1);
+		if (flags & COPRTHR_E_WAIT)
+			__do_wait_1(ev1);
+	}
+
+
+	return ev1;
+}
+
+
+void* coprthr_devcopy( 
+	struct coprthr_device* dev, struct coprthr1_mem* dptr_src,
+	struct coprthr1_mem* dptr_dst, size_t len, int flags
+)
+{
+	printcl( CL_DEBUG "coprthr_devcopy: dptr_src %p",dptr_src);
+	printcl( CL_DEBUG "coprthr_devcopy: dptr_src->res %p",dptr_src->res);
+
+	printcl( CL_DEBUG "coprthr_devcopy: dptr_dst %p",dptr_dst);
+	printcl( CL_DEBUG "coprthr_devcopy: dptr_dst->res %p",dptr_dst->res);
+
+/*
+	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
+	__coprthr_init_event(ev1);
+
+	__do_set_cmd_write_buffer_1( ev1, dptr, 0, len, buf );
+
+	__do_exec_cmd_1( dev,ev1);
+
+	return ev1;
+*/
+
+	dev->devops->memcopy(dptr_src,dptr_dst,len);
+	return 0;
+}
+
+
 void coprthr_dwaitev( int dd, struct coprthr_event* ev1)
 { __do_wait_1(ev1); }
 
 
+void coprthr_dwait( int dd )
+{ 
+	struct coprthr_device* dev = __ddtab[dd];
+	struct coprthr_command_queue* cmdq1 = dev->devstate->cmdq;
+	__do_waitq_1(cmdq1); 
+}
+
+
 void* coprthr_dexec( 
-	int dd, int nthr, struct coprthr1_kernel* krn1, 
-	unsigned int narg, void** args 
+	int dd, struct coprthr1_kernel* krn1, 
+	unsigned int nargs, void** args,
+	unsigned int nthr, int flags
 )
 {
 	printcl( CL_DEBUG "coprthr_dexec");
 
 	int iarg;
-	for(iarg=0;iarg<narg;iarg++) {
+	for(iarg=0;iarg<nargs;iarg++) {
 		__do_set_kernel_arg_1(krn1,iarg,0,args[iarg]);
 	}
 
-//	struct coprthr_event* ev1 = (struct coprthr_event*)
-//		malloc(sizeof(struct coprthr_event));
 	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
+
 	__coprthr_init_event(ev1);
 
 	size_t gwo = 0;
@@ -670,6 +775,46 @@ void* coprthr_dexec(
 
 	return ev1;
 }
+
+
+void* coprthr_dnexec( 
+	int dd, unsigned int nkrn, struct coprthr1_kernel** v_krn,
+	unsigned int* v_nargs, void*** v_args, 
+	unsigned int* v_nthr, int flags
+)
+{
+	printcl( CL_DEBUG "coprthr_dexec");
+
+	if (nkrn>1)
+		printcl( CL_WARNING "multiple kernels not supported");
+
+	struct coprthr1_kernel* krn1 = v_krn[0];
+	unsigned int nargs = v_nargs[0];
+	void** args = v_args[0];
+	unsigned int nthr = (v_nthr)? v_nthr[0] : 1;
+
+	int iarg;
+	for(iarg=0;iarg<nargs;iarg++) {
+		__do_set_kernel_arg_1(krn1,iarg,0,args[iarg]);
+	}
+
+	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
+
+	__coprthr_init_event(ev1);
+
+	size_t gwo = 0;
+	size_t gws = nthr;
+	size_t lws = 1;
+
+	__do_set_cmd_ndrange_kernel_1( ev1, krn1, 1, &gwo, &gws, &lws);
+
+	struct coprthr_device* dev = __ddtab[dd];
+
+	__do_enqueue_cmd_1( dev,ev1);
+
+	return ev1;
+}
+
 
 void* coprthr_devexec( 
 	struct coprthr_device* dev, int nthr, struct coprthr1_kernel* krn1, 

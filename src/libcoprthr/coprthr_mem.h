@@ -24,7 +24,8 @@
 #define _coprthr_mem_h
 
 struct coprthr1_mem {
-	size_t sz;
+	int type;
+	size_t size;
 	void* res;
 	void* resmap;
 	unsigned int host_cached;

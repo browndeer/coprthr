@@ -332,6 +332,7 @@ void* coprthr_getdev( const char* name, int flags )
 
 int coprthr_dopen( const char* name, int flags )
 {
+	int i;
 
 	if (!__devtab) {
 		__do_discover_devices_1(&__ndev,&__devtab,1);
@@ -343,8 +344,21 @@ int coprthr_dopen( const char* name, int flags )
 
 	intptr_t iname = (intptr_t)name;
 
-	if (iname < 256 && iname < __ndev)
-		idev = (int)iname;
+	printcl( CL_DEBUG "iname=%d",iname);
+
+//	if (iname < 256 && iname < __ndev) {
+	if (iname < 256) {
+//		idev = (int)iname;
+		int n = sizeof(__coprthr_supptab)
+			/sizeof(struct __coprthr_supptab_entry);
+		for(i=0; i<n; i++) {
+			printcl( CL_DEBUG "checking id %d %d",i,__coprthr_supptab[i].id);
+			if (__coprthr_supptab[i].id == (int)iname) break;
+		}
+		if (i<n) idev = i;
+	}
+
+	printcl( CL_DEBUG "idev=%d",idev);
 
 	__ddtab[__ddtab_nxt] = __devtab[idev];
 

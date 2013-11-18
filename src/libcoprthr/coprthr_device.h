@@ -134,6 +134,8 @@ struct coprthr_device_operations {
 	size_t (*memread)( void* memptr, void* buf, size_t sz );
 	size_t (*memwrite)( void* memptr, void* buf, size_t sz );
 	size_t (*memcopy)( void* memptr_src, void* memptr_dst, size_t sz);
+	int (*mtxlock)( void* mtxptr );
+	int (*mtxunlock)( void* mtxptr );
 };
 
 struct coprthr_device_compiler {

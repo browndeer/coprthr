@@ -74,7 +74,7 @@ void* coprthr_devmemalloc(
 
 	if ( flags & COPRTHR_DEVMEM_TYPEMASK & dev->devinfo->memsup )
 		return dev->devops->memalloc(nmemb*size,flags);
-	else
+	else 
 		return 0;
 }
 
@@ -118,6 +118,16 @@ int coprthr_dmunmap( void* dptr, size_t sizeb )
 
 int coprthr_dmsync( void* ptr, size_t sizeb, int flags )
 {
+}
+
+size_t coprthr_devmemsize( struct coprthr1_mem* mem )
+{ 
+	return mem->size; 
+}
+
+void* coprthr_devmemptr( struct coprthr1_mem* mem )
+{ 
+	return mem->res; 
 }
 
 
