@@ -603,8 +603,9 @@ int main(int argc, char** argv)
 		int fd = mkstemp(tfname);
 		close(fd);
 
-		tflist[ifile] = (char*)calloc(sizeof(TFNAME_TEMPLATE)+1,1);
-		strcpy(tflist[ifile],tfname);
+//		tflist[ifile] = (char*)calloc(sizeof(TFNAME_TEMPLATE)+1,1);
+//		strcpy(tflist[ifile],tfname);
+		tflist[ifile] = strdup(tfname);
 		append_str(tfnames_str,tfname," ",0);
 
 DEBUG2("add tfame '%s'",tfname);
