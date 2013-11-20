@@ -274,7 +274,7 @@ int main(int argc, char** argv)
 					" file will be ignored",fname);
 				skip_file = 1;
 
-			} else if (sect.has_any_clelf_section < 6) {
+			} else if (sect.has_any_clelf_section < 4) {
 
 				ERROR2("'%s' missing one or more clelf sections, exiting",fname);
 				bad_file = 1;
