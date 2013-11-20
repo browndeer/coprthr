@@ -245,6 +245,7 @@ int main(int argc, char** argv)
 	char* platform = default_platform;
 	char* device = default_device;
 
+	char* env_tmpdir = getenv("TMPDIR");
 
 	char* path_str = (char*)calloc(1,DEFAULT_STR_SIZE);
 	path_str[0] = '.';
@@ -995,7 +996,14 @@ int main(int argc, char** argv)
 	}
 
 
-	char tfname[] = "/tmp/clldXXXXXX";
+//	char tfname[] = "/tmp/clldXXXXXX";
+   char* tfname;
+
+   if (env_tmpdir)
+      asprintf(&tfname,"%s/clldXXXXXX",env_tmpdir);
+   else
+      asprintf(&tfname,"/tmp/clldXXXXXX");
+
 	int fd = mkstemp(tfname);
 
 	if (fd < 0) {
