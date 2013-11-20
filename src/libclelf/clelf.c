@@ -74,13 +74,27 @@ char* device_name_alias[][2] = {
 	"ARMv7","ARMv7"
 };
 
+static char* truncate_ws(char* buf)
+{
+//   size_t sz = strnlen(buf,__CLMAXSTR_LEN);
+   size_t sz = strnlen(buf,1024);
+   char* p = buf + sz - 1;
+   while( p>buf && (*p==' '||*p=='\t'||*p=='\n')) *(p--) = '\0';
+   p = buf;
+   while( p<buf+sz && (*p==' '||*p=='\t'||*p=='\n')) ++p;
+   return(p);
+}
+
 int clelf_device_name_alias( char* dname )
 {
 	int i;
+	char* tmp = truncate_ws(dname);
 	for(i=0;i<sizeof(device_name_alias)/(2*sizeof(char*));i++)  {
 		char* s = device_name_alias[i][0];
-		if (!strncasecmp(dname,s,strlen(s))) {
-			strcpy(dname,device_name_alias[i][1]);
+//		if (!strncasecmp(dname,s,strlen(s))) {
+//			strcpy(dname,device_name_alias[i][1]);
+		if (!strncasecmp(tmp,s,strlen(s))) {
+			strcpy(tmp,device_name_alias[i][1]);
 			return(1);
 		}
 	}
