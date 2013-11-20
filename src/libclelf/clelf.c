@@ -94,7 +94,7 @@ int clelf_device_name_alias( char* dname )
 //		if (!strncasecmp(dname,s,strlen(s))) {
 //			strcpy(dname,device_name_alias[i][1]);
 		if (!strncasecmp(tmp,s,strlen(s))) {
-			strcpy(tmp,device_name_alias[i][1]);
+			strcpy(dname,device_name_alias[i][1]);
 			return(1);
 		}
 	}
