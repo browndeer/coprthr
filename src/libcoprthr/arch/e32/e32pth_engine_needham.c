@@ -164,6 +164,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
       return(__CL_OUT_OF_RESOURCES);
    }
 
+	printcl( CL_DEBUG "kernel prg1 %p knum %d",argp->k.krn->prg1,knum);
 	printcl( CL_DEBUG "kernel su %d",argp->k.krn->prg1->ksu[knum]);
 
 	size_t core_local_mem_hi = core_local_mem_size - 0x200;

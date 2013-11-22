@@ -65,6 +65,7 @@ struct coprthr_device_state {
          int array_ncol;
          int array_nrow;
          int ncore;
+			unsigned int* p_mutex_alloc_map;
       } e32;
 	};
 	struct coprthr_command_queue* cmdq;

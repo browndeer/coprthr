@@ -6,7 +6,7 @@
 #include "coprthr.h"
 #include "test.h"
 
-#define SIZE 256
+#define SIZE 16
 
 char src[] = \
 	"__kernel void\n" \
@@ -19,7 +19,8 @@ int main()
 {
 	int i;
 
-	int dd = coprthr_dopen(COPRTHR_DEVICE_X86_64,COPRTHR_O_STREAM);
+//	int dd = coprthr_dopen(COPRTHR_DEVICE_X86_64,COPRTHR_O_STREAM);
+	int dd = coprthr_dopen(TEST_COPRTHR_DEVICE,COPRTHR_O_STREAM);
 
 	printf("dd=%d\n",dd);
 
@@ -54,12 +55,12 @@ int main()
 
 	coprthr_dcopy(dd,memc,memb,SIZE*sizeof(float),COPRTHR_E_WAIT);
 
-	coprthr_kernel_t v_krn[] = { krn, krn };
-	unsigned int v_nargs[] = { nargs, nargs };
-	void** v_args[] = { args, args };
-	unsigned int v_nthr[] = { nthr, nthr };
-
-	coprthr_dnexec(dd,1,v_krn,v_nargs,v_args,v_nthr,COPRTHR_E_WAIT);
+//	coprthr_kernel_t v_krn[] = { krn, krn };
+//	unsigned int v_nargs[] = { nargs, nargs };
+//	void** v_args[] = { args, args };
+//	unsigned int v_nthr[] = { nthr, nthr };
+//
+//	coprthr_dnexec(dd,1,v_krn,v_nargs,v_args,v_nthr,COPRTHR_E_WAIT);
 
 	coprthr_dread(dd,memc,c,SIZE*sizeof(float),COPRTHR_E_WAIT);
 

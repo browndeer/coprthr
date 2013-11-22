@@ -19,7 +19,7 @@ int main()
 {
 	int i;
 
-	int dd = coprthr_dopen(COPRTHR_DEVICE_X86_64,COPRTHR_O_STREAM);
+	int dd = coprthr_dopen(TEST_COPRTHR_DEVICE,COPRTHR_O_STREAM);
 
 	printf("dd=%d\n",dd);
 

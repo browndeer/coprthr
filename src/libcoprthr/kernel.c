@@ -42,6 +42,8 @@ void __do_create_kernel_1(struct coprthr1_kernel* krn1 )
 
 //	krn1 = (struct coprthr1_kernel*)malloc(sizeof(struct coprthr1_kernel));
 
+	printcl( CL_DEBUG "__do_create_kernel: ksu %d",prg1->ksu[knum]);
+
 	unsigned int narg = prg1->knarg[knum];
 
 	printcl( CL_DEBUG "__do_create_kernel: narg=%d",narg);

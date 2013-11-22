@@ -350,7 +350,7 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
 
   /**/
-  PROVIDE (__stack_start_ = ORIGIN(INTERNAL_RAM) + LENGTH(INTERNAL_RAM) - 0x10);
+  PROVIDE (__stack_start_ = ORIGIN(INTERNAL_RAM) + LENGTH(INTERNAL_RAM) - 0x80);
   .stack __stack_start_ : { ___stack = .; *(.stack) }
   PROVIDE (___heap_start = ORIGIN(EXTERNAL_DRAM_1) + __HEAP_SIZE_FOR_CORE_ * __CORE_NUM_);
   /*.heap_start __heap_start_ :  { _heap_start_ = .; *(.heap_start) } */

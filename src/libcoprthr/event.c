@@ -766,6 +766,7 @@ void* coprthr_dexec(
 	size_t gwo = 0;
 	size_t gws = nthr;
 	size_t lws = 1;
+//	size_t lws = 2;
 
 	__do_set_cmd_ndrange_kernel_1( ev1, krn1, 1, &gwo, &gws, &lws);
 

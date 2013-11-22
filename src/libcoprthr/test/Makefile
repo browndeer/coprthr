@@ -8,8 +8,7 @@ INCS = -I.. -I../../../include
 LIBS = -L.. -lcoprthr
 
 TARGET = test_stream_1.x test_stream_2.x test_stream_3.x test_stream_4.x \
-	test_stream_7.x \
-	test_thread.x
+	test_stream_7.x test_thread.x test_mtx.x
 
 all: $(TARGET)
 

@@ -133,6 +133,8 @@ void* devmembase = 0;
 void* devmemlo = 0;
 void* devmemhi = 0;
 
+unsigned int devmtx_alloc_map = 0;
+
 static void* dlh_compiler = 0;
 
 static int init_device_e32(void)
@@ -261,7 +263,7 @@ printcl(CL_DEBUG "back from old_e_get_platform_info");
 	unsigned int ncpu = 1;
 
 	*codev->devinfo = (struct coprthr_device_info){
-		.memsup = COPRTHR_DEVMEM_TYPE_BUFFER,
+		.memsup = COPRTHR_DEVMEM_TYPE_BUFFER | COPRTHR_DEVMEM_TYPE_MUTEX,
 		.arch_id = COPRTHR_ARCH_ID_E32
 	};
 
@@ -517,6 +519,8 @@ printcl(CL_DEBUG "back from old_e_get_platform_info");
    codev->devstate->e32.array_ncol = einfo.e_array_ncol;
    codev->devstate->e32.array_nrow = einfo.e_array_nrow;
    codev->devstate->e32.ncore = (einfo.e_array_ncol)*(einfo.e_array_nrow);
+
+	codev->devstate->e32.p_mutex_alloc_map = &devmtx_alloc_map;
 
 	codev->devstate->cmdq = 0;
 

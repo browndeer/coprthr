@@ -306,7 +306,7 @@ int coprthr_mutex_destroy( coprthr_mutex_t* mtx )
 //	coprthr_devmemfree(dev,(*mtx)->mem);
 	coprthr_devmemfree(dev,(coprthr_mem_t)*mtx);
 
-	free(*mtx);
+//	free(*mtx);
 
 	return 0;
 }

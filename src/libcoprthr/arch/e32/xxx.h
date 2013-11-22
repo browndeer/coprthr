@@ -108,5 +108,7 @@ void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
 extern void* devmembase;
 extern void* devmemlo;
 
+extern unsigned int devmtx_alloc_map;
+
 #endif
 

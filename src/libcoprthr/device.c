@@ -349,6 +349,8 @@ int coprthr_dopen( const char* name, int flags )
 //	if (iname < 256 && iname < __ndev) {
 	if (iname < 256) {
 //		idev = (int)iname;
+
+/*
 		int n = sizeof(__coprthr_supptab)
 			/sizeof(struct __coprthr_supptab_entry);
 		for(i=0; i<n; i++) {
@@ -356,6 +358,13 @@ int coprthr_dopen( const char* name, int flags )
 			if (__coprthr_supptab[i].id == (int)iname) break;
 		}
 		if (i<n) idev = i;
+*/
+		for(i=0; i<nsupp; i++) {
+			printcl( CL_DEBUG "checking id %d %d",i,__devtab[i]->devinfo->arch_id);
+			if (__devtab[i]->devinfo->arch_id == (int)iname) break;
+		}
+		if (i<nsupp) idev = i;
+
 	}
 
 	printcl( CL_DEBUG "idev=%d",idev);
@@ -369,6 +378,8 @@ int coprthr_dopen( const char* name, int flags )
 	} while(__ddtab_nxt<256 && __ddtab[__ddtab_nxt]);
 
 	struct coprthr_device* dev = __ddtab[dd];
+	printcl( CL_DEBUG "coprthr_dopen: dev %p", dev);
+	printcl( CL_DEBUG "coprthr_dopen: dev->devstate %p", dev->devstate);
 	printcl( CL_DEBUG "coprthr_dopen: dev->devstate->cmdq %p",
 		dev->devstate->cmdq);
 	__do_create_command_queue_1(dev);
