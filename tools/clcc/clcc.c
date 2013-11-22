@@ -51,7 +51,7 @@
  *** -c is presently implied for clcc
  ***/ 
 
-#define TFNAME_TEMPLATE "/tmp/clccXXXXXX"
+//#define TFNAME_TEMPLATE "/tmp/clccXXXXXX"
 #define DEFAULT_OFNAME "out_clcc.o"
 
 __inline
@@ -259,6 +259,11 @@ int main(int argc, char** argv)
 	char* platform = default_platform;
 	char* device = default_device;
 
+	char* tmpdir;
+	char* env_tmpdir = getenv("TMPDIR");
+	tmpdir = (env_tmpdir)? strdup(env_tmpdir) : strdup("/tmp");
+
+	printcl( CL_DEBUG "tmpdir=%s",tmpdir);
 
 	char* path_str = (char*)calloc(1,DEFAULT_STR_SIZE);
 	path_str[0] = '.';
@@ -311,7 +316,9 @@ int main(int argc, char** argv)
 
 	FILE* fp;
 
-   char wdtemp[] = "/tmp/xclXXXXXX";
+//   char wdtemp[] = "/tmp/xclXXXXXX";
+	char* wdtemp = 0;
+	asprintf(&wdtemp,"%s/xclXXXXXX",tmpdir);
    char* wd = mkdtemp(wdtemp);
 
 
@@ -597,12 +604,19 @@ int main(int argc, char** argv)
 
 //		char cmd[1024];
 //		char tfname[] = "/tmp/clccXXXXXX";
-		char tfname[] = TFNAME_TEMPLATE;
+//		char tfname[] = TFNAME_TEMPLATE;
+
+		char* tfname;
+		asprintf(&tfname,"%s/clccXXXXXX",tmpdir);
+	
+		printcl( CL_DEBUG "tfname=%s",tfname);
+	
 		int fd = mkstemp(tfname);
 		close(fd);
 
-		tflist[ifile] = (char*)calloc(sizeof(TFNAME_TEMPLATE)+1,1);
-		strcpy(tflist[ifile],tfname);
+//		tflist[ifile] = (char*)calloc(sizeof(TFNAME_TEMPLATE)+1,1);
+//		strcpy(tflist[ifile],tfname);
+		tflist[ifile] = strdup(tfname);
 		append_str(tfnames_str,tfname," ",0);
 
 DEBUG2("add tfame '%s'",tfname);

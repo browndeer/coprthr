@@ -256,6 +256,12 @@ int main(int argc, char** argv)
 	char* platform = default_platform;
 	char* device = default_device;
 
+	char* tmpdir;
+   char* env_tmpdir = getenv("TMPDIR");
+   tmpdir = (env_tmpdir)? strdup(env_tmpdir) : strdup("/tmp");
+
+   printcl( CL_DEBUG "tmpdir=%s",tmpdir);
+
 	char* path_str = (char*)calloc(1,DEFAULT_STR_SIZE);
 	path_str[0] = '.';
 	size_t path_str_len = 2;
@@ -1036,8 +1042,10 @@ printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",
 	 *** create special elf file
 	 ***/
 
-	char tfname[] = "/tmp/clccXXXXXX";
+//	char tfname[] = "/tmp/clccXXXXXX";
 //	char tfname[] = "clccXXXXXX";
+	char* tfname;
+   asprintf(&tfname,"%s/clccXXXXXX",tmpdir);
 	fd = mkstemp(tfname);
 
 	if (fd < 0) {

@@ -245,6 +245,11 @@ int main(int argc, char** argv)
 	char* platform = default_platform;
 	char* device = default_device;
 
+	char* tmpdir;
+	char* env_tmpdir = getenv("TMPDIR");
+	tmpdir = (env_tmpdir)? strdup(env_tmpdir) : strdup("/tmp");
+
+	printcl( CL_DEBUG "tmpdir=%s",tmpdir);
 
 	char* path_str = (char*)calloc(1,DEFAULT_STR_SIZE);
 	path_str[0] = '.';
@@ -1005,7 +1010,10 @@ int main(int argc, char** argv)
 	}
 
 
-	char tfname[] = "/tmp/clldXXXXXX";
+//	char tfname[] = "/tmp/clldXXXXXX";
+	char* tfname;
+	asprintf(&tfname,"%s/clccXXXXXX",tmpdir);
+	printcl( CL_DEBUG "tfname=%s",tfname);
 	int fd = mkstemp(tfname);
 
 	if (fd < 0) {
@@ -1081,7 +1089,9 @@ int main(int argc, char** argv)
 		close(fd);
 		struct clelf_sect_struct sect;
 		clelf_load_sections(file_ptr,&sect);
-		char kv8fname[] = "/tmp/clldXXXXXX";
+//		char kv8fname[] = "/tmp/clldXXXXXX";
+		char* kv8fname;
+		asprintf(&kv8fname,"%s/clldXXXXXX",tmpdir);
 		fd = mkstemp(kv8fname);
 		printf("XXX %s\n",kv8fname);
 		FILE* fp = fdopen(fd,"w");
