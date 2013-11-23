@@ -32,11 +32,11 @@ int main()
 
 	coprthr_program_t prg_add 
 		= coprthr_compile(dd,src_add,sizeof(src_add),0,0);
-	coprthr_kernel_t krn_add = coprthr_link(dd,prg_add,"my_kern");
+	coprthr_kernel_t krn_add = coprthr_sym(prg_add,"my_kern");
 
 	coprthr_program_t prg_sub 
 		= coprthr_compile(dd,src_sub,sizeof(src_sub),0,0);
-	coprthr_kernel_t krn_sub = coprthr_link(dd,prg_sub,"my_kern");
+	coprthr_kernel_t krn_sub = coprthr_sym(prg_sub,"my_kern");
 
 	printf("prg_add=%p krn_add=%p\n",prg_add,krn_add);
 	printf("prg_sub=%p krn_sub=%p\n",prg_sub,krn_sub);

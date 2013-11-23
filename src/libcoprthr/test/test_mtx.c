@@ -47,7 +47,7 @@ int main()
 	printf("dd=%d\n",dd);
 
 	coprthr_program_t prg = coprthr_compile(dd,src,sizeof(src),"",0);
-	coprthr_kernel_t krn = coprthr_link(dd,prg,"my_kern");
+	coprthr_kernel_t krn = coprthr_sym(prg,"my_kern");
 
 	printf("prg=%p krn=%p\n",prg,krn);
 
