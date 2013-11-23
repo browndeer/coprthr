@@ -90,7 +90,11 @@ int coprthr_devunlock( coprthr_dev_t dev, int flags );
 void* coprthr_getdev( const char* path, int flags );
 
 void* coprthr_devcompile( struct coprthr_device* dev, char* src, size_t len, char* opt, char** log );
-void* coprthr_devlink( struct coprthr_device* dev, struct coprthr1_program* prg1, const char* kname);
+
+//void* coprthr_devlink( struct coprthr_device* dev, struct coprthr1_program* prg1, const char* kname);
+
+void* coprthr_devlink( struct coprthr_device* dev, 
+	struct coprthr1_program* prg1, int flags );
 
 
 /***
@@ -114,7 +118,7 @@ int coprthr_dopen( const char* path, int flags);
 int coprthr_dclose(int dd);
 
 void* coprthr_compile( int dd, char* src, size_t len, char* opt, char** log );
-void* coprthr_link( int dd, struct coprthr1_program* prg1, const char* kname);
+//void* coprthr_link( int dd, struct coprthr1_program* prg1, const char* kname);
 
 //#define COPRTHR_E_WAIT 		0x0001
 //#define COPRTHR_E_NOWAIT 	0x0002
@@ -154,6 +158,8 @@ coprthr_event_t coprthr_dnexec( int dd, unsigned int nkrn,
 //int coprthr_sched( int dd, coprthr_event_t ev, int action, ... );
 
 #define COPRTHR_CTL_TESTSUPP	10
+
+void* coprthr_sym( coprthr_program_t prg, const char* symbol );
 
 #endif
 

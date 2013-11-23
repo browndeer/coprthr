@@ -70,9 +70,10 @@
 	((COPRTHR_VERSION<<16)|(COPRTHR_REVISION<<8)|(COPRTHR_RELEASE))
 
 
-#define GPL3_NOTICE "This program is free software; you may redistribute"\
-	" it under the terms of\nthe GNU General Public License version 3 (GPLv3)."\
-	"  This program has absolutely no warranty.\n"
+#define GPL3_NOTICE \
+"This program is free software; you may redistribute it under the terms of\n"\
+"the GNU General Public License version 3 (GPLv3). This program has\n"\
+"absolutely no warranty.\n"
 
 
 #endif

@@ -70,7 +70,6 @@ struct __coprthr_supptab_entry __coprthr_supptab[] = {
 	{ COPRTHR_ARCH_ID_ARM32, "ARM (32-bit)", 0 },
 	{ COPRTHR_ARCH_ID_E32_EMEK, "Epiphany EMEK (32-bit)", 0 },
 	{ COPRTHR_ARCH_ID_E32, "Epiphany (32-bit)", "libcoprthr_arch_e32.so" }
-//	{ COPRTHR_ARCH_ID_X86_64, "x86_64", "libcoprthr_arch_x86_64.so" }
 };
 
 
