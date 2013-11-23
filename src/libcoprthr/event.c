@@ -340,22 +340,9 @@ void __do_set_cmd_unmap_memobj_1(
 	ev1->cmd_argp->m.src = (void*)memobj1;
 }
 
-/*
-void __do_set_cmd_unmap_memobj( 
-	cl_event ev, 
-	cl_mem memobj, void* p
-)
-{
-	unsigned int n = ev->cmdq->devnum;
-	__do_set_cmd_unmap_memobj_1( ev->ev1, memobj->mem1[n], p); 
-}
-*/
-
 
 void __do_set_cmd_ndrange_kernel_1(
-//	cl_command_queue cmdq,
 	struct coprthr_event* ev1,
-//	cl_kernel krn,
 	struct coprthr1_kernel* krn1,
 	unsigned int work_dim,
 	const size_t* global_work_offset,
@@ -370,32 +357,19 @@ void __do_set_cmd_ndrange_kernel_1(
 
 	ev1->cmd = __CL_COMMAND_NDRANGE_KERNEL;
 
+	ev1->nfunc = 1;
+
 	__init_cmdcall_arg(argp);
 
 	argp->flags = CMDCALL_ARG_K;
 
-//	argp->k.krn = krn;
 	argp->k.krn = krn1;
-
-//	printcl( CL_DEBUG "ndev = %d",krn1->prg->ndev);
-
-//	int devnum;
-//	for(devnum=0;devnum<krn->prg->ndev;devnum++) 
-//		if (cmdq->devid->codev == krn->prg->devices[devnum]->codev) break;
-//	int devnum = cmdq->devnum;
-
-//	if (devnum == krn->prg->ndev) {
-//		printcl( CL_ERR "internal error");
-//		exit(-1);
-//	}
 
 	int knum = krn1->knum;
 
-//	printcl( CL_DEBUG "devnum=%d knum=%d",devnum,knum);
 	printcl( CL_DEBUG "knum=%d",knum);
 	
 	argp->k.ksyms = &(krn1->prg1->v_ksyms[knum]);
-//	argp->k.narg = krn1->narg;
 	argp->k.narg = krn1->prg1->knarg[krn1->knum];
 	argp->k.arg_buf_sz = krn1->arg_buf_sz;
 
@@ -426,28 +400,80 @@ void __do_set_cmd_ndrange_kernel_1(
 		ev1->cmd_argp->k.local_work_size[i] = local_work_size[i];
 	}
 
+	ev1->cmd_argp->k.nxt_argp = 0; /* XXX this allows chains -DAR */
+
 }
 
-/*
-void __do_set_cmd_ndrange_kernel(
-	cl_command_queue cmdq,
-	cl_event ev,
-	cl_kernel krn,
-	cl_uint work_dim,
-	const size_t* global_work_offset,
-	const size_t* global_work_size,
-	const size_t* local_work_size
+
+void __do_set_cmd_ndrange_kernel_n(
+	struct coprthr_event* ev1,
+	unsigned int nkrn,
+	struct coprthr1_kernel* v_krn1[],
+	unsigned int v_work_dim[],
+	size_t* v_global_work_offset[],
+	size_t* v_global_work_size[],
+	size_t* v_local_work_size[]
 )
 {
-	unsigned int n = ev->cmdq->devnum;
-//	__do_set_cmd_ndrange_kernel_1( cmdq, ev->ev1, krn->krn1[n], work_dim, 
-	__do_set_cmd_ndrange_kernel_1( ev->ev1, krn->krn1[n], work_dim, 
-		global_work_offset, global_work_size, local_work_size);
+	int i,n;
+
+	struct cmdcall_arg* argp = ev1->cmd_argp 
+		= (struct cmdcall_arg*)malloc(nkrn*sizeof(struct cmdcall_arg));
+
+	ev1->cmd = __CL_COMMAND_NDRANGE_KERNEL;
+
+	ev1->nfunc = nkrn;
+
+	for(n=0; n<nkrn; n++, argp++) {
+
+		__init_cmdcall_arg(argp);
+
+		argp->flags = CMDCALL_ARG_K;
+
+		struct coprthr1_kernel* krn = v_krn1[n];
+
+		argp->k.krn = krn;
+
+		int knum = krn->knum;
+
+		printcl( CL_DEBUG "knum=%d",knum);
+	
+		argp->k.ksyms = &(krn->prg1->v_ksyms[knum]);
+		argp->k.narg = krn->prg1->knarg[knum];
+		argp->k.arg_buf_sz = krn->arg_buf_sz;
+
+		printcl( CL_DEBUG "setting argp->k.arg_kind %p",
+			krn->prg1->karg_kind);
+	
+		argp->k.arg_kind = krn->prg1->karg_kind[knum];
+		argp->k.arg_sz = krn->prg1->karg_sz[knum];
+
+		/* XXX simplest to copy args, later test copy-on-set -DAR */
+
+		unsigned int narg = krn->prg1->knarg[knum];
+		__clone(argp->k.pr_arg_off,krn->arg_off,narg,uint32_t);
+		__clone(argp->k.pr_arg_buf,krn->arg_buf,krn->arg_buf_sz, void);
+
+		printcl( CL_DEBUG "arg_buf %p,%p",krn->arg_buf,argp->k.pr_arg_buf);	
+		intptr_t offset 
+			= (intptr_t)argp->k.pr_arg_buf - (intptr_t)krn->arg_buf;
+
+		int dim = argp->k.work_dim = v_work_dim[n];
+
+		for(i=0;i<dim;i++) {
+			if (v_global_work_offset[n])
+				argp->k.global_work_offset[i] = v_global_work_offset[n][i];
+				argp->k.global_work_size[i] = v_global_work_size[n][i];
+				argp->k.local_work_size[i] = v_local_work_size[n][i];
+		}
+
+		argp->k.nxt_argp = ( (n==nkrn-1)? 0 : argp+1 );
+
+	}
+
 }
-*/
 
 
-//void __do_set_cmd_task_1( struct coprthr_event* ev1, cl_kernel krn)
 void __do_set_cmd_task_1( 
 	struct coprthr_event* ev1, struct coprthr1_kernel* krn1
 )
@@ -494,19 +520,10 @@ void __do_set_cmd_task_1(
 #endif
 }
 
-/*
-void __do_set_cmd_task( cl_event ev, cl_kernel krn)
-{ 
-	unsigned int n = ev->cmdq->devnum;
-	__do_set_cmd_task_1( ev->ev1, krn->krn1[n]); 
-}
-*/
-
 
 /*
  * wait
  */
-
 
 void __do_wait_1( struct coprthr_event* ev1 )
 {
@@ -561,8 +578,6 @@ void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 */
 
 
-//#include "device.h"
-
 void* coprthr_dread( 
 	int dd, struct coprthr1_mem* dptr, void* buf, size_t len, int flags
 )
@@ -570,8 +585,6 @@ void* coprthr_dread(
 	printcl( CL_DEBUG "coprthr_dread: dptr %p",dptr);
 	printcl( CL_DEBUG "coprthr_dread: dptr->res %p",dptr->res);
 
-//	struct coprthr_event* ev1 = (struct coprthr_event*)
-//		malloc(sizeof(struct coprthr_event));
 	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
 
@@ -599,9 +612,6 @@ void* coprthr_devread(
 	printcl( CL_DEBUG "coprthr_devread: dptr %p",dptr);
 	printcl( CL_DEBUG "coprthr_devread: dptr->res %p",dptr->res);
 
-//	struct coprthr_event* ev1 = (struct coprthr_event*)
-//		malloc(sizeof(struct coprthr_event));
-
 /*
 	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
@@ -623,9 +633,6 @@ void* coprthr_dwrite(
 {
 	printcl( CL_DEBUG "coprthr_dwrite: dptr %p",dptr);
 	printcl( CL_DEBUG "coprthr_dwrite: dptr->res %p",dptr->res);
-
-//	struct coprthr_event* ev1 = (struct coprthr_event*)
-//		malloc(sizeof(struct coprthr_event));
 
 	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
@@ -768,7 +775,13 @@ void* coprthr_dexec(
 	size_t lws = 1;
 //	size_t lws = 2;
 
-	__do_set_cmd_ndrange_kernel_1( ev1, krn1, 1, &gwo, &gws, &lws);
+	unsigned int one[] = { 1 };
+	size_t* v_gwo[] = { &gwo };
+	size_t* v_gws[] = { &gws };
+	size_t* v_lws[] = { &lws };
+
+//	__do_set_cmd_ndrange_kernel_1( ev1, krn1, 1, &gwo, &gws, &lws);
+	__do_set_cmd_ndrange_kernel_n( ev1, 1, &krn1, one, v_gwo, v_gws, v_lws);
 
 	struct coprthr_device* dev = __ddtab[dd];
 
@@ -779,35 +792,63 @@ void* coprthr_dexec(
 
 
 void* coprthr_dnexec( 
-	int dd, unsigned int nkrn, struct coprthr1_kernel** v_krn,
-	unsigned int* v_nargs, void*** v_args, 
-	unsigned int* v_nthr, int flags
+	int dd, unsigned int nkrn, struct coprthr1_kernel* v_krn[],
+	unsigned int v_nargs[], void** v_args[],
+	unsigned int v_nthr[], int flags
 )
 {
-	printcl( CL_DEBUG "coprthr_dexec");
+	int n;
+
+	printcl( CL_DEBUG "coprthr_dnexec");
 
 	if (nkrn>1)
 		printcl( CL_WARNING "multiple kernels not supported");
 
-	struct coprthr1_kernel* krn1 = v_krn[0];
-	unsigned int nargs = v_nargs[0];
-	void** args = v_args[0];
-	unsigned int nthr = (v_nthr)? v_nthr[0] : 1;
+//	struct coprthr1_kernel* krn1 = v_krn[0];
+//	unsigned int nargs = v_nargs[0];
+//	void** args = v_args[0];
+//	unsigned int nthr = (v_nthr)? v_nthr[0] : 1;
 
-	int iarg;
-	for(iarg=0;iarg<nargs;iarg++) {
-		__do_set_kernel_arg_1(krn1,iarg,0,args[iarg]);
+	int k;
+	for(k=0;k<nkrn;k++) {
+
+		int iarg;
+		for(iarg=0;iarg<v_nargs[k];iarg++) {
+			__do_set_kernel_arg_1(v_krn[k],iarg,0,v_args[k][iarg]);
+		}
+
 	}
+
+
+
+
 
 	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 
 	__coprthr_init_event(ev1);
 
-	size_t gwo = 0;
-	size_t gws = nthr;
-	size_t lws = 1;
+//	size_t gwo = 0;
+//	size_t gws = nthr;
+//	size_t lws = 1;
 
-	__do_set_cmd_ndrange_kernel_1( ev1, krn1, 1, &gwo, &gws, &lws);
+	unsigned int* v_one = (unsigned int*)malloc(nkrn*sizeof(unsigned int));
+	size_t** v_gwo = (size_t**)malloc(nkrn*sizeof(size_t*));
+	size_t** v_gws = (size_t**)malloc(nkrn*sizeof(size_t*));
+	size_t** v_lws = (size_t**)malloc(nkrn*sizeof(size_t*));
+	for(n=0; n<nkrn; n++) {
+		v_one[n] = 1;
+		v_gwo[n] = (size_t*)malloc(sizeof(size_t));
+		v_gws[n] = (size_t*)malloc(sizeof(size_t));
+		v_lws[n] = (size_t*)malloc(sizeof(size_t));
+		v_gwo[n][0] = 0;
+		v_gws[n][0] = v_nthr[n];
+		v_lws[n][0] = 1;
+	}
+	
+
+//	__do_set_cmd_ndrange_kernel_1( ev1, krn1, 1, &gwo, &gws, &lws);
+//	ev1->nfunc = 1;
+	__do_set_cmd_ndrange_kernel_n(ev1, nkrn, v_krn, v_one, v_gwo, v_gws, v_lws);
 
 	struct coprthr_device* dev = __ddtab[dd];
 

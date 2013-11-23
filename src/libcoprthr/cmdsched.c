@@ -109,8 +109,9 @@ void* cmdqx1( void* argp )
 			ev1->tm_start = tv.tv_sec * 1000000000 + tv.tv_usec * 1000;
 
 			__unlock_cmdq1(cmdq1);
-			printcl( CL_DEBUG "%p: submitted %x\n",ev1,ev1->cmd);
+			printcl( CL_DEBUG "%p: XXX submit %x\n",ev1,ev1->cmd);
 			cmdcall[ev1->cmd-CLCMD_OFFSET](dev,ev1->cmd_argp);
+			printcl( CL_DEBUG "%p: XXX submitted %x\n",ev1,ev1->cmd);
 			__lock_cmdq1(cmdq1);
 
 			__sig_event1(ev1);

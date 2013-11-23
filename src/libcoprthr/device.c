@@ -369,6 +369,11 @@ int coprthr_dopen( const char* name, int flags )
 
 	printcl( CL_DEBUG "idev=%d",idev);
 
+	if (idev == -1) {
+		errno = ENODEV;
+		return -1;
+	}
+
 	__ddtab[__ddtab_nxt] = __devtab[idev];
 
 	int dd = __ddtab_nxt;

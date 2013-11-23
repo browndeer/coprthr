@@ -132,6 +132,12 @@ void __do_set_cmd_ndrange_kernel_1( struct coprthr_event* ev1,
 	const size_t* global_work_offset, const size_t* global_work_size,
 	const size_t* local_work_size);
 
+void __do_set_cmd_ndrange_kernel_n( struct coprthr_event* ev1,
+	unsigned int nkrn,
+	struct coprthr1_kernel* v_krn1[], unsigned int v_work_dim[], 
+	size_t* v_global_work_offset[], size_t* v_global_work_size[],
+	size_t* v_local_work_size[]);
+
 void __do_set_cmd_task_1( struct coprthr_event* ev1, 
 	struct coprthr1_kernel* krn1);
 

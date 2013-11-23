@@ -53,68 +53,124 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
+	int vec_argp = 0;
 
-	printcl( CL_DEBUG "argp->flags %x\n",argp->flags);
-	printcl( CL_DEBUG "argp->k.krn %p\n",argp->k.krn);
-	
+	if (argp->k.nxt_argp) {
+		printcl( CL_DEBUG "arch/x86_64 exec_ndrange_kernel: multiple argp");
+		vec_argp = 1;
 
-	printcl( CL_DEBUG "argp->k.word_dim %d\n",argp->k.work_dim);
-	printcl( CL_DEBUG "argp->k.global_work_offset[] %d %d %d\n",
-		argp->k.global_work_offset[0],
-		argp->k.global_work_offset[1],
-		argp->k.global_work_offset[2]);
-	printcl( CL_DEBUG "argp->k.global_work_size[] %d %d %d\n",
-		argp->k.global_work_size[0],
-		argp->k.global_work_size[1],
-		argp->k.global_work_size[2]);
-	printcl( CL_DEBUG "argp->k.local_work_size[] %d %d %d\n",
-		argp->k.local_work_size[0],
-		argp->k.local_work_size[1],
-		argp->k.local_work_size[2]);
+		/* XXX for now pre-check if we have a problem with too many argp -DAR */
+//		int count = 1;
+//		struct cmdcall_arg* a = argp;
+//		while( a = a->k.nxt_argp ) {
+//			if ( ++count > 16 ) {
+//				printcl( CL_ERR "multiple argp exceeds limit");
+//			}
+//		}
+	}
 
-	int base = dev->devstate->cpu.veid_base;
-	int nve = dev->devstate->cpu.nve;
 
-	printcl( CL_DEBUG "cpu.nve = %d", nve );
-
-#define safe_div(a,b) ((b==0)? 0 : a/b)
-
-	struct workp_entry e0 = { 
-		argp->k.work_dim,
-		{ 
-			argp->k.global_work_offset[0], 
-			argp->k.global_work_offset[1], 
-			argp->k.global_work_offset[2]
-		},
-		{
-			argp->k.global_work_size[0],
-			argp->k.global_work_size[1],
-			argp->k.global_work_size[2]
-		},
-		{
-			argp->k.local_work_size[0],
-			argp->k.local_work_size[1],
-			argp->k.local_work_size[2]
-		},
-		{ 0,0,0 },
-		{
-			safe_div(argp->k.global_work_size[0],argp->k.local_work_size[0]),
-			safe_div(argp->k.global_work_size[1],argp->k.local_work_size[1]),
-			safe_div(argp->k.global_work_size[2],argp->k.local_work_size[2])
-		},
-		{ 0,0,0 }
-
-	};
+	/* initialization stuff */
 
 	if (!sl_engine_ready()) sl_engine_startup(0);
 	
-	struct workp* wp = workp_alloc( nve );
+	int base = dev->devstate->cpu.veid_base;
+	int nve = dev->devstate->cpu.nve;
+	printcl( CL_DEBUG "cpu.nve = %d", nve );
 
+	struct workp* wp = workp_alloc( nve );
 	workp_init( wp );
 
-	report_workp_entry(CL_DEBUG,&e0);
 
-	workp_genpart( wp, &e0 );
+	struct cmdcall_arg* a = argp;
+	int count = 0;
+
+	do { 
+
+		if (count >= nve) {
+				printcl( CL_ERR "multiple argp exceeds limit");
+				free(wp);
+				return((void*)(-1));
+		}
+
+		printcl( CL_DEBUG "argp->flags %x (%d)",a->flags,count);
+		printcl( CL_DEBUG "argp->k.krn %p (%d)",a->k.krn,count);
+
+		printcl( CL_DEBUG "argp->k.word_dim %d (%d)",a->k.work_dim,count);
+		printcl( CL_DEBUG "argp->k.global_work_offset[] %d %d %d (%d)",
+			a->k.global_work_offset[0],
+			a->k.global_work_offset[1],
+			a->k.global_work_offset[2],count);
+		printcl( CL_DEBUG "argp->k.global_work_size[] %d %d %d (%d)",
+			a->k.global_work_size[0],
+			a->k.global_work_size[1],
+			a->k.global_work_size[2],count);
+		printcl( CL_DEBUG "argp->k.local_work_size[] %d %d %d (%d)",
+			a->k.local_work_size[0],
+			a->k.local_work_size[1],
+			a->k.local_work_size[2],count);
+
+//	int base = dev->devstate->cpu.veid_base;
+//	int nve = dev->devstate->cpu.nve;
+//
+//	printcl( CL_DEBUG "cpu.nve = %d", nve );
+
+#define safe_div(a,b) ((b==0)? 0 : a/b)
+
+		struct workp_entry e0 = { 
+			a->k.work_dim,
+			{ 
+				a->k.global_work_offset[0], 
+				a->k.global_work_offset[1], 
+				a->k.global_work_offset[2]
+			},
+			{
+				a->k.global_work_size[0],
+				a->k.global_work_size[1],
+				a->k.global_work_size[2]
+			},
+			{
+				a->k.local_work_size[0],
+				a->k.local_work_size[1],
+				a->k.local_work_size[2]
+			},
+			{ 0,0,0 },
+			{
+				safe_div(a->k.global_work_size[0],a->k.local_work_size[0]),
+				safe_div(a->k.global_work_size[1],a->k.local_work_size[1]),
+				safe_div(a->k.global_work_size[2],a->k.local_work_size[2])
+			},
+			{ 0,0,0 }
+
+		};
+
+//	if (!sl_engine_ready()) sl_engine_startup(0);
+//	
+//	struct workp* wp = workp_alloc( nve );
+//
+//	workp_init( wp );
+
+		report_workp_entry(CL_DEBUG,&e0);
+
+		if (vec_argp)
+			workp_set_entry( wp, count, &e0);
+		else
+			workp_genpart( wp, &e0 );
+
+		count++;
+
+	} while ( a = a->k.nxt_argp );
+
+	
+	/* if vec_argp set flag and adjust wp->n */
+
+	if (vec_argp) {
+		wp->flags = 1;
+		wp->n = count;
+	}
+
+
+	/* report workp */
 
 	workp_reset(wp);
 	struct workp_entry* e;
@@ -122,12 +178,18 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 	while (e = workp_nxt_entry(wp)) 
 		report_workp_entry(CL_DEBUG,e);
 
-	sl_engine_klaunch(base,nve,wp,argp);
+
+	/* klaunch */
+
+	if (vec_argp)
+		sl_engine_klaunch(base,count,wp,argp);
+	else
+		sl_engine_klaunch(base,nve,wp,argp);
+
 
 	workp_free(wp);
 
 	return(0); 
-
 }
 
 

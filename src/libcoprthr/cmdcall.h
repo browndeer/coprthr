@@ -63,6 +63,8 @@ struct cmdcall_arg {
 
 			size_t global_work_size0[3];
 
+			struct cmdcall_arg* nxt_argp;
+
 		} k;
 
 		struct {

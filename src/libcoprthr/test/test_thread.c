@@ -13,19 +13,19 @@ struct my_args {
 	int data;
 };
 
-/*
+#if(1)
 char src[] = \
 	"#include <pthread.h>\n" \
-	"typedef struct { void* mtx; long long data; } my_args_t;\n" \
+	"typedef struct { void* mtx; int data; } my_args_t;\n" \
 	"__kernel void\n" \
 	"my_thread( void* p) {\n" \
 	"  my_args_t* pargs = (my_args_t*)p;\n" \
-	"	long long data = pargs->data;\n" \
+	"	int data = pargs->data;\n" \
 	"  pthread_mutex_lock((pthread_mutex_t*)pargs->mtx);\n" \
-	"	pargs->data = pargs->data - 44332211;\n" \
+	"	pargs->data = pargs->data - 332211;\n" \
 	"  pthread_mutex_unlock((pthread_mutex_t*)pargs->mtx);\n" \
 	"}\n";
-*/
+#else
 char src[] = \
 	"int read_h( int* p) { return p[1]; }\n" \
 	"void coprthr_mutex_lock( void* p_mtx ) { while(read_h(p_mtx)); e_mutex_lock(p_mtx); }\n" \
@@ -41,6 +41,7 @@ char src[] = \
 	"     //pargs->data = (int)pargs->mtx;\n" \
 	"  coprthr_mutex_unlock(pargs->mtx);\n" \
 	"}\n";
+#endif
 
 int main()
 {
@@ -50,6 +51,10 @@ int main()
 
 	printf("dd=%d\n",dd);
 
+	if (dd<0) {
+		printf("deice open failed\n");
+		exit(-1);
+	}
 
 	/* compile thread function */
 

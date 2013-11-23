@@ -246,11 +246,16 @@ static void* sl_engine( void* p )
 
 	do {
 
-		printcl( CL_DEBUG "engine-wait1");
+		printcl( CL_DEBUG "[%d] engine-wait1",engid);
 
 		pthread_cond_wait(&engine_sig1[engid],&engine_mtx[engid]);
 
 		if (cmd_argp = engine_cmd_argp[engid]) {
+
+			/* XXX check to make sure this vcore has work */
+			/* XXX if not, klaunch screwed up but we can catch this here */
+			if ( engid >= common_engine_workp->n )
+				goto skip;
 
 			/* propagate info so that vcore() can execute specified kernel */
 
@@ -471,6 +476,7 @@ static void* sl_engine( void* p )
 
 			}
 
+skip:
 			engine_cmd_argp[engid] = 0;
 			
 		} 
@@ -488,12 +494,18 @@ static void* sl_engine( void* p )
 }
 
 
+static void* sl_engine_klaunch_vec( int engid_base, int ne, struct workp* wp,
+	struct cmdcall_arg* argp );
 
 void* sl_engine_klaunch( int engid_base, int ne, struct workp* wp,
 	struct cmdcall_arg* argp )
 {
 	int i,j;
 	int e;
+
+	/* XXX here we are chaining the multiple/vec_argp case */
+	if (wp->flags == 1)
+		return sl_engine_klaunch_vec(engid_base,ne,wp,argp);
 
 	int engid_end = engid_base + ne;
 
@@ -683,6 +695,219 @@ void* sl_engine_klaunch( int engid_base, int ne, struct workp* wp,
 	}
 
 	common_engine_workp = wp;
+
+}
+
+static void* sl_engine_klaunch_vec( int engid_base, int ne, struct workp* wp,
+	struct cmdcall_arg* argp )
+{
+	int i,j,k;
+	int e;
+
+	int engid_end = engid_base + ne;
+
+	printcl( CL_DEBUG "engid_base,ne %d,%d",engid_base,ne);
+
+	common_engine_workp = wp;
+
+//	struct cmdcall_arg* subcmd_argp 
+//		= (struct cmdcall_arg*)malloc(ne*sizeof(struct cmdcall_arg));
+
+	int nargp = wp->n; /* XXX use this for now */
+
+	for(e=engid_base;e<engid_end;e++) {
+
+		/* must spin until engine is read to ensure valid local cache is set */
+		/* XXX it would be better to spin once at initialization to take this
+		/* XXX step out of the execution code -DAR */
+
+		printcl( CL_DEBUG "ve[%d] klaunch-spin-until-ready",e);
+		while(!engine_ready[e]) pthread_yield(); 
+
+	}
+
+
+	/* first apply correction to global ptrs */
+
+//// LOOP OVER VEC_ARGP
+//// COULD USE THE SAME LOOP CONSTRUCT AS BELOW
+	for(k=0;k<nargp;k++) { 
+
+	printcl( CL_DEBUG "cmdcall_x86_64:ndrange_kernel: fix global ptrs %p",
+		argp[k].k.arg_kind);
+
+	for(i=0;i<argp[k].k.krn->prg1->knarg[argp[k].k.krn->knum];i++) {
+
+		printcl( CL_DEBUG  "fix global ptrs %d",i);
+
+		printcl( CL_DEBUG "arg_kind=%d", argp[k].k.arg_kind[i]);
+
+   	unsigned int ndev;
+   	unsigned int n;
+
+		void* p = (void*)(argp[k].k.pr_arg_buf + argp[k].k.pr_arg_off[i]);
+
+		printcl( CL_DEBUG "XXX %d %p %p", 
+			argp[k].k.pr_arg_off[i],
+			argp[k].k.pr_arg_buf,
+			p);
+
+		switch(argp[k].k.arg_kind[i]) {
+
+			case CLARG_KIND_CONSTANT:
+			case CLARG_KIND_GLOBAL:
+
+				{
+
+				printcl( CL_DEBUG  "argp->k.pr_arg_off[%d]=%p",
+					i,argp[k].k.pr_arg_off[i]);
+
+				struct coprthr1_mem* mem1 = *(struct coprthr1_mem**)p;
+
+				printcl( CL_DEBUG  "mem1=%p",mem1);
+
+				*(void**)p =mem1->res;
+
+				}
+
+				break;
+
+//			case CLARG_KIND_UNDEFINED:
+//			case CLARG_KIND_VOID:
+//			case CLARG_KIND_DATA:
+//			case CLARG_KIND_LOCAL:
+//			case CLARG_KIND_CONSTANT:
+//			case CLARG_KIND_SAMPLER:
+//			case CLARG_KIND_IMAGE2D:
+//			case CLARG_KIND_IMAGE3D:
+
+			default: break;
+		}
+	}
+
+	}
+
+
+
+
+	/* make copies of *argp for each engine and allocate local mem */
+
+//// NOT NECESSARY FOR VEC_ARGP
+/*
+	printcl( CL_DEBUG "copy *argp for each engine and alloc local mem");
+
+	for(e=engid_base,i=0;e<engid_end;e++,i++) {
+
+		memcpy(subcmd_argp+i,argp,sizeof(struct cmdcall_arg));
+
+		__clone(subcmd_argp[i].k.pr_arg_off,argp->k.pr_arg_off,
+			argp->k.narg,uint32_t);
+
+   	__clone(subcmd_argp[i].k.pr_arg_buf,argp->k.pr_arg_buf,
+			argp->k.arg_buf_sz,void);
+
+		printcl( CL_DEBUG "ve[%d] arg_buf %p %p",
+			e,argp->k.pr_arg_buf,subcmd_argp[i].k.pr_arg_buf);
+
+   	for(j=0;j<subcmd_argp[i].k.narg;j++) 
+			printcl( CL_DEBUG "ve[%d] arg_off[%d] %p",
+				e,j,subcmd_argp[i].k.pr_arg_off[j]);
+
+	}
+*/
+
+
+	size_t sz;
+
+	for(e=engid_base,i=0;e<engid_end;e++,i++) {
+
+		printcl( CL_DEBUG "knum %d (%d)",argp[i].k.krn->knum,i);
+		printcl( CL_DEBUG "knarg %d (%d)",argp[i].k.krn->prg1->knarg[argp[i].k.krn->knum],i);
+
+		for(j=0;j<argp[i].k.krn->prg1->knarg[argp[i].k.krn->knum];j++) {
+
+			void* p = (intptr_t)argp[i].k.pr_arg_buf
+				+ argp[i].k.pr_arg_off[j];
+
+			switch(argp[i].k.arg_kind[j]) {
+
+				case CLARG_KIND_LOCAL:
+
+					sz = *(size_t*)p;
+
+					if (engine_local_mem_sz[e] < sz) {
+						printcl( CL_ERR "out of local mem");
+						return((void*)-1);						
+					}
+
+					printcl( CL_DEBUG "ve[%d] argn %d alloc local mem %p %d",
+						e,j,engine_local_mem_free[e],sz);
+
+					*(void**)p = (void*)engine_local_mem_free[e];
+					
+					engine_local_mem_free[e] += sz;
+					engine_local_mem_sz[e] -= sz;
+
+					printcl( CL_DEBUG "ve[%d] local mem sz free %d",
+						e,engine_local_mem_sz[e]);
+
+					break;
+
+//				case CLARG_KIND_UNDEFINED:
+//				case CLARG_KIND_VOID:
+//				case CLARG_KIND_DATA:
+//				case CLARG_KIND_GLOBAL:
+//				case CLARG_KIND_CONSTANT:
+//				case CLARG_KIND_SAMPLER:
+//				case CLARG_KIND_IMAGE2D:
+//				case CLARG_KIND_IMAGE3D:
+
+				default: break;
+			}
+		}
+
+	}
+
+
+	for(e=engid_base,i=0;e<engid_end;e++,i++) {
+
+		printcl( CL_DEBUG "ve[%d] klaunch-spin-until-ready",e);
+		while(!engine_ready[e]) pthread_yield(); 
+
+		printcl( CL_DEBUG "ve[%d] klaunch-attempt-lock",e);
+		pthread_mutex_lock(&engine_mtx[e]);
+
+		engine_cmd_argp[e] = argp+i;
+
+		printcl( CL_DEBUG "ve[%d] klaunch-sig1",e);
+		pthread_cond_signal(&engine_sig1[e]);
+
+		printcl( CL_DEBUG "ve[%d] klaunch-unlock",e);
+		pthread_mutex_unlock(&engine_mtx[e]);
+
+	}
+
+	pthread_yield(); 
+
+	for(e=engid_base;e<engid_end;e++) {
+
+		printcl( CL_DEBUG "ve[%d] klaunch-attempt-lock",e);
+		pthread_mutex_lock(&engine_mtx[e]);
+
+		printcl( CL_DEBUG "ve[%d] klaunch-wait2",e);
+		if (engine_cmd_argp[e]) pthread_cond_wait(&engine_sig2[e],&engine_mtx[e]);
+
+		printcl( CL_DEBUG "ve[%d] klaunch complete",e);
+
+		engine_local_mem_free[e] = engine_local_mem_base[e];
+		engine_local_mem_sz[e] = BLK_LOCAL_MEM_SZ;
+
+		printcl( CL_DEBUG "ve[%d] klaunch-unlock",e);
+		pthread_mutex_unlock(&engine_mtx[e]);
+
+	}
+
+//	common_engine_workp = wp;
 
 }
 

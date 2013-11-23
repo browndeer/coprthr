@@ -29,11 +29,15 @@
 #define COPRTHR_E_NOWAIT        0x0002
 #define COPRTHR_E_NOW           0x0004
 
+#define COPRTHR_E_IMMEDIATE	COPRTHR_E_NOW
+#define COPRTHR_E_DIRECT	COPRTHR_E_NOW
+
 
 struct coprthr_event {
 	struct coprthr_device* dev;
 	pthread_mutex_t mtx;
 	pthread_cond_t sig;
+	unsigned int nfunc;
 	struct cmdcall_arg* cmd_argp;
 	TAILQ_ENTRY(coprthr_event) cmds;
 	int cmd;
@@ -48,19 +52,6 @@ struct coprthr_event {
 #define PTHREAD_MUTEX_ERRORCHECK_NP PTHREAD_MUTEX_ERRORCHECK
 #endif
 
-/*
-#define __coprthr_init_event(ev) do { \
-	ev = (struct coprthr_event*)malloc(sizeof(struct coprthr_event)); \
-	pthread_mutexattr_t attr; \
-	int attrtype = PTHREAD_MUTEX_ERRORCHECK_NP; \
-	pthread_mutexattr_init(&attr); \
-	pthread_mutexattr_settype(&attr,attrtype); \
-	pthread_mutex_init(&((ev)->mtx),&attr); \
-	pthread_cond_init(&((ev)->sig),0); \
-	pthread_mutex_unlock(&((ev)->mtx)); \
-	(ev)->cmd_argp = 0; \
-	} while(0)
-*/
 #define __coprthr_init_event(ev) do { \
 	pthread_mutexattr_t attr; \
 	int attrtype = PTHREAD_MUTEX_ERRORCHECK_NP; \
