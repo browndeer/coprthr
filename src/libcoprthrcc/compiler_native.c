@@ -68,10 +68,12 @@
 	"-D_FORTIFY_SOURCE", "-fexceptions", \
 	"-fstack-protector-all" "-fstack-protector-all"
 
+#define CCFLAGS_TARGET " -m64"
+
 #elif defined(__COPRTHR_TARGET_HOST_i386__)
 
 #define __compile compile_i386
-#define __elfcl_write elfcl_write_i386
+#define __elfcl_write elfcl_write_386
 
 #define CCFLAGS_OCL \
 	" -fno-exceptions -O3 -m32 -msse -msse3 " \
@@ -82,6 +84,8 @@
 #define ECC_BLOCKED_FLAGS \
 	"-D_FORTIFY_SOURCE", "-fexceptions", \
 	"-fstack-protector-all" "-fstack-protector-all"
+
+#define CCFLAGS_TARGET " -m32"
 
 #elif defined(__COPRTHR_TARGET_HOST_arm32__)
 
@@ -97,6 +101,9 @@
 
 #define ECC_BLOCKED_FLAGS "-D_FORTIFY_SOURCE", "-fexceptions", \
        "-fstack-protector-all" "-fstack-protector-all"
+
+#define CCFLAGS_TARGET " -m32"
+
 
 #else
 
@@ -122,18 +129,18 @@
 
 /*** compiler flags ***/
 
-#define CCFLAGS_KTHR CCFLAGS_OCL \
+#define CCFLAGS_KTHR CCFLAGS_TARGET CCFLAGS_OCL \
 	" -I" INSTALL_INCLUDE_DIR \
 	" -D __xcl_kthr__ --include=sl_engine.h " \
 	" -D __STDCL_KERNEL_VERSION__=020000" \
 	" -fPIC " 
 
-#define CCFLAGS_KCALL \
+#define CCFLAGS_KCALL CCFLAGS_TARGET \
 	" -O0 -fPIC " \
 	" -D__xcl_kcall__ -I" INSTALL_INCLUDE_DIR \
 	" --include=sl_engine.h "
 
-#define CXXFLAGS_LINK_LIB
+#define CXXFLAGS_LINK_LIB CCFLAGS_TARGET
 
 
 /*** shell command code ***/
@@ -165,7 +172,7 @@ static char* ecc_block_flags[] = { ECC_BLOCKED_FLAGS };
 
 
 int __compile(
-	cl_device_id devid,
+	void* _reserved,
 	unsigned char* src, size_t src_sz, 
 	unsigned char** p_bin, size_t* p_bin_sz, 
 	char* opt_in, char** log 
@@ -255,6 +262,8 @@ int __compile(
 		/*** 
 		 *** write cl/cpp files 
 		 ***/
+
+		printcl( CL_DEBUG "%ld|%s|",src_sz,src);
 
 		err = write_file_cl(file_cl,src_sz,src);
 		__check_err( err, "internal error: write file_cl failed");
