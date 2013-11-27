@@ -102,7 +102,8 @@
 #define ECC_BLOCKED_FLAGS "-D_FORTIFY_SOURCE", "-fexceptions", \
        "-fstack-protector-all" "-fstack-protector-all"
 
-#define CCFLAGS_TARGET " -m32"
+//#define CCFLAGS_TARGET " -m32"
+#define CCFLAGS_TARGET " "
 
 
 #else
