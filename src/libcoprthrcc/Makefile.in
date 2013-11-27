@@ -2,6 +2,8 @@
 ### Makefile for libcoprthrcc
 ###
 
+CCFLAGS += @CFLAGS@
+
 ifneq (@MAKE@,)
 MAKE = @MAKE@
 endif
@@ -118,10 +120,10 @@ LEXFLAGS =
 
 XCLNM_YYPREFIX = __xclnm_
 
-TARGET = libcoprthrcc.so 
+TARGET = libcoprthrcc.so libcoprthrcc.a
 #TARGET += icd.c
 ifeq (@ENABLE_EPIPHANY@,1)
-TARGET += libcoprthrcc-e.so
+TARGET += libcoprthrcc-e.so libcoprthrcc-e.a
 #INCS_E += -I$(TOPDIR)/src/libcoprthr-e
 endif
 
@@ -152,10 +154,16 @@ libcoprthrcc.so: $(OBJS) $(OBJS_CROSS)
 		-shared -Wl,-soname,libcoprthrcc.so -o libcoprthrcc.so  \
 		$(OBJS) $(OBJS_CROSS) $(LIBS)
 
+libcoprthrcc.a: $(OBJS) $(OBJS_CROSS)
+	ar rcv libcoprthrcc.a $(OBJS) $(OBJS_CROSS)
+
 libcoprthrcc-e.so: $(OBJS_E) 
 	$(CC) $(CCFLAGS) $(INCS) \
 		-shared -Wl,-soname,libcoprthrcc-e.so -o libcoprthrcc-e.so \
 		$(OBJS_E) $(LIBS)
+
+libcoprthrcc-e.a: $(OBJS_E)
+	ar rcv libcoprthrcc-e.a $(OBJS_E)
 
 
 compiler_x86_64.o: compiler_native.c

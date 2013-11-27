@@ -33,7 +33,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <elf.h>
-#include <libelf.h>
+#include <libelf/libelf.h>
 #include <errno.h>
 
 //#include "_version.h"

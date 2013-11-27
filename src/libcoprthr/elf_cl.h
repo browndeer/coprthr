@@ -1,5 +1,6 @@
 
-#ifndef __ANDROID__
+//#ifndef __ANDROID__
+#if(1)
 
 #include "../libcoprthrcc/elfcl.h"
 
@@ -11,7 +12,8 @@
 #define _ELF_CL_H
 
 #if defined(__ANDROID__)
-#include <libelf/libelf.h>
+//#include <libelf/libelf.h>
+#include <elf.h>
 #define Elf32_Xword Elf32_Word
 #else
 #include <elf.h>

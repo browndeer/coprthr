@@ -76,11 +76,13 @@ INCS += $(LIBELF_INC)
 LIBS += $(LIBELF_LIB)
 
 ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
-ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
-LIBS += -lpthread -lc -lrt 
-else
-LIBS += -lpthread -ldl -lrt 
+LIBS += -lpthread -lrt 
 endif
+
+ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+LIBS += -lc 
+else
+LIBS += -ldl 
 endif
 
 ### choosing to static link libclelf into libstdcl to simplify use -DAR
@@ -112,7 +114,7 @@ MAN3 = claddr.3 clmalloc.3 clndrange_set2d.3 clarg_set.3 clmattach.3 \
 
 INSTALL_INCS = $(HDRS)
 #INSTALL_LIBS = libstdcl.so libstdcl_d.so
-INSTALL_LIBS = libstdcl.so 
+INSTALL_LIBS = libstdcl.so libstdcl.a
 
 CCFLAGS += -g -O2 -fPIC
 F90FLAGS = -fPIC
@@ -124,7 +126,7 @@ LIB_OBJS = $(F90_OBJS)
 #LIB_OBJS_D = $(F90_OBJS)
 endif
 
-TARGET += libstdcl.so $(addsuffix .gz,$(MAN3))
+TARGET += libstdcl.so libstdcl.a $(addsuffix .gz,$(MAN3))
 LIB_OBJS += $(OBJS)
 #LIB_OBJS_D += $(OBJS_D)
 
@@ -140,6 +142,9 @@ all: $(TARGET)
 libstdcl.so: $(OBJS) $(LIBCLELF)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \
 		-o libstdcl.so $(LIB_OBJS) $(LIBCLELF) $(LIBS) 
+
+libstdcl.a: $(OBJS) $(LIBCLELF)
+	ar rcv libstdcl.a $(LIB_OBJS)
 
 #libstdcl_d.so: $(OBJS_D) $(LIBCLELF_D)
 #	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl_d.so \

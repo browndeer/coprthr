@@ -58,6 +58,9 @@ IMP_OBJS = device.o device_x86_64.o \
 
 INSTALL_HDRS = sl_engine.h ser_engine.h workp.h opencl_lift.h coprthr.h
 
+INSTALL_LIBS = libcoprthr_opencl.so libcoprthr_opencl.a
+
+
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
 
@@ -78,8 +81,10 @@ INCS += $(LIBELF_INC)
 
 LIBS += $(LIBELF_LIB)
 
-#LIBS += -lfl  -lpthread -lrt
+ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 LIBS += -lpthread -lrt
+endif
+
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
 else
@@ -119,7 +124,7 @@ LEXFLAGS =
 XCLNM_YYPREFIX = __xclnm_
 
 #TARGET = libcoprthr.so 
-TARGET += libcoprthr_opencl.so 
+TARGET += libcoprthr_opencl.so libcoprthr_opencl.a
 TARGET += icd.c
 
 #VPATH = ../libcoprthr_opencl/
@@ -149,17 +154,20 @@ icd.c:
 #	$(CC) $(CCFLAGS) $(INCS) \
 #		-shared -Wl,-soname,libcoprthr.so -o libcoprthr.so  $(OBJS) $(LIBS)
 
-libcoprthr.so: $(IMP_OBJS) 
-	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthr.so -o libcoprthr.so  $(IMP_OBJS) $(LIBS)
+#libcoprthr.so: $(IMP_OBJS) 
+#	$(CC) $(CCFLAGS) $(INCS) \
+#		-shared -Wl,-soname,libcoprthr.so -o libcoprthr.so  $(IMP_OBJS) $(LIBS)
 
 libcoprthr_opencl.so: $(XCL_OBJS) 
 	$(CC) $(CCFLAGS) $(INCS) \
 		-shared -Wl,-soname,libcoprthr_opencl.so -o libcoprthr_opencl.so  $(XCL_OBJS) $(LIBS) -L../libcoprthr -lcoprthr
 
-debug:
-	export ENABLE_DEBUG=1
-	$(MAKE) -f Makefile all
+libcoprthr_opencl.a: $(XCL_OBJS)
+	ar rcv libcoprthr_opencl.a $(XCL_OBJS)
+
+#debug:
+#	export ENABLE_DEBUG=1
+#	$(MAKE) -f Makefile all
 
 
 install: 
@@ -168,7 +176,8 @@ install:
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
 #	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
-	install -m 755 libcoprthr_opencl.so $(INSTALL_LIB_DIR)
+#	install -m 755 libcoprthr_opencl.so $(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
 #	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
 #	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
 #	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
@@ -179,7 +188,8 @@ install:
 	install -m 644 $(INSTALL_ICD_DIR)/coprthr.icd $(OPENCL_ICD_PATH)/
 
 uninstall: 
-	rm -f $(INSTALL_LIB_DIR)/libcoprthr_opencl.so 
+#	rm -f $(INSTALL_LIB_DIR)/libcoprthr_opencl.so 
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
 	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(RT_OBJS))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,sl_engine.h)
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,ser_engine.h)

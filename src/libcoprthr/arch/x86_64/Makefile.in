@@ -49,6 +49,8 @@ IMP_OBJS = device_x86_64.o devops_x86_64.o devcmds_x86_64.o sl_engine.o
 
 INSTALL_HDRS = sl_engine.h 
 
+INSTALL_LIBS = libcoprthr_arch_x86_64.so libcoprthr_arch_x86_64.a
+
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
 
@@ -70,7 +72,10 @@ INCS += -I../..
 
 LIBS += $(LIBELF_LIB)
 
+ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 LIBS += -lpthread -lrt
+endif
+
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
 else
@@ -97,7 +102,7 @@ CCFLAGS_VCORE += -marm
 endif
 
 
-TARGET = libcoprthr_arch_x86_64.so 
+TARGET = libcoprthr_arch_x86_64.so libcoprthr_arch_x86_64.a
 
 all: $(TARGET)
 
@@ -120,16 +125,21 @@ libcoprthr_arch_x86_64.so: $(IMP_OBJS)
 		-shared -Wl,-soname,libcoprthr_arch_x86_64.so \
 		-o libcoprthr_arch_x86_64.so  $(IMP_OBJS) $(LIBS)
 
+libcoprthr_arch_x86_64.a: $(IMP_OBJS)
+	ar rcv libcoprthr_arch_x86_64.a $(IMP_OBJS)
+
 install: 
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
-	install -m 755 libcoprthr_arch_x86_64.so $(INSTALL_LIB_DIR)
+#	install -m 755 libcoprthr_arch_x86_64.so $(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
 	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
 
 uninstall: 
-	rm -f $(INSTALL_LIB_DIR)/libcoprthr_arch_x86_64.so 
+#	rm -f $(INSTALL_LIB_DIR)/libcoprthr_arch_x86_64.so 
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,$(INSTALL_HDRS))
 
 clean: 
