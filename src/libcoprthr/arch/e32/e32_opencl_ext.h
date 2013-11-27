@@ -28,6 +28,7 @@
 #include <e_common.h>
 #include "e_mutex.h"
 #include <e_dma.h>
+#include <e_regs.h>
 #include <string.h>
 
 //#include "e32pth_mem_if.h"
@@ -230,6 +231,25 @@ barrier_thread_all( int kind )
  *** memory operations
  ***/
 
+__always_inline void mem_copy(void* dst, void* src, size_t len);
+
+__always_inline
+void mem_copy(e_tcb_t* tcb, void* dst, void* src, size_t len)
+{
+	unsigned int index, shift, stride, config;
+	config = E_DMA_DOUBLE|E_DMA_MASTER|E_DMA_ENABLE;
+	shift = config >> 5;
+	stride = 0x10001 << shift;
+	tcb->config = config;
+	tcb->inner_stride = stride;
+	tcb->count = 0x10000 | (len >> shift);
+	tcb->outer_stride = stride;
+	tcb->src_addr = src;
+	tcb->dst_addr = dst;
+	e_dma_start(E_DMA_0,tcb);
+	while( e_sysreg_read(E_DMA0STATUS) & 0xf);
+}
+
 __always_inline void* memaddr( void* ptr, threadspec_t thrs, int flags);
 __always_inline void* memcopy( void* dst, void* src, size_t n, int flags );
 __always_inline void* memsync( void* ptr, size_t n, threadspec_t thrs,
@@ -265,10 +285,12 @@ memcopy( void* dst, void* src, size_t n, int flags )
 
    } else {
 
+/*
       if (__test_bits(flags,XCL_NOWAIT) && !__test_bits(flags,XCL_NOFAIL))
          return(0);
       else
          return memcpy(dst,src,n);
+*/
 
    }
 }
