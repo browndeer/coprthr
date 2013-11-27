@@ -25,9 +25,14 @@
 
 //#include <elf.h>
 #include <libelf/libelf.h>
+#if defined(__ANDROID__)
+#define Elf32_Xword Elf32_Word
+#define SHF_STRINGS       (1 << 5)
+#endif
 
-#undef __ELFCL_TYPES_32
-#define __ELFCL_TYPES_64
+
+#undef __ELFCL_TYPES_64
+#define __ELFCL_TYPES_32
 
 
 //#if defined(__i386__) || defined(__arm__)

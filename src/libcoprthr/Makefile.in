@@ -64,6 +64,7 @@ IMP_OBJS = device.o \
 #INSTALL_HDRS = sl_engine.h ser_engine.h workp.h opencl_lift.h coprthr.h
 #INSTALL_HDRS = sl_engine.h ser_engine.h workp.h coprthr.h
 INSTALL_HDRS = workp.h coprthr.h
+INSTALL_LIBS = libcoprthr.so libcoprthr.a
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
@@ -85,8 +86,10 @@ INCS += $(LIBELF_INC)
 
 LIBS += $(LIBELF_LIB)
 
-#LIBS += -lfl  -lpthread -lrt
+ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 LIBS += -lpthread -lrt
+endif
+
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 LIBS += -lc 
 else
@@ -127,7 +130,7 @@ LEXFLAGS =
 
 XCLNM_YYPREFIX = __xclnm_
 
-TARGET = libcoprthr.so 
+TARGET = libcoprthr.so libcoprthr.a
 
 all: $(SUBDIRS) $(TARGET)
 
@@ -153,6 +156,9 @@ libcoprthr.so: $(IMP_OBJS)
 		-shared -Wl,-soname,libcoprthr.so -Wl,--export-dynamic \
 		-o libcoprthr.so  $(IMP_OBJS) $(LIBS)
 
+libcoprthr.a: $(IMP_OBJS)
+	ar rcv libcoprthr.a $(IMP_OBJS)
+
 #debug:
 #	export ENABLE_DEBUG=1
 #	$(MAKE) -f Makefile all
@@ -163,7 +169,8 @@ install: $(SUBDIRS)
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
-	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
+#	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
 	install -m 755 coprthr.h $(INSTALL_INCLUDE_DIR)
 #	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
 #	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
@@ -171,7 +178,8 @@ install: $(SUBDIRS)
 	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
 
 uninstall: $(SUBDIRS)
-	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so 
+#	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so 
+	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
 	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,$(INSTALL_HDRS))
 
 clean: $(SUBDIRS)

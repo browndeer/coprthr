@@ -24,6 +24,7 @@
 #define _coprthr_sched_h
 
 #include <sys/queue.h>
+#include <pthread.h>
 
 #define COPRTHR_E_WAIT          0x0001
 #define COPRTHR_E_NOWAIT        0x0002
