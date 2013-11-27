@@ -42,7 +42,9 @@ endif
 
 ifeq (@ENABLE_LIBCOPRTHR@,1)
 ifeq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
-SUBDIRS += ./src/libcoprthr-ax ./tools/xclnm
+#SUBDIRS += ./src/libcoprthr-ax ./tools/xclnm
+SUBDIRS += ./src/libcoprthr 
+SUBDIRS += ./src/libcoprthr_opencl 
 else
 SUBDIRS += ./src/libcoprthr ./src/libcoprthrcc ./tools/xclnm
 SUBDIRS += ./src/libcoprthr_opencl 

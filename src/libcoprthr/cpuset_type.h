@@ -30,6 +30,9 @@
 #include <sys/param.h>
 #include <sys/cpuset.h>
 typedef cpuset_t cpu_set_t;
+#elif defined(__ANDROID__)
+//#include "linux/cpumask.h"
+typedef int cpu_set_t;
 #endif
 
 #endif

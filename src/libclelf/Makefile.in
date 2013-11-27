@@ -59,23 +59,24 @@ LIBS += $(LIBELF_LIB)
 
 
 OBJS = clelf.o clelf_md5.o 
-OBJS_D = $(subst .o,_d.o,$(OBJS)) 
+#OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
 
 HDRS = clelf.h 
 
 INSTALL_INCS = $(HDRS)
-INSTALL_LIBS = libclelf.so libclelf_d.so
+#INSTALL_LIBS = libclelf.so libclelf_d.so
+INSTALL_LIBS = libclelf.so libclelf.a
 
 CCFLAGS += -g -O2 -fPIC
 
 TARGET += libclelf.so libclelf.a
 LIB_OBJS += $(OBJS)
-LIB_OBJS_D += $(OBJS_D)
+#LIB_OBJS_D += $(OBJS_D)
 
-ifeq ($(ENABLE_DEBUG_LIB),1)
-TARGET += libclelf_d.so libclelf_d.a
-endif
+#ifeq ($(ENABLE_DEBUG_LIB),1)
+#TARGET += libclelf_d.so libclelf_d.a
+#endif
 
 all: $(TARGET)
 
@@ -85,15 +86,15 @@ libclelf.so: $(OBJS)
 	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclelf.so \
 		-o libclelf.so $(LIB_OBJS) $(LIBS)
 
-libclelf_d.so: $(OBJS_D)
-	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclelf_d.so \
-		-o libclelf_d.so $(LIB_OBJS_D) $(LIBS)
+#libclelf_d.so: $(OBJS_D)
+#	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclelf_d.so \
+#		-o libclelf_d.so $(LIB_OBJS_D) $(LIBS)
 
 libclelf.a:	$(OBJS)
 	ar rcv libclelf.a $(LIB_OBJS)
 
-libclelf_d.a:	$(OBJS_D)
-	ar rcv libclelf_d.a $(LIB_OBJS_D)
+#libclelf_d.a:	$(OBJS_D)
+#	ar rcv libclelf_d.a $(LIB_OBJS_D)
 
 
 .SUFFIXES:
