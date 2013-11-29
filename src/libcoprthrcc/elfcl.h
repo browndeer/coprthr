@@ -31,8 +31,8 @@
 #endif
 
 
-#undef __ELFCL_TYPES_64
-#define __ELFCL_TYPES_32
+#define __ELFCL_TYPES_64
+#undef __ELFCL_TYPES_32
 
 
 //#if defined(__i386__) || defined(__arm__)
