@@ -130,13 +130,15 @@
 
 /*** compiler flags ***/
 
-#define CCFLAGS_KTHR CCFLAGS_TARGET CCFLAGS_OCL \
+#define CCFLAGS_KTHR \
+	" -D__coprthr_device__ " CCFLAGS_TARGET CCFLAGS_OCL \
 	" -I" INSTALL_INCLUDE_DIR \
 	" -D __xcl_kthr__ --include=sl_engine.h " \
 	" -D __STDCL_KERNEL_VERSION__=020000" \
 	" -fPIC " 
 
-#define CCFLAGS_KCALL CCFLAGS_TARGET \
+#define CCFLAGS_KCALL \
+	" -D__coprthr_device__ " CCFLAGS_TARGET \
 	" -O0 -fPIC " \
 	" -D__xcl_kcall__ -I" INSTALL_INCLUDE_DIR \
 	" --include=sl_engine.h "
