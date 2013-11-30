@@ -63,7 +63,11 @@ IMP_OBJS = device.o \
 
 #INSTALL_HDRS = sl_engine.h ser_engine.h workp.h opencl_lift.h coprthr.h
 #INSTALL_HDRS = sl_engine.h ser_engine.h workp.h coprthr.h
-INSTALL_HDRS = workp.h coprthr.h
+#INSTALL_HDRS = workp.h coprthr.h
+INSTALL_HDRS = workp.h coprthr.h \
+	coprthr_arch.h coprthr_device.h coprthr_mem.h coprthr_program.h \
+	coprthr_sched.h coprthr_thread.h coprthr_types.h
+
 INSTALL_LIBS = libcoprthr.so libcoprthr.a
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
