@@ -33,6 +33,7 @@ int main()
 	printf("src |%s|\n",src);
 	printf("src_sz %ld\n",sizeof(src));
 
+/*
 	coprthr_program_t prg1 = coprthr_cc(src,sizeof(src),"-mtarget=x86_64",0);
 	printf("prg=%p\n",prg1);
 	coprthr_cc_write_bin("./bin_x86_64.o",prg1,0);
@@ -52,6 +53,11 @@ int main()
 
 	coprthr_kernel_t krn = coprthr_sym(prg1,"my_kern");
 	printf("krn=%p\n",krn);
+*/
+
+	coprthr_program_t prg1 = coprthr_cc(src,sizeof(src),"-mtarget=arm32_android",0);
+	printf("prg=%p\n",prg1);
+	if (prg1) coprthr_cc_write_bin("./bin_arm32_android.o",prg1,0);
 
 }
 
