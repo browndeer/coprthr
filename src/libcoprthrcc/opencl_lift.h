@@ -1203,19 +1203,19 @@ __MATH_BUILTIN_1(erfc)
 __MATH_BUILTIN_1(erf)
 __MATH_BUILTIN_1(exp)
 __MATH_BUILTIN_1(exp2)
-#ifndef __FreeBSD__
-__MATH_BUILTIN_1(exp10)
-#else
+#if defined(__FreeBSD__) || defined(__ANDROID__)
 #warning FreeBSD missing exp10
+#else
+__MATH_BUILTIN_1(exp10)
 #endif
 __MATH_BUILTIN_1(expm1)
 __MATH_BUILTIN_1(fabs)
 __MATH_BUILTIN_1(floor)
 __MATH_BUILTIN_1(log)
-#ifndef __FreeBSD__
-__MATH_BUILTIN_1(log2)
-#else
+#if defined(__FreeBSD__) || defined(__ANDROID__)
 #warning FreeBSD missing log2
+#else
+__MATH_BUILTIN_1(log2)
 #endif
 __MATH_BUILTIN_1(log10)
 __MATH_BUILTIN_1(log1p)
