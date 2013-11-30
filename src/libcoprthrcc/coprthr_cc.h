@@ -41,6 +41,7 @@ typedef struct coprthr1_kernel* coprthr_symbol_t; /* alias */
 #define COPRTHR_CC_TARGET_ARM32 "-mtarget=arm32"
 #define COPRTHR_CC_TARGET_E32_EMEK "-mtarget=e32_emek"
 #define COPRTHR_CC_TARGET_E32 "-mtarget=e32"
+#define COPRTHR_CC_TARGET_ARM32_ANDROID "-mtarget=arm32_android"
 
 coprthr_program_t 
 	coprthr_cc( const char* src, size_t len, const char* opt, char** log );

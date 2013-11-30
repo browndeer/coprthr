@@ -78,9 +78,11 @@ struct targets_entry {
 struct targets_entry targets[] = {
 	{ COPRTHR_CC_TARGET_X86_64, "compile_x86_64", "libcoprthrcc.so" },
 	{ COPRTHR_CC_TARGET_I386, "compile_i386", "libcoprthrcc.so" },
-	{ COPRTHR_CC_TARGET_ARM32, "compile_arm32", "libcoprthrcc.so" },
+//	{ COPRTHR_CC_TARGET_ARM32, "compile_arm32", "libcoprthrcc.so" },
 	{ COPRTHR_CC_TARGET_E32_EMEK, "compile_e32_emek", "libcoprthrcc-e.so" },
-	{ COPRTHR_CC_TARGET_E32, "compile_e32", "libcoprthrcc-e.so" }
+	{ COPRTHR_CC_TARGET_E32, "compile_e32", "libcoprthrcc-e.so" },
+	{ COPRTHR_CC_TARGET_ARM32_ANDROID, "compile_android_arm32", 
+		"libcoprthrcc.so" }
 };
 
 size_t nsupp_targets = (sizeof(targets)/sizeof(struct targets_entry));
@@ -101,8 +103,8 @@ coprthr_program_t coprthr_cc(
 
 	printcl( CL_DEBUG "opt |%s|",opt);
 
-	int report_version = strnstr( opt, "--version",1024)? 1 : 0;
-	int report_targets = strnstr( opt, "--targets",1024)? 1 : report_version;
+	int report_version = strstr( opt, "--version")? 1 : 0;
+	int report_targets = strstr( opt, "--targets")? 1 : report_version;
 
 	if ( report_version || report_targets) {
 
@@ -132,7 +134,7 @@ coprthr_program_t coprthr_cc(
 
 		printcl( CL_DEBUG "compare |%s|",targets[i].e_target );
 
-		if ( strnstr( opt, targets[i].e_target,1024) ) {
+		if ( strstr( opt, targets[i].e_target) ) {
 			if (icompiler < 0) {
 				icompiler = i;
 			} else {
@@ -177,7 +179,11 @@ coprthr_program_t coprthr_cc(
 	int err = compile( 0, prg1->src,prg1->src_sz,
 		&prg1->bin, &prg1->bin_sz, prg1->build_opt, &prg1->build_log);
 
-	printf("compile returned %d\n",err);
+	if (err) {
+		printf("compile returned %d\n",err);
+		free(prg1);
+		prg1 = 0;
+	}
 
 	dlclose(dh);
 

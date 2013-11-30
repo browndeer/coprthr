@@ -52,7 +52,7 @@
 #define DEFAULT_BUF1_SZ 16384
 #define DEFAULT_BUF2_SZ 16384
 
-#define NDK "/home/richie/android/android-ndk-r8e/"
+#define NDK "/home/richie/android/android-ndk-r9b/"
 #define CROSS_PATH NDK \
 	"toolchains/arm-linux-androideabi-4.7/prebuilt/linux-x86_64/bin"
 #define CROSS_SYSROOT NDK "platforms/android-14/arch-arm"
@@ -166,7 +166,7 @@
 	" }' | xclnm --kcall -d -c -o _kcall_%s.c - "
 
 #define SHELLCMD_CXXLINK_LIB \
-	"cd %s; CROSS_SHELL " CXX_COMPILER CXXFLAGS_LINK_LIB \
+	"cd %s; " CROSS_SHELL CXX_COMPILER CXXFLAGS_LINK_LIB \
 	" -shared -Wl,-soname,%s.so -o %s.so" \
 	" %s.o _kcall_%s.o %s.elfcl " 
 
