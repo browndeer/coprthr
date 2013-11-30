@@ -37,6 +37,7 @@
 #include <sys/sysctl.h>
 #endif
 
+#include "printcl.h"
 #include "device.h"
 #include "cmdcall.h"
 //#include "cmdcall_x86_64_sl.h"

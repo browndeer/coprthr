@@ -38,7 +38,7 @@
 #include <sys/sysctl.h>
 #endif
 
-
+#include "printcl.h"
 #include "coprthr_arch.h"
 #include "device.h"
 #include "cmdcall.h"

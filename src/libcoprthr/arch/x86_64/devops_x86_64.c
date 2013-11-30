@@ -36,6 +36,7 @@
 //#include "workp.h"
 //#include "sl_engine.h"
 
+#include "printcl.h"
 #include "coprthr_device.h"
 #include "coprthr_mem.h"
 #include "coprthr.h"

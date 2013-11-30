@@ -39,6 +39,7 @@
 #include "coprthr_program.h"
 #include "coprthr_mem.h"
 
+#include "printcl.h"
 #include "cmdcall.h"
 #include "workp.h"
 #include "cpuset_type.h"

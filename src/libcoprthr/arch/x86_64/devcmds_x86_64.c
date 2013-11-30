@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "printcl.h"
 #include "cmdcall.h"
 #include "workp.h"
 #include "sl_engine.h"
