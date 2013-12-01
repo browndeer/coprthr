@@ -112,6 +112,9 @@ CCFLAGS += -marm
 CCFLAGS_VCORE += -marm
 endif
 
+ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+CFLAGS += -mmic
+endif
 
 
 #YACC = yacc

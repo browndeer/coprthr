@@ -152,9 +152,12 @@ void* sl_engine_startup( void* p )
 		engine_data[i].engid = i;
 		engine_data[i].thr_runc = 0;
 
-		printcl( CL_DEBUG "pthread_create %d",i); 
+//		printcl( CL_DEBUG "pthread_create %d",i); 
 
-		pthread_create(&engine_td[i],&td_attr,sl_engine,(void*)&engine_data[i]);
+//		pthread_create(&engine_td[i],&td_attr,sl_engine,(void*)&engine_data[i]);
+		int rc = pthread_create(&engine_td[i],&td_attr,sl_engine,
+			(void*)&engine_data[i]);
+		printcl( CL_DEBUG "pthread_create %d rc %d",i,rc);
 
 		CPU_ZERO(&mask);
 		CPU_SET(i%ncore,&mask);

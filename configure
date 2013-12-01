@@ -594,6 +594,8 @@ OPENCL_ICD_PATH
 LIBCOPRTHR_MODEL
 LIBCOPRTHR_CXX
 LIBCOPRTHR_CC
+LIBELF_LIB
+LIBELF_INC
 libelf_lib
 libelf_inc
 DEFAULT_OPENCL_PLATFORM
@@ -602,6 +604,7 @@ OPENCL_LIB
 OPENCL_INCLUDE
 DEFAULT_CLMESG_LEVEL
 MAX_CLMESG_LEVEL
+ENABLE_MIC_CROSS_COMPILE
 ENABLE_ANDROID_CROSS_COMPILE
 ENABLE_USER_INSTALL
 ENABLE_OLD_ESDK
@@ -695,6 +698,7 @@ enable_emek_build
 enable_old_esdk
 enable_user_install
 enable_android_cross_compile
+enable_mic_cross_compile
 with_opencl_platform
 with_opencl_include
 with_opencl_lib
@@ -1353,6 +1357,8 @@ Optional Features:
                           (default=no)
   --enable-android-cross-compile
                           enable cross-compile for Android (default=no)
+  --enable-mic-cross-compile
+                          enable cross-compile for MIC (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -3224,6 +3230,14 @@ else
 fi
 
 
+# Check whether --enable-mic-cross-compile was given.
+if test "${enable_mic_cross_compile+set}" = set; then :
+  enableval=$enable_mic_cross_compile;
+else
+  enable_mic_cross_compile=no
+fi
+
+
 
 enable_libcoprthr_ncpu=enable_libcoprthr;
 
@@ -3337,6 +3351,14 @@ if test x$enable_android_cross_compile != xno; then
 		else
 			echo "disabled "Android cross-compile""
 			ENABLE_ANDROID_CROSS_COMPILE=0
+		fi;
+
+if test x$enable_mic_cross_compile != xno; then
+			echo "enabled "MIC cross-compile""
+			ENABLE_MIC_CROSS_COMPILE=1
+		else
+			echo "disabled "MIC cross-compile""
+			ENABLE_MIC_CROSS_COMPILE=0
 		fi;
 
 
@@ -3770,6 +3792,8 @@ fi;
 
 libelf_inc="-I$LIBELF_PATH/include"
 libelf_lib="-L$LIBELF_PATH/lib -lelf"
+LIBELF_INC="-I$LIBELF_PATH/include"
+LIBELF_LIB="-L$LIBELF_PATH/lib -lelf"
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR
 
@@ -4026,6 +4050,9 @@ MAKE=make
 
 #AC_SUBST(ENABLE_ATIGPU)
 #AC_SUBST(ENABLE_BDT_BUILTINS)
+
+
+
 
 
 

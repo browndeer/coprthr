@@ -40,6 +40,9 @@ endif
 
 #VPATH := arch/x86_64
 
+ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+DEFS += -DENABLE_MIC_CROSS_COMPILE
+endif
 
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####

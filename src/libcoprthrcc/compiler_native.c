@@ -53,7 +53,9 @@
 #define DEFAULT_BUF2_SZ 16384
 
 
+///
 #if defined(__COPRTHR_TARGET_HOST_x86_64__)
+///
 
 #define __compile compile_x86_64
 #define __elfcl_write elfcl_write_x86_64
@@ -70,7 +72,9 @@
 
 #define CCFLAGS_TARGET " -m64"
 
+///
 #elif defined(__COPRTHR_TARGET_HOST_i386__)
+///
 
 #define __compile compile_i386
 #define __elfcl_write elfcl_write_386
@@ -87,7 +91,9 @@
 
 #define CCFLAGS_TARGET " -m32"
 
+///
 #elif defined(__COPRTHR_TARGET_HOST_arm32__)
+///
 
 #define __compile compile_arm32
 #define __elfcl_write elfcl_write_arm32
@@ -105,12 +111,33 @@
 //#define CCFLAGS_TARGET " -m32"
 #define CCFLAGS_TARGET " "
 
+///
+#elif defined(__COPRTHR_TARGET_HOST_mic__)
+///
 
+#define __compile compile_mic
+#define __elfcl_write elfcl_write_x86_64
+
+#define CCFLAGS_OCL \
+	" -fno-exceptions -O3 -fno-math-errno -fimf-domain-exclusion=8" \
+	" -U_FORTIFY_SOURCE"
+
+#define ECC_BLOCKED_FLAGS \
+	"-D_FORTIFY_SOURCE", "-fexceptions", \
+	"-fstack-protector-all" "-fstack-protector-all"
+
+//#define CCFLAGS_TARGET " -m64"
+#define CCFLAGS_TARGET " "
+
+///
 #else
+///
 
 #error target host not specified or not supported
 
+///
 #endif
+///
 
 
 /* select compiler preferernces */
@@ -118,13 +145,25 @@
 #ifdef LIBCOPRTHR_CC
 #define CC_COMPILER LIBCOPRTHR_CC
 #else
+
+#if defined(__COPRTHR_TARGET_HOST_mic__)
+#define CXX_COMPILER " icc -mmic "
+#else
 #define CC_COMPILER " gcc "
+#endif
+
 #endif
 
 #ifdef LIBCOPRTHR_CXX
 #define CXX_COMPILER LIBCOPRTHR_CXX
 #else
+
+#if defined(__COPRTHR_TARGET_HOST_mic__)
+#define CXX_COMPILER " icpc -mmic "
+#else
 #define CXX_COMPILER " g++ "
+#endif
+
 #endif
 
 

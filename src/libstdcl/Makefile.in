@@ -119,6 +119,10 @@ INSTALL_LIBS = libstdcl.so libstdcl.a
 CCFLAGS += -g -O2 -fPIC
 F90FLAGS = -fPIC
 
+ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+CCFLAGS += -mmic
+endif
+
 # note that fortran mods must preceed objects -DAR
 ifneq ($(F90),)
 TARGET = $(MODS)

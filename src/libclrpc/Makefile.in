@@ -83,6 +83,10 @@ INSTALL_BINS = clrpcd
 
 CCFLAGS += -g -O2 -fPIC
 
+ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+CCFLAGS += -mmic
+endif
+
 TARGET += libclrpc.so libclrpc.a
 #LIB_OBJS += $(OBJS)
 #LIB_OBJS_D += $(OBJS_D)

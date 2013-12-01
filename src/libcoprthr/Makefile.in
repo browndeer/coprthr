@@ -73,8 +73,13 @@ INSTALL_LIBS = libcoprthr.so libcoprthr.a
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
 
-DEFS += -DLIBCOPRTHR_CC=\"@LIBCOPRTHR_CC@\"
-DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
+#ifeq (@ENABLE_EPIPHANY@,1)
+#DEFS += -DLIBCOPRTHR_CC=\"icc -mmic\"
+#DEFS += -DLIBCOPRTHR_CXX=\"icpc -mmic\"
+#else
+#DEFS += -DLIBCOPRTHR_CC=\"@LIBCOPRTHR_CC@\"
+#DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
+#endif
 
 ######################################################################
 
@@ -123,6 +128,10 @@ CCFLAGS += -marm
 CCFLAGS_VCORE += -marm
 endif
 
+ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+CC=icc
+CCFLAGS += -mmic
+endif
 
 
 #YACC = yacc

@@ -70,6 +70,10 @@ INSTALL_LIBS = libclelf.so libclelf.a
 
 CCFLAGS += -g -O2 -fPIC
 
+ifeq (@ENABLE_MIC_CROSS_COMPILE,1)
+CCFLAGS += -mmic
+endif
+
 TARGET += libclelf.so libclelf.a
 LIB_OBJS += $(OBJS)
 #LIB_OBJS_D += $(OBJS_D)

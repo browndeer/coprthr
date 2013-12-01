@@ -177,9 +177,18 @@ static int init_device_x86_64(void)
 
 		} else if (!strncasecmp(left,"model name",10)) {
 
+#if defined(EANBLE_MIC_CROSS_COMPILE)
+			sz = 1+strnlen(
+				"Intel(R) Many Integrated Core Acceleration Card",__CLMAXSTR_LEN);
+			strncpy(dstrtab+dstrtab_sz,
+				"Intel(R) Many Integrated Core Acceleration Card",sz);
+			codev->devinfo->name 
+				= strndup("Intel(R) Many Integrated Core Acceleration Card",sz);
+#else
 			right = truncate_ws(right);
 			sz = 1+strnlen(right,__CLMAXSTR_LEN);
 			codev->devinfo->name = strndup(right,sz);
+#endif
 
 		} else if (!strncasecmp(left,"vendor_id",9)) {
 

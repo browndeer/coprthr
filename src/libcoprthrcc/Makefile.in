@@ -178,6 +178,10 @@ compiler_arm32.o: compiler_native.c
 	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_arm32__ $(INCS) \
 		-c -o compiler_arm32.o $<
 
+compiler_mic.o: compiler_native.c
+	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_mic__ $(INCS) \
+		-c -o compiler_mic.o $<
+
 
 compiler_e32_emek.o: compiler_e32_emek.c
 	$(CC) $(CCFLAGS) $(DEFS) \

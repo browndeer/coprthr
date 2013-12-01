@@ -103,6 +103,10 @@ AC_ARG_ENABLE(android-cross-compile,
 	AC_HELP_STRING([--enable-android-cross-compile],[enable cross-compile for Android (default=no)]),,
 	enable_android_cross_compile=no)
 
+AC_ARG_ENABLE(mic-cross-compile,
+	AC_HELP_STRING([--enable-mic-cross-compile],[enable cross-compile for MIC (default=no)]),,
+	enable_mic_cross_compile=no)
+
 
 enable_libcoprthr_ncpu=enable_libcoprthr;
 
@@ -127,6 +131,7 @@ SET_OPT($enable_emek_build, ENABLE_EMEK_BUILD, "Epiphany EMEK build")
 SET_OPT($enable_old_esdk, ENABLE_OLD_ESDK, "Epiphany old eSDK API")
 SET_OPT($enable_user_install, ENABLE_USER_INSTALL, "user install without root permission")
 SET_OPT($enable_android_cross_compile, ENABLE_ANDROID_CROSS_COMPILE, "Android cross-compile")
+SET_OPT($enable_mic_cross_compile, ENABLE_MIC_CROSS_COMPILE, "MIC cross-compile")
 
 
 #OPENCL_INCLUDE=
@@ -504,6 +509,8 @@ fi;
 
 libelf_inc="-I$LIBELF_PATH/include"
 libelf_lib="-L$LIBELF_PATH/lib -lelf"
+LIBELF_INC="-I$LIBELF_PATH/include"
+LIBELF_LIB="-L$LIBELF_PATH/lib -lelf"
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR
 
@@ -726,6 +733,7 @@ AC_SUBST(ENABLE_EMEK_BUILD)
 AC_SUBST(ENABLE_OLD_ESDK)
 AC_SUBST(ENABLE_USER_INSTALL)
 AC_SUBST(ENABLE_ANDROID_CROSS_COMPILE)
+AC_SUBST(ENABLE_MIC_CROSS_COMPILE)
 
 AC_SUBST(MAX_CLMESG_LEVEL)
 AC_SUBST(DEFAULT_CLMESG_LEVEL)
@@ -737,6 +745,8 @@ AC_SUBST(DEFAULT_OPENCL_PLATFORM)
 
 AC_SUBST(libelf_inc)
 AC_SUBST(libelf_lib)
+AC_SUBST(LIBELF_INC)
+AC_SUBST(LIBELF_LIB)
 
 AC_SUBST(LIBCOPRTHR_CC)
 AC_SUBST(LIBCOPRTHR_CXX)
