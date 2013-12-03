@@ -39,9 +39,12 @@ LIBELF_INC = @libelf_inc@
 LIBELF_LIB = @libelf_lib@
 
 INCS = -I$(OPENCL_INC_DIR) $(LIBELF_INC)
+INCS += -I../../src/libclelf -I../../src/libcoprthr -I../../src/libcoprthrcc
 
 LIBS = $(LIBELF_LIB) 
 LIBS += -L../../src/libclelf -lclelf
+LIBS += -L../../src/libcoprthr -lcoprthr
+LIBS += -L../../src/libcoprthrcc -lcoprthrcc
 LIBS += -L$(OPENCL_LIB_DIR) -l$(OPENCL_LIBNAME)
 
 

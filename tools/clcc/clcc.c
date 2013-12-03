@@ -307,6 +307,8 @@ int main(int argc, char** argv)
 
 	int quiet = 1;
 
+	int en_query_clcc1 = 0;
+
 //	char default_ofname[] = "out_clld.o";
 //	char* ofname = default_ofname;
 	char* ofname = 0;
@@ -495,7 +497,25 @@ int main(int argc, char** argv)
 
 		} else if (!strcmp(argv[n],"-v")) {
 
+			append_str(cc1_opt_str,argv[n]," ",0);
 			quiet = 0;
+
+		} else if (str_match_exact(argv[n],"--dump-bin")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
+
+		} else if (str_match_exact(argv[n],"--coprthr-cc")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
+
+		} else if (str_match_seteq(argv[n],"-mtarget")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
+
+		} else if (str_match_exact(argv[n],"--targets")) {
+
+			append_str(cc1_opt_str,argv[n]," ",0);
+			en_query_clcc1 = 1;
 
 		} else if (!strcmp(argv[n],"-h")||!strcmp(argv[n],"--help")) {
 
@@ -569,6 +589,16 @@ int main(int argc, char** argv)
 	char* tfnames_str = (char*)calloc(1,DEFAULT_STR_SIZE);
 	tfnames_str[0] = '\0';
 
+	if (en_query_clcc1) {
+
+		snprintf(cmd,1024,"clcc1 %s",cc1_opt_str);
+		DEBUG2("%s",cmd);
+		system(cmd);
+
+		exit(0);
+
+	}
+
 	/***
 	 *** begin loop over files
 	 ***/
@@ -628,6 +658,7 @@ DEBUG2("tfames_str '%s'",tfnames_str);
 
 	}
 
+	
 	char default_ofname[] = DEFAULT_OFNAME;
 	char* single_ofname = 0;
 

@@ -38,9 +38,11 @@
 #define CL_CONTEXT_OFFLINE_DEVICES_AMD 0x403F
 #define CL_CONTEXT_OFFLINE_DEVICES_COPRTHR 0x403F
 
-//#include "util.h"
 #include "printcl.h"
 #include "../../src/libclelf/clelf.h"
+
+#include "coprthr_cc.h"
+#include "coprthr.h"
 
 char* platform_name_string[] = {
 		"unknown",
@@ -287,6 +289,9 @@ int main(int argc, char** argv)
 	int quiet = 1;
 
 	int dump_bin = 0;
+	int use_coprthr_cc = 0;
+	char* target_str = 0;
+	int en_report_targets = 0;
 
 	char* platform_select = 0;
 	char* platform_exclude = 0;
@@ -299,7 +304,6 @@ int main(int argc, char** argv)
 	char* fname = 0;
 	char* ofname = 0;
 
-//printf("\nXXX add option to use only devices that are present\n\n");
 
 	n = 1;
 	while (n < argc) {
@@ -437,10 +441,22 @@ int main(int argc, char** argv)
 
 			quiet = 0;
 
-		} else if (str_match_exact(argv[n],"--dump_bin")) {
+		} else if (str_match_exact(argv[n],"--dump-bin")) {
 
 			dump_bin = 1;
 
+		} else if (str_match_exact(argv[n],"--coprthr-cc")) {
+
+			use_coprthr_cc = 1;
+
+		} else if (str_match_seteq(argv[n],"-mtarget")) {
+
+			target_str = str_get_seteq(argv[n],"-mtarget");
+			
+		} else if (str_match_exact(argv[n],"--targets")) {
+
+			en_report_targets = 1;
+			
 		} else if (str_match_exact(argv[n],"--help")) {
 
 			usage(); 
@@ -464,6 +480,23 @@ int main(int argc, char** argv)
 
 		++n;
 
+	}
+
+
+	if (target_str && !use_coprthr_cc) {
+		printcl( CL_ERR "-mtarget is only used with --coprthr_cc");
+		exit(-1);
+	} else if (en_report_targets && !use_coprthr_cc) {
+		printcl( CL_ERR "--targets is only used with --coprthr_cc");
+		exit(-1);
+	} else if (en_report_targets && use_coprthr_cc) {
+		char* log = 0;
+		coprthr_cc(0,0,"--targets",&log);
+		printf( "%s\n",log);
+		exit(0);
+	} else if (!target_str && use_coprthr_cc) {
+		printcl( CL_ERR "--coprthr_cc requires -mtarget to select target device");
+		exit(-1);
 	}
 
 
@@ -550,9 +583,9 @@ int main(int argc, char** argv)
 
          pexclcode[i] = CLELF_PLATFORM_CODE_COPRTHR;
 
-    } else if (!strncasecmp(pexclv[i],"Intel",5)) {
+    	} else if (!strncasecmp(pexclv[i],"Intel",5)) {
 
-       pexclcode[i] = CLELF_PLATFORM_CODE_INTEL;
+       	pexclcode[i] = CLELF_PLATFORM_CODE_INTEL;
 
       }
 
@@ -629,7 +662,171 @@ int main(int argc, char** argv)
 
 	int err;
 
-	if (en_bin) {
+	if (use_coprthr_cc) {
+
+	int nbin_valid = 0;
+
+	for(i=0; i<1; i++) {
+
+		int platform_code = 0;
+
+			platform_code = CLELF_PLATFORM_CODE_COPRTHR;
+
+		size_t* bin_sizes = (size_t*)malloc( sizeof(size_t)*1 );
+
+		printcl( CL_DEBUG "bin size %d",bin_sizes[0]);
+
+		char** bins = (char**)malloc( sizeof(char*)*1 );
+
+			if( bin_sizes[0] != 0 ) {
+				bins[0] = (char*)malloc( sizeof(char)*bin_sizes[0] );
+			} else {
+				bins[0] = 0;
+			}	
+
+		printcl( CL_DEBUG "bin %p",bins[0]);
+
+		char* opt = 0;
+		char* log = 0;
+		asprintf(&opt,"-mtarget=%s %s",target_str,opt_str);
+		coprthr_program_t prg1 = coprthr_cc(file_ptr,file_sz,opt,&log);
+		bins[0] = prg1->bin;
+		bin_sizes[0] = prg1->bin_sz;
+		printcl( CL_DEBUG "log=%p",log);
+		printcl( CL_DEBUG "log='%s'",log);
+
+		printcl( CL_DEBUG "bin %p",bins[0]);
+
+		for( j=0; j < 1; j++ ) {
+
+			cl_build_status status;
+			status = (prg1)? CL_BUILD_SUCCESS : CL_BUILD_ERROR;
+
+			printcl( CL_DEBUG "status %d",status);
+
+			if (status == CL_BUILD_SUCCESS && bins[j]) {
+
+				if (dump_bin) {
+
+					printcl( CL_DEBUG 
+						"dump_bin fname='%s' platform_code=%d device='%s' bin_sz=%ld",
+						fname,platform_code,device_name,bin_sizes[j]);
+
+					char* tmp_filename = (char*)malloc(256);
+					snprintf(tmp_filename,256,"%sbin.%d.%s\0",
+						fname,platform_code,device_name);
+
+					int tmp_fd = open(tmp_filename,O_WRONLY|O_CREAT,644);
+					write(tmp_fd,bins[j],bin_sizes[j]);
+					close(tmp_fd);
+
+				}
+
+
+				++nbin_valid;
+				printcl( CL_DEBUG "nbin_valid %d",nbin_valid);
+
+				/***
+				 *** add clprgbin entry
+				 ***/
+
+				if (data.clprgbin_n >= data.clprgbin_nalloc) {
+					data.clprgbin_nalloc += DEFAULT_CLPRGBIN_NALLOC;
+					data.clprgbin = (struct clprgbin_entry*)
+					realloc(data.clprgbin,__clprgbin_entry_sz*data.clprgbin_nalloc);
+				}
+
+				data.clprgbin[data.clprgbin_n].e_name 
+					= (intptr_t)(data.clstrtab_strp-data.clstrtab_str);
+				add_strtab(data.clstrtab_str,data.clstrtab_strp,
+					data.clstrtab_str_alloc,fname);
+				data.clprgbin[data.clprgbin_n].e_info = 0;
+				data.clprgbin[data.clprgbin_n].e_platform = platform_code;
+				data.clprgbin[data.clprgbin_n].e_device 
+					= (intptr_t)(data.clstrtab_strp-data.clstrtab_str);
+				add_strtab(data.clstrtab_str,data.clstrtab_strp,
+					data.clstrtab_str_alloc, device_name);
+				data.clprgbin[data.clprgbin_n].e_shndx = -1;
+				data.clprgbin[data.clprgbin_n].e_offset 
+					= (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
+				data.clprgbin[data.clprgbin_n].e_size = bin_sizes[j];
+				++data.clprgbin_n;
+
+				size_t offset = (intptr_t)(data.cltextbin_bufp-data.cltextbin_buf);
+				size_t n = bin_sizes[j];
+
+				while (offset+n > data.cltextbin_buf_alloc) {
+					data.cltextbin_buf_alloc += DEFAULT_BUF_ALLOC;
+					data.cltextbin_buf 
+						= realloc(data.cltextbin_buf,data.cltextbin_buf_alloc);
+					data.cltextbin_bufp = data.cltextbin_buf + offset;
+				}
+
+				memcpy(data.cltextbin_bufp,bins[j],bin_sizes[j]);
+
+				data.cltextbin_bufp += bin_sizes[j];
+
+				printf("clcc1: compile '%s' [%s:%s]\n",fname,
+					platform_name_string[platform_code],device_name);
+
+						if (!quiet) printf("%s\n",log);
+						printf("\n");
+
+			} else if (status == CL_BUILD_NONE) {
+
+				printf("clcc1: compile '%s' [%s:%s] FAILED\n",fname,
+					platform_name_string[platform_code],device_name);
+
+			} else if (status == CL_BUILD_ERROR || bins[j]==0) {	
+
+				printf("clcc1: compile '%s' [%s:%s] FAILED\n",fname,
+					platform_name_string[platform_code],device_name);
+
+						printf("%s",log);
+						printf("\n");
+
+			}
+			
+		}
+
+		cl_uint nkrn = 0;
+
+/*
+		err = clCreateKernelsInProgram (programs[i],0,0,&nkrn);
+		cl_kernel* kernels = (cl_kernel*)malloc(nkrn*sizeof(cl_kernel));
+		err = clCreateKernelsInProgram (programs[i],nkrn,kernels,0);
+*/
+
+		printcl( CL_DEBUG "nkrn %d",nkrn);
+
+      while (data.clkrntab_n + nkrn >= data.clkrntab_nalloc) {
+         data.clkrntab_nalloc += DEFAULT_CLKRNTAB_NALLOC;
+         data.clkrntab = (struct clkrntab_entry*)
+            realloc(data.clkrntab,__clkrntab_entry_sz*data.clkrntab_nalloc);
+      }
+
+/*
+		for(j=0;j<nkrn;j++) {
+
+			char name[1024];
+			err = clGetKernelInfo(kernels[j],CL_KERNEL_FUNCTION_NAME,1024,name,0);
+
+			data.clkrntab[data.clkrntab_n].e_name 
+				= (intptr_t)(data.clstrtab_strp-data.clstrtab_str);
+			add_strtab(data.clstrtab_str,data.clstrtab_strp,
+				data.clstrtab_str_alloc,name);
+
+			data.clkrntab[data.clkrntab_n].e_info = 0;
+			data.clkrntab[data.clkrntab_n].e_prg = 0;
+			++data.clkrntab_n;
+
+			clReleaseKernel(kernels[j]);
+		}
+*/
+
+	}
+	
+	} else if (en_bin) {
 
 	cl_uint nplatforms;
 	clGetPlatformIDs(0,0,&nplatforms);
@@ -637,7 +834,7 @@ int main(int argc, char** argv)
 		= (cl_platform_id*)malloc(nplatforms*sizeof(cl_platform_id));
 	clGetPlatformIDs(nplatforms,platforms,0);
 
-//	printf("number of platforms %d\n",nplatforms);
+	printf("number of platforms %d\n",nplatforms);
 
 	cl_context* contexts = (cl_context*)malloc(nplatforms*sizeof(cl_context));
 
@@ -647,10 +844,8 @@ int main(int argc, char** argv)
 
 	for(i=0; i<nplatforms; i++) {
 
-		char info[1024];
+		char* info = malloc(1024);
 		clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
-//		printf("|%s|\n",info);
-
 
 		int platform_code = 0;
 
@@ -837,14 +1032,10 @@ int main(int argc, char** argv)
 
 		}
 
-//printcl( CL_DEBUG "HERE %d",ndev);
-
 		for( j=0; j < ndev; j++ ) {
 
 			char device_name[1024];
-			printcl( CL_DEBUG "before");
 			err = clGetDeviceInfo(devices[j],CL_DEVICE_NAME,1024,device_name,0);
-			printcl( CL_DEBUG "after");
 
 			printcl( CL_DEBUG "device name %s",device_name);
 			clelf_device_name_alias(device_name);
@@ -858,7 +1049,6 @@ int main(int argc, char** argv)
 
 			if (status == CL_BUILD_SUCCESS && bins[j]) {
 
-//fprintf(stderr,"HERE\n"); fflush(stderr);
 				if (dump_bin) {
 
 printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",
@@ -996,9 +1186,10 @@ printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",
 			clReleaseKernel(kernels[j]);
 		}
 
+		free(info);
 	}
-
-	}
+	
+	} // if (en_bin)
 
 
 	/***
