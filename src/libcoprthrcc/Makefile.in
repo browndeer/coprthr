@@ -51,8 +51,13 @@ endif
 
 #IMP_OBJS = elfcl_x86_64.o elfcl_386.o elfcl_arm32.o \
 #	compiler_x86_64.o compiler_i386.o compiler_arm32.o 
-OBJS = elfcl_x86_64.o elfcl_386.o elfcl_arm32.o \
+OBJS = elfcl_x86_64.o elfcl_386.o elfcl_arm32.o elfcl_mic.o compiler_cc.o \
 	compiler_x86_64.o compiler_i386.o compiler_arm32.o 
+
+ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+DEFS += -DENABLE_MIC_CROSS_COMPILE
+OBJS += compiler_mic.o
+endif
 
 OBJS_E = elfcl_x86_64.o elfcl_386.o elfcl_arm32.o \
 	compiler_e32_emek.o \
@@ -127,6 +132,7 @@ TARGET += libcoprthrcc-e.so libcoprthrcc-e.a
 #INCS_E += -I$(TOPDIR)/src/libcoprthr-e
 endif
 
+INSTALL_HDRS = opencl_lift.h kcall.h opencl_lift_icc.h opencl_lift_icc_mic.h
 INSTALL_LIBS = $(TARGET)
 
 VPATH = ../coprthr-common/
@@ -213,17 +219,9 @@ install:
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
-#	install -m 755 libcoprthr.so $(INSTALL_LIB_DIR)
-#	install -m 755 libcoprthrcc.so $(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
 	install -m 755 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
-#	install -m 755 sl_engine.h $(INSTALL_INCLUDE_DIR)
-#	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
-#	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
-#	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
-#	echo $(INSTALL_LIB_DIR)/libcoprthr.so > $(INSTALL_ICD_DIR)/coprthr.icd
-#	test -d $(OPENCL_ICD_PATH) || install -m 755 -d $(OPENCL_ICD_PATH)
-#	install -m 644 $(INSTALL_ICD_DIR)/coprthr.icd $(OPENCL_ICD_PATH)/
 
 uninstall: 
 #	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so 

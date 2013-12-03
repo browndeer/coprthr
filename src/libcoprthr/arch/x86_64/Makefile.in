@@ -104,6 +104,9 @@ CCFLAGS += -marm
 CCFLAGS_VCORE += -marm
 endif
 
+ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+CCFLAGS += -mmic
+endif
 
 TARGET = libcoprthr_arch_x86_64.so libcoprthr_arch_x86_64.a
 

@@ -463,6 +463,7 @@ int main( int argc, char** argv)
 	if (opt_kcall) {
 
 		fprintf(fp,"#include <stdio.h>\n");
+		fprintf(fp,"#include \"kcall.h\"\n");
 //		fprintf(fp,"#define __xcl_kcall__\n");
 //		fprintf(fp,"#include \"vcore2.h\"\n");
 

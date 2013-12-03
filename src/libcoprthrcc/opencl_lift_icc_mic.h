@@ -23,15 +23,9 @@
 #ifndef _opencl_lift_h
 #define _opencl_lift_h
 
-#if defined (__ICC) && defined (__MIC__)
-#include "opencl_lift_icc_mic.h" 
-#elif defined(__ICC) 
-#include "opencl_lift_icc_x86_64.h" 
-#else
+#include "sl_engine.h"
 
 #include <stdio.h>
-
-#include "sl_engine.h"
 
 #define GCC_VERSION \
 	( __GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ )
@@ -246,6 +240,7 @@ VECTOR_TYPE_8( unsigned char, uchar )
 #define vector_uchar8(s0,s1,s2,s3,s4,s5,s6,s7) \
 	_vector_uchar8(s0,s1,s2,s3,s4,s5,s6,s7)
 
+/*
 VECTOR_TYPE_8( int, int )
 #define __vector_int8(s0,s1,s2,s3,s4,s5,s6,s7) \
 	(__int8){s0,s1,s2,s3,s4,s5,s6,s7}
@@ -293,7 +288,7 @@ VECTOR_TYPE_8( double, double )
 	(_double8){(__double8){s0,s1,s2,s3,s4,s5,s6,s7}}
 #define vector_double8(s0,s1,s2,s3,s4,s5,s6,s7) \
 	_vector_double8(s0,s1,s2,s3,s4,s5,s6,s7)
-
+*/
 
 
 #define GENERIC_UNARY_PLUS(type) \
@@ -399,6 +394,7 @@ GENERIC_UNARY_PLUS(long4)
 GENERIC_UNARY_PLUS(ulong4)
 GENERIC_UNARY_PLUS(float4)
 GENERIC_UNARY_PLUS(double4)
+/*
 GENERIC_UNARY_PLUS(char8)
 GENERIC_UNARY_PLUS(uchar8)
 GENERIC_UNARY_PLUS(int8)
@@ -407,6 +403,7 @@ GENERIC_UNARY_PLUS(long8)
 GENERIC_UNARY_PLUS(ulong8)
 GENERIC_UNARY_PLUS(float8)
 GENERIC_UNARY_PLUS(double8)
+*/
 
 
 /* unary minus */
@@ -467,12 +464,14 @@ EXPLICIT_UNARY_OP_VEC4(int4,~)
 EXPLICIT_UNARY_OP_VEC4(uint4,~)
 EXPLICIT_UNARY_OP_VEC4(long4,~)
 EXPLICIT_UNARY_OP_VEC4(ulong4,~)
+/*
 EXPLICIT_UNARY_OP_VEC8(char8,~)
 EXPLICIT_UNARY_OP_VEC8(uchar8,~)
 EXPLICIT_UNARY_OP_VEC8(int8,~)
 EXPLICIT_UNARY_OP_VEC8(uint8,~)
 EXPLICIT_UNARY_OP_VEC8(long8,~)
 EXPLICIT_UNARY_OP_VEC8(ulong8,~)
+*/
 
 
 /* add assign */
@@ -518,6 +517,7 @@ GENERIC_OP_ASSIGN(long4,+)
 GENERIC_OP_ASSIGN(ulong4,+)
 GENERIC_OP_ASSIGN(float4,+)
 GENERIC_OP_ASSIGN(double4,+)
+/*
 GENERIC_OP_ASSIGN(char8,+)
 GENERIC_OP_ASSIGN(uchar8,+)
 GENERIC_OP_ASSIGN(int8,+)
@@ -526,6 +526,7 @@ GENERIC_OP_ASSIGN(long8,+)
 GENERIC_OP_ASSIGN(ulong8,+)
 GENERIC_OP_ASSIGN(float8,+)
 GENERIC_OP_ASSIGN(double8,+)
+*/
 #endif
 
 /* subtract assign */
@@ -546,6 +547,7 @@ EXPLICIT_OP_ASSIGN_VEC4(long4,-)
 EXPLICIT_OP_ASSIGN_VEC4(ulong4,-)
 EXPLICIT_OP_ASSIGN_VEC4(float4,-)
 EXPLICIT_OP_ASSIGN_VEC4(double4,-)
+/*
 EXPLICIT_OP_ASSIGN_VEC8(char8,-)
 EXPLICIT_OP_ASSIGN_VEC8(uchar8,-)
 EXPLICIT_OP_ASSIGN_VEC8(int8,-)
@@ -554,6 +556,7 @@ EXPLICIT_OP_ASSIGN_VEC8(long8,-)
 EXPLICIT_OP_ASSIGN_VEC8(ulong8,-)
 EXPLICIT_OP_ASSIGN_VEC8(float8,-)
 EXPLICIT_OP_ASSIGN_VEC8(double8,-)
+*/
 #else
 GENERIC_OP_ASSIGN(char2,-)
 GENERIC_OP_ASSIGN(uchar2,-)
@@ -571,6 +574,7 @@ GENERIC_OP_ASSIGN(long4,-)
 GENERIC_OP_ASSIGN(ulong4,-)
 GENERIC_OP_ASSIGN(float4,-)
 GENERIC_OP_ASSIGN(double4,-)
+/*
 GENERIC_OP_ASSIGN(char8,-)
 GENERIC_OP_ASSIGN(uchar8,-)
 GENERIC_OP_ASSIGN(int8,-)
@@ -579,6 +583,7 @@ GENERIC_OP_ASSIGN(long8,-)
 GENERIC_OP_ASSIGN(ulong8,-)
 GENERIC_OP_ASSIGN(float8,-)
 GENERIC_OP_ASSIGN(double8,-)
+*/
 #endif
 
 /* multiply assign */
@@ -624,6 +629,7 @@ GENERIC_OP_ASSIGN(long4,*)
 GENERIC_OP_ASSIGN(ulong4,*)
 GENERIC_OP_ASSIGN(float4,*)
 GENERIC_OP_ASSIGN(double4,*)
+/*
 GENERIC_OP_ASSIGN(char8,*)
 GENERIC_OP_ASSIGN(uchar8,*)
 GENERIC_OP_ASSIGN(int8,*)
@@ -632,6 +638,7 @@ GENERIC_OP_ASSIGN(long8,*)
 GENERIC_OP_ASSIGN(ulong8,*)
 GENERIC_OP_ASSIGN(float8,*)
 GENERIC_OP_ASSIGN(double8,*)
+*/
 #endif
 
 /* modulo assign */
@@ -647,12 +654,14 @@ EXPLICIT_OP_ASSIGN_VEC4(int4,%)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,%)
 EXPLICIT_OP_ASSIGN_VEC4(long4,%)
 EXPLICIT_OP_ASSIGN_VEC4(ulong4,%)
+/*
 EXPLICIT_OP_ASSIGN_VEC8(char8,%)
 EXPLICIT_OP_ASSIGN_VEC8(uchar8,%)
 EXPLICIT_OP_ASSIGN_VEC8(int8,%)
 EXPLICIT_OP_ASSIGN_VEC8(uint8,%)
 EXPLICIT_OP_ASSIGN_VEC8(long8,%)
 EXPLICIT_OP_ASSIGN_VEC8(ulong8,%)
+*/
 
 /* divide assign */
 #if GCC_VERSION < 40600
@@ -697,6 +706,7 @@ GENERIC_OP_ASSIGN(long4,/)
 GENERIC_OP_ASSIGN(ulong4,/)
 GENERIC_OP_ASSIGN(float4,/)
 GENERIC_OP_ASSIGN(double4,/)
+/*
 GENERIC_OP_ASSIGN(char8,/)
 GENERIC_OP_ASSIGN(uchar8,/)
 GENERIC_OP_ASSIGN(int8,/)
@@ -705,6 +715,7 @@ GENERIC_OP_ASSIGN(long8,/)
 GENERIC_OP_ASSIGN(ulong8,/)
 GENERIC_OP_ASSIGN(float8,/)
 GENERIC_OP_ASSIGN(double8,/)
+*/
 #endif
 
 /* bitwise and assign */
@@ -720,12 +731,14 @@ EXPLICIT_OP_ASSIGN_VEC4(int4,&)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,&)
 EXPLICIT_OP_ASSIGN_VEC4(long4,&)
 EXPLICIT_OP_ASSIGN_VEC4(ulong4,&)
+/*
 EXPLICIT_OP_ASSIGN_VEC8(char8,&)
 EXPLICIT_OP_ASSIGN_VEC8(uchar8,&)
 EXPLICIT_OP_ASSIGN_VEC8(int8,&)
 EXPLICIT_OP_ASSIGN_VEC8(uint8,&)
 EXPLICIT_OP_ASSIGN_VEC8(long8,&)
 EXPLICIT_OP_ASSIGN_VEC8(ulong8,&)
+*/
 
 /* bitwise or assign */
 EXPLICIT_OP_ASSIGN_VEC2(char2,|)
@@ -740,12 +753,14 @@ EXPLICIT_OP_ASSIGN_VEC4(int4,|)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,|)
 EXPLICIT_OP_ASSIGN_VEC4(long4,|)
 EXPLICIT_OP_ASSIGN_VEC4(ulong4,|)
+/*
 EXPLICIT_OP_ASSIGN_VEC8(char8,|)
 EXPLICIT_OP_ASSIGN_VEC8(uchar8,|)
 EXPLICIT_OP_ASSIGN_VEC8(int8,|)
 EXPLICIT_OP_ASSIGN_VEC8(uint8,|)
 EXPLICIT_OP_ASSIGN_VEC8(long8,|)
 EXPLICIT_OP_ASSIGN_VEC8(ulong8,|)
+*/
 
 /* bitwise xor assign */
 EXPLICIT_OP_ASSIGN_VEC2(char2,^)
@@ -760,13 +775,14 @@ EXPLICIT_OP_ASSIGN_VEC4(int4,^)
 EXPLICIT_OP_ASSIGN_VEC4(uint4,^)
 EXPLICIT_OP_ASSIGN_VEC4(long4,^)
 EXPLICIT_OP_ASSIGN_VEC4(ulong4,^)
+/*
 EXPLICIT_OP_ASSIGN_VEC8(char8,^)
 EXPLICIT_OP_ASSIGN_VEC8(uchar8,^)
 EXPLICIT_OP_ASSIGN_VEC8(int8,^)
 EXPLICIT_OP_ASSIGN_VEC8(uint8,^)
 EXPLICIT_OP_ASSIGN_VEC8(long8,^)
 EXPLICIT_OP_ASSIGN_VEC8(ulong8,^)
-
+*/
 
 /*** other builtin data types [6.1.3] ***/
 
@@ -812,11 +828,12 @@ EXPLICIT_OP_ASSIGN_VEC8(ulong8,^)
 #define convert_double8(x) static_cast<double8>(x)
 
 
-/*
+
 static __always_inline double as_double( float2 f2 );
 static __always_inline double as_double( float2 f2 ) 
 	{ return *(double*)(&f2); }
 
+/*
 template < typename T >
 static __always_inline float2 as_float2( T x ) { return *(float2*)(&x); }
 
@@ -847,6 +864,7 @@ AS_TYPE(long4)
 AS_TYPE(ulong4)
 AS_TYPE(float4)
 AS_TYPE(double4)
+/*
 AS_TYPE(char8)
 AS_TYPE(uchar8)
 AS_TYPE(int8)
@@ -855,6 +873,7 @@ AS_TYPE(long8)
 AS_TYPE(ulong8)
 AS_TYPE(float8)
 AS_TYPE(double8)
+*/
 
 
 /*** 
@@ -1211,19 +1230,19 @@ __MATH_BUILTIN_1(erfc)
 __MATH_BUILTIN_1(erf)
 __MATH_BUILTIN_1(exp)
 __MATH_BUILTIN_1(exp2)
-#if defined(__FreeBSD__) || defined(__ANDROID__)
-#warning FreeBSD missing exp10
-#else
+#ifndef __FreeBSD__
 __MATH_BUILTIN_1(exp10)
+#else
+#warning FreeBSD missing exp10
 #endif
 __MATH_BUILTIN_1(expm1)
 __MATH_BUILTIN_1(fabs)
 __MATH_BUILTIN_1(floor)
 __MATH_BUILTIN_1(log)
-#if defined(__FreeBSD__) || defined(__ANDROID__)
-#warning FreeBSD missing log2
-#else
+#ifndef __FreeBSD__
 __MATH_BUILTIN_1(log2)
+#else
+#warning FreeBSD missing log2
 #endif
 __MATH_BUILTIN_1(log10)
 __MATH_BUILTIN_1(log1p)
@@ -1316,13 +1335,9 @@ static __always_inline _float4 cross_T( _float4 a, _float4 b)
 
 /* xxx */
 static __always_inline int sign_T( int a ); 
-//static __always_inline int sign_T( int a ) { return copysignf(1,a); } 
-static __always_inline int sign_T( int a ) 
-	{ return ((a > 0)? 1 : ((a < 0)? -1 : 0)); } 
+static __always_inline int sign_T( int a ) { return copysignf(1,a); } 
 static __always_inline float sign_T( float a ); 
 static __always_inline float sign_T( float a ) { return copysignf(1.0f,a); } 
-static __always_inline float sign_T( double a ); 
-static __always_inline float sign_T( double a ) { return copysign(1.0,a); } 
 
 
 #define sqrt(a) sqrt_T(a)
@@ -1419,8 +1434,6 @@ typedef int sampler_t;
 #define __builtin_vector_float2(x,y) 		(float2)(x,y)
 #define __builtin_vector_float4(x,y,z,w)	(float4)(x,y,z,w)
 #define __builtin_vector_double2(x,y) 		(double2)(x,y)
-
-#endif
 
 #endif
 

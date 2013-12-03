@@ -70,7 +70,7 @@
 	"-D_FORTIFY_SOURCE", "-fexceptions", \
 	"-fstack-protector-all" "-fstack-protector-all"
 
-#define CCFLAGS_TARGET " -m64"
+#define CCFLAGS_TARGET " -m64 "
 
 ///
 #elif defined(__COPRTHR_TARGET_HOST_i386__)
@@ -89,7 +89,7 @@
 	"-D_FORTIFY_SOURCE", "-fexceptions", \
 	"-fstack-protector-all" "-fstack-protector-all"
 
-#define CCFLAGS_TARGET " -m32"
+#define CCFLAGS_TARGET " -m32 "
 
 ///
 #elif defined(__COPRTHR_TARGET_HOST_arm32__)
@@ -116,7 +116,7 @@
 ///
 
 #define __compile compile_mic
-#define __elfcl_write elfcl_write_x86_64
+#define __elfcl_write elfcl_write_mic
 
 #define CCFLAGS_OCL \
 	" -fno-exceptions -O3 -fno-math-errno -fimf-domain-exclusion=8" \
@@ -142,9 +142,9 @@
 
 /* select compiler preferernces */
 
-#ifdef LIBCOPRTHR_CC
-#define CC_COMPILER LIBCOPRTHR_CC
-#else
+//#ifdef LIBCOPRTHR_CC
+//#define CC_COMPILER LIBCOPRTHR_CC
+//#else
 
 #if defined(__COPRTHR_TARGET_HOST_mic__)
 #define CXX_COMPILER " icc -mmic "
@@ -152,11 +152,11 @@
 #define CC_COMPILER " gcc "
 #endif
 
-#endif
+//#endif
 
-#ifdef LIBCOPRTHR_CXX
-#define CXX_COMPILER LIBCOPRTHR_CXX
-#else
+//#ifdef LIBCOPRTHR_CXX
+//#define CXX_COMPILER LIBCOPRTHR_CXX
+//#else
 
 #if defined(__COPRTHR_TARGET_HOST_mic__)
 #define CXX_COMPILER " icpc -mmic "
@@ -164,7 +164,7 @@
 #define CXX_COMPILER " g++ "
 #endif
 
-#endif
+//#endif
 
 
 /*** compiler flags ***/
@@ -172,15 +172,14 @@
 #define CCFLAGS_KTHR \
 	" -D__coprthr_device__ " CCFLAGS_TARGET CCFLAGS_OCL \
 	" -I" INSTALL_INCLUDE_DIR \
-	" -D __xcl_kthr__ --include=sl_engine.h " \
+	" -D __xcl_kthr__ " \
 	" -D __STDCL_KERNEL_VERSION__=020000" \
 	" -fPIC " 
 
 #define CCFLAGS_KCALL \
 	" -D__coprthr_device__ " CCFLAGS_TARGET \
 	" -O0 -fPIC " \
-	" -D__xcl_kcall__ -I" INSTALL_INCLUDE_DIR \
-	" --include=sl_engine.h "
+	" -D__xcl_kcall__ -I" INSTALL_INCLUDE_DIR 
 
 #define CXXFLAGS_LINK_LIB CCFLAGS_TARGET
 
