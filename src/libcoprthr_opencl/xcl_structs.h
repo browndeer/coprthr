@@ -38,7 +38,7 @@
 
 
 /* XXX temporarily put this here */
-void* __icd_call_vector;
+extern void* __icd_call_vector;
 
 
 /* XXX this is a workaround to correct missing tags in cl.h -dar */
