@@ -128,7 +128,7 @@ void __do_discover_devices_1(
 			printcl( CL_DEBUG "h=%p init_device=%p",hh[4],init_device);
 			init_device();
 		} else {
-			printcl( CL_WARNING "%s", dlerror() );
+//			printcl( CL_WARNING "%s", dlerror() );
 		}
 	}
 
