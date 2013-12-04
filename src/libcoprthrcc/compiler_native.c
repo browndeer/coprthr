@@ -147,7 +147,7 @@
 //#else
 
 #if defined(__COPRTHR_TARGET_HOST_mic__)
-#define CXX_COMPILER " icc -mmic "
+#define CC_COMPILER " icc -mmic "
 #else
 #define CC_COMPILER " gcc "
 #endif
