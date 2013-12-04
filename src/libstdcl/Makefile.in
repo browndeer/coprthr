@@ -119,7 +119,8 @@ INSTALL_LIBS = libstdcl.so libstdcl.a
 CCFLAGS += -g -O2 -fPIC
 F90FLAGS = -fPIC
 
-ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+#ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+ifeq (@build@,mic-unknown-linux-gnu)
 CCFLAGS += -mmic
 endif
 

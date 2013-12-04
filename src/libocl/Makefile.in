@@ -107,7 +107,8 @@ DEFS += -DVAR_CLPROC_PATH=\"$(VAR_CLPROC_PATH)\"
 CCFLAGS += -O1 -fPIC 
 CCFLAGS_VCORE_RT = -O1 -fPIC -funroll-loops -fstrict-aliasing
 
-ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+#ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+ifeq (@build@,mic-unknown-linux-gnu)
 CCFLAGS += -mmic
 endif
 
