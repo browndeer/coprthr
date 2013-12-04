@@ -697,6 +697,8 @@ int main(int argc, char** argv)
 
 		printcl( CL_DEBUG "bin %p",bins[0]);
 
+		char* device_name = target_str;
+
 		for( j=0; j < 1; j++ ) {
 
 			cl_build_status status;
