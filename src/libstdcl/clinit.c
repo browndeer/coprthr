@@ -155,7 +155,8 @@ void __attribute__((__constructor__)) _libstdcl_init()
 	clelf_sz = (size_t)((tmp<0)? 0 : tmp);
 	printcl( CL_DEBUG "clelf_sz=%d",clelf_sz);
 
-	if (procelf_fd < 0 || clelf_sz > 8) { 
+//	if (procelf_fd < 0 || clelf_sz > 8) { 
+	if (procelf_fd < 0 || clelf_sz > 32) { 
 
 		printcl( CL_ERR "opening procexe failed");
 
