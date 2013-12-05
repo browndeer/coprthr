@@ -52,10 +52,22 @@
 #define DEFAULT_BUF1_SZ 16384
 #define DEFAULT_BUF2_SZ 16384
 
-#define NDK "/home/richie/android/android-ndk-r9b/"
-#define CROSS_PATH NDK \
-	"toolchains/arm-linux-androideabi-4.7/prebuilt/linux-x86_64/bin"
-#define CROSS_SYSROOT NDK "platforms/android-14/arch-arm"
+#ifndef ANDROID_NDK
+#define ANDROID_NDK "/home/richie/android/android-ndk-r9b/"
+#endif
+
+#ifndef ANDROID_PLATFORM
+#define ANDROID_PLATFORM "android-14"
+#endif
+
+#ifndef ANDROID_ARCH
+#define ANDROID_ARCH "arch-arm"
+#endif
+
+#define CROSS_PATH ANDROID_NDK \
+	"/toolchains/arm-linux-androideabi-4.7/prebuilt/linux-x86_64/bin"
+#define CROSS_SYSROOT ANDROID_NDK \
+	"/platforms/" ANDROID_PLATFORM "/" ANDROID_ARCH
 #define CROSS_SHELL "export PATH=" CROSS_PATH ":$PATH;"
 
 #if defined(__COPRTHR_TARGET_HOST_x86_64__)

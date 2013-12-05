@@ -706,6 +706,105 @@ AC_ARG_WITH(esdk,
 fi;
 
 
+###
+### Optional set path for ANDROID_NDK
+###
+
+AC_ARG_WITH(android-ndk,
+  AC_HELP_STRING([--with-android-ndk=DIR],
+  [set path for android NDK]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([usage: --with-android-ndk=DIR])
+    else
+      ANDROID_NDK=$withval
+    fi;
+  ],
+  [ 
+#    if test -e /opt/adapteva/esdk; then
+#      ESDK_PATH=/opt/adapteva/esdk/;
+#    elif test -e /usr/local/adapteva; then
+#      ESDK_PATH=/usr/local/adapteva;
+#    else
+#      AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
+#    fi;
+    ANDROID_NDK=
+  ])
+fi;
+
+AC_ARG_WITH(android-platform,
+  AC_HELP_STRING([--with-android-platform=DIR],
+  [set path for android platform]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([usage: --with-android-platform=DIR])
+    else
+      ANDROID_PLATFORM=$withval
+    fi;
+  ],
+  [ 
+#    if test -e /opt/adapteva/esdk; then
+#      ESDK_PATH=/opt/adapteva/esdk/;
+#    elif test -e /usr/local/adapteva; then
+#      ESDK_PATH=/usr/local/adapteva;
+#    else
+#      AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
+#    fi;
+    ANDROID_PLATFORM=
+  ])
+fi;
+
+AC_ARG_WITH(android-arch,
+  AC_HELP_STRING([--with-android-arch=DIR],
+  [set path for android arch]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([usage: --with-android-arch=DIR])
+    else
+      ANDROID_ARCH=$withval
+    fi;
+  ],
+  [ 
+#    if test -e /opt/adapteva/esdk; then
+#      ESDK_PATH=/opt/adapteva/esdk/;
+#    elif test -e /usr/local/adapteva; then
+#      ESDK_PATH=/usr/local/adapteva;
+#    else
+#      AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
+#    fi;
+    ANDROID_ARCH=
+  ])
+fi;
+
+
+###
+### Optional set path for MIC libraries
+###
+
+AC_ARG_WITH(lib-mic,
+  AC_HELP_STRING([--with-lib-mic=DIR],
+  [set path for MIC libraries]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([usage: --with-lib-mic=DIR])
+    else
+      LIB_MIC_PATH=$withval
+    fi;
+  ],
+  [ 
+#    if test -e /opt/adapteva/esdk; then
+#      ESDK_PATH=/opt/adapteva/esdk/;
+#    elif test -e /usr/local/adapteva; then
+#      ESDK_PATH=/usr/local/adapteva;
+#    else
+#      AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
+#    fi;
+    LIB_MIC_PATH=
+  ])
+fi;
+
+
+
 BASH=`which bash`
 
 MAKE=make
@@ -756,6 +855,12 @@ AC_SUBST(OPENCL_ICD_PATH)
 AC_SUBST(LIBEVENT_PATH)
 AC_SUBST(LIBCONFIG_PATH)
 AC_SUBST(ESDK_PATH)
+
+AC_SUBST(ANDROID_NDK)
+AC_SUBST(ANDROID_PLATFORM)
+AC_SUBST(ANDROID_ARCH)
+
+AC_SUBST(LIB_MIC_PATH)
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([install-message.txt])

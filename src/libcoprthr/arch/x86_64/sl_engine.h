@@ -48,7 +48,8 @@ typedef double double2[2];
 
 #include "workp.h"
 
-#if defined (ENABLE_MIC_CROSS_COMPILE)
+//#if defined (ENABLE_MIC_CROSS_COMPILE)
+#if defined(__MIC__)
 #define MAX_NUM_THR  16
 #else
 #define MAX_NUM_THR  64

@@ -40,9 +40,9 @@ endif
 
 #VPATH := arch/x86_64
 
-ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
-DEFS += -DENABLE_MIC_CROSS_COMPILE
-endif
+//ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+//DEFS += -DENABLE_MIC_CROSS_COMPILE
+//endif
 
 ############################################################################
 ##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
@@ -104,7 +104,8 @@ CCFLAGS += -marm
 CCFLAGS_VCORE += -marm
 endif
 
-ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+#ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
+ifeq (@build@,mic-unknown-linux-gnu)
 CCFLAGS += -mmic
 endif
 

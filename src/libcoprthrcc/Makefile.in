@@ -71,6 +71,10 @@ DEFS += -DENABLE_NCPU
 DEFS += -DLIBCOPRTHR_CC=\"@LIBCOPRTHR_CC@\"
 DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
 
+ifneq (@ANDROID_NDK@,)
+DEFS += -DANDROID_NDK=\"@ANDROID_NDK@\"
+endif
+
 ######################################################################
 
 TOPDIR ?= ../../

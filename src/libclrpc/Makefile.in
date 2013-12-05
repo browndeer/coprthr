@@ -17,6 +17,14 @@ USE_OPENCL_INCLUDES = -I@OPENCL_INCLUDE@
 #LIBEVENT_INC = -I@LIBEVENT_PATH@/include
 #LIBEVENT_LIB = -L@LIBEVENT_PATH@/lib 
 
+ifeq (@build@,mic-unknown-linux-gnu)
+ifneq (@LIB_MIC_PATH@,)
+LIB_MIC_PATH = @LIB_MIC_PATH@
+else
+LIB_MIC_PATH = /usr/cta/compiler/intel/13.1.0/composerxe/lib/mic
+endif
+endif
+
 ### enable build of debug version if not already defined
 #ifeq (@ENABLE_DEBUG_LIBS@,1)
 #ENABLE_DEBUG_LIBCLRPC=1
@@ -86,6 +94,7 @@ CCFLAGS += -g -O2 -fPIC
 #ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
 ifeq (@build@,mic-unknown-linux-gnu)
 CCFLAGS += -mmic
+LIBS += -L$(LIB_MIC_PATH) -limf -lsvml -lirng -lintlc -lconfig -lelf
 endif
 
 TARGET += libclrpc.so libclrpc.a

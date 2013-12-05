@@ -587,6 +587,10 @@ PACKAGE_URL=''
 ac_default_prefix=/usr/local/browndeer
 ac_subst_vars='LTLIBOBJS
 LIBOBJS
+LIB_MIC_PATH
+ANDROID_ARCH
+ANDROID_PLATFORM
+ANDROID_NDK
 ESDK_PATH
 LIBCONFIG_PATH
 LIBEVENT_PATH
@@ -713,6 +717,10 @@ with_libconfig
 with_max_clmesg_level
 with_default_clmesg_level
 with_esdk
+with_android_ndk
+with_android_platform
+with_android_arch
+with_lib_mic
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1386,6 +1394,11 @@ Optional Packages:
   --with-default-clmesg-level=LEVEL
                           set default clmesg level
   --with-esdk=DIR         set path for esdk
+  --with-android-ndk=DIR  set path for android NDK
+  --with-android-platform=DIR
+                          set path for android platform
+  --with-android-arch=DIR set path for android arch
+  --with-lib-mic=DIR      set path for MIC libraries
 
 Some influential environment variables:
   CC          C compiler command
@@ -4031,6 +4044,117 @@ fi
 fi;
 
 
+###
+### Optional set path for ANDROID_NDK
+###
+
+
+# Check whether --with-android-ndk was given.
+if test "${with_android_ndk+set}" = set; then :
+  withval=$with_android_ndk;
+    if test x$withval = xno; then
+		as_fn_error $? "usage: --with-android-ndk=DIR" "$LINENO" 5
+    else
+      ANDROID_NDK=$withval
+    fi;
+
+else
+
+#    if test -e /opt/adapteva/esdk; then
+#      ESDK_PATH=/opt/adapteva/esdk/;
+#    elif test -e /usr/local/adapteva; then
+#      ESDK_PATH=/usr/local/adapteva;
+#    else
+#      AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
+#    fi;
+    ANDROID_NDK=
+
+fi
+
+fi;
+
+
+# Check whether --with-android-platform was given.
+if test "${with_android_platform+set}" = set; then :
+  withval=$with_android_platform;
+    if test x$withval = xno; then
+		as_fn_error $? "usage: --with-android-platform=DIR" "$LINENO" 5
+    else
+      ANDROID_PLATFORM=$withval
+    fi;
+
+else
+
+#    if test -e /opt/adapteva/esdk; then
+#      ESDK_PATH=/opt/adapteva/esdk/;
+#    elif test -e /usr/local/adapteva; then
+#      ESDK_PATH=/usr/local/adapteva;
+#    else
+#      AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
+#    fi;
+    ANDROID_PLATFORM=
+
+fi
+
+fi;
+
+
+# Check whether --with-android-arch was given.
+if test "${with_android_arch+set}" = set; then :
+  withval=$with_android_arch;
+    if test x$withval = xno; then
+		as_fn_error $? "usage: --with-android-arch=DIR" "$LINENO" 5
+    else
+      ANDROID_ARCH=$withval
+    fi;
+
+else
+
+#    if test -e /opt/adapteva/esdk; then
+#      ESDK_PATH=/opt/adapteva/esdk/;
+#    elif test -e /usr/local/adapteva; then
+#      ESDK_PATH=/usr/local/adapteva;
+#    else
+#      AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
+#    fi;
+    ANDROID_ARCH=
+
+fi
+
+fi;
+
+
+###
+### Optional set path for MIC libraries
+###
+
+
+# Check whether --with-lib-mic was given.
+if test "${with_lib_mic+set}" = set; then :
+  withval=$with_lib_mic;
+    if test x$withval = xno; then
+		as_fn_error $? "usage: --with-lib-mic=DIR" "$LINENO" 5
+    else
+      LIB_MIC_PATH=$withval
+    fi;
+
+else
+
+#    if test -e /opt/adapteva/esdk; then
+#      ESDK_PATH=/opt/adapteva/esdk/;
+#    elif test -e /usr/local/adapteva; then
+#      ESDK_PATH=/usr/local/adapteva;
+#    else
+#      AC_MSG_ERROR([cannot find esdk, try --with-esdk=DIR])
+#    fi;
+    LIB_MIC_PATH=
+
+fi
+
+fi;
+
+
+
 BASH=`which bash`
 
 MAKE=make
@@ -4050,6 +4174,12 @@ MAKE=make
 
 #AC_SUBST(ENABLE_ATIGPU)
 #AC_SUBST(ENABLE_BDT_BUILTINS)
+
+
+
+
+
+
 
 
 

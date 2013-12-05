@@ -42,12 +42,16 @@ endif
 
 ifeq (@ENABLE_LIBCOPRTHR@,1)
 ifeq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
-#SUBDIRS += ./src/libcoprthr-ax ./tools/xclnm
-SUBDIRS += ./src/libcoprthr 
-SUBDIRS += ./src/libcoprthr_opencl 
+SUBDIRS += ./src/libcoprthr ./src/libcoprthr_opencl 
 else
-SUBDIRS += ./src/libcoprthr ./src/libcoprthrcc ./tools/xclnm
-SUBDIRS += ./src/libcoprthr_opencl 
+
+ifeq (@build@,mic-unknown-linux-gnu)
+SUBDIRS += ./src/libcoprthr ./src/libcoprthr_opencl
+else
+SUBDIRS += ./src/libcoprthr ./src/libcoprthr_opencl
+SUBDIRS += ./src/libcoprthrcc ./tools/xclnm
+endif
+
 endif
 endif
 
@@ -55,7 +59,9 @@ SUBDIRS += ./include ./src/libclelf ./src/libstdcl
 
 ifeq (@ENABLE_CLLD@,1)
 ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
+ifneq (@build@,mic-unknown-linux-gnu)
 SUBDIRS += ./tools/clcc ./tools/clcc1 ./tools/clld ./tools/clnm
+endif
 endif
 endif
 
