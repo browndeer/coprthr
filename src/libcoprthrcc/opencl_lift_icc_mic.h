@@ -1,4 +1,4 @@
-/* opencl_lift.h
+/* opencl_lift_icc_mic.h
  *
  * Copyright (c) 2011-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -20,8 +20,8 @@
 
 /* DAR */
 
-#ifndef _opencl_lift_h
-#define _opencl_lift_h
+#ifndef _opencl_lift_icc_mic_h
+#define _opencl_lift_icc_mic_h
 
 #include "sl_engine.h"
 
