@@ -1947,9 +1947,9 @@ _clrpc_clWaitForEvents_svrcb(
 			if (xevents[i]->buf_sz > 0 && xevents[i]->buf_ptr) {
 				memcpy(tmp_ptr,xevents[i]->buf_ptr,xevents[i]->buf_sz);
 				int* ptmp = (int*)tmp_ptr;
-//				printf("EVENT %d:",i);
+				printf("EVENT %d:",i);
 				int ii; for(ii=0;ii<10;ii++) 
-//				printf("*%d",ptmp[ii]); printf("\n"); fflush(stdout);
+				printf("*%d",ptmp[ii]); printf("\n"); fflush(stdout);
 				tmp_ptr += xevents[i]->buf_sz;
 			}
 		}
@@ -1958,6 +1958,8 @@ _clrpc_clWaitForEvents_svrcb(
 	}
 
 	CLRPC_ASSIGN(reply, int64, retval, retval );
+
+	printcl( CL_DEBUG "done" );
 
    EVRPC_REQUEST_DONE(rpc);
 }
