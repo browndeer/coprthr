@@ -730,7 +730,6 @@ AC_ARG_WITH(android-ndk,
 #    fi;
     ANDROID_NDK=
   ])
-fi;
 
 AC_ARG_WITH(android-platform,
   AC_HELP_STRING([--with-android-platform=DIR],
@@ -752,7 +751,6 @@ AC_ARG_WITH(android-platform,
 #    fi;
     ANDROID_PLATFORM=
   ])
-fi;
 
 AC_ARG_WITH(android-arch,
   AC_HELP_STRING([--with-android-arch=DIR],
@@ -774,7 +772,6 @@ AC_ARG_WITH(android-arch,
 #    fi;
     ANDROID_ARCH=
   ])
-fi;
 
 
 ###
@@ -801,7 +798,6 @@ AC_ARG_WITH(lib-mic,
 #    fi;
     LIB_MIC_PATH=
   ])
-fi;
 
 
 

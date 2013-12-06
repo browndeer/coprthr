@@ -4071,7 +4071,6 @@ else
 
 fi
 
-fi;
 
 
 # Check whether --with-android-platform was given.
@@ -4096,7 +4095,6 @@ else
 
 fi
 
-fi;
 
 
 # Check whether --with-android-arch was given.
@@ -4121,7 +4119,6 @@ else
 
 fi
 
-fi;
 
 
 ###
@@ -4151,7 +4148,6 @@ else
 
 fi
 
-fi;
 
 
 
