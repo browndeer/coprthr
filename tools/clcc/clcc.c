@@ -593,8 +593,11 @@ int main(int argc, char** argv)
 
 		snprintf(cmd,1024,"clcc1 %s",cc1_opt_str);
 		DEBUG2("%s",cmd);
-		system(cmd);
-
+		int rc = system(cmd);
+		if (rc) {
+			printcl( CL_ERR "clcc: clcc1 returned non-zero exit status %d",rc);
+			exit(-1);
+		}
 		exit(0);
 
 	}
@@ -654,7 +657,11 @@ DEBUG2("tfames_str '%s'",tfnames_str);
 
 		snprintf(cmd,1024,"clcc1 -o %s %s %s",tfname,cc1_opt_str,fname);
 		DEBUG2("%s",cmd);
-		system(cmd);
+		int rc = system(cmd);
+		if (rc) {
+			printcl( CL_ERR "clcc: clcc1 returned non-zero exit status %d",rc);
+			exit(-1);
+		}
 
 	}
 
@@ -700,7 +707,11 @@ DEBUG2("tfames_str '%s'",tfnames_str);
 //	snprintf(cmd,1024,"clld -o %s %s %s",ofname,linker_opt_str,tfname);
 	snprintf(cmd,1024,"clld -o %s %s %s",ofname,linker_opt_str,tfnames_str);
 	DEBUG2("%s",cmd);
-	system(cmd);
+	int rc = system(cmd);
+	if (rc) {
+		printcl( CL_ERR "clcc: clld returned non-zero exit status %d",rc);
+		exit(-1);
+	}
 
 //		if (flist_n > 1) { free(ofname); ofname=0; }/* XXX a slight hack -DAR */
 
