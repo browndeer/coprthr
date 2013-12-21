@@ -23,6 +23,10 @@
 #ifndef _opencl_lift_h
 #define _opencl_lift_h
 
+#if !defined(__cplusplus)
+#error COMPILED AS C CODE
+#endif
+
 #if defined (__ICC) && defined (__MIC__)
 #include "opencl_lift_icc_mic.h" 
 #elif defined(__ICC) 
@@ -31,7 +35,9 @@
 
 #include <stdio.h>
 
+#if !defined(__epiphany__)
 #include "sl_engine.h"
+#endif
 
 #define GCC_VERSION \
 	( __GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__ )

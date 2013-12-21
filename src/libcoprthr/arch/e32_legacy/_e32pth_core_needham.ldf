@@ -1,5 +1,5 @@
 /*
-  fast.ldf
+  matmul-16._internal.ldf
 
   Copyright (C) 2012 Adapteva, Inc.
   Contributed by Yaniv Sapir <yaniv@adapteva.com>
@@ -20,7 +20,7 @@
 */
 
 
-/* Default linker script, for regular executables */
+/* Default linker script, for normal executables */
 OUTPUT_FORMAT("elf32-epiphany", "elf32-epiphany", "elf32-epiphany")
 OUTPUT_ARCH(epiphany)
 ENTRY(_start)
@@ -29,7 +29,7 @@ PROVIDE (___bss_start = __bss_start);
 
 /* BSP specific */
 __PROG_SIZE_FOR_CORE_ = 1M;
-__HEAP_SIZE_FOR_CORE_ = 512K;
+__HEAP_SIZE_FOR_CORE_ = 2K;
 __HALF_BANK_SIZE_     = 4K;
 __NUM_ROWS_IN_CHIP_   = 4;
 __NUM_COLS_IN_CHIP_   = 4;
@@ -38,71 +38,74 @@ __FIRST_CORE_COL_     = 8;
 __CORE_ROW_ = DEFINED(__CORE_ROW_) ? __CORE_ROW_ : __FIRST_CORE_ROW_;
 __CORE_COL_ = DEFINED(__CORE_COL_) ? __CORE_COL_ : __FIRST_CORE_COL_;
 /* generic don't touch */
-/* used to calculate the slice address in the external memory */
+/* used to calculated the slice address in the external memory */
 __CORE_NUM_ = (__CORE_ROW_ - __FIRST_CORE_ROW_) * __NUM_COLS_IN_CHIP_ + (__CORE_COL_ - __FIRST_CORE_COL_);
 
 __SHARED_DRAM_ = 0x8e000000;
 
 MEMORY
 {
-	EXTERNAL_DRAM_0 (WXAI)   : ORIGIN = 0x8e000000, LENGTH = 0x01000000 /* .text, data, rodata, bss and .stack  */
-	EXTERNAL_DRAM_1 (WXAI)   : ORIGIN = 0x8f000000, LENGTH = 0x01000000 /* .heap                                */
+	EXTERNAL_DRAM_0 (WXAI)   : ORIGIN = 0x8e000000, LENGTH = 0x1000000 /* .text, data, rodata, bss and .stack  */
+	EXTERNAL_DRAM_1 (WXAI)   : ORIGIN = 0x8f000000, LENGTH = 0x1000000 /* .heap                                */
 
 	/* run time lib and crt0 */
-	IVT_RAM (WXAI) : ORIGIN = 0, LENGTH = 0x28
+	IVT_RAM (WXAI) : ORIGIN = 0, LENGTH = 0x32
 
 	/* user program, continuous placement */
-	WORKGROUP_RAM (WXAI)     : ORIGIN = LENGTH(IVT_RAM), LENGTH = 0x30
-
-	/* user program, continuous placement */
-	INTERNAL_RAM (WXAI)      : ORIGIN = LENGTH(IVT_RAM) + LENGTH(WORKGROUP_RAM), LENGTH = 32K - LENGTH(IVT_RAM) - LENGTH(WORKGROUP_RAM)
+	INTERNAL_RAM (WXAI)      : ORIGIN = LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
 
 	/* user program, per bank usage */
-	BANK0_SRAM (WXAI)        : ORIGIN = LENGTH(IVT_RAM) + LENGTH(WORKGROUP_RAM), LENGTH = 8K  - LENGTH(IVT_RAM) - LENGTH(WORKGROUP_RAM)
+	BANK0_SRAM (WXAI)        : ORIGIN = LENGTH(IVT_RAM), LENGTH = 8K - LENGTH(IVT_RAM)
 	BANK1_SRAM (WXAI)        : ORIGIN = 0x2000, LENGTH = 8K
 	BANK2_SRAM (WXAI)        : ORIGIN = 0x4000, LENGTH = 8K
 	BANK3_SRAM (WXAI)        : ORIGIN = 0x6000, LENGTH = 8K
 
 	/* system registers */
-	MMR (WAI) : ORIGIN = 0xF0000, LENGTH = 32K
+	MMR (WAI) : ORIGIN = 0xF000, LENGTH = 32K
 
 	/* multicore (global) space */
-	CORE_0x20_0x08_INTERNAL_RAM : ORIGIN = 0x80800000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x20_0x09_INTERNAL_RAM : ORIGIN = 0x80900000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x20_0x0a_INTERNAL_RAM : ORIGIN = 0x80a00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x20_0x0b_INTERNAL_RAM : ORIGIN = 0x80b00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x21_0x08_INTERNAL_RAM : ORIGIN = 0x84800000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x21_0x09_INTERNAL_RAM : ORIGIN = 0x84900000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x21_0x0a_INTERNAL_RAM : ORIGIN = 0x84a00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x21_0x0b_INTERNAL_RAM : ORIGIN = 0x84b00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x22_0x08_INTERNAL_RAM : ORIGIN = 0x88800000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x22_0x09_INTERNAL_RAM : ORIGIN = 0x88900000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x22_0x0a_INTERNAL_RAM : ORIGIN = 0x88a00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x22_0x0b_INTERNAL_RAM : ORIGIN = 0x88b00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x23_0x08_INTERNAL_RAM : ORIGIN = 0x8c800000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x23_0x09_INTERNAL_RAM : ORIGIN = 0x8c900000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x23_0x0a_INTERNAL_RAM : ORIGIN = 0x8ca00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
-	CORE_0x23_0x0b_INTERNAL_RAM : ORIGIN = 0x8cb00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x20_0x04_INTERNAL_RAM : ORIGIN = 0x80800000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x20_0x05_INTERNAL_RAM : ORIGIN = 0x80900000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x20_0x06_INTERNAL_RAM : ORIGIN = 0x80a00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x20_0x07_INTERNAL_RAM : ORIGIN = 0x80b00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x21_0x04_INTERNAL_RAM : ORIGIN = 0x84800000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x21_0x05_INTERNAL_RAM : ORIGIN = 0x84900000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x21_0x06_INTERNAL_RAM : ORIGIN = 0x84a00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x21_0x07_INTERNAL_RAM : ORIGIN = 0x84b00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x22_0x04_INTERNAL_RAM : ORIGIN = 0x88800000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x22_0x05_INTERNAL_RAM : ORIGIN = 0x88900000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x22_0x06_INTERNAL_RAM : ORIGIN = 0x88a00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x22_0x07_INTERNAL_RAM : ORIGIN = 0x88b00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x23_0x04_INTERNAL_RAM : ORIGIN = 0x8c800000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x23_0x05_INTERNAL_RAM : ORIGIN = 0x8c900000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x23_0x06_INTERNAL_RAM : ORIGIN = 0x8ca00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	CORE_0x23_0x07_INTERNAL_RAM : ORIGIN = 0x8cb00000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM)
+	/* core 17th in FPGA */
+/*	CORE_0x20_0x20_INTERNAL_RAM : ORIGIN = 0x82000000 + LENGTH(IVT_RAM), LENGTH = 32K - LENGTH(IVT_RAM) */
 }
+
+/* Custom sections -- absolute objects placement */
+/* XXX this section is moved to _end -DAR
+SECTIONS 
+{
+   .section_core 0x7000 : {*.o(section_core)}
+}
+*/
 
 SECTIONS
 {
-	ivt_reset               0x00 : {*.o(IVT_RESET)}                    > IVT_RAM
-	ivt_software_exception  0x04 : {*.o(ivt_entry_software_exception)} > IVT_RAM
-	ivt_page_miss           0x08 : {*.o(ivt_entry_page_miss)}          > IVT_RAM
-	ivt_timer0              0x0c : {*.o(ivt_entry_timer0)}             > IVT_RAM
-	ivt_timer1              0x10 : {*.o(ivt_entry_timer1)}             > IVT_RAM
-	ivt_message             0x14 : {*.o(ivt_entry_message)}            > IVT_RAM
-	ivt_dma0                0x18 : {*.o(ivt_entry_dma0)}               > IVT_RAM
-	ivt_dma1                0x1c : {*.o(ivt_entry_dma1)}               > IVT_RAM
-	ivt_wand                0x20 : {*.o(ivt_entry_wand)}               > IVT_RAM
-	ivt_user                0x24 : {*.o(ivt_entry_user)}               > IVT_RAM
-	
-	workgroup_config        0x28 : {*.o(workgroup_cfg)}                > WORKGROUP_RAM /* 28 2c 30 34 38 3c 40 44 48 (4c) */
-	external_mem_config     0x50 : {*.o(ext_mem_cfg)}                  > WORKGROUP_RAM /* 50 54 */
+	ivt_reset               0   : {*.o(IVT_RESET)}                    > IVT_RAM
+	ivt_software_exception  4   : {*.o(ivt_entry_software_exception)} > IVT_RAM
+	ivt_page_miss           8   : {*.o(ivt_entry_page_miss)}          > IVT_RAM
+	ivt_timer0              12  : {*.o(ivt_entry_timer0)}             > IVT_RAM
+	ivt_timer1              16  : {*.o(ivt_entry_timer1)}             > IVT_RAM
+	ivt_message             20  : {*.o(ivt_entry_message)}            > IVT_RAM
+	ivt_dma0                24  : {*.o(ivt_entry_dma0)}               > IVT_RAM
+	ivt_dma1                28  : {*.o(ivt_entry_dma1)}               > IVT_RAM
+	ivt_swi                 32  : {*.o(ivt_entry_swi)}                > IVT_RAM
 
-	/* place the ISR handlers after workgroup-configuration */
-	.reserved_crt0  ORIGIN(IVT_RAM) + LENGTH(IVT_RAM) + LENGTH(WORKGROUP_RAM) : {*.o(RESERVED_CRT0) *.o(reserved_crt0)} > INTERNAL_RAM
+	/* place the ISR handlers after IVT */
+	.reserved_crt0  ORIGIN(IVT_RAM) + LENGTH(IVT_RAM) : {*.o(RESERVED_CRT0) *.o(reserved_crt0)} > INTERNAL_RAM
 
 	. = ADDR(.reserved_crt0) + SIZEOF(.reserved_crt0);
 	.data_bank0 . : {*.o(.data_bank0)} > BANK0_SRAM
@@ -118,22 +121,18 @@ SECTIONS
 	.data_bank3   : {*.o(.data_bank3)} > BANK3_SRAM
 	.text_bank3   : {*.o(.text_bank3)} > BANK3_SRAM
 
-	.code_dram    : {*.o(code_dram)   *.o(.code_dram)  } > EXTERNAL_DRAM_0
-	.shared_dram  : {*.o(shared_dram) *.o(.shared_dram)} > EXTERNAL_DRAM_1
-	.heap_dram   ORIGIN(EXTERNAL_DRAM_1) + LENGTH(EXTERNAL_DRAM_1) - __HEAP_SIZE_FOR_CORE_ * __NUM_ROWS_IN_CHIP_ * __NUM_COLS_IN_CHIP_ : {*.o(heap_dram) *.o(.heap_dram)} > EXTERNAL_DRAM_1
+	.code_dram    : {*.o(code_dram)  } > EXTERNAL_DRAM_0
+	.shared_dram  : {*.o(shared_dram)} > EXTERNAL_DRAM_1
+	.heap_dram   ORIGIN(EXTERNAL_DRAM_1) + LENGTH(EXTERNAL_DRAM_1) - __HEAP_SIZE_FOR_CORE_ * __NUM_ROWS_IN_CHIP_ * __NUM_COLS_IN_CHIP_ : {*.o(heap_dram)} > EXTERNAL_DRAM_1
 
-	/* the newlib  (libc and libm) library is mapped to the dedicated section */
-	/* create offset with location counter                                    */
-	. = (ORIGIN(EXTERNAL_DRAM_0) + __PROG_SIZE_FOR_CORE_ * __CORE_NUM_);
-
-	NEW_LIB_RO           . : {lib_a-*.o(.text  .rodata)  *.o(libgloss_epiphany) } > EXTERNAL_DRAM_0
-	NEW_LIB_WR           . : {lib_a-*.o(.data)                                  } > EXTERNAL_DRAM_0
-	GNU_C_BUILTIN_LIB_RO . :
+	NEW_LIB_RO           : {lib_a-*.o(.text  .rodata)  *.o(libgloss_epiphany) } > INTERNAL_RAM
+	NEW_LIB_WR           : {lib_a-*.o(.data)                                  } > INTERNAL_RAM
+	GNU_C_BUILTIN_LIB_RO :
 	{
 		*mulsi3.o(.text  .rodata)   *modsi3.o(.text  .rodata)
 		*divsi3.o(.text  .rodata)   *udivsi3.o(.text .rodata)
 		*umodsi3.o(.text .rodata)  _*.o(.text  .rodata)
-	} > EXTERNAL_DRAM_0
+	} > INTERNAL_RAM
 
   /* Read-only sections, merged into text segment: */
 
@@ -173,7 +172,7 @@ SECTIONS
       *(.rela.plt)
     }
 
-  .init  ADDR(.data_bank0) + SIZEOF(.data_bank0) :
+  .init :
   {
     KEEP (*(.init))
   } > INTERNAL_RAM =0
@@ -311,7 +310,7 @@ SECTIONS
   . = ALIGN(8);
   . = ALIGN(8);
   _end = .; PROVIDE (end = .);
-.section_core . : {*.o(section_core)}
+	.section_core . : {*.o(section_core)}
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }
   .stabstr       0 : { *(.stabstr) }
@@ -351,7 +350,6 @@ SECTIONS
   .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }
 
   /**/
-/*  PROVIDE (__stack_start_ = ORIGIN(INTERNAL_RAM) + LENGTH(INTERNAL_RAM) - 0x10); */
   PROVIDE (__stack_start_ = ORIGIN(INTERNAL_RAM) + LENGTH(INTERNAL_RAM) - 0x80);
   .stack __stack_start_ : { ___stack = .; *(.stack) }
   PROVIDE (___heap_start = ORIGIN(EXTERNAL_DRAM_1) + __HEAP_SIZE_FOR_CORE_ * __CORE_NUM_);

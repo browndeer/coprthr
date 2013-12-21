@@ -33,6 +33,9 @@
 #include <string.h>
 
 #include "printcl.h"
+//#include "cmdcall.h"
+//#include "workp.h"
+//#include "sl_engine.h"
 
 #include "coprthr_device.h"
 #include "coprthr_mem.h"
@@ -77,13 +80,13 @@ static void* memalloc( size_t size, int flags )
 			unsigned int map = devmtx_alloc_map;
 
 //			intptr_t addr = (intptr_t)0x80800000 + 32768 - 120;
-			intptr_t addr = (intptr_t)0x80807fa0;
+			intptr_t addr = (intptr_t)0x80807f90;
 			int b;
-			for(b=0;b<10;b++,addr+=8) 
+			for(b=0;b<12;b++,addr+=8) 
 				if ( (map & (1<<b)) == 0) 
 					break;
 
-			if (b == 10) 
+			if (b == 12) 
 				goto failed;
 
 			map |= (1<<b);

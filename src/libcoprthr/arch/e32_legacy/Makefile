@@ -1,0 +1,243 @@
+### 
+### Makefile for libcoprthr
+###
+
+E32_DRAM_ZEROPAGE_LEXINGTON   = 0x81000000
+E32_DRAM_ZEROPAGE_NEEDHAM     = 0x8e000000
+E32_DRAM_ZEROPAGE_NEEDHAMPRO  = 0x8e000000
+E32_DRAM_ZEROPAGE_BLANK       = 0x8e000000
+
+CCFLAGS += -g -O2
+
+ifneq (make,)
+MAKE = make
+endif
+
+prefix=/usr/local/browndeer
+exec_prefix=${prefix}
+
+### this useless define is needed to silence useless autoconf warning
+datarootdir=${prefix}/share
+
+### select default install paths 
+INSTALL_BIN_DIR=${exec_prefix}/bin
+INSTALL_LIB_DIR=${exec_prefix}/lib
+INSTALL_INCLUDE_DIR=${prefix}/include
+INSTALL_MAN_DIR=${datarootdir}/man
+INSTALL_ICD_DIR=/usr/local/browndeer/icd/
+
+### set custom path for ICD files
+#ifneq (/etc/OpenCL/vendors,)
+#OPENCL_ICD_PATH=/etc/OpenCL/vendors
+#else
+#OPENCL_ICD_PATH=/etc/OpenCL/vendors/
+#endif
+
+ifeq (0,1)
+DEFS += -DENABLE_SILENT
+endif
+ifneq (7,)
+DEFS += -DMAX_CLMESG_LEVEL=7
+endif
+ifneq (6,)
+DEFS += -DDEFAULT_CLMESG_LEVEL=6
+endif
+
+
+ifeq (0,1)
+DEFS += -DENABLE_EMEK_BUILD
+endif
+
+ifeq (0,1)
+DEFS += -DUSE_OLD_ESDK
+endif
+
+
+#ESDK_INC = -I/opt/adapteva/esdk//include
+#ESDK_LIB = -L/opt/adapteva/esdk//lib
+ESDK_EINC = -I/opt/adapteva/esdk//elib
+
+ifeq (0,1)
+#ESDK_INC += -I/opt/adapteva/esdk/tools/gnu/epiphany-elf/sys-include
+#ESDK_LIB += -le_host
+ESDK_INC += -I/opt/adapteva/esdk//tools/host/x86_64/include
+ESDK_LIB += -L/opt/adapteva/esdk//tools/host/x86_64/lib -le_host
+else ifeq (0,1)
+#ESDK_LIB += -le-host -le-loader
+#ESDK_INC += -I/opt/adapteva/esdk//tools/host/armv71/include
+ESDK_INC += -I/opt/adapteva/esdk//tools/host/armv7l/include
+ESDK_LIB += -L/opt/adapteva/esdk//tools/host/armv7l/lib -le-loader -le-host
+else
+ESDK_INC += -I/opt/adapteva/esdk//tools/host/include
+ESDK_LIB += -L/opt/adapteva/esdk//tools/host/lib -le-hal
+endif
+
+
+
+############################################################################
+##### DO NOT MODIFY BELOW THIS LINE UNLESS YOU KNOW WHAT YOU ARE DOING #####
+############################################################################
+
+IMP_OBJS = device_e32.o dmalloc.o devops_e32.o devcmds_e32.o 
+
+INSTALL_HDRS = e32_opencl_ext.h
+
+INSTALL_LIBS = libcoprthr_arch_e32.so
+
+
+ifeq (0,1)
+
+#error EMEK no longer supported
+
+else
+
+IMP_OBJS += e32pth_engine_needham.o
+
+RT_OBJS += _e32pth_core_main_needham.o
+
+INSTALL_HDRS += e32pth_if_needham.h e32_config_needham.h e32pth_mem_if_needham.h
+
+INSTALL_LIBS += libe_platform.so.needham
+
+INSTALL_OBJS += _e32pth_core_main_needham.o _e32pth_core_needham.ldf
+
+DEFAULT_E_PLATFORM_LIB = libe_platform.so.needham
+
+endif
+
+
+DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
+DEFS += -DENABLE_NCPU
+
+DEFS += -DLIBCOPRTHR_CC=\"gcc\"
+DEFS += -DLIBCOPRTHR_CXX=\"g++\"
+
+#DEFS += -DCOMPILE_FOR_NEEDHAM
+DEFS += -D__coprthr_host__
+
+######################################################################
+
+TOPDIR ?= ../../../../
+
+SCRIPTS = ../scripts/
+OCLCALL_MASTER = ../libocl/oclcall.master
+
+INCS += -I. -I$(TOPDIR)/include -I$(TOPDIR)/src/libcoprthrcc
+
+INCS += $(LIBELF_INC)
+INCS += $(ESDK_INC)
+
+INCS += -I../..
+
+LIBS += $(LIBELF_LIB)
+LIBS += $(ESDK_LIB)
+
+LIBS += -lpthread -lrt
+ifeq (freebsd,$(patsubst freebsd%,freebsd,linux-gnu))
+LIBS += -lc 
+else
+LIBS += -ldl 
+endif
+
+OBJS = $(IMP_OBJS)
+
+DEFS += \
+	-DINSTALL_BIN_DIR=\"$(INSTALL_BIN_DIR)\" \
+	-DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" \
+	-DINSTALL_INCLUDE_DIR=\"$(INSTALL_INCLUDE_DIR)\" 
+
+DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
+   -Wno-format-security -Wno-format
+
+CCFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
+CCFLAGS_VCORE += -O0 -fPIC 
+CCFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
+
+ifeq (arm,$(patsubst arm%,arm,armv7l))
+CCFLAGS += -marm
+CCFLAGS_VCORE += -marm
+endif
+
+ECCFLAGS = -Dasm=__asm__ -O0 -g -Wall -D__coprthr_device__\
+	-fmessage-length=0  -ffast-math \
+	-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
+	-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
+	-U_FORTIFY_SOURCE -fno-stack-protector -fstack-usage
+
+
+TARGET = libcoprthr_arch_e32.so  $(RT_OBJS)
+
+ifeq (0,1)
+TARGET += libe_platform.so.lexington
+else
+TARGET += libe_platform.so.needham
+#TARGET += libe_platform.so.needhampro
+#TARGET += libe_platform.so.blank
+endif
+
+
+all: $(TARGET)
+
+.PHONY: clean install uninstall 
+
+.SUFFIXES:
+.SUFFIXES: .l .y .S .s .c .o
+
+.c.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+.s.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+.S.o:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+
+#libcoprthr_arch_x86_64.so: $(IMP_OBJS) 
+#	$(CC) $(CCFLAGS) $(INCS) \
+#		-shared -Wl,-soname,libcoprthr_arch_x86_64.so \
+#		-o libcoprthr_arch_x86_64.so  $(IMP_OBJS) $(LIBS)
+
+libcoprthr_arch_e32.so: $(IMP_OBJS) libe_platform.so
+	$(CC) $(CCFLAGS) $(INCS) \
+		-shared -Wl,-soname,libcoprthr_arch_e32.so \
+		-o libcoprthr_arch_e32.so  $(IMP_OBJS) $(LIBS) \
+		-L./ -le_platform
+
+_e32pth_core_main_needham.o: _e32pth_core_main_needham.c
+	e-gcc -c $(ECCFLAGS) $(ESDK_EINC) \
+		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_NEEDHAM) \
+		-o _e32pth_core_main_needham.o _e32pth_core_main_needham.c
+
+libe_platform.so.needham:
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -DCOMPILE_FOR_NEEDHAM -c e_platform.c
+	$(CC) $(CCFLAGS) $(ESDK_INCS) \
+		-shared -Wl,-soname,libe_platform.so -o libe_platform.so.needham  \
+		e_platform.o $(ESDK_LIBS)
+
+libe_platform.so: $(DEFAULT_E_PLATFORM_LIB)
+	ln -s $(DEFAULT_E_PLATFORM_LIB) libe_platform.so
+
+
+install: 
+	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
+	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
+	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
+#	install -m 755 libcoprthr_arch_x86_64.so $(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_OBJS) $(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
+	ln -sf $(INSTALL_LIB_DIR)/$(DEFAULT_E_PLATFORM_LIB) \
+		$(INSTALL_LIB_DIR)/libe_platform.so
+
+uninstall: 
+	rm -f $(INSTALL_LIB_DIR)/libcoprthr_arch_e32.so 
+	rm -f $(addprefix $(INSTALL_INCLUDE_DIR)/,$(INSTALL_HDRS))
+
+clean: 
+	rm -f *.o *.so
+	rm -f $(TARGET)
+
+distclean: clean 
+	rm -f Makefile
+

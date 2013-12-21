@@ -1,0 +1,187 @@
+e-gcc -c -Dasm=__asm__ -O0 -g -Wall -D__coprthr_device__ -fmessage-length=0  -ffast-math -ftree-vectorize -funroll-loops -std=c99 -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -U_FORTIFY_SOURCE -fno-stack-protector -fstack-usage -I/opt/adapteva/esdk//elib \
+		-DE32_DRAM_ZEROPAGE=0x8e000000 \
+		-o _e32pth_core_main_needham.o _e32pth_core_main_needham.c
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h: In function ‘__corenum_to_coreid’:
+e32_opencl_ext.h:45:25: error: ‘E_COLS_IN_CHIP’ undeclared (first use in this function)
+    unsigned int r = n / E_COLS_IN_CHIP;
+                         ^
+e32_opencl_ext.h:45:25: note: each undeclared identifier is reported only once for each function it appears in
+e32_opencl_ext.h:47:27: error: ‘E_FIRST_CORE_ROW’ undeclared (first use in this function)
+    unsigned int row = r + E_FIRST_CORE_ROW;
+                           ^
+e32_opencl_ext.h:48:27: error: ‘E_FIRST_CORE_COL’ undeclared (first use in this function)
+    unsigned int col = c + E_FIRST_CORE_COL;
+                           ^
+e32_opencl_ext.h: In function ‘mutex_init’:
+e32_opencl_ext.h:96:1: warning: passing argument 1 of ‘e_mutex_init’ makes integer from pointer without a cast [enabled by default]
+ { return e_mutex_init( mutex, attr ); }
+ ^
+In file included from e32_opencl_ext.h:29:0,
+                 from _e32pth_core_main_needham.c:31:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_mutex.h:41:6: note: expected ‘unsigned int’ but argument is of type ‘mutex_t *’
+ void e_mutex_init(unsigned row, unsigned col, e_mutex_t *mutex, e_mutexattr_t *attr);
+      ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h:96:1: warning: passing argument 2 of ‘e_mutex_init’ makes integer from pointer without a cast [enabled by default]
+ { return e_mutex_init( mutex, attr ); }
+ ^
+In file included from e32_opencl_ext.h:29:0,
+                 from _e32pth_core_main_needham.c:31:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_mutex.h:41:6: note: expected ‘unsigned int’ but argument is of type ‘mutexattr_t *’
+ void e_mutex_init(unsigned row, unsigned col, e_mutex_t *mutex, e_mutexattr_t *attr);
+      ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h:96:1: error: too few arguments to function ‘e_mutex_init’
+ { return e_mutex_init( mutex, attr ); }
+ ^
+In file included from e32_opencl_ext.h:29:0,
+                 from _e32pth_core_main_needham.c:31:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_mutex.h:41:6: note: declared here
+ void e_mutex_init(unsigned row, unsigned col, e_mutex_t *mutex, e_mutexattr_t *attr);
+      ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h: In function ‘mutex_trylock’:
+e32_opencl_ext.h:100:1: warning: passing argument 1 of ‘e_mutex_trylock’ makes integer from pointer without a cast [enabled by default]
+ { return e_mutex_trylock( mutex ); }
+ ^
+In file included from e32_opencl_ext.h:29:0,
+                 from _e32pth_core_main_needham.c:31:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_mutex.h:43:10: note: expected ‘unsigned int’ but argument is of type ‘mutex_t *’
+ unsigned e_mutex_trylock(unsigned row, unsigned col, e_mutex_t *mutex);
+          ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h:100:1: error: too few arguments to function ‘e_mutex_trylock’
+ { return e_mutex_trylock( mutex ); }
+ ^
+In file included from e32_opencl_ext.h:29:0,
+                 from _e32pth_core_main_needham.c:31:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_mutex.h:43:10: note: declared here
+ unsigned e_mutex_trylock(unsigned row, unsigned col, e_mutex_t *mutex);
+          ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h: In function ‘mutex_lock’:
+e32_opencl_ext.h:104:1: warning: passing argument 1 of ‘e_mutex_lock’ makes integer from pointer without a cast [enabled by default]
+ { return e_mutex_lock( mutex ); }
+ ^
+In file included from e32_opencl_ext.h:29:0,
+                 from _e32pth_core_main_needham.c:31:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_mutex.h:42:6: note: expected ‘unsigned int’ but argument is of type ‘mutex_t *’
+ void e_mutex_lock(unsigned row, unsigned col, e_mutex_t *mutex);
+      ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h:104:1: error: too few arguments to function ‘e_mutex_lock’
+ { return e_mutex_lock( mutex ); }
+ ^
+In file included from e32_opencl_ext.h:29:0,
+                 from _e32pth_core_main_needham.c:31:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_mutex.h:42:6: note: declared here
+ void e_mutex_lock(unsigned row, unsigned col, e_mutex_t *mutex);
+      ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h: In function ‘mutex_unlock’:
+e32_opencl_ext.h:108:1: warning: passing argument 1 of ‘e_mutex_unlock’ makes integer from pointer without a cast [enabled by default]
+ { return e_mutex_unlock( mutex ); }
+ ^
+In file included from e32_opencl_ext.h:29:0,
+                 from _e32pth_core_main_needham.c:31:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_mutex.h:44:6: note: expected ‘unsigned int’ but argument is of type ‘mutex_t *’
+ void e_mutex_unlock(unsigned row, unsigned col, e_mutex_t *mutex);
+      ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h:108:1: error: too few arguments to function ‘e_mutex_unlock’
+ { return e_mutex_unlock( mutex ); }
+ ^
+In file included from e32_opencl_ext.h:29:0,
+                 from _e32pth_core_main_needham.c:31:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_mutex.h:44:6: note: declared here
+ void e_mutex_unlock(unsigned row, unsigned col, e_mutex_t *mutex);
+      ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h: In function ‘mutex_destroy’:
+e32_opencl_ext.h:112:1: warning: implicit declaration of function ‘e_mutex_destroy’ [-Wimplicit-function-declaration]
+ { return e_mutex_destroy( mutex ); }
+ ^
+e32_opencl_ext.h: In function ‘get_thread’:
+e32_opencl_ext.h:161:2: warning: implicit declaration of function ‘e_address_from_coreid’ [-Wimplicit-function-declaration]
+  thrs = (threadspec_t)e_address_from_coreid( coreid, (void*)&core_local_data);
+  ^
+e32_opencl_ext.h: At top level:
+e32_opencl_ext.h:237:15: error: unknown type name ‘e_tcb_t’
+ void mem_copy(e_tcb_t* tcb, void* dst, void* src, size_t len)
+               ^
+e32_opencl_ext.h: In function ‘memaddr’:
+e32_opencl_ext.h:265:18: warning: initialization makes pointer from integer without a cast [enabled by default]
+    void* gptr =  e_address_from_coreid( thrs->coreID, ptr);
+                  ^
+e32_opencl_ext.h: In function ‘memcopy’:
+e32_opencl_ext.h:275:46: error: ‘E_ALIGN_AUTO’ undeclared (first use in this function)
+       int err = e_dma_copy(E_DMA_0,dst,src,n,E_ALIGN_AUTO);
+                                              ^
+e32_opencl_ext.h:275:7: warning: passing argument 3 of ‘e_dma_copy’ makes integer from pointer without a cast [enabled by default]
+       int err = e_dma_copy(E_DMA_0,dst,src,n,E_ALIGN_AUTO);
+       ^
+In file included from e32pth_if_needham.h:48:0,
+                 from _e32pth_core_main_needham.c:30:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_dma.h:74:6: note: expected ‘size_t’ but argument is of type ‘void *’
+ int  e_dma_copy(void *dst, void *src, size_t n);
+      ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h:275:7: error: too many arguments to function ‘e_dma_copy’
+       int err = e_dma_copy(E_DMA_0,dst,src,n,E_ALIGN_AUTO);
+       ^
+In file included from e32pth_if_needham.h:48:0,
+                 from _e32pth_core_main_needham.c:30:
+/opt/adapteva/esdk.5.13.07.17/tools/e-gnu.armv7l/epiphany-elf/sys-include/e_dma.h:74:6: note: declared here
+ int  e_dma_copy(void *dst, void *src, size_t n);
+      ^
+In file included from _e32pth_core_main_needham.c:31:0:
+e32_opencl_ext.h: In function ‘memsync’:
+e32_opencl_ext.h:301:18: warning: initialization makes pointer from integer without a cast [enabled by default]
+    void* gptr =  e_address_from_coreid( thrs->coreID, ptr);
+                  ^
+e32_opencl_ext.h: In function ‘memsend’:
+e32_opencl_ext.h:311:17: warning: initialization makes pointer from integer without a cast [enabled by default]
+    void* gptr = e_address_from_coreid( thrs->coreID, (void*)thrs->recvaddr);
+                 ^
+_e32pth_core_main_needham.c: In function ‘core_num’:
+_e32pth_core_main_needham.c:53:27: error: ‘E_ROWS_IN_CHIP’ undeclared (first use in this function)
+    row = (coreid >> 6) & (E_ROWS_IN_CHIP - 1);
+                           ^
+_e32pth_core_main_needham.c:54:27: error: ‘E_COLS_IN_CHIP’ undeclared (first use in this function)
+    col =  coreid       & (E_COLS_IN_CHIP - 1);
+                           ^
+_e32pth_core_main_needham.c: In function ‘main’:
+_e32pth_core_main_needham.c:70:48: error: ‘E_FIRST_CORE_ROW’ undeclared (first use in this function)
+    core_local_data.row = core_local_data.row - E_FIRST_CORE_ROW;
+                                                ^
+_e32pth_core_main_needham.c:71:48: error: ‘E_FIRST_CORE_COL’ undeclared (first use in this function)
+    core_local_data.col = core_local_data.col - E_FIRST_CORE_COL;
+                                                ^
+_e32pth_core_main_needham.c:152:31: warning: assignment from incompatible pointer type [enabled by default]
+    core_local_data.psigb_prev = (threadspec_t)e_address_from_coreid( 
+                               ^
+_e32pth_core_main_needham.c:158:31: warning: assignment from incompatible pointer type [enabled by default]
+    core_local_data.psigb_next = (threadspec_t)e_address_from_coreid( 
+                               ^
+_e32pth_core_main_needham.c:200:4: warning: implicit declaration of function ‘exit’ [-Wimplicit-function-declaration]
+    exit(0);
+    ^
+_e32pth_core_main_needham.c:200:4: warning: incompatible implicit declaration of built-in function ‘exit’ [enabled by default]
+_e32pth_core_main_needham.c:270:2: warning: incompatible implicit declaration of built-in function ‘exit’ [enabled by default]
+  exit(0);
+  ^
+_e32pth_core_main_needham.c:65:13: warning: unused variable ‘tmpcid’ [-Wunused-variable]
+  e_coreid_t tmpcid;
+             ^
+In file included from _e32pth_core_main_needham.c:31:0:
+_e32pth_core_main_needham.c: At top level:
+e32_opencl_ext.h:234:22: warning: inline function ‘mem_copy’ declared but never defined [enabled by default]
+ __always_inline void mem_copy(void* dst, void* src, size_t len);
+                      ^
+e32_opencl_ext.h:234:22: warning: inline function ‘mem_copy’ declared but never defined [enabled by default]
+_e32pth_core_main_needham.c: In function ‘core_num’:
+_e32pth_core_main_needham.c:56:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+make: *** [_e32pth_core_main_needham.o] Error 1

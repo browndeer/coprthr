@@ -1,4 +1,4 @@
-/* cmdcall_e32pth_needham.c 
+/* cmdcall_e32pth_blank.c 
  *
  * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -38,7 +38,7 @@
 #include "printcl.h"
 #include "cmdcall.h"
 #include "workp.h"
-#include "e32pth_engine_needham.h"
+#include "e32pth_engine_blank.h"
 #include "device.h"
 
 
@@ -102,8 +102,8 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 
 	};
 
-	if (!e32pth_engine_ready_needham()) {
-		int err = e32pth_engine_startup_needham((void*)devid);
+	if (!e32pth_engine_ready_blank()) {
+		int err = e32pth_engine_startup_blank((void*)devid);
 		if (err != 0) return((void*)err);
 	}
 	
@@ -122,7 +122,7 @@ exec_ndrange_kernel(cl_device_id devid, void* p)
 	while (e = workp_nxt_entry(wp)) 
 		report_workp_entry(CL_DEBUG,e);
 
-	int err = e32pth_engine_klaunch_needham(0,0,wp,argp);
+	int err = e32pth_engine_klaunch_blank(0,0,wp,argp);
 
 	workp_free(wp);
 
@@ -163,6 +163,10 @@ static void* read_buffer_safe(cl_device_id devid, void* p)
 
 	if (dst==src+offset) return(0);
 
+//	else if (src+offset < dst+len || dst < src+offset+len) 
+//		memmove(dst,src+offset,len);
+
+//	else memcpy(dst,src+offset,len);
 	xxx_e_read_dram(src+offset,dst,len);
 
 	return(0);
@@ -185,6 +189,8 @@ static void* read_buffer(cl_device_id devid, void* p)
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
+//	if (dst==src+offset) return(0);
+//	else memcpy(dst,src+offset,len);
 	xxx_e_read_dram(src+offset,dst,len);
 
 	return(0);
@@ -210,6 +216,10 @@ static void* write_buffer_safe(cl_device_id devid, void* p)
 
 	if (dst+offset == src) return(0);
 
+//	else if (src < dst+offset+len || dst+offset < src+len) 
+//		memmove(dst,src+offset,len);
+	
+//	else memcpy(dst+offset,src,len);
 	xxx_e_write_dram(dst+offset,src,len);
 
 	return(0); 
@@ -232,6 +242,8 @@ static void* write_buffer(cl_device_id devid, void* p)
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;
 
+//	if (dst+offset == src) return(0);
+//	else memcpy(dst+offset,src,len);
 	xxx_e_write_dram(dst+offset,src,len);
 
 	return(0); 
@@ -275,7 +287,6 @@ static void* copy_buffer(cl_device_id devid, void* p)
 {
 	printcl( CL_DEBUG "copy_buffer");
 
-#if(0)
 	/* XXX need to add this with a call on device for perofrmance -DAR */
 	printcl( CL_ERR "not supported yet" );
 	return(-1);
@@ -296,39 +307,6 @@ static void* copy_buffer(cl_device_id devid, void* p)
 
 	if (dst+dst_offset == src+src_offset) return(0);
 	else memcpy(dst+dst_offset,src+src_offset,len);
-#endif
-
-	printcl( CL_WARNING 
-		"copy_buffer using malloc+read_buffer+write_buffer+free");
-
-	/* read_buffer */
-
-	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
-
-	cl_context ctx = ((cl_mem)argp->m.src)->ctx;
-	unsigned int ndev = ctx->ndev;
-	cl_device_id* devices = ctx->devices;
-	unsigned int n = 0;
-	while (n < ndev && devices[n] != devid) ++n;
-
-	void* src = ((cl_mem)argp->m.src)->imp.res[n];
-	size_t offset = argp->m.src_offset;
-	size_t len = argp->m.len;
-
-	void* tmp = malloc(len);
-	xxx_e_read_dram(src+offset,tmp,len);
-
-
-	/* write_buffer */
-
-	void* dst = ((cl_mem)argp->m.dst)->imp.res[n];
-
-	if (dst+offset == src) return(0);
-
-	xxx_e_write_dram(dst+offset,tmp,len);
-	if(tmp) free(tmp);
-
-	/* free */
 
 	return(0); 
 }
@@ -480,7 +458,7 @@ static void* release_gl_objects(cl_device_id devid, void* argp)
  * XXX a runtime option that simply modifies the cmdcall table. -DAR
  */
 
-cmdcall_t cmdcall_e32pth_needham[] = {
+cmdcall_t cmdcall_e32pth_blank[] = {
 	0,
 	exec_ndrange_kernel,
 	task,

@@ -1,6 +1,6 @@
-/* epiphany_api.h
+/* dmalloc.h
  *
- * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -21,10 +21,39 @@
 /* DAR */
 
 
-#ifndef _epiphany_api_h
-#define _epiphany_api_h
+#ifndef _dmalloc_h
+#define _dmalloc_h
 
-#include "epiphany_api_5.h"
+#include <sys/types.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//extern void* devmembase;
+//extern void* devmemlo;
+//extern void* devmemhi;
+
+void dmalloc_init( void* lo, void* hi );
+
+void dmalloc_reset( void );
+
+void* getdbrk(int devnum); 
+
+void* dmalloc(int devnum, size_t size);
+
+int dposix_memalign(int devnum, void** memptr, size_t alignment, size_t size);
+
+void* dcalloc(int devnum, size_t num, size_t size);
+
+void dfree(int devnum, void* ptr);
+
+void* drealloc(int devnum, void* ptr, size_t size);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
+
 

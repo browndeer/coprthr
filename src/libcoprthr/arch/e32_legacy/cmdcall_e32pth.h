@@ -1,6 +1,6 @@
-/* epiphany_api.h
+/* cmdcall_e32pth.h
  *
- * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2009-2012 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -20,11 +20,14 @@
 
 /* DAR */
 
+#ifndef _CMDCALL_E32PTH_h
+#define _CMDCALL_E32PTH_h
 
-#ifndef _epiphany_api_h
-#define _epiphany_api_h
+#include <CL/cl.h>
 
-#include "epiphany_api_5.h"
+#include "cmdcall.h"
+
+extern cmdcall_t cmdcall_e32pth[];
 
 #endif
 

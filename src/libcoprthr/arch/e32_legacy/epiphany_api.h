@@ -24,7 +24,13 @@
 #ifndef _epiphany_api_h
 #define _epiphany_api_h
 
-#include "epiphany_api_5.h"
+#if defined(ENABLE_EMEK_BUILD)
+#include "epiphany_api_emek.h"
+#elif defined(USE_OLD_ESDK)
+#include "epiphany_api_4130104.h"
+#else
+#include "epiphany_api_4130330.h"
+#endif
 
 #endif
 

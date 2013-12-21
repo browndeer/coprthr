@@ -170,17 +170,11 @@ static __inline size_t get_local_id(uint d)
 #define __trace_point(n)
 #endif
 
-//#define XXX_RUN 0x7f90
-//#define XXX_DEBUG 0x7f94
-//#define XXX_INFO 0x7f98
-
 __always_inline void barrier( int flags);
 __always_inline void barrier( int flags)
 {
-//	int* xxx_info = (int*)XXX_INFO;
 	__save_run(); 
-	__trace_point(1);
-//	*xxx_info = 2001;
+	__trace_point(1); 
 	if (core_local_data.corenum==0) { 
 		*core_local_data.psigb_next = 1; 
 		while (core_local_data.sigb==0); 
@@ -189,7 +183,6 @@ __always_inline void barrier( int flags)
 		*core_local_data.psigb_next = 1; 
 	} 
 	__trace_point(2); 
-//	*xxx_info = 2002;
 	if (core_local_data.corenum==0) { 
 		*core_local_data.psigb_next = 0; 
 		while (core_local_data.sigb); 
@@ -197,7 +190,6 @@ __always_inline void barrier( int flags)
 		while (core_local_data.sigb); 
 		*core_local_data.psigb_next = 0; 
 	} 
-//	*xxx_info = 2003;
 	__trace_point(3); 
 	__restore_run(); 
 }

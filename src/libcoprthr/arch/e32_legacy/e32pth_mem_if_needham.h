@@ -34,16 +34,10 @@
 
 #include "e32_config_needham.h"
 
-#if defined(__coprthr_host__)
-#include "xxx.h"
-#endif
 
 #ifndef E32_DRAM_ZEROPAGE
 #if defined(__coprthr_host__)
-#include "xxx.h"
-//#define E32_DRAM_ZEROPAGE  0x8e000000
-//#define E32_DRAM_ZEROPAGE  0x8e002000
-#define E32_DRAM_ZEROPAGE  0x8e100000
+#define E32_DRAM_ZEROPAGE  0x8e000000
 #elif defined(__coprthr_device__)
 #define E32_DRAM_ZEROPAGE  0
 #else
@@ -137,7 +131,6 @@ typedef uint32_t e32_ptr_t;
 typedef unsigned char e32_uchar_t;
 typedef e32_uint_t e32_workp_entry_t[19];
 
-/*
 #define  __SCALAR_BUILTINS(name,NAME,elem_t,elem_sz) \
 __inline static void e32_read_##name( elem_t* pval ) \
 { 	xxx_e_read_zeropage(E32_ADDR_##NAME, (void*)pval, elem_sz ); } \
@@ -155,24 +148,6 @@ __inline static void e32_read_##name##_n( elem_t* pval, unsigned int n ) \
 __inline static void e32_write_##name##_n( elem_t val, unsigned int n ) \
 { 	elem_t tmp = val;  \
 	if (n < nlim) xxx_e_write_zeropage(E32_ADDR_##NAME + n*elem_sz, (void*)&tmp, elem_sz ); }
-*/
-#define  __SCALAR_BUILTINS(name,NAME,elem_t,elem_sz) \
-__inline static void e32_read_##name( elem_t* pval ) \
-{ 	xxx_e_read_dram((void*)E32_ADDR_##NAME, (void*)pval, elem_sz ); } \
-__inline static void e32_write_##name( elem_t val ) \
-{ 	elem_t tmp = val;  \
-	xxx_e_write_dram((void*)E32_ADDR_##NAME, (void*)&tmp, elem_sz ); } \
-
-#define  __ARRAY_BUILTINS(name,NAME,elem_t,elem_sz,nlim) \
-__inline static void e32_read_##name( elem_t* pval ) \
-{ xxx_e_read_dram((void*)E32_ADDR_##NAME, (void*)pval, elem_sz*nlim ); } \
-__inline static void e32_write_##name( elem_t* pval ) \
-{ xxx_e_write_dram((void*)E32_ADDR_##NAME, (void*)pval, elem_sz*nlim ); } \
-__inline static void e32_read_##name##_n( elem_t* pval, unsigned int n ) \
-{ 	if (n < nlim) xxx_e_read_dram((void*)E32_ADDR_##NAME + n*elem_sz, (void*)pval, elem_sz ); }\
-__inline static void e32_write_##name##_n( elem_t val, unsigned int n ) \
-{ 	elem_t tmp = val;  \
-	if (n < nlim) xxx_e_write_dram((void*)E32_ADDR_##NAME + n*elem_sz, (void*)&tmp, elem_sz ); }
 
 __ARRAY_BUILTINS(ctrl_ready,CTRL_READY,e32_int_t,E32_INT_SZ,ncores())
 __ARRAY_BUILTINS(ctrl_run,CTRL_RUN,e32_int_t,E32_INT_SZ,ncores())

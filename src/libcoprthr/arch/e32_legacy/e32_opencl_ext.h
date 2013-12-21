@@ -33,14 +33,6 @@
 
 //#include "e32pth_mem_if.h"
 
-#include "esdk_missing.h"
-
-#define E_ROWS_IN_CHIP 4
-#define E_COLS_IN_CHIP 4
-#define E_FIRST_CORE_ROW 32
-#define E_FIRST_CORE_COL 8
-
-
 #ifndef __always_inline
 #define __always_inline __inline __attribute__((__always_inline__))
 #endif
@@ -91,8 +83,7 @@ volatile extern struct thr_data_struct thr_data;
 #define XCL_MEM_FENCE    0x0020
 
 
-#if(0)
-#if(0)
+
 /***
  *** mutex builtin extensions
  ***/
@@ -119,28 +110,7 @@ int mutex_unlock( mutex_t *mutex)
 __inline
 int mutex_destroy( mutex_t* mutex )
 { return e_mutex_destroy( mutex ); }
-#else
-__inline
-int mutex_init( unsigned row, unsigned col, mutex_t* mutex, mutexattr_t* attr )
-{ e_mutex_init( row, col, mutex, attr ); }
 
-__inline
-int mutex_trylock( int row, int col, mutex_t* mutex)
-{ return e_mutex_trylock( row, col, mutex ); }
-
-__inline
-int mutex_lock( int row, int col, mutex_t* mutex)
-{ e_mutex_lock( row, col, mutex ); }
-
-__inline
-int mutex_unlock( int row, int col, mutex_t *mutex)
-{ e_mutex_unlock( row, col, mutex ); }
-
-//__inline
-//int mutex_destroy( mutex_t* mutex )
-//{ return e_mutex_destroy( mutex ); }
-#endif
-#endif
 
 
 /***
@@ -202,7 +172,7 @@ get_thread( int dim, unsigned int* ltid )
 typedef struct core_local_data_struct* threadspec_t;
 
 __inline void barrier_thread_pair( int kind, threadspec_t thrs );
-__inline __attribute__((always_inline)) void barrier_thread_all( int kind );
+__inline void barrier_thread_all( int kind );
 
 #define __barrier_thread_pair_top( thrs ) do { \
    while (__volatile_int(thrs->sigb)); \
@@ -248,7 +218,7 @@ barrier_thread_pair( int kind, threadspec_t thrs )
    } \
    } while(0)
 
-__inline __attribute__((always_inline)) void 
+__inline void 
 barrier_thread_all( int kind )
 {
    if ((kind)&XCL_MEM_FENCE) while(__volatile_int(core_local_data.recvaddr));
@@ -261,7 +231,6 @@ barrier_thread_all( int kind )
  *** memory operations
  ***/
 
-#if(0)
 __always_inline void mem_copy(void* dst, void* src, size_t len);
 
 __always_inline
@@ -365,7 +334,6 @@ memrecv(void* dst, size_t n, threadspec_t thrs, int flags )
 	}
 }
 
-#endif
 
 
 /***

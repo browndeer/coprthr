@@ -40,23 +40,38 @@
 
 #include "printcl.h"
 
-#include "e-hal.h"
+#ifdef USE_OLD_ESDK
 
-extern e_epiphany_t e_epiphany;
-extern e_mem_t e_dram;
+#include "e_host.h"
+//#include "e_hal.h"
 
 #define xxx_e_read_zeropage( src, dst, len) do { \
-	printcl( CL_DEBUG "xxx_e_read_zeropage &e_dram=%p src=%p (%p-%x=%p)", \
-		&e_dram,src,src,E32_DRAM_ZEROPAGE,src-E32_DRAM_ZEROPAGE); \
-	e_read( &e_dram, 0,0, (src-E32_DRAM_ZEROPAGE), dst, len); \
+	printcl( CL_DEBUG "xxx_e_read_zeropage %p - %x",src,E32_DRAM_ZEROPAGE); \
+	e_mread_buf( &e_dram, (src), dst, len); \
 	} while(0)
 
 #define xxx_e_write_zeropage( dst, src, len) do { \
-	printcl( CL_DEBUG "xxx_e_write_zeropage &e_dram=%p dst=%p (%p-%x=%p)", \
-		&e_dram,dst,dst,E32_DRAM_ZEROPAGE,dst-E32_DRAM_ZEROPAGE); \
-	e_write( &e_dram, 0,0, (dst-E32_DRAM_ZEROPAGE), src, len); \
+	printcl( CL_DEBUG "xxx_e_write_zeropage %p - %x",dst,E32_DRAM_ZEROPAGE); \
+	e_mwrite_buf( &e_dram, (dst), src, len); \
 	} while(0)
 
+#else
+
+#include "e-hal.h"
+
+extern e_epiphany_t e_epiphany;
+
+#define xxx_e_read_zeropage( src, dst, len) do { \
+	printcl( CL_DEBUG "xxx_e_read_zeropage %p - %x",src,E32_DRAM_ZEROPAGE); \
+	e_read( &e_dram, 0,0, (src), dst, len); \
+	} while(0)
+
+#define xxx_e_write_zeropage( dst, src, len) do { \
+	printcl( CL_DEBUG "xxx_e_write_zeropage %p - %x",dst,E32_DRAM_ZEROPAGE); \
+	e_write( &e_dram, 0,0, (dst), src, len); \
+	} while(0)
+
+#endif
 
 #elif defined(__coprthr_device__)
 

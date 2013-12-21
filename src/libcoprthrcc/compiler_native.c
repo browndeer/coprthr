@@ -98,9 +98,17 @@
 #define __compile compile_arm32
 #define __elfcl_write elfcl_write_arm32
 
+/*
 #define CCFLAGS_OCL \
    " -fno-exceptions -O3 -marm " \
    " -mfloat-abi=softfp -mfpu=neon " \
+   " -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations " \
+   " -fschedule-insns -fschedule-insns2" \
+   " -U_FORTIFY_SOURCE"
+*/
+#define CCFLAGS_OCL \
+   " -fno-exceptions -O3 -marm " \
+   " -mfpu=neon " \
    " -funsafe-math-optimizations -fno-math-errno -funsafe-math-optimizations " \
    " -fschedule-insns -fschedule-insns2" \
    " -U_FORTIFY_SOURCE"

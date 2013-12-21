@@ -38,9 +38,10 @@
 #define CCFLAGS_LINK 
 
 #define ECC_COMPILER " e-gcc "
+#define ECXX_COMPILER " e-g++ "
 #define EOBJCOPY " e-objcopy "
 
-#define ECCFLAGS_OCL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=truncate -falign-loops=8 -falign-functions=8 -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/sys-include -fpermissive -D__coprthr_device__ "
+#define ECCFLAGS_OCL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=truncate -falign-loops=8 -falign-functions=8 -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/sys-include -fpermissive -D__coprthr_device__ -x c++"
 
 #define ECCFLAGS_KCALL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/sys-include -fpermissive -D__coprthr_device__ "
 
@@ -70,7 +71,9 @@
 
 //#include "dmalloc.h"
 
-void* devmembase = 0x8e000000;
+//void* devmembase = 0x8e000000;
+//void* devmembase = 0x8e002000;
+void* devmembase = 0x8e100000;
 
 #ifndef INSTALL_INCLUDE_DIR
 #define INSTALL_INCLUDE_DIR "/usr/local/browndeer/include"
@@ -156,7 +159,7 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 #ifdef USE_E32_OPENCL_EXT
 #define SHELLCMD_KTHR_COMPILE_S \
 	"cd %s; " \
-	ECC_COMPILER ECCFLAGS_OCL  \
+	ECXX_COMPILER ECCFLAGS_OCL  \
 	" -I" INSTALL_INCLUDE_DIR  \
 	" -D __xcl_kthr__ --include=" E32PTH_IF_HDR \
 	" --include=opencl_lift.h " \
@@ -166,7 +169,7 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 	" %s  -S %s.cpp "
 #define SHELLCMD_KTHR_COMPILE \
 	"cd %s; " \
-	ECC_COMPILER ECCFLAGS_OCL  \
+	ECXX_COMPILER ECCFLAGS_OCL  \
 	" -I" INSTALL_INCLUDE_DIR  \
 	" -D __xcl_kthr__ --include=" E32PTH_IF_HDR \
 	" --include=opencl_lift.h " \
@@ -177,7 +180,7 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 #else
 #define SHELLCMD_KTHR_COMPILE_S \
 	"cd %s; " \
-	ECC_COMPILER ECCFLAGS_OCL  \
+	ECXX_COMPILER ECCFLAGS_OCL  \
 	" -I" INSTALL_INCLUDE_DIR  \
 	" -D __xcl_kthr__ --include=" E32PTH_IF_HDR \
 	" --include=opencl_lift.h " \
@@ -186,7 +189,7 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 	" %s  -S %s.cpp "
 #define SHELLCMD_KTHR_COMPILE \
 	"cd %s; " \
-	ECC_COMPILER ECCFLAGS_OCL  \
+	ECXX_COMPILER ECCFLAGS_OCL  \
 	" -I" INSTALL_INCLUDE_DIR  \
 	" -D __xcl_kthr__ --include=" E32PTH_IF_HDR \
 	" --include=opencl_lift.h " \
@@ -229,7 +232,7 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 	"cd %s;" \
 	" e-ld -r -o e32.o" \
 	" " E32PTH_CORE_MAIN_OBJ " e32_%s.o e32_kcall3_%s.o" \
-	" -L/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/lib -lelib "
+	" -L/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/lib -le-lib "
 
 #define SHELLCMD_GEN_SREC \
 	"cd %s; "  \

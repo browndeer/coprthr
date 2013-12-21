@@ -35,6 +35,7 @@
 #include "printcl.h"
 #include "cmdcall.h"
 #include "workp.h"
+//#include "sl_engine.h"
 #include "e32pth_engine_needham.h"
 
 #include "coprthr_device.h"
@@ -75,6 +76,11 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 		argp->k.local_work_size[1],
 		argp->k.local_work_size[2]);
 
+//	int base = dev->devstate->cpu.veid_base;
+//	int nve = dev->devstate->cpu.nve;
+
+//	printcl( CL_DEBUG "cpu.nve = %d", nve );
+
 #define safe_div(a,b) ((b==0)? 0 : a/b)
 
 	struct workp_entry e0 = { 
@@ -104,6 +110,7 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 
 	};
 
+//	if (!sl_engine_ready()) sl_engine_startup(0);
    if (!e32pth_engine_ready_needham()) {
       int err = e32pth_engine_startup_needham((void*)dev);
       if (err != 0) return((void*)err);
@@ -123,10 +130,12 @@ exec_ndrange_kernel(struct coprthr_device* dev, void* p)
 	while (e = workp_nxt_entry(wp)) 
 		report_workp_entry(CL_DEBUG,e);
 
+//	sl_engine_klaunch(base,nve,wp,argp);
 	int err = e32pth_engine_klaunch_needham(0,0,wp,argp);
 
 	workp_free(wp);
 
+//	return(0); 
 	return((void*)err); 
 
 }
@@ -159,6 +168,10 @@ static void* read_buffer_safe(struct coprthr_device* dev, void* p)
 
 	if (dst==src+offset) return(0);
 
+//	else if (src+offset < dst+len || dst < src+offset+len) 
+//		memmove(dst,src+offset,len);
+	
+//	else memcpy(dst,src+offset,len);
 	xxx_e_read_dram(src+offset,dst,len);
 
 	return(0);
@@ -178,6 +191,8 @@ static void* read_buffer( struct coprthr_device* dev, void* p)
 
 	printcl( CL_DEBUG "%p %p %ld",dst,src,offset);
 
+//	if (dst==src+offset) return(0);
+//	else memcpy(dst,src+offset,len);
 	xxx_e_read_dram(src+offset,dst,len);
 
 	return(0);
@@ -197,6 +212,10 @@ static void* write_buffer_safe(struct coprthr_device* dev, void* p)
 
 	if (dst+offset == src) return(0);
 
+//	else if (src < dst+offset+len || dst+offset < src+len) 
+//		memmove(dst,src+offset,len);
+	
+//	else memcpy(dst+offset,src,len);
 	xxx_e_write_dram(dst+offset,src,len);
 
 	return(0); 
@@ -213,6 +232,8 @@ static void* write_buffer(struct coprthr_device* dev, void* p)
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;
 
+//	if (dst+offset == src) return(0);
+//	else memcpy(dst+offset,src,len);
 	xxx_e_write_dram(dst+offset,src,len);
 
 	return(0); 
@@ -231,6 +252,13 @@ static void* copy_buffer_safe(struct coprthr_device* dev, void* p)
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
+//	if (dst+dst_offset == src+src_offset) return(0);
+
+//	else if (src+src_offset < dst+dst_offset+len 
+//		|| dst+dst_offset < src+src_offset+len) 
+//			memmove(dst+dst_offset,src+src_offset,len);
+	
+//	else memcpy(dst+dst_offset,src+src_offset,len);
 	void* ptmp = malloc(len);
 	xxx_e_read_dram(src+src_offset,ptmp,len);
 	xxx_e_write_dram(dst+dst_offset,ptmp,len);
@@ -251,6 +279,8 @@ static void* copy_buffer(struct coprthr_device* dev, void* p)
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
+//	if (dst+dst_offset == src+src_offset) return(0);
+//	else memcpy(dst+dst_offset,src+src_offset,len);
 	void* ptmp = malloc(len);
 	xxx_e_read_dram(src+src_offset,ptmp,len);
 	xxx_e_write_dram(dst+dst_offset,ptmp,len);

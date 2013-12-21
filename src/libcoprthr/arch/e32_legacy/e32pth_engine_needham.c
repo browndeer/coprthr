@@ -34,12 +34,14 @@
 #include <stdint.h>
 #include <sys/time.h>
 
+//#include <CL/cl.h>
 #define __CL_MEM_OBJECT_ALLOCATION_FAILURE -4
 #define __CL_INVALID_VALUE -30
 #define __CL_OUT_OF_RESOURCES -5
 
 #include "xcl_config.h"
 
+//#include "xcl_structs.h"
 #include "printcl.h"
 #include "program.h"
 #include "cmdcall.h"
@@ -54,27 +56,27 @@
 
 #include "epiphany_api.h"
 
+//#define __host__
 #include "e32pth_mem_if_needham.h"
 #include "e32pth_if_needham.h"
 
+//#ifdef USE_OLD_ESDK
+//#include "e_loader.h"
+//extern Epiphany_t e_epiphany;
+//#else
+//#include "e-hal.h"
+//extern e_epiphany_t e_epiphany;
+//#endif
 #include "epiphany_api.h"
 
-#define XXX_RUN 0x7f90
-#define XXX_DEBUG 0x7f94
-#define XXX_INFO 0x7f98
-
-struct coord { int row,col };
-struct coord xxx_cores[] = {
-	{0,0}, {0,1}, {0,2}, {0,3},
-	{1,0}, {1,1}, {1,2}, {1,3},
-	{2,0}, {2,1}, {2,2}, {2,3},
-	{3,0}, {3,1}, {3,2}, {3,3}
-};
-
-unsigned int xxx_ncores = (sizeof(xxx_cores)/sizeof(struct coord));
+//#include "xcl_structs.h"
 
 extern void* loaded_srec;
 extern int e_opened;
+//extern char servIP[];
+//extern const unsigned short eServLoaderPort;
+
+//extern Epiphany_t e_epiphany;
 
 /* 
  * Note: this code is a reduction of the explicit engines used to control
@@ -84,6 +86,7 @@ extern int e_opened;
 
 static nengines = 0;
 static engine_is_started = 0;
+//static cl_device_id devid = 0;
 static struct coprthr_device* dev = 0;
 static size_t core_local_mem_size = 0;
 static void* core_base_addr = 0;
@@ -104,6 +107,9 @@ void* e32pth_engine_startup_needham( void* p )
 
 	engine_is_started = 1;
 
+//	devid = (cl_device_id)p;
+//	core_local_mem_size = __resolve_devid(devid,e32.core_local_mem_size);
+//	core_base_addr = __resolve_devid(devid,e32.core_base_addr);	
 	dev = (struct coprthr_device*)p;
 	core_local_mem_size = dev->devstate->e32.core_local_mem_size;
 	core_base_addr = dev->devstate->e32.core_base_addr;
@@ -111,6 +117,8 @@ void* e32pth_engine_startup_needham( void* p )
 	printcl( CL_DEBUG "core_local_mem_size = %ld",core_local_mem_size);
 	printcl( CL_DEBUG "core_base_addr = %p",core_base_addr);
 
+//	if (__resolve_devid(devid,e32.array_ncol) != E32_COLS_IN_CHIP
+//		|| __resolve_devid(devid,e32.array_nrow) != E32_ROWS_IN_CHIP) {
 	if (dev->devstate->e32.array_ncol != E32_COLS_IN_CHIP
 		|| dev->devstate->e32.array_nrow != E32_ROWS_IN_CHIP) {
 
@@ -127,38 +135,14 @@ void* e32pth_engine_startup_needham( void* p )
 }
 
 
-#define foreach_core(r,c) for(icore=0,r=xxx_cores[icore].row,c=xxx_cores[icore].col; icore<xxx_ncores;icore++,r=xxx_cores[icore].row,c=xxx_cores[icore].col) 
-
-void __dump_registers() 
-{
-	unsigned int r_config,r_status,r_pc,r_imask,r_ipend;
-	int r,c,icore;
-//	for(r=0;r<4;r++) for(c=0;c<4;c++) {
-	foreach_core(r,c) {
-		size_t sz = sizeof(unsigned int);
-		size_t rc1 = e_read( &e_epiphany,r,c, E_REG_CONFIG, &r_config, sz);
-		size_t rc2 = e_read( &e_epiphany,r,c, E_REG_STATUS, &r_status, sz);
-		size_t rc3 = e_read( &e_epiphany,r,c, E_REG_PC, &r_pc, sz);
-		size_t rc4 = e_read( &e_epiphany,r,c, E_REG_IMASK, &r_imask, sz);
-		size_t rc5 = e_read( &e_epiphany,r,c, E_REG_IPEND, &r_ipend, sz);
-		printcl( CL_DEBUG 
-			"(%d,%d) %d %d %d %d %d reg:"
-			" config=0x%x status=0x%x pc=0x%x imask=0x%x ipend=0x%x",
-			r,c,rc1,rc2,rc3,rc4,rc5,r_config,r_status,r_pc,r_imask,r_ipend);
-	}
-}
-
-
 int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	struct cmdcall_arg* argp )
 {
 
-	e_set_host_verbosity(H_D3);
-
 	int i;
-	int icore,irow,icol;
 
    struct program_info_struct* proginfo
+//      = (struct program_info_struct*)(argp->k.krn->prg->imp.info);
       = (struct program_info_struct*)(argp->k.krn->prg1->info);
 
 	int knum = argp->k.krn->knum;
@@ -186,8 +170,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	size_t core_local_mem_hi = core_local_mem_size - 0x200;
 
 	if (argp->k.krn->prg1->ksu[knum] > core_local_mem_hi ) {
-		printcl( CL_DEBUG "ksu=%d > core_local_mem_hi=%d",
-			argp->k.krn->prg1->ksu[knum],core_local_mem_hi);
+		printcl( CL_DEBUG "ksu=%d > core_local_mem_hi=%d",argp->k.krn->prg1->ksu[knum],core_local_mem_hi);
 		printcl( CL_ERR "exceeded maximum stack size");
 		return(__CL_OUT_OF_RESOURCES);
 	}
@@ -203,6 +186,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 
 	size_t repacked_arg_buf_sz = 0;
 
+//   unsigned int narg =  argp->k.krn->narg;
    unsigned int narg =  argp->k.krn->prg1->knarg[knum];
 
    for(i=0;i<narg;i++) {
@@ -248,11 +232,17 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	printcl( CL_DEBUG "local_mem_base = %p local_mem_sz = %p",
       local_mem_free,local_mem_sz);
 
+//  	for(i=0;i<argp->k.krn->narg;i++) {
   	for(i=0;i<argp->k.krn->prg1->knarg[knum];i++) {
 
       printcl( CL_DEBUG  "fix global ptrs %d",i);
 
       printcl( CL_DEBUG "arg_kind=%d", argp->k.arg_kind[i]);
+
+//   	cl_context ctx;
+//   	unsigned int ndev;
+//   	cl_device_id* devices;
+//   	unsigned int n;
 
       void* p = (void*)(argp->k.pr_arg_buf + argp->k.pr_arg_off[i]);
 
@@ -275,8 +265,14 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 
             printcl( CL_DEBUG  "mem1=%p", mem1);
 
+//            ctx = (*(cl_mem*)p)->ctx;
+//            ndev = ctx->ndev;
+//            devices = ctx->devices;
+//            n = 0;
+
             /* XXX this is a hack, redesign devnum/devid issue -DAR */
 
+//            e32_ptr_t ptr = *(void**)p = (*(cl_mem*)p)->imp.res[n];
             *(void**)p = mem1->res;
             e32_ptr_t ptr = (e32_ptr_t)mem1->res;
 
@@ -345,59 +341,32 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	e_set_host_verbosity(1);
 	e_set_loader_verbosity(1);
 
-	__dump_registers();
-
-printf("BEFORE LOAD\n");
-
-///////////////////////////////////////////////////////////
-	if (1) {
-		printcl( CL_DEBUG "need to load srec");
-		printcl( CL_WARNING "hardcoded to devnum=0");
-
-
-		printcl( CL_DEBUG "will try to load the srec file '%s'",
-			argp->k.krn->prg1->kbinfile);
-
-		printcl( CL_CRIT "XXX attempt e_loaad");
-
-		printcl( CL_DEBUG "send reset");
-		e_reset_system();
-		e_set_loader_verbosity(1);
-		int err = e_load_group(argp->k.krn->prg1->kbinfile,
-			&e_epiphany,0,0,4,4,0);
-
-		printcl( CL_CRIT "XXX e_loader returned %d",err);
- 
-		if (!err)
-			loaded_srec = argp->k.krn->prg1->kbin;
-
-		e_opened = 1;
-	
-
-	} else {
-	
-		printcl( CL_DEBUG "srec file '%s' already loaded",
-			argp->k.krn->prg1->kbinfile);
-
-		printcl( CL_DEBUG "sending reset and ILAT only");
-		
-
-	}
-//////////////////////////////////////////////////////
-
-printf("AFTER LOAD\n"); fflush(stdout);
-
-	__dump_registers();
-
+	printcl( CL_DEBUG "send reset %p");
 
 	int corenum;
 	struct core_control_struct core_control_data;
+
+//printcl( CL_CRIT "sleep");
+//sleep(1);
+
+//	printcl( CL_DEBUG "clear cores run state");
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//   	core_control_data.run[corenum] = 0;
+//	e32_write_ctrl_run(core_control_data.run);
+
 
 	unsigned int addr;
 	size_t sz;
 
 
+//	int* tmp_buf = (int*)calloc(1,4096);
+//	memset(tmp_buf,7,4096);
 	struct timeval t0,t1;
+
+//	printcl( CL_DEBUG "clear cores run state");
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//   	core_control_data.run[corenum] = 0;
+//	e32_write_ctrl_run(core_control_data.run);
 
 
 	/***
@@ -434,23 +403,19 @@ printf("AFTER LOAD\n"); fflush(stdout);
 				int ltdsz0 = workp_get_entry(wp,0)->ndr_ltdsz[0];
 				int ltdsz1 = workp_get_entry(wp,0)->ndr_ltdsz[1];
 		
-				if ( ltdsz1 == 1 || ltdsz0 <= nthr ) { 
-
-					/* XXX added for testing -DAR */
+				if ( ltdsz1 == 1 || ltdsz0 <= nthr ) { /* XXX added for testing -DAR */
 
 					int m;
 					for(m=0; m<nthr; m++) {
 						coremap[m] = threadmap[m] = (e32_uchar_t)m;
 					}
 	
-				} else if (ltdsz0 > E32_COLS_IN_CHIP || ltdsz1 > E32_ROWS_IN_CHIP) {
+				} else if ( ltdsz0 > E32_COLS_IN_CHIP || ltdsz1 > E32_ROWS_IN_CHIP ) {
 
 					printcl( CL_ERR "unsupported thread block layout");
       			return(__CL_INVALID_VALUE);
 
-				} else { 
-
-					/* thread block layout conforms to chip */
+				} else { /* thread block layout conforms to chip */
 
 					int m;
 					for(m=0; m<nthr; m++) {
@@ -586,119 +551,196 @@ printf("AFTER LOAD\n"); fflush(stdout);
    	core_control_data.callp[corenum] = (e32_ptr_t)argp->k.ksyms->kcall3;
 	e32_write_ctrl_callp(core_control_data.callp);
 
-	printcl( CL_DEBUG "readback kcall3 entry:");
-	e32_read_ctrl_callp(core_control_data.callp);
+
+//	printcl( CL_DEBUG "init giant lock");
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//   	core_control_data.ready[corenum] = 0;
+//	e32_write_ctrl_ready(core_control_data.ready);
+
+/*
+	printcl( CL_DEBUG "clear core ready state");
 	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-		printcl( CL_DEBUG "readback kcall3 entry: %d 0x%x",corenum,core_control_data.callp[corenum]);
+   	core_control_data.ready[corenum] = 0;
+	e32_write_ctrl_ready(core_control_data.ready); 
+
+	printcl( CL_DEBUG "clear core return values");
+	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+   	core_control_data.retval[corenum] = 16;
+	e32_write_ctrl_retval(core_control_data.retval); 
+*/
+
+//	printcl( CL_DEBUG "set cores to run");
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//   	core_control_data.run[corenum] = 1;
+//	e32_write_ctrl_run(core_control_data.run);
+
+
+//printcl( CL_CRIT "sleep");
+//sleep(1);
 
 	int fail=0;
 	int retry_count=0;
 
 retry:
 
-//	printcl( CL_DEBUG "clear core ready state");
-//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-//   	core_control_data.ready[corenum] = 7;
-//	e32_write_ctrl_ready(core_control_data.ready); 
+	printcl( CL_DEBUG "clear core ready state");
+	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+   	core_control_data.ready[corenum] = 0;
+	e32_write_ctrl_ready(core_control_data.ready); 
 
 	printcl( CL_DEBUG "clear core return values");
 	for (corenum=0; corenum<E32_NCORES;  corenum++) 
    	core_control_data.retval[corenum] = 16;
 	e32_write_ctrl_retval(core_control_data.retval); 
 
+printf("BEFORE LOAD\n");
 
-	printcl( CL_DEBUG "write kcall3 entry 0x%x",argp->k.ksyms->kcall3);
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-   	core_control_data.callp[corenum] = (e32_ptr_t)argp->k.ksyms->kcall3;
-	e32_write_ctrl_callp(core_control_data.callp);
-
-	printcl( CL_DEBUG "readback kcall3 entry:");
-	e32_read_ctrl_callp(core_control_data.callp);
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-		printcl( CL_DEBUG "readback kcall3 entry: %d 0x%x",
-			corenum,core_control_data.callp[corenum]);
+///////////////////////////////////////////////////////////
+	if (1) {
+		printcl( CL_DEBUG "need to load srec");
+		printcl( CL_WARNING "hardcoded to devnum=0");
 
 
-//#define foreach_core(r,c) for(r=0;r<2;r++) for(c=0;c<2;c++)
-#define foreach_core(r,c) for(icore=0,r=xxx_cores[icore].row,c=xxx_cores[icore].col; icore<xxx_ncores;icore++,r=xxx_cores[icore].row,c=xxx_cores[icore].col) 
+		printcl( CL_DEBUG "will try to load the srec file '%s'",
+//			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
+			argp->k.krn->prg1->kbinfile);
 
-	int count = 0;
-	int run_state = 1;
-	int debug_state;
-	int info_state;
-	foreach_core(irow,icol) 
-		e_write( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int));
-	int zero = 0;
-	foreach_core(irow,icol) 
-		e_write( &e_epiphany, irow, icol, XXX_DEBUG, &zero, sizeof(int));
-	foreach_core(irow,icol) 
-		e_write( &e_epiphany, irow, icol, XXX_INFO, &zero, sizeof(int));
+		printcl( CL_CRIT "XXX attempt e_loaad");
 
-	__dump_registers();
+#if defined(USE_OLD_ESDK) 
+#warning USE_OLD_ESDK
+//		int err = e_load(argp->k.krn->prg->imp.v_kbin_tmpfile[0],1,1,1);
+		int err = e_load(argp->k.krn->prg1->kbinfile,1,1,1);
+#else
+		e_reset_system();
+		e_set_loader_verbosity(1);
+//		int err = e_load_group(argp->k.krn->prg->imp.v_kbin_tmpfile[0],
+//			&e_epiphany,0,0,4,4,1);
+		int err = e_load_group(argp->k.krn->prg1->kbinfile,
+			&e_epiphany,0,0,4,4,1);
+#endif
 
+		printcl( CL_CRIT "XXX e_loader returned %d",err);
+ 
+		if (!err)
+//			loaded_srec = argp->k.krn->prg->imp.v_kbin[0];
+			loaded_srec = argp->k.krn->prg1->kbin;
 
-/*
-	while(run_state != 1) 	{
-		e_read( &e_epiphany, 0, 0, XXX_RUN, &run_state, sizeof(int) );
-		e_read( &e_epiphany, 0, 0, XXX_DEBUG, &debug_state, sizeof(int) );
-		 e_read( &e_epiphany, 0, 0, XXX_INFO, &info_state, sizeof(int) );
-		printcl( CL_DEBUG "run_state=%d debug_state=%d info=%d (0x%x)",
-			run_state,debug_state,info_state,info_state);
+		e_opened = 1;
+	
+
+	} else {
+	
+		printcl( CL_DEBUG "srec file '%s' already loaded",
+//			argp->k.krn->prg->imp.v_kbin_tmpfile[0]);
+			argp->k.krn->prg1->kbinfile);
+
+		printcl( CL_DEBUG "sending reset and ILAT only");
+		
+
 	}
-*/
+//////////////////////////////////////////////////////
 
-//	int rc = e_start_group(&e_epiphany);
-	foreach_core(irow,icol) {
-		int rc = e_start(&e_epiphany,irow,icol);
-		printcl( CL_DEBUG "e_start returned %d",rc);
-	}
+printf("AFTER LOAD\n"); fflush(stdout);
 
-	__dump_registers();
+//printcl( CL_CRIT "sleep");
+//sleep(1);
 
-/*
-	foreach_core(irow,icol) {
-		e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int) );
-		while(run_state == 1) 	{
-			e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int));
-			e_read( &e_epiphany, irow, icol, XXX_DEBUG, &debug_state, sizeof(int));
-			e_read( &e_epiphany, irow, icol, XXX_INFO, &info_state, sizeof(int));
-			printcl( CL_DEBUG "(%d,%d) run_state=%d debug_state=%d info=%d (0x%x)",
-				irow,icol,run_state,debug_state,info_state,info_state);
+//	int fail=0;
+//	int retry_count=0;
+//
+//retry:
+
+	printcl( CL_DEBUG "wait until all cores are ready");
+	gettimeofday(&t0, 0);
+	e32_read_ctrl_ready(core_control_data.ready);
+	for (corenum=0; corenum<E32_NCORES;  corenum++) {
+		while (core_control_data.ready[corenum]==0) {
+			e32_read_ctrl_ready(core_control_data.ready);
+
+			printcl( CL_DEBUG 
+				"ready %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+				core_control_data.ready[0],
+				core_control_data.ready[1],
+				core_control_data.ready[2],
+				core_control_data.ready[3],
+				core_control_data.ready[4],
+				core_control_data.ready[5],
+				core_control_data.ready[6],
+				core_control_data.ready[7],
+				core_control_data.ready[8],
+				core_control_data.ready[9],
+				core_control_data.ready[10],
+				core_control_data.ready[11],
+				core_control_data.ready[12],
+				core_control_data.ready[13],
+				core_control_data.ready[14],
+				core_control_data.ready[15]);
+
+			gettimeofday(&t1, 0);
+			if (t1.tv_sec > t0.tv_sec + 10) { fail=1; break; }
+
+			if (core_control_data.ready[corenum] < 0) { fail=2; break; }
 		}
+
+//		gettimeofday(&t1, 0);
+//		if (t1.tv_sec > t0.tv_sec + 6) { fail=2; break; }
+		if (fail) break;
+
 	}
 
-	run_state = 3;
-	foreach_core(irow,icol) 
-		e_write( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int));
-*/
-
-	foreach_core(irow,icol) {
-		e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int) );
-		e_read( &e_epiphany, irow, icol, XXX_DEBUG, &debug_state, sizeof(int));
-		e_read( &e_epiphany, irow, icol, XXX_INFO, &info_state, sizeof(int));
-		printcl( CL_DEBUG "(%d,%d) run_state=%d debug_state=%d info=%d (0x%x)",
-			irow,icol,run_state,debug_state,info_state,info_state);
-		while(run_state > 0) 	{
-			e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int));
-			e_read( &e_epiphany, irow, icol, XXX_DEBUG, &debug_state, sizeof(int));
-			e_read( &e_epiphany, irow, icol, XXX_INFO, &info_state, sizeof(int));
-			printcl( CL_DEBUG "(%d,%d) run_state=%d debug_state=%d info=%d (0x%x)",
-				irow,icol,run_state,debug_state,info_state,info_state);
-			__dump_registers();
-		}
+	if (fail) {
+		printcl( CL_ERR "kernel ready failure code %d", fail);
+		if (retry_count++ < 10) { fail=0; goto retry; }
 	}
 
-	__dump_registers();
-
-/*
-	printcl( CL_DEBUG "readback kcall3 entry:");
-	e32_read_ctrl_callp(core_control_data.callp);
+	printcl( CL_DEBUG "set cores to run");
 	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-		printcl( CL_DEBUG "readback kcall3 entry: %d 0x%x",
-			corenum,core_control_data.callp[corenum]);
-*/
+   	core_control_data.run[corenum] = 1;
+	e32_write_ctrl_run(core_control_data.run);
 
-	__dump_registers();
+	fail=0;
+	printcl( CL_DEBUG "wait until all cores are idle");
+	gettimeofday(&t0, 0);
+	e32_read_ctrl_run(core_control_data.run);
+	for (corenum=0; corenum<E32_NCORES;  corenum++) {
+		while (core_control_data.run[corenum]) {
+			e32_read_ctrl_run(core_control_data.run);
+
+			printcl( CL_DEBUG 
+				"run %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+				core_control_data.run[0],
+				core_control_data.run[1],
+				core_control_data.run[2],
+				core_control_data.run[3],
+				core_control_data.run[4],
+				core_control_data.run[5],
+				core_control_data.run[6],
+				core_control_data.run[7],
+				core_control_data.run[8],
+				core_control_data.run[9],
+				core_control_data.run[10],
+				core_control_data.run[11],
+				core_control_data.run[12],
+				core_control_data.run[13],
+				core_control_data.run[14],
+				core_control_data.run[15]);
+
+			gettimeofday(&t1, 0);
+			if (t1.tv_sec > t0.tv_sec + 10) { fail=1; break; }
+
+			if (core_control_data.run[corenum] < 0) { fail=2; break; }
+		}
+
+//		gettimeofday(&t1, 0);
+//		if (t1.tv_sec > t0.tv_sec + 6) { fail=2; break; }
+		if (fail) break;
+
+	}
+
+	if (fail) {
+		printcl( CL_ERR "kernel failure code %d", fail);
+	}
 
 	printcl( CL_DEBUG "read back core return values");
 	e32_read_ctrl_retval(core_control_data.retval);
@@ -707,24 +749,6 @@ retry:
 			i,*(int*)&core_control_data.retval[i],
 			*(int*)&core_control_data.retval[i] );
 
-	__dump_registers();
-
-	printcl( CL_DEBUG "readback kcall3 entry:");
-	e32_read_ctrl_callp(core_control_data.callp);
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-		printcl( CL_DEBUG "readback kcall3 entry (%p): %d 0x%x",
-			&core_control_data.callp[corenum],
-			corenum,core_control_data.callp[corenum]);
-
-
-//	for(irow=0;irow<4;irow++) for(icol=0;icol<4;icol++) {
-	foreach_core(irow,icol) {
-		e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int) );
-		e_read( &e_epiphany, irow, icol, XXX_DEBUG, &debug_state, sizeof(int));
-		e_read( &e_epiphany, irow, icol, XXX_INFO, &info_state, sizeof(int));
-		printcl( CL_DEBUG "(%d,%d) run_state=%d debug_state=%d info=%d (0x%x)",
-			irow,icol,run_state,debug_state,info_state,info_state);
-	}
 	return(0);
 
 }
