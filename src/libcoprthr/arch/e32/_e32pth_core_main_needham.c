@@ -80,6 +80,7 @@ int main(void)
 	int status = 0;
 
 	*xxx_debug = 50;
+	*xxx_info = 0;
 
 	int timeout = 0;
    while ((*xxx_run) == 0 && timeout < TIMEOUT) {
@@ -90,7 +91,9 @@ int main(void)
 		exit(-1);
 	}
 
-	*xxx_debug = 60;
+	*xxx_run = 2;
+
+	*xxx_debug = 51;
 
 //	callp_t callp = (callp_t)e32_ctrl_callp[core_local_data.corenum];
 //	*xxx_info = (int)callp;
@@ -138,7 +141,7 @@ callp_t callp = (callp_t)e32_ctrl_callp[core_local_data.corenum];
 //*xxx_run = 0;
 //exit(0);
 
-		*xxx_debug = 61;
+		*xxx_debug = 52;
 
 		int count = 0;
 
@@ -209,9 +212,9 @@ callp_t callp = (callp_t)e32_ctrl_callp[core_local_data.corenum];
 
    	core_local_data.count = 0;
 
-		*xxx_debug = 71;
+		*xxx_debug = 53;
 
-	*xxx_run = 2;
+//	*xxx_run = 2;
 
 /*
 	timeout = 0;
@@ -225,7 +228,7 @@ callp_t callp = (callp_t)e32_ctrl_callp[core_local_data.corenum];
 		*xxx_run = 3;
 */
 
-		*xxx_debug = 72;
+//		*xxx_debug = 72;
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -252,7 +255,7 @@ callp_t callp = (callp_t)e32_ctrl_callp[core_local_data.corenum];
 
 		} else {
 
-			*xxx_debug = 73;
+			*xxx_debug = 54;
 
 			thr_data.blkidx[2] = we_ndp_blk_first(core_we,2);
 
@@ -282,12 +285,11 @@ callp_t callp = (callp_t)e32_ctrl_callp[core_local_data.corenum];
 							--(*xxx_run);
 							++count;
 
-							*xxx_debug = 74;
-							*xxx_info = thr_data.gtdidx[0];
+							*xxx_debug = 55;
 
 //							barrier(0);
 //							e_barrier(bar_array,tgt_bar_array);
-//							barrier_thread_all(0);
+							barrier_thread_all(0);
 
 					++thr_data.blkidx[0];
 					}
@@ -300,12 +302,12 @@ callp_t callp = (callp_t)e32_ctrl_callp[core_local_data.corenum];
 
 			status = count;
 
+			*xxx_debug = 56;
+
 		}
 
-		*xxx_debug = 80;
-
 		e32_ctrl_retval[core_local_data.corenum] = status;
-      e32_ctrl_run[core_local_data.corenum] = 0;
+//      e32_ctrl_run[core_local_data.corenum] = 0;
 		*xxx_run = 0;
       core_local_data.count++;
 

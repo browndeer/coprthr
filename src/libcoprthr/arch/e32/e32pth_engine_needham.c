@@ -63,7 +63,8 @@
 #define XXX_DEBUG 0x7f94
 #define XXX_INFO 0x7f98
 
-struct coord { int row,col };
+struct coord { int row,col; };
+
 struct coord xxx_cores[] = {
 	{0,0}, {0,1}, {0,2}, {0,3},
 	{1,0}, {1,1}, {1,2}, {1,3},
@@ -141,9 +142,10 @@ void __dump_registers()
 		size_t rc3 = e_read( &e_epiphany,r,c, E_REG_PC, &r_pc, sz);
 		size_t rc4 = e_read( &e_epiphany,r,c, E_REG_IMASK, &r_imask, sz);
 		size_t rc5 = e_read( &e_epiphany,r,c, E_REG_IPEND, &r_ipend, sz);
-		printcl( CL_DEBUG 
+//		printcl( CL_DEBUG 
+		fprintf( stderr,
 			"(%d,%d) %d %d %d %d %d reg:"
-			" config=0x%x status=0x%x pc=0x%x imask=0x%x ipend=0x%x",
+			" config=0x%x status=0x%x pc=0x%x imask=0x%x ipend=0x%x" "\n",
 			r,c,rc1,rc2,rc3,rc4,rc5,r_config,r_status,r_pc,r_imask,r_ipend);
 	}
 }
@@ -153,7 +155,8 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	struct cmdcall_arg* argp )
 {
 
-	e_set_host_verbosity(H_D3);
+//	e_set_host_verbosity(H_D3);
+	e_set_host_verbosity(H_D0);
 
 	int i;
 	int icore,irow,icol;
@@ -342,14 +345,13 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 		return(__CL_MEM_OBJECT_ALLOCATION_FAILURE);
 	}
 
-	e_set_host_verbosity(1);
-	e_set_loader_verbosity(1);
+	e_set_host_verbosity(H_D0);
+	e_set_loader_verbosity(0);
 
 	__dump_registers();
 
-printf("BEFORE LOAD\n");
+	printcl( CL_DEBUG "BEFORE LOAD");
 
-///////////////////////////////////////////////////////////
 	if (1) {
 		printcl( CL_DEBUG "need to load srec");
 		printcl( CL_WARNING "hardcoded to devnum=0");
@@ -362,7 +364,7 @@ printf("BEFORE LOAD\n");
 
 		printcl( CL_DEBUG "send reset");
 		e_reset_system();
-		e_set_loader_verbosity(1);
+		e_set_loader_verbosity(0);
 		int err = e_load_group(argp->k.krn->prg1->kbinfile,
 			&e_epiphany,0,0,4,4,0);
 
@@ -383,9 +385,8 @@ printf("BEFORE LOAD\n");
 		
 
 	}
-//////////////////////////////////////////////////////
 
-printf("AFTER LOAD\n"); fflush(stdout);
+	printcl( CL_DEBUG "AFTER LOAD");
 
 	__dump_registers();
 
@@ -586,10 +587,11 @@ printf("AFTER LOAD\n"); fflush(stdout);
    	core_control_data.callp[corenum] = (e32_ptr_t)argp->k.ksyms->kcall3;
 	e32_write_ctrl_callp(core_control_data.callp);
 
-	printcl( CL_DEBUG "readback kcall3 entry:");
-	e32_read_ctrl_callp(core_control_data.callp);
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-		printcl( CL_DEBUG "readback kcall3 entry: %d 0x%x",corenum,core_control_data.callp[corenum]);
+//	printcl( CL_DEBUG "readback kcall3 entry:");
+//	e32_read_ctrl_callp(core_control_data.callp);
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//		printcl( CL_DEBUG "readback kcall3 entry: %d 0x%x",
+//			corenum,core_control_data.callp[corenum]);
 
 	int fail=0;
 	int retry_count=0;
@@ -607,16 +609,16 @@ retry:
 	e32_write_ctrl_retval(core_control_data.retval); 
 
 
-	printcl( CL_DEBUG "write kcall3 entry 0x%x",argp->k.ksyms->kcall3);
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-   	core_control_data.callp[corenum] = (e32_ptr_t)argp->k.ksyms->kcall3;
-	e32_write_ctrl_callp(core_control_data.callp);
+//	printcl( CL_DEBUG "write kcall3 entry 0x%x",argp->k.ksyms->kcall3);
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//   	core_control_data.callp[corenum] = (e32_ptr_t)argp->k.ksyms->kcall3;
+//	e32_write_ctrl_callp(core_control_data.callp);
 
-	printcl( CL_DEBUG "readback kcall3 entry:");
-	e32_read_ctrl_callp(core_control_data.callp);
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-		printcl( CL_DEBUG "readback kcall3 entry: %d 0x%x",
-			corenum,core_control_data.callp[corenum]);
+//	printcl( CL_DEBUG "readback kcall3 entry:");
+//	e32_read_ctrl_callp(core_control_data.callp);
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//		printcl( CL_DEBUG "readback kcall3 entry: %d 0x%x",
+//			corenum,core_control_data.callp[corenum]);
 
 
 //#define foreach_core(r,c) for(r=0;r<2;r++) for(c=0;c<2;c++)
@@ -628,11 +630,11 @@ retry:
 	int info_state;
 	foreach_core(irow,icol) 
 		e_write( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int));
-	int zero = 0;
-	foreach_core(irow,icol) 
-		e_write( &e_epiphany, irow, icol, XXX_DEBUG, &zero, sizeof(int));
-	foreach_core(irow,icol) 
-		e_write( &e_epiphany, irow, icol, XXX_INFO, &zero, sizeof(int));
+//	int zero = 0;
+//	foreach_core(irow,icol) 
+//		e_write( &e_epiphany, irow, icol, XXX_DEBUG, &zero, sizeof(int));
+//	foreach_core(irow,icol) 
+//		e_write( &e_epiphany, irow, icol, XXX_INFO, &zero, sizeof(int));
 
 	__dump_registers();
 
@@ -649,28 +651,36 @@ retry:
 
 //	int rc = e_start_group(&e_epiphany);
 	foreach_core(irow,icol) {
-		int rc = e_start(&e_epiphany,irow,icol);
-		printcl( CL_DEBUG "e_start returned %d",rc);
-	}
-
-	__dump_registers();
-
-/*
-	foreach_core(irow,icol) {
-		e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int) );
-		while(run_state == 1) 	{
-			e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int));
-			e_read( &e_epiphany, irow, icol, XXX_DEBUG, &debug_state, sizeof(int));
-			e_read( &e_epiphany, irow, icol, XXX_INFO, &info_state, sizeof(int));
-			printcl( CL_DEBUG "(%d,%d) run_state=%d debug_state=%d info=%d (0x%x)",
-				irow,icol,run_state,debug_state,info_state,info_state);
+		unsigned int r_pc = 0;
+		int count = 0;
+		do {
+			int rc = e_start(&e_epiphany,irow,icol);
+			fprintf( stderr,"(%d)e_start returned %d\n",count,rc);
+			printcl( CL_DEBUG "(%d)e_start returned %d",count,rc);
+			e_read( &e_epiphany,irow,icol, E_REG_PC, &r_pc, sizeof(unsigned int));
+		} while(!r_pc && ++count < 100);
+		if (count == 100) {
+			printcl( CL_ERR "core %d,%d failed to start",irow,icol);
 		}
 	}
 
-	run_state = 3;
-	foreach_core(irow,icol) 
-		e_write( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int));
-*/
+	for(i=0;i<10;i++)	
+		__dump_registers();
+
+//	foreach_core(irow,icol) {
+//		e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int) );
+//		while(run_state == 1) 	{
+//			e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int));
+//			e_read( &e_epiphany, irow, icol, XXX_DEBUG, &debug_state, sizeof(int));
+//			e_read( &e_epiphany, irow, icol, XXX_INFO, &info_state, sizeof(int));
+//			printcl( CL_DEBUG "(%d,%d) run_state=%d debug_state=%d info=%d (0x%x)",
+//				irow,icol,run_state,debug_state,info_state,info_state);
+//		}
+//	}
+
+//	run_state = 3;
+//	foreach_core(irow,icol) 
+//		e_write( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int));
 
 	foreach_core(irow,icol) {
 		e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int) );
@@ -709,22 +719,23 @@ retry:
 
 	__dump_registers();
 
-	printcl( CL_DEBUG "readback kcall3 entry:");
-	e32_read_ctrl_callp(core_control_data.callp);
-	for (corenum=0; corenum<E32_NCORES;  corenum++) 
-		printcl( CL_DEBUG "readback kcall3 entry (%p): %d 0x%x",
-			&core_control_data.callp[corenum],
-			corenum,core_control_data.callp[corenum]);
+//	printcl( CL_DEBUG "readback kcall3 entry:");
+//	e32_read_ctrl_callp(core_control_data.callp);
+//	for (corenum=0; corenum<E32_NCORES;  corenum++) 
+//		printcl( CL_DEBUG "readback kcall3 entry (%p): %d 0x%x",
+//			&core_control_data.callp[corenum],
+//			corenum,core_control_data.callp[corenum]);
 
 
 //	for(irow=0;irow<4;irow++) for(icol=0;icol<4;icol++) {
-	foreach_core(irow,icol) {
-		e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int) );
-		e_read( &e_epiphany, irow, icol, XXX_DEBUG, &debug_state, sizeof(int));
-		e_read( &e_epiphany, irow, icol, XXX_INFO, &info_state, sizeof(int));
-		printcl( CL_DEBUG "(%d,%d) run_state=%d debug_state=%d info=%d (0x%x)",
-			irow,icol,run_state,debug_state,info_state,info_state);
-	}
+//	foreach_core(irow,icol) {
+//		e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int) );
+//		e_read( &e_epiphany, irow, icol, XXX_DEBUG, &debug_state, sizeof(int));
+//		e_read( &e_epiphany, irow, icol, XXX_INFO, &info_state, sizeof(int));
+//		printcl( CL_DEBUG "(%d,%d) run_state=%d debug_state=%d info=%d (0x%x)",
+//			irow,icol,run_state,debug_state,info_state,info_state);
+//	}
+
 	return(0);
 
 }

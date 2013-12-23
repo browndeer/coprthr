@@ -54,7 +54,6 @@ void __do_get_devices(cl_platform_id, cl_device_type, cl_uint, cl_device_id*);
    } while(0)
 
 #define xxx_e_write_dram( dst, src, len) do { \
-	e_set_host_verbosity(H_D3); \
    printcl( CL_DEBUG "xxx_e_write_dram &e_dram=%p dst=%p (dst-devmembase=%p)", \
 		&e_dram,dst,dst-devmembase); \
    e_write( &e_dram,0,0, (dst-devmembase), src, len); \

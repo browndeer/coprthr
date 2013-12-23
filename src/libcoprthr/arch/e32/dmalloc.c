@@ -1290,7 +1290,8 @@ void *
 dmalloc(int devnum, size_t size)
 {
 
-	fprintf(stderr,"dmalloc: %p %p %p\n",devmemlo,devmem_break,devmemhi);
+	fprintf(stderr,"dmalloc(%d,%ld): %p %p %p\n",
+		devnum,size,devmemlo,devmem_break,devmemhi);
 	fflush(stderr);
 
     return pubrealloc(devnum, NULL, size, " in malloc():");

@@ -3,7 +3,8 @@
 ###
 
 E32_DRAM_ZEROPAGE_LEXINGTON   = 0x81000000
-E32_DRAM_ZEROPAGE_NEEDHAM     = 0x8e000000
+#E32_DRAM_ZEROPAGE_NEEDHAM     = 0x8e000000
+E32_DRAM_ZEROPAGE_NEEDHAM     = 0x8e100000
 E32_DRAM_ZEROPAGE_NEEDHAMPRO  = 0x8e000000
 E32_DRAM_ZEROPAGE_BLANK       = 0x8e000000
 
@@ -80,7 +81,7 @@ endif
 
 IMP_OBJS = device_e32.o dmalloc.o devops_e32.o devcmds_e32.o 
 
-INSTALL_HDRS = e32_opencl_ext.h
+INSTALL_HDRS = e32_opencl_ext.h esdk_missing.h
 
 INSTALL_LIBS = libcoprthr_arch_e32.so
 
@@ -209,10 +210,10 @@ _e32pth_core_main_needham.o: _e32pth_core_main_needham.c
 		-o _e32pth_core_main_needham.o _e32pth_core_main_needham.c
 
 libe_platform.so.needham:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -DCOMPILE_FOR_NEEDHAM -c e_platform.c
+	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -DCOMPILE_FOR_NEEDHAM -c old_e_platform.c
 	$(CC) $(CCFLAGS) $(ESDK_INCS) \
 		-shared -Wl,-soname,libe_platform.so -o libe_platform.so.needham  \
-		e_platform.o $(ESDK_LIBS)
+		old_e_platform.o $(ESDK_LIBS)
 
 libe_platform.so: $(DEFAULT_E_PLATFORM_LIB)
 	ln -s $(DEFAULT_E_PLATFORM_LIB) libe_platform.so

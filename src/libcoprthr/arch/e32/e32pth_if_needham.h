@@ -174,6 +174,7 @@ static __inline size_t get_local_id(uint d)
 //#define XXX_DEBUG 0x7f94
 //#define XXX_INFO 0x7f98
 
+/*
 __always_inline void barrier( int flags);
 __always_inline void barrier( int flags)
 {
@@ -201,6 +202,38 @@ __always_inline void barrier( int flags)
 	__trace_point(3); 
 	__restore_run(); 
 }
+*/
+#define __volatile_int( val ) ( *(volatile int*)&(val) )
+#define __barrier_top() do { \
+   if ( core_local_data.corenum==0) { \
+      while ( __volatile_int(*core_local_data.psigb_next) ); \
+      *core_local_data.psigb_next = 1; \
+      while ( __volatile_int(core_local_data.sigb)==0); \
+   } else { \
+      while ( __volatile_int(core_local_data.sigb)==0); \
+      while ( __volatile_int(*core_local_data.psigb_next) ); \
+      *core_local_data.psigb_next = 1; \
+   } \
+   } while(0)
+
+#define __barrier_bottom() do { \
+   if (core_local_data.corenum==0) { \
+      *core_local_data.psigb_next = 0; \
+      while ( __volatile_int(core_local_data.sigb) ); \
+   } else { \
+      while ( __volatile_int(core_local_data.sigb) ); \
+      *core_local_data.psigb_next = 0; \
+   } \
+   } while(0)
+
+__inline __attribute__((always_inline)) void
+barrier( int kind )
+{
+//   if ((kind)&XCL_MEM_FENCE) while(__volatile_int(core_local_data.recvaddr));
+   __barrier_top();
+   __barrier_bottom();
+}
+
 
 
 #define __halt(val) do { \

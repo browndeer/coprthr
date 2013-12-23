@@ -1,9 +1,20 @@
 
-#ifdef _coprthr_xxx_h
+#ifndef _coprthr_xxx_h
 #define _coprthr_xxx_h
 
 //#if defined(__coprthr_device__)
 
+#if defined(__x86_64__)
+#warning __x86_64__ defined
+#elif defined(__i386__)
+#warning __i386__ defined
+#elif defined(__arm__)
+#warning __arm__ defined
+#elif defined(__epiphany__)
+#warning __epiphany__ defined
+#else
+#error no supported architecture 
+#endif
 
 #if defined(__x86_64__) || defined(__i386__) || defined(__arm__) 
 
@@ -19,13 +30,15 @@ void coprthr_mutex_unlock( void* p_mtx)
 
 #include "e_mutex.h"
 
+#warning __epiphany__ defined
+
 int __attribute__((noinline)) read_h( int* p) { return p[1]; }
 
 void coprthr_mutex_lock( void* p_mtx ) 
-{ while(read_h(p_mtx)); e_mutex_lock( p_mtx); }
+{ while(read_h(p_mtx)); e_mutex_lock( 0,0, p_mtx); }
 
 void coprthr_mutex_unlock( void* p_mtx) 
-{ e_mutex_unlock(p_mtx); }
+{ e_mutex_unlock(0,0,p_mtx); }
 
 #else
 

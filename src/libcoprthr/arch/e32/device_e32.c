@@ -122,7 +122,7 @@ static int init_device_e32(void)
 /*** initialize epiphany device *****/
 
 //   e_init(EPIPHANY_HDF);
-	e_set_host_verbosity(H_D3);
+	e_set_host_verbosity(H_D0);
    err = e_init(0);
 	e_reset_system();
 	printcl( CL_DEBUG "e_init() returned %d",err);

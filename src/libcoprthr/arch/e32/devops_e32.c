@@ -44,6 +44,8 @@
  *** low-level device memory operations
  ***/
 
+//xxx_e_write_dram(dst+offset,src,len);
+
 static void* memalloc( size_t size, int flags )
 {
 	printcl( CL_DEBUG "arch/e32: memalloc %ld 0x%x",size,flags);
@@ -106,7 +108,9 @@ static void* memalloc( size_t size, int flags )
 //			s = e_write_word( &e_epiphany, 0, 0x80807fa4, 0);
 //			printcl( CL_DEBUG "e_write_word returned %ld",s);
 
-			xxx_e_write_dram((void*)addr,&ss,8);			
+//			xxx_e_write_dram((void*)addr,&ss,8);			
+			e_write( &e_epiphany, 0, 0, 0x7fff&(intptr_t)addr, &ss, 8);
+			
 
 			break;
 			}
@@ -203,19 +207,34 @@ static size_t memcopy( void* dptr_src, void* dptr_dst, size_t sz)
 
 static 
 __attribute__((noinline)) int __read_h( int* mtx ) 
-{ return e_read_word(&e_epiphany, 0, (off_t)(mtx+1)); }
+//{ return e_read_word(&e_epiphany, 0, (off_t)(mtx+1)); 
+{
+	int tmp;
+	e_read( &e_epiphany, 0, 0, 0x7fff&(intptr_t)(mtx+1), &tmp, sizeof(int) );
+	return tmp;
+}
 
 static 
 __attribute__((noinline)) void __write_h( int* mtx, int val ) 
-{ e_write_word(&e_epiphany, 0, (off_t)(mtx+1), val); }
+//{ e_write_word(&e_epiphany, 0, (off_t)(mtx+1), val); }
+{ e_write( &e_epiphany, 0, 0, 0x7fff&(intptr_t)(mtx+1), &val, sizeof(int)); }
+
 
 static 
 __attribute__((noinline)) int __read_m( int* mtx ) 
-{ return e_read_word(&e_epiphany, 0, (off_t)mtx); }
+//{ return e_read_word(&e_epiphany, 0, (off_t)mtx); }
+{
+	int tmp;
+	e_read( &e_epiphany, 0, 0, 0x7fff&(intptr_t)mtx, &tmp, sizeof(int) );
+	return tmp;
+}
 
 static 
 __attribute__((noinline)) void __write_m( int* mtx, int val ) 
-{ e_write_word(&e_epiphany, 0, (off_t)mtx, val); }
+//{ e_write_word(&e_epiphany, 0, (off_t)mtx, val); }
+{ e_write( &e_epiphany, 0, 0, 0x7fff&(intptr_t)mtx, &val, sizeof(int)); }
+
+
 
 static int mtxlock( void* mtxmem )
 {
