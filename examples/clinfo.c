@@ -126,6 +126,7 @@ int main()
 			for(j=0;j<ndev;j++) {
 
 				clgetdevinfo( &devices[j], &devinfo);
+				fprintf(stdout,"clinfo: device %d:\n",j);
 				clfreport_devinfo( stdout, 1, &devinfo );
 
 			}
@@ -325,7 +326,7 @@ clfreport_devinfo( FILE* fp, size_t ndev, struct cldev_info* info )
 
    if (info) for(n=0,di = info;n<ndev;n++,di++) {
 
-      fprintf(fp,"clinfo: device %d:\n",n);
+//      fprintf(fp,"clinfo: device %d:\n",n);
 
       fprintf(fp,"clinfo: CL_DEVICE_TYPE = ");
       if (di->dev_type&CL_DEVICE_TYPE_CPU) fprintf(fp," CPU");
