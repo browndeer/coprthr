@@ -87,4 +87,5 @@ clean:
 distclean: clean
 	rm -f ./scripts/run_tests.sh ./scripts/run_quick_tests.sh \
 		./scripts/run_loop_tests.sh
+	rm -f log.std*
 
