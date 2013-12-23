@@ -39,7 +39,7 @@ else
 EPIPHANY_PLATFORM="Parallella"
 endif
 
-all: getndev.x $(PRG_TESTS)
+all: getndev.x $(PRG_TESTS) $(CLSRC)
 
 #.PHONEY: $(PRG_TESTS)
 
@@ -52,7 +52,7 @@ test.x: test.o
 	$(CC) $(CFLAGS) $(INCS) -o test.x test.c $(OBJS) $(LIBS)
 
 test_%.cl: ./scripts/gen_cl_test_%.pl
-	./scripts/gen_cl_test_$*.pl > test_$*.cl
+	./scripts/gen_cl_test_$*.pl 6 > test_$*.cl
 
 #test_stdcl_%.x: ./scripts/gen_c_test_stdcl_%.pl ./scripts/gen_cl_test_%.pl
 #	./scripts/gen_c_test_stdcl_$*.pl > test_stdcl_$*.c
@@ -60,7 +60,7 @@ test_%.cl: ./scripts/gen_cl_test_%.pl
 #	$(CC) $(CFLAGS) $(INCS) -o $@ test_stdcl_$*.c $(OBJS) $(LIBS)
 
 test_stdcl_%.x: ./scripts/gen_c_test_stdcl_%.pl 
-	./scripts/gen_c_test_stdcl_$*.pl > test_stdcl_$*.c
+	./scripts/gen_c_test_stdcl_$*.pl 6 > test_stdcl_$*.c
 	$(CC) $(CFLAGS) $(INCS) -o $@ test_stdcl_$*.c $(OBJS) $(LIBS)
 
 getndev.x: ./src/getndev.c

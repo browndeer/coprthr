@@ -20,6 +20,12 @@
 
 # DAR #
 
+if ($#ARGV == 0) {
+        $nargmax = $ARGV[0];
+} else {
+        $nargmax = 10;
+}
+
 $size = 128;
 $bsize = 4;
 $sweep = 4; 
@@ -78,6 +84,7 @@ printf "else if (!strncmp(arg,\"--blocksize\",11)) blocksize = atoi(argv[i++]);\
 printf "else if (!strncmp(arg,\"--dev\",6)) { cp = stddev; devnum = atoi(argv[i++]); }\n";
 printf "else if (!strncmp(arg,\"--cpu\",6)) { cp = stdcpu; devnum = atoi(argv[i++]); }\n";
 printf "else if (!strncmp(arg,\"--gpu\",6)) { cp = stdgpu; devnum = atoi(argv[i++]); }\n";
+printf "else if (!strncmp(arg,\"--acc\",6)) { cp = stdacc; devnum = atoi(argv[i++]); }\n";
 printf "else {\n";
 printf "fprintf(stderr,\"unrecognized option '%%s'\\n\",arg);\n";
 printf "exit(-1);\n";
@@ -117,7 +124,7 @@ printf "krn = clsym(cp,clh,\"$testprefix".$a."_".$b."_kern\",CLLD_NOW);\n";
 printf "if (!krn) exit(__LINE__);\n";
 
 for($i=0;$i<$a;++$i) {
-printf "if (!clmsync(cp,0,aa$i,CL_MEM_DEVICE|CL_EVENT_NOWAIT))\n";
+printf "if (!clmsync(cp,devnum,aa$i,CL_MEM_DEVICE|CL_EVENT_NOWAIT))\n";
 printf "exit(__LINE__);\n";
 }
 
@@ -132,15 +139,15 @@ $k = $a+$j;
 printf "clarg_set_global(cp,krn,$k,bb$j);\n";
 }
 
-printf "if (!clfork(cp,0,krn,&ndr,CL_EVENT_NOWAIT))\n";
+printf "if (!clfork(cp,devnum,krn,&ndr,CL_EVENT_NOWAIT))\n";
 printf "exit(__LINE__);\n";
 
 for($j=0;$j<$b;++$j) {
-printf "if (!clmsync(cp,0,bb$j,CL_MEM_HOST|CL_EVENT_NOWAIT))\n";
+printf "if (!clmsync(cp,devnum,bb$j,CL_MEM_HOST|CL_EVENT_NOWAIT))\n";
 printf "exit(__LINE__);\n";
 }
 
-printf "clwait(cp,0,CL_KERNEL_EVENT|CL_MEM_EVENT);\n";
+printf "clwait(cp,devnum,CL_KERNEL_EVENT|CL_MEM_EVENT);\n";
 
 
 printf "sum_correct = 0;\n";

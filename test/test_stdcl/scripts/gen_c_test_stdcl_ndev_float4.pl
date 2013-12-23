@@ -20,6 +20,12 @@
 
 # DAR #
 
+if ($#ARGV == 0) {
+        $nargmax = $ARGV[0];
+} else {
+        $nargmax = 10;
+}
+
 $size = 128;
 $bsize = 4;
 $clfile = 'test_arg_float4.cl';
@@ -81,6 +87,7 @@ printf "else if (!strncmp(arg,\"--blocksize\",11)) blocksize = atoi(argv[i++]);\
 printf "else if (!strncmp(arg,\"--dev\",6)) { cp = stddev; devnum = atoi(argv[i++]); }\n";
 printf "else if (!strncmp(arg,\"--cpu\",6)) { cp = stdcpu; devnum = atoi(argv[i++]); }\n";
 printf "else if (!strncmp(arg,\"--gpu\",6)) { cp = stdgpu; devnum = atoi(argv[i++]); }\n";
+printf "else if (!strncmp(arg,\"--acc\",6)) { cp = stdacc; devnum = atoi(argv[i++]); }\n";
 printf "else {\n";
 printf "fprintf(stderr,\"unrecognized option '%%s'\\n\",arg);\n";
 printf "exit(-1);\n";
@@ -95,7 +102,7 @@ printf "if (ndev > clgetndev(cp)) exit(__LINE__);\n";
 printf "size_t size4 = size/4;\n";
 printf "size_t ns = ndev*size;\n";
 
-for($c=0;$c<10-2;++$c) {
+for($c=0;$c<$nargmax-2;++$c) {
 printf "float** aa$c = (float**)malloc(ndev*sizeof(float*));\n";
 printf "if (!aa$c) exit(__LINE__);\n";
 printf "float** bb$c = (float**)malloc(ndev*sizeof(float*));\n";
@@ -103,7 +110,7 @@ printf "if (!bb$c) exit(__LINE__);\n";
 }
 
 printf "for(n=0;n<ndev;n++) {\n";
-for($c=0;$c<10-2;++$c) {
+for($c=0;$c<$nargmax-2;++$c) {
 printf "aa".$c."[n] = (float*)clmalloc(cp,size*sizeof(float),0);\n";
 printf "if (!aa".$c."[n]) exit(__LINE__);\n";
 printf "bb".$c."[n] = (float*)clmalloc(cp,size*sizeof(float),0);\n";
@@ -113,7 +120,7 @@ printf "}\n";
 
 printf "for(n=0;n<ndev;n++) {\n";
 printf "for(i=0;i<size;i++) { \n";
-for($c=0;$c<10-2;++$c) {
+for($c=0;$c<$nargmax-2;++$c) {
 printf "aa".$c."[n][i] = (n*size+i)*1.1f+13.1f*".$c."; bb".$c."[n][i] = 0; \n";
 }
 printf "}\n";
@@ -128,7 +135,7 @@ printf "clndrange_t ndr = clndrange_init1d(0,size4,blocksize);\n";
 printf "float sum,sum_correct;\n";
 printf "float tol = pow(10.0,-8+log10((float)size));\n";
 
-for($c=0;$c<10;++$c) {
+for($c=0;$c<$nargmax;++$c) {
    for($a=1;$a<$c;++$a) {
       $b=$c-$a;
 

@@ -20,7 +20,13 @@
 
 # DAR #
 
-for($c=0;$c<10;++$c) {
+if ($#ARGV == 0) {
+        $nargmax = $ARGV[0];
+} else {
+        $nargmax = 10;
+}
+
+for($c=0;$c<$nargmax;++$c) {
 	for($a=1;$a<$c;++$a) {
 		$b=$c-$a;
 		printf "\n/* $b=$c-$a */\n";
