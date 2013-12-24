@@ -4230,7 +4230,19 @@ fi
 
 BASH=`which bash`
 
-MAKE=make
+#MAKE=make
+case $build_os in
+
+	freebsd*)
+		MAKE=gmake
+		;;
+
+	*)
+		MAKE=make
+		;;
+
+esac;
+
 
 
 

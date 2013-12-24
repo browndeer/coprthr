@@ -830,7 +830,19 @@ AC_ARG_WITH(lib-mic,
 
 BASH=`which bash`
 
-MAKE=make
+#MAKE=make
+case $build_os in
+
+	freebsd*)
+		MAKE=gmake
+		;;
+
+	*)
+		MAKE=make
+		;;
+
+esac;
+
 
 AC_SUBST(BASH)
 AC_SUBST(MAKE)

@@ -185,7 +185,7 @@ uninstall:
 #	rm -f $(INSTALL_LIB_DIR)/libOpenCL.so 
 
 clean:
-	rm -f *.o *.so
+	rm -f *.o *.so *.a
 	rm -f oclcall.h oclcall.c
 
 distclean: clean

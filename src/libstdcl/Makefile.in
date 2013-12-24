@@ -202,10 +202,9 @@ endif
 
 
 clean:
-	rm -f *.o 
+	rm -f *.o *.so *.a
 	rm -f *.1.gz *.3.gz
 	rm -f _interceptor.h 
-	rm -f *.so
 	rm -f *.mod
 
 distclean: clean
