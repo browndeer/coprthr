@@ -94,6 +94,7 @@ char* platform_name_string[] = {
 		"intel" 
 };
 
+
 void usage() 
 {
 	printf("usage: clcc [options] file...\n");
@@ -115,7 +116,12 @@ void usage()
 	printf("\t-mdevice-exclude=<device-list>\n");
 	printf("\t-mall\n");
 	printf("\t-mavail\n");
+	printf("\t--dump-bin\n");
+	printf("\t--coprthr-cc\n");
+	printf("\t--mtarget\n");
+	printf("\t--targets\n");
 }
+
 
 void version()
 {
