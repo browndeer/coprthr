@@ -27,71 +27,86 @@ INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
-#ifeq (@ENABLE_LIBCLRPC@,1)
-#SUBDIRS += ./src/libclrpc
-#endif
 
+### libocl ###
 ifeq (@ENABLE_LIBOCL@,1)
 SUBDIRS += ./src/libocl 
 endif
 
+
+### libocl ###
 ifeq (@ENABLE_LIBCLRPC@,1)
 SUBDIRS += ./src/libclrpc
 endif
 
 
+### libcoprthr ###
 ifeq (@ENABLE_LIBCOPRTHR@,1)
-ifeq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 SUBDIRS += ./src/libcoprthr ./src/libcoprthr_opencl 
-else
+endif
 
-ifeq (@build@,mic-unknown-linux-gnu)
-SUBDIRS += ./src/libcoprthr ./src/libcoprthr_opencl
-else
-SUBDIRS += ./src/libcoprthr ./src/libcoprthr_opencl
+
+### libcoprthrcc ###
+ifeq (@ENABLE_LIBCOPRTHRCC@,1)
 SUBDIRS += ./src/libcoprthrcc ./tools/xclnm
 endif
 
-endif
-endif
 
+### libstdcl ###
 SUBDIRS += ./include ./src/libclelf ./src/libstdcl 
 
-ifeq (@ENABLE_CLLD@,1)
-ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
-ifneq (@build@,mic-unknown-linux-gnu)
-SUBDIRS += ./tools/clcc ./tools/clcc1 ./tools/clld ./tools/clnm
+
+HOST=@host@
+HOST_CPU=@host_cpu@
+HOST_VENDOR=@host_vendor@
+HOST_OS=@host_os@
+BUILD=@build@
+
+### clcc ###
+ENABLE_CLCC=@ENABLE_CLCC@
+ifeq (@host_os@,linux-androideabi)
+	ENABLE_CLCC=0
 endif
+ifeq (@build_cpu@,mic)
+	ENABLE_CLCC=0
 endif
+ifeq ($(ENABLE_CLCC),1)
+	SUBDIRS += ./tools/clcc ./tools/clcc1 ./tools/clld ./tools/clnm
 endif
 
+
+### CLETE ###
 #ifneq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 ifeq (@ENABLE_CLETE@,1)
 SUBDIRS += ./src/CLETE
 endif
 #endif
 
-ifeq (@ENABLE_CLTRACE@,1)
-SUBDIRS += ./tools/cltrace
-endif
+
+#ifeq (@ENABLE_CLTRACE@,1)
+#SUBDIRS += ./tools/cltrace
+#endif
 
 #SUBDIRS += $(addprefix ./libs/,$(BUILD_LIBS))
 #SUBDIRS += $(addprefix ./tools/,$(BUILD_TOOLS)) 
 
-ifeq (@ENABLE_EPIPHANY@,1)
-#SUBDIRS += ./src/libcoprthr-e
-endif
 
-ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
+#ifeq (@ENABLE_EPIPHANY@,1)
+##SUBDIRS += ./src/libcoprthr-e
+#endif
+
+
+### additional tools ###
+ifneq (@host_os@,linux-androideabi)
 SUBDIRS += ./tools/cltop ./tools/scripts
 endif
 
-#DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts
+
 DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libcoprthrcc ./src/libcoprthr_opencl ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts
 
-ifeq (@ENABLE_EPIPHANY@,1)
-#DISTCLEAN_DIRS += ./src/libcoprthr-e ./test/test_libcoprthr-e
-endif
+#ifeq (@ENABLE_EPIPHANY@,1)
+##DISTCLEAN_DIRS += ./src/libcoprthr-e ./test/test_libcoprthr-e
+#endif
 
 export TOPDIR = $(CURDIR)
 
@@ -115,6 +130,7 @@ distclean:
 	done
 	rm -f Makefile
 	rm -f ./scripts/clprocd
+	rm -f ndk.sh
 
 echo-install:
 	echo $(INSTALL_BIN_DIR)
@@ -126,10 +142,10 @@ install: subdirs
 	cp -Rf ./test $(prefix)
 	install -m 755 ./tools/scripts/cldebug $(INSTALL_BIN_DIR)
 	install -m 755 ./tools/scripts/clprocd $(INSTALL_BIN_DIR)
-ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
-else
-#	install -m 755 ./scripts/clprocd /etc/init.d/
-endif
+#ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
+#else
+##	install -m 755 ./scripts/clprocd /etc/init.d/
+#endif
 	@chmod -R a+rX $(prefix)
 	install -m 644 install-message.txt $(prefix)/install-message.txt
 	@cat install-message.txt
@@ -140,12 +156,14 @@ else
 	install -m 644 ./etc/ocl.conf /etc/ocl.conf
 endif
 
+
 uninstall: subdirs
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 else
 	rm -f /etc/init.d/clprocd
 endif
 	rm -f /etc/ocl.conf
+
 
 test: 
 	$(MAKE) -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)

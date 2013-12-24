@@ -18,6 +18,7 @@ AC_DEFUN([SET_OPT],
 )
 
 AC_CANONICAL_BUILD
+AC_CANONICAL_HOST
 
 # Checks for programs.
 AC_PROG_CC
@@ -50,14 +51,20 @@ AC_ARG_ENABLE(clete,
 AC_ARG_ENABLE(debug-libs,
   AC_HELP_STRING([--enable-debug-libs],[enable building debug versions of librarires (default=yes)]),, enable_debug_libs=yes)
 
-AC_ARG_ENABLE(cltrace,
-  AC_HELP_STRING([--enable-cltrace],[enable building cltrace tool (default=yes)]),, enable_cltrace=yes)
+#AC_ARG_ENABLE(cltrace,
+#  AC_HELP_STRING([--enable-cltrace],[enable building cltrace tool (default=yes)]),, enable_cltrace=yes)
 
-AC_ARG_ENABLE(clld,
-  AC_HELP_STRING([--enable-clld],[enable building clld tool (default=yes)]),, enable_clld=yes)
+#AC_ARG_ENABLE(clld,
+#  AC_HELP_STRING([--enable-clld],[enable building clld tool (default=yes)]),, enable_clld=yes)
+
+AC_ARG_ENABLE(clcc,
+  AC_HELP_STRING([--enable-clcc],[enable building clcc tools (default=yes)]),, enable_clcc=yes)
 
 AC_ARG_ENABLE(libcoprthr,
   AC_HELP_STRING([--enable-libcoprthr],[enable libcoprthr (default=yes)]),, enable_libcoprthr=yes)
+
+AC_ARG_ENABLE(libcoprthrcc,
+  AC_HELP_STRING([--enable-libcoprthrcc],[enable libcoprthrcc (default=yes)]),, enable_libcoprthrcc=yes)
 
 AC_ARG_ENABLE(libocl,
   AC_HELP_STRING([--enable-libocl],[enable libocl (default=yes)]),, enable_libocl=yes)
@@ -117,8 +124,9 @@ echo enable_libcoprthr $enable_libcoprthr
 SET_OPT($enable_clete, ENABLE_CLETE, "CLETE expression template acceleration")
 #SET_OPT($enable_debug_libs, ENABLE_DEBUG_LIBS, "building debug versions of librarires - use \<libname\>_d.so")
 SET_OPT($enable_cltrace, ENABLE_CLTRACE, "building cltrace tool")
-SET_OPT($enable_clld, ENABLE_CLLD, "building clld tool")
+SET_OPT($enable_clcc, ENABLE_CLCC, "building clcc tools")
 SET_OPT($enable_libcoprthr, ENABLE_LIBCOPRTHR, "building libcoprthr")
+SET_OPT($enable_libcoprthrcc, ENABLE_LIBCOPRTHRCC, "building libcoprthrcc")
 SET_OPT($enable_libocl, ENABLE_LIBOCL, "building libocl")
 #SET_OPT($enable_libcoprthr_ncpu, ENABLE_NCPU, "libcoprthr ncpu support")
 SET_OPT($enable_fortran, ENABLE_FORTRAN, "fortran binding support")
@@ -470,11 +478,27 @@ fi;
 echo $F90
 
 
+### allow a default --with-lib to be provided when prerequisite libraries
+### are all installed in same place.
+
+AC_ARG_WITH(lib,
+  AC_HELP_STRING([--with-lib=DIR],
+  [set path for prerequisite libs]),
+  [
+    if test x$withval = xno; then
+		AC_MSG_ERROR([usage: --with-lib=DIR])
+    else
+      LIB_PATH=$withval
+    fi;
+  ],
+  [ LIB_PATH=/usr/local ])
+
+
+
+
 ### now address a constant annoyance.  
 ### we will require a path for libelf and most importantly we will 
 ### reject attempts to use libelf.so.1 because its useless -DAR
-
-
 
 AC_ARG_WITH(libelf,
   AC_HELP_STRING([--with-libelf=DIR], [specify path to libelf]),
@@ -487,13 +511,8 @@ AC_ARG_WITH(libelf,
     echo $LIBELF_PATH
   ],
   [
-    if test -e /usr/local/lib/libelf.so; then
-      LIBELF_PATH=/usr/local;
-    else
-      AC_MSG_ERROR([cannot find libelf, try --with-libelf=DIR])
-    fi;
+    LIBELF_PATH=$LIB_PATH;
   ])
-
 
 echo $LIBELF_PATH
 
@@ -502,6 +521,8 @@ tmp_test_libelf=`readelf -d $LIBELF_PATH/lib/libelf.so | grep 'Library soname' |
 
 if test -e $LIBELF_PATH/lib/libelf.a; then
 	echo "using static libelf"
+elif ! test -e $LIBELF_PATH/lib/libelf.so; then
+   AC_MSG_ERROR([cannot find libelf, try --with-libelf=DIR])
 elif ! test x$tmp_test_libelf = x@<:@libelf.so.0@:>@; then
 	echo $tmp_test_libelf
 	AC_MSG_ERROR([incorrect version of libelf specified])
@@ -596,7 +617,12 @@ AC_ARG_WITH(libevent,
       LIBEVENT_PATH=$withval
     fi;
   ],
-  [ LIBEVENT_PATH=/usr/local ])
+  [ 
+    LIBEVENT_PATH=$LIB_PATH
+  ])
+
+echo "XXX " $LIB_PATH
+echo "XXX " $LIBEVENT_PATH
 
 if ! test -e $LIBEVENT_PATH/include/event2; then
    AC_MSG_ERROR([cannot find libevent headers])
@@ -622,7 +648,9 @@ AC_ARG_WITH(libconfig,
       LIBCONFIG_PATH=$withval
     fi;
   ],
-  [ LIBCONFIG_PATH=/usr/local ])
+  [ 
+    LIBCONFIG_PATH=$LIB_PATH
+  ])
 
 if ! test -e $LIBCONFIG_PATH/include/libconfig.h; then
    AC_MSG_ERROR([cannot find libconfig header])
@@ -800,7 +828,6 @@ AC_ARG_WITH(lib-mic,
   ])
 
 
-
 BASH=`which bash`
 
 MAKE=make
@@ -813,8 +840,9 @@ AC_SUBST(ENABLE_CLGL)
 AC_SUBST(ENABLE_CLETE)
 AC_SUBST(ENABLE_DEBUG_LIBS)
 AC_SUBST(ENABLE_CLTRACE)
-AC_SUBST(ENABLE_CLLD)
+AC_SUBST(ENABLE_CLCC)
 AC_SUBST(ENABLE_LIBCOPRTHR)
+AC_SUBST(ENABLE_LIBCOPRTHRCC)
 AC_SUBST(ENABLE_LIBOCL)
 AC_SUBST(ENABLE_LIBCLRPC)
 AC_SUBST(ENABLE_NCPU)
@@ -910,6 +938,7 @@ AC_CONFIG_FILES([examples/parallella/clopen_example/Makefile])
 AC_CONFIG_FILES([examples/parallella/clmulti_array_example/Makefile])
 AC_CONFIG_FILES([examples/parallella/clvector_example/Makefile])
 #AC_CONFIG_FILES([examples/parallella/bdt_nbody/Makefile])
+AC_CONFIG_FILES([ndk.sh])
 
 AC_CONFIG_FILES([test/test_libcoprthr/scripts/run_tests.sh],[chmod +x test/test_libcoprthr/scripts/run_tests.sh])
 AC_CONFIG_FILES([test/test_libcoprthr/scripts/run_quick_tests.sh],[chmod +x test/test_libcoprthr/scripts/run_quick_tests.sh])

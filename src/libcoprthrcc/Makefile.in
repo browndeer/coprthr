@@ -63,7 +63,7 @@ OBJS_E = elfcl_x86_64.o elfcl_386.o elfcl_arm32.o \
 	compiler_e32_emek.o \
 	compiler_e32_needham.o 
 
-OBJS_CROSS = compiler_android_arm32.o
+#OBJS_CROSS = compiler_android_arm32.o
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 DEFS += -DENABLE_NCPU
@@ -71,8 +71,16 @@ DEFS += -DENABLE_NCPU
 DEFS += -DLIBCOPRTHR_CC=\"@LIBCOPRTHR_CC@\"
 DEFS += -DLIBCOPRTHR_CXX=\"@LIBCOPRTHR_CXX@\"
 
+#ifneq (@ANDROID_NDK@,)
+#DEFS += -DANDROID_NDK=\"@ANDROID_NDK@\"
+#endif
+
+ifeq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
+DEFS += -DENABLE_ANDROID_CROSS_COMPILE
+OBJS += compiler_android_arm32.o
 ifneq (@ANDROID_NDK@,)
 DEFS += -DANDROID_NDK=\"@ANDROID_NDK@\"
+endif
 endif
 
 ######################################################################
@@ -159,13 +167,18 @@ all: $(TARGET)
 	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
 
 
-libcoprthrcc.so: $(OBJS) $(OBJS_CROSS)
+#libcoprthrcc.so: $(OBJS) $(OBJS_CROSS)
+#	$(CC) $(CCFLAGS) $(INCS) \
+#		-shared -Wl,-soname,libcoprthrcc.so -o libcoprthrcc.so  \
+#		$(OBJS) $(OBJS_CROSS) $(LIBS)
+libcoprthrcc.so: $(OBJS) 
 	$(CC) $(CCFLAGS) $(INCS) \
-		-shared -Wl,-soname,libcoprthrcc.so -o libcoprthrcc.so  \
-		$(OBJS) $(OBJS_CROSS) $(LIBS)
+		-shared -Wl,-soname,libcoprthrcc.so -o libcoprthrcc.so $(OBJS) $(LIBS)
 
-libcoprthrcc.a: $(OBJS) $(OBJS_CROSS)
-	ar rcv libcoprthrcc.a $(OBJS) $(OBJS_CROSS)
+#libcoprthrcc.a: $(OBJS) $(OBJS_CROSS)
+#	ar rcv libcoprthrcc.a $(OBJS) $(OBJS_CROSS)
+libcoprthrcc.a: $(OBJS) 
+	ar rcv libcoprthrcc.a $(OBJS) 
 
 libcoprthrcc-e.so: $(OBJS_E) 
 	$(CC) $(CCFLAGS) $(INCS) \

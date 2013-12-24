@@ -1,0 +1,8 @@
+#!/bin/bash
+
+export WORK=/home/richie/android
+#export NDK=/home/richie/android/android-ndk-r9b
+export NDK=@ANDROID_NDK@
+export PATH=$NDK/toolchains/arm-linux-androideabi-4.7/prebuilt/linux-x86_64/bin:$PATH
+export PS1=NDK]
+

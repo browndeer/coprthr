@@ -75,7 +75,7 @@ LIBS += $(USE_OPENCL_LIBS)
 INCS += $(LIBELF_INC)
 LIBS += $(LIBELF_LIB)
 
-ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
+ifneq (@host_os@,linux-androideabi)
 LIBS += -lpthread -lrt 
 endif
 
