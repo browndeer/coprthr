@@ -200,6 +200,11 @@ int __compile(
 	int err;
 	struct stat fst;
 
+	char* env_tmpdir = getenv("TEMPDIR");
+	char* coprthr_tmp = getenv("COPRTHR_TMP");
+	char* tmpdir= (coprthr_tmp)? strdup(coprthr_tmp)
+		: (env_tmpdir)? strdup(env_tmpdir) : strdup("/tmp");
+
 	char default_opt[] = "";
 	char* opt = (opt_in)? strdup(opt_in) : strdup(default_opt);
 
@@ -218,19 +223,20 @@ int __compile(
        printcl( CL_DEBUG "opt after filter |%s|",opt);
 
 
-	char* coprthr_tmp = getenv("COPRTHR_TMP");
+//	char* coprthr_tmp = getenv("COPRTHR_TMP");
 
    if (stat(coprthr_tmp,&fst) || !S_ISDIR(fst.st_mode)
                || (fst.st_mode & S_IRWXU) != S_IRWXU) coprthr_tmp = 0;
 
-   char* wdtemp;
-
-   if (coprthr_tmp) {
-      wdtemp = (char*)malloc(strlen(coprthr_tmp) +11);
-      sprintf(wdtemp,"%s/xclXXXXXX",coprthr_tmp);
-   } else {
-      wdtemp = strdup("/tmp/xclXXXXXX");
-   }
+   char* wdtemp = 0;
+	
+//   if (coprthr_tmp) {
+//      wdtemp = (char*)malloc(strlen(coprthr_tmp) +11);
+//      sprintf(wdtemp,"%s/xclXXXXXX",coprthr_tmp);
+//   } else {
+//      wdtemp = strdup("/tmp/xclXXXXXX");
+//   }
+	asprintf(&wdtemp,"%s/xclXXXXXX",tmpdir);
 
 
 	char filebase[] 	= "XXXXXX";

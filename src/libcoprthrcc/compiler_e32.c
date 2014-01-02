@@ -275,6 +275,11 @@ int __compile_e32(
 
 	printcl( CL_DEBUG "__compile_e32");
 
+   char* env_tmpdir = getenv("TEMPDIR");
+   char* coprthr_tmp = getenv("COPRTHR_TMP");
+   char* tmpdir= (coprthr_tmp)? strdup(coprthr_tmp)
+      : (env_tmpdir)? strdup(env_tmpdir) : strdup("/tmp");
+
 //	if (!buf1) buf1 = (char*)malloc(16384); //// XXX TEMPORARY XXXX
 	char* buf1 = (char*)malloc(16384); //// XXX TEMPORARY XXXX
 	printcl( CL_DEBUG "buf1=%p",buf1);
@@ -300,26 +305,22 @@ int __compile_e32(
 
 	printcl( CL_DEBUG "opt after filter |%s|",opt);
 
-	char* coprthr_tmp = getenv("COPRTHR_TMP");
-//	char* coprthr_tmp = (p_coprthr_tmp)? strdup(p_coprthr_tmp) : 0;
-//	char* coprthr_tmp = (p_coprthr_tmp)? strdup(p_coprthr_tmp) : strdup("/tmp");
-//	char* coprthr_tmp = strdup("/tmp");
+//	char* coprthr_tmp = getenv("COPRTHR_TMP");
 
 	if (coprthr_tmp && (stat(coprthr_tmp,&fst) || !S_ISDIR(fst.st_mode) 
 		|| (fst.st_mode & S_IRWXU) != S_IRWXU) ) coprthr_tmp = 0;
 
-	char* wdtemp;
+	char* wdtemp = 0;
 
-	if (coprthr_tmp) {
-		wdtemp = (char*)malloc(strlen(coprthr_tmp) +11);
-		sprintf(wdtemp,"%s/xclXXXXXX",coprthr_tmp);
-	} else {
-//		wdtemp = strdup("/tmp/xclXXXXXX");
-//		wdtemp = (char*)malloc(256);
-//		sprintf(wdtemp,"/tmp/xclXXXXXX");
-		wdtemp = (char*)malloc(strlen("/tmp") +11);
-		sprintf(wdtemp,"%s/xclXXXXXX","/tmp");
-	}
+//	if (coprthr_tmp) {
+//		wdtemp = (char*)malloc(strlen(coprthr_tmp) +11);
+//		sprintf(wdtemp,"%s/xclXXXXXX",coprthr_tmp);
+//	} else {
+//		wdtemp = (char*)malloc(strlen("/tmp") +11);
+//		sprintf(wdtemp,"%s/xclXXXXXX","/tmp");
+//	}
+	asprintf(&wdtemp,"%s/xclXXXXXX",tmpdir);
+
 
 	printcl( CL_DEBUG "wdtemp %p|%s|", wdtemp,wdtemp);
 
