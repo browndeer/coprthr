@@ -267,7 +267,7 @@ int __compile(
 //   } else {
 //      wdtemp = strdup("/tmp/xclXXXXXX");
 //   }
-	asprintf(&wdtemp,"s/xclXXXXXX",tmpdir);
+	asprintf(&wdtemp,"%s/xclXXXXXX",tmpdir);
 
 	char filebase[] 	= "XXXXXX";
 	char* wd = mkdtemp(wdtemp);
