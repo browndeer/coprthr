@@ -65,7 +65,13 @@ unsigned int __do_build_program_from_binary_1(
 	printcl( CL_DEBUG "program: bin bin_sz %p %d",
 		prg1->bin,prg1->bin_sz);
 
-   char tmpfile[] = "/tmp/xclXXXXXX";
+	char* env_tmpdir = getenv("TEMPDIR");
+	char* tmpdir = (env_tmpdir)? strdup(env_tmpdir) : strdup("/tmp");
+
+//   char tmpfile[] = "/tmp/xclXXXXXX";
+	char* tmpfile = 0;
+	asprintf(&tmpfile,"%s/xclXXXXXX",tmpdir);
+
    int fd = mkstemp(tmpfile);
 	write(fd,prg1->bin,prg1->bin_sz);
 	close(fd);
@@ -301,7 +307,9 @@ unsigned int __do_build_program_from_binary_1(
 
 //void* dummy = malloc(16384); printcl( CL_DEBUG "dummy=%p",dummy);
 
-	char srectmpfile[] = "/tmp/xclXXXXXX";	
+//	char srectmpfile[] = "/tmp/xclXXXXXX";	
+	char* srectmpfile = 0;
+	asprintf(&srectmpfile,"%s/xclXXXXXX",tmpdir);
 	{
 	int fd = mkstemp(srectmpfile);
 	write(fd,srec,srec_sz);
