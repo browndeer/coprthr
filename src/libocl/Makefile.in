@@ -2,7 +2,7 @@
 ### Makefile for libocl
 ###
 
-CCFLAGS += @CFLAGS@
+CFLAGS += @CFLAGS@
 
 ifneq (@MAKE@,)
 MAKE = @MAKE@
@@ -103,13 +103,13 @@ DEFS += \
 
 DEFS += -DVAR_CLPROC_PATH=\"$(VAR_CLPROC_PATH)\"
 
-#CCFLAGS += -O1 -fPIC -fbounds-check -g
-CCFLAGS += -O1 -fPIC 
-CCFLAGS_VCORE_RT = -O1 -fPIC -funroll-loops -fstrict-aliasing
+#CFLAGS += -O1 -fPIC -fbounds-check -g
+CFLAGS += -O1 -fPIC 
+CFLAGS_VCORE_RT = -O1 -fPIC -funroll-loops -fstrict-aliasing
 
 #ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
 ifeq (@build@,mic-unknown-linux-gnu)
-CCFLAGS += -mmic
+CFLAGS += -mmic
 endif
 
 TARGET = libocl.so libocl.a
@@ -127,34 +127,34 @@ all: $(TARGET)
 .SUFFIXES: .l .y .S .s .c .o
 
 .c.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 .s.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 .S.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 #%_d.o:
-#	$(CC) $(CCFLAGS) $(DEFS) -DOCL_DEBUG $(INCS) -c $*.c -o $*_d.o
+#	$(CC) $(CFLAGS) $(DEFS) -DOCL_DEBUG $(INCS) -c $*.c -o $*_d.o
 
 oclcall.o: oclcall.master
 	perl gen_oclcall.pl
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c oclcall.c
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c oclcall.c
 
 oclcall_hook.o: oclcall.master
 	perl gen_oclcall_hook.pl
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c oclcall_hook.c
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c oclcall_hook.c
 
 libocl.so: oclcall.o $(OBJS) 
-	$(CC) $(CCFLAGS) $(INCS) \
+	$(CC) $(CFLAGS) $(INCS) \
 		-shared -Wl,-soname,libocl.so -o libocl.so  $(OBJS) $(LIBS)
 
 libocl.a: oclcall.o $(OBJS)
 	ar rcv libocl.a  $(OBJS)
 
 #libocl_d.so: $(OBJS_D) $(RT_OBJS)
-#	$(CC) $(CCFLAGS) $(INCS) \
+#	$(CC) $(CFLAGS) $(INCS) \
 #		-shared -Wl,-soname,libocl_d.so -o libocl_d.so  $(OBJS_D) $(LIBS)
 
 debug:

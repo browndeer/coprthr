@@ -1,6 +1,6 @@
 # Makefile for clnm
 
-CCFLAGS=@CFLAGS@
+CFLAGS=@CFLAGS@
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -42,7 +42,7 @@ LIBS += -L../../src/libclelf -lclelf
 
 OBJS = clnm.o 
 
-CCFLAGS += -O1 -fPIC 
+CFLAGS += -O1 -fPIC 
 
 #all: $(BIN_NAME) $(addsuffix .gz,$(MAN1))
 all: $(BIN_NAME) 
@@ -53,10 +53,10 @@ all: $(BIN_NAME)
 .SUFFIXES: .c .o 
 
 $(BIN_NAME): $(OBJS)
-	$(CC) $(CCFLAGS) $(DEFS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
+	$(CC) $(CFLAGS) $(DEFS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
 
 .c.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 %.1.gz:
 	-gzip -f -c $*.1 > $*.1.gz

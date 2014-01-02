@@ -2,7 +2,7 @@
 ### Makefile for libcoprthrcc
 ###
 
-CCFLAGS += @CFLAGS@
+CFLAGS += @CFLAGS@
 
 ifneq (@MAKE@,)
 MAKE = @MAKE@
@@ -117,13 +117,13 @@ DEFS += \
 DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
    -Wno-format-security -Wno-format
 
-CCFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
-CCFLAGS_VCORE += -O0 -fPIC 
-CCFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
+CFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
+CFLAGS_VCORE += -O0 -fPIC 
+CFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
 
 ifeq (arm,$(patsubst arm%,arm,@build_cpu@))
-CCFLAGS += -marm
-CCFLAGS_VCORE += -marm
+CFLAGS += -marm
+CFLAGS_VCORE += -marm
 endif
 
 
@@ -158,21 +158,21 @@ all: $(TARGET)
 
 
 .c.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 .s.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 .S.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 
 #libcoprthrcc.so: $(OBJS) $(OBJS_CROSS)
-#	$(CC) $(CCFLAGS) $(INCS) \
+#	$(CC) $(CFLAGS) $(INCS) \
 #		-shared -Wl,-soname,libcoprthrcc.so -o libcoprthrcc.so  \
 #		$(OBJS) $(OBJS_CROSS) $(LIBS)
 libcoprthrcc.so: $(OBJS) 
-	$(CC) $(CCFLAGS) $(INCS) \
+	$(CC) $(CFLAGS) $(INCS) \
 		-shared -Wl,-soname,libcoprthrcc.so -o libcoprthrcc.so $(OBJS) $(LIBS)
 
 #libcoprthrcc.a: $(OBJS) $(OBJS_CROSS)
@@ -181,7 +181,7 @@ libcoprthrcc.a: $(OBJS)
 	ar rcv libcoprthrcc.a $(OBJS) 
 
 libcoprthrcc-e.so: $(OBJS_E) 
-	$(CC) $(CCFLAGS) $(INCS) \
+	$(CC) $(CFLAGS) $(INCS) \
 		-shared -Wl,-soname,libcoprthrcc-e.so -o libcoprthrcc-e.so \
 		$(OBJS_E) $(LIBS)
 
@@ -190,41 +190,41 @@ libcoprthrcc-e.a: $(OBJS_E)
 
 
 compiler_x86_64.o: compiler_native.c
-	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_x86_64__ $(INCS) \
+	$(CC) $(CFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_x86_64__ $(INCS) \
 		-c -o compiler_x86_64.o $<
 
 compiler_i386.o: compiler_native.c
-	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_i386__ $(INCS) \
+	$(CC) $(CFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_i386__ $(INCS) \
 		-c -o compiler_i386.o $<
 
 compiler_arm32.o: compiler_native.c
-	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_arm32__ $(INCS) \
+	$(CC) $(CFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_arm32__ $(INCS) \
 		-c -o compiler_arm32.o $<
 
 compiler_mic.o: compiler_native.c
-	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_mic__ $(INCS) \
+	$(CC) $(CFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_mic__ $(INCS) \
 		-c -o compiler_mic.o $<
 
 
 compiler_e32_emek.o: compiler_e32_emek.c
-	$(CC) $(CCFLAGS) $(DEFS) \
+	$(CC) $(CFLAGS) $(DEFS) \
 		$(INCS) $(INCS_E) -c compiler_e32_emek.c -o $*.o
 
 compiler_e32_needham.o: compiler_e32.c
-	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_NEEDHAM__ \
+	$(CC) $(CFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_NEEDHAM__ \
 		$(INCS) $(INCS_E) -c compiler_e32.c -o $*.o
 
 compiler_e32_needhampro.o: compiler_e32.c
-	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_NEEDHAMPRO__ \
+	$(CC) $(CFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_NEEDHAMPRO__ \
 		$(INCS) $(INCS_E) -c compiler_e32.c -o $*.o
 
 compiler_e32_blank.o: compiler_e32.c
-	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_BLANK__ \
+	$(CC) $(CFLAGS) $(DEFS) -D__COPRTHR_TARGET_E32_BLANK__ \
 		$(INCS) $(INCS_E) -c compiler_e32.c -o $*.o
 
 
 compiler_android_arm32.o: compiler_cross.c
-	$(CC) $(CCFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_arm32__ $(INCS) \
+	$(CC) $(CFLAGS) $(DEFS) -D__COPRTHR_TARGET_HOST_arm32__ $(INCS) \
 		-c -o compiler_android_arm32.o $<
 
 

@@ -2,7 +2,7 @@
 # Makefile for libclrpc
 #
 
-CCFLAGS=@CFLAGS@
+CFLAGS=@CFLAGS@
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -89,11 +89,11 @@ INSTALL_INCS = $(HDRS)
 INSTALL_LIBS = libclrpc.so libclrpc.a
 INSTALL_BINS = clrpcd
 
-CCFLAGS += -g -O2 -fPIC
+CFLAGS += -g -O2 -fPIC
 
 #ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
 ifeq (@build@,mic-unknown-linux-gnu)
-CCFLAGS += -mmic
+CFLAGS += -mmic
 LIBS += -L$(LIB_MIC_PATH) -limf -lsvml -lirng -lintlc -lconfig -lelf
 endif
 
@@ -123,35 +123,35 @@ libclrpc_call_vector.c:
 		< $(OCLCALL_MASTER) > libclrpc_call_vector.c
 
 libclrpc.so: clrpc.gen.h libclrpc.o libclrpc_call_vector.o $(OBJS)
-	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclrpc.so \
+	$(CC) $(CFLAGS) -shared -Wl,-soname=libclrpc.so \
 		-o libclrpc.so libclrpc.o libclrpc_call_vector.o $(OBJS) $(LIBS) 
 
 libclrpc.a: clrpc.gen.h libclrpc.o libclrpc_call_vector.o $(OBJS)
 	ar rcv libclrpc.a libclrpc.o libclrpc_call_vector.o $(OBJS)
 
 #libclrpc_d.so: libclrpc_d.o libclrpc_call_vector.o $(OBJS_D)
-#	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclrpc_d.so \
+#	$(CC) $(CFLAGS) -shared -Wl,-soname=libclrpc_d.so \
 #		-o libclrpc_d.so libclrpc_d.o libclrpc_call_vector.o $(OBJS_D) $(LIBS)
 
 clrpcd: clrpcd.o $(OBJS)
-	$(CC) $(CCFLAGS) -o clrpcd clrpcd.o $(OBJS) $(LIBS) \
+	$(CC) $(CFLAGS) -o clrpcd clrpcd.o $(OBJS) $(LIBS) \
 		-L../libocl -locl -L. -lclrpc
 
 #clrpc_test_cli: clrpc_test_cli.o
-#	$(CC) $(CCFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L. -lclrpc 
+#	$(CC) $(CFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L. -lclrpc 
 #
 #clrpc_test_cli2: clrpc_test_cli2.o
-#	$(CC) $(CCFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L../libocl  -locl
+#	$(CC) $(CFLAGS) -o clrpc_test_cli2 clrpc_test_cli2.o -L../libocl  -locl
 
 
 .SUFFIXES:
 .SUFFIXES: .c .o
 
 .c.o: clrpc.gen.h 
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 #%_d.o: clrpc.gen.h
-#	$(CC) $(CCFLAGS) $(DEFS) -DENABLE_PRINTCL $(INCS) -c $*.c -o $*_d.o
+#	$(CC) $(CFLAGS) $(DEFS) -DENABLE_PRINTCL $(INCS) -c $*.c -o $*_d.o
 
 %.3.gz:
 	-gzip -f -c $*.3 > $*.3.gz

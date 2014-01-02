@@ -8,7 +8,7 @@ E32_DRAM_ZEROPAGE_NEEDHAM     = 0x8e100000
 E32_DRAM_ZEROPAGE_NEEDHAMPRO  = 0x8e000000
 E32_DRAM_ZEROPAGE_BLANK       = 0x8e000000
 
-CCFLAGS += @CFLAGS@
+CFLAGS += @CFLAGS@
 
 ifneq (@MAKE@,)
 MAKE = @MAKE@
@@ -150,16 +150,16 @@ DEFS += \
 DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
    -Wno-format-security -Wno-format
 
-CCFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
-CCFLAGS_VCORE += -O0 -fPIC 
-CCFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
+CFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
+CFLAGS_VCORE += -O0 -fPIC 
+CFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
 
 ifeq (arm,$(patsubst arm%,arm,@build_cpu@))
-CCFLAGS += -marm
-CCFLAGS_VCORE += -marm
+CFLAGS += -marm
+CFLAGS_VCORE += -marm
 endif
 
-ECCFLAGS = -Dasm=__asm__ -O0 -g -Wall -D__coprthr_device__\
+ECFLAGS = -Dasm=__asm__ -O0 -g -Wall -D__coprthr_device__\
 	-fmessage-length=0  -ffast-math \
 	-ftree-vectorize -funroll-loops -std=c99 -Wunused-variable \
 	-ffp-contract=fast -mlong-calls -mfp-mode=round-nearest  \
@@ -185,33 +185,33 @@ all: $(TARGET)
 .SUFFIXES: .l .y .S .s .c .o
 
 .c.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 .s.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 .S.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 #libcoprthr_arch_x86_64.so: $(IMP_OBJS) 
-#	$(CC) $(CCFLAGS) $(INCS) \
+#	$(CC) $(CFLAGS) $(INCS) \
 #		-shared -Wl,-soname,libcoprthr_arch_x86_64.so \
 #		-o libcoprthr_arch_x86_64.so  $(IMP_OBJS) $(LIBS)
 
 libcoprthr_arch_e32.so: $(IMP_OBJS) libe_platform.so
-	$(CC) $(CCFLAGS) $(INCS) \
+	$(CC) $(CFLAGS) $(INCS) \
 		-shared -Wl,-soname,libcoprthr_arch_e32.so \
 		-o libcoprthr_arch_e32.so  $(IMP_OBJS) $(LIBS) \
 		-L./ -le_platform
 
 _e32pth_core_main_needham.o: _e32pth_core_main_needham.c
-	e-gcc -c $(ECCFLAGS) $(ESDK_EINC) \
+	e-gcc -c $(ECFLAGS) $(ESDK_EINC) \
 		-DE32_DRAM_ZEROPAGE=$(E32_DRAM_ZEROPAGE_NEEDHAM) \
 		-o _e32pth_core_main_needham.o _e32pth_core_main_needham.c
 
 libe_platform.so.needham:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -DCOMPILE_FOR_NEEDHAM -c old_e_platform.c
-	$(CC) $(CCFLAGS) $(ESDK_INCS) \
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -DCOMPILE_FOR_NEEDHAM -c old_e_platform.c
+	$(CC) $(CFLAGS) $(ESDK_INCS) \
 		-shared -Wl,-soname,libe_platform.so -o libe_platform.so.needham  \
 		old_e_platform.o $(ESDK_LIBS)
 

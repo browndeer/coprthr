@@ -1,6 +1,6 @@
 # Makefile for clcc
 
-CCFLAGS=@CFLAGS@
+CFLAGS=@CFLAGS@
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -46,7 +46,7 @@ LIBS += -L$(OPENCL_LIB_DIR) -l$(OPENCL_LIBNAME)
 
 OBJS = clcc.o 
 
-CCFLAGS += -O1 -fPIC 
+CFLAGS += -O1 -fPIC 
 
 all: $(BIN_NAME) $(addsuffix .gz,$(MAN1))
 
@@ -56,10 +56,10 @@ all: $(BIN_NAME) $(addsuffix .gz,$(MAN1))
 .SUFFIXES: .c .o 
 
 $(BIN_NAME): $(OBJS)
-	$(CC) $(CCFLAGS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
+	$(CC) $(CFLAGS) -o $(BIN_NAME) $(INCS) $(OBJS) $(LIBS)
 
 .c.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 %.1.gz:
 	-gzip -f -c $*.1 > $*.1.gz

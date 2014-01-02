@@ -2,7 +2,7 @@
 ### Makefile for libcoprthr
 ###
 
-CCFLAGS += @CFLAGS@
+CFLAGS += @CFLAGS@
 
 ifneq (@MAKE@,)
 MAKE = @MAKE@
@@ -119,19 +119,19 @@ DEFS += \
 DISABLE_UBUNTU_FLAGS = -U_FORTIFY_SOURCE -fno-stack-protector \
    -Wno-format-security -Wno-format
 
-CCFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
-CCFLAGS_VCORE += -O0 -fPIC 
-CCFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
+CFLAGS += -O2 -fPIC $(DISABLE_UBUNTU_FLAGS)
+CFLAGS_VCORE += -O0 -fPIC 
+CFLAGS_VCORE_RT = -O0 -fPIC -funroll-loops -fstrict-aliasing
 
 ifeq (arm,$(patsubst arm%,arm,@build_cpu@))
-CCFLAGS += -marm
-CCFLAGS_VCORE += -marm
+CFLAGS += -marm
+CFLAGS_VCORE += -marm
 endif
 
 #ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
 ifeq (@build@,mic-unknown-linux-gnu)
 CC=icc
-CCFLAGS += -mmic
+CFLAGS += -mmic
 endif
 
 
@@ -157,16 +157,16 @@ $(SUBDIRS):
 	$(MAKE) -C $@ $(MAKEFLAG) $(MAKECMDGOALS)
 
 .c.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 .s.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 .S.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 libcoprthr.so: $(IMP_OBJS) 
-	$(CC) $(CCFLAGS) $(INCS) \
+	$(CC) $(CFLAGS) $(INCS) \
 		-shared -Wl,-soname,libcoprthr.so -Wl,--export-dynamic \
 		-o libcoprthr.so  $(IMP_OBJS) $(LIBS)
 

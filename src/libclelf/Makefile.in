@@ -2,7 +2,7 @@
 # Makefile for libclelf
 #
 
-CCFLAGS=@CFLAGS@
+CFLAGS=@CFLAGS@
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -68,11 +68,11 @@ INSTALL_INCS = $(HDRS)
 #INSTALL_LIBS = libclelf.so libclelf_d.so
 INSTALL_LIBS = libclelf.so libclelf.a
 
-CCFLAGS += -g -O2 -fPIC
+CFLAGS += -g -O2 -fPIC
 
 #ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
 ifeq (@build@,mic-unknown-linux-gnu)
-CCFLAGS += -mmic
+CFLAGS += -mmic
 endif
 
 TARGET += libclelf.so libclelf.a
@@ -88,11 +88,11 @@ all: $(TARGET)
 .PHONY: install uninstall clean distclean check_root debug
 
 libclelf.so: $(OBJS)
-	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclelf.so \
+	$(CC) $(CFLAGS) -shared -Wl,-soname=libclelf.so \
 		-o libclelf.so $(LIB_OBJS) $(LIBS)
 
 #libclelf_d.so: $(OBJS_D)
-#	$(CC) $(CCFLAGS) -shared -Wl,-soname=libclelf_d.so \
+#	$(CC) $(CFLAGS) -shared -Wl,-soname=libclelf_d.so \
 #		-o libclelf_d.so $(LIB_OBJS_D) $(LIBS)
 
 libclelf.a:	$(OBJS)
@@ -106,10 +106,10 @@ libclelf.a:	$(OBJS)
 .SUFFIXES: .c .o 
 
 .c.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 %_d.o:
-	$(CC) $(CCFLAGS) $(DEFS) -DCLELF_DEBUG $(INCS) -c $*.c -o $*_d.o
+	$(CC) $(CFLAGS) $(DEFS) -DCLELF_DEBUG $(INCS) -c $*.c -o $*_d.o
 
 
 #install: check_root all

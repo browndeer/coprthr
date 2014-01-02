@@ -2,7 +2,7 @@
 # Makefile for libstdcl 
 #
 
-CCFLAGS=@CFLAGS@
+CFLAGS=@CFLAGS@
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
@@ -116,12 +116,12 @@ INSTALL_INCS = $(HDRS)
 #INSTALL_LIBS = libstdcl.so libstdcl_d.so
 INSTALL_LIBS = libstdcl.so libstdcl.a
 
-CCFLAGS += -g -O2 -fPIC
+CFLAGS += -g -O2 -fPIC
 F90FLAGS = -fPIC
 
 #ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
 ifeq (@build@,mic-unknown-linux-gnu)
-CCFLAGS += -mmic
+CFLAGS += -mmic
 endif
 
 # note that fortran mods must preceed objects -DAR
@@ -145,27 +145,27 @@ all: $(TARGET)
 .PHONY: install uninstall clean distclean check_root debug
 
 libstdcl.so: $(OBJS) $(LIBCLELF)
-	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl.so \
+	$(CC) $(CFLAGS) -shared -Wl,-soname=libstdcl.so \
 		-o libstdcl.so $(LIB_OBJS) $(LIBCLELF) $(LIBS) 
 
 libstdcl.a: $(OBJS) $(LIBCLELF)
 	ar rcv libstdcl.a $(LIB_OBJS)
 
 #libstdcl_d.so: $(OBJS_D) $(LIBCLELF_D)
-#	$(CC) $(CCFLAGS) -shared -Wl,-soname=libstdcl_d.so \
+#	$(CC) $(CFLAGS) -shared -Wl,-soname=libstdcl_d.so \
 #		-o libstdcl_d.so $(LIB_OBJS_D) $(LIBCLELF_D) $(LIBS)
 
 .SUFFIXES:
 .SUFFIXES: .c .o .f90 .mod
 
 #%.o:
-#	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $*.c
+#	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $*.c
 
 .c.o:
-	$(CC) $(CCFLAGS) $(DEFS) $(INCS) -c $<
+	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 #%_d.o:
-#	$(CC) $(CCFLAGS) $(DEFS) -DSTDCL_DEBUG $(INCS) -c $*.c -o $*_d.o
+#	$(CC) $(CFLAGS) $(DEFS) -DSTDCL_DEBUG $(INCS) -c $*.c -o $*_d.o
 
 %.3.gz:
 	-gzip -f -c $*.3 > $*.3.gz
