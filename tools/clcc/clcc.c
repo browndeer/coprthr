@@ -118,7 +118,7 @@ void usage()
 	printf("\t-mavail\n");
 	printf("\t--dump-bin\n");
 	printf("\t--coprthr-cc\n");
-	printf("\t--mtarget\n");
+	printf("\t-mtarget=<target>\n");
 	printf("\t--targets\n");
 }
 
