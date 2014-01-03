@@ -131,7 +131,9 @@ clcontext_create(
 	cl_context_properties* ctxprop;
 	size_t sz;
 	cl_uint ndev = 0;
-	cl_command_queue_properties prop = 0;
+	cl_command_queue_properties prop 
+		= (getenv("COPRTHR_OPENCL_PROFILING_ENABLE"))? 
+			CL_QUEUE_PROFILING_ENABLE : 0;
 
 	printcl( CL_DEBUG "clcontext_create() called");
 
