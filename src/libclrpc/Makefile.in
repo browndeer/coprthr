@@ -17,12 +17,13 @@ USE_OPENCL_INCLUDES = -I@OPENCL_INCLUDE@
 #LIBEVENT_INC = -I@LIBEVENT_PATH@/include
 #LIBEVENT_LIB = -L@LIBEVENT_PATH@/lib 
 
-ifeq (@build@,mic-unknown-linux-gnu)
+ifeq (@host@,k1om-unknown-linux-gnu)
 ifneq (@LIB_MIC_PATH@,)
 LIB_MIC_PATH = @LIB_MIC_PATH@
 else
 LIB_MIC_PATH = /usr/cta/compiler/intel/13.1.0/composerxe/lib/mic
 endif
+LIB_MIC_LIBS = -L$(LIB_MIC_PATH) -limf -lsvml -lirng -lintlc
 endif
 
 ### enable build of debug version if not already defined
@@ -79,6 +80,13 @@ endif
 INCS += -I@LIBEVENT_PATH@/include
 LIBS += -L@LIBEVENT_PATH@/lib -levent -levent_pthreads -levent_pthreads
 
+INCS += -I@LIBCONFIG_PATH@/include
+LIBS += -L@LIBCONFIG_PATH@/lib -lconfig
+
+ifeq (@host@,k1om-unknown-linux-gnu)
+LIBS += $(LIB_MIC_LIBS)
+endif
+
 OBJS = clrpc.gen.o 
 #OBJS_D = $(subst .o,_d.o,$(OBJS)) 
 
@@ -92,7 +100,7 @@ INSTALL_BINS = clrpcd
 CFLAGS += -g -O2 -fPIC
 
 #ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
-ifeq (@build@,mic-unknown-linux-gnu)
+ifeq (@host@,k1om-unknown-linux-gnu)
 CFLAGS += -mmic
 LIBS += -L$(LIB_MIC_PATH) -limf -lsvml -lirng -lintlc -lconfig -lelf
 endif

@@ -344,7 +344,7 @@ case $basic_machine in
 	| x86-* | x86_64-* | xps100-* | xscale-* | xstormy16-* \
 	| xtensa-* \
 	| ymp-* \
-	| z8k-*)
+	| z8k-* | k1om-* )
 		;;
 	# Recognize the various machine names and aliases which stand
 	# for a CPU type and a company and sometimes even an OS.

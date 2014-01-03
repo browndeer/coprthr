@@ -71,7 +71,7 @@ INSTALL_LIBS = libclelf.so libclelf.a
 CFLAGS += -g -O2 -fPIC
 
 #ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
-ifeq (@build@,mic-unknown-linux-gnu)
+ifeq (@host@,k1om-unknown-linux-gnu)
 CFLAGS += -mmic
 endif
 

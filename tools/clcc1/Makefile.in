@@ -38,6 +38,8 @@ OPENCL_LIBNAME = @OPENCL_LIBNAME@
 LIBELF_INC = @libelf_inc@
 LIBELF_LIB = @libelf_lib@
 
+LIB_MIC_LIBS = -L@LIB_MIC_PATH@ -limf -lsvml -lirng -lintlc
+
 INCS = -I$(OPENCL_INC_DIR) $(LIBELF_INC)
 INCS += -I../../src/libclelf -I../../src/libcoprthr -I../../src/libcoprthrcc
 
@@ -47,6 +49,11 @@ LIBS += -L../../src/libcoprthr -lcoprthr
 LIBS += -L../../src/libcoprthrcc -lcoprthrcc
 LIBS += -L$(OPENCL_LIB_DIR) -l$(OPENCL_LIBNAME)
 
+LIBS += -L@LIBCONFIG_PATH -lconfig
+
+ifeq (@host@,k1om-unknown-linux-gnu)
+LIBS += $(LIB_MIC_LIBS)
+endif
 
 OBJS = clcc1.o 
 

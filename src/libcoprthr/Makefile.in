@@ -129,7 +129,7 @@ CFLAGS_VCORE += -marm
 endif
 
 #ifeq (@ENABLE_MIC_CROSS_COMPILE@,1)
-ifeq (@build@,mic-unknown-linux-gnu)
+ifeq (@host@,k1om-unknown-linux-gnu)
 CC=icc
 CFLAGS += -mmic
 endif

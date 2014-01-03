@@ -37,12 +37,19 @@ OPENCL_LIBNAME = @OPENCL_LIBNAME@
 LIBELF_INC = @libelf_inc@
 LIBELF_LIB = @libelf_lib@
 
+LIB_MIC_LIBS = -L@LIB_MIC_PATH@ -limf -lsvml -lirng -lintlc
+
 INCS = -I$(OPENCL_INC_DIR)
 
 LIBS = $(LIBELF_LIB) 
 LIBS += -L../../src/libclelf -lclelf
 LIBS += -L$(OPENCL_LIB_DIR) -l$(OPENCL_LIBNAME)
 
+LIBS += -L@LIBCONFIG_PATH@ -lconfig
+
+ifeq (@host@,k1om-unknown-linux-gnu)
+LIBS += $(LIB_MIC_LIBS)
+endif
 
 OBJS = clcc.o 
 
