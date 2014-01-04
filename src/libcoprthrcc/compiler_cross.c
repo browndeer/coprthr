@@ -200,7 +200,7 @@ int __compile(
 	int err;
 	struct stat fst;
 
-	char* env_tmpdir = getenv("TEMPDIR");
+	char* env_tmpdir = getenv("TMPDIR");
 	char* coprthr_tmp = getenv("COPRTHR_TMP");
 	char* tmpdir= (coprthr_tmp)? strdup(coprthr_tmp)
 		: (env_tmpdir)? strdup(env_tmpdir) : strdup("/tmp");
