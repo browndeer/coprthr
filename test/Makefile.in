@@ -9,9 +9,9 @@ ifeq (@ENABLE_LIBCOPRTHR@,1)
 TESTS += test_libcoprthr
 endif
 
-ifeq (@ENABLE_EPIPHANY@,1)
-TESTS += test_libcoprthr-e
-endif
+#ifeq (@ENABLE_EPIPHANY@,1)
+#TESTS += test_libcoprthr-e
+#endif
 
 ##### DO NOT EDIT BELOW THIS LINE #####
 

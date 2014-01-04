@@ -912,10 +912,10 @@ AC_CONFIG_FILES([src/libocl/Makefile])
 	AC_CONFIG_FILES([src/libcoprthr_opencl/Makefile])
 	AC_CONFIG_FILES([src/libcoprthrcc/Makefile])
 #fi;
-if test x$enable_epiphany = xyes; then
+#if test x$enable_epiphany = xyes; then
 #	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
-	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])
-fi;
+#	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])
+#fi;
 AC_CONFIG_FILES([src/libclelf/Makefile])
 AC_CONFIG_FILES([src/libclrpc/Makefile])
 AC_CONFIG_FILES([tools/cltrace/Makefile])
@@ -954,10 +954,10 @@ AC_CONFIG_FILES([ndk.sh])
 
 AC_CONFIG_FILES([test/test_libcoprthr/scripts/run_tests.sh],[chmod +x test/test_libcoprthr/scripts/run_tests.sh])
 AC_CONFIG_FILES([test/test_libcoprthr/scripts/run_quick_tests.sh],[chmod +x test/test_libcoprthr/scripts/run_quick_tests.sh])
-if test x$enable_epiphany = xyes; then
-	AC_CONFIG_FILES([test/test_libcoprthr-e/scripts/run_tests.sh],[chmod +x test/test_libcoprthr-e/scripts/run_tests.sh])
-	AC_CONFIG_FILES([test/test_libcoprthr-e/scripts/run_quick_tests.sh],[chmod +x test/test_libcoprthr-e/scripts/run_quick_tests.sh])
-fi;
+#if test x$enable_epiphany = xyes; then
+#	AC_CONFIG_FILES([test/test_libcoprthr-e/scripts/run_tests.sh],[chmod +x test/test_libcoprthr-e/scripts/run_tests.sh])
+#	AC_CONFIG_FILES([test/test_libcoprthr-e/scripts/run_quick_tests.sh],[chmod +x test/test_libcoprthr-e/scripts/run_quick_tests.sh])
+#fi;
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_tests.sh],[chmod +x test/test_stdcl/scripts/run_tests.sh])
 AC_CONFIG_FILES([test/test_stdcl/scripts/run_quick_tests.sh],[chmod +x test/test_stdcl/scripts/run_quick_tests.sh])
 
