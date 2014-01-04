@@ -65,7 +65,7 @@ unsigned int __do_build_program_from_binary_1(
 	printcl( CL_DEBUG "program: bin bin_sz %p %d",
 		prg1->bin,prg1->bin_sz);
 
-	char* env_tmpdir = getenv("TEMPDIR");
+	char* env_tmpdir = getenv("TMPDIR");
 	char* tmpdir = (env_tmpdir)? strdup(env_tmpdir) : strdup("/tmp");
 
 //   char tmpfile[] = "/tmp/xclXXXXXX";
