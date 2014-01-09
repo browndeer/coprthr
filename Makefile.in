@@ -102,7 +102,7 @@ SUBDIRS += ./tools/cltop ./tools/scripts
 endif
 
 
-DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libcoprthrcc ./src/libcoprthr_opencl ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts
+DISTCLEAN_DIRS = ./src/libstdcl ./src/libcoprthr ./src/libcoprthrcc ./src/libcoprthr_opencl ./src/libocl ./src/CLETE ./tools/cltrace ./tools/xclnm2 ./tools/clld ./test ./test/test_CLETE ./test/test_stdcl ./test/test_libcoprthr_opencl ./test/test_clrpc ./include ./tools/clcc ./tools/clcc1 ./tools/xclnm ./tools/clnm ./src/libclelf ./src/libclrpc ./examples ./tools/cltop ./tools/scripts
 
 #ifeq (@ENABLE_EPIPHANY@,1)
 ##DISTCLEAN_DIRS += ./src/libcoprthr-e ./test/test_libcoprthr-e
@@ -175,8 +175,8 @@ quicktest:
 test-libstdcl: 
 	$(MAKE) -C ./test/test_stdcl $(MAKEFLAGS) test
 
-test-libcoprthr: 
-	$(MAKE) -C ./test/test_libcoprthr $(MAKEFLAGS) test
+test-libcoprthr_opencl: 
+	$(MAKE) -C ./test/test_libcoprthr_opencl $(MAKEFLAGS) test
 
 test-CLETE: 
 	$(MAKE) -C ./test/test_CLETE $(MAKEFLAGS) test
@@ -185,7 +185,7 @@ test-CLETE:
 quicktest-libstdcl: 
 	$(MAKE) -C ./test/test_stdcl $(MAKEFLAGS) quicktest
 
-quicktest-libcoprthr: 
-	$(MAKE) -C ./test/test_libcoprthr $(MAKEFLAGS) quicktest
+quicktest-libcoprthr_opencl: 
+	$(MAKE) -C ./test/test_libcoprthr_opencl $(MAKEFLAGS) quicktest
 
 
