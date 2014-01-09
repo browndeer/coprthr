@@ -113,7 +113,7 @@ may be used by the COPRTHR API run-time.
 
 The source code for the program *src* of *len* bytes long will be compiled
 for the target device.  
-The arguement *opt* must be used to select the cross-compile target.
+The argument *opt* must be used to select the cross-compile target.
 Any additional compiler options may be provided as a string of the form
 that would be provided to a compiler at the command line.
 The cross-compile target is selected using the command line style options,
@@ -152,13 +152,13 @@ identified by name.
 &nbsp;
 
 
-# COPRTHR direct run-time API
+# COPRTHR Direct Run-Time API
 
 The COPRTHR direct run-time API provides a convenient set of calls for 
 accessing a co-processor device including malloc()-style functions for
 device memory allocation, a stream model for non-blocking 
 asynchronous device operations, a threading model based on a direct
-extension of the pthread API for co-processors, and signaling support 
+extension of the Pthreads API for co-processors, and signaling support 
 between threads of execution on the host and co-processor device.
 
 &nbsp;
@@ -180,7 +180,7 @@ Link with -lcoprthr
 
 DESCRIPTION
 
-Access to a co-processor devices requires opening the device using the 
+Access to a co-processor device requires opening the device using the 
 *coprthr_dopen()* call which returns a *device descriptor* that is used in 
 all subsequent operations.  The *path* may be a literal path to a device
 special file or one of the pre-defined macros for known supported devices.
@@ -206,7 +206,7 @@ Finally, the flag `COPRTHR_O_DEFAULT` may be used to select the default
 flags configured by the installation.
 
 Access to the device is closed using the coprthr_dclose() function where the
-arguement *dd* is the device descriptor that was returned from the 
+argument *dd* is the device descriptor that was returned from the 
 coprthr_dopen() call.
 
 &nbsp;
@@ -237,7 +237,7 @@ malloc() calls extended to a co-processor device.
 The coprthr_dmalloc() call returns a pointer to struct containing the
 necessary information abou the device allocation.
 In order to obtain the actual address of the device memory, the
-coprth_devmemptr() call, discussed below, may be used.  Thge returned address
+coprth_devmemptr() call, discussed below, may be used.  The returned address
 is suitable, e.g., to use as an argument to a thread function executing 
 on the co-processor.
 The size of an allocation may be altered using coprthr_drealloc().  
@@ -276,7 +276,7 @@ call is used for reading device memory, copying its contents to a buffer on the
 host.  Conversely, coprthr_dwrite() is used for writing to device memory the
 contents of a buffer on the host.  The coprthr_dcopy() call is used to initiate
 from the host the copying of memory from one device memory allocation to
-another.  THe offset argument is the offset in bytes into the device memory
+another.  The offset argument is the offset in bytes into the device memory
 allocation.  The use of non-zero offsets may or may not be supported by a given
 device.
 
@@ -287,7 +287,7 @@ host is discussed below.
 &nbsp;
 
 
-## Executing device kernels
+## Executing Device Kernels
 
 SYNOPSIS
 
@@ -319,7 +319,7 @@ is the number of kernels to be executd.  The remainder of the arguments are
 vectorized versions of those in the coprthr_dexec() call over the multiple
 kernels.
 
-Using the steam model for the opened device will cause these operations to 
+Using the stream model for the opened device will cause these operations to 
 be queued in order and executed asynchronously.  Synchronization with the
 host is discussed below.
 
@@ -394,10 +394,10 @@ little interest to the casual application programmer.  The utility of this
 primitive API can be seen in what it enables.  The above described COPRTHR
 direct API is augmented with a thread model designed as a logical and minimal
 extension Pthreads to support co-processors.  This was the original concept for
-thr COPRTHR project, and the refactoring discussed at the begining of this
+the COPRTHR project, and the refactoring discussed at the begining of this
 document enabled the implementation of basic functionality for "pthreads for
 co-processors" in a very short amount of time.  This thread support is included
-in the baic COPRTHR API.
+in the basic COPRTHR API.
 
 &nbsp;
 
@@ -442,9 +442,9 @@ pthread objects.  The coprthr_attr_setdevice() call is introduced to attach the
 device descriptor to the attribute that will be used for thread creation.  
 
 An additional call is added, coprthr_attr_setinit(), to allow control over what
-happens when a thread is created.  It as decided long ago that a pthread should
+happens when a thread is created.  It was decided long ago that a pthread should
 not require an explicit "execute" call, and that the thread should be executed
-immediately and implicityl upon creation.  In the world of co-processors, this
+immediately and implicitly upon creation.  In the world of co-processors, this
 behavior may not be ideal, so the flag `COPRTHR_A_CREATE_SUSPEND` requests that
 the thread be suspended upon creation.  A scheduling call is then used to
 "execute" the thread at a later time.  Conventional behavior (execute upon
@@ -527,7 +527,7 @@ condition variable is associated.
 ## Overview
 
 The COPRTHR/dev API is the lowest-level API for accessing a co-processor
-device, and is therefore expectd to be quite primitive.  All calls are blocking
+device, and is therefore expected to be quite primitive.  All calls are blocking
 with operations immediately and without any dependencies.  In order to ensure
 the safe execution of these operations, the programmer should first acquire a
 lock on the device.  There is no requirement implied by the API for all devices
@@ -569,7 +569,7 @@ functionality.
 
 	int devsup = coprthr_devctl(dev,COPRTHR_DEVCTL_TESTSUP);
 
-The following flags may be used to check for specific suport:
+The following flags may be used to check for specific support:
 
 	COPRTHR_DEVSUP_F_RUNTIME
 	COPRTHR_DEVSUP_F_COMPILER
@@ -586,24 +586,6 @@ The following flags may be used to check for specific suport:
 
 	COPRTHR_DEVSUP_F_MEM_PROT
 	COPRTHR_DEVSUP_F_MEM_OFFSET
-
-Alternatively, the following wrappers are provided purely for convenience
-to simplify the testing for suport, returning 1 if the functionality 
-is suported and 0 if it is not.
-
-	int coprthr_testsup_runtime( coprthr_dev_t dev);
-	int coprthr_testsup_compiler( coprthr_dev_t dev);
-	int coprthr_testsup_stream( coprthr_dev_t dev);
-	int coprthr_testsup_thread( coprthr_dev_t dev);
-	int coprthr_testsup_signal( coprthr_dev_t dev);
-	int coprthr_testsup_mem_buffer( coprthr_dev_t dev);
-	int coprthr_testsup_mem_mutex( coprthr_dev_t dev);
-	int coprthr_testsup_mem_signal( coprthr_dev_t dev);
-	int coprthr_testsup_mem_register( coprthr_dev_t dev);
-	int coprthr_testsup_mem_fifo( coprthr_dev_t dev);
-	int coprthr_testsup_mem_stack( coprthr_dev_t dev);
-	int coprthr_testsup_mem_prot( coprthr_dev_t dev);
-	int coprthr_testsup_mem_offset( coprthr_dev_t dev);
 
 &nbsp;
 
@@ -654,7 +636,7 @@ described below.
 
 When the device is no longer needed the following call should be used to 
 release the lock on the device, invalidating any resources and constructs 
-instantiatd during it use. 
+instantiated during it use. 
 
 The exception to the normal behavior may be requested using the the flag
 `COPRTHR_DEVUNLOCK_PERSIST` which will cause all resources to persist 
@@ -821,7 +803,7 @@ used.
 As a simple example showing the use of these calls, the program below
 performs the following steps: 1) check cross-compiler version, 2) check
 available cross-compiler targets, 3) compile a simple thread function
-creating a a program struct suitable for use with the COPRTHR API run-time,
+creating a program struct suitable for use with the COPRTHR API run-time,
 4) write the compiled binary object to a file, and 5) read the written file
 creating a new program struct.
 
@@ -1075,7 +1057,7 @@ thread is created on the co-processor that requires acquiring a mutex prior to
 performing a calculation.  The host code aquires the same mutex prior to thread
 cration, thereby blocking the thread from completion.  The host code then waits
 3 seconds, changes the input to a trivial calculation, and then releases the
-mutex.  The examples demonstrates the use of mutexes since without proper
+mutex.  The example demonstrates the use of mutexes since without proper
 operation the wrong value will be calulated on the device.
 
 ~~~~~~~~~~
