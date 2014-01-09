@@ -99,8 +99,8 @@ _clCreateBuffer(
 	if (membuf) {
 
 		__init_memobj(membuf);
-		membuf->mem1 = (struct coprthr1_mem**)
-			malloc(ctx->ndev*sizeof(struct coprthr1_mem*));
+		membuf->mem1 = (struct coprthr_mem**)
+			malloc(ctx->ndev*sizeof(struct coprthr_mem*));
 
 		membuf->ctx = ctx;
 		membuf->sz = size;
@@ -180,8 +180,8 @@ _clCreateImage2D(
 	if (membuf) {
 
 		__init_memobj(membuf);
-		membuf->mem1 = (struct coprthr1_mem**)
-			malloc(ctx->ndev*sizeof(struct coprthr1_mem*));
+		membuf->mem1 = (struct coprthr_mem**)
+			malloc(ctx->ndev*sizeof(struct coprthr_mem*));
 
 		membuf->ctx = ctx;
 		/* XXX for now hardcoded to int4/float4 datatype -DAR */
@@ -444,8 +444,8 @@ void __do_create_buffer(cl_mem memobj)
 	unsigned int ndev = ctx->ndev;
 	cl_device_id* devices = memobj->ctx->devices;
 
-	memobj->mem1 = (struct coprthr1_mem**)
-		malloc(ndev*sizeof(struct coprthr1_mem*));
+	memobj->mem1 = (struct coprthr_mem**)
+		malloc(ndev*sizeof(struct coprthr_mem*));
 
 	printcl( CL_DEBUG "using static resource allocation across devices");
 
@@ -458,12 +458,12 @@ void __do_create_buffer(cl_mem memobj)
 			printcl( CL_DEBUG "XXX memalloc %p",
 				__resolve_devid_devops(ctx->devices[i],memalloc));
 /*
-			memobj->mem1[i] = (struct coprthr1_mem*)
-				malloc(sizeof(struct coprthr1_mem));
+			memobj->mem1[i] = (struct coprthr_mem*)
+				malloc(sizeof(struct coprthr_mem));
 			memobj->mem1[i]->res 
 				= __resolve_devid_devops(ctx->devices[i],memalloc)(memobj->sz,0);
 */
-			memobj->mem1[i] = (struct coprthr1_mem*)
+			memobj->mem1[i] = (struct coprthr_mem*)
 //				__resolve_devid_devops(ctx->devices[i],memalloc)(memobj->sz,0);
 				__resolve_devid_devops(ctx->devices[i],memalloc)
 					(memobj->sz,COPRTHR_DEVMEM_TYPE_BUFFER);

@@ -367,12 +367,12 @@ void __do_create_kernel(cl_kernel krn, cl_uint k)
 
 	printcl( CL_DEBUG "__do_create_kernel: kname=%s",krn->name);
 
-	krn->krn1 = (struct coprthr1_kernel**)
-		malloc(prg->ndev * sizeof(struct coprthr1_kernel*));
+	krn->krn1 = (struct coprthr_kernel**)
+		malloc(prg->ndev * sizeof(struct coprthr_kernel*));
 
 	for(i=0; i<prg->ndev; i++) {
-		krn->krn1[i] = (struct coprthr1_kernel*)
-			malloc(sizeof(struct coprthr1_kernel));
+		krn->krn1[i] = (struct coprthr_kernel*)
+			malloc(sizeof(struct coprthr_kernel));
 		krn->krn1[i]->prg1 = prg->prg1[i];
 		krn->krn1[i]->knum = k;
 	}	
@@ -433,7 +433,7 @@ int __do_set_kernel_arg(
 {
 //	__do_set_kernel_arg_1( krn->krn1[0], argn, arg_sz, arg_val );
 
-	struct coprthr1_mem* mem1;
+	struct coprthr_mem* mem1;
 
 	/* resolve arg_val for all devices to compensate for opencl design mistake */
 
@@ -453,7 +453,7 @@ int __do_set_kernel_arg(
 		if (arg_sz > 0 && arg_val == 0) arg_kind = CLARG_KIND_LOCAL;
 
 		int err;
-		struct coprthr1_mem* mem1;
+		struct coprthr_mem* mem1;
 		switch (arg_kind) {
 
 			case CLARG_KIND_GLOBAL:

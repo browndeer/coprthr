@@ -72,13 +72,13 @@ _clCreateProgramWithSource(
 
 		__init_program(prg);
 
-		prg->prg1 = (struct coprthr1_program**)
-			calloc(ndev,sizeof(struct coprthr1_program*));
+		prg->prg1 = (struct coprthr_program**)
+			calloc(ndev,sizeof(struct coprthr_program*));
 
 		int i;
 		for(i=0;i<ndev;i++)
-			prg->prg1[i] = (struct coprthr1_program*)
-				calloc(1,sizeof(struct coprthr1_program));
+			prg->prg1[i] = (struct coprthr_program*)
+				calloc(1,sizeof(struct coprthr_program));
 
 //		int i;
 
@@ -171,13 +171,13 @@ _clCreateProgramWithBinary(
 
 		__init_program(prg);
 
-		prg->prg1 = (struct coprthr1_program**)
-			calloc(ndev,sizeof(struct coprthr1_program*));
+		prg->prg1 = (struct coprthr_program**)
+			calloc(ndev,sizeof(struct coprthr_program*));
 
 		int i;
 		for(i=0;i<ndev;i++)
-			prg->prg1[i] = (struct coprthr1_program*)
-				calloc(1,sizeof(struct coprthr1_program));
+			prg->prg1[i] = (struct coprthr_program*)
+				calloc(1,sizeof(struct coprthr_program));
 
 		prg->ctx = ctx;
 

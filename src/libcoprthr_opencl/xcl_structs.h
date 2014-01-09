@@ -255,7 +255,7 @@ struct _cl_mem {
 	cl_mem_flags flags;
 	cl_uint refc;
 	cl_uint mapc;
-	struct coprthr1_mem** mem1;
+	struct coprthr_mem** mem1;
 };
 
 struct _cl_mapped_ptr_info {
@@ -316,7 +316,7 @@ struct _cl_program {
 	size_t src_sz;
 	char* src;
 	unsigned int nkrn;
-	struct coprthr1_program** prg1;
+	struct coprthr_program** prg1;
 };
 
 #define __init_program(prg) do { \
@@ -365,8 +365,8 @@ struct _cl_kernel {
 	cl_program prg;
 	unsigned char* name;
 	cl_uint narg;
-	struct coprthr_kernel* imp;
-	struct coprthr1_kernel** krn1;
+//	struct coprthr_kernel* imp;
+	struct coprthr_kernel** krn1;
 };
 
 #define __init_kernel(krn) do { \
@@ -376,12 +376,10 @@ struct _cl_kernel {
 	krn->prg = (cl_program)0; \
 	krn->name = 0; \
 	krn->narg = 0; \
-	__coprthr_init_kernel(krn->imp); \
 	krn->krn1 = 0; \
 	} while(0)
 
 #define __free_kernel(krn) do { \
-	__coprthr_free_kernel(krn->imp); \
 	__free(krn); \
 	} while(0)
 
