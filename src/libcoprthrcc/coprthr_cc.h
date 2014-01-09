@@ -34,7 +34,7 @@
 //typedef struct coprthr1_program* coprthr_program_t;
 //typedef struct coprthr1_kernel* coprthr_kernel_t;
 
-typedef struct coprthr1_kernel* coprthr_symbol_t; /* alias */
+typedef struct coprthr_kernel* coprthr_symbol_t; /* alias */
 
 #define COPRTHR_CC_TARGET_X86_64 "-mtarget=x86_64"
 #define COPRTHR_CC_TARGET_I386 "-mtarget=i386"
