@@ -23,7 +23,8 @@
 #ifndef _coprthr_mem_h
 #define _coprthr_mem_h
 
-struct coprthr1_mem {
+struct coprthr_mem {
+	struct coprthr_device* dev;
 	int type;
 	size_t size;
 	void* res;
@@ -33,6 +34,7 @@ struct coprthr1_mem {
 };
 
 #define __CL_MAP_WRITE 0x0400 /* XXX temporary hack -DAR */
+
 
 #endif
 

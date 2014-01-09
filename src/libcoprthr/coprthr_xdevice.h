@@ -1,6 +1,6 @@
 
-#ifndef _coprthr_xxx_h
-#define _coprthr_xxx_h
+#ifndef _coprthr_xdevice_h
+#define _coprthr_xdevice_h
 
 //#if defined(__coprthr_device__)
 

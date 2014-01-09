@@ -31,38 +31,6 @@
 
 // device mem operations
 
-/*
-void* __coprthr_memalloc( size_t sz, int flags )
-{
-	struct coprthr1_mem* mem1 = (struct coprthr1_mem*)
-		malloc(sizeof(struct coprthr1_mem));
-	mem1->res = malloc(sz);
-	return(mem1); 
-}
-
-void* __coprthr_memrealloc( void* ptr, size_t sz, int flags)
-{ return realloc(ptr,sz); }
-
-void __coprthr_memfree( void* dptr, int flags )
-{
-	struct coprthr1_mem* mem1 = (struct coprthr1_mem*)dptr; 
-	if (mem1) {
-		if (mem1->res) free(mem1->res);
-		free(mem1);
-	}
-}
-
-size_t __coprthr_memread( void* memptr, void* buf, size_t sz )
-{ memcpy(memptr,buf,sz); return sz; }
-
-size_t __coprthr_memwrite( void* memptr, void* buf, size_t sz )
-{ memcpy(buf,memptr,sz); return sz; }
-
-size_t __coprthr_memcopy( void* memptr_src, void* memptr_dst, size_t sz)
-{ memcpy(memptr_dst,memptr_src,sz); return sz; }
-*/
-
-
 void* coprthr_devmemalloc( 
 	struct coprthr_device* dev,
 	void* addr, size_t nmemb, size_t size,
@@ -72,7 +40,8 @@ void* coprthr_devmemalloc(
 	printcl( CL_DEBUG "dev->devops=%p",dev->devops);
 	printcl( CL_DEBUG "dev->devops->memalloc=%p",dev->devops->memalloc);
 
-	printcl( CL_DEBUG "memsup 0x%x",COPRTHR_DEVMEM_TYPEMASK & dev->devinfo->memsup);
+	printcl( CL_DEBUG "memsup 0x%x",
+		COPRTHR_DEVMEM_TYPEMASK & dev->devinfo->memsup);
 
 	if ( flags & COPRTHR_DEVMEM_TYPEMASK & dev->devinfo->memsup )
 		return dev->devops->memalloc(nmemb*size,flags);
@@ -89,7 +58,7 @@ void* coprthr_dmalloc( int dd, size_t sizeb, int flags )
 		return(0);
 }
 
-void coprthr_devmemfree( struct coprthr_device* dev, struct coprthr1_mem* mem1 )
+void coprthr_devmemfree( struct coprthr_device* dev, struct coprthr_mem* mem1 )
 {
 	if (dev) 
 		dev->devops->memfree(mem1,0);
@@ -122,12 +91,12 @@ int coprthr_dmsync( void* ptr, size_t sizeb, int flags )
 {
 }
 
-size_t coprthr_devmemsize( struct coprthr1_mem* mem )
+size_t coprthr_memsize( struct coprthr_mem* mem )
 { 
 	return mem->size; 
 }
 
-void* coprthr_devmemptr( struct coprthr1_mem* mem )
+void* coprthr_memptr( struct coprthr_mem* mem, int flags )
 { 
 	return mem->res; 
 }

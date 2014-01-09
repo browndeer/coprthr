@@ -53,30 +53,21 @@ struct _coprthr_ksyms_struct {
 	void* kcall3;
 };
 
-struct coprthr_kernel {
-//	unsigned int narg;
 
-//	cl_uint* arg_kind;
-//	size_t* arg_sz;
-//	uint32_t* arg_off;
-//	size_t arg_buf_sz;
-//	void* arg_buf;
-};
+//#define __coprthr_init_kernel(imp) do { \
+//	(imp) = (struct coprthr_kernel*)malloc(sizeof(struct coprthr_kernel)); \
+//	} while(0)
 
-#define __coprthr_init_kernel(imp) do { \
-	(imp) = (struct coprthr_kernel*)malloc(sizeof(struct coprthr_kernel)); \
-	} while(0)
-
-#define __coprthr_free_kernel(imp) do { \
-	__free((imp)); \
-	} while(0)
+//#define __coprthr_free_kernel(imp) do { \
+//	__free((imp)); \
+//	} while(0)
 
 
 /* program */
 
 #define __nkernels_in_program(prg) (prg->nkrn)
 
-struct coprthr1_program {
+struct coprthr_program {
 
 	/* these could use a custom allocator that kept prg contiguous */
 	size_t prg_sz;
@@ -115,6 +106,8 @@ struct coprthr1_program {
 
 };
 
+//typedef struct coprthr1_program coprthr_program;
+
 //coprthr_program_t __coprthr_prg_pack( coprthr_program_t prg, size_t sz )
 //{
 //	/* pack into continugous memory allocation */
@@ -126,8 +119,8 @@ struct coprthr1_program {
 
 
 
-struct coprthr1_kernel {
-	struct coprthr1_program* prg1;
+struct coprthr_kernel {
+	struct coprthr_program* prg1;
 	unsigned int knum;
 
 	uint32_t* arg_off;

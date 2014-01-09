@@ -31,11 +31,11 @@
 
 #define __invalid_memobj(memobj) (!memobj)
 
-void __do_create_kernel_1(struct coprthr1_kernel* krn1 )
+void __do_create_kernel_1(struct coprthr_kernel* krn1 )
 {
 	int i;
 
-	struct coprthr1_program* prg1 = krn1->prg1;
+	struct coprthr_program* prg1 = krn1->prg1;
 	unsigned int knum = krn1->knum;
 
 	printcl( CL_DEBUG "__do_create_kernel: prg1=%p knum=%d",prg1,knum);
@@ -69,7 +69,7 @@ void __do_create_kernel_1(struct coprthr1_kernel* krn1 )
 
 
 int __do_set_kernel_arg_1( 
-	struct coprthr1_kernel* krn1, 
+	struct coprthr_kernel* krn1, 
 	unsigned int argn, size_t arg_sz, const void* arg_val 
 )
 {
@@ -122,11 +122,11 @@ int __do_set_kernel_arg_1(
 			if (__invalid_memobj(arg_val)) return(__CL_INVALID_MEM_OBJECT);
 
 //			if (arg_sz != sizeof(cl_mem)) return(__CL_INVALID_ARG_SIZE);
-			if (arg_sz != sizeof(struct coprthr1_mem*)) return(__CL_INVALID_ARG_SIZE);
+			if (arg_sz != sizeof(struct coprthr_mem*)) return(__CL_INVALID_ARG_SIZE);
 
 			printcl( CL_DEBUG "from set arg %p %p (res=%p)",
 //				arg_val,*(cl_mem*)arg_val);
-				arg_val,*(struct coprthr1_mem**)arg_val,(*(struct coprthr1_mem**)arg_val)->res);
+				arg_val,*(struct coprthr_mem**)arg_val,(*(struct coprthr_mem**)arg_val)->res);
 
 			memcpy(p,arg_val,arg_sz);
 
@@ -152,11 +152,11 @@ int __do_set_kernel_arg_1(
 			if (__invalid_memobj(arg_val)) return(__CL_INVALID_MEM_OBJECT);
 
 //			if (arg_sz != sizeof(cl_mem)) return(__CL_INVALID_ARG_SIZE);
-			if (arg_sz != sizeof(struct coprthr1_mem*)) return(__CL_INVALID_ARG_SIZE);
+			if (arg_sz != sizeof(struct coprthr_mem*)) return(__CL_INVALID_ARG_SIZE);
 
 			printcl( CL_DEBUG "from set arg %p %p",
 //				arg_val,*(cl_mem*)arg_val);
-				arg_val,*(struct coprthr1_mem**)arg_val);
+				arg_val,*(struct coprthr_mem**)arg_val);
 
 			memcpy(p,arg_val,arg_sz);
 

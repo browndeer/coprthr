@@ -215,7 +215,7 @@ static void* read_buffer_safe(struct coprthr_device* dev, void* p)
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
 	void* dst = argp->m.dst;
-	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
+	void* src = ((struct coprthr_mem*)argp->m.src)->res;
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
 
@@ -236,7 +236,7 @@ static void* read_buffer( struct coprthr_device* dev, void* p)
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
 	void* dst = argp->m.dst;
-	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
+	void* src = ((struct coprthr_mem*)argp->m.src)->res;
 	printcl( CL_DEBUG "cmdcall_x86_64:read_buffer m.src %p",argp->m.src);
 	size_t offset = argp->m.src_offset;
 	size_t len = argp->m.len;
@@ -263,7 +263,7 @@ static void* write_buffer_safe(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
+	void* dst = ((struct coprthr_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;
@@ -284,7 +284,7 @@ static void* write_buffer(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
+	void* dst = ((struct coprthr_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset;
 	size_t len = argp->m.len;
@@ -308,8 +308,8 @@ static void* copy_buffer_safe(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
-	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
+	void* dst = ((struct coprthr_mem*)argp->m.dst)->res;
+	void* src = ((struct coprthr_mem*)argp->m.src)->res;
 	size_t dst_offset = argp->m.dst_offset;
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
@@ -331,8 +331,8 @@ static void* copy_buffer(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
-	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
+	void* dst = ((struct coprthr_mem*)argp->m.dst)->res;
+	void* src = ((struct coprthr_mem*)argp->m.src)->res;
 	size_t dst_offset = argp->m.dst_offset;
 	size_t src_offset = argp->m.src_offset;
 	size_t len = argp->m.len;
@@ -351,7 +351,7 @@ static void* read_image(struct coprthr_device* dev, void* p)
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
 	void* dst = argp->m.dst;
-	void* src = ((struct coprthr1_mem*)argp->m.src)->res;
+	void* src = ((struct coprthr_mem*)argp->m.src)->res;
 	size_t offset = argp->m.src_offset + 128;
 
 	size_t esz = 4 * sizeof(float);
@@ -381,7 +381,7 @@ static void* write_image(struct coprthr_device* dev, void* p)
 
 	struct cmdcall_arg* argp = (struct cmdcall_arg*)p;
 
-	void* dst = ((struct coprthr1_mem*)argp->m.dst)->res;
+	void* dst = ((struct coprthr_mem*)argp->m.dst)->res;
 	void* src = argp->m.src;
 	size_t offset = argp->m.dst_offset + 128;
 
@@ -445,7 +445,7 @@ static void* map_buffer(struct coprthr_device* dev, void* p)
 
 	*(void**)argp->m.dst = ptr;
 
-   void* src = ((struct coprthr1_mem*)argp->m.src)->res;
+   void* src = ((struct coprthr_mem*)argp->m.src)->res;
 
    if (ptr==src+offset) return(0);
    else memcpy(ptr,src+offset,len);
@@ -474,7 +474,7 @@ static void* unmap_mem_object(struct coprthr_device* dev, void* p)
 
 	if ( __test_flags(argp->flags,__CL_MAP_WRITE) ) {
 
-		void* src = ((struct coprthr1_mem*)argp->m.src)->res;
+		void* src = ((struct coprthr_mem*)argp->m.src)->res;
 
 		size_t offset = ((size_t*)ptr0)[0] = offset;
 		size_t len = ((size_t*)ptr0)[1] = len;

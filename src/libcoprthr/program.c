@@ -40,7 +40,7 @@
 #define __CLMAXSTR_LEN 1023
 #define __CLMAXSTR_BUFSZ (__CLMAXSTR_LEN+1)
 
-void __do_release_program_1(struct coprthr1_program* prg1) 
+void __do_release_program_1(struct coprthr_program* prg1) 
 {
 		if (prg1->dlh) dlclose(prg1->dlh);
 		if (prg1->dlfile) {
@@ -53,7 +53,7 @@ void __do_release_program_1(struct coprthr1_program* prg1)
 int bind_ksyms_default(struct _coprthr_ksyms_struct* ksyms,void* h,char* kname);
 
 unsigned int __do_build_program_from_binary_1(
-	struct coprthr1_program* prg1
+	struct coprthr_program* prg1
 ){ 
 
 	printcl( CL_DEBUG "__do_build_program_from_binary_1");
@@ -137,7 +137,7 @@ unsigned int __do_build_program_from_binary_1(
 			clargtab[i].e_name);
 	}
 
-//	struct coprthr1_program* prg1 = prg1;
+//	struct coprthr_program* prg1 = prg1;
 
 	prg1->nclsym = clsymtab_n;
 	__clone(prg1->clsymtab,clsymtab,clsymtab_n,struct clsymtab_entry);
@@ -518,12 +518,12 @@ void* coprthr_devcompile( struct coprthr_device* dev, char* src, size_t len, cha
 		
 		if (!comp) return(0);
 	
-		printcl( CL_DEBUG "coprthr_compile: compiler=%p",comp);	
+		printcl( CL_DEBUG "coprthr_devcompile: compiler=%p",comp);	
 
 		printcl( CL_DEBUG "build_opt |%s|", opt);
 
-		struct coprthr1_program* prg1
-			= (struct coprthr1_program*)malloc(sizeof(struct coprthr1_program));
+		struct coprthr_program* prg1
+			= (struct coprthr_program*)malloc(sizeof(struct coprthr_program));
 
 		prg1->src = src;
 		prg1->src_sz = len;
@@ -545,9 +545,11 @@ void* coprthr_devcompile( struct coprthr_device* dev, char* src, size_t len, cha
 }
 
 
-void* coprthr_compile( int dd, char* src, size_t len, char* opt, char** log )
+struct coprthr_program* 
+coprthr_dcompile( int dd, char* src, size_t len, char* opt,
+	char** log )
 {
-	printcl( CL_DEBUG "coprthr_compile");
+	printcl( CL_DEBUG "coprthr_dcompile");
 
 	if (dd < 256 && __ddtab[dd]) 
 		return coprthr_devcompile(__ddtab[dd],src,len,opt,log);
@@ -556,7 +558,7 @@ void* coprthr_compile( int dd, char* src, size_t len, char* opt, char** log )
 }
 
 #if(0)
-void* coprthr_devlink( struct coprthr_device* dev, struct coprthr1_program* prg1, const char* kname )
+void* coprthr_devlink( struct coprthr_device* dev, struct coprthr_program* prg1, const char* kname )
 {
 	/* XXX note that dev not used, this should be deprecated by coprthr_sym */
 
@@ -569,8 +571,8 @@ void* coprthr_devlink( struct coprthr_device* dev, struct coprthr1_program* prg1
 
 	if (k==prg1->nkrn) return((void*)-1);
 
-	struct coprthr1_kernel* krn1 = (struct coprthr1_kernel*)
-		malloc(sizeof(struct coprthr1_kernel));
+	struct coprthr_kernel* krn1 = (struct coprthr_kernel*)
+		malloc(sizeof(struct coprthr_kernel));
 
 	printcl( CL_DEBUG "coprthr_link: krn1 %p",krn1);
 
@@ -585,7 +587,7 @@ void* coprthr_devlink( struct coprthr_device* dev, struct coprthr1_program* prg1
 }
 #endif
 
-void* coprthr_sym( struct coprthr1_program* prg1, const char* kname )
+void* coprthr_getsym( struct coprthr_program* prg1, const char* kname )
 {
 	int k;
 
@@ -596,8 +598,8 @@ void* coprthr_sym( struct coprthr1_program* prg1, const char* kname )
 
 	if (k==prg1->nkrn) return((void*)-1);
 
-	struct coprthr1_kernel* krn1 = (struct coprthr1_kernel*)
-		malloc(sizeof(struct coprthr1_kernel));
+	struct coprthr_kernel* krn1 = (struct coprthr_kernel*)
+		malloc(sizeof(struct coprthr_kernel));
 
 	printcl( CL_DEBUG "coprthr_link: krn1 %p",krn1);
 
@@ -613,7 +615,7 @@ void* coprthr_sym( struct coprthr1_program* prg1, const char* kname )
 
 
 /*
-void* coprthr_link( int dd, struct coprthr1_program* prg1, const char* kname )
+void* coprthr_link( int dd, struct coprthr_program* prg1, const char* kname )
 {
 	if (dd < 256 && __ddtab[dd]) 
 		return coprthr_devlink(__ddtab[dd],prg1,kname);
@@ -624,34 +626,13 @@ void* coprthr_link( int dd, struct coprthr1_program* prg1, const char* kname )
 
 
 void* coprthr_devlink( struct coprthr_device* dev, 
-	struct coprthr1_program* prg1, int flags )
+	struct coprthr_program* prg1, int flags )
 {
 	int err = 0;
 
 	printcl( CL_DEBUG "coprthr_ld");
 
 	if (dev) {
-
-//		compiler_t comp = (compiler_t)dev->devcomp->comp;
-//		
-//		if (!comp) return(0);
-//	
-//		printcl( CL_DEBUG "coprthr_compile: compiler=%p",comp);	
-//
-//		printcl( CL_DEBUG "build_opt |%s|", opt);
-//
-//		struct coprthr1_program* prg1
-//			= (struct coprthr1_program*)malloc(sizeof(struct coprthr1_program));
-//
-//		prg1->src = src;
-//		prg1->src_sz = len;
-//		prg1->build_opt = opt;
-
-
-//		printcl( CL_DEBUG "calling compiler : %p %p",&prg1->bin, &prg1->bin_sz);
-//		int err = comp( 0, prg1->src,prg1->src_sz, 
-//			&prg1->bin, &prg1->bin_sz, prg1->build_opt, &prg1->build_log);
-
 
 		if (!err) err = __do_build_program_from_binary_1(prg1);
 		else printcl( CL_DEBUG 

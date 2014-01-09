@@ -53,7 +53,7 @@ struct coprthr_mutex_attr {
 typedef struct coprthr_mutex_attr* coprthr_mutex_attr_t;
 
 struct coprthr_mutex {
-	struct coprthr1_mem mem;
+	struct coprthr_mem mem;
 	int dd;
 };
 typedef struct coprthr_mutex* coprthr_mutex_t;

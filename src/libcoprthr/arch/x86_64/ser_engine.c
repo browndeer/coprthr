@@ -447,7 +447,7 @@ void* ser_engine_klaunch( int engid_base, int ne, struct workp* wp,
 				printcl( CL_DEBUG  "argp->k.pr_arg_off[%d]=%p",
 					i,argp->k.pr_arg_off[i]);
 
-				struct coprthr1_mem* mem1 = *(struct coprthr1_mem**)p;
+				struct coprthr_mem* mem1 = *(struct coprthr_mem**)p;
 				printcl( CL_DEBUG  "mem1=%p",mem1);
 				*(void**)p =mem1->res;
 

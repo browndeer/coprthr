@@ -278,7 +278,7 @@ int coprthr_mutex_init( coprthr_mutex_t* mtx, coprthr_mutex_attr_t* mtxattr )
 
 	struct coprthr_device* dev = __ddtab[(*mtxattr)->dd];
 
-	struct coprthr1_mem* mem 
+	struct coprthr_mem* mem 
 		= coprthr_devmemalloc(dev,0,1,0,COPRTHR_DEVMEM_TYPE_MUTEX);
 
 	if (!mem)
@@ -286,7 +286,7 @@ int coprthr_mutex_init( coprthr_mutex_t* mtx, coprthr_mutex_attr_t* mtxattr )
 
 	/* need to promote mem to mtx */
 //	(*mtx)->mem = mem;
-	memcpy(*mtx,mem,sizeof(struct coprthr1_mem));
+	memcpy(*mtx,mem,sizeof(struct coprthr_mem));
 	free(mem);
 	
 	(*mtx)->dd = (*mtxattr)->dd;

@@ -23,6 +23,12 @@
 #ifndef _coprthr_h
 #define _coprthr_h
 
+#ifdef __coprthr_device__
+
+#include "coprthr_xdevice.h"
+
+#else
+
 #include "coprthr_arch.h"
 #include "coprthr_device.h"
 #include "coprthr_mem.h"
@@ -35,9 +41,9 @@
  ***/
 
 typedef struct coprthr_device* coprthr_dev_t;
-typedef struct coprthr1_mem* coprthr_mem_t;
-typedef struct coprthr1_program* coprthr_program_t;
-typedef struct coprthr1_kernel* coprthr_kernel_t;
+typedef struct coprthr_mem* coprthr_mem_t;
+typedef struct coprthr_program* coprthr_program_t;
+typedef struct coprthr_kernel* coprthr_kernel_t;
 typedef struct coprthr_event* coprthr_event_t;
 
 
@@ -64,19 +70,21 @@ typedef struct coprthr_event* coprthr_event_t;
 void* coprthr_devmemalloc( coprthr_dev_t dev, void* addr, size_t nmemb, 
 	size_t size, int flags );
 
-void coprthr_devmemfree( struct coprthr_device* dev, struct coprthr1_mem* mem );
+void coprthr_devmemfree( struct coprthr_device* dev, struct coprthr_mem* mem );
 
-size_t coprthr_devmemsize( struct coprthr1_mem* mem );
-void* coprthr_devmemptr( struct coprthr1_mem* mem );
+size_t coprthr_memsize( struct coprthr_mem* mem );
+void* coprthr_memptr( struct coprthr_mem* mem, int flags );
 
-void* coprthr_devread( coprthr_dev_t dev, coprthr_mem_t dptr, void* buf,
+size_t coprthr_devread( coprthr_dev_t dev, coprthr_mem_t mem, size_t offset,
+	void* buf, size_t len, int flags);
+size_t coprthr_devwrite( coprthr_dev_t dev, coprthr_mem_t mem, size_t offset,
+	void* buf,
 	size_t len, int flags);
-void* coprthr_devwrite( coprthr_dev_t dev, coprthr_mem_t dptr, void* buf,
-	size_t len, int flags);
-void* coprthr_devcopy( coprthr_dev_t dev, coprthr_mem_t dptr_src,
-	coprthr_mem_t dptr_dst, size_t len, int flags);
-void* coprthr_devexec( coprthr_dev_t dev, int nthr, 
-	struct coprthr1_kernel* krn1, unsigned int narg, void** args);
+size_t coprthr_devcopy( coprthr_dev_t dev, coprthr_mem_t mem_src, 
+	size_t offset_src, coprthr_mem_t mem_dst, size_t offset_dst, size_t len, 
+	int flags);
+int coprthr_devexec( coprthr_dev_t dev, int nthr, 
+	struct coprthr_kernel* krn1, unsigned int narg, void** args);
 
 //int coprthr_devctl( int dd, int request, ... );
 
@@ -91,10 +99,10 @@ void* coprthr_getdev( const char* path, int flags );
 
 void* coprthr_devcompile( struct coprthr_device* dev, char* src, size_t len, char* opt, char** log );
 
-//void* coprthr_devlink( struct coprthr_device* dev, struct coprthr1_program* prg1, const char* kname);
+//void* coprthr_devlink( struct coprthr_device* dev, struct coprthr_program* prg1, const char* kname);
 
 void* coprthr_devlink( struct coprthr_device* dev, 
-	struct coprthr1_program* prg1, int flags );
+	struct coprthr_program* prg1, int flags );
 
 
 /***
@@ -117,8 +125,9 @@ void* coprthr_devlink( struct coprthr_device* dev,
 int coprthr_dopen( const char* path, int flags);
 int coprthr_dclose(int dd);
 
-void* coprthr_compile( int dd, char* src, size_t len, char* opt, char** log );
-//void* coprthr_link( int dd, struct coprthr1_program* prg1, const char* kname);
+coprthr_program_t coprthr_dcompile( int dd, char* src, size_t len, char* opt,
+	char** log );
+//void* coprthr_link( int dd, struct coprthr_program* prg1, const char* kname);
 
 //#define COPRTHR_E_WAIT 		0x0001
 //#define COPRTHR_E_NOWAIT 	0x0002
@@ -129,12 +138,16 @@ void* coprthr_compile( int dd, char* src, size_t len, char* opt, char** log );
 void* coprthr_dmalloc( int dd, size_t size, int flags );
 void* coprthr_drealloc( int dd, void* dptr, size_t size, int flags );
 void coprthr_dfree( int dd, void* dptr );
-void* coprthr_dwrite(int dd, void* dptr, void* ptr, size_t len, int flags);
-void* coprthr_dread(int dd, void* dptr, void* ptr, size_t len, int flags);
-void* coprthr_dcopy(int dd, void* dptr_src, void* dptr_dst, size_t len, 
-	int flags);
+void* coprthr_dwrite(int dd, struct coprthr_mem* mem, size_t offset, void* ptr,
+	size_t len, int flags);
+void* coprthr_dread(int dd, struct coprthr_mem* mem, size_t offset, void* ptr,
+	size_t len, int flags);
+void* coprthr_dcopy(int dd, struct coprthr_mem* mem_src, size_t offset_src, 
+	struct coprthr_mem* mem_dst, size_t offset_dst, size_t len, int flags);
 
-void coprthr_dwaitev( int dd, struct coprthr_event* ev );
+int coprthr_dwaitev( int dd, struct coprthr_event* ev );
+
+int coprthr_dwait( int dd );
 
 coprthr_event_t coprthr_dexec( int dd, 
 	coprthr_kernel_t krn, unsigned int nargs, void** args,
@@ -157,9 +170,11 @@ coprthr_event_t coprthr_dnexec( int dd, unsigned int nkrn,
 
 //int coprthr_sched( int dd, coprthr_event_t ev, int action, ... );
 
-#define COPRTHR_CTL_TESTSUPP	10
+#define COPRTHR_CTL_TESTSUP	10
 
-void* coprthr_sym( coprthr_program_t prg, const char* symbol );
+void* coprthr_getsym( coprthr_program_t prg, const char* symbol );
+
+#endif
 
 #endif
 

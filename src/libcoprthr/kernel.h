@@ -26,8 +26,8 @@
 #include "coprthr_program.h"
 
 
-void __do_create_kernel_1(struct coprthr1_kernel* krn1 );
-int __do_set_kernel_arg_1( struct coprthr1_kernel* krn1, unsigned int argn, 
+void __do_create_kernel_1(struct coprthr_kernel* krn1 );
+int __do_set_kernel_arg_1( struct coprthr_kernel* krn1, unsigned int argn, 
 	size_t arg_sz, const void* arg_val);
 
 

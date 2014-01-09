@@ -77,7 +77,7 @@ int getenv_token( const char* name, const char* token, char* value, size_t n );
 
 void* dlh_compiler = 0;
 
-#define COPRTHR_DEVICE_NSUPP_MAX 16
+#define COPRTHR_DEVICE_NSUP_MAX 16
 
 static int nsupp = 0;
 static struct coprthr_device** codevtab = 0;
@@ -101,11 +101,11 @@ void __do_discover_devices_1(
 	if (*p_devtab) return;
 
 	codevtab = (struct coprthr_device**)
-		malloc(COPRTHR_DEVICE_NSUPP_MAX*sizeof(struct coprthr_device*));
+		malloc(COPRTHR_DEVICE_NSUP_MAX*sizeof(struct coprthr_device*));
 
 	void* h0 = dlopen("libcoprthr.so",RTLD_NOW|RTLD_GLOBAL);
 
-	void* hh[COPRTHR_DEVICE_NSUPP_MAX];
+	void* hh[COPRTHR_DEVICE_NSUP_MAX];
 
 	/* for each supported device */
 	{

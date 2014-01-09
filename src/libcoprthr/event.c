@@ -21,6 +21,7 @@
 /* DAR */
 
 #include <string.h>
+#include <errno.h>
 
 #include "printcl.h"
 #include "event.h"
@@ -28,6 +29,7 @@
 #include "command_queue.h"
 
 #include "coprthr_sched.h"
+#include "coprthr_mem.h"
 
 #define __malloc_struct(t) (struct t*)malloc(sizeof(struct t))
 
@@ -56,7 +58,7 @@ void __do_release_event_1(struct coprthr_event* ev1)
 
 void __do_set_cmd_read_buffer_1( 
 	struct coprthr_event* ev1,
-	struct coprthr1_mem* src1, size_t src_offset, size_t len, 
+	struct coprthr_mem* src1, size_t src_offset, size_t len, 
 	void* dst
 )
 {
@@ -77,7 +79,7 @@ void __do_set_cmd_read_buffer_1(
 
 void __do_set_cmd_write_buffer_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* dst1, size_t dst_offset, size_t len, 
+	struct coprthr_mem* dst1, size_t dst_offset, size_t len, 
 	const void* src
 )
 {
@@ -96,7 +98,7 @@ void __do_set_cmd_write_buffer_1(
 
 void __do_set_cmd_copy_buffer_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* src1, struct coprthr1_mem* dst1,
+	struct coprthr_mem* src1, struct coprthr_mem* dst1,
 	size_t src_offset, size_t dst_offset, size_t len 
 )
 {
@@ -116,7 +118,7 @@ void __do_set_cmd_copy_buffer_1(
 
 void __do_set_cmd_read_image_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* src1, 
+	struct coprthr_mem* src1, 
 	const size_t* src_origin, const size_t* region, 
 	size_t row_pitch, size_t slice_pitch, 
 	void* dst
@@ -142,7 +144,7 @@ void __do_set_cmd_read_image_1(
 
 void __do_set_cmd_write_image_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* dst1, 
+	struct coprthr_mem* dst1, 
 	const size_t* dst_origin, const size_t* region, 
 	size_t row_pitch, size_t slice_pitch, 
 	const void* src
@@ -163,7 +165,7 @@ void __do_set_cmd_write_image_1(
 
 void __do_set_cmd_copy_image_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* src1, struct coprthr1_mem* dst1, 
+	struct coprthr_mem* src1, struct coprthr_mem* dst1, 
 	const size_t* src_origin, 
 	const size_t* dst_origin, const size_t* region
 )
@@ -196,7 +198,7 @@ void __do_set_cmd_copy_image(
 
 void __do_set_cmd_copy_image_to_buffer_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* src1, struct coprthr1_mem* dst1, 
+	struct coprthr_mem* src1, struct coprthr_mem* dst1, 
 	const size_t* src_origin, const size_t* region, 
 	size_t dst_offset
 )
@@ -228,7 +230,7 @@ void __do_set_cmd_copy_image_to_buffer(
 
 void __do_set_cmd_copy_buffer_to_image_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* src1, struct coprthr1_mem* dst1, 
+	struct coprthr_mem* src1, struct coprthr_mem* dst1, 
 	size_t src_offset, 
 	const size_t* dst_origin, const size_t* region
 )
@@ -260,7 +262,7 @@ void __do_set_cmd_copy_buffer_to_image(
 
 void __do_set_cmd_map_buffer_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* membuf1,
+	struct coprthr_mem* membuf1,
 //	cl_map_flags flags, size_t offset, size_t len,
 	int flags, size_t offset, size_t len,
 	void* pp
@@ -292,7 +294,7 @@ void __do_set_cmd_map_buffer(
 
 void __do_set_cmd_map_image_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* image1,
+	struct coprthr_mem* image1,
 //	cl_map_flags flags, const size_t* origin, const size_t* region,
 	int flags, const size_t* origin, const size_t* region,
 	size_t* row_pitch, size_t* slice_pitch,
@@ -329,7 +331,7 @@ void __do_set_cmd_map_image(
 
 void __do_set_cmd_unmap_memobj_1( 
 	struct coprthr_event* ev1, 
-	struct coprthr1_mem* memobj1, void* p
+	struct coprthr_mem* memobj1, void* p
 )
 {
 	ev1->cmd_argp = (struct cmdcall_arg*)malloc(sizeof(struct cmdcall_arg));
@@ -343,7 +345,7 @@ void __do_set_cmd_unmap_memobj_1(
 
 void __do_set_cmd_ndrange_kernel_1(
 	struct coprthr_event* ev1,
-	struct coprthr1_kernel* krn1,
+	struct coprthr_kernel* krn1,
 	unsigned int work_dim,
 	const size_t* global_work_offset,
 	const size_t* global_work_size,
@@ -408,7 +410,7 @@ void __do_set_cmd_ndrange_kernel_1(
 void __do_set_cmd_ndrange_kernel_n(
 	struct coprthr_event* ev1,
 	unsigned int nkrn,
-	struct coprthr1_kernel* v_krn1[],
+	struct coprthr_kernel* v_krn1[],
 	unsigned int v_work_dim[],
 	size_t* v_global_work_offset[],
 	size_t* v_global_work_size[],
@@ -430,7 +432,7 @@ void __do_set_cmd_ndrange_kernel_n(
 
 		argp->flags = CMDCALL_ARG_K;
 
-		struct coprthr1_kernel* krn = v_krn1[n];
+		struct coprthr_kernel* krn = v_krn1[n];
 
 		argp->k.krn = krn;
 
@@ -475,7 +477,7 @@ void __do_set_cmd_ndrange_kernel_n(
 
 
 void __do_set_cmd_task_1( 
-	struct coprthr_event* ev1, struct coprthr1_kernel* krn1
+	struct coprthr_event* ev1, struct coprthr_kernel* krn1
 )
 {
 #if(0)
@@ -500,7 +502,7 @@ void __do_set_cmd_task_1(
 	}
 
 	int knum = krn->krn1[devnum]->knum;
-	struct coprthr1_program* prg1 = krn->krn1[devnum]->prg1;
+	struct coprthr_program* prg1 = krn->krn1[devnum]->prg1;
 	argp->k.ksym = prg1->v_ksyms[knum].kthr;
 	argp->k.kcall = prg1->v_ksyms[knum].kcall;
 	argp->k.narg = krn->narg;
@@ -578,17 +580,17 @@ void __do_wait_for_events( cl_uint nev, const cl_event* evlist)
 */
 
 
-void* coprthr_dread( 
-	int dd, struct coprthr1_mem* dptr, void* buf, size_t len, int flags
+struct coprthr_event* coprthr_dread( int dd, struct coprthr_mem* mem, 
+	size_t offset, void* buf, size_t len, int flags
 )
 {
-	printcl( CL_DEBUG "coprthr_dread: dptr %p",dptr);
-	printcl( CL_DEBUG "coprthr_dread: dptr->res %p",dptr->res);
+	printcl( CL_DEBUG "coprthr_dread: mem %p",mem);
+	printcl( CL_DEBUG "coprthr_dread: mem->res %p",mem->res);
 
 	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
 
-	__do_set_cmd_read_buffer_1( ev1, dptr, 0, len, buf );
+	__do_set_cmd_read_buffer_1( ev1, mem, 0, len, buf );
 
 	struct coprthr_device* dev = __ddtab[dd];
 
@@ -601,43 +603,37 @@ void* coprthr_dread(
 	}
 
 	return ev1;
-
 }
 
-void* coprthr_devread( 
-	struct coprthr_device* dev, struct coprthr1_mem* dptr, void* buf,
-	size_t len, int flags
+size_t coprthr_devread( 
+	struct coprthr_device* dev, struct coprthr_mem* mem, size_t offset,
+	void* buf, size_t len, int flags
 )
 {
-	printcl( CL_DEBUG "coprthr_devread: dptr %p",dptr);
-	printcl( CL_DEBUG "coprthr_devread: dptr->res %p",dptr->res);
+	printcl( CL_DEBUG "coprthr_devread: mem %p",mem);
+	printcl( CL_DEBUG "coprthr_devread: mem->res %p",mem->res);
 
-/*
-	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
-	__coprthr_init_event(ev1);
+	if (offset) {
+		printcl( CL_WARNING "coprthr_devread: non-zero offset not supported");
+		errno = ENOTSUP;
+		return 0;
+	}
 
-	__do_set_cmd_read_buffer_1( ev1, dptr, 0, len, buf );
-
-	__do_exec_cmd_1( dev,ev1);
-
-	return ev1;
-*/
-
-	dev->devops->memread(dptr,buf,len);
-	return 0;
+	size_t sz = dev->devops->memread(mem,buf,len);
+	return sz;
 }
 
-void* coprthr_dwrite( 
-	int dd, struct coprthr1_mem* dptr, void* buf, size_t len, int flags
+struct coprthr_event* coprthr_dwrite( 
+	int dd, struct coprthr_mem* mem, size_t offset, void* buf, size_t len, int flags
 )
 {
-	printcl( CL_DEBUG "coprthr_dwrite: dptr %p",dptr);
-	printcl( CL_DEBUG "coprthr_dwrite: dptr->res %p",dptr->res);
+	printcl( CL_DEBUG "coprthr_dwrite: memr %p",mem);
+	printcl( CL_DEBUG "coprthr_dwrite: mem->res %p",mem->res);
 
 	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
 
-	__do_set_cmd_write_buffer_1( ev1, dptr, 0, len, buf );
+	__do_set_cmd_write_buffer_1( ev1, mem, 0, len, buf );
 
 	struct coprthr_device* dev = __ddtab[dd];
 
@@ -649,55 +645,43 @@ void* coprthr_dwrite(
 			__do_wait_1(ev1);
 	}
 
-
 	return ev1;
-	
-//	dev->devops->memwrite(dptr,buf,len);
-	return 0;
 }
 
-void* coprthr_devwrite( 
-	struct coprthr_device* dev, struct coprthr1_mem* dptr, void* buf, 
-	size_t len, int flags
+size_t coprthr_devwrite( 
+	struct coprthr_device* dev, struct coprthr_mem* mem, size_t offset,
+	void* buf, size_t len, int flags
 )
 {
-	printcl( CL_DEBUG "coprthr_devwrite: dptr %p",dptr);
-	printcl( CL_DEBUG "coprthr_devwrite: dptr->res %p",dptr->res);
+	printcl( CL_DEBUG "coprthr_devwrite: mem %p",mem);
+	printcl( CL_DEBUG "coprthr_devwrite: mem->res %p",mem->res);
 
-//	struct coprthr_event* ev1 = (struct coprthr_event*)
-//		malloc(sizeof(struct coprthr_event));
+	if (offset) {
+		printcl( CL_WARNING "coprthr_devwrite: non-zero offset not supported");
+		errno = ENOTSUP;
+		return 0;
+	}
 
-/*
-	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
-	__coprthr_init_event(ev1);
-
-	__do_set_cmd_write_buffer_1( ev1, dptr, 0, len, buf );
-
-	__do_exec_cmd_1( dev,ev1);
-
-	return ev1;
-*/
-
-	dev->devops->memwrite(dptr,buf,len);
-	return 0;
+	size_t sz = dev->devops->memwrite(mem,buf,len);
+	return sz;
 }
 
 
-void* coprthr_dcopy( 
-	int dd, struct coprthr1_mem* dptr_src, struct coprthr1_mem* dptr_dst,
-	size_t len, int flags
+struct coprthr_event* coprthr_dcopy( 
+	int dd, struct coprthr_mem* mem_src, size_t offset_src, 
+	struct coprthr_mem* mem_dst, size_t offset, size_t len, int flags
 )
 {
-	printcl( CL_DEBUG "coprthr_dcopy: dptr_src %p",dptr_src);
-	printcl( CL_DEBUG "coprthr_dcopy: dptr_src->res %p",dptr_src->res);
+	printcl( CL_DEBUG "coprthr_dcopy: mem_src %p",mem_src);
+	printcl( CL_DEBUG "coprthr_dcopy: mem_src->res %p",mem_src->res);
 
-	printcl( CL_DEBUG "coprthr_dcopy: dptr_dst %p",dptr_dst);
-	printcl( CL_DEBUG "coprthr_dcopy: dptr_dst->res %p",dptr_dst->res);
+	printcl( CL_DEBUG "coprthr_dcopy: mem_dst %p",mem_dst);
+	printcl( CL_DEBUG "coprthr_dcopy: mem_dst->res %p",mem_dst->res);
 
 	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
 	__coprthr_init_event(ev1);
 
-	__do_set_cmd_copy_buffer_1( ev1, dptr_src, dptr_dst, 0, 0, len );
+	__do_set_cmd_copy_buffer_1( ev1, mem_src, mem_dst, 0, 0, len );
 
 	struct coprthr_device* dev = __ddtab[dd];
 
@@ -709,52 +693,51 @@ void* coprthr_dcopy(
 			__do_wait_1(ev1);
 	}
 
-
 	return ev1;
 }
 
 
-void* coprthr_devcopy( 
-	struct coprthr_device* dev, struct coprthr1_mem* dptr_src,
-	struct coprthr1_mem* dptr_dst, size_t len, int flags
+size_t coprthr_devcopy( 
+	struct coprthr_device* dev, struct coprthr_mem* mem_src, size_t offset_src,
+	struct coprthr_mem* mem_dst, size_t offset_dst, size_t len, int flags
 )
 {
-	printcl( CL_DEBUG "coprthr_devcopy: dptr_src %p",dptr_src);
-	printcl( CL_DEBUG "coprthr_devcopy: dptr_src->res %p",dptr_src->res);
+	printcl( CL_DEBUG "coprthr_devcopy: mem_src %p",mem_src);
+	printcl( CL_DEBUG "coprthr_devcopy: mem_src->res %p",mem_src->res);
 
-	printcl( CL_DEBUG "coprthr_devcopy: dptr_dst %p",dptr_dst);
-	printcl( CL_DEBUG "coprthr_devcopy: dptr_dst->res %p",dptr_dst->res);
+	printcl( CL_DEBUG "coprthr_devcopy: mem_dst %p",mem_dst);
+	printcl( CL_DEBUG "coprthr_devcopy: mem_dst->res %p",mem_dst->res);
 
-/*
-	struct coprthr_event* ev1 = __malloc_struct(coprthr_event);
-	__coprthr_init_event(ev1);
+	if (offset_src || offset_dst) {
+		printcl( CL_WARNING "coprthr_devcopy: non-zero offset not supported");
+		errno = ENOTSUP;
+		return 0;
+	}
 
-	__do_set_cmd_write_buffer_1( ev1, dptr, 0, len, buf );
+	size_t sz = dev->devops->memcopy(mem_src,mem_dst,len);
 
-	__do_exec_cmd_1( dev,ev1);
+	return sz;
+}
 
-	return ev1;
-*/
 
-	dev->devops->memcopy(dptr_src,dptr_dst,len);
+int coprthr_dwaitev( int dd, struct coprthr_event* ev1)
+{ 
+	__do_wait_1(ev1); 
 	return 0;
 }
 
 
-void coprthr_dwaitev( int dd, struct coprthr_event* ev1)
-{ __do_wait_1(ev1); }
-
-
-void coprthr_dwait( int dd )
+int coprthr_dwait( int dd )
 { 
 	struct coprthr_device* dev = __ddtab[dd];
 	struct coprthr_command_queue* cmdq1 = dev->devstate->cmdq;
 	__do_waitq_1(cmdq1); 
+	return 0;
 }
 
 
 void* coprthr_dexec( 
-	int dd, struct coprthr1_kernel* krn1, 
+	int dd, struct coprthr_kernel* krn1, 
 	unsigned int nargs, void** args,
 	unsigned int nthr, int flags
 )
@@ -792,7 +775,7 @@ void* coprthr_dexec(
 
 
 void* coprthr_dnexec( 
-	int dd, unsigned int nkrn, struct coprthr1_kernel* v_krn[],
+	int dd, unsigned int nkrn, struct coprthr_kernel* v_krn[],
 	unsigned int v_nargs[], void** v_args[],
 	unsigned int v_nthr[], int flags
 )
@@ -858,8 +841,8 @@ void* coprthr_dnexec(
 }
 
 
-void* coprthr_devexec( 
-	struct coprthr_device* dev, int nthr, struct coprthr1_kernel* krn1, 
+int coprthr_devexec( 
+	struct coprthr_device* dev, int nthr, struct coprthr_kernel* krn1, 
 	unsigned int narg, void** args 
 )
 {
@@ -879,8 +862,11 @@ void* coprthr_devexec(
 
 	__do_set_cmd_ndrange_kernel_1( ev1, krn1, 1, &gwo, &gws, &lws);
 
-	__do_exec_cmd_1( dev,ev1);
+	__do_exec_cmd_1( dev, ev1);
 
-	return ev1;
+//	return ev1;
+	free(ev1);
+
+	return 0;
 }
 

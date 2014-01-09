@@ -110,7 +110,10 @@ static int init_device_x86_64(void)
 	*codev->devinfo = (struct coprthr_device_info){
 		.memsup = COPRTHR_DEVMEM_TYPE_BUFFER
 			|COPRTHR_DEVMEM_TYPE_MUTEX,
-		.arch_id = COPRTHR_ARCH_ID_X86_64
+		.arch_id = COPRTHR_ARCH_ID_X86_64,
+		.devsup = COPRTHR_DEVSUP_F_RUNTIME 
+			| COPRTHR_DEVSUP_F_STREAM | COPRTHR_DEVSUP_F_THREAD
+			| COPRTHR_DEVSUP_F_MEM_BUFFER | COPRTHR_DEVSUP_F_MEM_MUTEX
 	};
 
 	codev->devinfo->name = 0;
@@ -347,6 +350,7 @@ codev->devinfo->vendor = strdup("Xilinx");
 		codev->devstate->compiler_avail = 0;
 	} else {
 		codev->devstate->compiler_avail = 1;
+		codev->devinfo->devsup |= COPRTHR_DEVSUP_F_COMPILER;
 	}
 
 	int i;

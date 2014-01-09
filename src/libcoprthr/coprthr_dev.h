@@ -1,4 +1,4 @@
-/* program.h
+/* coprthr_dev.h
  *
  * Copyright (c) 2009-2013 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -20,23 +20,10 @@
 
 /* DAR */
 
-#ifndef _program_h
-#define _program_h
+#ifndef _coprthr_dev_h
+#define _coprthr_dev_h
 
-#include "coprthr_program.h"
-
-void __do_release_program_1(struct coprthr_program* prg1);
-
-unsigned int __do_build_program_from_binary_1( struct coprthr_program* prg1 );
-
-int bind_ksyms_default( struct _coprthr_ksyms_struct* ksyms, void* h, 
-	char* kname );
-
-struct program_info_struct {
-   unsigned int core_local_data;
-   unsigned int stack_size;
-};
+/* stub for future restructure */
 
 #endif
-
 

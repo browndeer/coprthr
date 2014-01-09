@@ -28,6 +28,24 @@
 #include "cmdcall.h"
 #include "cpuset_type.h"
 
+
+#define COPRTHR_DEVSUP_F_RUNTIME			0x00000001
+#define COPRTHR_DEVSUP_F_COMPILER		0x00000002
+#define COPRTHR_DEVSUP_F_STREAM			0x00000010
+#define COPRTHR_DEVSUP_F_THREAD			0x00000020
+#define COPRTHR_DEVSUP_F_SIGNAL			0x00000040
+
+#define COPRTHR_DEVSUP_F_MEM_BUFFER		0x00001000
+#define COPRTHR_DEVSUP_F_MEM_MUTEX		0x00002000
+#define COPRTHR_DEVSUP_F_MEM_SIGNAL		0x00004000
+#define COPRTHR_DEVSUP_F_MEM_REGISTER	0x00008000
+#define COPRTHR_DEVSUP_F_MEM_FIFO		0x00010000
+#define COPRTHR_DEVSUP_F_MEM_STACK		0x00020000
+
+#define COPRTHR_DEVSUP_F_MEM_PROT		0x00100000
+#define COPRTHR_DEVSUP_F_MEM_OFFSET		0x00200000
+
+
 struct coprthr_device_info {
 
 	unsigned int max_compute_units;
@@ -46,6 +64,7 @@ struct coprthr_device_info {
 	size_t global_mem_sz;
 	size_t local_mem_sz;
 
+	int devsup;
 };
 
 struct coprthr_command_queue;
@@ -129,8 +148,8 @@ struct coprthr_device_commands {
 
 struct coprthr_device_operations {
 	void* _dummy;
-	void*(*memalloc)( size_t sz, int flags );
-	void*(*memrealloc)( void* ptr, size_t sz, int flags);
+	void* (*memalloc) ( size_t sz, int flags );
+	void* (*memrealloc) ( void* ptr, size_t sz, int flags);
 	void (*memfree)( void* memptr, int flags );
 	size_t (*memread)( void* memptr, void* buf, size_t sz );
 	size_t (*memwrite)( void* memptr, void* buf, size_t sz );

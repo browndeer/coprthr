@@ -50,8 +50,8 @@ static void* memalloc( size_t size, int flags )
 {
 	printcl( CL_DEBUG "arch/e32: memalloc %ld 0x%x",size,flags);
 
-   struct coprthr1_mem* mem1 = (struct coprthr1_mem*)
-      malloc(sizeof(struct coprthr1_mem));
+   struct coprthr_mem* mem1 = (struct coprthr_mem*)
+      malloc(sizeof(struct coprthr_mem));
 //   mem1->res = malloc(sz);
 
 /*
@@ -144,7 +144,7 @@ static void memfree( void* dptr, int flags )
 
 	printcl( CL_DEBUG "arch/e32: memfree %p 0x%x",dptr,flags);
 	
-   struct coprthr1_mem* mem1 = (struct coprthr1_mem*)dptr;
+   struct coprthr_mem* mem1 = (struct coprthr_mem*)dptr;
 
    if (mem1) {
 
@@ -183,22 +183,22 @@ static void memfree( void* dptr, int flags )
 
 static size_t memread( void* dptr, void* buf, size_t sz )
 { 
-	struct coprthr1_mem* mem1 = (struct coprthr1_mem*)dptr;
+	struct coprthr_mem* mem1 = (struct coprthr_mem*)dptr;
 	xxx_e_read_dram(mem1->res,buf,sz);
 	return sz; 
 }
 
 static size_t memwrite( void* dptr, void* buf, size_t sz )
 { 
-	struct coprthr1_mem* mem1 = (struct coprthr1_mem*)dptr;
+	struct coprthr_mem* mem1 = (struct coprthr_mem*)dptr;
 	xxx_e_write_dram(mem1->res,buf,sz);
 	return sz; 
 }
 
 static size_t memcopy( void* dptr_src, void* dptr_dst, size_t sz)
 { 
-	struct coprthr1_mem* mem1_src = (struct coprthr1_mem*)dptr_src;
-	struct coprthr1_mem* mem1_dst = (struct coprthr1_mem*)dptr_dst;
+	struct coprthr_mem* mem1_src = (struct coprthr_mem*)dptr_src;
+	struct coprthr_mem* mem1_dst = (struct coprthr_mem*)dptr_dst;
 	void* ptmp = malloc(sz);
 	xxx_e_read_dram(mem1_src->res,ptmp,sz);
 	xxx_e_write_dram(mem1_dst->res,ptmp,sz);
@@ -240,7 +240,7 @@ static int mtxlock( void* mtxmem )
 {
 	printcl( CL_DEBUG "arch/e32: mtxlock %p",mtxmem);
 
-	struct coprthr1_mem* mem = (struct coprthr1_mem*)mtxmem;
+	struct coprthr_mem* mem = (struct coprthr_mem*)mtxmem;
 
 //	pthread_mutex_t* p_mtx = (pthread_mutex_t*)mem->res;
 	unsigned int* p_mtx = (unsigned int*)mem->res;
@@ -257,7 +257,7 @@ static int mtxunlock( void* mtxmem )
 {
 	printcl( CL_DEBUG "arch/e32: mtxunlock %p",mtxmem);
 
-	struct coprthr1_mem* mem = (struct coprthr1_mem*)mtxmem;
+	struct coprthr_mem* mem = (struct coprthr_mem*)mtxmem;
 
 //	pthread_mutex_t* p_mtx = (pthread_mutex_t*)mem->res;
 	unsigned int* p_mtx = (unsigned int*)mem->res;
