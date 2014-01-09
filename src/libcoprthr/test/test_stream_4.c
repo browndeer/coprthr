@@ -31,12 +31,12 @@ int main()
 	printf("dd=%d\n",dd);
 
 	coprthr_program_t prg_add 
-		= coprthr_compile(dd,src_add,sizeof(src_add),0,0);
-	coprthr_kernel_t krn_add = coprthr_sym(prg_add,"my_kern");
+		= coprthr_dcompile(dd,src_add,sizeof(src_add),0,0);
+	coprthr_kernel_t krn_add = coprthr_getsym(prg_add,"my_kern");
 
 	coprthr_program_t prg_sub 
-		= coprthr_compile(dd,src_sub,sizeof(src_sub),0,0);
-	coprthr_kernel_t krn_sub = coprthr_sym(prg_sub,"my_kern");
+		= coprthr_dcompile(dd,src_sub,sizeof(src_sub),0,0);
+	coprthr_kernel_t krn_sub = coprthr_getsym(prg_sub,"my_kern");
 
 	printf("prg_add=%p krn_add=%p\n",prg_add,krn_add);
 	printf("prg_sub=%p krn_sub=%p\n",prg_sub,krn_sub);
@@ -62,13 +62,13 @@ int main()
 	coprthr_mem_t memb2 = coprthr_dmalloc(dd,size2*sizeof(float),0);
 	coprthr_mem_t memc2 = coprthr_dmalloc(dd,size2*sizeof(float),0);
 
-	coprthr_dwrite(dd,mema1,a,size2*sizeof(float),COPRTHR_E_WAIT);
-	coprthr_dwrite(dd,memb1,b,size2*sizeof(float),COPRTHR_E_WAIT);
-	coprthr_dwrite(dd,memc1,c,size2*sizeof(float),COPRTHR_E_WAIT);
+	coprthr_dwrite(dd,mema1,0,a,size2*sizeof(float),COPRTHR_E_WAIT);
+	coprthr_dwrite(dd,memb1,0,b,size2*sizeof(float),COPRTHR_E_WAIT);
+	coprthr_dwrite(dd,memc1,0,c,size2*sizeof(float),COPRTHR_E_WAIT);
 
-	coprthr_dwrite(dd,mema2,a+size2,size2*sizeof(float),COPRTHR_E_WAIT);
-	coprthr_dwrite(dd,memb2,b+size2,size2*sizeof(float),COPRTHR_E_WAIT);
-	coprthr_dwrite(dd,memc2,c+size2,size2*sizeof(float),COPRTHR_E_WAIT);
+	coprthr_dwrite(dd,mema2,0,a+size2,size2*sizeof(float),COPRTHR_E_WAIT);
+	coprthr_dwrite(dd,memb2,0,b+size2,size2*sizeof(float),COPRTHR_E_WAIT);
+	coprthr_dwrite(dd,memc2,0,c+size2,size2*sizeof(float),COPRTHR_E_WAIT);
 
 	unsigned int nargs = 3;
 	void* args_add[] = { &mema1, &memb1, &memc1 };
@@ -80,10 +80,10 @@ int main()
 	void** v_args[] = { args_add, args_sub };
 	unsigned int v_nthr[] = { nthr, nthr };
 
-	coprthr_dnexec(dd,2,v_krn,v_nargs,v_args,v_nthr,COPRTHR_E_WAIT);
+	coprthr_dnexec(dd,2,v_krn,v_nargs,v_args,v_nthr,0,COPRTHR_E_WAIT);
 
-	coprthr_dread(dd,memc1,c,size2*sizeof(float),COPRTHR_E_WAIT);
-	coprthr_dread(dd,memc2,c+size2,size2*sizeof(float),COPRTHR_E_WAIT);
+	coprthr_dread(dd,memc1,0,c,size2*sizeof(float),COPRTHR_E_WAIT);
+	coprthr_dread(dd,memc2,0,c+size2,size2*sizeof(float),COPRTHR_E_WAIT);
 
 	for(i=0; i<SIZE; i++) 
 		printf("%f + %f = %f\n",a[i],b[i],c[i]);

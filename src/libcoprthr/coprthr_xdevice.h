@@ -20,9 +20,11 @@
 
 #include <pthread.h>
 
+inline 
 void coprthr_mutex_lock( void* p_mtx )
 { pthread_mutex_lock((pthread_mutex_t*)p_mtx); }
 
+inline
 void coprthr_mutex_unlock( void* p_mtx)
 { pthread_mutex_unlock((pthread_mutex_t*)p_mtx); }
 
@@ -46,6 +48,7 @@ void coprthr_mutex_unlock( void* p_mtx)
 
 #endif
 
+#define coprthr_get_thread_index() get_global_id(0)
 
 //#endif
 

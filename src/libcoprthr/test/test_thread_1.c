@@ -15,7 +15,7 @@ struct my_args {
 
 #if(1)
 char src[] = \
-	"#include <coprthr_xxx.h>\n" \
+	"#include <coprthr.h>\n" \
 	"typedef struct { void* mtx; int data; } my_args_t;\n" \
 	"__kernel void\n" \
 	"my_thread( void* p) {\n" \
@@ -27,20 +27,16 @@ char src[] = \
 	"}\n";
 #else
 char src[] = \
-	"//int read_h( int* p) { return p[1]; }\n" \
-	"//void coprthr_mutex_lock( void* p_mtx ) { while(read_h(p_mtx)); e_mutex_lock(p_mtx); }\n" \
-	"//void coprthr_mutex_unlock( void* p_mtx) { e_mutex_unlock(p_mtx); }\n" \
-	"typedef struct { void* mtx; int data; } my_args_t;\n" \
-	"__kernel void\n" \
-	"my_thread( void* p) {\n" \
-	"  my_args_t* pargs = (my_args_t*)p;\n" \
-	"	int data = pargs->data;\n" \
-	"       //e_mutex_t* mtx = 0x80807f90;\n" \
-	"  coprthr_mutex_lock(pargs->mtx);\n" \
-	"  	pargs->data = pargs->data - 332211;\n" \
-	"     //pargs->data = (int)pargs->mtx;\n" \
-	"  coprthr_mutex_unlock(pargs->mtx);\n" \
-	"}\n";
+   "#include <pthread.h>\n" \
+   "typedef struct { void* mtx; int data; } my_args_t;\n" \
+   "__kernel void\n" \
+   "my_thread( void* p) {\n" \
+   "  my_args_t* pargs = (my_args_t*)p;\n" \
+   "  int data = pargs->data;\n" \
+   "  pthread_mutex_lock((pthread_mutex_t*)pargs->mtx);\n" \
+   "  pargs->data = pargs->data - 332211;\n" \
+   "  pthread_mutex_unlock((pthread_mutex_t*)pargs->mtx);\n" \
+   "}\n";
 #endif
 
 int main()
@@ -49,7 +45,7 @@ int main()
 
 	int dd = coprthr_dopen(TEST_COPRTHR_DEVICE,COPRTHR_O_THREAD);
 
-	printf("dd=%d\n",dd);
+	printf("dd=%d\n",dd); fflush(stdout);
 
 	if (dd<0) {
 		printf("deice open failed\n");
@@ -59,9 +55,9 @@ int main()
 	/* compile thread function */
 
 	char* log = 0;
-	coprthr_program_t prg = coprthr_compile(dd,src,sizeof(src),"",&log);
+	coprthr_program_t prg = coprthr_dcompile(dd,src,sizeof(src),"",&log);
 	if (log) printf("%s",log);
-	coprthr_sym_t thr = coprthr_sym(prg,"my_thread");
+	coprthr_sym_t thr = coprthr_getsym(prg,"my_thread");
 
 	printf("%p %p\n",prg,thr);
 
@@ -82,9 +78,9 @@ int main()
 
 	struct my_args args;
 	args.data = 997766;
-	args.mtx = coprthr_devmemptr( (coprthr_mem_t)mtx); 
+	args.mtx = coprthr_memptr( (coprthr_mem_t)mtx,0); 
 	coprthr_mem_t mem = coprthr_dmalloc(dd,sizeof(struct my_args),0);
-	coprthr_dwrite(dd,mem,&args,sizeof(struct my_args),COPRTHR_E_NOW);
+	coprthr_dwrite(dd,mem,0,&args,sizeof(struct my_args),COPRTHR_E_NOW);
 
 
 	/* lock the mutex on the device */
@@ -116,7 +112,7 @@ int main()
 	/* change the value stored in memory */
 
 	args.data = 887766;
-	coprthr_dwrite(dd,mem,&args,sizeof(struct my_args),COPRTHR_E_NOW);
+	coprthr_dwrite(dd,mem,0,&args,sizeof(struct my_args),COPRTHR_E_NOW);
 	args.data = -1;
 
 
@@ -135,7 +131,7 @@ int main()
 
 	/* read back value from memory on device */
 
-	coprthr_dread(dd,mem,&args,sizeof(struct my_args),COPRTHR_E_NOW);
+	coprthr_dread(dd,mem,0,&args,sizeof(struct my_args),COPRTHR_E_NOW);
 	fprintf(stderr,"data %d 0x%x\n",args.data,args.data);
 
 

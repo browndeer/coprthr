@@ -25,6 +25,10 @@
 
 #ifdef __coprthr_device__
 
+#ifdef constant
+#undef constant
+#endif
+
 #include "coprthr_xdevice.h"
 
 #else
@@ -151,11 +155,11 @@ int coprthr_dwait( int dd );
 
 coprthr_event_t coprthr_dexec( int dd, 
 	coprthr_kernel_t krn, unsigned int nargs, void** args,
-	unsigned int nthr, int flags );
+	unsigned int nthr, void* reserved, int flags );
 
 coprthr_event_t coprthr_dnexec( int dd, unsigned int nkrn, 
 	coprthr_kernel_t* v_krn, unsigned int* v_nargs, void*** v_args,
-	unsigned int* v_nthr, int flags );
+	unsigned int* v_nthr, void** v_reserved, int flags );
 
 //int coprthr_kill( int dd, coprthr_event_t ev, int sig, int flags );
 

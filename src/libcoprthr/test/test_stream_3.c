@@ -23,8 +23,8 @@ int main()
 
 	printf("dd=%d\n",dd);
 
-	coprthr_program_t prg = coprthr_compile(dd,src,sizeof(src),"",0);
-	coprthr_kernel_t krn = coprthr_sym(prg,"my_kern");
+	coprthr_program_t prg = coprthr_dcompile(dd,src,sizeof(src),"",0);
+	coprthr_kernel_t krn = coprthr_getsym(prg,"my_kern");
 
 	printf("prg=%p krn=%p\n",prg,krn);
 
@@ -44,26 +44,26 @@ int main()
 
 	coprthr_event_t ev[10];
 
-	ev[0] = coprthr_dwrite(dd,mema,a,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
-	ev[1] = coprthr_dwrite(dd,memb,b,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
-	ev[2] = coprthr_dwrite(dd,memc,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+	ev[0] = coprthr_dwrite(dd,mema,0,a,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+	ev[1] = coprthr_dwrite(dd,memb,0,b,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+	ev[2] = coprthr_dwrite(dd,memc,0,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
 
 	unsigned int nargs = 3;
 	void* args[] = { &mema, &memb, &memc };
 	unsigned int nthr = SIZE;
 
-	ev[3] = coprthr_dexec(dd,krn,nargs,args,nthr,COPRTHR_E_NOWAIT);
+	ev[3] = coprthr_dexec(dd,krn,nargs,args,nthr,0,COPRTHR_E_NOWAIT);
 
-	ev[4] = coprthr_dcopy(dd,memc,memb,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+	ev[4] = coprthr_dcopy(dd,memc,0,memb,0,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
 
 	coprthr_kernel_t v_krn[] = { krn, krn };
 	unsigned int v_nargs[] = { nargs, nargs };
 	void** v_args[] = { args, args };
 	unsigned int v_nthr[] = { nthr, nthr };
 
-	ev[5] = coprthr_dnexec(dd,1,v_krn,v_nargs,v_args,v_nthr,COPRTHR_E_NOWAIT);
+	ev[5] = coprthr_dnexec(dd,1,v_krn,v_nargs,v_args,v_nthr,0,COPRTHR_E_NOWAIT);
 
-	ev[6] = coprthr_dread(dd,memc,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+	ev[6] = coprthr_dread(dd,memc,0,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
 
 	for(i=0;i<7;i++) 
 		coprthr_dwaitev(dd,ev[i]);
