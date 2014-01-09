@@ -1,5 +1,5 @@
-% STDCL API Reference v1.6
-% Copyright (c) 2013-2014 Brown Deer Technology, LLC
+% STDCL^®^ API Reference v1.6
+% Copyright © 2013-2014 Brown Deer Technology, LLC
 % *Verbatim copying and distribution of this entire document is
   permitted in any medium, provided this notice is preserved.*
 
@@ -42,7 +42,7 @@ Synopsis
 Description
 ===========
 
-The STandarD Compte Layer (STDCL) is a powerful API for targeting
+The STandarD Compte Layer (STDCL^®^) is a powerful API for targeting
 compute offload accelerators such as GPUs and Intel MIC processors. The
 STDCL implementation leverages OpenCL for portability while providing
 simpler and more intuitive semantics. STDCL greatly reduces the amount

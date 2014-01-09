@@ -4,21 +4,21 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
-  <meta name="author" content="Copyright (c) 2013-2014 Brown Deer Technology, LLC" />
-  <title>COPRTHR API Reference</title>
+  <meta name="author" content="Copyright © 2013-2014 Brown Deer Technology, LLC" />
+  <title>COPRTHR® API Reference</title>
 </head>
 <body>
 <img src="./bdt_logo.jpg">
 <div id="header">
-<h1 class="title">COPRTHR API Reference</h1>
-<h2 class="author">Copyright (c) 2013-2014 Brown Deer Technology, LLC</h2>
+<h1 class="title">COPRTHR<sup>®</sup> API Reference</h1>
+<h2 class="author">Copyright © 2013-2014 Brown Deer Technology, LLC</h2>
 <h3 class="date"><em>Verbatim copying and distribution of this entire document is permitted in any medium, provided this notice is preserved.</em></h3>
 </div>
 <div id="TOC">
 <ul>
 <li><a href="#overview"><span class="toc-section-number">1</span> Overview</a><ul>
 <li><a href="#purpose"><span class="toc-section-number">1.1</span> Purpose</a></li>
-<li><a href="#parts"><span class="toc-section-number">1.2</span> Parts</a></li>
+<li><a href="#components"><span class="toc-section-number">1.2</span> Components</a></li>
 </ul></li>
 <li><a href="#coprthrcc-a-cross-compiler-library-for-co-processors"><span class="toc-section-number">2</span> COPRTHR/cc: a cross-compiler library for co-processors</a></li>
 <li><a href="#coprthr-direct-run-time-api"><span class="toc-section-number">3</span> COPRTHR direct run-time API</a><ul>
@@ -55,12 +55,12 @@
 </div>
 <h1 id="overview"><a href="#overview"><span class="header-section-number">1</span> Overview</a></h1>
 <h2 id="purpose"><a href="#purpose"><span class="header-section-number">1.1</span> Purpose</a></h2>
-<p>The COPRTHR SDK provides the STDCL API for programming compute offload accelerators. STDCL contains a rich set of features designed around the application programmer in order to provide a high-level API that is intuitive, powerful and easy to use. The COPRTHR SDK also provides OpenCL implementations for various processors that can be leveraged using STDCL. For many scenarios this will be sufficient for the programmer.</p>
+<p>The CO-PRocessing THReads<sup>®</sup> SDK provides the STDCL API for programming compute offload accelerators. STDCL contains a rich set of features designed around the application programmer in order to provide a high-level API that is intuitive, powerful and easy to use. The COPRTHR SDK also provides OpenCL implementations for various processors that can be leveraged using STDCL. For many scenarios this will be sufficient for the programmer.</p>
 <p>In some cases, a lower level API may be advantageous to access a co-processor device more directly and expose features that are not supported in higher level APIs such as STDCL and OpenCL. This proved to be the case for the Epiphany RISC array processor, which had features inaccessible from the higher level APIs designed for GPUs. Additionally, some projects building middleware for such a processor may find it desireable to use a more direct and light-weight API with less overhead. This was the motivation for formalizing into an API the &quot;machinery&quot; used to build the COPRTHR OpenCL implementations, and this is the origin of the COPRTHR API. The basic functions may appear similar in principle to other APIs for co-processors since ulimately all compute offload APIs have the same basic requirements.</p>
 <p>As a by-product of the effort, and a demonstration of the usefulness of such an API, a direct extension of Pthreads for co-processors was built as a part of this COPRTHR API utilizing the basic machinery to create functionality unsupported by the higher-level APIs. This likely serves as only one example of what might be constructed from such a low-level API for accessing a processor like Epiphany.</p>
 <p>At present this low-level COPRTHR API can be used to target x86 CPUs, ARM CPUs, and the Epiphany RISC array processors. Support will be extended to Intel MIC in the near future.</p>
 <p> </p>
-<h2 id="parts"><a href="#parts"><span class="header-section-number">1.2</span> Parts</a></h2>
+<h2 id="components"><a href="#components"><span class="header-section-number">1.2</span> Components</a></h2>
 <p>There are four elements of the COPRTHR API aiming to address specific requirements for complex development projects:</p>
 <ul>
 <li>COPRTHR/cc: a cross-compiler library for co-processors</li>

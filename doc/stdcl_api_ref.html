@@ -4,14 +4,14 @@
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <meta http-equiv="Content-Style-Type" content="text/css" />
   <meta name="generator" content="pandoc" />
-  <meta name="author" content="Copyright (c) 2013-2014 Brown Deer Technology, LLC" />
-  <title>STDCL API Reference v1.6</title>
+  <meta name="author" content="Copyright © 2013-2014 Brown Deer Technology, LLC" />
+  <title>STDCL® API Reference v1.6</title>
 </head>
 <body>
 <img src="./bdt_logo.jpg">
 <div id="header">
-<h1 class="title">STDCL API Reference v1.6</h1>
-<h2 class="author">Copyright (c) 2013-2014 Brown Deer Technology, LLC</h2>
+<h1 class="title">STDCL<sup>®</sup> API Reference v1.6</h1>
+<h2 class="author">Copyright © 2013-2014 Brown Deer Technology, LLC</h2>
 <h3 class="date"><em>Verbatim copying and distribution of this entire document is permitted in any medium, provided this notice is preserved.</em></h3>
 </div>
 <div id="TOC">
@@ -71,7 +71,7 @@ Environment Variables
     STD[DEV|CPU|GPU|RPU]_LOCK</code></pre>
 <h2 id="section"><a href="#section"><span class="header-section-number">1.1</span> ----------</a></h2>
 <h1 id="description"><a href="#description"><span class="header-section-number">2</span> Description</a></h1>
-<p>The STandarD Compte Layer (STDCL) is a powerful API for targeting compute offload accelerators such as GPUs and Intel MIC processors. The STDCL implementation leverages OpenCL for portability while providing simpler and more intuitive semantics. STDCL greatly reduces the amount of code required for a particular application. STDCL is designed in a style inspired by conventional UNIX APIs for C programming, and may be used directly in C/C++ applications, with additional support for Fortran through direct API bindings.</p>
+<p>The STandarD Compte Layer (STDCL<sup>®</sup>) is a powerful API for targeting compute offload accelerators such as GPUs and Intel MIC processors. The STDCL implementation leverages OpenCL for portability while providing simpler and more intuitive semantics. STDCL greatly reduces the amount of code required for a particular application. STDCL is designed in a style inspired by conventional UNIX APIs for C programming, and may be used directly in C/C++ applications, with additional support for Fortran through direct API bindings.</p>
 <p>The STDCL API provides support for default compute contexts, an integrated dynamic CL program loader, memory management, kernel management, and scheduling for asynchronous operations. Environment variables provide run-time control over certain aspects of the API including the prioritized selection of platforms and the management of co-processing resources across multiple processes. This support is especially useful in providing transparent support for MPI-based parallelism on multi-GPU systems.</p>
 <p>STDCL replaces tedious low-level OpenCL host calls with semantics that better address the real programming requirements for application developers. At the same time, the API does not inhibit direct access to OpenCL host calls and data structures for the infrequent cases where they are actually needed.</p>
 <h2 id="section-1"><a href="#section-1"><span class="header-section-number">2.1</span> ----------</a></h2>

@@ -1,5 +1,5 @@
-% STDCL API Reference v1.6 
-% Copyright (c) 2013-2014 Brown Deer Technology, LLC
+% STDCL^&#174;^ API Reference v1.6 
+% Copyright &#169; 2013-2014 Brown Deer Technology, LLC
 % *Verbatim copying and distribution of this entire document is
   permitted in any medium, provided this notice is preserved.*
 
@@ -44,14 +44,13 @@ Environment Variables
 
 # Description
 
-The STandarD Compte Layer (STDCL) is a powerful API for targeting compute
-offload accelerators such as GPUs and Intel MIC processors.
-The STDCL implementation leverages OpenCL for portability while providing
-simpler and more intuitive semantics.  STDCL greatly reduces the amount
-of code required for a particular application.
-STDCL is designed in a style inspired by conventional UNIX APIs for C
-programming, and may be used directly in C/C++ applications, with additional
-support for Fortran through direct API bindings.
+The STandarD Compte Layer (STDCL^&#174;^) is a powerful API for targeting
+compute offload accelerators such as GPUs and Intel MIC processors.  The STDCL
+implementation leverages OpenCL for portability while providing simpler and
+more intuitive semantics.  STDCL greatly reduces the amount of code required
+for a particular application.  STDCL is designed in a style inspired by
+conventional UNIX APIs for C programming, and may be used directly in C/C++
+applications, with additional support for Fortran through direct API bindings.
 
 The STDCL API provides support for default compute contexts, an integrated
 dynamic CL program loader, memory management, kernel management, and scheduling

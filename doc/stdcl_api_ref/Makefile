@@ -25,3 +25,7 @@ clean:
 
 distclean: clean 
 	rm -f $(NAME).html $(NAME).pdf $(NAME).txt
+
+install: $(NAME).html $(NAME).pdf $(NAME).txt
+	cp -f $(NAME).html $(NAME).pdf $(NAME).txt ../
+

@@ -1,5 +1,5 @@
-% COPRTHR API Reference
-% Copyright (c) 2013-2014 Brown Deer Technology, LLC
+% COPRTHR^®^ API Reference
+% Copyright © 2013-2014 Brown Deer Technology, LLC
 % *Verbatim copying and distribution of this entire document is
   permitted in any medium, provided this notice is preserved.*
 
@@ -9,13 +9,13 @@ Overview
 Purpose
 -------
 
-The COPRTHR SDK provides the STDCL API for programming compute offload
-accelerators. STDCL contains a rich set of features designed around the
-application programmer in order to provide a high-level API that is
-intuitive, powerful and easy to use. The COPRTHR SDK also provides
-OpenCL implementations for various processors that can be leveraged
-using STDCL. For many scenarios this will be sufficient for the
-programmer.
+The CO-PRocessing THReads^®^ SDK provides the STDCL API for programming
+compute offload accelerators. STDCL contains a rich set of features
+designed around the application programmer in order to provide a
+high-level API that is intuitive, powerful and easy to use. The COPRTHR
+SDK also provides OpenCL implementations for various processors that can
+be leveraged using STDCL. For many scenarios this will be sufficient for
+the programmer.
 
 In some cases, a lower level API may be advantageous to access a
 co-processor device more directly and expose features that are not
@@ -43,8 +43,8 @@ extended to Intel MIC in the near future.
 
  
 
-Parts
------
+Components
+----------
 
 There are four elements of the COPRTHR API aiming to address specific
 requirements for complex development projects:
