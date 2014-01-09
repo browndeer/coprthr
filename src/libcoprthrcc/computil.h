@@ -247,7 +247,7 @@ static int get_nsym( const char* wd, const char* file_cl, const char* opt )
 	char cmd[DEFAULT_BUF1_SZ];	
 
    snprintf(cmd,DEFAULT_BUF1_SZ,"cd %s;"
-      "cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
+      "cpp -x c++ -D__coprthr_device__ -I" INSTALL_INCLUDE_DIR " %s %s "
       " | awk -v prog=\\\"%s\\\" "
       "'BEGIN { pr=0; }"
       " { "
@@ -298,7 +298,7 @@ static int build_clsymtab(
 
 	snprintf(cmd,DEFAULT_BUF1_SZ, 
 		"cd %s; "
-		" cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
+		" cpp -x c++ -D__coprthr_device__ -I" INSTALL_INCLUDE_DIR " %s %s "
 		" | awk -v prog=\\\"%s\\\" "
 		"'BEGIN { pr=0; }"
 		" { "
@@ -500,7 +500,7 @@ static int build_clargtab(
 
 	snprintf(cmd,DEFAULT_BUF1_SZ, 
 		"cd %s;"
-		"cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s "
+		"cpp -x c++ -D__coprthr_device__ -I" INSTALL_INCLUDE_DIR " %s %s "
 		" | awk -v prog=\\\"%s\\\" "
 		"'BEGIN { pr=0; }"
 		" { "

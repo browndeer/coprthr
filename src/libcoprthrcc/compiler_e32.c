@@ -198,9 +198,13 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 	" %s  -c %s.cpp -o e32_%s.o "
 #endif
 
+#define CPPFLAGS \
+   " -D__coprthr_device__ " \
+   " -I" INSTALL_INCLUDE_DIR
+
 #define SHELLCMD_KCALL_GEN_WRAPPER \
 	"cd %s;" \
-	" cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s " \
+	" cpp -x c++ " CPPFLAGS " %s %s " \
 	" | awk -v prog=\\\"%s\\\" " \
 	"'BEGIN { pr=0; }" \
 	" { " \

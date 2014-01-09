@@ -157,6 +157,11 @@
 #define CXXFLAGS_LINK_LIB \
 	" --sysroot=" CROSS_SYSROOT \
 
+#define CPPFLAGS \
+	" --sysroot=" CROSS_SYSROOT \
+   " -D__coprthr_device__ " \
+   " -I" INSTALL_INCLUDE_DIR
+
 
 /*** shell command code ***/
 
@@ -168,7 +173,7 @@
 
 #define SHELLCMD_KCALL_GEN_WRAPPER \
 	"cd %s;" \
-	" cpp -x c++ -I" INSTALL_INCLUDE_DIR " %s %s " \
+	" cpp -x c++ " CPPFLAGS " %s %s " \
 	" | awk -v prog=\\\"%s\\\" " \
 	" 'BEGIN { pr=0; }" \
 	" { " \
