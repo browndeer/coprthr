@@ -15,41 +15,38 @@ Comments on the "Freewill" release of the COPRTHR SDK
 =====================================================
 
 The COPRTHR SDK version 1.6 (Freewill) is released just over 4 years
-after the original design of the key components such the STDCL^®^ API
-for compute offload accelerators (once this was synonymous with GPUs -
-times have surely changed). During this time various APIs for
-heterogeneous computing including "industry standards" have been
-promoted by vendors. Nevertheless, the community has failed to reach a
-consensus around a single approach to the fundamental task of developing
-portable code for heterogeneous platforms with accelerators. The
-relatively recent hardware entry of Intel Xeon Phi has compounded the
-confusion and lack of a clear path toward portable performant code.
+after the original design of the key components such as the STDCL^®^ API
+for compute offload accelerators (once synonymous with GPUs). During
+this time various APIs for heterogeneous computing including "industry
+standards" have been promoted by vendors. Nevertheless, the community
+has failed to reach a consensus around a single approach to the
+fundamental task of developing portable code for heterogeneous platforms
+with accelerators. The relatively recent hardware entry of Intel Xeon
+Phi has compounded the confusion and lack of a clear path toward
+portable performant code.
 
 The COPRTHR SDK continues to provide unique capabilities for programming
-accelerators. Examples include the STDCL API and the clcc compiler tools
-that support a standard compilation model. STDCL provides an intuitive
-API that is superior in many ways to the many alternatives that exist
-today. Code written years ago in STDCL remains as portable and stable
-today as code written using one of the many "industry standards"
-promoted by various vendors. If anything, applications written using
-STDCL have "aged" better than many popular alternatives.
+accelerators. STDCL provides an intuitive API that is superior in many
+ways to the few alternatives that exist today. Code written years ago in
+STDCL remains as portable and stable today as code written using other
+"industry standards". If anything, applications written using STDCL have
+"aged" better than many popular alternatives.
 
-With some APIs focused exclusively on just-in-time (JIT) compilation
-models that reflect the exception and not the norm for many application
-developers, the COPRTHR clcc tools allow developers to use a
-conventional workflow employing pre-compiled libraries and executables
-on fixed hardware platforms.
+The COPRTHR clcc compiler tools support a standard compilation model for
+pre-compiled executables and libraries reflecting the normal workflow
+for most application developers. The combination of clcc with STDCL
+provides a powerful and efficient development tool for writing concise
+portable code for accelerators within a a traditional workflow.
 
-The COPRTHR SDK provides innovative software technology like CLRPC for
-networked devices and CLETE for expresssion template based automatic
+The COPRTHR SDK also provides innovative software technology like CLRPC
+for networked devices and CLETE for expression template based automatic
 acceleration. With the Freewill release we add a new low-level API based
-on a logical extension of pthreads for co-processors in an effort to
+on the logical extension of pthreads for co-processors in an effort to
 address new requriements for co-processor architectures with fully
 divergent cores and other capabilities not found with traditional GPUs.
 
 We continue to push forward with the COPRTHR SDK because we believe it
-provides a valuble tool for code development, and we will continue to
-explore software innovation in the area of accelerators and
+provides a valuble tool for code development targeting accelerators and
 co-processors.
 
 **`DAR`**
@@ -129,8 +126,7 @@ Package dependencies (O=Optional, R=Required)
     [Required]
 4.  GCC 4.6 or later [Required]
 
-Additionally, vendor support is needed for certain specific OpenCL
-devices
+Vendor support is needed for certain specific OpenCL devices
 
 5.  AMD APP <developer.amd.com/sdks/AMDAPPSDK/downloads> [Optional]
 6.  Nvidia CUDA 4 <developer.nvidia.com/cuda-toolkit-40> [Optional]
@@ -167,11 +163,11 @@ Download the Release
 --------------------
 
 Source and binary releases of the COPRTHR SDK are available from the
-download page
-(http://www.browndeertechnology.com/coprthr\_download.html).
+[download
+page](http://www.browndeertechnology.com/coprthr_download.html).
 
 Alternatively, the latest updates and development branch may be found on
-the github project page (http://www.github.com/browndeer/coprthr).
+the [github project page](http://www.github.com/browndeer/coprthr).
 
 Linux and FreeBSD Installation
 ------------------------------
