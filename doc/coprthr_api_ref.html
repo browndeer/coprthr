@@ -452,8 +452,8 @@ Link with -lcoprthr -lcoprthrcc</code></pre>
 
     /* define a simple thread function for adding two vectors */
     char src[] = \
-        &quot;#include &lt;coprthr.h&gt;&quot; \
-        &quot;void\n my_kern( float* a, float* b, float* c) {\n&quot; \
+        &quot;#include &lt;coprthr.h&gt;\n&quot; \
+        &quot;void my_kern( float* a, float* b, float* c) {\n&quot; \
         &quot;  int tid = coprthr_get_thread_index();\n&quot; \
         &quot;  c[tid] = a[tid]+b[tid];\n&quot; \
         &quot;}\n&quot;;
@@ -499,8 +499,8 @@ Link with -lcoprthr -lcoprthrcc</code></pre>
 #define SIZE 16
 
 char src[] = \
-   &quot;__kernel void\n&quot; \
-   &quot;my_kern( float* a, float* b, float* c) {\n&quot; \
+    &quot;#include &lt;coprthr.h&gt;\n&quot; \
+   &quot;void my_kern( float* a, float* b, float* c) {\n&quot; \
    &quot;  int idx = coprthr_get_thread_index();\n&quot; \
    &quot;  c[idx] = a[idx]+b[idx];\n&quot; \
    &quot;}\n&quot;;
@@ -512,7 +512,7 @@ int main()
    int dd = coprthr_dopen(COPRTHR_DEVICE_X86_64,COPRTHR_O_STREAM);
 
    coprthr_program_t prg = coprthr_dcompile(dd,src,sizeof(src),&quot;&quot;,0);
-   coprthr_sym_t krn = coprthr_getsym(prg,&quot;my_kern&quot;);
+   coprthr_kernel_t krn = coprthr_getsym(prg,&quot;my_kern&quot;);
 
    float* a = (float*)malloc(SIZE*sizeof(float));
    float* b = (float*)malloc(SIZE*sizeof(float));
@@ -528,9 +528,9 @@ int main()
    coprthr_mem_t memb = coprthr_dmalloc(dd,SIZE*sizeof(float),0);
    coprthr_mem_t memc = coprthr_dmalloc(dd,SIZE*sizeof(float),0);
 
-   coprthr_dwrite(dd,mema,a,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memb,b,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memc,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,mema,0,a,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memb,0,b,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memc,0,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
 
    unsigned int nargs = 3;
    void* args[] = { &amp;mema, &amp;memb, &amp;memc };
@@ -538,9 +538,9 @@ int main()
 
    coprthr_dexec(dd,krn,nargs,args,nthr,0,COPRTHR_E_NOWAIT);
 
-   coprthr_dcopy(dd,memc,memb,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dcopy(dd,memc,0,memb,0,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
 
-   coprthr_dread(dd,memc,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dread(dd,memc,0,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
 
     coprthr_dwait(dd);
 
@@ -566,20 +566,19 @@ int main()
 #include &lt;string.h&gt;
 
 #include &quot;coprthr.h&quot;
-#include &quot;test.h&quot;
 
 #define SIZE 256
 
 char src_add[] = \
-   &quot;__kernel void\n&quot; \
-   &quot;my_kern( float* a, float* b, float* c) {\n&quot; \
+    &quot;#include &lt;coprthr.h&gt;\n&quot; \
+   &quot;void my_kern( float* a, float* b, float* c) {\n&quot; \
    &quot;  int gtid = get_global_id(0);\n&quot; \
    &quot;  c[gtid] = a[gtid]+b[gtid];\n&quot; \
    &quot;}\n&quot;;
 
 char src_sub[] = \
-   &quot;__kernel void\n&quot; \
-   &quot;my_kern( float* a, float* b, float* c) {\n&quot; \
+    &quot;#include &lt;coprthr.h&gt;\n&quot; \
+   &quot;void my_kern( float* a, float* b, float* c) {\n&quot; \
    &quot;  int gtid = get_global_id(0);\n&quot; \
    &quot;  c[gtid] = a[gtid]-b[gtid];\n&quot; \
    &quot;}\n&quot;;
@@ -592,11 +591,11 @@ int main()
 
    coprthr_program_t prg_add
       = coprthr_dcompile(dd,src_add,sizeof(src_add),0,0);
-   coprthr_sym_t krn_add = coprthr_getsym(prg_add,&quot;my_kern&quot;);
+   coprthr_kernel_t krn_add = coprthr_getsym(prg_add,&quot;my_kern&quot;);
 
    coprthr_program_t prg_sub
       = coprthr_dcompile(dd,src_sub,sizeof(src_sub),0,0);
-   coprthr_sym_t krn_sub = coprthr_getsym(prg_sub,&quot;my_kern&quot;);
+   coprthr_kernel_t krn_sub = coprthr_getsym(prg_sub,&quot;my_kern&quot;);
 
    size_t size = SIZE;
    size_t size2 = SIZE/2;
@@ -619,13 +618,13 @@ int main()
    coprthr_mem_t memb2 = coprthr_dmalloc(dd,size2*sizeof(float),0);
    coprthr_mem_t memc2 = coprthr_dmalloc(dd,size2*sizeof(float),0);
 
-   coprthr_dwrite(dd,mema1,a,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memb1,b,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memc1,c,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,mema1,0,a,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memb1,0,b,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memc1,0,c,size2*sizeof(float),COPRTHR_E_NOWAIT);
 
-   coprthr_dwrite(dd,mema2,a+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memb2,b+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memc2,c+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,mema2,0,a+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memb2,0,b+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memc2,0,c+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
 
    unsigned int nargs = 3;
    void* args_add[] = { &amp;mema1, &amp;memb1, &amp;memc1 };
@@ -639,8 +638,8 @@ int main()
 
    coprthr_dnexec(dd,2,v_krn,v_nargs,v_args,v_nthr,0,COPRTHR_E_NOWAIT);
 
-   coprthr_dread(dd,memc1,c,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dread(dd,memc2,c+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dread(dd,memc1,0,c,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dread(dd,memc2,0,c+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
 
     coprthr_dwait(dd);
 
@@ -672,7 +671,6 @@ int main()
 #include &quot;coprthr.h&quot;
 #include &quot;coprthr_thread.h&quot;
 
-#include &quot;test.h&quot;
 
 struct my_args {
    void* mtx;
@@ -707,7 +705,7 @@ int main()
    /* compile thread function */
 
    char* log = 0;
-   coprthr_program_t prg = coprthr_compile(dd,src,sizeof(src),&quot;&quot;,&amp;log);
+   coprthr_program_t prg = coprthr_dcompile(dd,src,sizeof(src),&quot;&quot;,&amp;log);
    if (log) printf(&quot;%s&quot;,log);
    coprthr_sym_t thr = coprthr_getsym(prg,&quot;my_thread&quot;);
 
@@ -728,9 +726,9 @@ int main()
 
    struct my_args args;
    args.data = 997766;
-   args.mtx = coprthr_devmemptr( (coprthr_mem_t)mtx);
+   args.mtx = coprthr_memptr( (coprthr_mem_t)mtx,0);
    coprthr_mem_t mem = coprthr_dmalloc(dd,sizeof(struct my_args),0);
-   coprthr_dwrite(dd,mem,&amp;args,sizeof(struct my_args),COPRTHR_E_NOW);
+   coprthr_dwrite(dd,mem,0,&amp;args,sizeof(struct my_args),COPRTHR_E_NOW);
 
 
    /* lock the mutex on the device */
@@ -761,7 +759,7 @@ int main()
    /* change the value stored in memory */
 
    args.data = 887766;
-   coprthr_dwrite(dd,mem,&amp;args,sizeof(struct my_args),COPRTHR_E_NOW);
+   coprthr_dwrite(dd,mem,0,&amp;args,sizeof(struct my_args),COPRTHR_E_NOW);
    args.data = -1;
 
 
@@ -779,7 +777,7 @@ int main()
 
    /* read back value from memory on device */
 
-   coprthr_dread(dd,mem,&amp;args,sizeof(struct my_args),COPRTHR_E_NOW);
+   coprthr_dread(dd,mem,0,&amp;args,sizeof(struct my_args),COPRTHR_E_NOW);
    fprintf(stderr,&quot;data %d 0x%x\n&quot;,args.data,args.data);
 
 

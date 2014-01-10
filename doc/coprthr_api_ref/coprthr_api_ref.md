@@ -817,8 +817,8 @@ creating a new program struct.
 
 	/* define a simple thread function for adding two vectors */
 	char src[] = \
-		"#include <coprthr.h>" \
-		"void\n my_kern( float* a, float* b, float* c) {\n" \
+		"#include <coprthr.h>\n" \
+		"void my_kern( float* a, float* b, float* c) {\n" \
 		"  int tid = coprthr_get_thread_index();\n" \
 		"  c[tid] = a[tid]+b[tid];\n" \
 		"}\n";
@@ -872,8 +872,8 @@ using 16 threads.
 #define SIZE 16
 
 char src[] = \
-   "__kernel void\n" \
-   "my_kern( float* a, float* b, float* c) {\n" \
+	"#include <coprthr.h>\n" \
+   "void my_kern( float* a, float* b, float* c) {\n" \
    "  int idx = coprthr_get_thread_index();\n" \
    "  c[idx] = a[idx]+b[idx];\n" \
    "}\n";
@@ -885,7 +885,7 @@ int main()
    int dd = coprthr_dopen(COPRTHR_DEVICE_X86_64,COPRTHR_O_STREAM);
 
    coprthr_program_t prg = coprthr_dcompile(dd,src,sizeof(src),"",0);
-   coprthr_sym_t krn = coprthr_getsym(prg,"my_kern");
+   coprthr_kernel_t krn = coprthr_getsym(prg,"my_kern");
 
    float* a = (float*)malloc(SIZE*sizeof(float));
    float* b = (float*)malloc(SIZE*sizeof(float));
@@ -901,9 +901,9 @@ int main()
    coprthr_mem_t memb = coprthr_dmalloc(dd,SIZE*sizeof(float),0);
    coprthr_mem_t memc = coprthr_dmalloc(dd,SIZE*sizeof(float),0);
 
-   coprthr_dwrite(dd,mema,a,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memb,b,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memc,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,mema,0,a,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memb,0,b,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memc,0,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
 
    unsigned int nargs = 3;
    void* args[] = { &mema, &memb, &memc };
@@ -911,9 +911,9 @@ int main()
 
    coprthr_dexec(dd,krn,nargs,args,nthr,0,COPRTHR_E_NOWAIT);
 
-   coprthr_dcopy(dd,memc,memb,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dcopy(dd,memc,0,memb,0,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
 
-   coprthr_dread(dd,memc,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dread(dd,memc,0,c,SIZE*sizeof(float),COPRTHR_E_NOWAIT);
 
 	coprthr_dwait(dd);
 
@@ -948,20 +948,19 @@ are executed simultaneously.
 #include <string.h>
 
 #include "coprthr.h"
-#include "test.h"
 
 #define SIZE 256
 
 char src_add[] = \
-   "__kernel void\n" \
-   "my_kern( float* a, float* b, float* c) {\n" \
+	"#include <coprthr.h>\n" \
+   "void my_kern( float* a, float* b, float* c) {\n" \
    "  int gtid = get_global_id(0);\n" \
    "  c[gtid] = a[gtid]+b[gtid];\n" \
    "}\n";
 
 char src_sub[] = \
-   "__kernel void\n" \
-   "my_kern( float* a, float* b, float* c) {\n" \
+	"#include <coprthr.h>\n" \
+   "void my_kern( float* a, float* b, float* c) {\n" \
    "  int gtid = get_global_id(0);\n" \
    "  c[gtid] = a[gtid]-b[gtid];\n" \
    "}\n";
@@ -974,11 +973,11 @@ int main()
 
    coprthr_program_t prg_add
       = coprthr_dcompile(dd,src_add,sizeof(src_add),0,0);
-   coprthr_sym_t krn_add = coprthr_getsym(prg_add,"my_kern");
+   coprthr_kernel_t krn_add = coprthr_getsym(prg_add,"my_kern");
 
    coprthr_program_t prg_sub
       = coprthr_dcompile(dd,src_sub,sizeof(src_sub),0,0);
-   coprthr_sym_t krn_sub = coprthr_getsym(prg_sub,"my_kern");
+   coprthr_kernel_t krn_sub = coprthr_getsym(prg_sub,"my_kern");
 
    size_t size = SIZE;
    size_t size2 = SIZE/2;
@@ -1001,13 +1000,13 @@ int main()
    coprthr_mem_t memb2 = coprthr_dmalloc(dd,size2*sizeof(float),0);
    coprthr_mem_t memc2 = coprthr_dmalloc(dd,size2*sizeof(float),0);
 
-   coprthr_dwrite(dd,mema1,a,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memb1,b,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memc1,c,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,mema1,0,a,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memb1,0,b,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memc1,0,c,size2*sizeof(float),COPRTHR_E_NOWAIT);
 
-   coprthr_dwrite(dd,mema2,a+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memb2,b+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dwrite(dd,memc2,c+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,mema2,0,a+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memb2,0,b+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dwrite(dd,memc2,0,c+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
 
    unsigned int nargs = 3;
    void* args_add[] = { &mema1, &memb1, &memc1 };
@@ -1021,8 +1020,8 @@ int main()
 
    coprthr_dnexec(dd,2,v_krn,v_nargs,v_args,v_nthr,0,COPRTHR_E_NOWAIT);
 
-   coprthr_dread(dd,memc1,c,size2*sizeof(float),COPRTHR_E_NOWAIT);
-   coprthr_dread(dd,memc2,c+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dread(dd,memc1,0,c,size2*sizeof(float),COPRTHR_E_NOWAIT);
+   coprthr_dread(dd,memc2,0,c+size2,size2*sizeof(float),COPRTHR_E_NOWAIT);
 
 	coprthr_dwait(dd);
 
@@ -1068,7 +1067,6 @@ operation the wrong value will be calulated on the device.
 #include "coprthr.h"
 #include "coprthr_thread.h"
 
-#include "test.h"
 
 struct my_args {
    void* mtx;
@@ -1103,7 +1101,7 @@ int main()
    /* compile thread function */
 
    char* log = 0;
-   coprthr_program_t prg = coprthr_compile(dd,src,sizeof(src),"",&log);
+   coprthr_program_t prg = coprthr_dcompile(dd,src,sizeof(src),"",&log);
    if (log) printf("%s",log);
    coprthr_sym_t thr = coprthr_getsym(prg,"my_thread");
 
@@ -1124,9 +1122,9 @@ int main()
 
    struct my_args args;
    args.data = 997766;
-   args.mtx = coprthr_devmemptr( (coprthr_mem_t)mtx);
+   args.mtx = coprthr_memptr( (coprthr_mem_t)mtx,0);
    coprthr_mem_t mem = coprthr_dmalloc(dd,sizeof(struct my_args),0);
-   coprthr_dwrite(dd,mem,&args,sizeof(struct my_args),COPRTHR_E_NOW);
+   coprthr_dwrite(dd,mem,0,&args,sizeof(struct my_args),COPRTHR_E_NOW);
 
 
    /* lock the mutex on the device */
@@ -1157,7 +1155,7 @@ int main()
    /* change the value stored in memory */
 
    args.data = 887766;
-   coprthr_dwrite(dd,mem,&args,sizeof(struct my_args),COPRTHR_E_NOW);
+   coprthr_dwrite(dd,mem,0,&args,sizeof(struct my_args),COPRTHR_E_NOW);
    args.data = -1;
 
 
@@ -1175,7 +1173,7 @@ int main()
 
    /* read back value from memory on device */
 
-   coprthr_dread(dd,mem,&args,sizeof(struct my_args),COPRTHR_E_NOW);
+   coprthr_dread(dd,mem,0,&args,sizeof(struct my_args),COPRTHR_E_NOW);
    fprintf(stderr,"data %d 0x%x\n",args.data,args.data);
 
 
