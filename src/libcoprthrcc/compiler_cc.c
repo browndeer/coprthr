@@ -189,7 +189,8 @@ coprthr_program_t coprthr_cc(
 		free(prg1);
 		prg1 = 0;
 	} else if (prg1->build_log) {
-		 __append_asprintf(plog,"%s\n",prg1->build_log);
+		 if (plog)
+			__append_asprintf(plog,"%s\n",prg1->build_log);
 	}
 
 	dlclose(dh);

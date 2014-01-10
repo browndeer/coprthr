@@ -145,6 +145,8 @@ TARGET += libcoprthrcc-e.so libcoprthrcc-e.a
 endif
 
 INSTALL_HDRS = opencl_lift.h kcall.h opencl_lift_icc.h opencl_lift_icc_mic.h
+INSTALL_COPRTHR_HDRS = coprthr_cc.h
+
 INSTALL_LIBS = $(TARGET)
 
 VPATH = ../coprthr-common/
@@ -233,10 +235,13 @@ compiler_android_arm32.o: compiler_cross.c
 
 install: 
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_INCLUDE_DIR)/coprthr \
+		 || install -m 755 -d $(INSTALL_INCLUDE_DIR)/coprthr
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
 	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
+	install -m 755 $(INSTALL_COPRTHR_HDRS) $(INSTALL_INCLUDE_DIR)/coprthr
 	install -m 755 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
 	install -m 755 opencl_lift.h $(INSTALL_INCLUDE_DIR)/opencl_lift.h
 
