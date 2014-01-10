@@ -4,8 +4,10 @@
 
 CCFLAGS += -g -O2
 
-INCS = -I.. -I../../../include
-LIBS = -L.. -lcoprthr
+#INCS = -I.. -I../../../include
+INCS = -I/usr/local/browndeer/include -I/usr/local/browndeer/include/coprthr
+#LIBS = -L.. -lcoprthr
+LIBS = -L/usr/local/browndeer/lib -lcoprthr
 
 TARGET = test_stream_1.x test_stream_2.x test_stream_3.x test_stream_4.x \
 	test_stream_7.x test_thread_1.x 

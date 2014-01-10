@@ -4,17 +4,17 @@
 
 //#if defined(__coprthr_device__)
 
-#if defined(__x86_64__)
-#warning __x86_64__ defined
-#elif defined(__i386__)
-#warning __i386__ defined
-#elif defined(__arm__)
-#warning __arm__ defined
-#elif defined(__epiphany__)
-#warning __epiphany__ defined
-#else
-#error no supported architecture 
-#endif
+//#if defined(__x86_64__)
+//#warning __x86_64__ defined
+//#elif defined(__i386__)
+//#warning __i386__ defined
+//#elif defined(__arm__)
+//#warning __arm__ defined
+//#elif defined(__epiphany__)
+//#warning __epiphany__ defined
+//#else
+//#error no supported architecture 
+//#endif
 
 #if defined(__x86_64__) || defined(__i386__) || defined(__arm__) 
 

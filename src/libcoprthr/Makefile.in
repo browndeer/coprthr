@@ -69,6 +69,8 @@ INSTALL_HDRS = workp.h coprthr.h \
 	coprthr_sched.h coprthr_thread.h coprthr_types.h coprthr_xdevice.h \
 	coprthr_dev.h
 
+INSTALL_COPRTHR_HDRS = cmdcall.h cpuset_type.h
+
 INSTALL_LIBS = libcoprthr.so libcoprthr.a
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
@@ -181,6 +183,8 @@ libcoprthr.a: $(IMP_OBJS)
 
 install: $(SUBDIRS)
 	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
+	test -d $(INSTALL_INCLUDE_DIR)/coprthr \
+		|| install -m 755 -d $(INSTALL_INCLUDE_DIR)/coprthr
 	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
 	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
 	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
@@ -191,6 +195,7 @@ install: $(SUBDIRS)
 #	install -m 755 ser_engine.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 workp.h $(INSTALL_INCLUDE_DIR)
 	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
+	install -m 755 $(INSTALL_COPRTHR_HDRS) $(INSTALL_INCLUDE_DIR)/coprthr
 
 uninstall: $(SUBDIRS)
 #	rm -f $(INSTALL_LIB_DIR)/libcoprthr.so 
