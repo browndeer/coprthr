@@ -11,7 +11,7 @@ programming Parallella using STDCL with a few concrete examples that exercise
 basic features of the programming model provided by the COPRTHR^&#174;^ SDK for
 Parallella.  The STDCL^&#174;^ API is designed for application programmers
 desiring an intuitive, concise programming model for offloading computations to
-an accelerators or co-processors.  STDCL is designed in a style inspired by
+accelerators or co-processors.  STDCL is designed in a style inspired by
 conventional UNIX APIs for C programming, and may be used directly in C/C++
 applications, with additional support for Fortran through direct API bindings.  
 
@@ -22,7 +22,7 @@ only modifications would involve selecting the correct context and device
 number for a specific platform configuration.
 
 The code below is tutorial in nature and not optimized in any way.  Therefore,
-none of the examples are expected to exhibit good performance.  Precisley how
+none of the examples are expected to exhibit good performance.  Precisely how
 to optimize these algorithms is understood.  However, the architecture-specific
 topic of code optimization is not discussed here, and is instead deferred to a
 future document devoted to the subject.  The examples below are the starting
@@ -37,7 +37,7 @@ point for any optimized implementations.
 
 A simple matrix-vector multiply provides a convenient example for explaining
 how to offload computations to an accelerator or co-processor.  As a first
-example, there is suficient complexity to exercise the basic steps without
+example, there is sufficient complexity to exercise the basic steps without
 complex code that distracts from the concepts and techniques.  For most
 programmers working with Parallella for the first time, the most fundamental
 question will be how to port code to Parallella that utilizes the Epiphany RISC
@@ -109,7 +109,7 @@ the Epiphany co-processor on Parallella introduces three basic requirements for
 modifying the code:
 
 1. Cross-compilation of code to execute on the Epiphany co-processor
-2. Distributed memory management^[Parallella supports a unified address space but this is not enabled on the platform by default]
+2. Distributed memory management^[Parallella supports a unified address space, but this is not enabled on the platform by default.]
 3.	Coordination of operations on the Epiphany co-processor 
 
 In the following sections these requirements are addressed to produce a program
@@ -124,8 +124,8 @@ co-processor.
 With our simple program we want to move the execution of the parallel portion
 over to the Epiphany RISC array.  This follows a compute offload model
 typically used with accelerators.  The target code is the loop body of the
-for-loop over `i` identified with the comment "perform calculation".  This is
-precisely the code that which would be targeted with a `#pragma parallel for`
+for-loop over `i` identified with the comment "perform calculation."  This is
+precisely the code that would be targeted with a `#pragma parallel for`
 construct using OpenMP.  STDCL employs an explicit programming model that
 provides the programmer with greater control over the interactions between the
 host and co-processor and the code executed on the co-processor, as compared
@@ -208,7 +208,7 @@ programming requirement directly and with clean syntax as compred to the
 implicit syntax found with `#pragma` mark-up APIs.  
 
 Modifying our program to ensure the data is synchronized with the device memory
-requires adding thre `clmsync()` calls,
+requires adding three `clmsync()` calls,
 
 	clmsync(stdacc,0,aa,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 	clmsync(stdacc,0,b,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
@@ -236,7 +236,7 @@ execution are launched on the co-processor,
 Notice here that the kernel symbol, `matvecmult_kern`, is the name of our
 kernel function.  Additionally, the arguments passed to the kernel are
 `n,aa,b,c` specified as the last arguments to the `clexec()` call.  The
-`clexec() call is non-blockinh and therefore it is required that the host
+`clexec() call is non-blocking and therefore it is required that the host
 code eventually block until all device operations are completed.  
 
 Next we must ensure that the device memory where the results are stored is
@@ -246,7 +246,7 @@ but with a different flag,
 	clmsync(stdacc,0,c,CL_MEM_HOST|CL_EVENT_NOWAIT);
 
 The last thing we need to do is block on the host until all of the asynchronous
-operations on the device are compelted.  This is done with the `clwait()` call,
+operations on the device are completed.  This is done with the `clwait()` call,
 
 	clwait(stdacc,0,CL_ALL_EVENT);
 
@@ -360,7 +360,7 @@ If an error occurs when compiling the kernel code using clcc, the same debug int
 # Matrix-Vector Multiply Revisited: Architecture Matters
 
 The previous example showed how to port a simple matrix-vector-multiply code to
-use the Epiphany co-processor on Parallella.  The implimentation is functinally
+use the Epiphany co-processor on Parallella.  The implimentation is functionally
 correct, but glosses over one of the first concerns any programmer should have
 when programing Parallella.  The question is not how one can organize the
 parallelism, but rather how one should organize the parallelism, given the
@@ -404,11 +404,13 @@ i into our kernel so that each of the 16 physical cores performs (roughly)
 
 ## Modifying the Kernel Code
 
-The kernel from our first attempt is modified by add a loop over i inside the
-kernel itself with a range defined such that each kernel performs (roughly)
-1/16th of the computational work in calculating c[i].  The workload is not
-guaranteed to be exactly evenly distributed unless the total vector size n is
-commensurate with 16.  However the distribution is as close to even for the non-comensurate cast as possible.  The complete modifications are shown below for our second matrix-vector-multiply kernel.
+The kernel from our first attempt is modified by adding a loop over `i` inside
+the kernel itself with a range defined such that each kernel performs (roughly)
+1/16th of the computational work in calculating `c[i]`.  The workload is not
+guaranteed to be exactly evenly distributed unless the total vector size `n` is
+commensurate with 16.  However the distribution is as close to even for the
+non-commensurate cast as possible.  The complete modifications are shown below
+for our second matrix-vector multiply kernel.
 
 ~~~~~~~
 /* matvecmult_kern2.cl */
@@ -441,7 +443,8 @@ void matvecmult_kern2( unsigned int n, float* aa, float* b, float* c )
 ## Modifying the Host Code
 
 The modifications to the host code are much simpler, and in fact our trivial.
-The only required change is to modify the index range over which the kernel is executed, changing this from n to 16,
+The only required change is to modify the index range over which the kernel is
+executed, changing this from n to 16,
 
 	clndrange_t ndr = clndrange_init1d( 0, 16, 16 );
 
@@ -564,14 +567,14 @@ int main()
 ## Kernel Code
 
 The parallelism in the reference code is found in the for-loop over `i`
-used to perofrm the calculation of the sum over elements.  The loop body,
+used to perform the calculation of the sum over elements.  The loop body,
 here consisting of only a single line of code, must be pulled out and
 used to create a kernel for parallel execution on the Epiphany device.
 
 The approach discussed in Section 3 in which the parallelism is matched
-the the phyical cores of the RISC array will be employed here from the
+the phyical cores of the RISC array will be employed here from the
 start.  The idea is quite simple.  The work of adding the elements of
-the data vector will be ditributed as evenly as possible over the 16 phyisical
+the data vector will be distributed as evenly as possible over the 16 phyisical
 cores to calculate partial sums.  Subsequently the 16 partial sums will be
 added together to calculate the final result.
 
@@ -624,10 +627,10 @@ above, and finally block until all co-processor device operations are complete.
 
 Additionally, a small calculation is added at the end of the program to add the
 partial sums to produce a final result.  It is reasonable, though somewhat
-inellegant, to perofrm this final sum on the host.  If we have a large enough
+inelegant, to perform this final sum on the host.  If we have a large enough
 data vector to warrant the use of a parallel RISC array, performing 16 addition
-operations on the host wold not be expected to cause any noticeable performance
-penalty.  In fact, thi smay be the more efficient approach.
+operations on the host would not be expected to cause any noticeable performance
+penalty.  In fact, this may be the more efficient approach.
 
 ~~~~~~~
 /* reduction_host.c */
