@@ -130,6 +130,7 @@ void* e32pth_engine_startup_needham( void* p )
 
 #define foreach_core(r,c) for(icore=0,r=xxx_cores[icore].row,c=xxx_cores[icore].col; icore<xxx_ncores;icore++,r=xxx_cores[icore].row,c=xxx_cores[icore].col) 
 
+
 void __dump_registers() 
 {
 	unsigned int r_config,r_status,r_pc,r_imask,r_ipend;
@@ -142,7 +143,6 @@ void __dump_registers()
 		size_t rc3 = e_read( &e_epiphany,r,c, E_REG_PC, &r_pc, sz);
 		size_t rc4 = e_read( &e_epiphany,r,c, E_REG_IMASK, &r_imask, sz);
 		size_t rc5 = e_read( &e_epiphany,r,c, E_REG_IPEND, &r_ipend, sz);
-//		printcl( CL_DEBUG 
 		fprintf( stderr,
 			"(%d,%d) %d %d %d %d %d reg:"
 			" config=0x%x status=0x%x pc=0x%x imask=0x%x ipend=0x%x" "\n",
@@ -150,10 +150,14 @@ void __dump_registers()
 	}
 }
 
-
 int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	struct cmdcall_arg* argp )
 {
+	static int printcl_level = -1;
+	if (printcl_level < 0) {
+		char* envset = getenv("COPRTHR_CLMESG_LEVEL");
+		printcl_level = (envset)? atoi(envset) : DEFAULT_CLMESG_LEVEL;
+	}
 
 //	e_set_host_verbosity(H_D3);
 	e_set_host_verbosity(H_D0);
@@ -348,7 +352,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	e_set_host_verbosity(H_D0);
 	e_set_loader_verbosity(0);
 
-	__dump_registers();
+	if (printcl_level>6) __dump_registers();
 
 	printcl( CL_DEBUG "BEFORE LOAD");
 
@@ -388,7 +392,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 
 	printcl( CL_DEBUG "AFTER LOAD");
 
-	__dump_registers();
+	if (printcl_level>6) __dump_registers();
 
 
 	int corenum;
@@ -636,7 +640,7 @@ retry:
 //	foreach_core(irow,icol) 
 //		e_write( &e_epiphany, irow, icol, XXX_INFO, &zero, sizeof(int));
 
-	__dump_registers();
+	if (printcl_level>6) __dump_registers();
 
 
 /*
@@ -665,7 +669,7 @@ retry:
 	}
 
 	for(i=0;i<10;i++)	
-		__dump_registers();
+		if (printcl_level>6) __dump_registers();
 
 //	foreach_core(irow,icol) {
 //		e_read( &e_epiphany, irow, icol, XXX_RUN, &run_state, sizeof(int) );
@@ -694,11 +698,11 @@ retry:
 			e_read( &e_epiphany, irow, icol, XXX_INFO, &info_state, sizeof(int));
 			printcl( CL_DEBUG "(%d,%d) run_state=%d debug_state=%d info=%d (0x%x)",
 				irow,icol,run_state,debug_state,info_state,info_state);
-			__dump_registers();
+			if (printcl_level>6) __dump_registers();
 		}
 	}
 
-	__dump_registers();
+	if (printcl_level>6) __dump_registers();
 
 /*
 	printcl( CL_DEBUG "readback kcall3 entry:");
@@ -708,7 +712,7 @@ retry:
 			corenum,core_control_data.callp[corenum]);
 */
 
-	__dump_registers();
+	if (printcl_level>6) __dump_registers();
 
 	printcl( CL_DEBUG "read back core return values");
 	e32_read_ctrl_retval(core_control_data.retval);
@@ -717,7 +721,7 @@ retry:
 			i,*(int*)&core_control_data.retval[i],
 			*(int*)&core_control_data.retval[i] );
 
-	__dump_registers();
+	if (printcl_level>6) __dump_registers();
 
 //	printcl( CL_DEBUG "readback kcall3 entry:");
 //	e32_read_ctrl_callp(core_control_data.callp);
