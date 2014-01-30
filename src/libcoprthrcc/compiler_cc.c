@@ -175,6 +175,7 @@ coprthr_program_t coprthr_cc(
 
 	struct coprthr_program* prg1
 		= (struct coprthr_program*)malloc(sizeof(struct coprthr_program));
+	bzero(prg1,sizeof(struct coprthr_program));
 
 	prg1->src = src;
 	prg1->src_sz = len;
@@ -218,6 +219,7 @@ coprthr_program_t coprthr_cc_read_bin( const char* path, int flags )
 
 	struct coprthr_program* prg1
 		= (struct coprthr_program*)malloc(sizeof(struct coprthr_program));
+	bzero(prg1,sizeof(struct coprthr_program));
 
 	printcl( CL_DEBUG "prg1=%p",prg1);
 

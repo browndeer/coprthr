@@ -591,6 +591,11 @@ void* coprthr_getsym( struct coprthr_program* prg1, const char* kname )
 {
 	int k;
 
+	if (!prg1->kname)	{
+		printcl( CL_DEBUG "kname null, need to build program from binary");
+		__do_build_program_from_binary_1(prg1);
+	}
+
 	for(k=0;k<prg1->nkrn;k++) {
 		printcl( CL_DEBUG "compare |%s|%s\n",prg1->kname[k],kname);
 		if (!strncmp(prg1->kname[k],kname,__CLMAXSTR_LEN)) break;
