@@ -118,7 +118,7 @@ LIBSTDCL_API int clmattach( CONTEXT* cp, void* ptr );
 LIBSTDCL_API int clmdetach( void* ptr );
 //int clmctl( void* ptr, int op, int arg );
 //int clmctl( void* ptr, int op, ... );
-LIBSTDCL_API int clmctl_va( void* ptr, int op, va_list );
+LIBSTDCL_API int clmctl_va( void* ptr, int op, va_list ap );
 
 LIBSTDCL_API void* clmrealloc(CONTEXT* cp, void* ptr, size_t size, int flag);
 
