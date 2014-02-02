@@ -155,6 +155,7 @@ void yyerror(const char*);
 %type <ival> body
 %type <ival> typedef
 %type <ival> struct
+%type <ival> struct_decl
 
 %type <ival> input line
 %type <ival> VARG
@@ -175,6 +176,7 @@ line: 	'\n' { $$=0; }
 			| func_dec { __rlb(); cur_nptr = node_insert(cur_nptr,$1); }
 			| func_def { __rlb(); cur_nptr = node_insert(cur_nptr,$1); }
 			| typedef { __rlb(); }
+			| struct_decl { __rlb(); }
 			| SKIP {__rlb(); };
 
 
@@ -240,14 +242,15 @@ type:	TYPE_VOID { $$ = node_create_type(1,1,TYPEID_VOID,0,0); }
 ptrc:		ptrc '*' { $$ = $1+1; }
 			| '*' { $$ = 1; };
 
-array:	array '[' ICONST ']' { $$ = $1+1; };
+array:	array '[' ICONST ']' { $$ = $1+1; }
 			| '[' ICONST ']' { $$ = 2; };
 
-struct:	STRUCT BODY 
-				{ $$ = $1; };
+struct:	STRUCT BODY { $$ = $1; }
 
 typedef:	TYPEDEF struct SYMBOL ';' 
 				{ add_typedef(symbuf+$3); };
+
+struct_decl:	STRUCT SYMBOL BODY ';' { $$=$1; };
 
 body:		BODY { $$=$1; };
 
