@@ -83,6 +83,7 @@ FILE* __xclnm_yyin;
 "constant" 			{ __plb(); }
 "inline" 			{ __plb(); }
 "__inline" 			{ __plb(); }
+"static" 			{ __plb(); }
 
 "void" 							{ __plb(); ival_return(TYPE_VOID); }
 "char" 							{ __plb(); ival_return(TYPE_INT8); }
