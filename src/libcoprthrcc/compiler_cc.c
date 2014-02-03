@@ -179,14 +179,36 @@ coprthr_program_t coprthr_cc(
 
 	prg1->src = src;
 	prg1->src_sz = len;
+
 //	prg1->build_opt = opt;
 	prg1->build_opt = 0;
+
+
+	/* XXX the opt string must be filtered */
+
+	char* tmp0 = strdup(opt);
+	char* saveptr;
+	char* ptr = strtok_r(tmp0," ",&saveptr);
+	char* opt1 = 0;
+	while(ptr) {
+//		printf("next|%s|\n",ptr);
+//		printf("before %p\n",opt1);
+		if (strncmp("-mtarget",ptr,8))
+			__append_asprintf(&opt1," %s",ptr);
+//		printf("after %p\n",opt1);
+		ptr = strtok_r(0," ",&saveptr);
+//		printf("opt1=%s\n",opt1);
+	}
+	prg1->build_opt = (opt1)? strdup(opt1) : 0;
+	if (opt1) free(opt1);
+	if (tmp0) free(tmp0);
+
 
 	int err = compile( 0, prg1->src,prg1->src_sz,
 		&prg1->bin, &prg1->bin_sz, prg1->build_opt, &prg1->build_log);
 
 	if (err) {
-		printf("compile returned %d\n",err);
+		printcl(CL_ERR "compile returned %d\n",err);
 		free(prg1);
 		prg1 = 0;
 	} else if (prg1->build_log) {
