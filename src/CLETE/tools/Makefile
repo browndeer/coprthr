@@ -30,7 +30,7 @@ PETEARCH = LINUXEGCS
 endif
 
 PROJECTROOT = $(shell cd ../../..; pwd)
-include $(PROJECTROOT)/config/$(PETEARCH)
+#include $(PROJECTROOT)/config/$(PETEARCH)
 
 default: gen_operators
 
