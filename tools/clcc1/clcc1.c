@@ -846,6 +846,8 @@ int main(int argc, char** argv)
 
 	for(i=0; i<nplatforms; i++) {
 
+		char* opt_str2 = strdup(opt_str);
+
 		char* info = malloc(1024);
 		clGetPlatformInfo(platforms[i],CL_PLATFORM_NAME,1024,info,0);
 
@@ -854,18 +856,22 @@ int main(int argc, char** argv)
 		if (!strncasecmp(info,"AMD",3)) {
 
 			platform_code = CLELF_PLATFORM_CODE_AMDAPP;
+			append_str(opt_str2," -D __AMD__"," ",0);
 
 		} else if (!strncasecmp(info,"Nvidia",6)) {
 
 			platform_code = CLELF_PLATFORM_CODE_NVIDIA;
+			append_str(opt_str2," -D __NVIDIA__"," ",0);
 
 		} else if (!strncasecmp(info,"coprthr",7)) {
 
 			platform_code = CLELF_PLATFORM_CODE_COPRTHR;
+			append_str(opt_str2," -D __coprthr__"," ",0);
 
 		} else if (!strncasecmp(info,"Intel",5)) {
 
 			platform_code = CLELF_PLATFORM_CODE_INTEL;
+			append_str(opt_str2," -D __INTEL__"," ",0);
 
 		} else {
 
@@ -965,7 +971,8 @@ int main(int argc, char** argv)
 		programs[i] = clCreateProgramWithSource(
 			contexts[i], 1, (const char**)&file_ptr, &file_sz, &err );
 
-		err = clBuildProgram( programs[i], 0, 0, opt_str, 0, 0 );
+//		err = clBuildProgram( programs[i], 0, 0, opt_str, 0, 0 );
+		err = clBuildProgram( programs[i], 0, 0, opt_str2, 0, 0 );
 
 		cl_uint ndev;
 		err = clGetProgramInfo( programs[i], CL_PROGRAM_NUM_DEVICES,
@@ -1189,6 +1196,8 @@ printcl( CL_DEBUG "XXX fname='%s' platform_code=%d device='%s' bin_sz=%ld",
 		}
 
 		free(info);
+	
+		free(opt_str2);
 	}
 	
 	} // if (en_bin)
