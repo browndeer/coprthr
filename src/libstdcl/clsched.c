@@ -92,11 +92,15 @@ cl_event clfork(
 	 printcl( CL_DEBUG "clfork: using CL_VERSION_1_1");
 #endif
 
+	size_t ndr_ltid = (ndr->ltid[0])? ndr->ltid : 0;
+	
 	int err = clEnqueueNDRangeKernel(
 #if defined(CL_VERSION_1_1)
-		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr->ltid,
+//		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr->ltid,
+		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr_ltid,
 #else
-		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr->ltid,
+//		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr->ltid,
+		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr_ltid,
 #endif
 		0,0,0
 	);
@@ -107,11 +111,15 @@ cl_event clfork(
 
 	} else {
 
+	size_t ndr_ltid = (ndr->ltid[0])? ndr->ltid : 0;
+	
 	int err = clEnqueueNDRangeKernel(
 #if defined(CL_VERSION_1_1)
-		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr->ltid,
+//		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr->ltid,
+		cp->cmdq[devnum],krn,ndr->dim,ndr->gtid_offset,ndr->gtid,ndr_ltid,
 #else
-		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr->ltid,
+//		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr->ltid,
+		cp->cmdq[devnum],krn,ndr->dim,0,ndr->gtid,ndr_ltid,
 #endif
 		(evp)?1:0,evp,&ev
 	);
