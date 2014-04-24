@@ -1,4 +1,3 @@
-
 #ifndef _OCLCALL_HOOKS_H
 #define _OCLCALL_HOOKS_H
 
@@ -13,13 +12,13 @@ void stopped_interface();
 
 #undef __oclcall_test_error_rv
 #define __oclcall_test_error_rv(rv) do { \
-	if (rv) {++_libocl_clproc_state->errs; _libocl_clproc_state->errno = rv;} \
+	if (rv) {++_libocl_clproc_state->errs; _libocl_clproc_state->_errno = rv;} \
 	} while(0)
 
 #undef __oclcall_test_error_parg
 #define __oclcall_test_error_parg(err_ret) do { \
 	if (err_ret && *err_ret) \
-		{++_libocl_clproc_state->errs; _libocl_clproc_state->errno = *err_ret;} \
+		{++_libocl_clproc_state->errs; _libocl_clproc_state->_errno = *err_ret;} \
 	} while(0)
 
 
