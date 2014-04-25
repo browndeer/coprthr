@@ -89,7 +89,9 @@ struct _memd_struct {
 };
 
 /* XXX hardcoded to number of free bytes in memd -DAR */
-#define MEMD_FREE_SZ	48
+//#define MEMD_FREE_SZ	48
+#define MEMD_FREE_SZ	( 128 - offsetof(struct _memd_struct,_free_offset) )
+
 
 
 #ifdef __cplusplus
