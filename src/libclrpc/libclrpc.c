@@ -658,9 +658,58 @@ clrpc_clGetDeviceIDs( cl_platform_id xplatform, cl_device_type devtype,
  * clGetDeviceInfo
  */
 
-CLRPC_GENERIC_GETINFO3(clGetDeviceInfo,device_id,device,device_info)
-//CLRPC_UNBLOCK_CLICB(clGetGENERICInfo)
-//CLRPC_GENERIC_GETINFO4(clGetDeviceInfo,device_id,device,device_info)
+//CLRPC_GENERIC_GETINFO3(clGetDeviceInfo,device_id,device,device_info)
+
+CLRPC_UNBLOCK_CLICB(clGetDeviceInfo) 
+
+cl_int clGetDeviceInfo(cl_device_id device, cl_device_info param_name, 
+   size_t param_sz, void* param_val, size_t *param_sz_ret)
+	__alias(clrpc_clGetDeviceInfo);
+
+cl_int clrpc_clGetDeviceInfo(cl_device_id xdevice, cl_device_info param_name,
+	size_t param_sz, void* param_val, size_t *param_sz_ret)
+{
+	cl_int retval = 0;
+	size_t tmp_param_sz_ret;
+	CLRPC_INIT(clGetDeviceInfo);
+	clrpc_dptr* device = (clrpc_dptr*) (((_xobject_t*)xdevice)->object);
+	printcl( CL_DEBUG "object local %p remote %p",device->local,device->remote);
+	CLRPC_ASSIGN_DPTR(request,device,device);
+	CLRPC_ASSIGN(request,device_info,param_name,param_name);
+	CLRPC_ASSIGN(request,uint,param_sz,param_sz);
+	CLRPC_MAKE_REQUEST_WAIT2(_xobject_rpc_pool(xdevice),clGetDeviceInfo);
+	CLRPC_GET(reply,int,retval,&retval);
+	CLRPC_GET(reply,uint,param_sz_ret,&tmp_param_sz_ret);
+	printcl( CL_DEBUG "clrpc_" "clGetDeviceInfo" ": *param_sz_ret %ld",tmp_param_sz_ret);
+	param_sz = min(param_sz,tmp_param_sz_ret);
+	void* tmp_param_val = 0;
+	unsigned int tmplen = 0;
+	EVTAG_GET_WITH_LEN(reply,param_val,(unsigned char**)&tmp_param_val,&tmplen);
+	memcpy(param_val,tmp_param_val,param_sz);
+	if (param_sz_ret) *param_sz_ret = tmp_param_sz_ret;
+
+	if (param_name==CL_DEVICE_PLATFORM) {
+
+		cl_platform_id platformid = *(cl_platform_id*)param_val;
+
+		cl_platform_id tmp_platformid = platformid;
+	
+		platformid = (void*)calloc(1,sizeof(clrpc_dptr));
+		((clrpc_dptr*)platformid)->remote = (clrpc_ptr)tmp_platformid;
+
+		_xobject_create(xplatformid,platformid,_xobject_rpc_pool(xdevice));
+
+		{
+			clrpc_dptr* dptr = (clrpc_dptr*)(((_xobject_t*)platformid)->object);
+			printcl( CL_DEBUG "local %p remote %p",dptr->local,dptr->remote);
+		}
+
+		*(cl_platform_id*)param_val = platformid;
+	}
+
+	return(retval);
+}
+
 
 
 /*
