@@ -47,7 +47,7 @@
 #define ELF_Word 		Elf32_Word
 #define ELF_Half 		Elf32_Half
 #define ELF_Addr 		Elf32_Addr
-#define ELF_Xword 	Elf32_Xword
+#define ELF_Xword 	Elf64_Xword
 #define ELF_Ehdr 		Elf32_Ehdr
 #define ELF_Phdr 		Elf32_Phdr
 #define ELF_Shdr 		Elf32_Shdr
