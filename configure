@@ -3875,9 +3875,9 @@ elif ! test x$tmp_test_libelf = x[libelf.so.0]; then
 fi;
 
 libelf_inc="-I$LIBELF_PATH/include"
-libelf_lib="-L$LIBELF_PATH/lib -lelf"
+libelf_lib="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
 LIBELF_INC="-I$LIBELF_PATH/include"
-LIBELF_LIB="-L$LIBELF_PATH/lib -lelf"
+LIBELF_LIB="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR
 
