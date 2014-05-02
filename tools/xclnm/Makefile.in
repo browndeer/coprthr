@@ -39,7 +39,7 @@ INCS += $(LIBELF_INC)
 #LIBS = -lfl -lelf 
 ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
 ifneq (@host@,k1om-unknown-linux-gnu)
-LIBS += -lfl
+#LIBS += -lfl
 endif
 endif
 LIBS += $(LIBELF_LIB)
