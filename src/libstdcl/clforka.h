@@ -142,6 +142,9 @@ inline static
 void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_float a)
 { ::clarg_set(cp,krn,ia,(a)); }
 inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_double a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
 void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_int2 a)
 { ::clarg_set(cp,krn,ia,(a)); }
 inline static
@@ -149,6 +152,9 @@ void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_uint2 a)
 { ::clarg_set(cp,krn,ia,(a)); }
 inline static
 void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_float2 a)
+{ ::clarg_set(cp,krn,ia,(a)); }
+inline static
+void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_double2 a)
 { ::clarg_set(cp,krn,ia,(a)); }
 inline static
 void __clarg_set( CLCONTEXT* cp, cl_kernel krn, unsigned int ia, cl_int4 a)
