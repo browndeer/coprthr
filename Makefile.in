@@ -132,6 +132,7 @@ distclean:
 	rm -f ./scripts/clprocd
 	rm -f ndk.sh
 	rm -f install-message.txt
+	rm -f config.log config.status
 
 echo-install:
 	echo $(INSTALL_BIN_DIR)
