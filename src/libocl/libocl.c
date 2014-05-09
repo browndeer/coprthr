@@ -54,13 +54,8 @@
 
 #include <errno.h>
 
-#ifndef DEFAULT_OPENCL_ICD_PATH
-#define DEFAULT_OPENCL_ICD_PATH "/etc/OpenCL/vendors"
-#endif
-
 #ifndef VAR_CLPROC_PATH
 #warning VAR_CLPROC_PATH not defined
-#define VAR_CLPROC_PATH "/var/clproc"
 #endif
 
 #define min(a,b) ((a<b)?a:b)

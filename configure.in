@@ -597,13 +597,7 @@ AC_ARG_WITH(opencl-icd-path,
       OPENCL_ICD_PATH=$withval
     fi;
   ],
-  [ 
-	if test $enable_user_install -eq 1; then
-		OPENCL_ICD_PATH=$prefix/etc/OpenCL/vendors 
-	else
-		OPENCL_ICD_PATH=/etc/OpenCL/vendors 
-	fi
-	])
+  [])
 
 
 ### set path for libevent

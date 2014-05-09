@@ -20,11 +20,7 @@ ifneq (@DEFAULT_CLMESG_LEVEL@,)
 DEFS += -DDEFAULT_CLMESG_LEVEL=@DEFAULT_CLMESG_LEVEL@
 endif
 
-ifeq (@ENABLE_USER_INSTALL@,1)
-VAR_CLPROC_PATH=$(prefix)/var/clproc
-else
-VAR_CLPROC_PATH=/var/clproc
-endif
+VAR_CLPROC_PATH=@localstatedir@/clproc
 
 ######################################################################
 
@@ -63,11 +59,11 @@ $(BIN_NAME): $(OBJS)
 #	-gzip -f -c $*.1 > $*.1.gz
 
 install:
-	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
-	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)
+	test -d $(DESTDIR)$(INSTALL_BIN_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_BIN_DIR)
+	install -m 755 $(BIN_NAME) $(DESTDIR)$(INSTALL_BIN_DIR)
 
 uninstall:
-	rm -f $(INSTALL_BIN_DIR)/$(BIN_NAME)
+	rm -f $(DESTDIR)$(INSTALL_BIN_DIR)/$(BIN_NAME)
 
 clean:
 	rm -f *.o 

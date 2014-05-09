@@ -181,24 +181,24 @@ check_root:
 
 
 install: check_root $(INSTALL_INCS) $(INSTALL_LIBS) $(addsuffix .gz,$(MAN3))
-	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
-	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
-	test -d $(INSTALL_MAN_DIR)/man3 || install -m 755 -d $(INSTALL_MAN_DIR)/man3
-	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
+	test -d $(DESTDIR)$(INSTALL_INCLUDE_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_INCLUDE_DIR)
+	test -d $(DESTDIR)$(INSTALL_LIB_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_LIB_DIR)
+	test -d $(DESTDIR)$(INSTALL_MAN_DIR)/man3 || install -m 755 -d $(DESTDIR)$(INSTALL_MAN_DIR)/man3
+	install -m 644 $(INSTALL_INCS) $(DESTDIR)$(INSTALL_INCLUDE_DIR)
 ifneq ($(F90),)
-	install -m 644 $(MODS) $(INSTALL_INCLUDE_DIR)
+	install -m 644 $(MODS) $(DESTDIR)$(INSTALL_INCLUDE_DIR)
 endif
-	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
-	install -m 644 $(addsuffix .gz,$(MAN3)) $(INSTALL_MAN_DIR)/man3
+	install -m 644 $(INSTALL_LIBS) $(DESTDIR)$(INSTALL_LIB_DIR)
+	install -m 644 $(addsuffix .gz,$(MAN3)) $(DESTDIR)$(INSTALL_MAN_DIR)/man3
 
 uninstall: check_root
-	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_INC_DIR)/,$(INSTALL_INCS))
 ifneq ($(F90),)
-	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(MODS)) 
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_INC_DIR)/,$(MODS))
 endif
-	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS)) 
-	rm -f $(addprefix $(INSTALL_BIN_DIR)/,$(INSTALL_BINS)) 
-	rm -f $(addprefix $(INSTALL_MAN_DIR)/man3/,$(addsuffix .gz,$(MAN3)))
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_BIN_DIR)/,$(INSTALL_BINS))
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_MAN_DIR)/man3/,$(addsuffix .gz,$(MAN3)))
 
 
 clean:

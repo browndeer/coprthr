@@ -24,14 +24,14 @@ all:
 check_root: 
 
 install: check_root $(INSTALL_INCS) 
-	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
-	test -d $(INSTALL_INCLUDE_DIR)/CL \
-		|| install -m 755 -d $(INSTALL_INCLUDE_DIR)/CL
-	install -m 644 $(INSTALL_INCS_CL) $(INSTALL_INCLUDE_DIR)/CL
+	test -d $(DESTDIR)$(INSTALL_INCLUDE_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_INCLUDE_DIR)
+	test -d $(DESTDIR)$(INSTALL_INCLUDE_DIR)/CL \
+		|| install -m 755 -d $(DESTDIR)$(INSTALL_INCLUDE_DIR)/CL
+	install -m 644 $(INSTALL_INCS_CL) $(DESTDIR)$(INSTALL_INCLUDE_DIR)/CL
 
 uninstall: check_root
-	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 
-	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS_CL)) 
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_INC_DIR)/,$(INSTALL_INCS))
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_INC_DIR)/,$(INSTALL_INCS_CL))
 
 
 clean:

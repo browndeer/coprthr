@@ -40,11 +40,11 @@ check_root:
 
 #install: check_root all
 install: check_root $(INSTALL_INCS) 
-	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
-	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
+	test -d $(DESTDIR)$(INSTALL_INCLUDE_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_INCLUDE_DIR)
+	install -m 644 $(INSTALL_INCS) $(DESTDIR)$(INSTALL_INCLUDE_DIR)
 
 uninstall: check_root
-	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS))
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_INC_DIR)/,$(INSTALL_INCS))
 
 clean:
 	rm -f $(GEN_HDRS)

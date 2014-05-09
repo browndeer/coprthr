@@ -12,7 +12,7 @@
 #include "clproc.h"
 
 #ifndef VAR_CLPROC_PATH
-#define VAR_CLPROC_PATH "/var/clproc"
+#warning VAR_CLPROC_PATH not defined
 #endif
 
 /*** brief
@@ -68,7 +68,6 @@ int main()
 
 		fprintf( stdout, TABLE_HEADER_BRIEF "\n" );
 	
-//		DIR* dirp = opendir( "/var/clproc/" );
 		DIR* dirp = opendir( VAR_CLPROC_PATH );
 
 		struct dirent* dp;
@@ -79,7 +78,6 @@ int main()
 
 			if (!pid) continue;
 
-//			snprintf(filename,64,"/var/clproc/%d/state",(int)pid);
 			snprintf(filename,64,VAR_CLPROC_PATH"/%d/state",(int)pid);
 
 			struct stat fs;
@@ -116,7 +114,6 @@ int main()
 
 			char* str_cmdline = (char*)malloc(16);
 			//snprintf(filename,64,"/proc/%d/cmdline",(int)pid);
-//			snprintf(filename,64,"/var/clproc/%d/cmdline",(int)pid);
 			snprintf(filename,64,VAR_CLPROC_PATH"/%d/cmdline",(int)pid);
 			fd = open(filename,O_RDONLY);
 			if ( !fstat(fd,&fs) )

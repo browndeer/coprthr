@@ -19,6 +19,13 @@ LIBELF_LIB=@LIBELF_LIB@
 
 LIBEVENT_INC=@LIBEVENT_INC@
 
+### set custom path for ICD files
+ifneq (@OPENCL_ICD_PATH@,)
+OPENCL_ICD_PATH=@OPENCL_ICD_PATH@
+else
+OPENCL_ICD_PATH=@sysconfdir@/OpenCL/vendors/
+endif
+
 #DEFS += -DOCL_DEBUG 
 #DEFS += -DOCL_WARN
 
@@ -40,9 +47,7 @@ OBJS = libocl.o oclcall.o
 
 DEFS += -DINSTALL_LIB_DIR=\"$(INSTALL_LIB_DIR)\" 
 
-ifneq (@OPENCL_ICD_PATH@,)
-DEFS += -DOPENCL_ICD_PATH=\"@OPENCL_ICD_PATH@\"
-endif
+DEFS += -DOPENCL_ICD_PATH=\"$(OPENCL_ICD_PATH)\"
 
 #ifeq (@ENABLE_DEBUG_LIBS@,1)
 #DEFS += -DOCL_DEBUG 
@@ -63,11 +68,7 @@ DEFS += -DENABLE_LIBOCL_HOOK
 OBJS += oclcall_hook.o
 endif
 
-ifeq (@ENABLE_USER_INSTALL@,1)
-VAR_CLPROC_PATH=$(prefix)/var/clproc
-else
-VAR_CLPROC_PATH=/var/clproc
-endif
+VAR_CLPROC_PATH=@localstatedir@/clproc
 
 ######################################################################
 
@@ -163,26 +164,26 @@ debug:
 
 
 install: 
-	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
-	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
-	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
-	install -m 755 libocl.so $(INSTALL_LIB_DIR)
-	install -m 755 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
-#	install -m 755 libocl_d.so $(INSTALL_LIB_DIR)
-#	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libOpenCL.so
+	test -d $(DESTDIR)$(INSTALL_INCLUDE_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_INCLUDE_DIR)
+	test -d $(DESTDIR)$(INSTALL_LIB_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_LIB_DIR)
+	test -d $(DESTDIR)$(INSTALL_BIN_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_BIN_DIR)
+	install -m 755 libocl.so $(DESTDIR)$(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_LIBS) $(DESTDIR)$(INSTALL_LIB_DIR)
+#	install -m 755 libocl_d.so $(DESTDIR)$(INSTALL_LIB_DIR)
+#	ln -sf $(INSTALL_LIB_DIR)/libocl.so $(DESTDIR)$(INSTALL_LIB_DIR)/libOpenCL.so
 #ifeq ($(ENABLE_DEBUG_LIBCOPRTHR),1)
-#	ln -sf $(INSTALL_LIB_DIR)/libocl_d.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
+#	ln -sf $(INSTALL_LIB_DIR)/libocl_d.so $(DESTDIR)$(INSTALL_LIB_DIR)/libOpenCL_d.so
 #endif
 ifneq (@ENABLE_ANDROID_CROSS_COMPILE@,1)
-	test -d $(VAR_CLPROC_PATH) || install -m 777 -d $(VAR_CLPROC_PATH)
+	test -d $(DESTDIR)$(VAR_CLPROC_PATH) || install -m 777 -d $(DESTDIR)$(VAR_CLPROC_PATH)
 endif
 
 uninstall: 
-#	rm -f $(INSTALL_LIB_DIR)/libocl.so $(INSTALL_LIB_DIR)/libocl_d.so
-#	rm -f $(INSTALL_LIB_DIR)/libOpenCL.so $(INSTALL_LIB_DIR)/libOpenCL_d.so
-#	rm -f $(INSTALL_LIB_DIR)/libocl.so 
-	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
-#	rm -f $(INSTALL_LIB_DIR)/libOpenCL.so 
+#	rm -f $(DESTDIR)$(INSTALL_LIB_DIR)/libocl.so $(DESTDIR)$(INSTALL_LIB_DIR)/libocl_d.so
+#	rm -f $(DESTDIR)$(INSTALL_LIB_DIR)/libOpenCL.so $(DESTDIR)$(INSTALL_LIB_DIR)/libOpenCL_d.so
+#	rm -f $(DESTDIR)$(INSTALL_LIB_DIR)/libocl.so
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
+#	rm -f $(DESTDIR)$(INSTALL_LIB_DIR)/libOpenCL.so
 
 clean:
 	rm -f *.o *.so *.a

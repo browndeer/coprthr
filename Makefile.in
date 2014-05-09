@@ -21,9 +21,10 @@ exec_prefix=@exec_prefix@
 ### this useless define is needed to silence useless autoconf warning
 datarootdir=@datarootdir@
 
-
 INSTALL_BIN_DIR=@bindir@
+INSTALL_ETC_DIR=@sysconfdir@
 INSTALL_LIB_DIR=@libdir@
+INSTALL_DOC_DIR=@docdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
@@ -139,34 +140,29 @@ echo-install:
 	echo $(INSTALL_BIN_DIR)
 
 install: subdirs
-	test -d $(prefix) || install -m 755 -d $(prefix)
-	cp -Rf ./doc $(prefix)
-	cp -Rf ./examples $(prefix)
-	cp -Rf ./test $(prefix)
-	install -m 755 ./tools/scripts/cldebug $(INSTALL_BIN_DIR)
-	install -m 755 ./tools/scripts/clprocd $(INSTALL_BIN_DIR)
+	test -d $(DESTDIR)$(prefix) || install -m 755 -d $(DESTDIR)$(prefix)
+	test -d $(DESTDIR)$(INSTALL_DOC_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_DOC_DIR)
+	cp -Rf ./doc/* $(DESTDIR)$(INSTALL_DOC_DIR)
+	cp -Rf ./examples $(DESTDIR)$(INSTALL_DOC_DIR)
+	cp -Rf ./test $(DESTDIR)$(INSTALL_DOC_DIR)
+	@chmod -R a+rX $(DESTDIR)$(INSTALL_DOC_DIR)
+	install -m 755 ./tools/scripts/cldebug $(DESTDIR)$(INSTALL_BIN_DIR)
+	install -m 755 ./tools/scripts/clprocd $(DESTDIR)$(INSTALL_BIN_DIR)
 #ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 #else
 ##	install -m 755 ./scripts/clprocd /etc/init.d/
 #endif
-	@chmod -R a+rX $(prefix)
-	install -m 644 install-message.txt $(prefix)/install-message.txt
+	install -m 644 install-message.txt $(DESTDIR)$(INSTALL_DOC_DIR)/install-message.txt
 	@cat install-message.txt
-ifeq (@ENABLE_USER_INSTALL@,1)
-	install -m 755 -d $(prefix)/etc
-	install -m 644 ./etc/ocl.conf $(prefix)/etc/ocl.conf
-else
-	install -m 644 ./etc/ocl.conf /etc/ocl.conf
-endif
-
+	test -d $(DESTDIR)$(INSTALL_ETC_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_ETC_DIR)
+	install -m 644 ./etc/ocl.conf $(DESTDIR)$(INSTALL_ETC_DIR)/ocl.conf
 
 uninstall: subdirs
 ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))
 else
 	rm -f /etc/init.d/clprocd
 endif
-	rm -f /etc/ocl.conf
-
+	rm -f $(DESTDIR)$(INSTALL_ETC_DIR)/ocl.conf
 
 test: 
 	$(MAKE) -C ./test $(MAKEFLAGS) $(MAKECMDGOALS)

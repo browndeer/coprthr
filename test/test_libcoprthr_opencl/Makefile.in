@@ -5,8 +5,8 @@ exec_prefix=@exec_prefix@
 #OPENCL_INC_DIR = @OPENCL_INCLUDE@
 #OPENCL_LIB_DIR = @OPENCL_LIB@
 #OPENCL_LIBNAME = @OPENCL_LIBNAME@
-OPENCL_INC_DIR = $(prefix)/include
-OPENCL_LIB_DIR = $(prefix)/lib
+OPENCL_INC_DIR = @includedir@
+OPENCL_LIB_DIR = @libdir@
 OPENCL_LIBNAME = coprthr_opencl
 
 USE_OPENCL_INCS=-I$(OPENCL_INC_DIR)

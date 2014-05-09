@@ -24,13 +24,12 @@ INSTALL_BIN_DIR=@bindir@
 INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
-INSTALL_ICD_DIR=@prefix@/icd/
 
 ### set custom path for ICD files
 #ifneq (@OPENCL_ICD_PATH@,)
 #OPENCL_ICD_PATH=@OPENCL_ICD_PATH@
 #else
-#OPENCL_ICD_PATH=/etc/OpenCL/vendors/
+#OPENCL_ICD_PATH=@sysconfdir@/OpenCL/vendors/
 #endif
 
 ifeq (@ENABLE_SILENT@,1)
@@ -219,16 +218,15 @@ libe_platform.so: $(DEFAULT_E_PLATFORM_LIB)
 
 
 install: 
-	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
-	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
-	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
-	test -d $(INSTALL_ICD_DIR) || install -m 755 -d $(INSTALL_ICD_DIR)
-#	install -m 755 libcoprthr_arch_x86_64.so $(INSTALL_LIB_DIR)
-	install -m 755 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
-	install -m 755 $(INSTALL_OBJS) $(INSTALL_LIB_DIR)
-	install -m 755 $(INSTALL_HDRS) $(INSTALL_INCLUDE_DIR)
+	test -d $(DESTDIR)$(INSTALL_INCLUDE_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_INCLUDE_DIR)
+	test -d $(DESTDIR)$(INSTALL_LIB_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_LIB_DIR)
+	test -d $(DESTDIR)$(INSTALL_BIN_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_BIN_DIR)
+#	install -m 755 libcoprthr_arch_x86_64.so $(DESTDIR)$(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_LIBS) $(DESTDIR)$(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_OBJS) $(DESTDIR)$(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_HDRS) $(DESTDIR)$(INSTALL_INCLUDE_DIR)
 	ln -sf $(INSTALL_LIB_DIR)/$(DEFAULT_E_PLATFORM_LIB) \
-		$(INSTALL_LIB_DIR)/libe_platform.so
+		$(DESTDIR)$(INSTALL_LIB_DIR)/libe_platform.so
 
 uninstall: 
 	rm -f $(INSTALL_LIB_DIR)/libcoprthr_arch_e32.so 

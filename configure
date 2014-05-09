@@ -3949,15 +3949,6 @@ if test "${with_opencl_icd_path+set}" = set; then :
     else
       OPENCL_ICD_PATH=$withval
     fi;
-
-else
-
-	if test $enable_user_install -eq 1; then
-		OPENCL_ICD_PATH=$prefix/etc/OpenCL/vendors
-	else
-		OPENCL_ICD_PATH=/etc/OpenCL/vendors
-	fi
-
 fi
 
 

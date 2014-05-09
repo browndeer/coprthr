@@ -11,6 +11,10 @@
 
 #include "clproc.h"
 
+#ifndef VAR_CLPROC_PATH
+#warning VAR_CLPROC_PATH not defined
+#endif
+
 /*** brief
   PID|USERNAME|STATE| GMEM| NDEV|CMDS/Q  |KRNS/Q  |ERRS|ERR|TWAIT|COMMAND      |
     5        8     5     5     5    4/3      4/3      4/3       5 13
@@ -64,7 +68,7 @@ int main()
 
 		fprintf( stdout, TABLE_HEADER_BRIEF "\n" );
 	
-		DIR* dirp = opendir( "/var/clproc/" );
+		DIR* dirp = opendir( VAR_CLPROC_PATH );
 
 		struct dirent* dp;
 
@@ -74,7 +78,7 @@ int main()
 
 			if (!pid) continue;
 
-			snprintf(filename,64,"/var/clproc/%d/state",(int)pid);
+			snprintf(filename,64,VAR_CLPROC_PATH "/%d/state",(int)pid);
 
 			struct stat fs;
 			struct passwd* pwd = (struct passwd*)malloc(sizeof(struct passwd));

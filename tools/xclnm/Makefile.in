@@ -74,10 +74,10 @@ xclnm_scan.c: xclnm_scan.l xclnm_gram.c xclnm_gram.h
 	$(CC) $(CFLAGS) $(DEFS) $(INCS) -c $<
 
 install:
-	install -m 755 $(BIN_NAME) $(INSTALL_BIN_DIR)
+	install -m 755 $(BIN_NAME) $(DESTDIR)$(INSTALL_BIN_DIR)
 
 uninstall:
-	rm -f $(INSTALL_BIN_DIR)/$(BIN_NAME)
+	rm -f $(DESTDIR)$(INSTALL_BIN_DIR)/$(BIN_NAME)
 
 clean:
 	rm -f *.o 

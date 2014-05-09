@@ -162,17 +162,17 @@ clrpcd: clrpcd.o $(OBJS)
 
 
 install: $(INSTALL_INCS) $(INSTALL_LIBS) $(INSTALL_BINS)
-	test -d $(INSTALL_INCLUDE_DIR) || install -m 755 -d $(INSTALL_INCLUDE_DIR)
-	test -d $(INSTALL_LIB_DIR) || install -m 755 -d $(INSTALL_LIB_DIR)
-	test -d $(INSTALL_BIN_DIR) || install -m 755 -d $(INSTALL_BIN_DIR)
-	install -m 644 $(INSTALL_INCS) $(INSTALL_INCLUDE_DIR)
-	install -m 644 $(INSTALL_LIBS) $(INSTALL_LIB_DIR)
-	install -m 755 $(INSTALL_BINS) $(INSTALL_BIN_DIR)
+	test -d $(DESTDIR)$(INSTALL_INCLUDE_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_INCLUDE_DIR)
+	test -d $(DESTDIR)$(INSTALL_LIB_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_LIB_DIR)
+	test -d $(DESTDIR)$(INSTALL_BIN_DIR) || install -m 755 -d $(DESTDIR)$(INSTALL_BIN_DIR)
+	install -m 644 $(INSTALL_INCS) $(DESTDIR)$(INSTALL_INCLUDE_DIR)
+	install -m 644 $(INSTALL_LIBS) $(DESTDIR)$(INSTALL_LIB_DIR)
+	install -m 755 $(INSTALL_BINS) $(DESTDIR)$(INSTALL_BIN_DIR)
 
 uninstall: 
-	rm -f $(addprefix $(INSTALL_INC_DIR)/,$(INSTALL_INCS)) 
-	rm -f $(addprefix $(INSTALL_LIB_DIR)/,$(INSTALL_LIBS)) 
-	rm -f $(addprefix $(INSTALL_BIN_DIR)/,$(INSTALL_BINS)) 
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_INC_DIR)/,$(INSTALL_INCS))
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_LIB_DIR)/,$(INSTALL_LIBS))
+	rm -f $(addprefix $(DESTDIR)$(INSTALL_BIN_DIR)/,$(INSTALL_BINS))
 
 
 clean:
