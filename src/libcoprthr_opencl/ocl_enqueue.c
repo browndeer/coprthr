@@ -890,7 +890,8 @@ _clEnqueueNDRangeKernel(
 	if (work_dim < 1 || work_dim > 3) return(CL_INVALID_WORK_DIMENSION);
 
 //	if (global_work_offset) return(CL_INVALID_GLOBAL_OFFSET);
-	if (global_work_offset) printcl( CL_WARNING "clEnqueueNDRangeKernel: ignoring global_work_offset");
+	if (global_work_offset && *global_work_offset != 0) 
+		printcl( CL_WARNING "clEnqueueNDRangeKernel: ignoring global_work_offset");
 
 	if (!global_work_size) return(CL_INVALID_VALUE);
 
