@@ -142,8 +142,8 @@ libclrpc.a: clrpc.gen.h libclrpc.o libclrpc_call_vector.o $(OBJS)
 #		-o libclrpc_d.so libclrpc_d.o libclrpc_call_vector.o $(OBJS_D) $(LIBS)
 
 clrpcd: clrpcd.o $(OBJS)
-	$(CC) $(CFLAGS) -o clrpcd clrpcd.o $(OBJS) $(LIBS) \
-		-L../libocl -locl -L. -lclrpc
+	$(CC) $(CFLAGS) -o clrpcd clrpcd.o $(OBJS) \
+		-L../libocl -locl -L. -lclrpc $(LIBS)
 
 #clrpc_test_cli: clrpc_test_cli.o
 #	$(CC) $(CFLAGS) -o clrpc_test_cli clrpc_test_cli.o -L. -lclrpc 
