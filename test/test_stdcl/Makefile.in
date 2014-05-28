@@ -23,6 +23,7 @@ CLSRC = test_arg_int.cl test_arg_int4.cl \
 
 TOPDIR ?= ../
 
+INCS += $(LIBELF_INC)
 LIBS += -lm $(LIBELF_LIB) -lclelf
 
 #INCS = -I/usr/local/browndeer/include

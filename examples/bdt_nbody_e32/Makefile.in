@@ -63,4 +63,5 @@ clean:
 
 distclean: clean
 	rm -f *.x
+	rm -f Makefile
 

@@ -529,9 +529,9 @@ elif ! test x$tmp_test_libelf = x@<:@libelf.so.0@:>@; then
 fi;
 
 libelf_inc="-I$LIBELF_PATH/include"
-libelf_lib="-L$LIBELF_PATH/lib -lelf"
+libelf_lib="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
 LIBELF_INC="-I$LIBELF_PATH/include"
-LIBELF_LIB="-L$LIBELF_PATH/lib -lelf"
+LIBELF_LIB="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR
 
@@ -908,13 +908,13 @@ AC_CONFIG_FILES([src/libocl/Makefile])
 #else
 	AC_CONFIG_FILES([src/libcoprthr/Makefile])
 	AC_CONFIG_FILES([src/libcoprthr/arch/x86_64/Makefile])
-	AC_CONFIG_FILES([src/libcoprthr/arch/e32/Makefile])
-	AC_CONFIG_FILES([src/libcoprthr_opencl/Makefile])
-	AC_CONFIG_FILES([src/libcoprthrcc/Makefile])
-#fi;
-#if test x$enable_epiphany = xyes; then
+if test x$enable_epiphany = xyes; then
 #	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
 #	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])
+	AC_CONFIG_FILES([src/libcoprthr/arch/e32/Makefile])
+fi;
+	AC_CONFIG_FILES([src/libcoprthr_opencl/Makefile])
+	AC_CONFIG_FILES([src/libcoprthrcc/Makefile])
 #fi;
 AC_CONFIG_FILES([src/libclelf/Makefile])
 AC_CONFIG_FILES([src/libclrpc/Makefile])
@@ -941,7 +941,7 @@ AC_CONFIG_FILES([examples/clete_clmulti_array_example/Makefile])
 AC_CONFIG_FILES([examples/clete_clvector_example/Makefile])
 AC_CONFIG_FILES([examples/bdt_em3d/Makefile])
 AC_CONFIG_FILES([examples/bdt_nbody/Makefile])
-AC_CONFIG_FILES([examples/bdt_nbody_e32/Makefile])
+#AC_CONFIG_FILES([examples/bdt_nbody_e32/Makefile])
 AC_CONFIG_FILES([examples/bdt_nbody_tutorial/Makefile])
 AC_CONFIG_FILES([examples/bdt_nbody_tutorial_2/Makefile])
 AC_CONFIG_FILES([examples/parallella/Makefile])

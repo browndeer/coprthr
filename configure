@@ -3875,9 +3875,9 @@ elif ! test x$tmp_test_libelf = x[libelf.so.0]; then
 fi;
 
 libelf_inc="-I$LIBELF_PATH/include"
-libelf_lib="-L$LIBELF_PATH/lib -lelf"
+libelf_lib="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
 LIBELF_INC="-I$LIBELF_PATH/include"
-LIBELF_LIB="-L$LIBELF_PATH/lib -lelf"
+LIBELF_LIB="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR
 
@@ -4315,16 +4315,16 @@ ac_config_files="$ac_config_files src/libocl/Makefile"
 
 	ac_config_files="$ac_config_files src/libcoprthr/arch/x86_64/Makefile"
 
+if test x$enable_epiphany = xyes; then
+#	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
+#	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])
 	ac_config_files="$ac_config_files src/libcoprthr/arch/e32/Makefile"
+fi;
 
 	ac_config_files="$ac_config_files src/libcoprthr_opencl/Makefile"
 
 	ac_config_files="$ac_config_files src/libcoprthrcc/Makefile"
 
-#fi;
-#if test x$enable_epiphany = xyes; then
-#	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
-#	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])
 #fi;
 ac_config_files="$ac_config_files src/libclelf/Makefile"
 
@@ -4376,7 +4376,7 @@ ac_config_files="$ac_config_files examples/bdt_em3d/Makefile"
 
 ac_config_files="$ac_config_files examples/bdt_nbody/Makefile"
 
-ac_config_files="$ac_config_files examples/bdt_nbody_e32/Makefile"
+#ac_config_files="$ac_config_files examples/bdt_nbody_e32/Makefile"
 
 ac_config_files="$ac_config_files examples/bdt_nbody_tutorial/Makefile"
 
@@ -5159,7 +5159,7 @@ do
     "examples/clete_clvector_example/Makefile") CONFIG_FILES="$CONFIG_FILES examples/clete_clvector_example/Makefile" ;;
     "examples/bdt_em3d/Makefile") CONFIG_FILES="$CONFIG_FILES examples/bdt_em3d/Makefile" ;;
     "examples/bdt_nbody/Makefile") CONFIG_FILES="$CONFIG_FILES examples/bdt_nbody/Makefile" ;;
-    "examples/bdt_nbody_e32/Makefile") CONFIG_FILES="$CONFIG_FILES examples/bdt_nbody_e32/Makefile" ;;
+#    "examples/bdt_nbody_e32/Makefile") CONFIG_FILES="$CONFIG_FILES examples/bdt_nbody_e32/Makefile" ;;
     "examples/bdt_nbody_tutorial/Makefile") CONFIG_FILES="$CONFIG_FILES examples/bdt_nbody_tutorial/Makefile" ;;
     "examples/bdt_nbody_tutorial_2/Makefile") CONFIG_FILES="$CONFIG_FILES examples/bdt_nbody_tutorial_2/Makefile" ;;
     "examples/parallella/Makefile") CONFIG_FILES="$CONFIG_FILES examples/parallella/Makefile" ;;
