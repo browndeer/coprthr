@@ -23,7 +23,8 @@
 #ifndef _clproc_h
 #define _clproc_h
 
-#include <sys/types.h>
+//#include <sys/types.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 struct clproc_process_struct {
@@ -55,8 +56,8 @@ struct clproc_state_struct {
 	int krns;
 	int krns_queued;
 
-	int errs;
-	int errno;
+	int nerrs;
+	int last_err;
 };
 
 #define CLPROC_STATUS_UNKNOWN		0

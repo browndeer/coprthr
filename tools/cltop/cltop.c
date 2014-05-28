@@ -59,7 +59,7 @@ int main()
 	char* str_gmem = (char*)malloc(5+1);
 	char* str_cmds = (char*)malloc(4+1);
 	char* str_krns = (char*)malloc(4+1);
-	char* str_errs = (char*)malloc(4+1);
+	char* str_nerrs = (char*)malloc(4+1);
 	char* str_twait = (char*)malloc(5+1);
 
 	for(;;) {
@@ -111,7 +111,7 @@ int main()
 			snprintf_units( str_gmem, 6, state.gmem);
 			snprintf_units( str_cmds, 5, state.cmds);
 			snprintf_units( str_krns, 5, state.krns);
-			snprintf_units( str_errs, 5, state.errs);
+			snprintf_units( str_nerrs, 5, state.nerrs);
 			snprintf_timeval(str_twait,6,state.twait.tv_sec,state.twait.tv_usec);
 
 			char* str_cmdline = (char*)malloc(16);
@@ -132,7 +132,7 @@ int main()
 				state.ndev,
 				str_cmds,state.cmds_queued,
 				str_krns,state.krns_queued,
-				str_errs,state.errno,
+				str_nerrs,state.last_err,
 				str_twait,str_cmdline);
 
 		}
