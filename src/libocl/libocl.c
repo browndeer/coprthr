@@ -835,6 +835,13 @@ void __attribute__((__constructor__)) _libocl_init()
 
 	_libocl_init_called = 1;
 
+	if (getenv("COPRTHR_DISABLE_CLPROC")) {
+
+	_libocl_clproc_state = (struct clproc_state_struct*)
+		malloc( sizeof(struct clproc_state_struct));
+
+	} else {
+
 	_libocl_clproc_dirname = (char*)malloc(64);
 	_libocl_clproc_statename = (char*)malloc(64);
 
@@ -873,13 +880,9 @@ void __attribute__((__constructor__)) _libocl_init()
 		mmap( 0,sizeof(struct clproc_state_struct),PROT_WRITE,
 		MAP_NOSYNC|MAP_SHARED,fd,0);
 #else
-//	printcl( CL_CRIT 
-//		"Linux mmap does not support MAP_NOSYNC, demand a work-around");
-
 	_libocl_clproc_state = (struct clproc_state_struct*)
 		mmap( 0,sizeof(struct clproc_state_struct),PROT_WRITE|PROT_READ,
 		MAP_SHARED,fd,0);
-
 #endif
 
 	if (_libocl_clproc_state == (void*)(-1)) {
@@ -900,6 +903,8 @@ void __attribute__((__constructor__)) _libocl_init()
 
 	_libocl_clproc_state->status = CLPROC_STATUS_RUNNING;
 
+	}
+
 #ifdef ENABLE_LIBOCL_HOOK
 	_libocl_prehook_call_vector = __oclcall_prehook_call_vector;
 	_libocl_posthook_call_vector = __oclcall_posthook_call_vector;
@@ -913,8 +918,19 @@ void __attribute__((__destructor__)) _libocl_fini()
 {
 	_libocl_clproc_state->status = CLPROC_STATUS_COMPLETED;
 
-	if (_libocl_clproc_state) 
-		munmap(_libocl_clproc_state,sizeof(struct clproc_state_struct));
+	if (_libocl_clproc_state) {
+
+		if (getenv("COPRTHR_DISABLE_CLPROC")) {
+
+			free(_libocl_clproc_state);
+
+		} else {
+
+			munmap(_libocl_clproc_state,sizeof(struct clproc_state_struct));
+
+		}
+
+	}
 
 /*
 	if (_libocl_clproc_dirname) {
