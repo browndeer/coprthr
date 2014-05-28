@@ -903,19 +903,14 @@ AC_CONFIG_FILES([install-message.txt])
 AC_CONFIG_FILES([src/libstdcl/Makefile])
 AC_CONFIG_FILES([src/CLETE/Makefile])
 AC_CONFIG_FILES([src/libocl/Makefile])
-#if test x$enable_android_cross_compile = xyes; then
-#	AC_CONFIG_FILES([src/libcoprthr-ax/Makefile])
-#else
 	AC_CONFIG_FILES([src/libcoprthr/Makefile])
 	AC_CONFIG_FILES([src/libcoprthr/arch/x86_64/Makefile])
-	AC_CONFIG_FILES([src/libcoprthr/arch/e32/Makefile])
+#	AC_CONFIG_FILES([src/libcoprthr/arch/e32/Makefile])
 	AC_CONFIG_FILES([src/libcoprthr_opencl/Makefile])
 	AC_CONFIG_FILES([src/libcoprthrcc/Makefile])
-#fi;
-#if test x$enable_epiphany = xyes; then
-#	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
-#	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])
-#fi;
+if test x$enable_epiphany = xyes; then
+	AC_CONFIG_FILES([src/libcoprthr/arch/e32/Makefile])
+fi;
 AC_CONFIG_FILES([src/libclelf/Makefile])
 AC_CONFIG_FILES([src/libclrpc/Makefile])
 AC_CONFIG_FILES([tools/cltrace/Makefile])

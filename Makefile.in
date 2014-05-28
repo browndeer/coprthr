@@ -131,6 +131,9 @@ distclean:
 	rm -f Makefile
 	rm -f ./scripts/clprocd
 	rm -f ndk.sh
+	rm -f install-message.txt
+	cp -f config.log config.log~
+	cp -f config.status config.status~
 
 echo-install:
 	echo $(INSTALL_BIN_DIR)

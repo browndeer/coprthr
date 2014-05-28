@@ -13,3 +13,4 @@ tools/optamdil/
 ipch/
 msvs2010/*/Debug/
 msvs2010/*/Release/
+autom4te.cache/

@@ -4306,24 +4306,19 @@ ac_config_files="$ac_config_files src/CLETE/Makefile"
 
 ac_config_files="$ac_config_files src/libocl/Makefile"
 
-#if test x$enable_android_cross_compile = xyes; then
-#	AC_CONFIG_FILES([src/libcoprthr-ax/Makefile])
-#else
 	ac_config_files="$ac_config_files src/libcoprthr/Makefile"
 
 	ac_config_files="$ac_config_files src/libcoprthr/arch/x86_64/Makefile"
 
-	ac_config_files="$ac_config_files src/libcoprthr/arch/e32/Makefile"
-
+#	AC_CONFIG_FILES([src/libcoprthr/arch/e32/Makefile])
 	ac_config_files="$ac_config_files src/libcoprthr_opencl/Makefile"
 
 	ac_config_files="$ac_config_files src/libcoprthrcc/Makefile"
 
-#fi;
-#if test x$enable_epiphany = xyes; then
-#	AC_CONFIG_FILES([src/libcoprthr-e/Makefile])
-#	AC_CONFIG_FILES([test/test_libcoprthr-e/Makefile])
-#fi;
+if test x$enable_epiphany = xyes; then
+	ac_config_files="$ac_config_files src/libcoprthr/arch/e32/Makefile"
+
+fi;
 ac_config_files="$ac_config_files src/libclelf/Makefile"
 
 ac_config_files="$ac_config_files src/libclrpc/Makefile"
@@ -5129,9 +5124,9 @@ do
     "src/libocl/Makefile") CONFIG_FILES="$CONFIG_FILES src/libocl/Makefile" ;;
     "src/libcoprthr/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr/Makefile" ;;
     "src/libcoprthr/arch/x86_64/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr/arch/x86_64/Makefile" ;;
-    "src/libcoprthr/arch/e32/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr/arch/e32/Makefile" ;;
     "src/libcoprthr_opencl/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr_opencl/Makefile" ;;
     "src/libcoprthrcc/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthrcc/Makefile" ;;
+    "src/libcoprthr/arch/e32/Makefile") CONFIG_FILES="$CONFIG_FILES src/libcoprthr/arch/e32/Makefile" ;;
     "src/libclelf/Makefile") CONFIG_FILES="$CONFIG_FILES src/libclelf/Makefile" ;;
     "src/libclrpc/Makefile") CONFIG_FILES="$CONFIG_FILES src/libclrpc/Makefile" ;;
     "tools/cltrace/Makefile") CONFIG_FILES="$CONFIG_FILES tools/cltrace/Makefile" ;;
