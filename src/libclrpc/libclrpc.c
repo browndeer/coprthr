@@ -1213,7 +1213,8 @@ clrpc_clEnqueueReadBuffer (
 	printcl( CL_DEBUG "event local remote %p %p",
 		xevent->object->local,xevent->object->remote);
 
-	*pevent = (cl_event)xevent;
+	if (pevent)
+		*pevent = (cl_event)xevent;
 
 	if ( EVTAG_HAS(reply,_bytes) ) {
 		printcl( CL_DEBUG "bytes sent back");
@@ -1295,7 +1296,8 @@ clrpc_clEnqueueWriteBuffer (
 	printcl( CL_DEBUG "event local remote %p %p",
 		xevent->object->local,xevent->object->remote);
 
-	*pevent = (cl_event)xevent;
+	if (pevent)
+		*pevent = (cl_event)xevent;
 
 	cl_int retval;
 	CLRPC_GET(reply,int,retval,&retval);
@@ -1361,7 +1363,8 @@ clrpc_clEnqueueCopyBuffer (
 	printcl( CL_DEBUG "event local remote %p %p",
 		xevent->object->local,xevent->object->remote);
 
-	*pevent = (cl_event)xevent;
+	if (pevent)
+		*pevent = (cl_event)xevent;
 
 	cl_int retval;
 	CLRPC_GET(reply,int,retval,&retval);
@@ -1451,7 +1454,8 @@ clrpc_clEnqueueMapBuffer (
 	printcl( CL_DEBUG "event local remote %p %p",
 		xevent->object->local,xevent->object->remote);
 
-	if (pevent) *pevent = (cl_event)xevent;
+	if (pevent) 
+		*pevent = (cl_event)xevent;
 
 	cl_int tmp_err_ret;
 	CLRPC_GET(reply,int,err_ret,&tmp_err_ret);
@@ -1540,7 +1544,8 @@ cl_int clrpc_clEnqueueUnmapMemObject(
 	printcl( CL_DEBUG "event local remote %p %p",
 		xevent->object->local,xevent->object->remote);
 
-	if (pevent) *pevent = (cl_event)xevent;
+	if (pevent) 
+		*pevent = (cl_event)xevent;
 
 	cl_int retval;
 	CLRPC_GET(reply,int,retval,&retval);
@@ -2186,7 +2191,8 @@ clrpc_clEnqueueNDRangeKernel (
 	printcl( CL_DEBUG "event local remote %p %p",
 		xevent->object->local,xevent->object->remote);
 
-	*pevent = (cl_event)xevent;
+	if (pevent)
+		*pevent = (cl_event)xevent;
 
 	cl_int retval;
 	CLRPC_GET(reply,int,retval,&retval);
