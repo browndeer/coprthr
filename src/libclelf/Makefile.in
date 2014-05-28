@@ -14,8 +14,8 @@ datarootdir=@datarootdir@
 USE_OPENCL_INCS = -I@OPENCL_INC@
 #USE_OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
 
-LIBELF_INC = @libelf_inc@
-LIBELF_LIB = @libelf_lib@
+LIBELF_INC = @LIBELF_INC@
+LIBELF_LIB = @LIBELF_LIB@
 
 ### enable build of debug version if not already defined
 #ifeq (@ENABLE_DEBUG_LIBS@,1)

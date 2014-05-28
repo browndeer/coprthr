@@ -23,21 +23,6 @@ endif
 BIN_NAME = cldebug clprocd
 
 INSTALL_BIN_DIR=@bindir@
-#INSTALL_LIB_DIR=@libdir@
-#INSTALL_INCLUDE_DIR=@includedir@
-#INSTALL_MAN_DIR=@mandir@
-
-#OPENCL_INC_DIR = @OPENCL_INCLUDE@
-#OPENCL_LIB_DIR = @OPENCL_LIB@
-#OPENCL_LIBNAME = @OPENCL_LIBNAME@
-#LIBELF_INC = @libelf_inc@
-#LIBELF_LIB = @libelf_lib@
-
-#INCS = -I$(OPENCL_INC_DIR)
-
-#LIBS = $(LIBELF_LIB) 
-#LIBS += -L../../src/libclelf -lclelf
-#LIBS += -L$(OPENCL_LIB_DIR) -l$(OPENCL_LIBNAME)
 
 OBJS = cltop.o 
 

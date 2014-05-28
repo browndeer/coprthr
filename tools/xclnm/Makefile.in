@@ -8,11 +8,9 @@ exec_prefix=@exec_prefix@
 ### this useless define is needed to silence useless autoconf warning
 datarootdir=@datarootdir@
 
-LIBELF_INC=@libelf_inc@
-LIBELF_LIB=@libelf_lib@
+LIBELF_INC=@LIBELF_INC@
+LIBELF_LIB=@LIBELF_LIB@
 
-#DEFS += -DXCL_DEBUG -DXCL_WARN
-#DEFS += -DXCL_WARN
 
 ######################################################################
 
@@ -23,9 +21,7 @@ INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
-#INCS = -I. -I../../src/xcl
 INCS = -I. -I../../src/libcoprthr -I../../src/libcoprthrcc -I../../include
-#INCS += -I../../src/libcoprthr_opencl
 INCS += -I../../src/libcoprthr
 
 #ifeq (freebsd,$(patsubst freebsd%,freebsd,@build_os@))

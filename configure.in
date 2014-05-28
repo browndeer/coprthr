@@ -528,10 +528,10 @@ elif ! test x$tmp_test_libelf = x@<:@libelf.so.0@:>@; then
 	AC_MSG_ERROR([incorrect version of libelf specified])
 fi;
 
-libelf_inc="-I$LIBELF_PATH/include"
-libelf_lib="-L$LIBELF_PATH/lib -lelf"
+#libelf_inc="-I$LIBELF_PATH/include"
+#libelf_lib="-L$LIBELF_PATH/lib -lelf"
 LIBELF_INC="-I$LIBELF_PATH/include"
-LIBELF_LIB="-L$LIBELF_PATH/lib -lelf"
+LIBELF_LIB="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR
 
@@ -878,8 +878,8 @@ AC_SUBST(OPENCL_LIB)
 AC_SUBST(OPENCL_LIBNAME)
 AC_SUBST(DEFAULT_OPENCL_PLATFORM)
 
-AC_SUBST(libelf_inc)
-AC_SUBST(libelf_lib)
+#AC_SUBST(libelf_inc)
+#AC_SUBST(libelf_lib)
 AC_SUBST(LIBELF_INC)
 AC_SUBST(LIBELF_LIB)
 

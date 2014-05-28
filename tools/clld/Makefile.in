@@ -35,12 +35,12 @@ OPENCL_INC_DIR = @OPENCL_INCLUDE@
 OPENCL_LIB_DIR = @OPENCL_LIB@
 OPENCL_LIBNAME = @OPENCL_LIBNAME@
 
-LIBELF_INC=@libelf_inc@
-LIBELF_LIB=@libelf_lib@
+LIBELF_INC=@LIBELF_INC@
+LIBELF_LIB=@LIBELF_LIB@
 
 LIB_MIC_LIBS = -L@LIB_MIC_PATH@ -limf -lsvml -lirng -lintlc
 
-//INCS = -I../../include
+#INCS = -I../../include
 INCS += -I$(OPENCL_INC_DIR)
 
 INCS += $(LIBELF_INC)

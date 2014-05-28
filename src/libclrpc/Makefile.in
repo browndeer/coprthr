@@ -12,11 +12,6 @@ datarootdir=@datarootdir@
 
 USE_OPENCL_INCLUDES = -I@OPENCL_INCLUDE@
 
-#LIBELF_INC = @libelf_inc@
-#LIBELF_LIB = @libelf_lib@
-#LIBEVENT_INC = -I@LIBEVENT_PATH@/include
-#LIBEVENT_LIB = -L@LIBEVENT_PATH@/lib 
-
 ifeq (@host@,k1om-unknown-linux-gnu)
 ifneq (@LIB_MIC_PATH@,)
 LIB_MIC_PATH = @LIB_MIC_PATH@

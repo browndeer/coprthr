@@ -14,8 +14,8 @@ exec_prefix=@exec_prefix@
 ### this useless define is needed to silence useless autoconf warning
 datarootdir=@datarootdir@
 
-LIBELF_INC=@libelf_inc@
-LIBELF_LIB=@libelf_lib@
+LIBELF_INC=@LIBELF_INC@
+LIBELF_LIB=@LIBELF_LIB@
 
 ### select default install paths 
 INSTALL_BIN_DIR=@bindir@

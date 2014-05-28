@@ -31,8 +31,8 @@ INSTALL_LIB_DIR=@libdir@
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_MAN_DIR=@mandir@
 
-LIBELF_INC = @libelf_inc@
-LIBELF_LIB = @libelf_lib@
+LIBELF_INC = @LIBELF_INC@
+LIBELF_LIB = @LIBELF_LIB@
 
 INCS += -I../../include
 INCS += $(LIBELF_INC)
