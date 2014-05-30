@@ -255,9 +255,6 @@ When building from source the configure script supports the following options:
 --enable-old-esdk
   : enable old eSDK API for Epiphany (default=no)
 
---enable-user-install
-  : enable installation by user without roo permission (default=no)
-
 --enable-android-cross-compile
   : enable cross-compile for Android (default=no)
 

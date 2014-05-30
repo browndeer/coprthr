@@ -52,14 +52,14 @@
 <h3 id="for-root-installation-as-a-priveleged-admin"><a href="#for-root-installation-as-a-priveleged-admin"><span class="header-section-number">2.1.1</span> For root installation as a priveleged admin</a></h3>
 <p>If you have root access, the build itself should work with all of the defaults. The target install directory will be <code>/usr/local/browndeer</code>. If the Intel compiler is the default C/C++ compiler used, at the present time it may be necessary to disable Fortran bindings in libstdcl using <code>--with-fortran=</code> with no value provided following the equal (=) sign.</p>
 <p>The complete commandline would simply be,</p>
-<pre><code>./configure --with-fortran= --enable-mic-cross-compile</code></pre>
+<pre><code>./configure --with-fortran= --enable-mic-cross-compile --sysconfdir=/etc --localstatedir=/var</code></pre>
 <p>If the pre-requisites libelf (libelf-0.8.13), libconfig, or libevent have been installed in non-standard locations, the options <code>--with-libelf</code>, <code>--with-libconfig</code>, and <code>--with-libevent</code> may be used to make adjustments.<br />See <code>./configure --help</code> for a full listing of customizations.</p>
 <h3 id="for-user-installation-as-an-unpriveleged-user"><a href="#for-user-installation-as-an-unpriveleged-user"><span class="header-section-number">2.1.2</span> For user installation as an unpriveleged user</a></h3>
 <p>If you do not have root access on the platform it is still possible to do a private &quot;user install&quot;. The following paths are assumed to be defined: <code>LIBELF_DIR</code>, <code>LIBCONFIG_DIR</code>, <code>LIBEVENT_DIR</code>, corresponding to the install locations of libelf (libelf-0.8.13), libconfig, and libevent. Additionally we will assume the target installation directory is <code>COPRTHR_INSTALL_DIR</code>.</p>
 <pre><code>./configure --prefix=$COPRTHR_INSTALL_DIR --with-libelf=$LIBELF_DIR \
     --with-libconfig=$LIBCONFIG_DIR --with-libevent=$LIBEVENT_DIR \
     --with-opencl-icd-path=$COPRTHR_INSTALL_DIR/etc/OpenCL/vendors \
-    --enable-user-install --with-fortran= --enable-mic-cross-compile</code></pre>
+    --with-fortran= --enable-mic-cross-compile</code></pre>
 <p>See <code>./configure --help</code> for a full listing of customizations.</p>
 <p> </p>
 <h2 id="build-and-install-the-package"><a href="#build-and-install-the-package"><span class="header-section-number">2.2</span> Build and install the package</a></h2>
@@ -98,15 +98,15 @@ $HOME/.ocl.conf
 <p>The COPRTHR SDK may be built for MIC native execution. However, some limitations arise due to the fact that the MIC accelerator cards will be running a stripped-down Linux kernel. An example is just-in-time (JIT) compilation support from an application running native since the Intel compiler will not be available on the card, only on the host as part of the standard Intel compiler installation. Nevertheless most of the run-time libraries are supported including the core libraries libstdcl, libcoprthr, libcoprthr_opencl, and libclrpc. The lack of JIT compilation support is easily overcome since COPRTHR provides robust support for pre-cross-compiled kernels.</p>
 <p> </p>
 <h2 id="configuration"><a href="#configuration"><span class="header-section-number">3.1</span> Configuration</a></h2>
-<p>Building the COPRTHR SDK for MIC native execution requires cross-compilation on the host using --enable-user-install configuration option. In order to support the cross-compilation the path to the location of the required MIC libraries must be specified. This should be the location where the libimf.so library built for MIC is installed on the host as part of the Intel SDK. This directory will be designated MIC_LIBS_DIR.</p>
+<p>Building the COPRTHR SDK for MIC native execution requires cross-compilation on the host. In order to support the cross-compilation the path to the location of the required MIC libraries must be specified. This should be the location where the libimf.so library built for MIC is installed on the host as part of the Intel SDK. This directory will be designated MIC_LIBS_DIR.</p>
 <p>Prior to building COPRTHR it will be necessary to build the packages libelf (libelf-0.8.13), libconfig, and libevent for the MIC architecture, and specify the location(s) for these packages using MIC_LIBELF_DIR, MIC_LIBCONFIG_DIR, MIC_LIBEVENT_DIR, respectively.</p>
-<p>The location where the COPRTHR SDK build should be (temporarily) installed is designated IC_COPRTHR_INSTAL_DIR. This is a temporary location since all of the packages will need to be copied over to the MIC accelerator card.</p>
+<p>The location where the COPRTHR SDK build should be (temporarily) installed is designated MIC_COPRTHR_INSTAL_DIR. This is a temporary location since all of the packages will need to be copied over to the MIC accelerator card.</p>
 <p>The configuration is then performed with the commandline,</p>
 <pre><code>CC=icc CFLAGS=-mmic ./configure --prefix=$MIC_COPRTHR_INSTALL_DIR \
     --with-libelf=$MIC_LIBELF_DIR --with-libconfig=$MIC_LIBCONFIG_DIR \
     --with-libevent=$MIC_LIBEVENT_DIR \
     --with-opencl-icd-path=$MIC_COPRTHR_INSTALL_DIR/etc/OpenCL/vendors \
-    --enable-user-install --with-fortran= --host=k1om-unknown-linux-gnu \
+    --with-fortran= --host=k1om-unknown-linux-gnu \
     --with-lib-mic=$MIC_LIBS_DIR</code></pre>
 <hr />
 <p> </p>

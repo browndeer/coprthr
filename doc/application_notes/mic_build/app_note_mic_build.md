@@ -48,7 +48,7 @@ value provided following the equal (=) sign.
 The complete commandline would simply be,
 
 ~~~~~~~
-./configure --with-fortran= --enable-mic-cross-compile
+./configure --with-fortran= --enable-mic-cross-compile --sysconfdir=/etc --localstatedir=/var
 ~~~~~~~
 
 If the pre-requisites libelf (libelf-0.8.13), libconfig, or libevent have been
@@ -68,7 +68,7 @@ will assume the target installation directory is `COPRTHR_INSTALL_DIR`.
 ./configure --prefix=$COPRTHR_INSTALL_DIR --with-libelf=$LIBELF_DIR \
 	--with-libconfig=$LIBCONFIG_DIR --with-libevent=$LIBEVENT_DIR \
 	--with-opencl-icd-path=$COPRTHR_INSTALL_DIR/etc/OpenCL/vendors \
-	--enable-user-install --with-fortran= --enable-mic-cross-compile
+	--with-fortran= --enable-mic-cross-compile
 ~~~~~~~
 
 See `./configure --help` for a full listing of customizations.
@@ -172,11 +172,10 @@ COPRTHR provides robust support for pre-cross-compiled kernels.
 ## Configuration
 
 Building the COPRTHR SDK for MIC native execution requires cross-compilation on
-the host using --enable-user-install configuration option.  In order to support
-the cross-compilation the path to the location of the required MIC libraries
-must be specified.  This should be the location where the libimf.so library
-built for MIC is installed on the host as part of the Intel SDK.  This
-directory will be designated MIC_LIBS_DIR.
+the host. In order to support the cross-compilation the path to the location of
+the required MIC libraries must be specified.  This should be the location
+where the libimf.so library built for MIC is installed on the host as part of
+the Intel SDK.  This directory will be designated MIC_LIBS_DIR.
 
 Prior to building COPRTHR it will be necessary to build the packages libelf
 (libelf-0.8.13), libconfig, and libevent for the MIC architecture, and specify
@@ -184,7 +183,7 @@ the location(s) for these packages using MIC_LIBELF_DIR, MIC_LIBCONFIG_DIR,
 MIC_LIBEVENT_DIR, respectively.
 
 The location where the COPRTHR SDK build should be (temporarily) installed
-is designated IC_COPRTHR_INSTAL_DIR.  This is a temporary location since
+is designated MIC_COPRTHR_INSTAL_DIR.  This is a temporary location since
 all of the packages will need to be copied over to the MIC accelerator card.
 
 The configuration is then performed with the commandline,
@@ -194,7 +193,7 @@ CC=icc CFLAGS=-mmic ./configure --prefix=$MIC_COPRTHR_INSTALL_DIR \
 	--with-libelf=$MIC_LIBELF_DIR --with-libconfig=$MIC_LIBCONFIG_DIR \
 	--with-libevent=$MIC_LIBEVENT_DIR \
 	--with-opencl-icd-path=$MIC_COPRTHR_INSTALL_DIR/etc/OpenCL/vendors \
-	--enable-user-install --with-fortran= --host=k1om-unknown-linux-gnu \
+	--with-fortran= --host=k1om-unknown-linux-gnu \
 	--with-lib-mic=$MIC_LIBS_DIR
 ~~~~~~~
 

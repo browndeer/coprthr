@@ -608,7 +608,6 @@ DEFAULT_CLMESG_LEVEL
 MAX_CLMESG_LEVEL
 ENABLE_MIC_CROSS_COMPILE
 ENABLE_ANDROID_CROSS_COMPILE
-ENABLE_USER_INSTALL
 ENABLE_OLD_ESDK
 ENABLE_EMEK_BUILD
 ENABLE_LIBOCL_HOOK
@@ -703,7 +702,6 @@ enable_epiphany
 enable_libocl_hook
 enable_emek_build
 enable_old_esdk
-enable_user_install
 enable_android_cross_compile
 enable_mic_cross_compile
 with_opencl_platform
@@ -1366,8 +1364,6 @@ Optional Features:
   --enable-libocl-hook    enable libocl hook support (default=no)
   --enable-emek-build     enable build for Epiphany EMEK (default=no)
   --enable-old-esdk       enable old eSDK API for Epiphany (default=no)
-  --enable-user-install   enable installation by user without roo permission
-                          (default=no)
   --enable-android-cross-compile
                           enable cross-compile for Android (default=no)
   --enable-mic-cross-compile
@@ -3271,15 +3267,6 @@ else
   enable_old_esdk=no
 fi
 
-
-# Check whether --enable-user-install was given.
-if test "${enable_user_install+set}" = set; then :
-  enableval=$enable_user_install;
-else
-  enable_user_install=no
-fi
-
-
 # Check whether --enable-android-cross-compile was given.
 if test "${enable_android_cross_compile+set}" = set; then :
   enableval=$enable_android_cross_compile;
@@ -3401,14 +3388,6 @@ if test x$enable_old_esdk != xno; then
 		else
 			echo "disabled "Epiphany old eSDK API""
 			ENABLE_OLD_ESDK=0
-		fi;
-
-if test x$enable_user_install != xno; then
-			echo "enabled "user install without root permission""
-			ENABLE_USER_INSTALL=1
-		else
-			echo "disabled "user install without root permission""
-			ENABLE_USER_INSTALL=0
 		fi;
 
 if test x$enable_android_cross_compile != xno; then
