@@ -680,6 +680,7 @@ struct Ref
    Ref( 
       const void* p, 
       const size_t sz,
+		const int first, const int end, const int shift,
       const void* memp,
 		const int d,
       const std::string t = "", 
@@ -687,11 +688,12 @@ struct Ref
       const std::string td = "", 
       const std::string tr = "", 
       const std::string s = ""
-   ) : ptr(p), sz(sz), memptr(memp), dim(d),
+   ) : ptr(p), sz(sz), first(first), end(end), shift(shift), memptr(memp), dim(d),
       type_str(t), arg_str(a), tmp_decl_str(td), tmp_ref_str(tr), store_str(s) 
 		{}
    const void* ptr;
    const size_t sz;
+	const int first, end, shift;
    const void* memptr;
 	const int dim;
    const std::string type_str;
@@ -724,7 +726,7 @@ struct LeafFunctor<Scalar<T>*, RefListLeaf>
   Type_t apply(Scalar<T>* const & ptr, const RefListLeaf &r)
   {
     return Type_t(1,Ref(
-      ptr,sizeof(T),0,0,
+      ptr,sizeof(T),0,0,0,0,0,
       PrintF< Scalar<T> >::type_str(),
       PrintF< Scalar<T> >::arg_str(tostr(r((intptr_t)ptr))),
       PrintF< Scalar<T> >::tmp_decl_str(tostr(r((intptr_t)ptr))),

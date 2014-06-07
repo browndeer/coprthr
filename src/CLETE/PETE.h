@@ -77,6 +77,7 @@ inline bool ref_is_ordered( const Ref& a, const Ref& b )
 
 inline bool ref_is_equal( const Ref& a, const Ref& b )
 { return a.ptr == b.ptr; }
+//{ return ( a.ptr == b.ptr && a.shift == b.shift); }
 
 
 #endif // PETE_PETE_PETE_H

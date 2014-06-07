@@ -1,4 +1,4 @@
-/* clvector_CLETE.h
+/* clarray_CLETE.h
  *
  * Copyright (c) 2010 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -69,10 +69,10 @@
 using namespace std;
 
 #include <stdcl.h>
-#include <clvector.h>
+#include <clarray.h>
 
 #include "CLETE/PETE.h"
-#include "CLETE/clvector_Operators.h"
+#include "CLETE/clarray_Operators.h"
 #include "CLETE/PrintType.h"
 #include "CLETE/PrintF.h"
 
@@ -111,11 +111,11 @@ using namespace std;
 //-----------------------------------------------------------------------------
 
 template<class T, class Allocator>
-struct CreateLeaf<clvector<T, Allocator> >
+struct CreateLeaf<clarray<T, Allocator> >
 {
-  typedef Reference<clvector<T> > Leaf_t;
+  typedef Reference<clarray<T> > Leaf_t;
   inline static
-  Leaf_t make(const clvector<T, Allocator> &a) { return Leaf_t(a); }
+  Leaf_t make(const clarray<T, Allocator> &a) { return Leaf_t(a); }
 };
 
 //-----------------------------------------------------------------------------
@@ -124,11 +124,11 @@ struct CreateLeaf<clvector<T, Allocator> >
 //-----------------------------------------------------------------------------
 
 template<class T, class Allocator>
-struct LeafFunctor<clvector<T, Allocator>,EvalLeaf1>
+struct LeafFunctor<clarray<T, Allocator>,EvalLeaf1>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clvector<T, Allocator>& vec,const EvalLeaf1 &f)
+  Type_t apply(const clarray<T, Allocator>& vec,const EvalLeaf1 &f)
   {
     return vec[f.val1()];
   }
@@ -137,11 +137,11 @@ struct LeafFunctor<clvector<T, Allocator>,EvalLeaf1>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clvector<T, Allocator>, SizeLeaf>
+struct LeafFunctor<clarray<T, Allocator>, SizeLeaf>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clvector<T, Allocator> &v, const SizeLeaf &s) 
+  bool apply(const clarray<T, Allocator> &v, const SizeLeaf &s) 
   {
     return s(v.size());
   }
@@ -149,11 +149,11 @@ struct LeafFunctor<clvector<T, Allocator>, SizeLeaf>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clvector<T, Allocator>, PrintTmpLeaf>
+struct LeafFunctor<clarray<T, Allocator>, PrintTmpLeaf>
 {
   typedef std::string Type_t;
   inline static
-  std::string apply(const clvector<T, Allocator> & v, const PrintTmpLeaf & p) 
+  std::string apply(const clarray<T, Allocator> & v, const PrintTmpLeaf & p) 
   {
     return "tmp" + tostr(p((intptr_t)&v));
   }
@@ -161,11 +161,11 @@ struct LeafFunctor<clvector<T, Allocator>, PrintTmpLeaf>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clvector<T, Allocator>*, PtrListLeaf>
+struct LeafFunctor<clarray<T, Allocator>*, PtrListLeaf>
 {
   typedef std::list<const void*> Type_t;
   inline static
-  Type_t apply(clvector<T, Allocator>* const & ptr, const PtrListLeaf &plist)
+  Type_t apply(clarray<T, Allocator>* const & ptr, const PtrListLeaf &plist)
   {
     return Type_t(1,ptr);
   }
@@ -173,30 +173,30 @@ struct LeafFunctor<clvector<T, Allocator>*, PtrListLeaf>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clvector<T, Allocator>*, RefListLeaf>
+struct LeafFunctor<clarray<T, Allocator>*, RefListLeaf>
 {
   typedef std::list<Ref> Type_t;
   inline static
-  Type_t apply(clvector<T, Allocator>* const & ptr, const RefListLeaf &r)
+  Type_t apply(clarray<T, Allocator>* const & ptr, const RefListLeaf &r)
   {
     return Type_t(1,Ref(
 //		ptr,0,ptr->data(),1,
 		ptr,0,ptr->first,ptr->end,ptr->shift,ptr->data(),1,
-		PrintF< clvector<T,Allocator> >::type_str(),
-		PrintF< clvector<T,Allocator> >::arg_str(tostr(r((intptr_t)ptr))),
-		PrintF< clvector<T,Allocator> >::tmp_decl_str(tostr(r((intptr_t)ptr)),tostr(ptr->shift)),
-		PrintF< clvector<T,Allocator> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
-		PrintF< clvector<T,Allocator> >::store_str(tostr(r((intptr_t)ptr))) ) );
+		PrintF< clarray<T,Allocator> >::type_str(),
+		PrintF< clarray<T,Allocator> >::arg_str(tostr(r((intptr_t)ptr))),
+		PrintF< clarray<T,Allocator> >::tmp_decl_str(tostr(r((intptr_t)ptr)),tostr(ptr->shift)),
+		PrintF< clarray<T,Allocator> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
+		PrintF< clarray<T,Allocator> >::store_str(tostr(r((intptr_t)ptr))) ) );
   }
 };
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clvector<T, Allocator>,AddressOfLeaf>
+struct LeafFunctor<clarray<T, Allocator>,AddressOfLeaf>
 {
-  typedef clvector<T, Allocator>* Type_t;
+  typedef clarray<T, Allocator>* Type_t;
   inline static
-  Type_t apply(const clvector<T, Allocator>& vec,const AddressOfLeaf &f)
+  Type_t apply(const clarray<T, Allocator>& vec,const AddressOfLeaf &f)
   {
     return Type_t(&vec);
   }
@@ -204,11 +204,11 @@ struct LeafFunctor<clvector<T, Allocator>,AddressOfLeaf>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clvector<T, Allocator>,IAddressOfLeaf>
+struct LeafFunctor<clarray<T, Allocator>,IAddressOfLeaf>
 {
   typedef intptr_t Type_t;
   inline static
-  Type_t apply(const clvector<T, Allocator>& vec,const IAddressOfLeaf &f)
+  Type_t apply(const clarray<T, Allocator>& vec,const IAddressOfLeaf &f)
   {
     return Type_t((intptr_t)&vec);
   }
@@ -216,7 +216,7 @@ struct LeafFunctor<clvector<T, Allocator>,IAddressOfLeaf>
 
 
 template < class T, class Allocator >
-struct PrintF< clvector<T, Allocator> > {
+struct PrintF< clarray<T, Allocator> > {
 
    inline static std::string type_str() 
    { return "__global " + PrintType<T>::type_str() + "*"; }
@@ -266,7 +266,7 @@ struct PrintF< clvector<T, Allocator> > {
 
 template<class T, class Allocator, class Op, class RHS>
 inline void evaluate(
-	clvector<T, Allocator> &lhs, const Op &op, 
+	clarray<T, Allocator> &lhs, const Op &op, 
 	const Expression<RHS> &rhs
 )
 {
@@ -291,17 +291,20 @@ inline void evaluate(
 	rlist_t rlista = rlist;
 	rlista.push_back(
 		Ref(&lhs,0,lhs.first,lhs.end,lhs.shift,lhs.data(),1,
-			PrintF< clvector<T, Allocator> >::type_str(),
-			PrintF< clvector<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clvector<T, Allocator> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs), tostr(lhs.shift) ),
-			PrintF< clvector<T, Allocator> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clvector<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs))
+			PrintF< clarray<T, Allocator> >::type_str(),
+			PrintF< clarray<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
+			PrintF< clarray<T, Allocator> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs), tostr(lhs.shift) ),
+			PrintF< clarray<T, Allocator> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
+			PrintF< clarray<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs))
 		)
 	);
 	rlista.sort(ref_is_ordered);
 	rlista.unique(ref_is_equal);
 
-	int size = lhs.size();
+//	int size = lhs.size();
+	int size = lhs.vec->size();
+printf("size %d %d\n",size,lhs.vec->size());
+
 	size_t r = size;
 	if (r%256 > 0) r += 256 - r%256;
 
@@ -310,6 +313,9 @@ inline void evaluate(
 	printf("first end %d %d\n",first,end);
 	
 	static cl_kernel krn = (cl_kernel)0;
+
+cout << "full eval commented out" << endl;
+//goto done;
 
 	if (!krn) {
 
@@ -334,13 +340,13 @@ inline void evaluate(
 		}
 
 
-//		srcstr += PrintF< clvector<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs)) + " = ";
+//		srcstr += PrintF< clarray<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs)) + " = ";
 
 		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
 //		srcstr += expr + ";\n" ;
 
 		srcstr += op.strexpr( 
-			PrintF< clvector<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
+			PrintF< clarray<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
 		
 		if (size != r) srcstr += "}\n";
 
@@ -354,6 +360,10 @@ inline void evaluate(
 		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
 	}
 
+printf("krn %p\n",krn);
+
+//goto done;
+
 	if (krn) {
 
 		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
@@ -365,19 +375,24 @@ inline void evaluate(
 		size_t sz = (*it).sz;
 		if (sz > 0) {
 			int dummy;
-			clSetKernelArg(krn,n,sz,(*it).ptr);
+//			clSetKernelArg(krn,n,sz,(*it).ptr);
+			clSetKernelArg(krn,n,sz,((clarray<T,Allocator>*)(*it).ptr)->vec);
 		} else { 
 
 
 #if defined(__CLVECTOR_FULLAUTO)
-			clmattach(__CLCONTEXT,(void*)(*it).memptr);
-			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+//			clmattach(__CLCONTEXT,(void*)(*it).memptr);
+//			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+			clmattach(__CLCONTEXT,(void*)  ((clarray<T,Allocator>*)(*it).ptr)->vec->data()  );
+			clmsync(__CLCONTEXT,0,(void*)  ((clarray<T,Allocator>*)(*it).ptr)->vec->data() ,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
+			clarg_set_global(__CLCONTEXT,krn,n,(void*)   ((clarray<T,Allocator>*)(*it).ptr)->vec->data()  );
 
 		}
 	}
+
+//goto done;
 
 	clarg_set(__CLCONTEXT,krn,n,size);
 
@@ -386,7 +401,8 @@ inline void evaluate(
 
 #if defined(__CLVECTOR_FULLAUTO)
 
-		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+//		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+		clmsync(__CLCONTEXT,0,lhs.vec->data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
 		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
@@ -396,7 +412,8 @@ inline void evaluate(
 		if (sz > 0) {
 		} else { 
 
-			clmdetach((void*)(*it).memptr);
+//			clmdetach((void*)(*it).memptr);
+			clmdetach((void*)   ((clarray<T,Allocator>*)(*it).ptr)->vec->data()   );
 
 		}
 	}
@@ -406,7 +423,6 @@ inline void evaluate(
 		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT);
 
 #endif
-
 
 	}
 
@@ -424,16 +440,32 @@ inline void evaluate(
       cerr << "Error: LHS and RHS don't conform." << endl;
       exit(1);
     }
+
+done:
+	return;
+
 }
 
 
+
+
+
+//  template < typename T, typename A> template<class RHS>
+//  clarray<T,A>& clarray<T,A>::operator=(const Expression<RHS> &rhs)
+//  {
+//      assign(*this,rhs);
+//
+//    return *this;
+//  }
+
   template < typename T, typename A> template<class RHS>
-  clvector<T,A>& clvector<T,A>::operator=(const Expression<RHS> &rhs)
+  clarray<T,A>& clarray<T,A>::operator=(const Expression<RHS> &rhs)
   {
       assign(*this,rhs);
 
     return *this;
   }
+
 
 
 #endif

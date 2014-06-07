@@ -43,7 +43,7 @@ struct PrintF {
 	inline static std::string arg_str( std::string x ) 
 	{ return "@arg-str-unknown@:" + x; }
 
-	inline static std::string tmp_decl_str( std::string x ) 
+	inline static std::string tmp_decl_str( std::string x, std::string s = "0" ) 
 	{ return "@tmp-decl-str-unknown@:" + x; }
 
 	inline static std::string tmp_ref_str( std::string x ) 
@@ -63,7 +63,7 @@ struct PrintF< Scalar<T> > {
 	inline static std::string arg_str( std::string x) 
 	{ return "a" + x; }
 
-	inline static std::string tmp_decl_str( std::string x ) 
+	inline static std::string tmp_decl_str( std::string x, std::string s = "0" ) 
 	{ return PrintType<T>::type_str() + " tmp" + x + " = a" + x; }
 
 	inline static std::string tmp_ref_str( std::string x ) 

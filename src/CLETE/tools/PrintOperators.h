@@ -419,6 +419,11 @@ public:
          << "  {" << endl
          << "    " << opdef.expression() << endl
          << "  }" << endl
+
+			<< "  inline static std::string strexpr( const std::string a, const std::string b ) { " << endl
+			<< opdef.strexpr() << endl
+			<< "}" << endl
+
          << "};" << endl;
 
     // Print BinaryReturn specialization:
