@@ -2,3 +2,5 @@ classes
 -----
   ARG   = @class T[n]@
   CLASS = @clarray<T[n]>@
+-----
+  CLASS = @Interval@

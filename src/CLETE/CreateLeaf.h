@@ -120,6 +120,15 @@ struct CreateLeaf<Expression<T> >
   }
 };
 
+template <>
+struct CreateLeaf<Interval >
+{
+  typedef Reference<Interval > Leaf_t;
+  inline static
+  Leaf_t make(const Interval &a) { return Leaf_t(a); }
+};
+
+
 #endif // !PETE_USER_DEFINED_EXPRESSION
 
 //-----------------------------------------------------------------------------

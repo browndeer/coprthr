@@ -74,6 +74,30 @@ struct PrintF< Scalar<T> > {
 
 };
 
+template <>
+struct PrintF< Interval > {
+
+   inline static std::string type_str() 
+   { return "INTERVAL " + PrintType<int>::type_str(); }
+  
+   inline static std::string arg_str( std::string x)
+   { return "INTERVAL"; }
+  
+   inline static std::string tmp_decl_str( std::string x, std::string s )
+   {
+//      return PrintType<int>::type_str() + " INTERVAL" + x
+//         + " = " + x + "gti+(" + s + ")";
+			return "";
+   }
+
+   inline static std::string tmp_ref_str( std::string x )
+   { return "INTERVAL" + x; }
+  
+   inline static std::string store_str( std::string x )
+   { return "INTERVAL" + x ; }
+  
+};  
+
 
 #endif
 

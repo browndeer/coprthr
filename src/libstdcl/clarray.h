@@ -71,18 +71,22 @@ class Expression;
 //////////////////#endif
 
 template < typename T, typename A = clmalloc_allocator<T> >
-class clarray : public std::vector< T, clmalloc_allocator<T> >
+//class clarray : public std::vector< T, clmalloc_allocator<T> >
+class clarray 
 {
 	typedef clmalloc_allocator<T> allocator_t;
 
 	public:
 
 		clarray()
-			: std::vector< T, clmalloc_allocator<T> >() {}
+//			: std::vector< T, clmalloc_allocator<T> >() {}
+		{}
 
 		clarray( size_t n, const T& value = T() )
-			: std::vector< T, clmalloc_allocator<T> >( n, value ) {}
+//			: std::vector< T, clmalloc_allocator<T> >( n, value ) {}
+		{}
 
+/*
 		template < class InputIterator >
 		clarray( InputIterator first, InputIterator last )
 			: std::vector< T, clmalloc_allocator<T> >( first, last ) {}
@@ -103,6 +107,7 @@ class clarray : public std::vector< T, clmalloc_allocator<T> >
 		}
 
 		void* get_ptr() { return (void*)_clarray_ptr; }
+*/
 
 //		clarray<T,A>& operator () ( const Interval& ii ) 
 //			{ first=ii.first; end=ii.end; shift=ii.shift; return *this; }
@@ -116,6 +121,8 @@ class clarray : public std::vector< T, clmalloc_allocator<T> >
 
 		clarray( clvector<T,A>* vec, int first, int end, int shift )
 			: vec(vec), first(first), end(end), shift(shift) {}
+
+		T* data() { return vec->data(); }
 
 //	protected:
 	public:
