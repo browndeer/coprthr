@@ -6,9 +6,11 @@ exec_prefix=@exec_prefix@
 
 INSTALL_INCLUDE_DIR=@includedir@/CLETE
 
-GEN_HDRS = OperatorTags.h clvector_Operators.h clmulti_array_Operators.h
+GEN_HDRS = OperatorTags.h clvector_Operators.h clmulti_array_Operators.h \
+	clarray_Operators.h
 
-HDRS = clvector_CLETE.h clmulti_array_CLETE.h Combiners.h CreateLeaf.h ForEach.h Functors.h PETE.h PrintF.h PrintType.h Scalar.h TreeNodes.h TypeComputations.h $(GEN_HDRS)
+HDRS = clvector_CLETE.h clmulti_array_CLETE.h Combiners.h CreateLeaf.h ForEach.h Functors.h PETE.h PrintF.h PrintType.h Scalar.h TreeNodes.h TypeComputations.h $(GEN_HDRS) \
+	clarray_CLETE.h
 
 INSTALL_INCS = $(HDRS)
 
@@ -30,6 +32,9 @@ clvector_Operators.h:
 
 clmulti_array_Operators.h:
 	$(GEN_OPERATORS) --classes ./tools/clmulti_array_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLMULTI_ARRAY_OPERATORS_H --assign-ops > clmulti_array_Operators.h 
+
+clarray_Operators.h:
+	$(GEN_OPERATORS) --classes ./tools/clarray_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLARRAYOPERATORS_H --assign-ops > clarray_Operators.h 
 
 
 check_root:
