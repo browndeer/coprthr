@@ -1,6 +1,6 @@
 /* clarray_CLETE.h
  *
- * Copyright (c) 2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2010-2014 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -322,31 +322,6 @@ struct PrintF< clarray<T, Allocator> > {
 
 };
 
-/*
-template <>
-struct PrintF< Interval > {
-
-   inline static std::string type_str() 
-   { return "INTERVAL " + PrintType<T>::type_str(); }
-
-   inline static std::string arg_str( std::string x) 
-   { return "INTERVAL" + x; }
-
-   inline static std::string tmp_decl_str( std::string x, std::string s )
-   { 
-		return PrintType<T>::type_str() + " INTERVAL" + x 
-			+ " = " + x + "gti+(" + s + ")"; 
-	}
-
-   inline static std::string tmp_ref_str( std::string x )
-   { return "INTERVAL" + x; }
-
-   inline static std::string store_str( std::string x )
-   { return "INTERVAL" + x ; }
-
-};
-*/
-
 
 #define log_kernel(srcstr) do { \
 	if (__log_automatic_kernels_filename) { \
@@ -378,7 +353,8 @@ inline void evaluate(
 
 	typedef std::list<Ref> rlist_t;
 
-	intptr_t mask = ~((intptr_t)forEach(rhs,IAddressOfLeaf(),AndBitsCombine()) & (intptr_t)&lhs);
+	intptr_t mask = ~((intptr_t)forEach(rhs,IAddressOfLeaf(),
+		AndBitsCombine()) & (intptr_t)&lhs);
  
 	rlist_t rlist = forEach(rhs2,RefListLeaf(mask),ListCombine<Ref>());
 
@@ -390,9 +366,12 @@ inline void evaluate(
 		Ref(&lhs,0,lhs.first,lhs.end,lhs.shift,lhs.data(),1,
 			PrintF< clarray<T, Allocator> >::type_str(),
 			PrintF< clarray<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clarray<T, Allocator> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs), tostr(lhs.shift) ),
-			PrintF< clarray<T, Allocator> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clarray<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs))
+			PrintF< clarray<T, Allocator> >::tmp_decl_str(
+				tostr(mask & (intptr_t)&lhs), tostr(lhs.shift) ),
+			PrintF< clarray<T, Allocator> >::tmp_ref_str(
+				tostr(mask & (intptr_t)&lhs)),
+			PrintF< clarray<T, Allocator> >::store_str(
+				tostr(mask & (intptr_t)&lhs))
 		)
 	);
 	rlista.sort(ref_is_ordered);
@@ -463,7 +442,9 @@ inline void evaluate(
 
 		if (sz > 0) {
 
-			clSetKernelArg(krn,n++,sz,((clarray<T,Allocator>*)(*it).ptr)->vec);
+			fprintf( stderr,"%d clSetKernelArg sz>0",n);
+			
+			clSetKernelArg(krn,n++,sz,(*it).ptr);
 
 		} else { 
 
@@ -477,6 +458,8 @@ inline void evaluate(
 					(void*)((clarray<T,Allocator>*)(*it).ptr)->vec->data(),
 					CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
+
+			fprintf( stderr,"%d clarg_set_global sz==0",n);
 
 				clarg_set_global(__CLCONTEXT,krn,n++,
 					(void*)((clarray<T,Allocator>*)(*it).ptr)->vec->data());

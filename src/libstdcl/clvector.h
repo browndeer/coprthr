@@ -23,9 +23,7 @@
 #ifndef __CLVECTOR_H
 #define __CLVECTOR_H
 
-//#include <string.h>
 #include <stdio.h>
-//#include <sys/queue.h>
 
 #include <string>
 
@@ -37,17 +35,10 @@
 #include <clarray.h>
 
 #include "CLETE/Interval.h"
-//#include "CLETE/Wrapper.h"
 
 #ifdef __cplusplus
 
 #define __stdclpp__
-
-//namespace stdclpp {
-
-//struct Interval {
-//	int first, end, shift;
-//};
 
 
 /***
@@ -98,12 +89,6 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 
 		void* get_ptr() { return (void*)_clvector_ptr; }
 
-//		clvector<T,A>& operator () ( const Interval& ii ) 
-//			{ first=ii.first; end=ii.end; shift=ii.shift; return *this; }
-
-//		Wrapper< clvector<T,A> > operator () ( const Interval& ii )
-//			{ return Wrapper< clvector<T,A> >(this,ii); } 
-
 		clarray<T,A> operator()(const Interval& interval )
 			{ return clarray<T,A>(this,interval.first,interval.end,interval.shift); }
 
@@ -111,31 +96,14 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
   clvector<T,A>& operator=(const Expression<RHS> &rhs);
 
 //	protected:
-	public:
-	int first;
-	int end;
-	int shift;
+//	public:
+//	int first;
+//	int end;
+//	int shift;
 	
 };
 
-/*
-  template < typename T, typename A> template<class RHS>
-  clvector<T,A>& clvector<T,A>::operator=(const Expression<RHS> &rhs)
-  {
-		assign(*this,rhs);
-
-    return *this;
-  }
-*/
-
-//#ifndef _WIN64
-//#include "CLETE/clvector_CLETE.h"
-//#endif
-
-
-//} //// namespace stdclpp
-
-#endif //// ifdef __cplusplus
+#endif
 
 #endif
 

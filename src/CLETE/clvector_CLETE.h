@@ -1,6 +1,6 @@
 /* clvector_CLETE.h
  *
- * Copyright (c) 2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2010-2014 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -239,17 +239,6 @@ struct PrintF< clvector<T, Allocator> > {
 };
 
 
-//static inline void log_kernel( std::string& srcstr )
-//{
-//   if (__log_automatic_kernels_filename) {
-//      std::ofstream ofs(
-//         __log_automatic_kernels_filename,
-//         std::ios_base::out|std::ios_base::app);
-//      ofs<<srcstr<<"\n";
-//      ofs.close();
-//   }
-//}
-
 //// XXX use macros as workaround for incorrect behavior of gcc 4.1 -DAR
 
 #define log_kernel(srcstr) do { \
@@ -334,20 +323,17 @@ inline void evaluate(
 		}
 
 
-//		srcstr += PrintF< clvector<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs)) + " = ";
-
 		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
-//		srcstr += expr + ";\n" ;
 
 		srcstr += op.strexpr( 
-			PrintF< clvector<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
+			PrintF< clvector<T, Allocator> >::store_str(
+				tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
 		
 		if (size != r) srcstr += "}\n";
 
 		srcstr += "}\n";
 		srcstr += "}\n";
 
-//		std::cout<<srcstr;
 		log_kernel(srcstr);
 
 		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
@@ -371,7 +357,8 @@ inline void evaluate(
 
 #if defined(__CLVECTOR_FULLAUTO)
 			clmattach(__CLCONTEXT,(void*)(*it).memptr);
-			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,
+				CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
 			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);

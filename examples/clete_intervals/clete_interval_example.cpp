@@ -50,7 +50,7 @@ int main()
 	for(int iter=0; iter<10; iter++) {
 
 //		a(I) = b(I-1) + c(I+1);
-		a(I) = b(I-1) + c(I+1) + cos(I-2);
+		a(I) = b(I-1) + c(I+1) + cos((I-2)/(float)n);
 
 	}
 	Stop(0);

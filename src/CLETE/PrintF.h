@@ -1,6 +1,6 @@
 /* PrintF.h
  *
- * Copyright (c) 2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2010-2014 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -30,7 +30,6 @@
 using namespace std;
 
 #include <stdcl.h>
-//#include <clvector.h>
 
 #include "CLETE/PrintType.h"
 
@@ -54,6 +53,7 @@ struct PrintF {
 
 };
 
+
 template < class T > 
 struct PrintF< Scalar<T> > { 
 
@@ -74,6 +74,9 @@ struct PrintF< Scalar<T> > {
 
 };
 
+
+// XXX this specialization must be here to avoid specialization before 
+// XXX instantiation error -DAR
 template <>
 struct PrintF< Interval > {
 
@@ -84,11 +87,7 @@ struct PrintF< Interval > {
    { return "INTERVAL"; }
   
    inline static std::string tmp_decl_str( std::string x, std::string s )
-   {
-//      return PrintType<int>::type_str() + " INTERVAL" + x
-//         + " = " + x + "gti+(" + s + ")";
-			return "";
-   }
+   { return ""; }
 
    inline static std::string tmp_ref_str( std::string x )
    { return "INTERVAL" + x; }
