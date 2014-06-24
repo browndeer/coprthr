@@ -27,12 +27,10 @@
 
 #include <string>
 
-#include <CL/cl.h>
 #include <stdcl.h>
 #include <clmalloc_allocator.h>
 
 #include <vector>
-#include <clarray.h>
 
 #include "CLETE/Interval.h"
 
@@ -45,8 +43,40 @@
  *** clvector
  ***/
 
-template<class T>
-class Expression;
+template<class T> class Expression;
+
+template < class T, class A > class clvector;
+
+template < typename T, typename A = clmalloc_allocator<T> >
+struct clvector_interval
+{
+	private:
+
+		clvector_interval() {}
+
+		clvector_interval( clvector<T,A>& vecref, int first, int end, int shift )
+			: vecref(vecref), first(first), end(end), shift(shift) {}
+
+	public:
+
+		template<class RHS>
+		clvector_interval<T,A>& operator=(const Expression<RHS> &rhs);
+
+		T* data() { return vecref.data(); }
+
+	public:
+
+		clvector<T,A>& vecref;
+		int first;
+		int end;
+		int shift;
+
+	friend
+		clvector_interval<T,A> 
+		clvector<T,A>::operator()(const Interval& interval );
+
+};
+
 
 /* address the difference in implementations -DAR */
 #ifdef _WIN64
@@ -89,21 +119,21 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 
 		void* get_ptr() { return (void*)_clvector_ptr; }
 
-		clarray<T,A> operator()(const Interval& interval )
-			{ return clarray<T,A>(this,interval.first,interval.end,interval.shift); }
+		clvector_interval<T,A> operator()(const Interval& interval ) {
+			return clvector_interval<T,A>(*this,interval.first,interval.end,
+				interval.shift); 
+		}
+
 
   template<class RHS>
   clvector<T,A>& operator=(const Expression<RHS> &rhs);
 
-//	protected:
-//	public:
-//	int first;
-//	int end;
-//	int shift;
-	
 };
 
 #endif
+
+#include <CLETE/clvector_CLETE.h>
+#include <CLETE/clvector_interval_CLETE.h>
 
 #endif
 

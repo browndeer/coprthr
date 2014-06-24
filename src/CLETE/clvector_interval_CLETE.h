@@ -1,4 +1,4 @@
-/* clarray_CLETE.h
+/* clvector_interval_CLETE.h
  *
  * Copyright (c) 2010-2014 Brown Deer Technology, LLC.  All Rights Reserved.
  *
@@ -56,8 +56,8 @@
 
 /* DAR */
 
-#ifndef _CLVECTOR_CLETE_H
-#define _CLVECTOR_CLETE_H
+#ifndef _CLVECTOR_INTERVAL_CLETE_H
+#define _CLVECTOR_INTERVAL_CLETE_H
 
 #include <iostream>
 #include <fstream>
@@ -69,10 +69,11 @@
 using namespace std;
 
 #include <stdcl.h>
-#include <clarray.h>
+//#include <clvector_interval.h>
+#include <clvector.h>
 
 #include "CLETE/PETE.h"
-#include "CLETE/clarray_Operators.h"
+#include "CLETE/clvector_interval_Operators.h"
 #include "CLETE/PrintType.h"
 #include "CLETE/PrintF.h"
 
@@ -111,11 +112,11 @@ using namespace std;
 //-----------------------------------------------------------------------------
 
 template<class T, class Allocator>
-struct CreateLeaf<clarray<T, Allocator> >
+struct CreateLeaf<clvector_interval<T, Allocator> >
 {
-  typedef Reference<clarray<T> > Leaf_t;
+  typedef Reference<clvector_interval<T> > Leaf_t;
   inline static
-  Leaf_t make(const clarray<T, Allocator> &a) { return Leaf_t(a); }
+  Leaf_t make(const clvector_interval<T, Allocator> &a) { return Leaf_t(a); }
 };
 
 /*
@@ -134,11 +135,11 @@ struct CreateLeaf<Interval >
 //-----------------------------------------------------------------------------
 
 template<class T, class Allocator>
-struct LeafFunctor<clarray<T, Allocator>,EvalLeaf1>
+struct LeafFunctor<clvector_interval<T, Allocator>,EvalLeaf1>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clarray<T, Allocator>& vec,const EvalLeaf1 &f)
+  Type_t apply(const clvector_interval<T, Allocator>& vec,const EvalLeaf1 &f)
   {
     return vec[f.val1()];
   }
@@ -159,11 +160,11 @@ struct LeafFunctor<Interval,EvalLeaf1>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clarray<T, Allocator>, SizeLeaf>
+struct LeafFunctor<clvector_interval<T, Allocator>, SizeLeaf>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clarray<T, Allocator> &v, const SizeLeaf &s) 
+  bool apply(const clvector_interval<T, Allocator> &v, const SizeLeaf &s) 
   {
     return s(v.size());
   }
@@ -182,11 +183,11 @@ struct LeafFunctor<Interval, SizeLeaf>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clarray<T, Allocator>, PrintTmpLeaf>
+struct LeafFunctor<clvector_interval<T, Allocator>, PrintTmpLeaf>
 {
   typedef std::string Type_t;
   inline static
-  std::string apply(const clarray<T, Allocator> & v, const PrintTmpLeaf & p) 
+  std::string apply(const clvector_interval<T, Allocator> & v, const PrintTmpLeaf & p) 
   {
     return "tmp" + tostr(p((intptr_t)&v));
   }
@@ -205,11 +206,11 @@ struct LeafFunctor<Interval, PrintTmpLeaf>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clarray<T, Allocator>*, PtrListLeaf>
+struct LeafFunctor<clvector_interval<T, Allocator>*, PtrListLeaf>
 {
   typedef std::list<const void*> Type_t;
   inline static
-  Type_t apply(clarray<T, Allocator>* const & ptr, const PtrListLeaf &plist)
+  Type_t apply(clvector_interval<T, Allocator>* const & ptr, const PtrListLeaf &plist)
   {
     return Type_t(1,ptr);
   }
@@ -217,20 +218,20 @@ struct LeafFunctor<clarray<T, Allocator>*, PtrListLeaf>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clarray<T, Allocator>*, RefListLeaf>
+struct LeafFunctor<clvector_interval<T, Allocator>*, RefListLeaf>
 {
   typedef std::list<Ref> Type_t;
   inline static
-  Type_t apply(clarray<T, Allocator>* const & ptr, const RefListLeaf &r)
+  Type_t apply(clvector_interval<T, Allocator>* const & ptr, const RefListLeaf &r)
   {
     return Type_t(1,Ref(
 		ptr,0,ptr->first,ptr->end,ptr->shift,ptr->data(),1,
-		PrintF< clarray<T,Allocator> >::type_str(),
-		PrintF< clarray<T,Allocator> >::arg_str(tostr(r((intptr_t)ptr))),
-		PrintF< clarray<T,Allocator> >::tmp_decl_str(tostr(r((intptr_t)ptr)),
+		PrintF< clvector_interval<T,Allocator> >::type_str(),
+		PrintF< clvector_interval<T,Allocator> >::arg_str(tostr(r((intptr_t)ptr))),
+		PrintF< clvector_interval<T,Allocator> >::tmp_decl_str(tostr(r((intptr_t)ptr)),
 			tostr(ptr->shift)),
-		PrintF< clarray<T,Allocator> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
-		PrintF< clarray<T,Allocator> >::store_str(tostr(r((intptr_t)ptr))) ) );
+		PrintF< clvector_interval<T,Allocator> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
+		PrintF< clvector_interval<T,Allocator> >::store_str(tostr(r((intptr_t)ptr))) ) );
   }
 };
 
@@ -254,11 +255,11 @@ struct LeafFunctor<Interval*, RefListLeaf>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clarray<T, Allocator>,AddressOfLeaf>
+struct LeafFunctor<clvector_interval<T, Allocator>,AddressOfLeaf>
 {
-  typedef clarray<T, Allocator>* Type_t;
+  typedef clvector_interval<T, Allocator>* Type_t;
   inline static
-  Type_t apply(const clarray<T, Allocator>& vec,const AddressOfLeaf &f)
+  Type_t apply(const clvector_interval<T, Allocator>& vec,const AddressOfLeaf &f)
   {
     return Type_t(&vec);
   }
@@ -277,11 +278,11 @@ struct LeafFunctor<Interval,AddressOfLeaf>
 
 
 template<class T, class Allocator>
-struct LeafFunctor<clarray<T, Allocator>,IAddressOfLeaf>
+struct LeafFunctor<clvector_interval<T, Allocator>,IAddressOfLeaf>
 {
   typedef intptr_t Type_t;
   inline static
-  Type_t apply(const clarray<T, Allocator>& vec,const IAddressOfLeaf &f)
+  Type_t apply(const clvector_interval<T, Allocator>& vec,const IAddressOfLeaf &f)
   {
     return Type_t((intptr_t)&vec);
   }
@@ -300,7 +301,7 @@ struct LeafFunctor<Interval,IAddressOfLeaf>
 
 
 template < class T, class Allocator >
-struct PrintF< clarray<T, Allocator> > {
+struct PrintF< clvector_interval<T, Allocator> > {
 
    inline static std::string type_str() 
    { return "__global " + PrintType<T>::type_str() + "*"; }
@@ -337,7 +338,7 @@ struct PrintF< clarray<T, Allocator> > {
 
 template<class T, class Allocator, class Op, class RHS>
 inline void evaluate(
-	clarray<T, Allocator> &lhs, const Op &op, 
+	clvector_interval<T, Allocator> &lhs, const Op &op, 
 	const Expression<RHS> &rhs
 )
 {
@@ -364,20 +365,20 @@ inline void evaluate(
 	rlist_t rlista = rlist;
 	rlista.push_back(
 		Ref(&lhs,0,lhs.first,lhs.end,lhs.shift,lhs.data(),1,
-			PrintF< clarray<T, Allocator> >::type_str(),
-			PrintF< clarray<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clarray<T, Allocator> >::tmp_decl_str(
+			PrintF< clvector_interval<T, Allocator> >::type_str(),
+			PrintF< clvector_interval<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
+			PrintF< clvector_interval<T, Allocator> >::tmp_decl_str(
 				tostr(mask & (intptr_t)&lhs), tostr(lhs.shift) ),
-			PrintF< clarray<T, Allocator> >::tmp_ref_str(
+			PrintF< clvector_interval<T, Allocator> >::tmp_ref_str(
 				tostr(mask & (intptr_t)&lhs)),
-			PrintF< clarray<T, Allocator> >::store_str(
+			PrintF< clvector_interval<T, Allocator> >::store_str(
 				tostr(mask & (intptr_t)&lhs))
 		)
 	);
 	rlista.sort(ref_is_ordered);
 	rlista.unique(ref_is_equal);
 
-	int size = lhs.vec->size();
+	int size = lhs.vecref.size();
 
 	size_t r = size;
 	if (r%256 > 0) r += 256 - r%256;
@@ -414,7 +415,7 @@ inline void evaluate(
 		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
 
 		srcstr += op.strexpr( 
-			PrintF< clarray<T, Allocator> >::store_str(
+			PrintF< clvector_interval<T, Allocator> >::store_str(
 				tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
 		
 		if (size != r) srcstr += "}\n";
@@ -453,16 +454,16 @@ inline void evaluate(
 #if defined(__CLVECTOR_FULLAUTO)
 
 				clmattach(__CLCONTEXT,
-					(void*)((clarray<T,Allocator>*)(*it).ptr)->vec->data());
+					(void*)((clvector_interval<T,Allocator>*)(*it).ptr)->vecref.data());
 				clmsync(__CLCONTEXT,0,
-					(void*)((clarray<T,Allocator>*)(*it).ptr)->vec->data(),
+					(void*)((clvector_interval<T,Allocator>*)(*it).ptr)->vecref.data(),
 					CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
 			fprintf( stderr,"%d clarg_set_global sz==0",n);
 
 				clarg_set_global(__CLCONTEXT,krn,n++,
-					(void*)((clarray<T,Allocator>*)(*it).ptr)->vec->data());
+					(void*)((clvector_interval<T,Allocator>*)(*it).ptr)->vecref.data());
 			}
 
 		}
@@ -475,7 +476,7 @@ inline void evaluate(
 
 #if defined(__CLVECTOR_FULLAUTO)
 
-		clmsync(__CLCONTEXT,0,lhs.vec->data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+		clmsync(__CLCONTEXT,0,lhs.vecref.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
 		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
@@ -486,7 +487,7 @@ inline void evaluate(
 		} else { 
 
 			if ((*it).memptr != 0)
-				clmdetach((void*)((clarray<T,Allocator>*)(*it).ptr)->vec->data());
+				clmdetach((void*)((clvector_interval<T,Allocator>*)(*it).ptr)->vecref.data());
 
 		}
 	}
@@ -521,7 +522,7 @@ done:
 
 
   template < typename T, typename A> template<class RHS>
-  clarray<T,A>& clarray<T,A>::operator=(const Expression<RHS> &rhs)
+  clvector_interval<T,A>& clvector_interval<T,A>::operator=(const Expression<RHS> &rhs)
   {
       assign(*this,rhs);
 

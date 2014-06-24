@@ -16,18 +16,14 @@ using namespace std;
 // to efficiently execute the computation on the CPU.
 //////////////////////////////////////////////////////////////////////////////
 
-//#include "interval.h"
-
 #include <stdcl.h>
-#include <clarray.h>
 
 #define __CLVECTOR_FULLAUTO
 //#define __CLVECTOR_FULLAUTO_STDCPU
 //#define __CLVECTOR_FULLAUTO_STDGPU
 //#define __CLVECTOR_FULLAUTO_STDACC 
+
 #include <clvector.h>
-#include <clarray.h>
-#include <CLETE/clarray_CLETE.h>
 
 int main()
 {

@@ -1,6 +1,6 @@
 classes
 -----
   ARG   = @class T[n]@
-  CLASS = @clarray<T[n]>@
+  CLASS = @clvector_interval<T[n]>@
 -----
   CLASS = @Interval@
