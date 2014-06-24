@@ -69,7 +69,6 @@
 using namespace std;
 
 #include <stdcl.h>
-//#include <clvector_interval.h>
 #include <clvector.h>
 
 #include "CLETE/PETE.h"
@@ -119,20 +118,13 @@ struct CreateLeaf<clvector_interval<T, Allocator> >
   Leaf_t make(const clvector_interval<T, Allocator> &a) { return Leaf_t(a); }
 };
 
-/*
-template <>
-struct CreateLeaf<Interval >
-{
-  typedef Reference<Interval > Leaf_t;
-  inline static
-  Leaf_t make(const Interval &a) { return Leaf_t(a); }
-};
-*/
-
 //-----------------------------------------------------------------------------
 // EvalLeaf1 is used to evaluate expression with vectors.
 // (It's already defined for Scalar values.)
 //-----------------------------------------------------------------------------
+
+/*
+ * XXX the EvalLeaf functors are not used for offload, fix later -DAR
 
 template<class T, class Allocator>
 struct LeafFunctor<clvector_interval<T, Allocator>,EvalLeaf1>
@@ -148,7 +140,6 @@ struct LeafFunctor<clvector_interval<T, Allocator>,EvalLeaf1>
 template <>
 struct LeafFunctor<Interval,EvalLeaf1>
 {
-//  typedef T Type_t;
   typedef int Type_t;
   inline static
   Type_t apply(const Interval& ival, const EvalLeaf1 &f)
@@ -156,7 +147,7 @@ struct LeafFunctor<Interval,EvalLeaf1>
     return ival.shift + f.val1();
   }
 };
-
+*/
 
 
 template<class T, class Allocator>
@@ -187,10 +178,9 @@ struct LeafFunctor<clvector_interval<T, Allocator>, PrintTmpLeaf>
 {
   typedef std::string Type_t;
   inline static
-  std::string apply(const clvector_interval<T, Allocator> & v, const PrintTmpLeaf & p) 
-  {
-    return "tmp" + tostr(p((intptr_t)&v));
-  }
+  std::string apply(
+		const clvector_interval<T, Allocator> & v, const PrintTmpLeaf & p
+	) { return "tmp" + tostr(p((intptr_t)&v)); }
 };
 
 template <>
@@ -225,11 +215,11 @@ struct LeafFunctor<clvector_interval<T, Allocator>*, RefListLeaf>
   Type_t apply(clvector_interval<T, Allocator>* const & ptr, const RefListLeaf &r)
   {
     return Type_t(1,Ref(
-		ptr,0,ptr->first,ptr->end,ptr->shift,ptr->data(),1,
+		ptr,0,ptr->interval.first,ptr->interval.end,ptr->interval.shift,ptr->data(),1,
 		PrintF< clvector_interval<T,Allocator> >::type_str(),
 		PrintF< clvector_interval<T,Allocator> >::arg_str(tostr(r((intptr_t)ptr))),
 		PrintF< clvector_interval<T,Allocator> >::tmp_decl_str(tostr(r((intptr_t)ptr)),
-			tostr(ptr->shift)),
+			tostr(ptr->interval.shift)),
 		PrintF< clvector_interval<T,Allocator> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
 		PrintF< clvector_interval<T,Allocator> >::store_str(tostr(r((intptr_t)ptr))) ) );
   }
@@ -364,11 +354,11 @@ inline void evaluate(
 
 	rlist_t rlista = rlist;
 	rlista.push_back(
-		Ref(&lhs,0,lhs.first,lhs.end,lhs.shift,lhs.data(),1,
+		Ref(&lhs,0,lhs.interval.first,lhs.interval.end,lhs.interval.shift,lhs.data(),1,
 			PrintF< clvector_interval<T, Allocator> >::type_str(),
 			PrintF< clvector_interval<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector_interval<T, Allocator> >::tmp_decl_str(
-				tostr(mask & (intptr_t)&lhs), tostr(lhs.shift) ),
+				tostr(mask & (intptr_t)&lhs), tostr(lhs.interval.shift) ),
 			PrintF< clvector_interval<T, Allocator> >::tmp_ref_str(
 				tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector_interval<T, Allocator> >::store_str(
@@ -383,8 +373,8 @@ inline void evaluate(
 	size_t r = size;
 	if (r%256 > 0) r += 256 - r%256;
 
-	int first = lhs.first;
-	int end = lhs.end;
+	int first = lhs.interval.first;
+	int end = lhs.interval.end;
 	
 	static cl_kernel krn = (cl_kernel)0;
 
@@ -502,6 +492,9 @@ inline void evaluate(
 
 
 #else
+
+		fprintf(stderr,"CLETE clvector_interval only implemented for offload\n");
+		exit(-1);
 
       for (int i = 0; i < lhs.size(); ++i) {
           op(lhs[i], forEach(rhs, EvalLeaf1(i), OpCombine()));

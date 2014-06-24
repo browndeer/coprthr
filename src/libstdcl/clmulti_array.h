@@ -1,6 +1,6 @@
 /* clmulti_array.h
  *
- * Copyright (c) 2010-2011 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2010-2014 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -23,10 +23,7 @@
 #ifndef __CLMULTI_ARRAY_H
 #define __CLMULTI_ARRAY_H
 
-//#include <string.h>
 #include <stdio.h>
-//#include <sys/queue.h>
-
 #include <string>
 
 #include <stdcl.h>
@@ -34,6 +31,7 @@
 
 #include <boost/multi_array.hpp>
 
+#include "CLETE/Interval.h"
 
 #ifdef __cplusplus
 
@@ -43,8 +41,49 @@
  *** clmulti_array
  ***/
 
-template<class T>
-class Expression;
+template<class T> class Expression;
+
+template < typename T, std::size_t D > class clmulti_array;
+//template < typename T > class clmulti_array<T,1>;
+
+template < typename T, std::size_t D >
+struct clmulti_array_interval {};
+
+template < typename T >
+struct clmulti_array_interval<T,1>
+{
+//   private:
+	public:
+
+      clmulti_array_interval() {}
+
+      clmulti_array_interval( 
+			clmulti_array<T,1>& xref, const Interval& I
+		) : xref(xref), interval(I) {}
+
+   public:
+
+      template<class RHS>
+      clmulti_array_interval<T,1>& operator=(const Expression<RHS> &rhs);
+
+//      T* data() { return xref.data(); }
+      T* origin() { return xref.origin(); }
+
+   public:
+
+      clmulti_array<T,1>& xref;
+		const Interval& interval;
+
+//   	friend
+//      clmulti_array_interval<T,1>& clmulti_array<T,1>::operator()( const Interval>& I );
+
+//		friend
+//      clmulti_array_interval<T,2> 
+//		clmulti_array<T,2>::operator()( const Interval& interval1, 
+//			const Interval& interval2 );
+
+};
+
 
 template < typename T, std::size_t D >
 class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
@@ -81,6 +120,9 @@ class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
 
 		void* get_ptr() { return (void*)this->origin(); }
 
+		clmulti_array_interval<T,1> operator()(const Interval& interval )
+      { return clmulti_array_interval<T,1>(*this,interval); }
+
   template<class RHS>
   clmulti_array<T,D>& operator=(const Expression<RHS> &rhs);
 
@@ -89,6 +131,7 @@ class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
 
 #ifndef _WIN64
 #include "CLETE/clmulti_array_CLETE.h"
+#include "CLETE/clmulti_array_interval_CLETE.h"
 #endif
 
   template < typename T, std::size_t D >  template<class RHS>

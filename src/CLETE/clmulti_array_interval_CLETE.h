@@ -1,6 +1,6 @@
-/* clmulti_array_CLETE.h
+/* clmulti_array_interval_CLETE.h
  *
- * Copyright (c) 2010 Brown Deer Technology, LLC.  All Rights Reserved.
+ * Copyright (c) 2010-2014 Brown Deer Technology, LLC.  All Rights Reserved.
  *
  * This software was developed by Brown Deer Technology, LLC.
  * For more information contact info@browndeertechnology.com
@@ -56,8 +56,8 @@
 
 /* DAR */
 
-#ifndef _CLMULTI_ARRAY_CLETE_H
-#define _CLMULTI_ARRAY_CLETE_H
+#ifndef _CLMULTI_ARRAY_INTERVAL_CLETE_H
+#define _CLMULTI_ARRAY_INTERVAL_CLETE_H
 
 #include <iostream>
 #include <fstream>
@@ -72,7 +72,7 @@ using namespace std;
 #include <clmulti_array.h>
 
 #include "CLETE/PETE.h"
-#include "CLETE/clmulti_array_Operators.h"
+#include "CLETE/clmulti_array_interval_Operators.h"
 #include "CLETE/PrintType.h"
 #include "CLETE/PrintF.h"
 
@@ -100,11 +100,11 @@ using namespace std;
 //-----------------------------------------------------------------------------
 
 template<class T, std::size_t D>
-struct CreateLeaf<clmulti_array<T, D> >
+struct CreateLeaf<clmulti_array_interval<T, D> >
 {
-  typedef Reference<clmulti_array<T, D> > Leaf_t;
+  typedef Reference<clmulti_array_interval<T, D> > Leaf_t;
   inline static
-  Leaf_t make(const clmulti_array<T, D>& a) { return Leaf_t(a); }
+  Leaf_t make(const clmulti_array_interval<T, D>& a) { return Leaf_t(a); }
 };
 
 //-----------------------------------------------------------------------------
@@ -112,12 +112,16 @@ struct CreateLeaf<clmulti_array<T, D> >
 // (It's already defined for Scalar values.)
 //-----------------------------------------------------------------------------
 
+
+/* 
+ * XXX the EvalLeaf functors are not used for offload, fix later -DAR
+
 template<class T>
-struct LeafFunctor<clmulti_array<T, 1>, EvalLeaf1>
+struct LeafFunctor<clmulti_array_interval<T, 1>, EvalLeaf1>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 1>& m, const EvalLeaf1& f)
+  Type_t apply(const clmulti_array_interval<T, 1>& m, const EvalLeaf1& f)
   {
     return m[f.val1()];
   }
@@ -125,22 +129,22 @@ struct LeafFunctor<clmulti_array<T, 1>, EvalLeaf1>
 
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 1>, EvalLeaf2>
+struct LeafFunctor<clmulti_array_interval<T, 1>, EvalLeaf2>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 1>& m, const EvalLeaf2 &f)
+  Type_t apply(const clmulti_array_interval<T, 1>& m, const EvalLeaf2 &f)
   {
     return m[f.val1()];
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 2>, EvalLeaf2>
+struct LeafFunctor<clmulti_array_interval<T, 2>, EvalLeaf2>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 2>& m, const EvalLeaf2 &f)
+  Type_t apply(const clmulti_array_interval<T, 2>& m, const EvalLeaf2 &f)
   {
     return m[f.val1()][f.val2()];
   }
@@ -150,33 +154,33 @@ struct LeafFunctor<clmulti_array<T, 2>, EvalLeaf2>
 
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 1>, EvalLeaf3>
+struct LeafFunctor<clmulti_array_interval<T, 1>, EvalLeaf3>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 1>& m, const EvalLeaf3 &f)
+  Type_t apply(const clmulti_array_interval<T, 1>& m, const EvalLeaf3 &f)
   {
     return m[f.val1()];
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 2>, EvalLeaf3>
+struct LeafFunctor<clmulti_array_interval<T, 2>, EvalLeaf3>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 2>& m, const EvalLeaf3 &f)
+  Type_t apply(const clmulti_array_interval<T, 2>& m, const EvalLeaf3 &f)
   {
     return m[f.val1()][f.val2()];
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 3>, EvalLeaf3>
+struct LeafFunctor<clmulti_array_interval<T, 3>, EvalLeaf3>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 3>& m, const EvalLeaf3 &f)
+  Type_t apply(const clmulti_array_interval<T, 3>& m, const EvalLeaf3 &f)
   {
     return m[f.val1()][f.val2()][f.val3()];
   }
@@ -186,90 +190,94 @@ struct LeafFunctor<clmulti_array<T, 3>, EvalLeaf3>
 
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 1>, EvalLeaf4>
+struct LeafFunctor<clmulti_array_interval<T, 1>, EvalLeaf4>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 1>& m, const EvalLeaf4 &f)
+  Type_t apply(const clmulti_array_interval<T, 1>& m, const EvalLeaf4 &f)
   {
     return m[f.val1()];
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 2>, EvalLeaf4>
+struct LeafFunctor<clmulti_array_interval<T, 2>, EvalLeaf4>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 2>& m, const EvalLeaf4 &f)
+  Type_t apply(const clmulti_array_interval<T, 2>& m, const EvalLeaf4 &f)
   {
     return m[f.val1()][f.val2()];
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 3>, EvalLeaf4>
+struct LeafFunctor<clmulti_array_interval<T, 3>, EvalLeaf4>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 3>& m, const EvalLeaf4 &f)
+  Type_t apply(const clmulti_array_interval<T, 3>& m, const EvalLeaf4 &f)
   {
     return m[f.val1()][f.val2()][f.val3()];
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 4>, EvalLeaf4>
+struct LeafFunctor<clmulti_array_interval<T, 4>, EvalLeaf4>
 {
   typedef T Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, 4>& m, const EvalLeaf4 &f)
+  Type_t apply(const clmulti_array_interval<T, 4>& m, const EvalLeaf4 &f)
   {
     return m[f.val1()][f.val2()][f.val3()][f.val4()];
   }
 };
+*/
 
 
+////
+//// clmulti_array_interval<>, SizeLeaf* functors
+////
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 1>, SizeLeaf1>
+struct LeafFunctor<clmulti_array_interval<T, 1>, SizeLeaf1>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 1>& m, const SizeLeaf1& s) 
+  bool apply(const clmulti_array_interval<T, 1>& m, const SizeLeaf1& s) 
   {
     return s(m.shape()[0]);
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 1>, SizeLeaf2>
+struct LeafFunctor<clmulti_array_interval<T, 1>, SizeLeaf2>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 1>& m, const SizeLeaf2& s) 
+  bool apply(const clmulti_array_interval<T, 1>& m, const SizeLeaf2& s) 
   {
     return s(m.shape()[0]);
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 1>, SizeLeaf3>
+struct LeafFunctor<clmulti_array_interval<T, 1>, SizeLeaf3>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 1>& m, const SizeLeaf3& s) 
+  bool apply(const clmulti_array_interval<T, 1>& m, const SizeLeaf3& s) 
   {
     return s(m.shape()[0]);
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 1>, SizeLeaf4>
+struct LeafFunctor<clmulti_array_interval<T, 1>, SizeLeaf4>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 1>& m, const SizeLeaf4& s) 
+  bool apply(const clmulti_array_interval<T, 1>& m, const SizeLeaf4& s) 
   {
     return s(m.shape()[0]);
   }
@@ -277,33 +285,33 @@ struct LeafFunctor<clmulti_array<T, 1>, SizeLeaf4>
 
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 2>, SizeLeaf2>
+struct LeafFunctor<clmulti_array_interval<T, 2>, SizeLeaf2>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 2>& m, const SizeLeaf2& s) 
+  bool apply(const clmulti_array_interval<T, 2>& m, const SizeLeaf2& s) 
   {
     return s(m.shape()[0],m.shape()[1]);
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 2>, SizeLeaf3>
+struct LeafFunctor<clmulti_array_interval<T, 2>, SizeLeaf3>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 2>& m, const SizeLeaf3& s) 
+  bool apply(const clmulti_array_interval<T, 2>& m, const SizeLeaf3& s) 
   {
     return s(m.shape()[0],m.shape()[1]);
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 2>, SizeLeaf4>
+struct LeafFunctor<clmulti_array_interval<T, 2>, SizeLeaf4>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 2>& m, const SizeLeaf4& s) 
+  bool apply(const clmulti_array_interval<T, 2>& m, const SizeLeaf4& s) 
   {
     return s(m.shape()[0],m.shape()[1]);
   }
@@ -311,22 +319,22 @@ struct LeafFunctor<clmulti_array<T, 2>, SizeLeaf4>
 
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 3>, SizeLeaf3>
+struct LeafFunctor<clmulti_array_interval<T, 3>, SizeLeaf3>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 3>& m, const SizeLeaf3& s) 
+  bool apply(const clmulti_array_interval<T, 3>& m, const SizeLeaf3& s) 
   {
     return s(m.shape()[0],m.shape()[1],m.shape()[2]);
   }
 };
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 3>, SizeLeaf4>
+struct LeafFunctor<clmulti_array_interval<T, 3>, SizeLeaf4>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 3>& m, const SizeLeaf4& s) 
+  bool apply(const clmulti_array_interval<T, 3>& m, const SizeLeaf4& s) 
   {
     return s(m.shape()[0],m.shape()[1],m.shape()[2]);
   }
@@ -334,90 +342,191 @@ struct LeafFunctor<clmulti_array<T, 3>, SizeLeaf4>
 
 
 template<class T>
-struct LeafFunctor<clmulti_array<T, 4>, SizeLeaf4>
+struct LeafFunctor<clmulti_array_interval<T, 4>, SizeLeaf4>
 {
   typedef bool Type_t;
   inline static
-  bool apply(const clmulti_array<T, 4>& m, const SizeLeaf4& s) 
+  bool apply(const clmulti_array_interval<T, 4>& m, const SizeLeaf4& s) 
   {
     return s(m.shape()[0],m.shape()[1],m.shape()[2],m.shape()[3]);
   }
 };
 
 
+////
+//// Interval, SizeLeaf* functors
+////
+
+template<>
+struct LeafFunctor<Interval, SizeLeaf1>
+{
+  typedef bool Type_t;
+  inline static
+  bool apply(const Interval& m, const SizeLeaf1& s) 
+  {
+    return s(0);
+  }
+};
+
+template<>
+struct LeafFunctor<Interval, SizeLeaf2>
+{
+  typedef bool Type_t;
+  inline static
+  bool apply(const Interval& m, const SizeLeaf2& s) 
+  {
+    return s(0);
+  }
+};
+
+template<>
+struct LeafFunctor<Interval, SizeLeaf3>
+{
+  typedef bool Type_t;
+  inline static
+  bool apply(const Interval& m, const SizeLeaf3& s) 
+  {
+    return s(0);
+  }
+};
+
+template<>
+struct LeafFunctor<Interval, SizeLeaf4>
+{
+  typedef bool Type_t;
+  inline static
+  bool apply(const Interval& m, const SizeLeaf4& s) 
+  {
+    return s(0);
+  }
+};
+
+
+////
+//// more functors
+////
+
 template<class T, std::size_t D>
-struct LeafFunctor<clmulti_array<T, D>, PrintTmpLeaf>
+struct LeafFunctor<clmulti_array_interval<T, D>, PrintTmpLeaf>
 {
   typedef std::string Type_t;
   inline static
   std::string apply(
-		const clmulti_array<T, D> & v, const PrintTmpLeaf & p
+		const clmulti_array_interval<T, D> & v, const PrintTmpLeaf & p
   ) 
-  {
-    return "tmp" + tostr(p((intptr_t)&v));
-  }
+  { return "tmp" + tostr(p((intptr_t)&v)); }
+};
+
+
+template<>
+struct LeafFunctor<Interval, PrintTmpLeaf>
+{
+  typedef std::string Type_t;
+  inline static
+  std::string apply(
+		const Interval& v, const PrintTmpLeaf & p
+  ) 
+  { return "??? (gti+" + tostr(v.shift) + "))"; }
 };
 
 
 template<class T, std::size_t D>
-struct LeafFunctor<clmulti_array<T, D>*, PtrListLeaf>
+struct LeafFunctor<clmulti_array_interval<T, D>*, PtrListLeaf>
 {
   typedef std::list<const void*> Type_t;
   inline static
   Type_t apply(
-		clmulti_array<T, D>* const & ptr, const PtrListLeaf & plist
+		clmulti_array_interval<T, D>* const & ptr, const PtrListLeaf & plist
   )
-  {
-    return Type_t(1,ptr);
-  }
+  { return Type_t(1,ptr); }
 };
 
 
 template<class T, std::size_t D>
-struct LeafFunctor<clmulti_array<T, D>*, RefListLeaf>
+struct LeafFunctor<clmulti_array_interval<T, D>*, RefListLeaf>
 {
   typedef std::list<Ref> Type_t;
   inline static
-  Type_t apply(clmulti_array<T, D>* const & ptr, const RefListLeaf &r)
+  Type_t apply(clmulti_array_interval<T, D>* const & ptr, const RefListLeaf &r)
   {
     return Type_t(1,Ref(
-//		ptr,0,ptr->origin(),D,
-		ptr,0,0,0,0,ptr->origin(),D,
-		PrintF<clmulti_array<T,D> >::type_str(),
-		PrintF<clmulti_array<T,D> >::arg_str(tostr(r((intptr_t)ptr))),
-		PrintF<clmulti_array<T,D> >::tmp_decl_str(tostr(r((intptr_t)ptr))),
-		PrintF<clmulti_array<T,D> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
-		PrintF<clmulti_array<T,D> >::store_str(tostr(r((intptr_t)ptr))) ));
+		ptr,0,ptr->interval.first,ptr->interval.end,ptr->interval.shift,ptr->origin(),D,
+		PrintF<clmulti_array_interval<T,D> >::type_str(),
+		PrintF<clmulti_array_interval<T,D> >::arg_str(tostr(r((intptr_t)ptr))),
+		PrintF<clmulti_array_interval<T,D> >::tmp_decl_str(tostr(r((intptr_t)ptr)),
+			tostr(ptr->interval.shift) ),
+		PrintF<clmulti_array_interval<T,D> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
+		PrintF<clmulti_array_interval<T,D> >::store_str(tostr(r((intptr_t)ptr))) ));
+  }
+};
+
+template<>
+struct LeafFunctor<Interval*, RefListLeaf>
+{
+  typedef std::list<Ref> Type_t;
+  inline static
+  Type_t apply(Interval* const & ptr, const RefListLeaf &r)
+  {
+    return Type_t(1,Ref(
+		ptr,0,ptr->first,ptr->end,ptr->shift,0,0,
+		PrintF< Interval >::type_str(),
+		PrintF< Interval >::arg_str(tostr(r((intptr_t)ptr))),
+		PrintF< Interval >::tmp_decl_str(tostr(r((intptr_t)ptr)),
+			tostr(ptr->shift)),
+		PrintF< Interval >::tmp_ref_str(tostr(r((intptr_t)ptr))),
+		PrintF<Interval >::store_str(tostr(r((intptr_t)ptr))) ));
   }
 };
 
 
 template<class T, std::size_t D>
-struct LeafFunctor<clmulti_array<T, D>, AddressOfLeaf>
+struct LeafFunctor<clmulti_array_interval<T, D>, AddressOfLeaf>
 {
-  typedef clmulti_array<T, D>* Type_t;
+  typedef clmulti_array_interval<T, D>* Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, D>& m, const AddressOfLeaf & f)
+  Type_t apply(const clmulti_array_interval<T, D>& m, const AddressOfLeaf & f)
   {
     return Type_t(&m);
   }
 };
 
+template<>
+struct LeafFunctor<Interval, AddressOfLeaf>
+{
+  typedef Interval* Type_t;
+  inline static
+  Type_t apply(const Interval& ival, const AddressOfLeaf & f)
+  {
+    return Type_t(&ival);
+  }
+};
+
 
 template<class T, std::size_t D>
-struct LeafFunctor<clmulti_array<T, D>, IAddressOfLeaf>
+struct LeafFunctor<clmulti_array_interval<T, D>, IAddressOfLeaf>
 {
   typedef intptr_t Type_t;
   inline static
-  Type_t apply(const clmulti_array<T, D>& m, const IAddressOfLeaf & f)
+  Type_t apply(const clmulti_array_interval<T, D>& m, const IAddressOfLeaf & f)
   {
     return Type_t((intptr_t)&m);
   }
 };
 
+template<>
+struct LeafFunctor<Interval, IAddressOfLeaf>
+{
+  typedef intptr_t Type_t;
+  inline static
+  Type_t apply(const Interval& ival, const IAddressOfLeaf & f)
+  {
+    return Type_t((intptr_t)&ival);
+  }
+};
+
 
 template < class T, std::size_t D >
-struct PrintF< clmulti_array<T, D> > {
+struct PrintF< clmulti_array_interval<T, D> > {
 
    inline static std::string type_str() 
    { return "__global " + PrintType<T>::type_str() + "*"; }
@@ -425,50 +534,18 @@ struct PrintF< clmulti_array<T, D> > {
    inline static std::string arg_str( std::string x) 
    { return "a" + x; }
 
-   inline static std::string tmp_decl_str( std::string x )
-   { return PrintType<T>::type_str() + " tmp" + x + " = a" + x; }
+   inline static std::string tmp_decl_str( std::string x, std::string s )
+//   { return PrintType<T>::type_str() + " tmp" + x + " = a" + x; }
+	{ return PrintType<T>::type_str() + " tmp" + x + " = a" + x + "[gti+(" + s + ")]"; }
 
    inline static std::string tmp_ref_str( std::string x )
    { return "tmp" + x; }
 
    inline static std::string store_str( std::string x )
-   { return "a" + x; }
-
+   { return "a" + x + "[gti]"; }
+	//// XXX should this account for shift?  LHS is always not shifted -DAR
 };
 
-/* 
-template < class T >
-struct PrintF< clmulti_array<T, 2> > {
-
-   inline static std::string type_str() 
-   { return "__global " + PrintType<T>::type_str() + "*"; }
-
-   inline static std::string arg_str( std::string x) 
-   { return "a" + x; }
-
-   inline static std::string tmp_decl_str( std::string x )
-   { return PrintType<T>::type_str() + " tmp" + x + " = a" + x; }
-
-   inline static std::string tmp_ref_str( std::string x )
-   { return "tmp" + x; }
-
-   inline static std::string store_str( std::string x )
-   { return "a" + x; }
-
-};
-*/
-
-
-//static inline void log_kernel( std::string& srcstr )
-//{
-//   if (__log_automatic_kernels_filename) {
-//      std::ofstream ofs(
-//         __log_automatic_kernels_filename,
-//         std::ios_base::out|std::ios_base::app);
-//      ofs<<srcstr<<"\n";
-//      ofs.close();
-//	}
-//}
 
 //// XXX use macros as workaround for incorrect behavior of gcc 4.1 -DAR
 
@@ -489,11 +566,12 @@ struct PrintF< clmulti_array<T, 2> > {
 
 template<class T, class Op, class RHS>
 inline void evaluate(
-	clmulti_array<T, 1> &lhs, const Op &op, 
+	clmulti_array_interval<T, 1> &lhs, const Op &op, 
 	const Expression<RHS> &rhs
 )
 {
-  if (forEach(rhs, SizeLeaf1(lhs.size()), AndCombine())) {
+//  if (forEach(rhs, SizeLeaf1(lhs.size()), AndCombine())) {
+	if (1) {
 
 #if defined(__CLMULTI_ARRAY_SEMIAUTO) || defined(__CLMULTI_ARRAY_FULLAUTO)
 
@@ -513,21 +591,24 @@ inline void evaluate(
 
 	rlist_t rlista = rlist;
 	rlista.push_back(
-//		Ref(&lhs,0,lhs.data(),
-		Ref(&lhs,0,0,0,0,lhs.data(),
-			PrintF< clmulti_array<T, 1> >::type_str(),
-			PrintF< clmulti_array<T, 1> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 1> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 1> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs))
+		Ref(&lhs,0,lhs.interval.first,lhs.interval.end,lhs.interval.shift,lhs.origin(),1,
+			PrintF< clmulti_array_interval<T, 1> >::type_str(),
+			PrintF< clmulti_array_interval<T, 1> >::arg_str(tostr(mask & (intptr_t)&lhs)),
+			PrintF< clmulti_array_interval<T, 1> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs), tostr(lhs.interval.shift) ),
+			PrintF< clmulti_array_interval<T, 1> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
+			PrintF< clmulti_array_interval<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs))
 		)
 	);
 	rlista.sort(ref_is_ordered);
 	rlista.unique(ref_is_equal);
 
-	int size = lhs.size();
+//	int size = lhs.size();
+	int size = lhs.xref.size();
 	size_t r = size;
 	if (r%256 > 0) r += 256 - r%256;
+
+	int first = lhs.interval.first;
+   int end = lhs.interval.end;
 
 	static cl_kernel krn = (cl_kernel)0;
 
@@ -537,13 +618,17 @@ inline void evaluate(
 
 		int n = 0;	
 		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-			srcstr += (*it).type_str + " " + (*it).arg_str + ",\n";
+			std::string argstr = (*it).arg_str;
+			if (argstr != "INTERVAL")
+				srcstr += (*it).type_str + " " + (*it).arg_str + ",\n";
 	
 		}
 		srcstr += "int size\n";
 
 		srcstr += "){\n";
 		srcstr += "int gti = get_global_id(0);\n";
+
+		srcstr += "if (gti >= first && gti < end ) {\n";
 
 		if (size != r) srcstr += "if (gti<size) {\n";
 
@@ -557,13 +642,17 @@ inline void evaluate(
 		srcstr += PrintF< clmulti_array<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs)) + "[gti] = ";
 
 		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
-		srcstr += expr + ";\n" ;
+
+//		srcstr += expr + ";\n" ;
+		srcstr += op.strexpr(
+			PrintF< clmulti_array_interval<T,1> >::store_str(
+				tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
 		
 		if (size != r) srcstr += "}\n";
 
 		srcstr += "}\n";
+		srcstr += "}\n";
 
-//		cout<<srcstr<<"\n";
 		log_kernel(srcstr);
 
 		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
@@ -574,22 +663,31 @@ inline void evaluate(
 
 		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
 
-	int n = 0;	
+	clSetKernelArg(krn,0,sizeof(int),&first);
+   clSetKernelArg(krn,1,sizeof(int),&end);
+	int n = 2;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+
 		size_t sz = (*it).sz;
+
 		if (sz > 0) {
-			int dummy;
-			clSetKernelArg(krn,n,sz,(*it).ptr);
+			clSetKernelArg(krn,n++,sz,(*it).ptr);
 		} else { 
 
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
-			clmattach(__CLCONTEXT,(void*)(*it).memptr);
-			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+			clmattach(__CLCONTEXT,
+//				(void*)(*it).memptr);
+				(void*)((clmulti_array_interval<T,1>*)(*it).ptr)->xref.data());
+			clmsync(__CLCONTEXT,0,
+//				(void*)(*it).memptr,
+				(void*)((clmulti_array_interval<T,1>*)(*it).ptr)->xref.data(),
+				CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
-//			(*it).ptr->clarg_set_global(__CLCONTEXT,krn,n);
+//			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
+			clarg_set_global(__CLCONTEXT,krn,n++,
+				(void*)((clmulti_array_interval<T,1>*)(*it).ptr)->xref.data());
 
 		}
 	}
@@ -601,7 +699,8 @@ inline void evaluate(
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 
-		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+//		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+		clmsync(__CLCONTEXT,0,lhs.xref.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
 		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
@@ -611,7 +710,9 @@ inline void evaluate(
 		if (sz > 0) {
 		} else { 
 
-			clmdetach((void*)(*it).memptr);
+//			clmdetach((void*)(*it).memptr);
+			if ((*it).memptr != 0)
+				clmdetach((void*)((clmulti_array_interval<T,1>*)(*it).ptr)->xref.data());
 
 		}
 	}
@@ -627,6 +728,9 @@ inline void evaluate(
 
 
 #else
+
+		fprintf(stderr,"CLETE clvector_interval only implemented for offload\n");
+      exit(-1);
 
       for (int i = 0; i < lhs.size(); ++i) {
           op(lhs[i], forEach(rhs, EvalLeaf1(i), OpCombine()));
@@ -644,7 +748,7 @@ inline void evaluate(
 
 template<class T, class Op, class RHS>
 inline void evaluate(
-	clmulti_array<T, 2> &lhs, const Op &op, 
+	clmulti_array_interval<T, 2> &lhs, const Op &op, 
 	const Expression<RHS> &rhs
 )
 {
@@ -668,7 +772,7 @@ inline void evaluate(
 
 	rlist_t rlista = rlist;
 	rlista.push_back(
-		Ref(&lhs,0,0,0,0,lhs.data(),2,
+		Ref(&lhs,0,lhs.data(),2,
 			PrintF< clmulti_array<T, 2> >::type_str(),
 			PrintF< clmulti_array<T, 2> >::arg_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clmulti_array<T, 2> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
@@ -807,7 +911,7 @@ inline void evaluate(
 
 template<class T, class Op, class RHS>
 inline void evaluate(
-	clmulti_array<T, 3> &lhs, const Op &op, 
+	clmulti_array_interval<T, 3> &lhs, const Op &op, 
 	const Expression<RHS> &rhs
 )
 {
@@ -831,8 +935,7 @@ inline void evaluate(
 
 	rlist_t rlista = rlist;
 	rlista.push_back(
-//		Ref(&lhs,0,lhs.data(),3,
-		Ref(&lhs,0,0,0,0,lhs.data(),3,
+		Ref(&lhs,0,lhs.data(),3,
 			PrintF< clmulti_array<T, 3> >::type_str(),
 			PrintF< clmulti_array<T, 3> >::arg_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clmulti_array<T, 3> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
@@ -976,7 +1079,7 @@ inline void evaluate(
 
 template<class T, class Op, class RHS>
 inline void evaluate(
-	clmulti_array<T, 4> &lhs, const Op &op, 
+	clmulti_array_interval<T, 4> &lhs, const Op &op, 
 	const Expression<RHS> &rhs
 )
 {
@@ -1000,8 +1103,7 @@ inline void evaluate(
 
 	rlist_t rlista = rlist;
 	rlista.push_back(
-//		Ref(&lhs,0,lhs.data(),4,
-		Ref(&lhs,0,0,0,0,lhs.data(),4,
+		Ref(&lhs,0,lhs.data(),4,
 			PrintF< clmulti_array<T, 4> >::type_str(),
 			PrintF< clmulti_array<T, 4> >::arg_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clmulti_array<T, 4> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
@@ -1063,7 +1165,6 @@ inline void evaluate(
 
 		srcstr += "}\n";
 
-//		cout<<srcstr<<"\n";
 		log_kernel(srcstr);
 
 		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
@@ -1150,14 +1251,22 @@ inline void evaluate(
 
 /*
 template < typename T, std::size_t D >  template<class RHS>
-clmulti_array<T,D>&
-clmulti_array<T,D>::operator=(const Expression<RHS> &rhs)
+clmulti_array_interval<T,D>&
+clmulti_array_interval<T,D>::operator=(const Expression<RHS> &rhs)
 {
     assign(*this,rhs);
 
     return *this;
 }
 */
+template < typename T >  template<class RHS>
+clmulti_array_interval<T,1>&
+clmulti_array_interval<T,1>::operator=(const Expression<RHS> &rhs)
+{
+    assign(*this,rhs);
+    return *this;
+}
 
-#endif // _CLMULTI_ARRAY_CLETE_H
+
+#endif
 

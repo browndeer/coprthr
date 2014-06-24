@@ -279,7 +279,8 @@ inline void evaluate(
 
 	rlist_t rlista = rlist;
 	rlista.push_back(
-		Ref(&lhs,0,lhs.first,lhs.end,lhs.shift,lhs.data(),1,
+//		Ref(&lhs,0,lhs.first,lhs.end,lhs.shift,lhs.data(),1,
+		Ref(&lhs,0,0,lhs.size(),0,lhs.data(),1,
 			PrintF< clvector<T, Allocator> >::type_str(),
 			PrintF< clvector<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector<T, Allocator> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs), tostr(lhs.shift) ),
@@ -294,15 +295,18 @@ inline void evaluate(
 	size_t r = size;
 	if (r%256 > 0) r += 256 - r%256;
 
-	int first = lhs.first;
-	int end = lhs.end;
+//	int first = lhs.first;
+//	int end = lhs.end;
+	int first = 0;
+	int end = size;
 	printf("first end %d %d\n",first,end);
 	
 	static cl_kernel krn = (cl_kernel)0;
 
 	if (!krn) {
 
-		std::string srcstr = "__kernel void\nkern( int first, int end, \n";
+//		std::string srcstr = "__kernel void\nkern( int first, int end, \n";
+		std::string srcstr = "__kernel void\nkern( \n";
 
 		int n = 0;	
 		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -314,7 +318,7 @@ inline void evaluate(
 		srcstr += "){\n";
 		srcstr += "int gti = get_global_id(0);\n";
 
-		srcstr += "if (gti >= first && gti < end ) {\n";
+//		srcstr += "if (gti >= first && gti < end ) {\n";
 
 		if (size != r) srcstr += "if (gti<size) {\n";
 
@@ -331,7 +335,7 @@ inline void evaluate(
 		
 		if (size != r) srcstr += "}\n";
 
-		srcstr += "}\n";
+//		srcstr += "}\n";
 		srcstr += "}\n";
 
 		log_kernel(srcstr);
@@ -344,9 +348,10 @@ inline void evaluate(
 
 		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
 
-	clSetKernelArg(krn,0,sizeof(int),&first);
-	clSetKernelArg(krn,1,sizeof(int),&end);
-	int n = 2;	
+//	clSetKernelArg(krn,0,sizeof(int),&first);
+//	clSetKernelArg(krn,1,sizeof(int),&end);
+//	int n = 2;	
+	int n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
 		size_t sz = (*it).sz;
 		if (sz > 0) {

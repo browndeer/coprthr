@@ -42,7 +42,8 @@ int main()
    clmsync(cp,devnum,b,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 
    /* non-blocking fork of the OpenCL kernel to execute on the GPU */
-   clforka(cp,devnum,krn,&ndr,CL_EVENT_NOWAIT,n,aa,b,c);
+//   clforka(cp,devnum,krn,&ndr,CL_EVENT_NOWAIT,n,aa,b,c);
+   clexec(cp,devnum,&ndr,matvecmult_kern,n,aa,b,c);
 
    /* non-blocking sync vector c to host memory (copy back to host) */
    clmsync(cp,devnum,c,CL_MEM_HOST|CL_EVENT_NOWAIT);

@@ -8,12 +8,12 @@ INSTALL_INCLUDE_DIR=@includedir@/CLETE
 
 GEN_HDRS = OperatorTags.h \
 	clvector_Operators.h clvector_interval_Operators.h \
-	clmulti_array_Operators.h 
+	clmulti_array_Operators.h clmulti_array_interval_Operators.h
 
 HDRS = Combiners.h CreateLeaf.h ForEach.h Functors.h PETE.h PrintF.h \
 	PrintType.h Scalar.h TreeNodes.h TypeComputations.h \
 	clvector_CLETE.h clvector_interval_CLETE.h \
-	clmulti_array_CLETE.h \
+	clmulti_array_CLETE.h clmulti_array_interval_CLETE.h \
 	$(GEN_HDRS)
 
 INSTALL_INCS = $(HDRS)
@@ -34,11 +34,14 @@ OperatorTags.h:
 clvector_Operators.h:
 	$(GEN_OPERATORS) --classes ./tools/clvector_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLVECTOROPERATORS_H --assign-ops > clvector_Operators.h 
 
+clvector_interval_Operators.h:
+	$(GEN_OPERATORS) --classes ./tools/clvector_interval_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLVECTOR_INTERVAL_OPERATORS_H --assign-ops > clvector_interval_Operators.h 
+
 clmulti_array_Operators.h:
 	$(GEN_OPERATORS) --classes ./tools/clmulti_array_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLMULTI_ARRAY_OPERATORS_H --assign-ops > clmulti_array_Operators.h 
 
-clvector_interval_Operators.h:
-	$(GEN_OPERATORS) --classes ./tools/clvector_interval_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLVECTOR_INTERVAL_OPERATORS_H --assign-ops > clvector_interval_Operators.h 
+clmulti_array_interval_Operators.h:
+	$(GEN_OPERATORS) --classes ./tools/clmulti_array_interval_Defs.in --operators ./tools/CLETE_Ops.in --guard _CLMULTI_ARRAY_INTERVAL_OPERATORS_H --assign-ops > clmulti_array_interval_Operators.h 
 
 
 check_root:

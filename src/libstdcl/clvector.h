@@ -24,7 +24,6 @@
 #define __CLVECTOR_H
 
 #include <stdio.h>
-
 #include <string>
 
 #include <stdcl.h>
@@ -54,8 +53,8 @@ struct clvector_interval
 
 		clvector_interval() {}
 
-		clvector_interval( clvector<T,A>& vecref, int first, int end, int shift )
-			: vecref(vecref), first(first), end(end), shift(shift) {}
+		clvector_interval( clvector<T,A>& vecref, const Interval& interval )
+			: vecref(vecref), interval(interval) {}
 
 	public:
 
@@ -67,9 +66,7 @@ struct clvector_interval
 	public:
 
 		clvector<T,A>& vecref;
-		int first;
-		int end;
-		int shift;
+		const Interval& interval;
 
 	friend
 		clvector_interval<T,A> 
@@ -119,10 +116,8 @@ class clvector : public std::vector< T, clmalloc_allocator<T> >
 
 		void* get_ptr() { return (void*)_clvector_ptr; }
 
-		clvector_interval<T,A> operator()(const Interval& interval ) {
-			return clvector_interval<T,A>(*this,interval.first,interval.end,
-				interval.shift); 
-		}
+		clvector_interval<T,A> operator()(const Interval& interval ) 
+		{ return clvector_interval<T,A>(*this,interval); }
 
 
   template<class RHS>
