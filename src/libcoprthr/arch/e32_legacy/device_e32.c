@@ -273,6 +273,7 @@ printcl(CL_DEBUG "back from old_e_get_platform_info");
 	codev->devinfo->drv_version = 0;
 	codev->devinfo->profile = 0;
 	codev->devinfo->version = 0;
+	codev->devinfo->extensions = 0;
 
 	
 /*
@@ -454,6 +455,7 @@ printcl(CL_DEBUG "back from old_e_get_platform_info");
 	__terminate(codev->devinfo->drv_version);
 	__terminate(codev->devinfo->profile);
 	__terminate(codev->devinfo->version);
+	__terminate(codev->devinfo->extensions);
 
 
 

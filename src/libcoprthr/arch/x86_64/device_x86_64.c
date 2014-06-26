@@ -121,6 +121,7 @@ static int init_device_x86_64(void)
 	codev->devinfo->drv_version = 0;
 	codev->devinfo->profile = 0;
 	codev->devinfo->version = 0;
+	codev->devinfo->extensions = 0;
 
 	FILE* fp;
 	struct stat fs;
@@ -308,6 +309,7 @@ codev->devinfo->vendor = strdup("Xilinx");
 	__terminate(codev->devinfo->drv_version);
 	__terminate(codev->devinfo->profile);
 	__terminate(codev->devinfo->version);
+	__terminate(codev->devinfo->extensions);
 
 
 

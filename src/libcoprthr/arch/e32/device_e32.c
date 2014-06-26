@@ -206,6 +206,7 @@ static int init_device_e32(void)
 	codev->devinfo->drv_version = 0;
 	codev->devinfo->profile = 0;
 	codev->devinfo->version = 0;
+	codev->devinfo->extensions = 0;
 
 	
 	codev->devinfo->max_compute_units 
@@ -227,6 +228,7 @@ static int init_device_e32(void)
 	__terminate(codev->devinfo->drv_version);
 	__terminate(codev->devinfo->profile);
 	__terminate(codev->devinfo->version);
+	__terminate(codev->devinfo->extensions);
 
 
 
