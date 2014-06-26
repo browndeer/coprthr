@@ -40,6 +40,7 @@ LIBELF_LIB = @LIBELF_LIB@
 LIB_MIC_LIBS = -L@LIB_MIC_PATH@ -limf -lsvml -lirng -lintlc
 
 INCS = -I$(OPENCL_INC_DIR)
+INCS += $(LIBELF_INC)
 
 LIBS = $(LIBELF_LIB) 
 LIBS += -L../../src/libclelf -lclelf
