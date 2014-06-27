@@ -452,7 +452,7 @@ _clGetDeviceInfo(
 
 			__case_get_param(
 				1+strnlen(__resolve_devid_devinfo(devid,extensions),__CLMAXSTR_BUFSZ),
-				__resolve_devid_devinfo(devid,extensions));
+				__resolve_devid_ocldevinfo(devid,extensions));
 
 			break;
 
@@ -724,6 +724,8 @@ void __do_discover_opencl_device_info_x86_64(
 //      .extensions = "cl_khr_icd"      /* extensions */
 	};
 
+	ocldevinfo->extensions = strdup("cl_khr_icd");
+
 	ocldevinfo->avail = (dev->devstate->avail==0)? CL_FALSE : CL_TRUE;
 
 	ocldevinfo->compiler_avail 
@@ -779,6 +781,8 @@ void __do_discover_opencl_device_info_e32(
       .platformid = (cl_platform_id)(-1), /* platformid */
 //      .extensions = "cl_khr_icd"      /* extensions */
 	};
+
+	ocldevinfo->extensions = strdup("cl_khr_icd");
 
 	ocldevinfo->avail = (dev->devstate->avail==0)? CL_FALSE : CL_TRUE;
 

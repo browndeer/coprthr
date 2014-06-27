@@ -144,6 +144,8 @@ struct opencl_device_info {
 
 	cl_bool avail;
 	cl_bool compiler_avail;
+
+	char* extensions;
 };
 
 struct _cl_device_id {
