@@ -449,14 +449,16 @@ struct LeafFunctor<clmulti_array_interval<T, D>*, RefListLeaf>
   inline static
   Type_t apply(clmulti_array_interval<T, D>* const & ptr, const RefListLeaf &r)
   {
+		typedef PrintF<clmulti_array_interval<T,D> > tprint;
     return Type_t(1,Ref(
-		ptr,0,ptr->interval.first,ptr->interval.end,ptr->interval.shift,ptr->origin(),D,
-		PrintF<clmulti_array_interval<T,D> >::type_str(),
-		PrintF<clmulti_array_interval<T,D> >::arg_str(tostr(r((intptr_t)ptr))),
-		PrintF<clmulti_array_interval<T,D> >::tmp_decl_str(tostr(r((intptr_t)ptr)),
-			tostr(ptr->interval.shift) ),
-		PrintF<clmulti_array_interval<T,D> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
-		PrintF<clmulti_array_interval<T,D> >::store_str(tostr(r((intptr_t)ptr))) ));
+		ptr,0,
+		-1,-1,-1,
+		ptr->get_ptr(),D,
+		tprint::type_str(),
+		tprint::arg_str(tostr(r((intptr_t)ptr))),
+		tprint::tmp_decl_str(r.mask((intptr_t)ptr),*ptr),
+		tprint::tmp_ref_str(tostr(r((intptr_t)ptr))),
+		tprint::store_str(tostr(r((intptr_t)ptr))) ));
   }
 };
 
@@ -471,8 +473,7 @@ struct LeafFunctor<Interval*, RefListLeaf>
 		ptr,0,ptr->first,ptr->end,ptr->shift,0,0,
 		PrintF< Interval >::type_str(),
 		PrintF< Interval >::arg_str(tostr(r((intptr_t)ptr))),
-		PrintF< Interval >::tmp_decl_str(tostr(r((intptr_t)ptr)),
-			tostr(ptr->shift)),
+		PrintF< Interval >::tmp_decl_str(r.mask((intptr_t)ptr), *ptr ),
 		PrintF< Interval >::tmp_ref_str(tostr(r((intptr_t)ptr))),
 		PrintF<Interval >::store_str(tostr(r((intptr_t)ptr))) ));
   }
@@ -525,8 +526,11 @@ struct LeafFunctor<Interval, IAddressOfLeaf>
 };
 
 
+/*
 template < class T, std::size_t D >
 struct PrintF< clmulti_array_interval<T, D> > {
+
+	typedef clmulti_array_interval<T, D> xtype_t;
 
    inline static std::string type_str() 
    { return "__global " + PrintType<T>::type_str() + "*"; }
@@ -534,9 +538,35 @@ struct PrintF< clmulti_array_interval<T, D> > {
    inline static std::string arg_str( std::string x) 
    { return "a" + x; }
 
-   inline static std::string tmp_decl_str( std::string x, std::string s )
-//   { return PrintType<T>::type_str() + " tmp" + x + " = a" + x; }
-	{ return PrintType<T>::type_str() + " tmp" + x + " = a" + x + "[gti+(" + s + ")]"; }
+   inline static std::string tmp_decl_str( std::string x, const xtype_t& xobj )
+	{ return PrintType<T>::type_str() + " tmp" + x + " = a" + x + "[gti+(" + tostr(xobj.interval.shift) + ")] [[D]] "; }
+
+	inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x )
+	{ return PrintType<T>::type_str() + " tmp" + tostr(refid) + " = a" + tostr(refid) + "[gti+(" + tostr(x.interval.shift) + ")] [[D]] "; }
+
+   inline static std::string tmp_ref_str( std::string x )
+   { return "tmp" + x; }
+
+   inline static std::string store_str( std::string x )
+   { return "a" + x + "[gti]"; }
+	//// XXX should this account for shift?  LHS is always not shifted -DAR
+};
+*/
+
+
+template < class T >
+struct PrintF< clmulti_array_interval<T, 1> > {
+
+	typedef clmulti_array_interval<T, 1> xtype_t;
+
+   inline static std::string type_str() 
+   { return "__global " + PrintType<T>::type_str() + "*"; }
+
+   inline static std::string arg_str( std::string x) 
+   { return "a" + x; }
+
+   inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x )
+	{ return PrintType<T>::type_str() + " tmp" + tostr(refid) + " = a" + tostr(refid) + "[gti+(" + tostr(x.interval.shift) + ")]"; }
 
    inline static std::string tmp_ref_str( std::string x )
    { return "tmp" + x; }
@@ -546,6 +576,56 @@ struct PrintF< clmulti_array_interval<T, D> > {
 	//// XXX should this account for shift?  LHS is always not shifted -DAR
 };
 
+template < class T >
+struct PrintF< clmulti_array_interval<T, 2> > {
+
+	typedef clmulti_array_interval<T, 2> xtype_t;
+
+   inline static std::string type_str() 
+   { return "__global " + PrintType<T>::type_str() + "*"; }
+
+   inline static std::string arg_str( std::string x) 
+   { return "a" + x; }
+
+   inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x )
+	{ 
+		return PrintType<T>::type_str() + " tmp" + tostr(refid) + " = a" 
+//			+ tostr(refid) + "[(gti1+(" + tostr(x.interval1.shift) + "))*size1 + gti0 + (" + tostr(x.interval0.shift) + ")]"; 
+			+ tostr(refid) + "[(gti0+(" + tostr(x.interval0.shift) + "))*size1 + gti1 + (" + tostr(x.interval1.shift) + ")]"; 
+	}
+
+   inline static std::string tmp_ref_str( std::string x )
+   { return "tmp" + x; }
+
+   inline static std::string store_str( std::string x )
+   { return "a" + x + "[gti]"; }
+	//// XXX should this account for shift?  LHS is always not shifted -DAR
+};
+
+template < class T >
+struct PrintF< clmulti_array_interval<T, 3> > {
+
+	typedef clmulti_array_interval<T, 3> xtype_t;
+
+   inline static std::string type_str() 
+   { return "__global " + PrintType<T>::type_str() + "*"; }
+
+   inline static std::string arg_str( std::string x) 
+   { return "a" + x; }
+
+   inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x )
+	{ 
+		return PrintType<T>::type_str() + " tmp" + tostr(refid) + " = a" 
+			+ tostr(refid) + "[(gti0+(" + tostr(x.interval0.shift) + "))*size1*size2 + (gti1 + (" + tostr(x.interval1.shift) + "))*size2 + gti2 + (" + tostr(x.interval2.shift) + ")]"; 
+	}
+
+   inline static std::string tmp_ref_str( std::string x )
+   { return "tmp" + x; }
+
+   inline static std::string store_str( std::string x )
+   { return "a" + x + "[gti]"; }
+	//// XXX should this account for shift?  LHS is always not shifted -DAR
+};
 
 //// XXX use macros as workaround for incorrect behavior of gcc 4.1 -DAR
 
@@ -570,7 +650,380 @@ inline void evaluate(
 	const Expression<RHS> &rhs
 )
 {
+	typedef clmulti_array_interval<T, 1> xtype_t;
+
+	typedef PrintF< clmulti_array_interval<T, 1> > tprint;
+
 //  if (forEach(rhs, SizeLeaf1(lhs.size()), AndCombine())) {
+	if (1) {
+
+#if defined(__CLMULTI_ARRAY_SEMIAUTO) || defined(__CLMULTI_ARRAY_FULLAUTO)
+
+	typedef typename 
+		ForEach<Expression<RHS>, AddressOfLeaf, TreeCombine >::Type_t New_t;
+
+	New_t rhs2 = forEach(rhs,AddressOfLeaf(),TreeCombine());
+
+	typedef std::list<Ref> rlist_t;
+
+	intptr_t mask = ~((intptr_t)
+		forEach(rhs,IAddressOfLeaf(),AndBitsCombine()) & (intptr_t)&lhs);
+ 
+	rlist_t rlist = forEach(rhs2,RefListLeaf(mask),ListCombine<Ref>());
+
+	rlist.sort(ref_is_ordered);
+	rlist.unique(ref_is_equal);
+
+	rlist_t rlista = rlist;
+	rlista.push_back(
+		Ref(&lhs,0,
+			lhs.interval.first,lhs.interval.end,lhs.interval.shift,
+			lhs.get_ptr(),1,
+			tprint::type_str(),
+			tprint::arg_str(tostr(mask & (intptr_t)&lhs)),
+			tprint::tmp_decl_str(mask & ((intptr_t)&lhs), lhs ),
+			tprint::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
+			tprint::store_str(tostr(mask & (intptr_t)&lhs))
+		)
+	);
+	rlista.sort(ref_is_ordered);
+	rlista.unique(ref_is_equal);
+
+	int size = lhs.xref.size();
+	size_t r = size;
+	if (r%256 > 0) r += 256 - r%256;
+
+	int first = lhs.interval.first;
+   int end = lhs.interval.end;
+
+	static cl_kernel krn = (cl_kernel)0;
+
+	if (!krn) {
+
+		std::string srcstr = "__kernel void\nkern( int first, int end, \n";
+
+		int n = 2;	
+		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+			std::string argstr = (*it).arg_str;
+			if (argstr != "INTERVAL")
+				srcstr += (*it).type_str + " " + (*it).arg_str + ",\n";
+	
+		}
+		srcstr += "int size\n";
+
+		srcstr += "){\n";
+		srcstr += "int gti = get_global_id(0);\n";
+
+		srcstr += "if (gti >= first && gti < end ) {\n";
+
+		if (size != r) srcstr += "if (gti<size) {\n";
+
+		for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++,n++) {
+			srcstr += (*it).tmp_decl_str;
+//			if ((*it).dim == 1) srcstr += "[gti]";
+			srcstr += ";\n";
+		}
+
+
+		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
+
+		srcstr += op.strexpr(
+			PrintF< clmulti_array_interval<T,1> >::store_str(
+				tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
+		
+		if (size != r) srcstr += "}\n";
+
+		srcstr += "}\n";
+		srcstr += "}\n";
+
+		log_kernel(srcstr);
+
+		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
+	}
+
+	if (!krn) {
+		fprintf(stderr, "CLETE failed to build kernel, crashing now\n");
+		exit(-1);
+	}
+
+	clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
+
+	clSetKernelArg(krn,0,sizeof(int),&first);
+  	clSetKernelArg(krn,1,sizeof(int),&end);
+	int n = 2;	
+	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+
+		size_t sz = (*it).sz;
+
+		if (sz > 0) {
+
+			clSetKernelArg(krn,n,sz,(*it).ptr);
+
+		} else { 
+
+			void* data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
+
+#if defined(__CLMULTI_ARRAY_FULLAUTO)
+			clmattach(__CLCONTEXT, data_ptr);
+			clmsync(__CLCONTEXT,0, data_ptr, CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+#endif
+
+			clarg_set_global(__CLCONTEXT,krn,n, data_ptr );
+
+		}
+	}
+
+	clarg_set(__CLCONTEXT,krn,n,size);
+
+
+	clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
+
+#if defined(__CLMULTI_ARRAY_FULLAUTO)
+
+	clmsync(__CLCONTEXT,0,lhs.xref.get_ptr(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+
+	clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
+
+	n = 0;	
+	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+		size_t sz = (*it).sz;
+		if (sz > 0) {
+		} else { 
+
+			if ((*it).memptr != 0)
+				clmdetach((void*)((xtype_t*)(*it).ptr)->xref.get_ptr());
+
+		}
+	}
+
+#elif defined(__CLMULTI_ARRAY_SEMIAUTO)
+
+	clwait(__CLCONTEXT,0,CL_KERNEL_EVENT);
+
+#endif
+
+
+#else
+
+	fprintf(stderr,"CLETE clvector_interval only implemented for offload\n");
+	exit(-1);
+
+	for (int i = 0; i < lhs.size(); ++i) {
+		op(lhs[i], forEach(rhs, EvalLeaf1(i), OpCombine()));
+	}
+
+#endif
+
+
+	} else {
+      cerr << "Error: LHS and RHS don't conform." << endl;
+      exit(1);
+   }
+}
+
+
+template<class T, class Op, class RHS>
+inline void evaluate(
+	clmulti_array_interval<T, 2> &lhs, const Op &op, 
+	const Expression<RHS> &rhs
+)
+{
+	typedef clmulti_array_interval<T, 2> xtype_t;
+	typedef PrintF< clmulti_array_interval<T, 2> > tprint;
+
+//  if (forEach(rhs, SizeLeaf2(lhs.shape()[0],lhs.shape()[1]), AndCombine())) {
+	if(1) {
+
+#if defined(__CLMULTI_ARRAY_SEMIAUTO) || defined(__CLMULTI_ARRAY_FULLAUTO)
+
+	typedef typename 
+		ForEach<Expression<RHS>, AddressOfLeaf, TreeCombine >::Type_t New_t;
+
+	New_t rhs2 = forEach(rhs,AddressOfLeaf(),TreeCombine());
+
+	typedef std::list<Ref> rlist_t;
+
+	intptr_t mask = ~((intptr_t)
+		forEach(rhs,IAddressOfLeaf(),AndBitsCombine()) & (intptr_t)&lhs);
+ 
+	rlist_t rlist = forEach(rhs2,RefListLeaf(mask),ListCombine<Ref>());
+
+	rlist.sort(ref_is_ordered);
+	rlist.unique(ref_is_equal);
+
+	rlist_t rlista = rlist;
+	rlista.push_back(
+		Ref(&lhs,0,
+			lhs.interval0.first,lhs.interval0.end,lhs.interval0.shift,
+			lhs.get_ptr(),2,
+			tprint::type_str(),
+			tprint::arg_str(tostr(mskptr(mask,&lhs))),
+			tprint::tmp_decl_str( mskptr(mask,&lhs),lhs),
+			tprint::tmp_ref_str(tostr( mskptr(mask,&lhs))),
+			tprint::store_str(tostr(mskptr(mask,&lhs)))
+		)
+	);
+
+	rlista.sort(ref_is_ordered);
+	rlista.unique(ref_is_equal);
+
+	int size0 = lhs.xref.shape()[0];
+	int size1 = lhs.xref.shape()[1];
+	int size = size0*size1;
+	int r = size;
+	if (r%256 > 0) r += 256 - r%256;
+
+	printf("size0=%d size1=%d\n",size0,size1);
+
+	int first0 = lhs.interval0.first;
+	int end0 = lhs.interval0.end;
+	int first1 = lhs.interval1.first;
+	int end1 = lhs.interval1.end;
+
+	static cl_kernel krn = (cl_kernel)0;
+
+	if (!krn) {
+
+		std::string srcstr = "__kernel void\nkern(\n";
+		srcstr += " int first0, int end0,\n";
+		srcstr += " int first1, int end1,\n";
+
+		int n = 4;	
+		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+			srcstr += (*it).type_str + " " + (*it).arg_str + ",\n";
+	
+		}
+		srcstr += "int size, int size0, int size1\n";
+
+		srcstr += "){\n";
+		srcstr += "int gti = get_global_id(0);\n";
+		srcstr += "int gti0 = gti/size1;\n";
+		srcstr += "int gti1 = gti%size1;\n";
+
+		srcstr += "if (gti0>=first0 && gti0<end0 && gti1>=first1 && gti1<end1) {\n";
+
+		if (size != r) srcstr += "if (gti<size) {\n";
+
+		for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++,n++) {
+			srcstr += (*it).tmp_decl_str;
+			srcstr += ";\n";
+		}
+
+
+		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
+
+		srcstr += op.strexpr(
+			tprint::store_str( tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
+		
+		
+		if (size != r) srcstr += "}\n";
+
+		srcstr += "}\n";
+
+		srcstr += "}\n";
+
+		log_kernel(srcstr);
+
+		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
+	}
+
+	if (!krn) {
+		fprintf(stderr, "CLETE failed to build kernel, crashing now\n");
+		exit(-1);
+	}
+			
+	clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
+
+	clSetKernelArg(krn,0,sizeof(int),&first0);
+  	clSetKernelArg(krn,1,sizeof(int),&end0);
+	clSetKernelArg(krn,2,sizeof(int),&first1);
+  	clSetKernelArg(krn,3,sizeof(int),&end1);
+	int n = 4;	
+	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+
+		size_t sz = (*it).sz;
+
+		if (sz > 0) {
+
+			clSetKernelArg(krn,n,sz,(*it).ptr);
+
+		} else { 
+
+			void* data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
+
+#if defined(__CLMULTI_ARRAY_FULLAUTO)
+			clmattach(__CLCONTEXT,data_ptr);
+			clmsync(__CLCONTEXT,0,data_ptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+#endif
+
+			clarg_set_global(__CLCONTEXT,krn,n,data_ptr);
+
+		}
+	}
+
+	clarg_set(__CLCONTEXT,krn,n,size);
+	clarg_set(__CLCONTEXT,krn,n+1,size0);
+	clarg_set(__CLCONTEXT,krn,n+2,size1);
+
+
+	clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
+
+#if defined(__CLMULTI_ARRAY_FULLAUTO)
+
+	clmsync(__CLCONTEXT,0,lhs.get_ptr(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+
+	clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
+
+	n = 0;	
+	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+		size_t sz = (*it).sz;
+		if (sz > 0) {
+		} else { 
+
+			clmdetach(((xtype_t*)(*it).ptr)->xref.get_ptr());
+
+		}
+	}
+
+#elif defined(__CLMULTI_ARRAY_SEMIAUTO)
+
+	clwait(__CLCONTEXT,0,CL_KERNEL_EVENT);
+
+#endif
+
+
+#else
+
+	fprintf(stderr,"CLETE clvector_interval only implemented for offload\n");
+	exit(-1);
+
+   for (int i = 0; i < lhs.shape()[0]; ++i) 
+   for (int j = 0; j < lhs.shape()[1]; ++j) {
+       op(lhs[i][j], forEach(rhs, EvalLeaf2(i,j), OpCombine()));
+   }
+
+#endif
+
+
+   } else {
+      cerr << "Error: LHS and RHS don't conform." << endl;
+      exit(1);
+   }
+}
+
+
+template<class T, class Op, class RHS>
+inline void evaluate(
+	clmulti_array_interval<T, 3> &lhs, const Op &op, 
+	const Expression<RHS> &rhs
+)
+{
+	typedef clmulti_array_interval<T, 3> xtype_t;
+	typedef PrintF< clmulti_array_interval<T, 3> > tprint;
+
+//  if (forEach(rhs, SizeLeaf3(lhs.shape()[0],lhs.shape()[1],lhs.shape()[2]), AndCombine())) {
 	if (1) {
 
 #if defined(__CLMULTI_ARRAY_SEMIAUTO) || defined(__CLMULTI_ARRAY_FULLAUTO)
@@ -591,66 +1044,84 @@ inline void evaluate(
 
 	rlist_t rlista = rlist;
 	rlista.push_back(
-		Ref(&lhs,0,lhs.interval.first,lhs.interval.end,lhs.interval.shift,lhs.origin(),1,
-			PrintF< clmulti_array_interval<T, 1> >::type_str(),
-			PrintF< clmulti_array_interval<T, 1> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array_interval<T, 1> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs), tostr(lhs.interval.shift) ),
-			PrintF< clmulti_array_interval<T, 1> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array_interval<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs))
+		Ref(&lhs,0,
+			lhs.interval0.first,lhs.interval0.end,lhs.interval0.shift,
+			lhs.get_ptr(),3,
+			tprint::type_str(),
+			tprint::arg_str(tostr(mask & (intptr_t)&lhs)),
+			tprint::tmp_decl_str(mask & ((intptr_t)&lhs),lhs),
+			tprint::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
+			tprint::store_str(tostr(mask & (intptr_t)&lhs))
 		)
 	);
+
 	rlista.sort(ref_is_ordered);
 	rlista.unique(ref_is_equal);
 
-//	int size = lhs.size();
-	int size = lhs.xref.size();
-	size_t r = size;
+	int size0 = lhs.xref.shape()[0];
+	int size1 = lhs.xref.shape()[1];
+	int size2 = lhs.xref.shape()[2];
+	int size = size0*size1*size2;
+	int r = size;
 	if (r%256 > 0) r += 256 - r%256;
 
-	int first = lhs.interval.first;
-   int end = lhs.interval.end;
+	int first0 = lhs.interval0.first;
+	int end0 = lhs.interval0.end;
+	int first1 = lhs.interval1.first;
+	int end1 = lhs.interval1.end;
+	int first2 = lhs.interval2.first;
+	int end2 = lhs.interval2.end;
 
 	static cl_kernel krn = (cl_kernel)0;
 
 	if (!krn) {
 
 		std::string srcstr = "__kernel void\nkern(\n";
+		srcstr += "int first0, int end0,\n";
+		srcstr += "int first1, int end1,\n";
+		srcstr += "int first2, int end2,\n";
 
-		int n = 0;	
+		int n = 6;	
 		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-			std::string argstr = (*it).arg_str;
-			if (argstr != "INTERVAL")
-				srcstr += (*it).type_str + " " + (*it).arg_str + ",\n";
+			srcstr += (*it).type_str + " " + (*it).arg_str + ",\n";
 	
 		}
-		srcstr += "int size\n";
+		srcstr += "int size, int size0, int size1, int size2\n";
 
 		srcstr += "){\n";
 		srcstr += "int gti = get_global_id(0);\n";
+		srcstr += "int gti0 = gti/(size1*size2);\n";
+		srcstr += "int gti1 = (gti%(size1*size2))/size2;\n";
+		srcstr += "int gti2 = gti%size2;\n";
 
-		srcstr += "if (gti >= first && gti < end ) {\n";
-
+		srcstr += "if (gti0>=first0 && gti0<end0 && gti1>=first1 && gti1<end1 && gti2>=first2 && gti2<end2) {\n";
 		if (size != r) srcstr += "if (gti<size) {\n";
 
 		for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++,n++) {
 			srcstr += (*it).tmp_decl_str;
-			if ((*it).dim == 1) srcstr += "[gti]";
+//			switch( (*it).dim ) {
+//				case 3: srcstr += "[gti]"; break;
+//				case 2: srcstr += "[gti2]"; break;
+//				case 1: srcstr += "[gti1]"; break;
+//				default: break;
+//			}
 			srcstr += ";\n";
 		}
 
 
-		srcstr += PrintF< clmulti_array<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs)) + "[gti] = ";
+//		srcstr += PrintF< clmulti_array<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs)) + "[gti] = ";
 
 		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
 
-//		srcstr += expr + ";\n" ;
 		srcstr += op.strexpr(
-			PrintF< clmulti_array_interval<T,1> >::store_str(
-				tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
+			tprint::store_str( tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
+		
+//		srcstr += expr + ";\n" ;
 		
 		if (size != r) srcstr += "}\n";
 
 		srcstr += "}\n";
+
 		srcstr += "}\n";
 
 		log_kernel(srcstr);
@@ -658,218 +1129,57 @@ inline void evaluate(
 		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
 		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
 	}
-
-	if (krn) {
-
-		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
-
-	clSetKernelArg(krn,0,sizeof(int),&first);
-   clSetKernelArg(krn,1,sizeof(int),&end);
-	int n = 2;	
-	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-
-		size_t sz = (*it).sz;
-
-		if (sz > 0) {
-			clSetKernelArg(krn,n++,sz,(*it).ptr);
-		} else { 
-
-
-#if defined(__CLMULTI_ARRAY_FULLAUTO)
-			clmattach(__CLCONTEXT,
-//				(void*)(*it).memptr);
-				(void*)((clmulti_array_interval<T,1>*)(*it).ptr)->xref.data());
-			clmsync(__CLCONTEXT,0,
-//				(void*)(*it).memptr,
-				(void*)((clmulti_array_interval<T,1>*)(*it).ptr)->xref.data(),
-				CL_MEM_DEVICE|CL_EVENT_NOWAIT);
-#endif
-
-//			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
-			clarg_set_global(__CLCONTEXT,krn,n++,
-				(void*)((clmulti_array_interval<T,1>*)(*it).ptr)->xref.data());
-
-		}
-	}
-
-	clarg_set(__CLCONTEXT,krn,n,size);
-
-
-		clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
-
-#if defined(__CLMULTI_ARRAY_FULLAUTO)
-
-//		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
-		clmsync(__CLCONTEXT,0,lhs.xref.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
-
-		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
-
-	n = 0;	
-	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-		size_t sz = (*it).sz;
-		if (sz > 0) {
-		} else { 
-
-//			clmdetach((void*)(*it).memptr);
-			if ((*it).memptr != 0)
-				clmdetach((void*)((clmulti_array_interval<T,1>*)(*it).ptr)->xref.data());
-
-		}
-	}
-
-#elif defined(__CLMULTI_ARRAY_SEMIAUTO)
-
-		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT);
-
-#endif
-
-
-	}
-
-
-#else
-
-		fprintf(stderr,"CLETE clvector_interval only implemented for offload\n");
-      exit(-1);
-
-      for (int i = 0; i < lhs.size(); ++i) {
-          op(lhs[i], forEach(rhs, EvalLeaf1(i), OpCombine()));
-        }
-
-#endif
-
-
-    } else {
-      cerr << "Error: LHS and RHS don't conform." << endl;
-      exit(1);
-    }
-}
-
-
-template<class T, class Op, class RHS>
-inline void evaluate(
-	clmulti_array_interval<T, 2> &lhs, const Op &op, 
-	const Expression<RHS> &rhs
-)
-{
-  if (forEach(rhs, SizeLeaf2(lhs.shape()[0],lhs.shape()[1]), AndCombine())) {
-
-#if defined(__CLMULTI_ARRAY_SEMIAUTO) || defined(__CLMULTI_ARRAY_FULLAUTO)
-
-	typedef typename 
-		ForEach<Expression<RHS>, AddressOfLeaf, TreeCombine >::Type_t New_t;
-
-	New_t rhs2 = forEach(rhs,AddressOfLeaf(),TreeCombine());
-
-	typedef std::list<Ref> rlist_t;
-
-	intptr_t mask = ~((intptr_t)forEach(rhs,IAddressOfLeaf(),AndBitsCombine()) & (intptr_t)&lhs);
- 
-	rlist_t rlist = forEach(rhs2,RefListLeaf(mask),ListCombine<Ref>());
-
-	rlist.sort(ref_is_ordered);
-	rlist.unique(ref_is_equal);
-
-	rlist_t rlista = rlist;
-	rlista.push_back(
-		Ref(&lhs,0,lhs.data(),2,
-			PrintF< clmulti_array<T, 2> >::type_str(),
-			PrintF< clmulti_array<T, 2> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 2> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 2> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 2> >::store_str(tostr(mask & (intptr_t)&lhs))
-		)
-	);
-	rlista.sort(ref_is_ordered);
-	rlista.unique(ref_is_equal);
-
-	int size1 = lhs.shape()[0];
-	int size2 = lhs.shape()[1];
-	int size = size1*size2;
-	int r = size;
-	if (r%256 > 0) r += 256 - r%256;
-
-	static cl_kernel krn = (cl_kernel)0;
 
 	if (!krn) {
-
-		std::string srcstr = "__kernel void\nkern(\n";
-
-		int n = 0;	
-		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-			srcstr += (*it).type_str + " " + (*it).arg_str + ",\n";
-	
-		}
-		srcstr += "int size, int size2\n";
-
-		srcstr += "){\n";
-		srcstr += "int gti = get_global_id(0);\n";
-		srcstr += "int gti1 = gti/size2;\n";
-
-		if (size != r) srcstr += "if (gti<size) {\n";
-
-		for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++,n++) {
-			srcstr += (*it).tmp_decl_str;
-			switch( (*it).dim ) {
-				case 2: srcstr += "[gti]"; break;
-				case 1: srcstr += "[gti1]"; break;
-				default: break;
-			}
-			srcstr += ";\n";
-		}
-
-
-		srcstr += PrintF< clmulti_array<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs)) + "[gti] = ";
-
-		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
-		srcstr += expr + ";\n" ;
-		
-		if (size != r) srcstr += "}\n";
-
-		srcstr += "}\n";
-
-//		cout<<srcstr<<"\n";
-		log_kernel(srcstr);
-
-		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
+		fprintf(stderr,"CLETE failed to build kernel, crashing now\n");
+		exit(-1);
 	}
 
-	if (krn) {
 
-		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
+	clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
 
-	int n = 0;	
+	clSetKernelArg(krn,0,sizeof(int),&first0);
+	clSetKernelArg(krn,1,sizeof(int),&end0);
+	clSetKernelArg(krn,2,sizeof(int),&first1);
+	clSetKernelArg(krn,3,sizeof(int),&end1);
+	clSetKernelArg(krn,4,sizeof(int),&first2);
+	clSetKernelArg(krn,5,sizeof(int),&end2);
+	int n = 6;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+
 		size_t sz = (*it).sz;
+
 		if (sz > 0) {
-			int dummy;
+
 			clSetKernelArg(krn,n,sz,(*it).ptr);
+
 		} else { 
 
+			void* data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
-			clmattach(__CLCONTEXT,(void*)(*it).memptr);
-			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+			clmattach(__CLCONTEXT,data_ptr);
+			clmsync(__CLCONTEXT,0,data_ptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
-//			(*it).ptr->clarg_set_global(__CLCONTEXT,krn,n);
+			clarg_set_global(__CLCONTEXT,krn,n,data_ptr);
 
 		}
 	}
 
 	clarg_set(__CLCONTEXT,krn,n,size);
-	clarg_set(__CLCONTEXT,krn,n+1,size2);
+	clarg_set(__CLCONTEXT,krn,n+1,size0);
+	clarg_set(__CLCONTEXT,krn,n+2,size1);
+	clarg_set(__CLCONTEXT,krn,n+3,size2);
 
 
-		clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
+	clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 
-		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
+	clmsync(__CLCONTEXT,0,lhs.get_ptr(),CL_MEM_HOST|CL_EVENT_NOWAIT);
 
-		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
+	clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
 
 	n = 0;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -877,7 +1187,7 @@ inline void evaluate(
 		if (sz > 0) {
 		} else { 
 
-			clmdetach((void*)(*it).memptr);
+			clmdetach(((xtype_t*)(*it).ptr)->xref.get_ptr());
 
 		}
 	}
@@ -889,177 +1199,11 @@ inline void evaluate(
 #endif
 
 
-	}
-
 
 #else
 
-      for (int i = 0; i < lhs.shape()[0]; ++i) 
-      for (int j = 0; j < lhs.shape()[1]; ++j) {
-          op(lhs[i][j], forEach(rhs, EvalLeaf2(i,j), OpCombine()));
-        }
-
-#endif
-
-
-    } else {
-      cerr << "Error: LHS and RHS don't conform." << endl;
-      exit(1);
-    }
-}
-
-
-template<class T, class Op, class RHS>
-inline void evaluate(
-	clmulti_array_interval<T, 3> &lhs, const Op &op, 
-	const Expression<RHS> &rhs
-)
-{
-  if (forEach(rhs, SizeLeaf3(lhs.shape()[0],lhs.shape()[1],lhs.shape()[2]), AndCombine())) {
-
-#if defined(__CLMULTI_ARRAY_SEMIAUTO) || defined(__CLMULTI_ARRAY_FULLAUTO)
-
-	typedef typename 
-		ForEach<Expression<RHS>, AddressOfLeaf, TreeCombine >::Type_t New_t;
-
-	New_t rhs2 = forEach(rhs,AddressOfLeaf(),TreeCombine());
-
-	typedef std::list<Ref> rlist_t;
-
-	intptr_t mask = ~((intptr_t)forEach(rhs,IAddressOfLeaf(),AndBitsCombine()) & (intptr_t)&lhs);
- 
-	rlist_t rlist = forEach(rhs2,RefListLeaf(mask),ListCombine<Ref>());
-
-	rlist.sort(ref_is_ordered);
-	rlist.unique(ref_is_equal);
-
-	rlist_t rlista = rlist;
-	rlista.push_back(
-		Ref(&lhs,0,lhs.data(),3,
-			PrintF< clmulti_array<T, 3> >::type_str(),
-			PrintF< clmulti_array<T, 3> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 3> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 3> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 3> >::store_str(tostr(mask & (intptr_t)&lhs))
-		)
-	);
-	rlista.sort(ref_is_ordered);
-	rlista.unique(ref_is_equal);
-
-	int size1 = lhs.shape()[0];
-	int size2 = lhs.shape()[1];
-	int size3 = lhs.shape()[2];
-	int size = size1*size2*size3;
-	int r = size;
-	if (r%256 > 0) r += 256 - r%256;
-
-	static cl_kernel krn = (cl_kernel)0;
-
-	if (!krn) {
-
-		std::string srcstr = "__kernel void\nkern(\n";
-
-		int n = 0;	
-		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-			srcstr += (*it).type_str + " " + (*it).arg_str + ",\n";
-	
-		}
-		srcstr += "int size, int size2, int size3\n";
-
-		srcstr += "){\n";
-		srcstr += "int gti = get_global_id(0);\n";
-		srcstr += "int gti1 = gti/size2/size3;\n";
-		srcstr += "int gti2 = gti/size3;\n";
-
-		if (size != r) srcstr += "if (gti<size) {\n";
-
-		for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++,n++) {
-			srcstr += (*it).tmp_decl_str;
-			switch( (*it).dim ) {
-				case 3: srcstr += "[gti]"; break;
-				case 2: srcstr += "[gti2]"; break;
-				case 1: srcstr += "[gti1]"; break;
-				default: break;
-			}
-			srcstr += ";\n";
-		}
-
-
-		srcstr += PrintF< clmulti_array<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs)) + "[gti] = ";
-
-		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
-		srcstr += expr + ";\n" ;
-		
-		if (size != r) srcstr += "}\n";
-
-		srcstr += "}\n";
-
-//		cout<<srcstr<<"\n";
-		log_kernel(srcstr);
-
-		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
-	}
-
-	if (krn) {
-
-		clndrange_t ndr = clndrange_init1d(0,r,__WGSIZE);
-
-	int n = 0;	
-	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-		size_t sz = (*it).sz;
-		if (sz > 0) {
-			int dummy;
-			clSetKernelArg(krn,n,sz,(*it).ptr);
-		} else { 
-
-
-#if defined(__CLMULTI_ARRAY_FULLAUTO)
-			clmattach(__CLCONTEXT,(void*)(*it).memptr);
-			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
-#endif
-
-			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
-//			(*it).ptr->clarg_set_global(__CLCONTEXT,krn,n);
-
-		}
-	}
-
-	clarg_set(__CLCONTEXT,krn,n,size);
-	clarg_set(__CLCONTEXT,krn,n+1,size2);
-	clarg_set(__CLCONTEXT,krn,n+2,size3);
-
-
-		clfork(__CLCONTEXT,0,krn,&ndr,CL_EVENT_NOWAIT);
-
-#if defined(__CLMULTI_ARRAY_FULLAUTO)
-
-		clmsync(__CLCONTEXT,0,lhs.data(),CL_MEM_HOST|CL_EVENT_NOWAIT);
-
-		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT|CL_MEM_EVENT);
-
-	n = 0;	
-	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
-		size_t sz = (*it).sz;
-		if (sz > 0) {
-		} else { 
-
-			clmdetach((void*)(*it).memptr);
-
-		}
-	}
-
-#elif defined(__CLMULTI_ARRAY_SEMIAUTO)
-
-		clwait(__CLCONTEXT,0,CL_KERNEL_EVENT);
-
-#endif
-
-
-	}
-
-
-#else
+	fprintf(stderr,"CLETE clvector_interval only implemented for offload\n");
+	exit(-1);
 
       for (int i = 0; i < lhs.shape()[0]; ++i) 
       for (int j = 0; j < lhs.shape()[1]; ++j) 
@@ -1106,7 +1250,8 @@ inline void evaluate(
 		Ref(&lhs,0,lhs.data(),4,
 			PrintF< clmulti_array<T, 4> >::type_str(),
 			PrintF< clmulti_array<T, 4> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 4> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
+//			PrintF< clmulti_array<T, 4> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
+			PrintF< clmulti_array<T, 4> >::tmp_decl_str(mask & ((intptr_t)&lhs),lhs),
 			PrintF< clmulti_array<T, 4> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clmulti_array<T, 4> >::store_str(tostr(mask & (intptr_t)&lhs))
 		)
@@ -1249,19 +1394,35 @@ inline void evaluate(
 }
 
 
-/*
-template < typename T, std::size_t D >  template<class RHS>
-clmulti_array_interval<T,D>&
-clmulti_array_interval<T,D>::operator=(const Expression<RHS> &rhs)
-{
-    assign(*this,rhs);
-
-    return *this;
-}
-*/
 template < typename T >  template<class RHS>
 clmulti_array_interval<T,1>&
 clmulti_array_interval<T,1>::operator=(const Expression<RHS> &rhs)
+{
+    assign(*this,rhs);
+    return *this;
+}
+
+template < typename T > 
+clmulti_array_interval<T,1>&
+clmulti_array_interval<T,1>::operator=(const clmulti_array_interval<T,1>& rhs)
+{
+    assign(*this,Expression<clmulti_array_interval<T,1> >(rhs));
+    return *this;
+}
+
+
+template < typename T >  template<class RHS>
+clmulti_array_interval<T,2>&
+clmulti_array_interval<T,2>::operator=(const Expression<RHS> &rhs)
+{
+    assign(*this,rhs);
+    return *this;
+}
+
+
+template < typename T >  template<class RHS>
+clmulti_array_interval<T,3>&
+clmulti_array_interval<T,3>::operator=(const Expression<RHS> &rhs)
 {
     assign(*this,rhs);
     return *this;

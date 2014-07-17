@@ -385,7 +385,8 @@ struct LeafFunctor<clmulti_array<T, D>*, RefListLeaf>
 		ptr,0,0,0,0,ptr->origin(),D,
 		PrintF<clmulti_array<T,D> >::type_str(),
 		PrintF<clmulti_array<T,D> >::arg_str(tostr(r((intptr_t)ptr))),
-		PrintF<clmulti_array<T,D> >::tmp_decl_str(tostr(r((intptr_t)ptr))),
+//		PrintF<clmulti_array<T,D> >::tmp_decl_str(tostr(r((intptr_t)ptr))),
+		PrintF<clmulti_array<T,D> >::tmp_decl_str(r((intptr_t)ptr),*ptr),
 		PrintF<clmulti_array<T,D> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
 		PrintF<clmulti_array<T,D> >::store_str(tostr(r((intptr_t)ptr))) ));
   }
@@ -419,14 +420,16 @@ struct LeafFunctor<clmulti_array<T, D>, IAddressOfLeaf>
 template < class T, std::size_t D >
 struct PrintF< clmulti_array<T, D> > {
 
+	typedef clmulti_array<T, D> xtype_t;
+
    inline static std::string type_str() 
    { return "__global " + PrintType<T>::type_str() + "*"; }
 
    inline static std::string arg_str( std::string x) 
    { return "a" + x; }
 
-   inline static std::string tmp_decl_str( std::string x )
-   { return PrintType<T>::type_str() + " tmp" + x + " = a" + x; }
+   inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x )
+   { return PrintType<T>::type_str() + " tmp" + tostr(refid) + " = a" + tostr(refid); }
 
    inline static std::string tmp_ref_str( std::string x )
    { return "tmp" + x; }
@@ -435,40 +438,6 @@ struct PrintF< clmulti_array<T, D> > {
    { return "a" + x; }
 
 };
-
-/* 
-template < class T >
-struct PrintF< clmulti_array<T, 2> > {
-
-   inline static std::string type_str() 
-   { return "__global " + PrintType<T>::type_str() + "*"; }
-
-   inline static std::string arg_str( std::string x) 
-   { return "a" + x; }
-
-   inline static std::string tmp_decl_str( std::string x )
-   { return PrintType<T>::type_str() + " tmp" + x + " = a" + x; }
-
-   inline static std::string tmp_ref_str( std::string x )
-   { return "tmp" + x; }
-
-   inline static std::string store_str( std::string x )
-   { return "a" + x; }
-
-};
-*/
-
-
-//static inline void log_kernel( std::string& srcstr )
-//{
-//   if (__log_automatic_kernels_filename) {
-//      std::ofstream ofs(
-//         __log_automatic_kernels_filename,
-//         std::ios_base::out|std::ios_base::app);
-//      ofs<<srcstr<<"\n";
-//      ofs.close();
-//	}
-//}
 
 //// XXX use macros as workaround for incorrect behavior of gcc 4.1 -DAR
 
@@ -487,12 +456,17 @@ struct PrintF< clmulti_array<T, 2> > {
 
 /* this is where the real magic happens ... the evaluate functions */
 
+static inline intptr_t mskptr( intptr_t mask, void* ptr ) 
+{ return( mask & ((intptr_t)ptr) ); }
+
 template<class T, class Op, class RHS>
 inline void evaluate(
 	clmulti_array<T, 1> &lhs, const Op &op, 
 	const Expression<RHS> &rhs
 )
 {
+	typedef PrintF< clmulti_array<T,1> > tprint;
+
   if (forEach(rhs, SizeLeaf1(lhs.size()), AndCombine())) {
 
 #if defined(__CLMULTI_ARRAY_SEMIAUTO) || defined(__CLMULTI_ARRAY_FULLAUTO)
@@ -504,7 +478,8 @@ inline void evaluate(
 
 	typedef std::list<Ref> rlist_t;
 
-	intptr_t mask = ~((intptr_t)forEach(rhs,IAddressOfLeaf(),AndBitsCombine()) & (intptr_t)&lhs);
+	intptr_t mask = ~((intptr_t)
+		forEach(rhs,IAddressOfLeaf(),AndBitsCombine()) & (intptr_t)&lhs);
  
 	rlist_t rlist = forEach(rhs2,RefListLeaf(mask),ListCombine<Ref>());
 
@@ -512,14 +487,16 @@ inline void evaluate(
 	rlist.unique(ref_is_equal);
 
 	rlist_t rlista = rlist;
+
+	void* dummy = lhs.get_ptr();
+
 	rlista.push_back(
-//		Ref(&lhs,0,lhs.data(),
-		Ref(&lhs,0,0,0,0,lhs.data(),
-			PrintF< clmulti_array<T, 1> >::type_str(),
-			PrintF< clmulti_array<T, 1> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 1> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 1> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs))
+		Ref(&lhs,0,0,0,0,lhs.get_ptr(),1,
+			tprint::type_str(),
+			tprint::arg_str(tostr(mskptr(mask,&lhs))),
+			tprint::tmp_decl_str(mskptr(mask,&lhs),lhs),
+			tprint::tmp_ref_str(tostr(mskptr(mask,&lhs))),
+			tprint::store_str(tostr(mskptr(mask,&lhs)))
 		)
 	);
 	rlista.sort(ref_is_ordered);
@@ -554,7 +531,7 @@ inline void evaluate(
 		}
 
 
-		srcstr += PrintF< clmulti_array<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs)) + "[gti] = ";
+		srcstr += tprint::store_str(tostr(mskptr(mask,&lhs))) + "[gti] = ";
 
 		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
 		srcstr += expr + ";\n" ;
@@ -563,7 +540,6 @@ inline void evaluate(
 
 		srcstr += "}\n";
 
-//		cout<<srcstr<<"\n";
 		log_kernel(srcstr);
 
 		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
@@ -585,11 +561,11 @@ inline void evaluate(
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 			clmattach(__CLCONTEXT,(void*)(*it).memptr);
-			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
+			clmsync(__CLCONTEXT,0,(void*)(*it).memptr,
+				CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
 			clarg_set_global(__CLCONTEXT,krn,n,(void*)(*it).memptr);
-//			(*it).ptr->clarg_set_global(__CLCONTEXT,krn,n);
 
 		}
 	}
@@ -671,7 +647,8 @@ inline void evaluate(
 		Ref(&lhs,0,0,0,0,lhs.data(),2,
 			PrintF< clmulti_array<T, 2> >::type_str(),
 			PrintF< clmulti_array<T, 2> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 2> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
+//			PrintF< clmulti_array<T, 2> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
+			PrintF< clmulti_array<T, 2> >::tmp_decl_str(mask & ((intptr_t)&lhs),lhs),
 			PrintF< clmulti_array<T, 2> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clmulti_array<T, 2> >::store_str(tostr(mask & (intptr_t)&lhs))
 		)
@@ -835,7 +812,8 @@ inline void evaluate(
 		Ref(&lhs,0,0,0,0,lhs.data(),3,
 			PrintF< clmulti_array<T, 3> >::type_str(),
 			PrintF< clmulti_array<T, 3> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 3> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
+//			PrintF< clmulti_array<T, 3> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
+			PrintF< clmulti_array<T, 3> >::tmp_decl_str(mask & ((intptr_t)&lhs),lhs),
 			PrintF< clmulti_array<T, 3> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clmulti_array<T, 3> >::store_str(tostr(mask & (intptr_t)&lhs))
 		)
@@ -1004,7 +982,8 @@ inline void evaluate(
 		Ref(&lhs,0,0,0,0,lhs.data(),4,
 			PrintF< clmulti_array<T, 4> >::type_str(),
 			PrintF< clmulti_array<T, 4> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clmulti_array<T, 4> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
+//			PrintF< clmulti_array<T, 4> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs)),
+			PrintF< clmulti_array<T, 4> >::tmp_decl_str(mask & ((intptr_t)&lhs),lhs),
 			PrintF< clmulti_array<T, 4> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clmulti_array<T, 4> >::store_str(tostr(mask & (intptr_t)&lhs))
 		)
@@ -1148,7 +1127,6 @@ inline void evaluate(
 }
 
 
-/*
 template < typename T, std::size_t D >  template<class RHS>
 clmulti_array<T,D>&
 clmulti_array<T,D>::operator=(const Expression<RHS> &rhs)
@@ -1157,7 +1135,6 @@ clmulti_array<T,D>::operator=(const Expression<RHS> &rhs)
 
     return *this;
 }
-*/
 
 #endif // _CLMULTI_ARRAY_CLETE_H
 

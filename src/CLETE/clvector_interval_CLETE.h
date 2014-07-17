@@ -218,8 +218,9 @@ struct LeafFunctor<clvector_interval<T, Allocator>*, RefListLeaf>
 		ptr,0,ptr->interval.first,ptr->interval.end,ptr->interval.shift,ptr->data(),1,
 		PrintF< clvector_interval<T,Allocator> >::type_str(),
 		PrintF< clvector_interval<T,Allocator> >::arg_str(tostr(r((intptr_t)ptr))),
-		PrintF< clvector_interval<T,Allocator> >::tmp_decl_str(tostr(r((intptr_t)ptr)),
-			tostr(ptr->interval.shift)),
+		PrintF< clvector_interval<T,Allocator> >::tmp_decl_str(
+//			tostr(r((intptr_t)ptr)), tostr(ptr->interval.shift)),
+			r.mask((intptr_t)ptr), *ptr),
 		PrintF< clvector_interval<T,Allocator> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
 		PrintF< clvector_interval<T,Allocator> >::store_str(tostr(r((intptr_t)ptr))) ) );
   }
@@ -236,8 +237,9 @@ struct LeafFunctor<Interval*, RefListLeaf>
 		ptr,0,ptr->first,ptr->end,ptr->shift,0,1,
 		PrintF< Interval >::type_str(),
 		PrintF< Interval >::arg_str(tostr(r((intptr_t)ptr))),
-		PrintF< Interval >::tmp_decl_str(tostr(r((intptr_t)ptr)),
-			tostr(ptr->shift)),
+//		PrintF< Interval >::tmp_decl_str( tostr(r((intptr_t)ptr)),
+//			tostr(ptr->shift)),
+		PrintF< Interval >::tmp_decl_str( r.mask((intptr_t)ptr), *ptr),
 		PrintF< Interval >::tmp_ref_str(tostr(r((intptr_t)ptr))),
 		PrintF< Interval >::store_str(tostr(r((intptr_t)ptr))) ) );
   }
@@ -293,16 +295,19 @@ struct LeafFunctor<Interval,IAddressOfLeaf>
 template < class T, class Allocator >
 struct PrintF< clvector_interval<T, Allocator> > {
 
+	typedef clvector_interval<T, Allocator> xtype_t;
+
    inline static std::string type_str() 
    { return "__global " + PrintType<T>::type_str() + "*"; }
 
    inline static std::string arg_str( std::string x) 
    { return "a" + x; }
 
-   inline static std::string tmp_decl_str( std::string x, std::string s )
+//   inline static std::string tmp_decl_str( std::string x, std::string s )
+   inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x )
    { 
-		return PrintType<T>::type_str() + " tmp" + x 
-			+ " = a" + x + "[gti+(" + s + ")]"; 
+		return PrintType<T>::type_str() + " tmp" + tostr(refid)
+			+ " = a" + tostr(refid) + "[gti+(" + tostr(x.interval.shift) + ")]"; 
 	}
 
    inline static std::string tmp_ref_str( std::string x )
@@ -358,7 +363,8 @@ inline void evaluate(
 			PrintF< clvector_interval<T, Allocator> >::type_str(),
 			PrintF< clvector_interval<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector_interval<T, Allocator> >::tmp_decl_str(
-				tostr(mask & (intptr_t)&lhs), tostr(lhs.interval.shift) ),
+//				tostr(mask & (intptr_t)&lhs), tostr(lhs.interval.shift) ),
+				mask & ((intptr_t)&lhs), lhs ),
 			PrintF< clvector_interval<T, Allocator> >::tmp_ref_str(
 				tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector_interval<T, Allocator> >::store_str(

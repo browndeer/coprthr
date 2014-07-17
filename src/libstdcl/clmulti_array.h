@@ -44,7 +44,6 @@
 template<class T> class Expression;
 
 template < typename T, std::size_t D > class clmulti_array;
-//template < typename T > class clmulti_array<T,1>;
 
 template < typename T, std::size_t D >
 struct clmulti_array_interval {};
@@ -52,35 +51,94 @@ struct clmulti_array_interval {};
 template < typename T >
 struct clmulti_array_interval<T,1>
 {
-//   private:
-	public:
-
-      clmulti_array_interval() {}
-
-      clmulti_array_interval( 
-			clmulti_array<T,1>& xref, const Interval& I
-		) : xref(xref), interval(I) {}
-
    public:
 
       template<class RHS>
       clmulti_array_interval<T,1>& operator=(const Expression<RHS> &rhs);
 
-//      T* data() { return xref.data(); }
-      T* origin() { return xref.origin(); }
+      clmulti_array_interval<T,1>& operator=(const clmulti_array_interval<T,1>& rhs);
 
-   public:
+      T* get_ptr() { return (T*)xref.get_ptr(); }
 
       clmulti_array<T,1>& xref;
 		const Interval& interval;
 
-//   	friend
-//      clmulti_array_interval<T,1>& clmulti_array<T,1>::operator()( const Interval>& I );
+   	friend
+      clmulti_array_interval<T,1> clmulti_array<T,1>::operator()( const Interval& I );
 
-//		friend
-//      clmulti_array_interval<T,2> 
-//		clmulti_array<T,2>::operator()( const Interval& interval1, 
-//			const Interval& interval2 );
+   private:
+
+      clmulti_array_interval() {}
+
+      clmulti_array_interval( clmulti_array<T,1>& xref, const Interval& interval) 
+			: xref(xref), interval(interval) {}
+
+};
+
+template < typename T >
+struct clmulti_array_interval<T,2>
+{
+   public:
+
+      template<class RHS>
+      clmulti_array_interval<T,2>& operator=(const Expression<RHS> &rhs);
+
+      clmulti_array_interval<T,2>& operator=(const clmulti_array_interval<T,2>& rhs);
+
+      T* get_ptr() { return (T*)xref.get_ptr(); }
+		
+		template < std::size_t d >
+		size_t size() const { return xref.shape()[d]; }
+
+      clmulti_array<T,2>& xref;
+		const Interval& interval0;
+		const Interval& interval1;
+
+   	friend
+      clmulti_array_interval<T,2> 
+			clmulti_array<T,2>::operator()( const Interval& I, const Interval& J );
+
+   private:
+
+      clmulti_array_interval() {}
+
+      clmulti_array_interval( clmulti_array<T,2>& xref, 
+			const Interval& interval0, const Interval& interval1
+		) : xref(xref), interval0(interval0), interval1(interval1) {}
+
+};
+
+
+template < typename T >
+struct clmulti_array_interval<T,3>
+{
+   public:
+
+      template<class RHS>
+      clmulti_array_interval<T,3>& operator=(const Expression<RHS> &rhs);
+
+      T* get_ptr() { return (T*)xref.get_ptr(); }
+		
+		template < std::size_t d >
+		size_t size() const { return xref.shape()[d]; }
+
+      clmulti_array<T,3>& xref;
+		const Interval& interval0;
+		const Interval& interval1;
+		const Interval& interval2;
+
+   	friend
+      clmulti_array_interval<T,3> 
+			clmulti_array<T,3>::operator()( 
+				const Interval& I, const Interval& J, const Interval& K );
+
+   private:
+
+      clmulti_array_interval() {}
+
+      clmulti_array_interval( clmulti_array<T,3>& xref, 
+			const Interval& interval0, const Interval& interval1, const Interval& interval2
+		) : xref(xref), interval0(interval0), interval1(interval1), interval2(interval2) {}
 
 };
 
@@ -123,9 +181,16 @@ class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
 		clmulti_array_interval<T,1> operator()(const Interval& interval )
       { return clmulti_array_interval<T,1>(*this,interval); }
 
-  template<class RHS>
-  clmulti_array<T,D>& operator=(const Expression<RHS> &rhs);
+		clmulti_array_interval<T,2> operator()(
+			const Interval& interval0, const Interval& interval1 
+		) { return clmulti_array_interval<T,2>(*this,interval0,interval1); }
 
+		clmulti_array_interval<T,3> operator()(
+			const Interval& interval0, const Interval& interval1, const Interval& interval2
+		) { return clmulti_array_interval<T,3>(*this,interval0,interval1,interval2); }
+
+  		template<class RHS>
+  		clmulti_array<T,D>& operator=(const Expression<RHS> &rhs);
 	
 };
 
@@ -133,15 +198,6 @@ class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
 #include "CLETE/clmulti_array_CLETE.h"
 #include "CLETE/clmulti_array_interval_CLETE.h"
 #endif
-
-  template < typename T, std::size_t D >  template<class RHS>
-  clmulti_array<T,D>& 
-  clmulti_array<T,D>::operator=(const Expression<RHS> &rhs)
-  {
-		assign(*this,rhs);
-
-    return *this;
-  }
 
 
 #endif //// ifdef __cplusplus

@@ -33,8 +33,14 @@ using namespace std;
 
 #include "CLETE/PrintType.h"
 
+template < class T >
+static inline std::string tostr(const T& val )
+{ std::stringstream ss; ss << val; return ss.str(); }
+
 template <class T>
 struct PrintF {
+
+	typedef T xtype_t;
 
 	inline static std::string type_str( std::string x ) 
 	{ return "@arg-str-unknown@:" + x; }
@@ -42,8 +48,10 @@ struct PrintF {
 	inline static std::string arg_str( std::string x ) 
 	{ return "@arg-str-unknown@:" + x; }
 
-	inline static std::string tmp_decl_str( std::string x, std::string s = "0" ) 
-	{ return "@tmp-decl-str-unknown@:" + x; }
+//	inline static std::string tmp_decl_str( std::string x, std::string s = "0" ) 
+	inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x ) 
+//	{ return "@tmp-decl-str-unknown@:" + x; }
+	{ return "@tmp-decl-str-unknown@:" + tostr(refid); }
 
 	inline static std::string tmp_ref_str( std::string x ) 
 	{ return "@tmp-ref-str-unknown@:" + x; }
@@ -57,14 +65,19 @@ struct PrintF {
 template < class T > 
 struct PrintF< Scalar<T> > { 
 
+	typedef Scalar<T> xtype_t;
+
 	inline static std::string type_str() 
 	{ return PrintType<T>::type_str(); }
 
 	inline static std::string arg_str( std::string x) 
 	{ return "a" + x; }
 
-	inline static std::string tmp_decl_str( std::string x, std::string s = "0" ) 
-	{ return PrintType<T>::type_str() + " tmp" + x + " = a" + x; }
+//	inline static std::string tmp_decl_str( std::string x, std::string s = "0" ) 
+//	inline static std::string tmp_decl_str( std::string x, xtype_t& xobj ) 
+//	inline static std::string tmp_decl_str( std::string x ) 
+	inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x ) 
+	{ return PrintType<T>::type_str() + " tmp" + tostr(refid) + " = a" + tostr(refid); }
 
 	inline static std::string tmp_ref_str( std::string x ) 
 	{ return "tmp" + x; }
@@ -80,13 +93,17 @@ struct PrintF< Scalar<T> > {
 template <>
 struct PrintF< Interval > {
 
+	typedef Interval xtype_t;
+
    inline static std::string type_str() 
    { return "INTERVAL " + PrintType<int>::type_str(); }
   
    inline static std::string arg_str( std::string x)
    { return "INTERVAL"; }
   
-   inline static std::string tmp_decl_str( std::string x, std::string s )
+//   inline static std::string tmp_decl_str( std::string x, std::string s )
+//   inline static std::string tmp_decl_str( std::string x, xtype_t& xobj )
+   inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x )
    { return ""; }
 
    inline static std::string tmp_ref_str( std::string x )

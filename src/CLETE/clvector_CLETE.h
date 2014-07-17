@@ -184,7 +184,9 @@ struct LeafFunctor<clvector<T, Allocator>*, RefListLeaf>
 		ptr,0,ptr->first,ptr->end,ptr->shift,ptr->data(),1,
 		PrintF< clvector<T,Allocator> >::type_str(),
 		PrintF< clvector<T,Allocator> >::arg_str(tostr(r((intptr_t)ptr))),
-		PrintF< clvector<T,Allocator> >::tmp_decl_str(tostr(r((intptr_t)ptr)),tostr(ptr->shift)),
+//		PrintF< clvector<T,Allocator> >::tmp_decl_str(tostr(r((intptr_t)ptr)),
+//			tostr(ptr->shift)),
+		PrintF< clvector<T,Allocator> >::tmp_decl_str(r.mask((intptr_t)ptr),*ptr),
 		PrintF< clvector<T,Allocator> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
 		PrintF< clvector<T,Allocator> >::store_str(tostr(r((intptr_t)ptr))) ) );
   }
@@ -218,16 +220,19 @@ struct LeafFunctor<clvector<T, Allocator>,IAddressOfLeaf>
 template < class T, class Allocator >
 struct PrintF< clvector<T, Allocator> > {
 
+	typedef clvector<T, Allocator> xtype_t;
+
    inline static std::string type_str() 
    { return "__global " + PrintType<T>::type_str() + "*"; }
 
    inline static std::string arg_str( std::string x) 
    { return "a" + x; }
 
-   inline static std::string tmp_decl_str( std::string x, std::string s )
+//   inline static std::string tmp_decl_str( std::string x, std::string s )
+   inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x )
    { 
-		return PrintType<T>::type_str() + " tmp" + x 
-			+ " = a" + x + "[gti+(" + s + ")]"; 
+		return PrintType<T>::type_str() + " tmp" + tostr(refid) 
+			+ " = a" + tostr(refid) + "[gti+(" + tostr(x.interval.shift) + ")]"; 
 	}
 
    inline static std::string tmp_ref_str( std::string x )
@@ -283,7 +288,9 @@ inline void evaluate(
 		Ref(&lhs,0,0,lhs.size(),0,lhs.data(),1,
 			PrintF< clvector<T, Allocator> >::type_str(),
 			PrintF< clvector<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
-			PrintF< clvector<T, Allocator> >::tmp_decl_str(tostr(mask & (intptr_t)&lhs), tostr(lhs.shift) ),
+			PrintF< clvector<T, Allocator> >::tmp_decl_str(
+//				tostr(mask & (intptr_t)&lhs), tostr(lhs.shift) ),
+				mask & ((intptr_t)&lhs), lhs ),
 			PrintF< clvector<T, Allocator> >::tmp_ref_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector<T, Allocator> >::store_str(tostr(mask & (intptr_t)&lhs))
 		)

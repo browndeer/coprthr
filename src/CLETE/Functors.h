@@ -615,9 +615,9 @@ struct LeafFunctor<Scalar<T>, SizeLeaf4>
  *** leaf-tag and functor used for print-tmp operation
  ***/
 
-template < class T >
-inline std::string tostr(const T& val )
-{ std::stringstream ss; ss << val; return ss.str(); }
+//template < class T >
+//inline std::string tostr(const T& val )
+//{ std::stringstream ss; ss << val; return ss.str(); }
 
 class PrintTmpLeaf
 {
@@ -710,7 +710,9 @@ public:
   RefListLeaf( intptr_t mask  = ~((intptr_t)0) ) : mask_(mask) { }
   RefListLeaf( const RefListLeaf& model) : mask_(model.mask_) { }
   int operator()( intptr_t x ) const { return x & mask_; }
+  unsigned int mask( intptr_t x ) const { return (x & mask_); }
 //  int operator()( void* x ) const { return (intptr_t)x & mask_; }
+	intptr_t get_mask() const { return mask_; }
 
 private:
 
@@ -729,7 +731,8 @@ struct LeafFunctor<Scalar<T>*, RefListLeaf>
       ptr,sizeof(T),0,0,0,0,0,
       PrintF< Scalar<T> >::type_str(),
       PrintF< Scalar<T> >::arg_str(tostr(r((intptr_t)ptr))),
-      PrintF< Scalar<T> >::tmp_decl_str(tostr(r((intptr_t)ptr))),
+//      PrintF< Scalar<T> >::tmp_decl_str(tostr(r((intptr_t)ptr))),
+      PrintF< Scalar<T> >::tmp_decl_str( r((intptr_t)ptr), *ptr ),
       PrintF< Scalar<T> >::tmp_ref_str(tostr(r((intptr_t)ptr))),
       PrintF< Scalar<T> >::store_str(tostr(r((intptr_t)ptr))) ) );
   }
