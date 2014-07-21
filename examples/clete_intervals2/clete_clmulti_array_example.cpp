@@ -20,28 +20,35 @@ using namespace std;
 #define __CLMULTI_ARRAY_FULLAUTO
 #include <clmulti_array.h>
 #include <CLETE/Interval.h>
+#include <clarray.h>
 
 int main()
 {
 	Setup(0);
 	Reset(0);
 
-   typedef clmulti_array< float, 1 > array1_t;
-   typedef clmulti_array< float, 2 > array2_t;
-   typedef clmulti_array< float, 3 > array3_t;
-   typedef clmulti_array< float, 4 > array4_t;
+//   typedef clmulti_array< float, 1 > array1_t;
+//   typedef clmulti_array< float, 2 > array2_t;
+//   typedef clmulti_array< float, 3 > array3_t;
+//   typedef clmulti_array< float, 4 > array4_t;
 
 //   array1_t a(boost::extents[100]);
 //   array1_t a2(boost::extents[100]);
 
-	array2_t b(boost::extents[5][3]);
-	array2_t b2(boost::extents[5][3]);
+	clarray<float> a(10);
+	for(int i=0; i<10; i++) 
+		a[i] = 1000*i;
 
-	array3_t c(boost::extents[5][3][10]);
-	array3_t c2(boost::extents[5][3][10]);
+//	array2_t b(boost::extents[5][3]);
+//	array2_t b2(boost::extents[5][3]);
+	clarray<float,2> b(5,3);
+	clarray<float,2> b2(5,3);
 
-//	array4_t d(boost::extents[100][30][45][60]);
-//	array4_t x(boost::extents[100][30][45][60]);
+//	array3_t c(boost::extents[5][3][10]);
+//	array3_t c2(boost::extents[5][3][10]);
+	clarray<float,3> c(5,3,10);
+	clarray<float,3> c2(5,3,10);
+
 
 //   for(int i = 0; i<100; i++) {
 //		a[i] = i;
@@ -82,7 +89,7 @@ int main()
 	Interval I(1,5);
 	Interval J(1,3);
 	Interval K(0,10);
-	b2(I,J) = b(I,J) + b(I-1,J-1);
+	b2(I,J) = b(I,J) + b(I-1,J-1) + a(I);
 
 	c2(I,J,K) = c(I,J,K) + c(I-1,J-1,K);
 	
@@ -129,6 +136,9 @@ int main()
 
 	cout<<"compute time "<<t<<" (sec)\n";
 
+	cout << c2.size(0) << "\n";
+	cout << c2.size(1) << "\n";
+	cout << c2.size(2) << "\n";
 }
 
 

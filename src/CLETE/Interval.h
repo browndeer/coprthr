@@ -23,6 +23,7 @@ Interval operator - ( Interval& ii, int s )
 
 typedef Interval interval2_t[2];
 
+/*
 std::vector<Interval> operator , ( Interval& I, Interval& J )
 {
 	std::vector<Interval> ivec;
@@ -36,6 +37,7 @@ std::vector<Interval>& operator , ( std::vector<Interval>& ivec, Interval& J )
 	ivec.push_back(J);
 	return ivec;
 }
+*/
 
 #endif
 

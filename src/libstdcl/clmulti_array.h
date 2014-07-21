@@ -178,16 +178,39 @@ class clmulti_array : public boost::multi_array< T, D, clmalloc_allocator<T> >
 
 		void* get_ptr() { return (void*)this->origin(); }
 
+
+		// up-cast to clmulti_array_interval<T,1>
 		clmulti_array_interval<T,1> operator()(const Interval& interval )
       { return clmulti_array_interval<T,1>(*this,interval); }
 
+		// XXX this explicit cast should be eliminated -DAR
+		clmulti_array_interval<T,1> operator()( int i )
+      { return clmulti_array_interval<T,1>(*this,Interval(i)); }
+
+
+		// up-cast to clmulti_array_interval<T,2>
 		clmulti_array_interval<T,2> operator()(
 			const Interval& interval0, const Interval& interval1 
 		) { return clmulti_array_interval<T,2>(*this,interval0,interval1); }
 
+		clmulti_array_interval<T,2> operator()(
+			int i0, const Interval& interval1 
+		) { return operator()( Interval(i0,i0+1), interval1 ); }
+
+		clmulti_array_interval<T,2> operator()(
+			const Interval& interval0, int i1
+		) { return operator()( interval0, Interval(i1,i1+1) ); }
+
+
+		// up-cast to clmulti_array_interval<T,3>
 		clmulti_array_interval<T,3> operator()(
-			const Interval& interval0, const Interval& interval1, const Interval& interval2
-		) { return clmulti_array_interval<T,3>(*this,interval0,interval1,interval2); }
+			const Interval& interval0, const Interval& interval1, 
+			const Interval& interval2
+		) { 
+			return 
+				clmulti_array_interval<T,3>(*this,interval0,interval1, interval2); 
+		}
+
 
   		template<class RHS>
   		clmulti_array<T,D>& operator=(const Expression<RHS> &rhs);

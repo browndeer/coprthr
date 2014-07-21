@@ -14,6 +14,7 @@ HDRS = Combiners.h CreateLeaf.h ForEach.h Functors.h PETE.h PrintF.h \
 	PrintType.h Scalar.h TreeNodes.h TypeComputations.h \
 	clvector_CLETE.h clvector_interval_CLETE.h \
 	clmulti_array_CLETE.h clmulti_array_interval_CLETE.h \
+	Interval.h \
 	$(GEN_HDRS)
 
 INSTALL_INCS = $(HDRS)

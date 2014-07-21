@@ -21,6 +21,9 @@ all: $(NAME).x
 $(NAME).x: $(NAME).o $(OBJS)
 	$(CXX) $(CXXFLAGS) $(INCS) -o $(NAME).x $(NAME).o $(OBJS) $(LIBS)
 
+main_test.x: main_test.o 
+	$(CXX) $(CXXFLAGS) $(INCS) -o main_test.x main_test.o $(LIBS)
+
 .SUFFIXES:
 .SUFFIXES: .cpp .o
 

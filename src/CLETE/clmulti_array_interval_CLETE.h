@@ -426,7 +426,7 @@ struct LeafFunctor<Interval, PrintTmpLeaf>
   std::string apply(
 		const Interval& v, const PrintTmpLeaf & p
   ) 
-  { return "??? (gti+" + tostr(v.shift) + "))"; }
+  { return "/* ??? */ (gti+(" + tostr(v.shift) + "))"; }
 };
 
 
@@ -689,6 +689,8 @@ inline void evaluate(
 	rlista.sort(ref_is_ordered);
 	rlista.unique(ref_is_equal);
 
+//fprintf(stderr,"rlist.size()=%d rlista.size()=%d\n",rlist.size(),rlista.size());
+
 	int size = lhs.xref.size();
 	size_t r = size;
 	if (r%256 > 0) r += 256 - r%256;
@@ -700,7 +702,9 @@ inline void evaluate(
 
 	if (!krn) {
 
-		std::string srcstr = "__kernel void\nkern( int first, int end, \n";
+		std::string srcstr = "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
+
+		srcstr += "__kernel void\nkern( int first, int end, \n";
 
 		int n = 2;	
 		for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
@@ -751,16 +755,17 @@ inline void evaluate(
 
 	clSetKernelArg(krn,0,sizeof(int),&first);
   	clSetKernelArg(krn,1,sizeof(int),&end);
+
 	int n = 2;	
-	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++) {
 
 		size_t sz = (*it).sz;
 
 		if (sz > 0) {
 
-			clSetKernelArg(krn,n,sz,(*it).ptr);
+			clSetKernelArg(krn,n++,sz,(*it).ptr);
 
-		} else { 
+		} else if ( (*it).memptr ) { 
 
 			void* data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
 
@@ -769,7 +774,7 @@ inline void evaluate(
 			clmsync(__CLCONTEXT,0, data_ptr, CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(__CLCONTEXT,krn,n, data_ptr );
+			clarg_set_global(__CLCONTEXT,krn,n++, data_ptr );
 
 		}
 	}
@@ -885,7 +890,9 @@ inline void evaluate(
 
 	if (!krn) {
 
-		std::string srcstr = "__kernel void\nkern(\n";
+		std::string srcstr = "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
+
+		srcstr += "__kernel void\nkern(\n";
 		srcstr += " int first0, int end0,\n";
 		srcstr += " int first1, int end1,\n";
 
@@ -941,15 +948,15 @@ inline void evaluate(
 	clSetKernelArg(krn,2,sizeof(int),&first1);
   	clSetKernelArg(krn,3,sizeof(int),&end1);
 	int n = 4;	
-	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++) {
 
 		size_t sz = (*it).sz;
 
 		if (sz > 0) {
 
-			clSetKernelArg(krn,n,sz,(*it).ptr);
+			clSetKernelArg(krn,n++,sz,(*it).ptr);
 
-		} else { 
+		} else if ( (*it).memptr ) { 
 
 			void* data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
 
@@ -958,7 +965,7 @@ inline void evaluate(
 			clmsync(__CLCONTEXT,0,data_ptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(__CLCONTEXT,krn,n,data_ptr);
+			clarg_set_global(__CLCONTEXT,krn,n++,data_ptr);
 
 		}
 	}
@@ -1076,7 +1083,9 @@ inline void evaluate(
 
 	if (!krn) {
 
-		std::string srcstr = "__kernel void\nkern(\n";
+		std::string srcstr = "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
+
+		srcstr += "__kernel void\nkern(\n";
 		srcstr += "int first0, int end0,\n";
 		srcstr += "int first1, int end1,\n";
 		srcstr += "int first2, int end2,\n";
@@ -1099,24 +1108,14 @@ inline void evaluate(
 
 		for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++,n++) {
 			srcstr += (*it).tmp_decl_str;
-//			switch( (*it).dim ) {
-//				case 3: srcstr += "[gti]"; break;
-//				case 2: srcstr += "[gti2]"; break;
-//				case 1: srcstr += "[gti1]"; break;
-//				default: break;
-//			}
 			srcstr += ";\n";
 		}
 
-
-//		srcstr += PrintF< clmulti_array<T, 1> >::store_str(tostr(mask & (intptr_t)&lhs)) + "[gti] = ";
 
 		std::string expr = forEach(rhs,PrintTmpLeaf(mask),PrintCombine());
 
 		srcstr += op.strexpr(
 			tprint::store_str( tostr(mask & (intptr_t)&lhs)), expr ) + ";\n" ;
-		
-//		srcstr += expr + ";\n" ;
 		
 		if (size != r) srcstr += "}\n";
 
@@ -1145,15 +1144,15 @@ inline void evaluate(
 	clSetKernelArg(krn,4,sizeof(int),&first2);
 	clSetKernelArg(krn,5,sizeof(int),&end2);
 	int n = 6;	
-	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++,n++) {
+	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++) {
 
 		size_t sz = (*it).sz;
 
 		if (sz > 0) {
 
-			clSetKernelArg(krn,n,sz,(*it).ptr);
+			clSetKernelArg(krn,n++,sz,(*it).ptr);
 
-		} else { 
+		} else if ( (*it).memptr ) { 
 
 			void* data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
 
@@ -1162,7 +1161,7 @@ inline void evaluate(
 			clmsync(__CLCONTEXT,0,data_ptr,CL_MEM_DEVICE|CL_EVENT_NOWAIT);
 #endif
 
-			clarg_set_global(__CLCONTEXT,krn,n,data_ptr);
+			clarg_set_global(__CLCONTEXT,krn,n++,data_ptr);
 
 		}
 	}
