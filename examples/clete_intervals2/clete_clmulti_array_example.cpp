@@ -89,6 +89,7 @@ int main()
 	Interval I(1,5);
 	Interval J(1,3);
 	Interval K(0,10);
+//	b2(I,J) = b(I,J) + b(I-1,J-1);
 	b2(I,J) = b(I,J) + b(I-1,J-1) + a(I);
 
 	c2(I,J,K) = c(I,J,K) + c(I-1,J-1,K);

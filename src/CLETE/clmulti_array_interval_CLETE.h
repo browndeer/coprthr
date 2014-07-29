@@ -566,7 +566,7 @@ struct PrintF< clmulti_array_interval<T, 1> > {
    { return "a" + x; }
 
    inline static std::string tmp_decl_str( intptr_t refid, const xtype_t& x )
-	{ return PrintType<T>::type_str() + " tmp" + tostr(refid) + " = a" + tostr(refid) + "[gti+(" + tostr(x.interval.shift) + ")]"; }
+	{ return PrintType<T>::type_str() + " tmp" + tostr(refid) + " = a" + tostr(refid) + "[gti0+(" + tostr(x.interval.shift) + ")]"; }
 
    inline static std::string tmp_ref_str( std::string x )
    { return "tmp" + x; }
@@ -717,6 +717,7 @@ inline void evaluate(
 
 		srcstr += "){\n";
 		srcstr += "int gti = get_global_id(0);\n";
+		srcstr += "int gti0 = gti;\n";
 
 		srcstr += "if (gti >= first && gti < end ) {\n";
 
@@ -834,6 +835,7 @@ inline void evaluate(
 	const Expression<RHS> &rhs
 )
 {
+	typedef clmulti_array_interval<T, 1> xtype1_t;
 	typedef clmulti_array_interval<T, 2> xtype_t;
 	typedef PrintF< clmulti_array_interval<T, 2> > tprint;
 
@@ -958,7 +960,16 @@ inline void evaluate(
 
 		} else if ( (*it).memptr ) { 
 
-			void* data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
+			void* data_ptr = 0;
+			switch((*it).dim) {
+				case 1:
+					data_ptr = ((xtype1_t*)(*it).ptr)->xref.get_ptr();
+					break;
+				default:
+					data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
+			}
+
+printf( "dim %d\n",(*it).dim); fflush(stdout);
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 			clmattach(__CLCONTEXT,data_ptr);
@@ -989,7 +1000,13 @@ inline void evaluate(
 		if (sz > 0) {
 		} else { 
 
-			clmdetach(((xtype_t*)(*it).ptr)->xref.get_ptr());
+			switch((*it).dim) {
+				case 1:
+					clmdetach(((xtype1_t*)(*it).ptr)->xref.get_ptr());
+					break;
+				default:
+					clmdetach(((xtype_t*)(*it).ptr)->xref.get_ptr());
+			}
 
 		}
 	}
