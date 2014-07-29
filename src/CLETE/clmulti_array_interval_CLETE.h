@@ -969,7 +969,7 @@ inline void evaluate(
 					data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
 			}
 
-printf( "dim %d\n",(*it).dim); fflush(stdout);
+//printf( "dim %d\n",(*it).dim); fflush(stdout);
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 			clmattach(__CLCONTEXT,data_ptr);
