@@ -836,7 +836,7 @@ inline void evaluate(
 )
 {
 	typedef clmulti_array_interval<T, 1> xtype1_t;
-	typedef clmulti_array_interval<T, 2> xtype_t;
+	typedef clmulti_array_interval<T, 2> xtype2_t;
 	typedef PrintF< clmulti_array_interval<T, 2> > tprint;
 
 //  if (forEach(rhs, SizeLeaf2(lhs.shape()[0],lhs.shape()[1]), AndCombine())) {
@@ -965,11 +965,12 @@ inline void evaluate(
 				case 1:
 					data_ptr = ((xtype1_t*)(*it).ptr)->xref.get_ptr();
 					break;
+				case 2:
+					data_ptr = ((xtype2_t*)(*it).ptr)->xref.get_ptr();
+					break;
 				default:
-					data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
+					break;
 			}
-
-//printf( "dim %d\n",(*it).dim); fflush(stdout);
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 			clmattach(__CLCONTEXT,data_ptr);
@@ -1004,8 +1005,11 @@ inline void evaluate(
 				case 1:
 					clmdetach(((xtype1_t*)(*it).ptr)->xref.get_ptr());
 					break;
+				case 2:
+					clmdetach(((xtype2_t*)(*it).ptr)->xref.get_ptr());
+					break;
 				default:
-					clmdetach(((xtype_t*)(*it).ptr)->xref.get_ptr());
+					break;
 			}
 
 		}
@@ -1044,7 +1048,9 @@ inline void evaluate(
 	const Expression<RHS> &rhs
 )
 {
-	typedef clmulti_array_interval<T, 3> xtype_t;
+	typedef clmulti_array_interval<T, 1> xtype1_t;
+	typedef clmulti_array_interval<T, 2> xtype2_t;
+	typedef clmulti_array_interval<T, 3> xtype3_t;
 	typedef PrintF< clmulti_array_interval<T, 3> > tprint;
 
 //  if (forEach(rhs, SizeLeaf3(lhs.shape()[0],lhs.shape()[1],lhs.shape()[2]), AndCombine())) {
@@ -1171,7 +1177,21 @@ inline void evaluate(
 
 		} else if ( (*it).memptr ) { 
 
-			void* data_ptr = ((xtype_t*)(*it).ptr)->xref.get_ptr();
+			void* data_ptr = 0;
+
+			switch((*it).dim) {
+				case 1:
+					data_ptr = ((xtype1_t*)(*it).ptr)->xref.get_ptr();
+					break;
+				case 2:
+					data_ptr = ((xtype2_t*)(*it).ptr)->xref.get_ptr();
+					break;
+				case 3:
+					data_ptr = ((xtype3_t*)(*it).ptr)->xref.get_ptr();
+					break;
+				default:
+					break;
+			}
 
 #if defined(__CLMULTI_ARRAY_FULLAUTO)
 			clmattach(__CLCONTEXT,data_ptr);
@@ -1203,7 +1223,19 @@ inline void evaluate(
 		if (sz > 0) {
 		} else { 
 
-			clmdetach(((xtype_t*)(*it).ptr)->xref.get_ptr());
+			switch((*it).dim) {
+				case 1:
+					clmdetach(((xtype1_t*)(*it).ptr)->xref.get_ptr());
+					break;
+				case 2:
+					clmdetach(((xtype2_t*)(*it).ptr)->xref.get_ptr());
+					break;
+				case 3:
+					clmdetach(((xtype3_t*)(*it).ptr)->xref.get_ptr());
+					break;
+				default:
+					break;
+			}
 
 		}
 	}

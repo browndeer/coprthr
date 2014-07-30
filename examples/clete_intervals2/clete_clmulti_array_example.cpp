@@ -92,7 +92,7 @@ int main()
 //	b2(I,J) = b(I,J) + b(I-1,J-1);
 	b2(I,J) = b(I,J) + b(I-1,J-1) + a(I);
 
-	c2(I,J,K) = c(I,J,K) + c(I-1,J-1,K);
+	c2(I,J,K) = c(I,J,K) + c(I-1,J-1,K) + b(I,J) - a(K);
 	
 	Stop(0);
 	double t = GetElapsedTime(0);
