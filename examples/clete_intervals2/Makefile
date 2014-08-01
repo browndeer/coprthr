@@ -12,7 +12,7 @@ STDCL_LIBS = -L${exec_prefix}/lib -lstdcl
 INCS = $(OPENCL_INCS) $(STDCL_INCS)
 LIBS = $(OPENCL_LIBS) $(STDCL_LIBS)
 
-CXXFLAGS += -O3
+CXXFLAGS += -O0
 
 OBJS = Timer.o
 

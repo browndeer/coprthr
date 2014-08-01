@@ -62,6 +62,7 @@
 #include <iostream>
 #include <fstream>
 #include <list>
+#include <algorithm>
 #include <string>
 #include <sstream>
 #include <cstdlib>
@@ -701,9 +702,33 @@ inline void evaluate(
 //   int end = lhs.interval.end;
    int end = lhs.interval.last+1;
 
+
 	static cl_kernel krn = (cl_kernel)0;
 
-	if (!krn) {
+//std::cout<<"XXXXXXXXXXXXXXXXXX "<<krn<<std::endl;
+
+	static std::vector<intptr_t> ref_sig_save;
+	std::vector<intptr_t> ref_sig;
+	for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++) {
+		ref_sig.push_back((intptr_t)(*it).ptr);
+	}
+//	std::cout<<ref_sig_save.size()<<" "<<ref_sig.size()<<std::endl;
+
+	bool mismatch = false;
+	if (ref_sig_save.size() != ref_sig.size()) {
+		mismatch = true;
+	} else {
+		for(int i=0; i<ref_sig.size(); i++) 
+			if (ref_sig[i] != ref_sig_save[i]) 
+				mismatch = true;
+	}
+
+//std::cout<<"XXXXXXXXXXXXXXXXXX mismatch "<<mismatch<<std::endl;
+
+//	if (!krn || ref_sig_save.equal(ref_sig)) {
+	if (!krn || mismatch) {
+
+		ref_sig_save = ref_sig;
 
 		std::string srcstr = "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
 
@@ -745,6 +770,7 @@ inline void evaluate(
 		srcstr += "}\n";
 
 		log_kernel(srcstr);
+//		std::cout<<srcstr<<std::endl;
 
 		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
 		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
@@ -896,7 +922,23 @@ inline void evaluate(
 
 	static cl_kernel krn = (cl_kernel)0;
 
-	if (!krn) {
+	static std::vector<intptr_t> ref_sig_save;
+	std::vector<intptr_t> ref_sig;
+	for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++) {
+		ref_sig.push_back((intptr_t)(*it).ptr);
+	}
+
+	bool mismatch = false;
+	if (ref_sig_save.size() != ref_sig.size()) {
+		mismatch = true;
+	} else {
+		for(int i=0; i<ref_sig.size(); i++) 
+			if (ref_sig[i] != ref_sig_save[i]) 
+				mismatch = true;
+	}
+
+//	if (!krn) {
+	if (!krn || mismatch) {
 
 		std::string srcstr = "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
 
@@ -1114,7 +1156,23 @@ inline void evaluate(
 
 	static cl_kernel krn = (cl_kernel)0;
 
-	if (!krn) {
+	static std::vector<intptr_t> ref_sig_save;
+	std::vector<intptr_t> ref_sig;
+	for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++) {
+		ref_sig.push_back((intptr_t)(*it).ptr);
+	}
+
+	bool mismatch = false;
+	if (ref_sig_save.size() != ref_sig.size()) {
+		mismatch = true;
+	} else {
+		for(int i=0; i<ref_sig.size(); i++) 
+			if (ref_sig[i] != ref_sig_save[i]) 
+				mismatch = true;
+	}
+
+//	if (!krn) {
+	if (!krn || mismatch) {
 
 		std::string srcstr = "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
 
