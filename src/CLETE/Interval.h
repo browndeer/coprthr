@@ -5,21 +5,21 @@
 #include <vector>
 
 struct Interval {
-	Interval( int f, int e, int s = 0) : first(f), end(e), shift(s) {}
-   int first, end, shift;
+	Interval( int f, int l, int s = 0) : first(f), last(l), shift(s) {}
+   int first, last, shift;
 };
 
 Interval operator + ( int s, Interval& ii )
-{ return Interval(ii.first,ii.end,ii.shift+s); }
+{ return Interval(ii.first,ii.last,ii.shift+s); }
 
 Interval operator + ( Interval& ii, int s )
-{ return Interval(ii.first,ii.end,ii.shift+s); }
+{ return Interval(ii.first,ii.last,ii.shift+s); }
 
 Interval operator - ( int s, Interval& ii )
-{ return Interval(ii.first,ii.end,ii.shift-s); }
+{ return Interval(ii.first,ii.last,ii.shift-s); }
 
 Interval operator - ( Interval& ii, int s )
-{ return Interval(ii.first,ii.end,ii.shift-s); }
+{ return Interval(ii.first,ii.last,ii.shift-s); }
 
 typedef Interval interval2_t[2];
 

@@ -470,7 +470,8 @@ struct LeafFunctor<Interval*, RefListLeaf>
   Type_t apply(Interval* const & ptr, const RefListLeaf &r)
   {
     return Type_t(1,Ref(
-		ptr,0,ptr->first,ptr->end,ptr->shift,0,0,
+//		ptr,0,ptr->first,ptr->end,ptr->shift,0,0,
+		ptr,0,ptr->first,ptr->last,ptr->shift,0,0,
 		PrintF< Interval >::type_str(),
 		PrintF< Interval >::arg_str(tostr(r((intptr_t)ptr))),
 		PrintF< Interval >::tmp_decl_str(r.mask((intptr_t)ptr), *ptr ),
@@ -677,7 +678,8 @@ inline void evaluate(
 	rlist_t rlista = rlist;
 	rlista.push_back(
 		Ref(&lhs,0,
-			lhs.interval.first,lhs.interval.end,lhs.interval.shift,
+//			lhs.interval.first,lhs.interval.end,lhs.interval.shift,
+			lhs.interval.first,lhs.interval.last,lhs.interval.shift,
 			lhs.get_ptr(),1,
 			tprint::type_str(),
 			tprint::arg_str(tostr(mask & (intptr_t)&lhs)),
@@ -696,7 +698,8 @@ inline void evaluate(
 	if (r%256 > 0) r += 256 - r%256;
 
 	int first = lhs.interval.first;
-   int end = lhs.interval.end;
+//   int end = lhs.interval.end;
+   int end = lhs.interval.last+1;
 
 	static cl_kernel krn = (cl_kernel)0;
 
@@ -862,7 +865,8 @@ inline void evaluate(
 	rlist_t rlista = rlist;
 	rlista.push_back(
 		Ref(&lhs,0,
-			lhs.interval0.first,lhs.interval0.end,lhs.interval0.shift,
+//			lhs.interval0.first,lhs.interval0.end,lhs.interval0.shift,
+			lhs.interval0.first,lhs.interval0.last,lhs.interval0.shift,
 			lhs.get_ptr(),2,
 			tprint::type_str(),
 			tprint::arg_str(tostr(mskptr(mask,&lhs))),
@@ -884,9 +888,11 @@ inline void evaluate(
 	printf("size0=%d size1=%d\n",size0,size1);
 
 	int first0 = lhs.interval0.first;
-	int end0 = lhs.interval0.end;
+//	int end0 = lhs.interval0.end;
+	int end0 = lhs.interval0.last+1;
 	int first1 = lhs.interval1.first;
-	int end1 = lhs.interval1.end;
+//	int end1 = lhs.interval1.end;
+	int end1 = lhs.interval1.last+1;
 
 	static cl_kernel krn = (cl_kernel)0;
 
@@ -1075,7 +1081,8 @@ inline void evaluate(
 	rlist_t rlista = rlist;
 	rlista.push_back(
 		Ref(&lhs,0,
-			lhs.interval0.first,lhs.interval0.end,lhs.interval0.shift,
+//			lhs.interval0.first,lhs.interval0.end,lhs.interval0.shift,
+			lhs.interval0.first,lhs.interval0.last,lhs.interval0.shift,
 			lhs.get_ptr(),3,
 			tprint::type_str(),
 			tprint::arg_str(tostr(mask & (intptr_t)&lhs)),
@@ -1096,11 +1103,14 @@ inline void evaluate(
 	if (r%256 > 0) r += 256 - r%256;
 
 	int first0 = lhs.interval0.first;
-	int end0 = lhs.interval0.end;
+//	int end0 = lhs.interval0.end;
+	int end0 = lhs.interval0.last+1;
 	int first1 = lhs.interval1.first;
-	int end1 = lhs.interval1.end;
+//	int end1 = lhs.interval1.end;
+	int end1 = lhs.interval1.last+1;
 	int first2 = lhs.interval2.first;
-	int end2 = lhs.interval2.end;
+//	int end2 = lhs.interval2.end;
+	int end2 = lhs.interval2.last+1;
 
 	static cl_kernel krn = (cl_kernel)0;
 

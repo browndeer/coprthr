@@ -86,9 +86,9 @@ int main()
 //		for(int i = 0; i<100; i++) a[i] = cos(x[i][0][0][0]);
 //	}
 
-	Interval I(1,5);
-	Interval J(1,3);
-	Interval K(0,10);
+	Interval I(1,4);
+	Interval J(1,2);
+	Interval K(0,9);
 //	b2(I,J) = b(I,J) + b(I-1,J-1);
 	b2(I,J) = b(I,J) + b(I-1,J-1) + a(I);
 

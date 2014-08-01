@@ -215,7 +215,8 @@ struct LeafFunctor<clvector_interval<T, Allocator>*, RefListLeaf>
   Type_t apply(clvector_interval<T, Allocator>* const & ptr, const RefListLeaf &r)
   {
     return Type_t(1,Ref(
-		ptr,0,ptr->interval.first,ptr->interval.end,ptr->interval.shift,ptr->data(),1,
+//		ptr,0,ptr->interval.first,ptr->interval.end,ptr->interval.shift,ptr->data(),1,
+		ptr,0,ptr->interval.first,ptr->interval.last,ptr->interval.shift,ptr->data(),1,
 		PrintF< clvector_interval<T,Allocator> >::type_str(),
 		PrintF< clvector_interval<T,Allocator> >::arg_str(tostr(r((intptr_t)ptr))),
 		PrintF< clvector_interval<T,Allocator> >::tmp_decl_str(
@@ -359,7 +360,8 @@ inline void evaluate(
 
 	rlist_t rlista = rlist;
 	rlista.push_back(
-		Ref(&lhs,0,lhs.interval.first,lhs.interval.end,lhs.interval.shift,lhs.data(),1,
+//		Ref(&lhs,0,lhs.interval.first,lhs.interval.end,lhs.interval.shift,lhs.data(),1,
+		Ref(&lhs,0,lhs.interval.first,lhs.interval.last,lhs.interval.shift,lhs.data(),1,
 			PrintF< clvector_interval<T, Allocator> >::type_str(),
 			PrintF< clvector_interval<T, Allocator> >::arg_str(tostr(mask & (intptr_t)&lhs)),
 			PrintF< clvector_interval<T, Allocator> >::tmp_decl_str(
@@ -380,7 +382,8 @@ inline void evaluate(
 	if (r%256 > 0) r += 256 - r%256;
 
 	int first = lhs.interval.first;
-	int end = lhs.interval.end;
+//	int end = lhs.interval.end;
+	int end = lhs.interval.last+1;
 	
 	static cl_kernel krn = (cl_kernel)0;
 
