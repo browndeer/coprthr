@@ -177,6 +177,7 @@ __iftype_clarg_set(cp,krn,ia,a,cl_int) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_char) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uchar) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_uint) \
+else __iftype_clarg_set(cp,krn,ia,a,cl_ulong) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_float) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_double) \
 else __iftype_clarg_set(cp,krn,ia,a,cl_int2) \
