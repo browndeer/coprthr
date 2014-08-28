@@ -531,6 +531,7 @@ clbuild( CONTEXT* cp, void* handle, char* uopts, int flags )
 	}
 */
 
+	txt->nkrn=0;
 
 	err = clCreateKernelsInProgram(txt->xxxprg[0],0,0,&txt->nkrn);
 	__set_oclerrno(err);
