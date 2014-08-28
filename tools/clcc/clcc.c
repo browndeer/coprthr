@@ -259,6 +259,7 @@ int main(int argc, char** argv)
 	char* platform = default_platform;
 	char* device = default_device;
 
+	char* env_tmpdir = getenv("TMPDIR");
 
 	char* path_str = (char*)calloc(1,DEFAULT_STR_SIZE);
 	path_str[0] = '.';
@@ -311,7 +312,14 @@ int main(int argc, char** argv)
 
 	FILE* fp;
 
-   char wdtemp[] = "/tmp/xclXXXXXX";
+//   char wdtemp[] = "/tmp/xclXXXXXX";
+	char* wdtemp;
+
+	if (env_tmpdir)
+		asprintf(&wdtemp,"%s/xclXXXXXX",env_tmpdir);
+	else
+		asprintf(&wdtemp,"/tmp/xclXXXXXX");
+
    char* wd = mkdtemp(wdtemp);
 
 
@@ -585,12 +593,19 @@ int main(int argc, char** argv)
 
 //		char cmd[1024];
 //		char tfname[] = "/tmp/clccXXXXXX";
-		char tfname[] = TFNAME_TEMPLATE;
+//		char tfname[] = TFNAME_TEMPLATE;
+		char* tfname;
+		if (env_tmpdir)
+			asprintf(&tfname,"%s/clccXXXXXX",env_tmpdir);
+		else
+			asprintf(&tfname,"/tmp/clccXXXXXX");
+
 		int fd = mkstemp(tfname);
 		close(fd);
 
-		tflist[ifile] = (char*)calloc(sizeof(TFNAME_TEMPLATE)+1,1);
-		strcpy(tflist[ifile],tfname);
+//		tflist[ifile] = (char*)calloc(sizeof(TFNAME_TEMPLATE)+1,1);
+//		strcpy(tflist[ifile],tfname);
+		tflist[ifile] = strdup(tfname);
 		append_str(tfnames_str,tfname," ",0);
 
 DEBUG2("add tfame '%s'",tfname);
