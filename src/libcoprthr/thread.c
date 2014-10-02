@@ -152,6 +152,43 @@ int coprthr_join( coprthr_td_t td, void** val )
 }
 
 
+int coprthr_ncreate( unsigned int nthr, coprthr_td_t* td, 
+	coprthr_td_attr_t* attr, coprthr_sym_t thr, void* pargs )
+{
+	printcl( CL_DEBUG "coprthr_create");
+
+	if (!td)
+		return EFAULT;
+
+	if (attr==0 || *attr==0 || thr==0) 
+		return EINVAL;
+
+	if ( (*td = __malloc_struct(coprthr_td)) == 0) 
+		return ENOMEM;
+
+	(*td)->detachstate = (*attr)->detachstate;
+	(*td)->initstate = (*attr)->initstate;
+	(*td)->dd = (*attr)->dd;
+
+	__do_set_kernel_arg_1( thr, 0, 0, pargs );
+
+	__coprthr_init_event( &((*td)->ev) );
+
+	size_t gwo = 0;
+	size_t gws = nthr;
+	size_t lws = nthr;
+
+	__do_set_cmd_ndrange_kernel_1(*td,thr,1,&gwo,&gws,&lws);
+
+	struct coprthr_device* dev = __ddtab[(*td)->dd];
+
+	if ((*td)->initstate == COPRTHR_A_CREATE_EXECUTE) 
+		__do_enqueue_cmd_1(dev,&((*td)->ev));
+	
+	return 0;	
+}
+
+
 #if(0)
 int coprthr_ncreate( unsigned int nthr, coprthr_td_t* td, 
 	coprthr_td_attr_t* attr, coprthr_sym_t thr, void* parg )
