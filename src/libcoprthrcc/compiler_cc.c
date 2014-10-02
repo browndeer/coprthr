@@ -78,9 +78,10 @@ struct targets_entry {
 struct targets_entry targets[] = {
 	{ COPRTHR_CC_TARGET_X86_64, "compile_x86_64", "libcoprthrcc.so" },
 	{ COPRTHR_CC_TARGET_I386, "compile_i386", "libcoprthrcc.so" },
-//	{ COPRTHR_CC_TARGET_ARM32, "compile_arm32", "libcoprthrcc.so" },
+	{ COPRTHR_CC_TARGET_ARM32, "compile_arm32", "libcoprthrcc.so" },
 	{ COPRTHR_CC_TARGET_E32_EMEK, "compile_e32_emek", "libcoprthrcc-e.so" },
-	{ COPRTHR_CC_TARGET_E32, "compile_e32", "libcoprthrcc-e.so" }
+//	{ COPRTHR_CC_TARGET_E32, "compile_e32", "libcoprthrcc-e.so" }
+	{ COPRTHR_CC_TARGET_E32, "compile_e32_needham", "libcoprthrcc-e.so" }
 #if defined(ENABLE_ANDROID_CROSS_COMPILE)
 	,{ COPRTHR_CC_TARGET_ARM32_ANDROID, "compile_android_arm32", 
 		"libcoprthrcc.so" }
