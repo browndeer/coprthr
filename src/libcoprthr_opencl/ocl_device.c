@@ -788,5 +788,8 @@ void __do_discover_opencl_device_info_e32(
 
 	ocldevinfo->compiler_avail 
 		= (dev->devstate->compiler_avail==0)? CL_FALSE : CL_TRUE;
+
+	ocldevinfo->max_compute_units = dev->devinfo->max_compute_units;
+
 }
 
