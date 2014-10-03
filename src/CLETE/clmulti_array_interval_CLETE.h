@@ -72,6 +72,9 @@ using namespace std;
 #include <stdcl.h>
 #include <clmulti_array.h>
 
+#include "clelf.h"
+#include <sys/time.h>
+
 #include "CLETE/PETE.h"
 #include "CLETE/clmulti_array_interval_Operators.h"
 #include "CLETE/PrintType.h"
@@ -643,6 +646,56 @@ struct PrintF< clmulti_array_interval<T, 3> > {
 
 
 
+class KernelEngine {
+	public:
+		struct saved_kernel_ {
+			saved_kernel_( int h[4], void* c, cl_kernel k)
+				: clh(c), krn(k) 
+			{ hash[0]=h[0]; hash[1]=h[1]; hash[2]=h[2]; hash[3]=h[3]; }
+			int hash[4];
+			void* clh;
+			cl_kernel krn;
+		};
+		typedef std::list<saved_kernel_*> kernel_list_t;
+		KernelEngine() {
+		}
+		cl_kernel get_kernel( std::string& srcstr ) {
+
+			int hash[4];
+
+			clelf_md5( (const unsigned char*)srcstr.c_str(), srcstr.size(), 
+				(unsigned char*)hash );
+
+			printf("KernelEngine: hash 0x%x 0x%x 0x%x 0x%x\n",
+				hash[0], hash[1], hash[2], hash[3]);
+	
+			for( 	
+				kernel_list_t::iterator it = kernels_.begin(); 
+				it != kernels_.end(); 
+				it++
+			) {
+				saved_kernel_* s = *it;
+				if (hash[0]==s->hash[0] && hash[1]==s->hash[1]
+					&& hash[2]==s->hash[2] && hash[3]==s->hash[3]
+				) {
+					printf("KernelEngine: found kernel\n");
+					return s->krn;
+				}
+			}
+
+			void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+			cl_kernel krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
+			
+			saved_kernel_* s = new saved_kernel_(hash,clh,krn);
+
+			kernels_.push_back(s);
+
+			return krn;
+		}
+	private:
+		std::list<saved_kernel_*> kernels_;
+};
+
 
 /* this is where the real magic happens ... the evaluate functions */
 
@@ -703,9 +756,13 @@ inline void evaluate(
    int end = lhs.interval.last+1;
 
 
-	static cl_kernel krn = (cl_kernel)0;
+//	static cl_kernel krn = (cl_kernel)0;
+	cl_kernel krn = (cl_kernel)0;
+	static KernelEngine ke;
 
 //std::cout<<"XXXXXXXXXXXXXXXXXX "<<krn<<std::endl;
+
+/*
 
 	static std::vector<intptr_t> ref_sig_save;
 	std::vector<intptr_t> ref_sig;
@@ -717,18 +774,27 @@ inline void evaluate(
 	bool mismatch = false;
 	if (ref_sig_save.size() != ref_sig.size()) {
 		mismatch = true;
+		printf("ref_sig size mismatch %zd %zd\n",
+			ref_sig_save.size(),ref_sig.size());
 	} else {
 		for(int i=0; i<ref_sig.size(); i++) 
-			if (ref_sig[i] != ref_sig_save[i]) 
+			if (ref_sig[i] != ref_sig_save[i]) {
 				mismatch = true;
+				printf("ref_sig [%d] mismatch 0x%x 0x%x\n",
+					i,ref_sig[i],ref_sig_save[i]);
+			}
 	}
+*/
 
 //std::cout<<"XXXXXXXXXXXXXXXXXX mismatch "<<mismatch<<std::endl;
 
-//	if (!krn || ref_sig_save.equal(ref_sig)) {
-	if (!krn || mismatch) {
+	struct timeval t0,t1;
+	gettimeofday(&t0,0);
 
-		ref_sig_save = ref_sig;
+//	if (!krn || ref_sig_save.equal(ref_sig)) {
+//	if (!krn || mismatch) {
+
+//		ref_sig_save = ref_sig;
 
 		std::string srcstr = "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
 
@@ -772,9 +838,15 @@ inline void evaluate(
 		log_kernel(srcstr);
 //		std::cout<<srcstr<<std::endl;
 
-		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
-	}
+		
+//		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+//		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
+		krn = ke.get_kernel( srcstr );
+//	}
+
+	gettimeofday(&t1,0);
+	double t = (t1.tv_sec - t0.tv_sec) + 1e-6 * (t1.tv_usec - t0.tv_usec);
+	printf("get kernel time %f sec\n",t);
 
 	if (!krn) {
 		fprintf(stderr, "CLETE failed to build kernel, crashing now\n");
@@ -786,7 +858,8 @@ inline void evaluate(
 	clSetKernelArg(krn,0,sizeof(int),&first);
   	clSetKernelArg(krn,1,sizeof(int),&end);
 
-	int n = 2;	
+//	int n = 2;	
+	n = 2;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++) {
 
 		size_t sz = (*it).sz;
@@ -920,8 +993,10 @@ inline void evaluate(
 //	int end1 = lhs.interval1.end;
 	int end1 = lhs.interval1.last+1;
 
-	static cl_kernel krn = (cl_kernel)0;
+	cl_kernel krn = (cl_kernel)0;
+	static KernelEngine ke;
 
+/*
 	static std::vector<intptr_t> ref_sig_save;
 	std::vector<intptr_t> ref_sig;
 	for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++) {
@@ -931,14 +1006,24 @@ inline void evaluate(
 	bool mismatch = false;
 	if (ref_sig_save.size() != ref_sig.size()) {
 		mismatch = true;
+		printf("ref_sig size mismatch %zd %zd\n",
+			ref_sig_save.size(),ref_sig.size());
 	} else {
 		for(int i=0; i<ref_sig.size(); i++) 
-			if (ref_sig[i] != ref_sig_save[i]) 
+			if (ref_sig[i] != ref_sig_save[i]) {
 				mismatch = true;
+				printf("ref_sig [%d] mismatch 0x%x 0x%x\n",
+					i,ref_sig[i],ref_sig_save[i]);
+				break;
+			}
 	}
 
+	printf("mismatch=%d\n",mismatch);
+*/
+
+
 //	if (!krn) {
-	if (!krn || mismatch) {
+//	if (!krn || mismatch) {
 
 		std::string srcstr = "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
 
@@ -982,9 +1067,10 @@ inline void evaluate(
 
 		log_kernel(srcstr);
 
-		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
-	}
+//		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+//		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
+		krn = ke.get_kernel( srcstr );
+//	}
 
 	if (!krn) {
 		fprintf(stderr, "CLETE failed to build kernel, crashing now\n");
@@ -997,7 +1083,9 @@ inline void evaluate(
   	clSetKernelArg(krn,1,sizeof(int),&end0);
 	clSetKernelArg(krn,2,sizeof(int),&first1);
   	clSetKernelArg(krn,3,sizeof(int),&end1);
-	int n = 4;	
+
+//	int n = 4;	
+	n = 4;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++) {
 
 		size_t sz = (*it).sz;
@@ -1154,8 +1242,10 @@ inline void evaluate(
 //	int end2 = lhs.interval2.end;
 	int end2 = lhs.interval2.last+1;
 
-	static cl_kernel krn = (cl_kernel)0;
+	cl_kernel krn = (cl_kernel)0;
+	static KernelEngine ke;
 
+/*
 	static std::vector<intptr_t> ref_sig_save;
 	std::vector<intptr_t> ref_sig;
 	for( rlist_t::iterator it = rlist.begin(); it!=rlist.end(); it++) {
@@ -1170,9 +1260,10 @@ inline void evaluate(
 			if (ref_sig[i] != ref_sig_save[i]) 
 				mismatch = true;
 	}
+*/
 
 //	if (!krn) {
-	if (!krn || mismatch) {
+//	if (!krn || mismatch) {
 
 		std::string srcstr = "#pragma OPENCL EXTENSION cl_amd_fp64 : enable\n";
 
@@ -1216,9 +1307,10 @@ inline void evaluate(
 
 		log_kernel(srcstr);
 
-		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
-	}
+//		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+//		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
+		krn = ke.get_kernel( srcstr );
+//	}
 
 	if (!krn) {
 		fprintf(stderr,"CLETE failed to build kernel, crashing now\n");
@@ -1234,7 +1326,9 @@ inline void evaluate(
 	clSetKernelArg(krn,3,sizeof(int),&end1);
 	clSetKernelArg(krn,4,sizeof(int),&first2);
 	clSetKernelArg(krn,5,sizeof(int),&end2);
-	int n = 6;	
+
+//	int n = 6;	
+	n = 6;	
 	for( rlist_t::iterator it = rlista.begin(); it!=rlista.end(); it++) {
 
 		size_t sz = (*it).sz;
@@ -1383,9 +1477,10 @@ inline void evaluate(
 	int r = size;
 	if (r%256 > 0) r += 256 - r%256;
 
-	static cl_kernel krn = (cl_kernel)0;
+	cl_kernel krn = (cl_kernel)0;
+	static KernelEngine ke;
 
-	if (!krn) {
+//	if (!krn) {
 
 		std::string srcstr = "__kernel void\nkern(\n";
 
@@ -1428,9 +1523,10 @@ inline void evaluate(
 
 		log_kernel(srcstr);
 
-		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
-		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
-	}
+//		void* clh = clsopen(__CLCONTEXT,srcstr.c_str(),CLLD_NOW);
+//		krn = clsym(__CLCONTEXT,clh,"kern",CLLD_NOW);
+		krn = ke.get_kernel( srcstr );
+//	}
 
 	if (krn) {
 
