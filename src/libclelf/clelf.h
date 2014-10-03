@@ -74,6 +74,9 @@
 #define DEFAULT_CLPRGSRC_NALLOC	16
 #define DEFAULT_CLPRGBIN_NALLOC	128
 
+#if __cplusplus
+extern "C" {
+#endif
 
 struct clprgtab_entry {
 	ELF_Word e_name;
@@ -205,6 +208,10 @@ int clelf_platform_code( char* pname );
 
 unsigned char* clelf_md5( const unsigned char* buf, size_t n, 
 	unsigned char* hash );
+
+#if __cplusplus
+}
+#endif
 
 #endif
 
