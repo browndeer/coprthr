@@ -236,7 +236,8 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 	"cd %s;" \
 	" e-ld -r -o e32.o" \
 	" " E32PTH_CORE_MAIN_OBJ " e32_%s.o e32_kcall3_%s.o" \
-	" -L/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/lib -le-lib "
+	" /home/linaro/projects/cannon/coprthr_mpi.o " \
+	" -L/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/lib -le-lib " 
 
 #define SHELLCMD_GEN_SREC \
 	"cd %s; "  \
