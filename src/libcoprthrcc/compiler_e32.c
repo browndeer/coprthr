@@ -41,7 +41,7 @@
 #define ECXX_COMPILER " e-g++ "
 #define EOBJCOPY " e-objcopy "
 
-#define ECCFLAGS_OCL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=truncate -falign-loops=8 -falign-functions=8 -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/sys-include -fpermissive -D__coprthr_device__ -x c++"
+#define ECCFLAGS_OCL " -O3 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=truncate -falign-loops=8 -falign-functions=8 -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/sys-include -fpermissive -D__coprthr_device__ -x c++"
 
 #define ECCFLAGS_KCALL " -O0 -g -Wall -c -fmessage-length=0 -ffast-math -ftree-vectorize -funroll-loops -Wunused-variable -ffp-contract=fast -mlong-calls -mfp-mode=round-nearest -w -fstack-usage -fno-exceptions -U_FORTIFY_SOURCE -fno-stack-protector -I/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/sys-include -fpermissive -D__coprthr_device__ "
 
