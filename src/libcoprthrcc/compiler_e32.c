@@ -47,7 +47,8 @@
 
 
 #define ECC_BLOCKED_FLAGS "-D_FORTIFY_SOURCE", "-fexceptions", \
-	"-fstack-protector-all" "-fstack-protector-all"
+	"-fstack-protector-all" "-fstack-protector-all" \
+	"-D__link_mpi__ "
 
 
 #define _GNU_SOURCE
@@ -236,8 +237,15 @@ static void __append_str( char** pstr1, char* str2, char* sep, size_t n )
 	"cd %s;" \
 	" e-ld -r -o e32.o" \
 	" " E32PTH_CORE_MAIN_OBJ " e32_%s.o e32_kcall3_%s.o" \
+	" -L/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/lib -le-lib " 
+
+#define SHELLCMD_LINK_CORE_PROG_MPI \
+	"cd %s;" \
+	" e-ld -r -o e32.o" \
+	" " E32PTH_CORE_MAIN_OBJ " e32_%s.o e32_kcall3_%s.o" \
 	" -L" INSTALL_LIB_DIR " -lcoprthr_mpi " \
 	" -L/opt/adapteva/esdk/tools/e-gnu/epiphany-elf/lib -le-lib " 
+
 
 #define SHELLCMD_GEN_SREC \
 	"cd %s; "  \
@@ -297,6 +305,8 @@ int __compile_e32(
 	char* opt = (opt_in)? strdup(opt_in) : strdup(default_opt);
 
 	printcl( CL_DEBUG "opt |%s|",opt);
+
+	int link_mpi = strstr( opt, "-D__link_mpi__")? 1 : 0;
 
 	for(i=0;i<sizeof(ecc_block_flags)/sizeof(char*);i++) {
 		char* p;
@@ -455,7 +465,13 @@ int __compile_e32(
 
 		printcl( CL_DEBUG "link core prog for all cores");
 
-		__asprintf(&cmd,SHELLCMD_LINK_CORE_PROG, wd,filebase,filebase);
+		if (link_mpi)
+			__asprintf(&cmd,SHELLCMD_LINK_CORE_PROG_MPI, 
+				wd,filebase,filebase);
+		else
+			__asprintf(&cmd,SHELLCMD_LINK_CORE_PROG, 
+				wd,filebase,filebase);
+
 		err = exec_shell(cmd,log);
 		__check_err( err, "error: e32 prog link failed" );
 
