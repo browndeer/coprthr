@@ -451,7 +451,7 @@ _clGetDeviceInfo(
 		case CL_DEVICE_EXTENSIONS:
 
 			__case_get_param(
-				1+strnlen(__resolve_devid_devinfo(devid,extensions),__CLMAXSTR_BUFSZ),
+				1+strnlen(__resolve_devid_ocldevinfo(devid,extensions),__CLMAXSTR_BUFSZ),
 				__resolve_devid_ocldevinfo(devid,extensions));
 
 			break;
@@ -710,7 +710,7 @@ void __do_discover_opencl_device_info_x86_64(
       .global_mem_cache_type = CL_NONE,   /* global_mem_cache_type */
       .global_mem_cacheline_sz = 0,          /* global_mem_cacheline_sz */
       .global_mem_cache_sz = 0,        /* global_mem_cache_sz */
-      .global_mem_sz = 0,        /* global_mem_sz */
+      .global_mem_sz = dev->devinfo->global_mem_sz,        /* global_mem_sz */
       .max_const_buffer_sz = 65536,       /* cl_ulong max_const_buffer_sz */
       .max_const_narg = 8,          /* max_const_narg */
       .local_mem_type = CL_GLOBAL,  /* local_mem_type */
