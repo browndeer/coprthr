@@ -220,6 +220,11 @@ static int init_device_x86_64(void)
 		char* left = (char*)strtok_r(buf,":",&savptr);
 		char* right = (char*)strtok_r(0,":",&savptr);
 
+		if (!strncasecmp(left,"MemFree",7)) {
+			codev->devinfo->global_mem_sz = atoi(right) * 1000;
+			break;
+		}
+
 	}
 
 	fclose(fp);
@@ -275,7 +280,7 @@ printcl( CL_DEBUG "fgets |%s|",buf);
 //	fclose(fp);
 //codev->devinfo->vendor = pfoo;
 
-/*
+
 	if (stat("/proc/meminfo",&fs)) {
 		printcl( CL_WARNING "stat failed on /proc/meminfo");
 		return;
@@ -289,10 +294,17 @@ printcl( CL_DEBUG "fgets |%s|",buf);
 		char* left = (char*)strtok_r(buf,":",&savptr);
 		char* right = (char*)strtok_r(0,":",&savptr);
 
+		if (!strncasecmp(left,"MemFree",7)) {
+			codev->devinfo->global_mem_sz = atoi(right) * 1000;
+//			printf("set global_mem_sz %d\n",codev->devinfo->global_mem_sz);
+			break;
+		}
+
+
 	}
 
 	fclose(fp);
-*/
+
 
 codev->devinfo->max_compute_units = 2;
 codev->devinfo->name = strdup("ARMv7 Processor rev 0 (v7l)");
