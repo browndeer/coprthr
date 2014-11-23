@@ -364,7 +364,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 		printcl( CL_DEBUG "will try to load the srec file '%s'",
 			argp->k.krn->prg1->kbinfile);
 
-		printcl( CL_CRIT "XXX attempt e_loaad");
+//		printcl( CL_CRIT "XXX attempt e_loaad");
 
 		printcl( CL_DEBUG "send reset");
 		e_reset_system();
@@ -372,7 +372,7 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 		int err = e_load_group(argp->k.krn->prg1->kbinfile,
 			&e_epiphany,0,0,4,4,0);
 
-		printcl( CL_CRIT "XXX e_loader returned %d",err);
+//		printcl( CL_CRIT "XXX e_loader returned %d",err);
  
 		if (!err)
 			loaded_srec = argp->k.krn->prg1->kbin;
@@ -659,7 +659,7 @@ retry:
 		int count = 0;
 		do {
 			int rc = e_start(&e_epiphany,irow,icol);
-			fprintf( stderr,"(%d)e_start returned %d\n",count,rc);
+//			fprintf( stderr,"(%d)e_start returned %d\n",count,rc);
 			printcl( CL_DEBUG "(%d)e_start returned %d",count,rc);
 			e_read( &e_epiphany,irow,icol, E_REG_PC, &r_pc, sizeof(unsigned int));
 		} while(!r_pc && ++count < 100);
