@@ -46,8 +46,6 @@ _clFlush(cl_command_queue cmdq)
 cl_int 
 _clFinish(cl_command_queue cmdq )
 {
-	printcl( CL_WARNING "clFinish: warning: unsupported");
-
 	if (__invalid_command_queue(cmdq)) return(CL_INVALID_COMMAND_QUEUE);
 
 	__do_finish(cmdq);
