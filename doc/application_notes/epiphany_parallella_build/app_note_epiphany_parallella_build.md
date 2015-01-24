@@ -76,8 +76,8 @@ Then, as root, run the install script,
 	sudo ./browndeer/scripts/install_coprthr_parallella.sh
 
 After installing the COPRTHR SDK, it is very important to update the `.bashrc`
-file for *both root and user* to add the required paths in order for the
-software to operate properly,
+file for *user(s)* to add the required paths in order for the software to
+operate properly,
 
 ~~~~~~~
 export PATH=/usr/local/browndeer/bin:$PATH
@@ -90,13 +90,13 @@ Download the source code from github (github.com/browndeer/coprthr) using the
 latest release update for version 1.6 or the stable-1.6 branch and then build
 using the following steps for Parallella:
 
-	./configure –enable-epiphany --disable-clete
+	./configure --enable-epiphany --disable-clete
 	make
 	sudo make install
 
 After installing the COPRTHR SDK, it is very important to update the `.bashrc`
-file for *both root and user* to add the required paths in order for the
-software to operate properly,
+file for *user(s)* to add the required paths in order for the software to
+operate properly,
 
 ~~~~~~~
 export PATH=/usr/local/browndeer/bin:$PATH
@@ -115,18 +115,16 @@ directory and copy the `examples/` and `test/` directories installed with the
 SDK,
 
 	mkdir work
-	cp –R /usr/local/browndeer/examples ./work
-	cp –R /usr/local/browndeer/test ./work
+	cp -R /usr/local/browndeer/examples ./work
+	cp -R /usr/local/browndeer/test ./work
 
-Then cd into ./work/test and as root run the quicktest,
+Then cd into ./work/test and run the quicktest,
 
 	cd ./work/test
-	su
 	make quicktest
 
-If these tests do not all indicate `[pass]` then something is wrong. Typical
-problems are forgetting to correctly update and source `.bashrc` files and also
-attempting to run the test as a user (incorrect) and not root (correct).
+If these tests do not all indicate `[pass]` then something is wrong. A typical
+problem is forgetting to correctly update and source `.bashrc` files.
 
 Note that the test `test_stdcl_ndev_float4` for `stddev 1` is expected to fail
 on this platform and this is not a cause for concern.
@@ -149,5 +147,5 @@ and the
 
 ----------
 
-Document revision 1.6.0.0
+Document revision 1.6.0.1
 
