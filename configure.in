@@ -666,6 +666,11 @@ fi;
 
 fi
 
+AC_CHECK_PROG(have_system_event_rpcgen, event_rpcgen.py, yes, no)
+if ! test "x${have_system_event_rpcgen}" = "xyes"; then
+	AC_MSG_NOTICE([will use bundled third-party event_rpcgen.py])
+fi
+
 
 ### set path for libconfig
 AC_ARG_WITH(libconfig,

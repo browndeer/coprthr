@@ -663,6 +663,7 @@ ENABLE_DEBUG_LIBS
 ENABLE_CLETE
 ENABLE_CLGL
 MAKE
+have_system_event_rpcgen
 EGREP
 GREP
 CPP
@@ -4795,6 +4796,49 @@ else
    as_fn_error $? "cannot find libevent.so " "$LINENO" 5
 fi;
 
+fi
+
+# Extract the first word of "event_rpcgen.py", so it can be a program name with args.
+set dummy event_rpcgen.py; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_have_system_event_rpcgen+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$have_system_event_rpcgen"; then
+  ac_cv_prog_have_system_event_rpcgen="$have_system_event_rpcgen" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_have_system_event_rpcgen="yes"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+  test -z "$ac_cv_prog_have_system_event_rpcgen" && ac_cv_prog_have_system_event_rpcgen="no"
+fi
+fi
+have_system_event_rpcgen=$ac_cv_prog_have_system_event_rpcgen
+if test -n "$have_system_event_rpcgen"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $have_system_event_rpcgen" >&5
+$as_echo "$have_system_event_rpcgen" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+if ! test "x${have_system_event_rpcgen}" = "xyes"; then
+	{ $as_echo "$as_me:${as_lineno-$LINENO}: will use bundled third-party event_rpcgen.py" >&5
+$as_echo "$as_me: will use bundled third-party event_rpcgen.py" >&6;}
 fi
 
 
