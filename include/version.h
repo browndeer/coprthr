@@ -63,7 +63,7 @@
 //	"."__stringify(COPRTHR_RELEASE)" ("COPRTHR_NAME")"
 //#endif
 
-#define COPRTHR_VERSION_STRING "coprthr-1.6.0 (Freewill)"
+#define COPRTHR_VERSION_STRING "coprthr-1.6.1 (Freewill)"
 
 
 #define COPRTHR_VERSION_CODE \
