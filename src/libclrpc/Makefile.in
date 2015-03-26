@@ -114,12 +114,18 @@ TARGET += clrpcd
 
 TARGET += clrpc.gen.c clrpc.gen.h libclrpc_call_vector.c
 
+ifeq (@have_system_event_rpcgen@, yes)
+	EVENT_RPCGEN=event_rpcgen.py
+else
+	EVENT_RPCGEN=@abs_top_srcdir@/thirdparty/event_rpcgen.py
+endif
+
 all: $(TARGET)
 
 .PHONY: install uninstall clean distclean 
 
 clrpc.gen.h clrpc.gen.c:
-	event_rpcgen.py clrpc.rpc
+	$(EVENT_RPCGEN) clrpc.rpc
 
 libclrpc_call_vector.c:
 	perl $(SCRIPTS)/gen_ocl_call_vector.pl __clrpc_call_vector clrpc_ \

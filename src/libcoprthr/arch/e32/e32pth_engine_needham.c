@@ -350,7 +350,6 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 	}
 
 	e_set_host_verbosity(H_D0);
-	e_set_loader_verbosity(0);
 
 	if (printcl_level>6) __dump_registers();
 
@@ -368,7 +367,6 @@ int e32pth_engine_klaunch_needham( int engid_base, int ne, struct workp* wp,
 
 		printcl( CL_DEBUG "send reset");
 		e_reset_system();
-		e_set_loader_verbosity(0);
 		int err = e_load_group(argp->k.krn->prg1->kbinfile,
 			&e_epiphany,0,0,4,4,0);
 

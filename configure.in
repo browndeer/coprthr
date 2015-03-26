@@ -493,6 +493,8 @@ AC_ARG_WITH(lib,
   ],
   [ LIB_PATH=/usr/local ])
 
+LDFLAGS+=" -L${LIB_PATH}/lib"
+
 
 
 
@@ -510,11 +512,24 @@ AC_ARG_WITH(libelf,
     fi;
     echo $LIBELF_PATH
   ],
-  [
-    LIBELF_PATH=$LIB_PATH;
-  ])
+  [])
 
-echo $LIBELF_PATH
+
+if test "x$LIBELF_PATH" = "x"; then
+
+tmp_LIBS=$LIBS
+LIBS=
+AC_SEARCH_LIBS([elf_version], [elf], [ LIBELF_LIB="-lelf" ], [AC_MSG_ERROR([unable to find libelf]) ])
+LIBS=$tmp_LIBS
+
+AC_CHECK_HEADERS([libelf/libelf.h],
+			[found_libelf_headers=yes; break;])
+
+AS_IF([test "x$found_libelf_headers" != "xyes"],
+	[AC_MSG_ERROR([Unable to find the libelf headers])])
+
+
+else
 
 # XXX this seems like a sledge hammer, but its all i could come up with -DAR
 tmp_test_libelf=`readelf -d $LIBELF_PATH/lib/libelf.so | grep 'Library soname' | awk '{print $5}'`
@@ -532,6 +547,8 @@ fi;
 #libelf_lib="-L$LIBELF_PATH/lib -lelf"
 LIBELF_INC="-I$LIBELF_PATH/include"
 LIBELF_LIB="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
+
+fi
 
 ### XXX clean up this syntax - above - for setting paths and such -DAR
 
@@ -598,10 +615,10 @@ AC_ARG_WITH(opencl-icd-path,
     fi;
   ],
   [ 
-	if test $enable_user_install -eq 1; then
-		OPENCL_ICD_PATH=$prefix/etc/OpenCL/vendors 
+	if test "x$enable_user_install" = "xno"; then
+		OPENCL_ICD_PATH=/etc/OpenCL/vendors
 	else
-		OPENCL_ICD_PATH=/etc/OpenCL/vendors 
+		OPENCL_ICD_PATH=$prefix/etc/OpenCL/vendors
 	fi
 	])
 
@@ -617,17 +634,28 @@ AC_ARG_WITH(libevent,
       LIBEVENT_PATH=$withval
     fi;
   ],
-  [ 
-    LIBEVENT_PATH=$LIB_PATH
-  ])
+  [ ])
 
 echo "XXX " $LIB_PATH
 echo "XXX " $LIBEVENT_PATH
 
+if test "x$LIBEVENT_PATH" = "x"; then
+
+AC_SEARCH_LIBS([event_init], [event event-1.4 event2], [ ], [AC_MSG_ERROR([unable to find libevent]) ])
+
+AC_CHECK_HEADERS([event2/event.h],
+			[found_libevent_headers=yes; break;])
+
+AS_IF([test "x$found_libevent_headers" != "xyes"],
+	[AC_MSG_ERROR([Unable to find the libevent headers])])
+
+
+else
+
 if ! test -e $LIBEVENT_PATH/include/event2; then
    AC_MSG_ERROR([cannot find libevent headers])
 fi;
-	
+
 if test -e $LIBEVENT_PATH/lib/libevent.so; then
 	echo "found " $LIBEVENT_PATH/lib/libevent.so
 elif test -e $LIBEVENT_PATH/lib/libevent.a; then
@@ -635,6 +663,13 @@ elif test -e $LIBEVENT_PATH/lib/libevent.a; then
 else
    AC_MSG_ERROR([cannot find libevent.so ])
 fi;
+
+fi
+
+AC_CHECK_PROG(have_system_event_rpcgen, event_rpcgen.py, yes, no)
+if ! test "x${have_system_event_rpcgen}" = "xyes"; then
+	AC_MSG_NOTICE([will use bundled third-party event_rpcgen.py])
+fi
 
 
 ### set path for libconfig
@@ -648,9 +683,19 @@ AC_ARG_WITH(libconfig,
       LIBCONFIG_PATH=$withval
     fi;
   ],
-  [ 
-    LIBCONFIG_PATH=$LIB_PATH
-  ])
+  [ ])
+
+if test "x$LIBCONFIG_PATH" = "x"; then
+
+AC_SEARCH_LIBS([config_init], [config], [ ], [AC_MSG_ERROR([unable to find libconfig]) ])
+
+AC_CHECK_HEADERS([libconfig.h],
+			[found_libconfig_headers=yes; break;])
+
+AS_IF([test "x$found_libconfig_headers" != "xyes"],
+	[AC_MSG_ERROR([Unable to find the libconfig headers])])
+
+else
 
 if ! test -e $LIBCONFIG_PATH/include/libconfig.h; then
    AC_MSG_ERROR([cannot find libconfig header])
@@ -663,7 +708,7 @@ else
    AC_MSG_ERROR([cannot find libconfig.so ])
 fi;
 
-
+fi
 
 ### set max clmesg level
 AC_ARG_WITH(max-clmesg-level,
