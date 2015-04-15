@@ -28,6 +28,8 @@ endif
 #ENABLE_DEBUG_LIBCLRPC=0
 #endif
 
+RPCGEN = @RPCGEN@
+
 
 INSTALL_INCLUDE_DIR=@includedir@
 INSTALL_BIN_DIR=@bindir@
@@ -119,7 +121,8 @@ all: $(TARGET)
 .PHONY: install uninstall clean distclean 
 
 clrpc.gen.h clrpc.gen.c:
-	event_rpcgen.py clrpc.rpc
+#	event_rpcgen.py clrpc.rpc
+	$(RPCGEN) clrpc.rpc
 
 libclrpc_call_vector.c:
 	perl $(SCRIPTS)/gen_ocl_call_vector.pl __clrpc_call_vector clrpc_ \

@@ -478,8 +478,16 @@ fi;
 echo $F90
 
 
-### allow a default --with-lib to be provided when prerequisite libraries
+
+### Allow a default --with-lib to be provided when prerequisite libraries
 ### are all installed in same place.
+###
+### The default to /usr/local is intentional since this location is the
+### conventional location where the prerequisite libraries are installed by
+### default when built from source.
+### 
+### These versions are always prefered since every OS encountered has had
+### incorrect and/or ancient versions of required libraries, unfortunately.
 
 AC_ARG_WITH(lib,
   AC_HELP_STRING([--with-lib=DIR],
@@ -494,46 +502,180 @@ AC_ARG_WITH(lib,
   [ LIB_PATH=/usr/local ])
 
 
-
-
-### now address a constant annoyance.  
-### we will require a path for libelf and most importantly we will 
-### reject attempts to use libelf.so.1 because its useless -DAR
+### if LIBELF_PATH specified us it, otherwise default to LIB_PATH
 
 AC_ARG_WITH(libelf,
-  AC_HELP_STRING([--with-libelf=DIR], [specify path to libelf]),
-  [
-    if test x$withval = xno; then
-         AC_MSG_ERROR([usage: --with-libelf=DIR])
-    else
-      LIBELF_PATH=$withval
-    fi;
-    echo $LIBELF_PATH
-  ],
-  [
-    LIBELF_PATH=$LIB_PATH;
-  ])
+	AC_HELP_STRING([--with-libelf=DIR], [specify path to libelf]),
+	[
+		if test x$withval = xno; then
+			AC_MSG_ERROR([usage: --with-libelf=DIR])
+		else
+			LIBELF_PATH=$withval
+		fi;
+	],
+	[ 
+		LIBELF_PATH=$LIB_PATH 
+	])
 
-echo $LIBELF_PATH
 
-# XXX this seems like a sledge hammer, but its all i could come up with -DAR
-tmp_test_libelf=`readelf -d $LIBELF_PATH/lib/libelf.so | grep 'Library soname' | awk '{print $5}'`
+### if LIBEVENT_PATH specified us it, otherwise default to LIB_PATH
 
-if test -e $LIBELF_PATH/lib/libelf.a; then
-	echo "using static libelf"
-elif ! test -e $LIBELF_PATH/lib/libelf.so; then
-   AC_MSG_ERROR([cannot find libelf, try --with-libelf=DIR])
-elif ! test x$tmp_test_libelf = x@<:@libelf.so.0@:>@; then
-	echo $tmp_test_libelf
-	AC_MSG_ERROR([incorrect version of libelf specified])
+AC_ARG_WITH(libevent,
+	AC_HELP_STRING([--with-libevent=DIR], [set path for libevent]),
+	[
+		if test x$withval = xno; then
+			AC_MSG_ERROR([usage: --with-libevent=DIR])
+		else
+			LIBEVENT_PATH=$withval
+		fi;
+	],
+	[ 
+		LIBEVENT_PATH=$LIB_PATH
+	])
+
+### if LIBCONFIG_PATH specified us it, otherwise default to LIB_PATH
+
+AC_ARG_WITH(libconfig,
+	AC_HELP_STRING([--with-libconfig=DIR], [set path for libconfig]),
+	[
+		if test x$withval = xno; then
+			AC_MSG_ERROR([usage: --with-libconfig=DIR])
+		else
+			LIBCONFIG_PATH=$withval
+		fi;
+	],
+	[ 
+		LIBCONFIG_PATH=$LIB_PATH
+	])
+
+
+### now check for libelf, preference is given to the path LIBELF_PATH
+
+echo "libelf path " $LIBELF_PATH
+
+if test -e $LIBELF_PATH/lib/libelf.so; then
+	tmp_libelf_soname=`readelf -d $LIBELF_PATH/lib/libelf.so | grep 'Library soname' | awk '{print $5}'`
+	if ! test x$tmp_libelf_soname = x@<:@libelf.so.0@:>@; then
+		echo $tmp_libelf_soname
+		AC_MSG_ERROR([incorrect version of libelf found])
+	fi
+	echo "found libelf library";
+elif test -e $LIBELF_PATH/lib/libelf.a; then
+	echo "found static libelf library"
+else
+#	AC_MSG_ERROR([cannot find libelf, try --with-libelf=DIR])
+	unset LIBELF_PATH
+fi
+
+echo "libelf path " $LIBELF_PATH
+
+### if libelf not found then fallback to standard paths and hope for the best
+
+if test "x$LIBELF_PATH" = "x"; then
+
+	tmp_LIBS=$LIBS
+	LIBS=
+		AC_SEARCH_LIBS( 
+			[elf_version], [elf], [ LIBELF_LIB="-lelf" ], 
+			[AC_MSG_ERROR([unable to find libelf]) 
+		])
+	LIBS=$tmp_LIBS
+
+	AC_CHECK_HEADERS([libelf/libelf.h], [found_libelf_headers=yes; break;])
+
+	AS_IF([test "x$found_libelf_headers" != "xyes"], [AC_MSG_ERROR([unable to find libelf headers]) ])
+
+else
+
+	LIBELF_LIB="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
+
+fi
+
+
+### now check for libevent, preference is given to the path LIBEVENT_PATH
+
+echo "libevent path " $LIBEVENT_PATH
+
+if test -e $LIBEVENT_PATH/lib/libevent.so; then
+	echo "found libevent library"
+	if ! test -e $LIBEVENT_PATH/include/event2; then
+		unset LIBEVENT_PATH
+	fi;
+elif test -e $LIBEVENT_PATH/lib/libevent.a; then
+	echo "found static libevent library"
+	if ! test -e $LIBEVENT_PATH/include/event2; then
+		unset LIBEVENT_PATH
+	fi;
+else
+	unset LIBEVENT_PATH
 fi;
 
-#libelf_inc="-I$LIBELF_PATH/include"
-#libelf_lib="-L$LIBELF_PATH/lib -lelf"
-LIBELF_INC="-I$LIBELF_PATH/include"
-LIBELF_LIB="-Wl,-rpath,$LIBELF_PATH/lib -L$LIBELF_PATH/lib -lelf"
 
-### XXX clean up this syntax - above - for setting paths and such -DAR
+echo "libevent path " $LIBEVENT_PATH
+
+### if libevent not found then fallback to standard paths and hope for the best
+
+if test "x$LIBEVENT_PATH" = "x"; then
+
+	AC_SEARCH_LIBS( 
+		[event_init], [event event2], [ ], 
+		[AC_MSG_ERROR([unable to find libevent]) 
+	])
+
+	AC_CHECK_HEADERS([event2/event.h], [found_libevent_headers=yes; break;])
+
+	AS_IF([test "x$found_libevent_headers" != "xyes"], 
+		[AC_MSG_ERROR([unable to find libevent headers]) ])
+
+fi
+
+### check for the event_rpcgen.py program
+
+AC_CHECK_PROG(have_system_event_rpcgen, event_rpcgen.py, yes, no)
+if ! test "x${have_system_event_rpcgen}" = "xyes"; then
+	AC_MSG_NOTICE([will use bundled third-party event_rpcgen.py])
+	RPCGEN=../../third-party/event_rpcgen.py
+else
+	RPCGEN=event_rpcgen.py
+fi
+
+
+### now check for libconfig, preference is given to the path LIBCONFIG_PATH
+
+echo "libconfig path " $LIBCONFIG_PATH
+
+if test -e $LIBCONFIG_PATH/lib/libconfig.so; then
+	echo "found libconfig library"
+	if ! test -e $LIBCONFIG_PATH/include/libconfig.h; then
+		AC_MSG_ERROR([cannot find libconfig header])
+	fi;
+elif test -e $LIBCONFIG_PATH/lib/libconfig.a; then
+	echo "found static libconfig library"
+	if ! test -e $LIBCONFIG_PATH/include/libconfig.h; then
+		AC_MSG_ERROR([cannot find libconfig header])
+	fi;
+else
+	unset LIBCONFIG_PATH
+fi;
+
+echo "libconfig path " $LIBCONFIG_PATH
+
+### if libconfig not found then fallback to standard paths and hope for the best
+
+if test "x$LIBCONFIG_PATH" = "x"; then
+
+	AC_SEARCH_LIBS( 
+		[config_init], [config], [ ], 
+		[AC_MSG_ERROR([unable to find libconfig]) 
+	])
+
+	AC_CHECK_HEADERS([libconfig.h], [found_libconfig_headers=yes; break;])
+
+	AS_IF([test "x$found_libconfig_headers" != "xyes"], 
+		[AC_MSG_ERROR([unable to find libconfig headers]) ])
+
+fi
+
 
 
 ### select C/C++ compilers for libcoprthr
@@ -598,71 +740,13 @@ AC_ARG_WITH(opencl-icd-path,
     fi;
   ],
   [ 
-	if test $enable_user_install -eq 1; then
-		OPENCL_ICD_PATH=$prefix/etc/OpenCL/vendors 
-	else
+#	if test $enable_user_install -eq 1; then
+	if test "x$enable_user_install" = "xno"; then
 		OPENCL_ICD_PATH=/etc/OpenCL/vendors 
+	else
+		OPENCL_ICD_PATH=$prefix/etc/OpenCL/vendors 
 	fi
 	])
-
-
-### set path for libevent
-AC_ARG_WITH(libevent,
-  AC_HELP_STRING([--with-libevent=DIR],
-  [set path for libevent]),
-  [
-    if test x$withval = xno; then
-		AC_MSG_ERROR([usage: --with-libevent=DIR])
-    else
-      LIBEVENT_PATH=$withval
-    fi;
-  ],
-  [ 
-    LIBEVENT_PATH=$LIB_PATH
-  ])
-
-echo "XXX " $LIB_PATH
-echo "XXX " $LIBEVENT_PATH
-
-if ! test -e $LIBEVENT_PATH/include/event2; then
-   AC_MSG_ERROR([cannot find libevent headers])
-fi;
-	
-if test -e $LIBEVENT_PATH/lib/libevent.so; then
-	echo "found " $LIBEVENT_PATH/lib/libevent.so
-elif test -e $LIBEVENT_PATH/lib/libevent.a; then
-	echo "using static libevent"
-else
-   AC_MSG_ERROR([cannot find libevent.so ])
-fi;
-
-
-### set path for libconfig
-AC_ARG_WITH(libconfig,
-  AC_HELP_STRING([--with-libconfig=DIR],
-  [set path for libconfig]),
-  [
-    if test x$withval = xno; then
-		AC_MSG_ERROR([usage: --with-libconfig=DIR])
-    else
-      LIBCONFIG_PATH=$withval
-    fi;
-  ],
-  [ 
-    LIBCONFIG_PATH=$LIB_PATH
-  ])
-
-if ! test -e $LIBCONFIG_PATH/include/libconfig.h; then
-   AC_MSG_ERROR([cannot find libconfig header])
-fi;
-if test -e $LIBCONFIG_PATH/lib/libconfig.so; then
-	echo "found" $LIBCONFIG_PATH/lib/libconfig.so
-elif test -e $LIBCONFIG_PATH/lib/libconfig.a; then
-	echo "using static libconfig"
-else
-   AC_MSG_ERROR([cannot find libconfig.so ])
-fi;
-
 
 
 ### set max clmesg level
@@ -882,6 +966,8 @@ AC_SUBST(DEFAULT_OPENCL_PLATFORM)
 #AC_SUBST(libelf_lib)
 AC_SUBST(LIBELF_INC)
 AC_SUBST(LIBELF_LIB)
+
+AC_SUBST(RPCGEN)
 
 AC_SUBST(LIBCOPRTHR_CC)
 AC_SUBST(LIBCOPRTHR_CXX)

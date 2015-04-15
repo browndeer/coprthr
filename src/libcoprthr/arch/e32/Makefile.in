@@ -70,7 +70,8 @@ ESDK_INC += -I/opt/adapteva/esdk//tools/host/armv7l/include
 ESDK_LIB += -L/opt/adapteva/esdk//tools/host/armv7l/lib -le-loader -le-host
 else
 ESDK_INC += -I/opt/adapteva/esdk//tools/host/include
-ESDK_LIB += -L/opt/adapteva/esdk//tools/host/lib -le-hal
+#ESDK_LIB += -L/opt/adapteva/esdk//tools/host/lib -le-hal
+ESDK_LIB += -L/opt/adapteva/esdk//tools/host/lib -le-hal -le-loader
 endif
 
 
