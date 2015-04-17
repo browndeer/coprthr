@@ -41,7 +41,7 @@
 #endif
 
 #ifndef COPRTHR_RELEASE
-#define COPRTHR_RELEASE 0 /* @RELEASE */
+#define COPRTHR_RELEASE 2 /* @RELEASE */
 #endif
 
 #ifndef COPRTHR_NAME
@@ -63,7 +63,7 @@
 //	"."__stringify(COPRTHR_RELEASE)" ("COPRTHR_NAME")"
 //#endif
 
-#define COPRTHR_VERSION_STRING "coprthr-1.6.1 (Freewill)"
+#define COPRTHR_VERSION_STRING "coprthr-1.6.2 (Freewill)"
 
 
 #define COPRTHR_VERSION_CODE \
