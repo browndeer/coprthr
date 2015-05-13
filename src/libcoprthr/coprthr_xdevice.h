@@ -30,7 +30,13 @@ void coprthr_mutex_unlock( void* p_mtx)
 
 #elif defined(__epiphany__)
 
-#include "e_mutex.h"
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <e-lib.h>
+#ifdef __cplusplus
+}
+#endif
 
 #warning __epiphany__ defined
 

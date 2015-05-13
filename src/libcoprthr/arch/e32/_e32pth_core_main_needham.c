@@ -27,9 +27,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <e_coreid.h>
-#include <e_common.h>
-#include <e_mutex.h>
+
+#include <e-lib.h>
 
 #define XXX_RUN 0x7f90
 #define XXX_DEBUG 0x7f94
