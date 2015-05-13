@@ -718,7 +718,7 @@ int main(int argc, char** argv)
 					snprintf(tmp_filename,256,"%sbin.%d.%s\0",
 						fname,platform_code,device_name);
 
-					int tmp_fd = open(tmp_filename,O_WRONLY|O_CREAT,644);
+					int tmp_fd = open(tmp_filename,O_WRONLY|O_CREAT, 0644);
 					write(tmp_fd,bins[j],bin_sizes[j]);
 					close(tmp_fd);
 
