@@ -1,10 +1,19 @@
 #!@BASH@
 
-args=`getopt v:f:t: $*`
+args=`getopt v:f:t:T: $*`
 
 set -- $args
 
 clmesg_level=7
+
+tmpclear=0
+
+fullpath() {
+	if [ -d "$(dirname "$1")" ]; then
+		echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+	fi
+}
+
 
 for i
 do
@@ -17,6 +26,8 @@ do
    ;;
    -t) shift; tmpdir=$1;
    ;;
+   -T) shift; tmpdir=$1; tmpclear=1;
+   ;;
    *) shift
    esac
 done
@@ -24,8 +35,12 @@ done
 if [ -z "$tmpdir" ]; then
    export COPRTHR_CLMESG_LEVEL=$clmesg_level; $@;
 else
+	tmpdir=`fullpath $tmpdir`
 	if [ ! -e "$tmpdir" ]; then
 		mkdir -p $tmpdir;
+	fi
+	if [ $tmpclear -eq 1 ]; then
+		rm -Rf $tmpdir/xcl*
 	fi
    export COPRTHR_CLMESG_LEVEL=$clmesg_level; export COPRTHR_TMP=$tmpdir; $@;
 fi
