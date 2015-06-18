@@ -105,7 +105,7 @@ void usage()
 	printf("\t-I <directory>\n");
 	printf("\t-v\n");
 	printf("\t--help, -h\n");
-	printf("\t--version, -v\n");
+	printf("\t--version\n");
 	printf("\t-fopencl\n");
 	printf("\t-fstdcl\n");
 	printf("\t-fcuda\n");

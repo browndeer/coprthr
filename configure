@@ -1409,7 +1409,7 @@ Optional Features:
   --enable-libocl-hook    enable libocl hook support (default=no)
   --enable-emek-build     enable build for Epiphany EMEK (default=no)
   --enable-old-esdk       enable old eSDK API for Epiphany (default=no)
-  --enable-user-install   enable installation by user without roo permission
+  --enable-user-install   enable installation by user without root permission
                           (default=no)
   --enable-android-cross-compile
                           enable cross-compile for Android (default=no)

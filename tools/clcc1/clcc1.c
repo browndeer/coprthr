@@ -484,10 +484,10 @@ int main(int argc, char** argv)
 
 
 	if (target_str && !use_coprthr_cc) {
-		printcl( CL_ERR "-mtarget is only used with --coprthr_cc");
+		printcl( CL_ERR "-mtarget is only used with --coprthr-cc");
 		exit(-1);
 	} else if (en_report_targets && !use_coprthr_cc) {
-		printcl( CL_ERR "--targets is only used with --coprthr_cc");
+		printcl( CL_ERR "--targets is only used with --coprthr-cc");
 		exit(-1);
 	} else if (en_report_targets && use_coprthr_cc) {
 		char* log = 0;
@@ -495,7 +495,7 @@ int main(int argc, char** argv)
 		printf( "%s\n",log);
 		exit(0);
 	} else if (!target_str && use_coprthr_cc) {
-		printcl( CL_ERR "--coprthr_cc requires -mtarget to select target device");
+		printcl( CL_ERR "--coprthr-cc requires -mtarget to select target device");
 		exit(-1);
 	}
 
