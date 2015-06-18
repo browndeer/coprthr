@@ -9,8 +9,8 @@ OPENCL_LIBS = -L@OPENCL_LIB@ -l@OPENCL_LIBNAME@
 STDCL_INCS = -I@includedir@
 STDCL_LIBS = -L@libdir@ -lstdcl
 
-INCS = $(OPENCL_INCS) $(STDCL_INCS)
-LIBS = $(OPENCL_LIBS) $(STDCL_LIBS)
+INCS = $(STDCL_INCS) $(OPENCL_INCS)
+LIBS = $(STDCL_LIBS) $(OPENCL_LIBS)
 
 #LIBS += -lssl -L/usr/local/lib 
 
