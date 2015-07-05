@@ -88,7 +88,7 @@ int main()
 ~~~~~~~
 
 The elements of the program are rather simple.  Storage for the matrix and
-vectors are allocated and initialized.  The matrix-vector multiply calculation
+vectors is allocated and initialized.  The matrix-vector multiply calculation
 is performed producing the result vector, which is subsequently printed out.
 
 &nbsp;
@@ -104,7 +104,7 @@ important to understand that architecture matters, and Parallella is actually
 unique.  Understanding the unique features, capabilities, and limitations is
 key to programming the Parallella platform.
 
-Turning back to our matrix-vector multipl example, porting this program to use
+Turning back to our matrix-vector multiply example, porting this program to use
 the Epiphany co-processor on Parallella introduces three basic requirements for
 modifying the code:
 
@@ -194,7 +194,7 @@ device-shareable memory,
 	float* c = (float*)clmalloc(stdacc,n*sizeof(float),0);
 
 where `stdacc` is the STDCL context for the Epiphany accelerator, the second
-argument is just the size of the allocations in bytes, and he flags argument in
+argument is just the size of the allocations in bytes, and the flags argument in
 this case can be left as 0.
 
 Next we must ensure that the memory is synchronized with the Epiphany device
@@ -204,7 +204,7 @@ consistency is a basic requirement for proper operation.  Although it is quite
 possible to create an API premised on automatic memory consistency, such
 approaches have not been successful thus far with accelerators, and all APIs
 have inevitably exposed this control to the programmer.  STDCL introduces this
-programming requirement directly and with clean syntax as compred to the
+programming requirement directly and with clean syntax as compared to the
 implicit syntax found with `#pragma` mark-up APIs.  
 
 Modifying our program to ensure the data is synchronized with the device memory
@@ -236,7 +236,7 @@ execution are launched on the co-processor,
 Notice here that the kernel symbol, `matvecmult_kern`, is the name of our
 kernel function.  Additionally, the arguments passed to the kernel are
 `n,aa,b,c` specified as the last arguments to the `clexec()` call.  The
-`clexec() call is non-blocking and therefore it is required that the host
+`clexec()` call is non-blocking and therefore it is required that the host
 code eventually block until all device operations are completed.  
 
 Next we must ensure that the device memory where the results are stored is
@@ -382,7 +382,7 @@ parallelism.
 
 The basic problem with our initial port is exemplified by two related
 observations.  First, when we defined the index range used to launch threads,
-we asked for n threads executed in local workgroups of 16to match the number of
+we asked for n threads executed in local workgroups of 16 to match the number of
 cores on the Epiphany processor.  Second, when we examime our kernel code, we
 find that we have a very "light" kernel that perofrms a single summation over n
 products.
@@ -394,7 +394,7 @@ for thousands of threads.  Epiphany is not a GPU and this alters the fundamental
 
 Based on our architecture, we know how we would like the program to behave.
 Specifically, we would like to perform our parallel calculation using 16 
-threads corresponding to the 16 phisial RISC array cores.  Any over-threading
+threads corresponding to the 16 physical RISC array cores.  Any over-threading
 beyond this cannot bring any benefit and can only incur penalties for increased overhead.  So we take this into account as a basic design strategy when porting
 our program to Parallella.
 
@@ -442,7 +442,7 @@ void matvecmult_kern2( unsigned int n, float* aa, float* b, float* c )
 
 ## Modifying the Host Code
 
-The modifications to the host code are much simpler, and in fact our trivial.
+The modifications to the host code are much simpler, and in fact are trivial.
 The only required change is to modify the index range over which the kernel is
 executed, changing this from n to 16,
 
@@ -572,7 +572,7 @@ here consisting of only a single line of code, must be pulled out and
 used to create a kernel for parallel execution on the Epiphany device.
 
 The approach discussed in Section 3 in which the parallelism is matched
-the phyical cores of the RISC array will be employed here from the
+to the phyical cores of the RISC array will be employed here from the
 start.  The idea is quite simple.  The work of adding the elements of
 the data vector will be distributed as evenly as possible over the 16 phyisical
 cores to calculate partial sums.  Subsequently the 16 partial sums will be
@@ -898,7 +898,7 @@ this as an exercise.
 
 The kernel below will apply the stencil operation to a tile (approximately)
 1/16th the size of the data array.  The bookkeeping implements the constraint
-that elements on the outer edge of the array is not calculated since the
+that elements on the outer edge of the array are not calculated since the
 stencil leaves the update of these points ill-defined.
 
 ~~~~~~~
