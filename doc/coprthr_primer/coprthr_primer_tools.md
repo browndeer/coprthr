@@ -101,9 +101,15 @@ Options:
   : Generate an object file that is linkable with clld. This is the default 
     behavior and the 
     flag is provided only to maintain conventional compiler 
-    semantics.-fopenclSpecify the language dialect for compilation to be strict 
+    semantics.
+
+-fopencl
+  : Specify the language dialect for compilation to be strict 
     OpenCL, overriding that which is inferred from the file 
-    extensions.-fcuda(Reserved)
+    extensions.
+
+-fcuda
+  : (Reserved)
 
 -fopenmp
   : (Reserved)
@@ -115,37 +121,40 @@ Options:
   : Print a 
     brief help message.
 
--I <path>
-  : Add <path> to the include path for compilation.
+-I `<path>`
+  : Add `<path>` to the include path for compilation.
 
 -mall
   : Include binaries for all devices supported by all available platforms.
 
 -mavail
   : Include binaries for only those devices available on the host 
-    system.-mdevice=<devices>Select exclusive list of devices to include where 
-    <devices> is a comma separated list with no spaces. Device names are vendor 
+    system.
+
+-mdevice=`<devices>`
+  : Select exclusive list of devices to include where 
+    `<devices>` is a comma separated list with no spaces. Device names are vendor 
     specific. Note that the naming convention will in some cases employ device 
     aliases, e.g., all x86_64 processors are identified with that simple tag 
     regardless of the exact processor name.
 
--mdevice-exclude=<devices>
-  : Select list of devices to exclude where <devices> is a comma separated 
+-mdevice-exclude=`<devices>`
+  : Select list of devices to exclude where `<devices>` is a comma separated 
     list with no spaces. Device names are vendor specific. Note that the naming
     convention will 
     in some cases employ device aliases, e.g., all x86_64 processors are 
     identified with that simple tag regardless of the exact processor 
     name.
 
--mplatform=<platforms>
+-mplatform=`<platforms>`
   : Select exclusive list of platforms to include where <platforms> is a 
     comma separated list with no spaces. 
 
--mplatform-exclude=<platforms>
-  : Select list of platforms to exclude where <platforms> is a comma separated 
+-mplatform-exclude=`<platforms>`
+  : Select list of platforms to exclude where `<platforms>` is a comma separated 
     list with no spaces.
 
--o <output file>
+-o `<output file>`
   : Specifiy the output filename for the final ELF object file. The default 
     naming convention for compiling a single OpenCL kernel file is the 
     filename base with the .o extension. The default naming convention 
@@ -183,7 +192,7 @@ Options:
     source code. This prevents the kernels from being JIT compiled on target 
     platforms and devices not included in the offline compilation.
 
--h--help
+-h --help
   : Print a brief help message.
 
 -mall
@@ -192,28 +201,30 @@ Options:
 -mavail
   : Include binaries for only those devices available on the host system.
 
--mdevice=<devices>
-  : Select exclusive list of devices to include where <devices> is a comma 
+-mdevice=`<devices>`
+  : Select exclusive list of devices to include where `<devices>` is a comma 
     separated list with no spaces. Device names are vendor specific. 
     Note that the naming convention will in some cases employ 
     device aliases, e.g., all x86_64 processors are identified with that simple 
     tag regardless of the exact processor name.
 
--mdevice-exclude=<devices>
-  : Select list of devices to exclude where <devices> is a comma separated 
+-mdevice-exclude=`<devices>`
+  : Select list of devices to exclude where `<devices>` is a comma separated 
     list with no spaces. Device names are vendor specific. Note that the 
     naming convention will 
     in some cases employ device aliases, e.g., all x86_64 processors are 
     identified with that simple tag regardless of the exact processor name.
 
--mplatform=<platforms>
-  : Select exclusive list of platforms to include where <platforms> is a 
+-mplatform=`<platforms>`
+  : Select exclusive list of platforms to include where `<platforms>` is a 
     comma separated list with no spaces. 
   
--mplatform-exclude=<platforms>
-  : Select list of platforms to exclude where <platforms> is a comma 
-    separated list with no spaces.-o <output file>Specifiy 
-    the output filename for the final ELF object file. The default naming 
+-mplatform-exclude=`<platforms>`
+  : Select list of platforms to exclude where `<platforms>` is a comma 
+    separated list with no spaces.
+
+-o `<output file>`
+  : Specify the output filename for the final ELF object file. The default naming 
     convention for compiling a single OpenCL kernel file is the filename 
     base with the .o extension. The default naming convention for compiling 
     multiple OpenCL kernel files is out_clcc.o .
@@ -271,11 +282,11 @@ libraries and tools provided in the SDK.
 	cldebug [-v level] [-t tempdir] -- ./program [options ...]
 
 -v level
-	: set the level of reporting
+  : set the level of reporting
 
 -t tempdir
-	: set the full path to a temp directory to use for JIT compilation; 
-	  specifying this option will also prevent the temporary files from being
-	  removed in order to allow them to be examined
+  : set the full path to a temp directory to use for JIT compilation; 
+    specifying this option will also prevent the temporary files from being
+    removed in order to allow them to be examined
 
 
