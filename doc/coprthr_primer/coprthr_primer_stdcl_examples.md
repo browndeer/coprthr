@@ -15,9 +15,9 @@ those examples are now provided under the msvs2010/examples/ directory.
 
 STDCL provides different ways to manage OpenCL kernel code. The examples in
  clopen_example/ demonstrate the functionality. First we need some kernel code
- to use, and so we will start with a simple outer product kernel with macro
- defining a coefficient to included in the operation. In the kernel code below,
- note that if COEF is note defined it will be set to 1.
+ to use, and so we will start with a simple outer product kernel with a macro
+ defining a coefficient to be included in the operation. In the kernel code below,
+ note that if COEF is not defined, it will be set to 1.
 
 ~~~
 /* outerprod.cl */
@@ -43,7 +43,7 @@ file outerprod.cl is assumed to be available in the run directory for
  filename containing the kernel code, which it will open and compile, returning
  a handle to the result in a manner patterned after the Linux dynamic loader
  call dlopen(). The kernel program is compiled and built immediately, and a
- subsequent call to clsym() returns the actual kernel object o opaque type
+ subsequent call to clsym() returns the actual kernel object of opaque type
  cl_kernel, ready to use in subsequent OpenCL calls.
 
 ~~~
@@ -116,8 +116,8 @@ int main()
 ~~~
 
 In example 2, we make use of the macro COEF to modify the outer product
- calculation so as to multiple the result by a fixed constant value. In order to
- do this we replace the previous clopen() and clsym() calls with the code shown
+ calculation so as to multiply the result by a fixed constant value. In order to
+ do this, we replace the previous clopen() and clsym() calls with the code shown
  below. Notice the flag CLLD_NOBUILD. This flag tells clopen() to defer the
  compilation and build. Then we call clbuild() which allows us to pass in
  arbitrary compiler options that will be used in the compilation of the kernel
@@ -188,7 +188,7 @@ clld --cl-source outerprod_three.cl
 
 which generates the file out_clld.o that contains the OpenCL kernel source
  embedded as an ELF object. Then this object file is linked in to the executable
- just like any other object file. Its possible to see that the executable has
+ just like any other object file. It's possible to see that the executable has
  embedded OpenCL kernel code by using the command readelf to examine the added
  ELF sections,
 
@@ -301,8 +301,8 @@ The host code is compiled using,
 
 	gcc example_strong_binding.c outerprod.o
 
-and the resulting executable will simple work, no management of OpenCL
-programs or kernels, all of that management is eliminated.
+and the resulting executable will simply work. No management of OpenCL
+programs or kernels; all of that management is eliminated.
 
 
 ## image2d_example - Using Texture Memory for Fast Lookup Tables
@@ -314,13 +314,13 @@ used to manipulate a memory allocation created by clmalloc() and is patterned
 after the UNIX ioctl() call insofar as it is intended to be a generic utility to 
 avoid the proliferation of specialized calls within the STDCL interface. The use 
 of texture memory from within OpenCL remains somewhat clumsy from an HPC 
-perspective, but the performance benefits it very attractive. The method for 
+perspective, but the performance benefits make it very attractive. The method for 
 using texture memory with STDCL retains some of the awkward semantics of OpenCL, 
 but introduces nothing further. 
 
 The kernel code below shows the use of a simple table to create a specialized 
 matrix-vector multiply operation. The calculation is a normal matrix-vector 
-multiple, however, in the summation a coefficient is introduced that depends on 
+multiplication, however, in the summation a coefficient is introduced that depends on 
 the indices i and j which are used to lookup a coefficient in a 24 x 24 table 
 stored as a read only image2d_t type memory.
 
@@ -450,12 +450,12 @@ int main()
 The STDCL interface now provides run-time inter-process device management,
  whereby environment variables can be used to create platform behaviors for
  typical multi-GPU (or multi-device in general) use cases. A typical example is
- assigning one GPU to each MPI process on a multi-GPU platform. It is certainly
+ assigning one GPU to each MPI process on a multi-GPU platform. While it is certainly
  possible to have the MPI processes work out for themselves who should be using
  a particular device on a node with multiple devices, such a solution is
  inelegant. STDCL provides a better way. Assume we have a platform with 2 GPUs
  per node and we intend to launch 2 MPI processes per node. We would like each
- MPI process to have its own GPU. To achieve this simply set the environment
+ MPI process to have its own GPU. To achieve this, simply set the environment
  variables,
 
 	export STDGPU_MAX_NDEV=1;
@@ -476,7 +476,7 @@ The example code uses the same outerprod.cl kernel code used in the
  clopen_example, which will not be repeated here. The host code is shown below,
  wherein MPI code has been added so as to allow the outer product of two vectors
  two be distributed across multiple MPI processes, each performing the
- calculation on a GPU provided to it exclusively. Notice that no where in the
+ calculation on a GPU provided to it exclusively. Notice that nowhere in the
  code is there an effort to determine which GPU should be used on a multi-GPU
  platform. For every processes, devnum=0.
 
@@ -738,7 +738,7 @@ int main()
 As another example of a C++ container class using OpenCL device-sharable memory, 
 boost::multi_array is used to create clmulti_array. This container inherits from 
 the boost class and thus provides all of its functionality with the addition of 
-using device-sharable memory for OpenCL devices. in the example code, a 
+using device-sharable memory for OpenCL devices. In the example code, a 
 matrix-vector multiplication is carried out on the GPU where the data structures 
 are manipulated on the host as data structures equivalent to 1D and 2D boost 
 multi_arrays.
@@ -896,16 +896,16 @@ Notwithstanding vendor promotional material, GPU acceleration has remained
  programmer with no desire to exert any significant effort to rework their code. 
 
 The example below combines CLETE (Compute Layer Expression Template Engine) with 
-the clvector contain class described above to enable GPU acceleration with
+the clvector container class described above to enable GPU acceleration with
  virtually no effort. The single burden on the programmer is that they must
  include a #define prior to including the clvector.h header. By defining the
  macro `__CLVECTOR_FULLAUTO`, C++ magic happens of the kind that only
  expression-templating can achieve. In the spirit of this example, being
  targeted toward programmers who really do not care how one accelerates code
- using a GPU, exactly how this works will not be explained here. (Its actually
+ using a GPU, exactly how this works will not be explained here. (It's actually
  quite complicated.) All that will be described is the result. When the code
  below is compiled, it will be automatically instrumented and when run, it will
- automatically generate an OpenCL kernels and the computation inside the inner
+ automatically generate an OpenCL kernel and the computation inside the inner
  loop will be performed on the GPU, which is assumed to be available. What may
  at first glance appear to be a hack is actually quite robust, e.g., the
  expressions that can be evaluated may be of arbitrary size and contain any
@@ -929,7 +929,7 @@ using namespace std;
 // #define __CLVECTOR_FULLAUTO to enable CLETE automatic GPU acceleration
 // for pure SIMD operations on clvector data objects.
 //
-// Set the environmaent variable COPRTHR_LOG_AUTOKERN to see the automatically
+// Set the environment variable COPRTHR_LOG_AUTOKERN to see the automatically
 // generated OpenCL kernels used to execute the computation on GPU.
 //
 // With the #define commented out standard expression-templating is used
@@ -1000,7 +1000,7 @@ using namespace std;
 // #define __CLMULTI_ARRAY_FULLAUTO to enable CLETE automatic GPU acceleration
 // for pure SIMD operations on clvector data objects.
 //
-// Set the environmaent variable COPRTHR_LOG_AUTOKERN to see the automatically
+// Set the environment variable COPRTHR_LOG_AUTOKERN to see the automatically
 // generated OpenCL kernels used to execute the computation on GPU.
 //
 // With the #define commented out standard expression-templating is used
@@ -1058,7 +1058,7 @@ int main()
 
 One nice feature of STDCL is that it provides default contexts that are ready to 
 use by the programmer. In some cases, it might be interesting or useful to 
-examine exactly what is contained in a give context. The following example 
+examine exactly what is contained in a given context. The following example 
 exercises some utilty routines that can be used to query a CL context for a 
 description of what they contain.
 
@@ -1138,7 +1138,7 @@ The COPRTHR SDK example/ directory also contains two demo applications -
  bdt_nbody and bdt_em3d. The N-body demo (bdt_nbody) is very similar to the BDT
  NBody Tutorial, however, the source code is a bit more complex since it
  includes an OpenCL display and the kernel is optimized for performance. The 3D
- FDTD electromegnetic demo (bdt_em3d) also provides an OpenGL display. Note that
+ FDTD electromagnetic demo (bdt_em3d) also provides an OpenGL display. Note that
  due to the interaction with OpenGL, these examples sometimes have difficulty
  working properly. The issue is normally a problem with the installed OpenGL
  utility libraries.

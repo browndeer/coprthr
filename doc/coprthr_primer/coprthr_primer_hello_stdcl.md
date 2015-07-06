@@ -1,6 +1,6 @@
 # Hello STDCL
 
-As with most programming, its best to begin with a hello world example that
+As with most programming, it's best to begin with a hello world example that
 captures the most important aspects of the API. This section will
 describe a hello STDCL program that provides everything a programmer needs to
 know to get started with the interface. A basic understanding of OpenCL is
@@ -32,7 +32,7 @@ __kernel void matvecmult_kern(
 ~~~
 
 Next, we need host-code to run on the CPU and manage the execution on the GPU.
-The host code below contains everything needed to executute the above kernel.
+The host code below contains everything needed to execute the above kernel.
 By using STDCL this program is many times smaller than what would be required
 to use OpenCL directly, and its also a lot simpler based on the use of better
 syntax and semantics.
@@ -45,7 +45,7 @@ syntax and semantics.
 
 int main()
 {
-   stdcl_init(); /* requred for Windows only, Linux and FreeBSD will ignore this call */
+   stdcl_init(); /* required for Windows only, Linux and FreeBSD will ignore this call */
 
    cl_uint n = 64;
 
@@ -125,7 +125,7 @@ New to this release is support for Fortran bindings to STDCL. Quite simply,
 this allows nearly all of the functionality provided by STDCL to be available
 to Fortran programmers, providing a simple powerful interface to OpenCL
 programming from Fortran applications. The example below is nearly identical to
-the hello STDCL example above, except it is written in Fortran. On detail to
+the hello STDCL example above, except it is written in Fortran. One detail to
 note is that the opaque OpenCL and STDCL types, which are merely pointers in
 practice, must be referenced directly and generically as C pointers since
 Fortran does not support type alising. 
