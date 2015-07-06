@@ -59,7 +59,7 @@ workflow employed by serious programmers developing serious applications.
 ## libclelf
 
 The ELF extensions for OpenCL (CL-ELF) are formally implemented withing the
-library libclelf which is use by the offline compiler and linker to create
+library libclelf which is used by the offline compiler and linker to create
 cross-compiled linkable object files. The dynamic loader that is provided as
 part of the STDCL implementation uses this same library to load the correct
 source or binary kernel for use within an application. 
@@ -70,7 +70,7 @@ The SDK includes an OpenCL loader that is
 backward compatible with the conventional libOpenCL ICD loader. The purpose of 
 libocl.so, which may be aliased to libOpenCL.so, is to provide a much greater 
 set of capabilities than what is provided with the standard loader. Among these 
-capabilities are more sensible system configuraton and resource management 
+capabilities are more sensible system configuration and resource management 
 options, as well as the creation of custom contexts based on the hardware that 
 is actually installed on a given system. OpenCL platform configuration issues 
 are more reliably addressed by the user or system administrator, and not the 

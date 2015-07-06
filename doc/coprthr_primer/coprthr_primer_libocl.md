@@ -25,7 +25,7 @@ with the OpenCL 1.1 specification.
 
 The 'libocl' loader replaces the random enumeration of '.icd' files placed in 
 the '/etc/OpenCL/vendors/' directory with a precise configuration file that 
-may be set by the system admin and then overriden by any user following 
+may be set by the system admin and then overridden by any user following 
 a well-defined ordering of search paths.
 
 The following order for search paths provides for an increasingly specialized 

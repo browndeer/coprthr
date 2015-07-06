@@ -8,7 +8,7 @@ OpenCL host calls to be executed on remote platforms.  By design this may
 require no changes at all to the host application when using the OpenCL loader
 provided with the COPRTHR SDK.  For more complex and specialized applications,
 client host code can be linked directly with libclrpc and a few extensions are
-provided for specifying the remote CLRPC server or servers tht the application
+provided for specifying the remote CLRPC server or servers that the application
 should be connected to.
 
 At the present time many of the complex OpenCL semantics have been tested,
@@ -23,8 +23,8 @@ by bandwidth issues.  There is no magic to be found and, much like the early
 issues with the PCIe bus transfers dominating any theoretical performance gains
 from a GPU, the network latency and bandwidth must be addressed in order to
 successfully utilize CLRPC.  Fortunately many examples of use cases can be
-identified where the use of remote compute devices can be made ot perform with
-an overal advantage in terms of reduced time-to-solution for the compute task
+identified where the use of remote compute devices can be made to perform with
+an overall advantage in terms of reduced time-to-solution for the compute task
 at hand.
 
 
@@ -46,9 +46,9 @@ Options:
 	: Specify the port the server should listen on.
 
 By default the server will bind to `127.0.0.1` port `2112`.
-These defaults may be overiden with the command line options as shown.  
+These defaults may be overridden with the command line options as shown.  
 The following example shows how to run the server such that it will listen on a
-platforms external IP address to export the OpenCL platforms over a network,
+host's external IP address to export the OpenCL platforms over a network,
 
 	clrpcd -a 192.168.1.5
 
@@ -93,14 +93,14 @@ CLRPC and exposes a problem with the OpenCL approach to the concept of a
 "platform" that may be decribed as the vendor platform barrier.  A more
 complete discussion of this issue is provided below along with a solution
 through the use of the STDCL context `stdnpu` that includes all networked
-devices.  The simple answer to question stated above is that one must still
+devices.  The simple answer to the question stated above is that one must still
 select a single platform, whether local or remote, based on the name of the
 platform, and construct an OpenCL context and get device IDs as one is normally
 required to do in OpenCL.  If one wants to use multiple CLRPC servers this
 would then mean managing multiple platforms at the application level.  As an
 alternative, the introduction of a more precise mechanism for specifying OpenCL
-platforms (`ocl.conf`) to be presented to an allication using the `libocl`
-loader can be used for controlling individual CLRPC server that an application
+platforms (`ocl.conf`) to be presented to an application using the `libocl`
+loader can be used for controlling individual CLRPC servers that an application
 uses.  Fortunately STDCL provides a better way provided (`stdnpu`).
 
 
@@ -108,13 +108,13 @@ uses.  Fortunately STDCL provides a better way provided (`stdnpu`).
 
 For some specialized applications it may be desireable to link to the
 `libclrpc` OpenCL implementation directly and set the remote CLRPC server
-connections from within a client application, by passing entirely the use of an
+connections from within a client application, bypassing entirely the use of an
 OpenCL platform loader.  For this purpose, extensions are provided for defining
 CLRPC server connections prior to the OpenCL call `clGetPlatformIDs()`.  
 
 The following example shows the current API extension.  However **please note**
 that these extensions are not fully developed and should be expected to be
-changed in subsequented releases.  The are described here only because they may
+changed in subsequent releases.  They are described here only because they may
 be of interest for early experimentation by developers.  Programmers are
 strongly encouraged to use the method described above involving the use of
 `ocf.conf` files for defining connections to CLRPC servers.
